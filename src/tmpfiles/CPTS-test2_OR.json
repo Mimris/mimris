@@ -1,0 +1,113 @@
+{
+    "objects": [
+        {
+            "id": "uuid-info-geology",
+            "name": "Geological Data",
+            "description": "Data related to the geological characteristics of the reservoir, such as rock properties, structure, and stratigraphy.",
+            "abstract": false,
+            "viewkind": "",
+            "typeRef": "ddc75a39-9367-48e4-de12-079bae5362f9",
+            "typeName": "Information",
+            "typeDescription": "",
+            "modified": false,
+            "nameId": "",
+            "category": "Object",
+            "relshipkind": "Association",
+            "valueset": null,
+            "copiedFromId": "",
+            "proposedType": ""
+        },
+        {
+            "id": "uuid-role-geologist",
+            "name": "Geologist",
+            "description": "A professional specializing in studying the earth's structure, minerals, and processes to identify potential reservoir zones.",
+            "abstract": false,
+            "viewkind": "",
+            "typeRef": "49ba147f-1d9a-4b9e-9467-7fcc5b830244",
+            "typeName": "Role",
+            "typeDescription": "",
+            "modified": false,
+            "nameId": "",
+            "category": "Object",
+            "relshipkind": "Association",
+            "valueset": null,
+            "copiedFromId": "",
+            "proposedType": ""
+        },
+        {
+            "id": "uuid-task-geological-analysis",
+            "name": "Geological Analysis",
+            "description": "The process of examining geological data to determine the characteristics and potential of the reservoir.",
+            "abstract": false,
+            "viewkind": "",
+            "typeRef": "3979fb2c-71e3-4054-745d-ee062b3689e5",
+            "typeName": "Task",
+            "typeDescription": "",
+            "modified": false,
+            "nameId": "",
+            "category": "Object",
+            "relshipkind": "Association",
+            "valueset": null,
+            "copiedFromId": "",
+            "proposedType": ""
+        },
+        {
+            "id": "uuid-view-geological-model",
+            "name": "Geological Model",
+            "description": "A representation of the reservoir's geological features, integrating various types of geological data.",
+            "abstract": false,
+            "viewkind": "",
+            "typeRef": "ba774700-c196-4f6e-c7e2-d742e1449a28",
+            "typeName": "View",
+            "typeDescription": "",
+            "modified": false,
+            "nameId": "",
+            "category": "Object",
+            "relshipkind": "Association",
+            "valueset": null,
+            "copiedFromId": "",
+            "proposedType": ""
+        }
+    ],
+    "relships": [
+        {
+            "id": "uuid-rel-geologist-analysis",
+            "name": "performs",
+            "description": "Geologist performs Geological Analysis",
+            "relshipkind": "Association",
+            "fromobjectRef": "uuid-role-geologist",
+            "toobjectRef": "uuid-task-geological-analysis",
+            "typeRef": "73d06934-f8af-48c5-a344-287d0b725792",
+            "nameFrom": "Geologist",
+            "nameTo": "Geological Analysis",
+            "markedAsDeleted": false,
+            "modified": true
+        },
+        {
+            "id": "uuid-rel-analysis-model",
+            "name": "worksOn",
+            "description": "Geological Analysis works on Geological Model",
+            "relshipkind": "Association",
+            "fromobjectRef": "uuid-task-geological-analysis",
+            "toobjectRef": "uuid-view-geological-model",
+            "typeRef": "66487d8d-c42a-41d4-14f1-b2c2d07af0bb",
+            "nameFrom": "Geological Analysis",
+            "nameTo": "Geological Model",
+            "markedAsDeleted": false,
+            "modified": true
+        },
+        {
+            "id": "uuid-rel-model-data",
+            "name": "includes",
+            "description": "Geological Model includes Geological Data",
+            "relshipkind": "Association",
+            "fromobjectRef": "uuid-view-geological-model",
+            "toobjectRef": "uuid-info-geology",
+            "typeRef": "0f0059c3-ee1f-423c-e3e3-b18416fc772d",
+            "nameFrom": "Geological Model",
+            "nameTo": "Geological Data",
+            "markedAsDeleted": false,
+            "modified": true
+        }
+    ]
+}

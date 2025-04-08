@@ -1,0 +1,75 @@
+
+Your role is to function as an expert in geology and drilling
+and  you are responsible for optimising the exploration of oil and gas fields to improve the drilling process. 
+Your initial assignment is to develop a model and plan for exploration and drilling activities.
+Create a model of objects and relationships between objects for the given topic,
+Generate the roles, tasks, information and views with UUID’s and description.
+Create the relationships between the objects.
+Create the views for the roles and tasks.
+Each category of objects can be generated separately, and the relationships can be generated separately.
+They can be combined as objects and relships in the model.
+
+
+Refer to the objecttypes and relshiptypes given below:
+
+Objecttypes:
+id: '05ea3e5c-e9a1-43f5-31a4-042acc4dbdbb', name: 'Information'
+id: '0006897b-07c2-4824-683f-2c10146e1a4a', name: 'Role'
+id: 'a7661dac-4deb-4668-81f3-0248d46f1c7e', name: 'Task'
+id: '3808df57-878a-4738-dc95-644370cd1b08', name: 'View'
+relshiptypes:
+id: 'f46856b9-3041-41bd-239b-3db729390a73', name: 'performs'
+id: '0f3b6357-d2ea-4ef3-927e-4f00f0f12b93', name: 'hasInput'
+id: 'ef25d26e-2324-4633-2d9a-1e9f2ca82ea4', name: 'hasOutput'
+id: '2fb581fc-6c9c-47d6-e479-9502ffa6c3e5', name: 'fills'
+id: '820eb7dd-5b4a-4506-3ee1-6d33e04dd89f', name: 'worksOn'
+id: '7b3c0877-0e98-4fc6-2715-5f31e4f30219', name: 'includes'
+
+Please make the response in json format.
+
+Use the following json template: {
+    "models": [
+        {
+            "id": "",
+            "name": "",
+            "description": "",
+            "metamodelRef": "32b03aab-bd61-4924-4d6c-ce36e4537774",
+            "includeSystemtypes": true,
+            "includeRelshipkind": false,
+            "objects": [
+                {
+                    "id": "",
+                    "name": "",
+                    "description": "",¯
+                    "abstract": false,
+                    "viewkind": "",
+                    "typeRef": "",
+                    "typeName": "",
+                    "typeDescription": "",
+                    "modified": false,
+                    "nameId": "",
+                    "category": "Object",
+                    "relshipkind": "Association",
+                    "valueset": null,
+                    "copiedFromId": "",
+                    "proposedType": ""
+                }
+            ],
+            "relships": [
+                {
+                    "id": "",
+                    "name": "",
+                    "description": "",
+                    "relshipkind": "Association",
+                    "fromobjectRef": "",
+                    "toobjectRef": "",
+                    "typeRef": "",
+                    "nameFrom": "",
+                    "nameTo": "",
+                    "markedAsDeleted": false,
+                    "modified": true
+                }
+            ],
+        }
+    ]
+}

@@ -1,0 +1,86 @@
+{
+    "head": {
+      "title": "Document",
+      "meta": [
+        {
+          "charset": "UTF-8"
+        },
+        {
+          "http-equiv": "X-UA-Compatible",
+          "content": "IE=edge"
+        },
+        {
+          "name": "viewport",
+          "content": "width=device-width, initial-scale=1.0"
+        }
+      ],
+      "link": [],
+      "script": []
+    },
+    "headers": [
+      {
+        "tagName": "h2",
+        "textContent": "Å lage en variabel",
+        "attributes": []
+      },
+      {
+        "tagName": "h2",
+        "textContent": "Datatyper",
+        "attributes": []
+      },
+      {
+        "tagName": "h2",
+        "textContent": "Endring av datatype",
+        "attributes": []
+      },
+      {
+        "tagName": "h2",
+        "textContent": "Eksempel 1",
+        "attributes": []
+      },
+      {
+        "tagName": "h3",
+        "textContent": "Hvor nyttig var økten Variabler og datatyper?",
+        "attributes": []
+      },
+      {
+        "tagName": "h3",
+        "textContent": "Din progresjon",
+        "attributes": []
+      }
+    ],
+    "jsonLd": [],
+    "forms": [],
+    "tables": [],
+    "iframes": [
+      {
+        "src": "https://player.vimeo.com/video/539127034",
+        "attr": {
+          "src": "https://player.vimeo.com/video/539127034",
+          "allowfullscreen": "",
+          "style": "position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; border: 0px;"
+        }
+      },
+      {
+        "src": "https://player.vimeo.com/video/539608953",
+        "attr": {
+          "src": "https://player.vimeo.com/video/539608953",
+          "allowfullscreen": "",
+          "style": "position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; border: 0px;"
+        }
+      }
+    ],
+    "embeds": [],
+    "imgs": [
+      {
+        "src": "/api/v1/lesson/image/1619973230670endre datatype eksempel.png",
+        "attr": {
+          "width": "100%",
+          "src": "/api/v1/lesson/image/1619973230670endre datatype eksempel.png"
+        }
+      }
+    ],
+    "links": [],
+    "content": "Bokmerk\nNotater\nRediger\nI denne økta skal vi se på hvordan vi kan lage variabler i koden vår er av datatype\ntekst, heltall eller desimaltall, og noen forskjeller mellom disse datatypene.&nbsp;\nÅ lage en variabel\nDatamaskiner er eksperter på å følge både enkle og sammensatte instruksjoner i et høyt\ntempo. De kan for eksempel gjenta en rekke regneoperasjoner mange ganger mye raskere enn\net menneske. For å kunne følge instruksjoner gjentatte ganger må datamaskinen lagre\ninformasjon underveis, og når vi skriver kode lagrer vi informasjon i variabler.\nNår vi lagrer informasjon i en kode må vi fortelle hvilken datatype informasjonen skal\nha. Datatyper i en kode kan for eksempel være tekst, heltall, desimaltall eller lister,\nog datatypen avgjør hva vi kan gjøre med den lagrede informasjonen.\nI videoen under får du se noen eksempler på hvordan vi kan lage variabler med ulike\ndatatyper i koden vår, og hvordan vi kan bruke variabelutforskeren i Spyder for å holde\noversikt over variablene vi har laget.\nDatatyper\nViktige datatyper når vi skal programmere er:\nString, som er tekst og forkortes som \"str\".\nInteger, som er heltall og forkortes som \"int\".\nFloating point, eller flyttall, som er desimaltall og forkortes som\n\"float\".\nI tillegg vil vi ta for oss datatypene bool, list og array i senere økter.\nPrøv det selv:\nLag et skript der du oppretter tre variabler med ulik datatype.&nbsp;\nSe om du får til å printe ut variablene og datatypen til hver enkelt variabel i\nkonsollen.\nEndring av datatype\nVi kan endre datatypen til en variabel vi har laget i koden vår, men det finnes noen\nbegrensninger. I videoklippet nedenfor ser vi på hvordan en slik endring gjøres, og\nhvilke bytter mellom datatypene int, float og str som lar seg gjøre og hvilke som ikke\nlar seg gjøre.\nEksempel 1\nTa utgangspunkt i koden i bildet&nbsp;eksempel. Hva blir skrevet til\nkonsollen?\nEksempel. Et skript der\ndatatypen til variabelen tall endres.\nVis svar\nHvor nyttig var økten Variabler og datatyper?\nDin progresjon\nIkke marker som fullførtMarker økt fullført",
+    "datetime": null
+  }

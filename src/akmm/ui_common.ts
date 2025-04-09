@@ -549,7 +549,7 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
             toObj[prop] = fromObj[prop];
     }
 }
-export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
+export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
     try {
     toObjview["isGroup"]      = fromObjview["isGroup"];
     toObjview["groupLayout"]  = fromObjview["groupLayout"];
@@ -573,6 +573,27 @@ export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm
     toObjview["textcolor"]    = fromObjview["textcolor"];
     toObjview["textcolor2"]   = fromObjview["textcolor2"];
     toObjview["textscale"]    = fromObjview["textscale"];
+    } catch (error) {
+    }
+}
+
+export function copyRelviewAttributes(toRelview: akm.cxRelationshipView, fromRelview: akm.cxRelationshipView) {
+    try {
+        toRelview["template"]       = fromRelview["template"];
+        toRelview["template2"]      = fromRelview["template2"];
+        toRelview["strokecolor"]    = fromRelview["strokecolor"];
+        toRelview["strokewidth"]    = fromRelview["strokewidth"];
+        toRelview["textcolor"]      = fromRelview["textcolor"];
+        toRelview["arrowscale"]     = fromRelview["arrowscale"];
+        toRelview["textscale"]      = fromRelview["textscale"];
+        toRelview["dash"]           = fromRelview["dash"];
+        toRelview["fromArrow"]      = fromRelview["fromArrow"];
+        toRelview["toArrow"]        = fromRelview["toArrow"];
+        toRelview["fromArrowColor"] = fromRelview["fromArrowColor"];
+        toRelview["toArrowColor"]   = fromRelview["toArrowColor"];
+        toRelview["routing"]        = fromRelview["routing"];
+        toRelview["corner"]         = fromRelview["corner"];
+        toRelview["curve"]          = fromRelview["curve"];
     } catch (error) {
     }
 }

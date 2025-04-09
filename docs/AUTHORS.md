@@ -33,3 +33,6 @@ CS50
 - [Kevin Powell![Kevin Powell](https://yt3.ggpht.com/ytc/AMLnZu9KevinPowellImage=s88-c-k-c0x00ffffff-no-rj)](https://www.youtube.com/@KevinPowell)
 
 - [Ben Awad![Ben Awad](https://yt3.ggpht.com/ytc/AMLnZu9BenAwadImage=s88-c-k-c0x00ffffff-no-rj)](https://www.youtube.com/@BenAwad)
+
+Traversy Metdia
+

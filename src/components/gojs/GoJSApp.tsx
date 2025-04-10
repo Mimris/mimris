@@ -1643,7 +1643,17 @@ class GoJSApp extends React.Component<{}, AppState> {
             pastedRelview.fromObjview = pastedFromObjview;
             pastedRelview.toObjview   = pastedToObjview;
             const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
-            uic.copyRelviewAttributes(pastedRelview, copiedRelview);                                        
+            uic.copyRelviewAttributes(pastedRelview, copiedRelview); 
+
+            // Handle points
+            const points = [];
+            for (let it = gjsLink.points.iterator; it?.next();) {
+                const point = it.value;
+                points.push(point.x)
+                points.push(point.y)
+            }
+            pastedRelview.points = points;
+
             toGoModel.addLink(pastedLink);
             toModelview.addRelationshipView(pastedRelview);
             myMetis.addRelationshipView(pastedRelview);

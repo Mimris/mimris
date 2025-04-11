@@ -1061,7 +1061,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             }
             let objects: akm.cxObject = new Array();
             // Get the object types (objects) contained in this modelview
-            let relships = metamodelObj.getOutputRelships(context.myModel, constants.relkinds.REL);
+            let relships = metamodelObj?.getOutputRelships(context.myModel, constants.relkinds.REL);
             for (let j = 0; j < relships?.length; j++) {
                 let rel = relships[j];
                 if (rel?.type?.name === constants.types.AKM_CONTAINS) {
@@ -1107,7 +1107,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             for (let i=0; i<relshipviews.length; i++) {
                 const relview = relshipviews[i];
                 const rel = relview?.relship;
-                relships.push(rel);
+                relships?.push(rel);
             }
             // Remove duplicates
             relships = [... new Set(relships)];

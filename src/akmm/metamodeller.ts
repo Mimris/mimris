@@ -860,7 +860,8 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
-                    metamodel.addSubMetamodelRef(subMetamodelRef);
+                    if (subMetamodelRef !== metamodel.id)
+                        metamodel.addSubMetamodelRef(subMetamodelRef);
                 }
             });
         }

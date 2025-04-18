@@ -344,9 +344,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               {
                 nodeCategoryProperty: "template",
                 linkCategoryProperty: "template",
-                // Uncomment the next line to turn ON linkToLink
-                // linkLabelKeysProperty: "labelKeys",
-                linkKeyProperty: 'key'
+                nodeKeyProperty: 'key',
+                linkKeyProperty: 'key',                  
+                makeUniqueKeyFunction: (m: go.Model, data: any) => {
+                  let k = utils.createGuid();
+                  return k;
+                },  
+                makeUniqueLinkKeyFunction: (m: go.GraphLinksModel, data: any) => {
+                  let k = utils.createGuid();
+                  return k;
+                },
               })
           }
         );

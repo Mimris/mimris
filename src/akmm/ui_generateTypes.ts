@@ -916,9 +916,9 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
 }
 
 export function askForTargetMetamodel(context: any) {
-    const myMetis = context.myMetis;
-    const myMetamodel = context.myMetamodel;
-    const myModelview = context.myMetis.currentModelview;
+    const myMetis: akm.cxMetis = context.myMetis;
+    const myMetamodel: akm.cxMetamodel = context.myMetamodel;
+    const myModelview: akm.cxModelview = context.myMetis.currentModelview;
     const myDiagram = context.myDiagram;
     const modalContext = {
         what: "selectDropdown",

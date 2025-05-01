@@ -678,7 +678,7 @@ export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram:
     myDiagram.handleOpenModal(link, modalContext);
 }
 
-export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any, readOnly: boolean) {
     if (debug) console.log('680 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel; 
@@ -714,12 +714,13 @@ export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram
       icon:       icon,
       myDiagram:  myDiagram,
       myContext:  myContext,
+      readOnly:   readOnly,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
     myDiagram.handleOpenModal(gjsNode, modalContext);
 }    
 
-export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: any, readOnly: boolean) {
     if (debug) console.log('682 link, myMetis', link, myMetis);
     myMetis.myDiagram = myDiagram;
     myMetis.currentLink = link;
@@ -746,6 +747,7 @@ export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: 
       icon:       null,
       myDiagram:  myDiagram,
       myContext:  myContext,
+      readOnly:   readOnly,
     }
     if (debug) console.log('710 ui_diagram: link, modalContext', link, modalContext);
     myDiagram.handleOpenModal(link, modalContext);

@@ -820,6 +820,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const myMetis = this.props.myMetis as akm.cxMetis;
     const modalContext = context1.myContext;
     const myContext = modalContext.myContext;
+    const readOnly = context1.readOnly;
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
     let myObject: akm.cxObject = modalContext.object;
@@ -1003,8 +1004,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (k) {
         let fieldType = 'text';
         let viewFormat = "";
-        let readonly = false;
-        let disabled = false;
+        let readonly = readOnly;
+        let disabled = readOnly ? true : false;
         let checked = false;
         let pattern = ".";
         let required = false;
@@ -1309,7 +1310,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
-
+        if (readonly) { 
+          disabled = true;
+          if (fieldType !== "textarea")
+            fieldType = "text";
+        }
         row = <InspectorRow
           key={k}
           id={k}

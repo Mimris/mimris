@@ -416,8 +416,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               node = myDiagram.findNodeForKey(node.key);
               try {
                 const myCollection = node.findSubGraphParts();
-                myCollection.add(node);
-                myDiagram.selectCollection(myCollection);
+                if (myCollection) {
+                  myCollection.add(node);
+                  myDiagram.selectCollection(myCollection);
+                }
               } catch {
               }
               const gjsNode = myDiagram.findNodeForKey(node?.key);
@@ -447,9 +449,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 sel.data.fromLink = getSourceLink(gjsSourceLinks, key);
                 selection.push(sel.data);
               });
-
-              myMetis.currentSelection = selection;
-              e.diagram.commandHandler.copySelection();
+              if (selection.length > 0) {
+                myMetis.currentSelection = selection;
+                e.diagram.commandHandler.copySelection();
+              }
             },
             function (o: any) {
               const node = o.part.data;
@@ -1172,13 +1175,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Edit Typeview",
+          makeButton("Show Typeview",
             function (e: any, obj: any) {
-              const node = o.part.data;
-              uid.editObjectTypeview(node, myMetis, myDiagram);
+              const node = obj.part.data;
+              uid.editObjectTypeview(node, myMetis, myDiagram, true);
             },
             function (o: any) {
-              return false;
+              // return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
                 if (node.isSelected) {
@@ -1189,8 +1192,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   uid.addToSelection(node, myDiagram);
                   return true;
                 }
-              else if (node.category === constants.gojs.C_OBJECTTYPE)
-                return true;
+              // else if (node.category === constants.gojs.C_OBJECTTYPE)
+              //   return true;
               else
                 return false;
             }),
@@ -2133,18 +2136,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
-          makeButton("Edit Typeview",
+          makeButton("Show Typeview",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              uid.editRelshipTypeview(link, myMetis, myDiagram);
+              uid.editRelshipTypeview(link, myMetis, myDiagram, true);
             },
             function (o: any) {
-              return false;
+              // return false;
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP)
                 return true;
-              if (link.category === constants.gojs.C_RELSHIPTYPE)
-                return true;
+              // if (link.category === constants.gojs.C_RELSHIPTYPE)
+              //   return true;
             }),
           makeButton("Reset to Typeview",
             function (e: any, rel: any) {

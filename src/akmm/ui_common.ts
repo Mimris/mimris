@@ -692,7 +692,7 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             // If group, delete members of group
             if (node.isGroup) {
                 const gjsNode = myDiagram.findNodeForKey(data.key);
-                gjsNode.ungroupable = true;
+                if (gjsNode) gjsNode.ungroupable = true;
                 // if (debug) console.log('479 delete container', objview);
                 // const groupMembers = node.getGroupMembers(myGoModel);
                 // for (let i = 0; i < groupMembers?.length; i++) {

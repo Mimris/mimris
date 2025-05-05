@@ -1556,7 +1556,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
                                                            myPastedNode.object, myCopiedNode.descr, toModelview);
             gjsNode.key = myPastedNode.objviewId;
-            uic.copyViewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
+            uic.copyObjviewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
             myPastedNode.loc = gjsNode.loc;
             myPastedNode.size = gjsNode.size;
             myPastedNode.gjsKey = gjsNode.key;
@@ -1643,6 +1643,17 @@ class GoJSApp extends React.Component<{}, AppState> {
             pastedRelview.fromObjview = pastedFromObjview;
             pastedRelview.toObjview   = pastedToObjview;
             const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+            uic.copyRelviewAttributes(pastedRelview, copiedRelview); 
+
+            // Handle points
+            const points = [];
+            for (let it = gjsLink.points.iterator; it?.next();) {
+                const point = it.value;
+                points.push(point.x)
+                points.push(point.y)
+            }
+            pastedRelview.points = points;
+
             toGoModel.addLink(pastedLink);
             toModelview.addRelationshipView(pastedRelview);
             myMetis.addRelationshipView(pastedRelview);

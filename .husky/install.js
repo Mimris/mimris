@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 
 try {
-  execSync('npx husky install', { stdio: 'inherit' });
+  // Modern approach for Husky v6+
+  execSync('npm install husky --save-dev', { stdio: 'inherit' });
+  execSync('npx husky-init', { stdio: 'inherit' });
   console.log('Husky installed successfully!');
 } catch (error) {
   console.error('Failed to install Husky:', error);

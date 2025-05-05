@@ -118,7 +118,7 @@
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
-    "husky": "^9.1.7",
+    "husky": "^8.0.0",
     "prettier": "^3.5.3",
     "pretty-quick": "^4.1.1",
     "promise": "^8.3.0",

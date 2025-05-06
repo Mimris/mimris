@@ -4,16 +4,19 @@
 */
 const debug = false;
 
+import { RegexParser } from 'regex-parser';
+// import { filter } from 'cheerio/lib/api/traversing';
+
 import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
 import * as uic from './ui_common';
 import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
-const utils = require('./utilities');
 import * as constants from './constants';
-import { filter } from 'cheerio/lib/api/traversing';
-const RegexParser = require("regex-parser");
+// const RegexParser = require("regex-parser");
+// const utils = require('./utilities');
+import * as utils from './utilities';
 
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
@@ -47,7 +50,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   if (obj.category === constants.gojs.C_OBJECT) {
     const node = obj; 
     instview = myMetis.findObjectView(node?.key);
-    myInst = myMetis.findObject(instview.objectRef);
+    myInst = myMetis.findObject(instview?.objectRef);
     if (!myInst) myInst = obj;
     myInstview = instview //myMetis.findObjectView(instview?.id);
     typeview = myInst?.type?.typeview;
@@ -122,16 +125,17 @@ export function handleSelectDropdownChange(selected, context) {
   switch(modalContext.case) {
     case "Change Object type": {
       const typename = (selectedOption) && selectedOption;
-      const objtype = myMetis.findObjectTypeByName(typename);
+      const objtype = myMetamodel.findObjectTypeByName(typename);
       myDiagram.selection.each(function(sel) {
         const gjsInst = sel.data;
         if (gjsInst.category === constants.gojs.C_OBJECT) {
           const goNode: gjs.goObjectNode = myGoModel.findNodeByViewId(gjsInst.key);
           let object: akm.cxObject = goNode?.object;
-          uic.setObjectType(gjsInst, objtype, context);
+          uic.setObjectType(gjsInst, objtype, context, false);
           const n = myDiagram.findNodeForKey(gjsInst.key);
-          myDiagram.model.setDataProperty(n.data, "typename", typename);
-          uid.resetToTypeview(gjsInst, myMetis, myDiagram);
+          // myDiagram.model.setDataProperty(n.data, "typename", typename);
+          if (objtype.name !== constants.types.AKM_ENTITY_TYPE)
+            uid.resetToTypeview(gjsInst, myMetis, myDiagram);
           if (n) n.isSelected = false;
           myMetis.myDiagram.requestUpdate();
         }
@@ -151,6 +155,7 @@ export function handleSelectDropdownChange(selected, context) {
       instances.map(inst => {
         if (inst.category === constants.gojs.C_OBJECT) {
           let objview = inst.objectview;
+          if (!objview) objview = myMetis.findObjectView(inst.objviewRef);
           const icn = myDiagram.findNodeForKey(inst.key);
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);
@@ -338,6 +343,7 @@ export function handleSelectDropdownChange(selected, context) {
           if (!link) return;
           const relshipRef = link.relshipRef;
           let relship = myModel.findRelationship(relshipRef);
+          if (!relship) relship = myMetis.findRelationship(relshipRef);
           let fromNode = link.fromNode;
           let toNode   = link.toNode;
           let fromType = fromNode?.objecttype;
@@ -662,15 +668,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', '');
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
-
-
-
-
-
-
       // Dispatch
+      const jsnRelship = new jsn.jsnRelationship(relship);
+      let data = JSON.parse(JSON.stringify(jsnRelship));
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       const jsnRelview = new jsn.jsnRelshipView(relview);
-      let data = JSON.parse(JSON.stringify(jsnRelview));
+      data = JSON.parse(JSON.stringify(jsnRelview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       break;
     }
@@ -679,14 +682,28 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
+      goNode.template = selObj.template;
+      objview.template = selObj.template;
+      goNode.template2 = selObj.template2;
+      objview.template2 = selObj.template2;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
       let data = JSON.parse(JSON.stringify(jsnObjview));
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      return;
+      const modifiedModelviews = new Array();
+      
+      const jsnModelview = new jsn.jsnModelView(myModelview);
+      modifiedModelviews.push(jsnModelview);
+      modifiedModelviews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+      })
+    return;
     }
 
     case "selectDropdown": {
@@ -752,12 +769,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       else if (modalContext.case === 'Generate Target Metamodel') {
         const context = modalContext.context;
-        const selectedValue = modalContext.selected?.value;
+        let selectedValue;
+        try {
+          selectedValue = selectedData[0];
+        } catch {
+          selectedValue = selectedData;
+        }
         const objview = myMetis.currentModelview.findObjectViewByName(selectedValue);
         context.myCurrentObjectview = objview;
         let metamodel = myMetis.findMetamodelByName(selectedValue); 
         if (!metamodel) {
-          metamodel = new akm.cxMetaModel();
+          metamodel = new akm.cxMetaModel(utils.createGuid(), selectedValue, "");
         }
         context.myTargetMetamodel = metamodel;
         context.myCurrentModelview = myMetis.currentModelview;
@@ -850,8 +872,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Add Port') {
         const selectedValue = modalContext.selected?.value;
         const node = modalContext.node;
+        let objId;
         let object = node.object;
-        object = myMetis.findObject(object.id)
+        if (object)
+          objId = object.id;
+        else
+          objId = node.objRef;
+        object = myMetis.findObject(objId)
         const side = selectedValue;
         let name = '';
         switch(side) {
@@ -892,12 +919,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         let link = myMetis.currentLink;
         link = myDiagram.findLinkForKey(link.key);
         link.data.relshiptype = reltype;
-        link.name = reltype.name;
         const relshipRef = link.data.relshipRef;
         let relship = myModel.findRelationship(relshipRef);
+        if (!relship)
+          relship = myMetis.findRelationshipType(relshipRef);
         const fromReltype = relship.type;
         if ( relship.name === fromReltype.name) {
           relship.name = reltype.name;
+          // link.name = reltype.name;
           myDiagram.model.setDataProperty(link.data, 'name', relship.name);
         }
         relship.type = reltype;
@@ -924,6 +953,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const gjsData = gjsLink.data;
       const goLink = myGoModel.findLinkByViewId(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
+      goLink.template2 = selRel.template2;
+      relview.template2 = selRel.template2;
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
@@ -948,19 +979,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         for (let prop in reltypeview?.data) {
           if (prop === 'template' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'template2' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokewidth' && relview[prop] !== "")
+          if (prop === 'strokewidth' && relview[prop])
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'textcolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'textscale' && relview[prop] !== "") 
+          if (prop === 'textscale' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'routing' && relview[prop] !== "") 
+          if (prop === 'routing' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'curve' && relview[prop] !== "") 
+          if (prop === 'curve' && relview[prop]) 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'fromArrow') {
             let fromArrow = relview[prop];
@@ -1097,7 +1130,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }         
             if (prop === 'memberscale') {
                 let scale = typeview[prop];
-                if (typeview[prop] === 'None') scale = "1";
+                if (typeview[prop] === 'None') scale = 1.0;
                 myDiagram.model.setDataProperty(data, prop, scale);           
             } else {          
               typeview[prop] = selObj[prop];
@@ -1157,9 +1190,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let nodeFrom: gjs.goObjectNode = modalContext.args.nodeFrom;
       nodeFrom = myGoModel.findNode(nodeFrom.key);
       const fromKey = nodeFrom.key;
-      const fromObjview = myModelview.findObjectView(fromKey);
-      const fromObj = fromObjview.object;
-      const fromType = fromObj.type;
+      let fromObjview = myModelview.findObjectView(fromKey);
+      if (!fromObjview)
+        fromObjview = myMetis.findObjectView(fromKey);     
+      let fromObj = fromObjview.object;
+      if (!fromObj) fromObj = myMetis.findObject(fromObjview.objectRef);
+      let fromType = fromObj.type;
       const nodesTo: gjs.goObjectNode[]  = modalContext.args.nodesTo;
       const selectedOption = modalContext.selected.value;
       const links = [];

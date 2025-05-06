@@ -9,22 +9,22 @@ import Post from '../components/helps/Post'
 import { sortByTitle } from '../components/utils/sortbytitle'
 
 
-export default function Home( { posts }: { posts: any[] }) {
+export default function Home({ posts }: { posts: any[] }) {
   // console.log('12 ', posts);
-  
+
   return (
     <>
       <Layout  >
         <div>
           <main className="container">
-            <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div>
+            <div className="pt-1" style={{ backgroundColor: "#b0cfcf" }}></div>
             <div>
               <h1>AKM Modeller Help & Documentation</h1>
             </div>
             {/* <Header /> */}
             <div className='posts'>
               {posts.map((post, index) => (
-                (post) && 
+                (post) &&
                 <div key={index} className='card'>
                   <Post key={index} post={post} />
                 </div>

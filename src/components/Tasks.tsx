@@ -30,16 +30,15 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   if (debug) console.log('18 Tasks props', props);
   const dispatch = useDispatch();
 
-
   const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
+  const phData = useSelector((state) => state.phData); 
+  const phFocus = useSelector((state) => state.phFocus);
+  if (debug) console.log('36 Tasks state', phData, phFocus);
 
-
-  const state = useSelector((state) => state); // use RootState type
-  if (debug) console.log('24 Tasks state', state);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [minimized, setMinimized] = useState(false);
-  const [maximized, setMaximized] = useState(false);
+  const [minimizedTask, setMinimizedTask] = useState(true);
+  const [maximizedTask, setMaximizedTask] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +56,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   useEffect(() => {
     if (debug) useEfflog('59 Tasks useEffect 1 [props.visible]');
-    setMinimized(true);
+    setMinimizedTask(true);
   }, [props.visible]);
 
   const handleMouseEnter = () => {
@@ -76,22 +75,22 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   const modalRef = useRef(null);
 
   const handleShowModal = () => {
-    if (minimized) {
-      setMinimized(true);
+    if (minimizedTask) {
+      setMinimizedTask(true);
     }
     setShowModal(true);
   };
 
-  const handleCloseModal = () => { setShowModal(false); setMinimized(false); };
+  const handleCloseModal = () => { setShowModal(false); setMinimizedTask(false); };
 
   const [formValues, setFormValues] = useState({});
 
-  const metamodels = useSelector(state => state.phData?.metis?.metamodels);
-  const models = useSelector(state => state.phData?.metis?.models);
-  let focusModel = useSelector(state => state.phFocus?.focusModel);
-  const focusModelview = useSelector(state => state.phFocus.focusModelview);
-  const focusTask = useSelector(state => state.phFocus.focusTask);
-  const focusRole = useSelector(state => state.phFocus.focusRole);
+  const metamodels = useSelector(state => phData?.metis?.metamodels);
+  const models = useSelector(state => phData?.metis?.models);
+  let focusModel = useSelector(state => phFocus?.focusModel);
+  const focusModelview = useSelector(state => phFocus.focusModelview);
+  const focusTask = useSelector(state => phFocus.focusTask);
+  const focusRole = useSelector(state => phFocus.focusRole);
   const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   if (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
@@ -118,17 +117,17 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const handleExpandedTaskPane = () => {
     setExpandedTaskPane(!expandedTaskPane);
-    // setMaximized(false);
+    // setMaximizedTask(false);
   };
 
   const handleMinimize = () => {
-    setMinimized(true);
-    setMaximized(false);
+    setMinimizedTask(true);
+    setMaximizedTask(false);
   };
 
   const handleMaximize = () => {
-    setMinimized(false);
-    setMaximized(true);
+    setMinimizedTask(false);
+    setMaximizedTask(true);
   };
 
   const handleNewWindow = () => {
@@ -136,14 +135,14 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     const parameter = '/tasks?taskFocusModel=' + curmodId;
     if (debug) console.log('116 handleNewWindow', curmodId, parameter);
     window.open(parameter, '_blank', 'width=644,height=800');
-    setMinimized(true);
+    setMinimizedTask(true);
   }
 
   const closeAllDetails = () => {
     const detailsElements = document.querySelectorAll("details");
     detailsElements.forEach((detailsElement) => {
       const summaryElement = detailsElement.querySelector("summary");
-      if (summaryElement) {
+      if (summaryElement && summaryElement.getAttribute("id") === "task") {
         detailsElement.removeAttribute("open");
       }
     });
@@ -154,7 +153,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     const detailsElements = document.querySelectorAll("details");
     detailsElements.forEach((detailsElement) => {
       const summaryElement = detailsElement.querySelector("summary");
-      if (summaryElement) {
+      if (summaryElement && summaryElement.getAttribute("id") === "task") {
         detailsElement.setAttribute("open", "");
       }
     });
@@ -191,8 +190,6 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     }
   };
 
-
-
   let taskEntries: string = '';
   let uniqueovs: any[] = [];
   let curParentObj: any = null;
@@ -215,7 +212,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     >
       <hr className="py-1 bg-success" />
       <details className="m-y p-0 pe-1">
-        <summary
+        <summary id='task'
           className="text-success d-flex align-items-top p-0 m-0"
         >
           <i className="fa fa-tasks mt-1 ms-2" aria-hidden="true"></i>
@@ -277,7 +274,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
       return (
         <details key={index}>
-          <summary className="text-success d-flex align-items-center m-0 bg-light" >
+          <summary id='task' className="text-success d-flex align-items-center m-0 bg-light" >
             <span className="ms-0 d-flex justify-content-between" >
               <div key={index} className="" >
                 <i className="fa fa-folder mt-1" aria-hidden="true"></i>
@@ -295,23 +292,21 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     })
   }
 
-
-
   const genTasksHeaderDiv =
     <>
       <div className="tasklist p-1 mt-2 me-2"
-        style={{ backgroundColor: "lightyellow", position: "fixed", top: "170px", right: "0%", width: "400px", height: "78vh", zIndex: "999" }}
+        style={{ backgroundColor: "lightyellow", relative: "fixed", top: "0px", right: "0%", width: "400px", height: "78vh", zIndex: "999" }}
         // style={{  backgroundColor: "lightyellow", position: "relative",   top: "34%", right: "0%", transform: "translate(-1%, -10%)", overflow: "hidden", zIndex: 9999 }}
         ref={containerRef}
       >
         <button
           className="btn btn-sm bg-light text-dark float-end"
-          onClick={setMinimized}
+          onClick={setMinimizedTask}
         >
           X
         </button>
         <div className="fle-d">
-          <div className="ps-2 text-success font-weight-bold fs-5 " >Tasks Modelling Guides</div>
+          <div className="ps-2 text-success font-weight-bold fs-5 " >Modelling Guide</div>
           <div>
             Role:{" "}
             <span className="font-weight-bold text-success bg-white p-1">
@@ -350,7 +345,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           </div>
           <hr className="m-0 p-2" />
         </div>
-        <div className="tasks" style={{ maxHeight: "80vh", overflow: "scroll" }}>
+        <div className="tasks" style={{ maxHeight: "70vh", overflow: "scroll" }}>
           <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
             {genTasksDiv()}
           </div>
@@ -377,35 +372,31 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
     </Modal>
 
 
-  if (minimized) {
+  if (minimizedTask) {
     return (
       <button
-        className="btn btn-sm border text-success ms-0 py-0 me-2 float-end"
+        className="btn btn-sm border text-success px-0 py-0 float-end"
         style={{ backgroundColor: "#ffffdd" }}
-        onClick={() => setMinimized(false)}
+        onClick={() => setMinimizedTask(false)}
       >
-        <span className="fs-6" style={{ whiteSpace: "nowrap" }}>Tasks Guides <i className="fa fa-lg fa-angle-left pull-left-container"></i> </span>
+        <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question pull-right-container"></i></span>
       </button>
     );
   } else {
     return (
-      <>
+      <div className="tasklist">
         <button
-          className="btn btn-sm border text-success px-1 py-0 float-end me-3"
+          className="btn btn-sm border text-success px-1 py-0 float-end"
           style={{ backgroundColor: "#ffffdd", whiteSpace: "nowrap" }}
           data-toggle="tooltip" data-placement="top" data-bs-html="true"
           title="Close Task pane!"
-          onClick={() => setMinimized(true)}
-        // style={{ backgroundColor: "lightyellow"}}
+          onClick={() => setMinimizedTask(true)}
         >
-          <span className="fs-8" style={{ whiteSpace: "nowrap" }}>Tasks <i className="fa fa-lg fa-angle-right pull-right-container"></i></span>
+          <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-sm fa-angle-left pull-left-container"></i></span>
         </button>
-        <div className="tasklist  pe-2"
-        // ref={containerRef}
-        // style={{ position: "fixed", top: "72px", right: "0",  width: "400px",  height: "72vh",  zIndex: "99" }}
-        >
+        <div 
+          className="tasklist">
           {genTasksHeaderDiv}
-          {/* {modalDiv} */}
         </div>
         <style jsx>{`
             .tasklist {
@@ -515,11 +506,10 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
           }
         `}
         </style>
-      </>
+      </div>
     );
   }
 }
-
 
 function type(metamodels: any[], model: { metamodelRef: any; }, subModelobjects: any[], curov: { objectRef: any; }) {
   const retval = metamodels?.find((mm: { id: any; }) => mm.id === model?.metamodelRef)

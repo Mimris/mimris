@@ -2,12 +2,11 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
-import { update_objectview_properties } from '../../actions/actions';
 
+import { update_objectview_properties } from '../../actions/actions';
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
 import * as akm from '../../akmm/metamodeller';

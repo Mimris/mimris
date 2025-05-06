@@ -143,7 +143,7 @@ const ContextView = (props: any) => {
               <i className="fa fa- fa-plus"></i> 
             </button> */}
         </div>
-        <div className="bg-secondary">|</div>
+        <div className="bg-secondary ms-5">|</div>
         {/* <button className="btn btn-sm bg-transparent py-0 ms-1 text-primary " onClick={toggleMinimized}>
           {(minimized) 
             ? <span className="" style={{whiteSpace: 'nowrap',}}>Focus : <i className="fas fa-caret-right fa-lg me-2"></i></span>
@@ -156,7 +156,7 @@ const ContextView = (props: any) => {
           title="Copy current focus/context to clipboard as a link that can be sent to others by e-mail etc."     
           ></i>   
         </button> */}
-        <button className="btn btn-sm bg-transparent text-primary py-0 mx-0" onClick={copyToClipboard}>
+        <button className="btn btn-sm bg-transparent text-primary py-0 mx-1" onClick={copyToClipboard}>
           <i className="fas fa-copy fa-lg"
             data-toggle="tooltip" data-placement="top" data-bs-html="true"
             title="Copy current focus/context to clipboard. The link can be used in documents,sent to others by e-mail etc."

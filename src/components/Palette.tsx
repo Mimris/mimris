@@ -2,14 +2,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
-import genRoleTasks from "./utils/SetRoleTaskFilter";
-
-import * as uib from '../akmm/ui_buildmodels';
-import { gojs } from "../akmm/constants";
 import { set } from "immer/dist/internal";
 
+import { gojs } from "../akmm/constants";
+import * as uib from '../akmm/ui_buildmodels';
+import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+import genRoleTasks from "./utils/SetRoleTaskFilter";
+import Tasks from '../components/Tasks'
+
+
 const debug = false;
+const includeCoreAndIRTV = false;
 
 const clog = console.log.bind(console, '%c %s',
   'background: blue; color: white');
@@ -79,7 +82,7 @@ const Palette = (props: any) => {
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
-  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
   let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-IRTV_MM')
   let taskNodeDataArray: any[] = ndarr
 
@@ -102,7 +105,7 @@ const Palette = (props: any) => {
     (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
 
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -144,7 +147,7 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = (mmodel.name === 'AKM-Core_MM')
+      const wotArr = (mmodel.name === 'AKM-META_MM')
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
         : (mmodel.name === 'AKM-IRTV_MM')
           ? ['Container', 'Information', 'Role', 'Task', 'View']
@@ -225,7 +228,7 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "76vh" }}
       />
     </details>
-
+  if (includeCoreAndIRTV) {
   const gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
@@ -253,13 +256,26 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "65vh" }}
       />
     </details>
-
-  const gojsappPaletteDiv =
+  }
+  const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
+  let gojsappPaletteDiv = null;
+  if (includeCoreAndIRTV) {
+    gojsappPaletteDiv =
     <>
+      <div>
       {gojsappPaletteTopDiv}
       {gojsappPaletteCoreDiv}
       {gojsappPaletteIRTVDiv}
+      </div>
     </>
+  } else {
+    gojsappPaletteDiv =
+    <>
+      <div>
+      {gojsappPaletteTopDiv}
+      </div>
+    </>
+  }
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>
@@ -270,13 +286,21 @@ const Palette = (props: any) => {
           : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
         }
       </button>
-      <div>
-        {visiblePalette
-          ? (refreshPalette)
-            ? <>{gojsappPaletteDiv}</>
-            : <> {gojsappPaletteDiv}  </>
-          : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
-        }
+      <div className="d-flex justify-content-left">
+        <div>
+          {visiblePalette
+            ? (refreshPalette)
+              ? <>{gojsappPaletteDiv}</>
+              : <> {gojsappPaletteDiv}  </>
+            : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
+          }
+        </div>
+        <div
+          className="ps-1 m-0 bg-transparent"
+        // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
+        >
+          {metamodelTasks}
+        </div>
       </div>
     </>
 

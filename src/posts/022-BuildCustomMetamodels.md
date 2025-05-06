@@ -5,7 +5,7 @@ excerpt: 'Build or extend a Metamodel by making a Concept model and then generat
 cover_image: '/images/posts/CustomMeta/Picture1.png'
 ---
 
-# AKMM – Build custom metamodels using AKM-Core_MM Metamodel
+# AKMM – Build custom metamodels using AKM-META_MM Metamodel
 
 ## Type Definition Model
 

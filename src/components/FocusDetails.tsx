@@ -4,11 +4,10 @@
 import React, { useRef, useContext, useState, useEffect } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { useSelector, useDispatch } from 'react-redux'
+import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 
 import { ObjDetailTable } from './forms/ObjDetailTable';
 import ObjectDetails from './forms/ObjectDetails';
-
-import { FaPlaneArrival, FaCompass } from 'react-icons/fa';
 import Selector from './utils/Selector'
 import 'react-tabs/style/react-tabs.css';
 

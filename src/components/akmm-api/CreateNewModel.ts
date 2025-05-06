@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux';
-import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { v4 as uuidv4 } from 'uuid';
+
+import { SaveAllToFile } from '../utils/SaveModelToFile';
 import GenGojsModel from '../GenGojsModel';
 
 const debug = false;
@@ -32,29 +33,36 @@ const CreateNewModel = (props: any) => {
 
   const createNewModelJson = () => {
 
-    const newProjectName = (metamodelGenerated?.name === 'AKM-Core_MM')
-      ? `${metamodelGenerated?.name.slice(0, -3)}-Metamodelling-Template`
-      : (metamodelGenerated.name === 'AKM-IRTV_MM')
-        ? `${metamodelGenerated?.name.slice(0, -3)}-Conceptmodelling-Template`
-        : (metamodelGenerated.name === 'AKM-OSDU_MM')
-          ? `${metamodelGenerated?.name.slice(0, -3)}-Schemamodelling-Template`
-          : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
+    const newProjectName = 
+      (metamodelGenerated?.name === 'AKM-META_MM')
+        ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
+        : (metamodelGenerated.name === 'AKM-IRTV_MM')
+          ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
+          : (metamodelGenerated.name === 'AKM-POPS_MM')
+            ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
+            : (metamodelGenerated.name === 'AKM-OSDU_MM')
+                ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
+                : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
 
-    const newModelName = (metamodelGenerated?.name === 'AKM-Core_MM')
-      ? 'Typedefinitionmodel_TD'
+    const newModelName = (metamodelGenerated?.name === 'AKM-META_MM')
+      ? '01-Typedef_META'
       : (metamodelGenerated.name === 'AKM-IRTV_MM')
-        ? 'Conceptmodel_CM'
-        : (metamodelGenerated.name === 'AKM-OSDU_MM')
-          ? 'OSDU-Schema-model_TD'
-          : 'Model_' + metamodelGenerated.name
+        ? '01-Concept_IRTV'
+        : (metamodelGenerated.name === 'AKM-POPS_MM')
+          ? '01-Overview_POPS'
+          : (metamodelGenerated.name === 'AKM-OSDU_MM')
+            ? '01-OSDU-Typedef_META'
+            : 'Basic-Models_META'
 
-    const newModelDesc = (metamodelGenerated?.name === 'AKM-Core_MM')
+    const newModelDesc = (metamodelGenerated?.name === 'AKM-META_MM')
       ? 'Type Definition Model, modeling with the EntityTypes'
       : (metamodelGenerated?.name === 'AKM-IRTV_MM')
-        ? 'Concept Model, modeling based on AKM-IRTV_MM Metamodel'
-        : (metamodelGenerated?.name === 'AKM-OSDU_MM')
-          ? 'OSDU EntityType Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel and OSDU Schema Model'
-          : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
+        ? 'Concept Model, modeling based on IRTV (Information, Roles, Tasks, Views)'
+        : (metamodelGenerated?.name === 'AKM-POPS_MM')
+          ? 'Overview Model, modeling based on POPS (Products, Organisations, Processes, Systems)'
+          : (metamodelGenerated?.name === 'AKM-OSDU_MM')
+              ? 'OSDU EntityType Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel and OSDU Schema Model'
+              : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
 
     const newmodel = (metamodelGenerated) && {
       id: uuidv4(),
@@ -74,7 +82,7 @@ const CreateNewModel = (props: any) => {
         {
           id: uuidv4(),
           name: '0-Main',
-          description: 'Main OSDUType view, with OSDUTypes of master-data, reference-data, work-product-component and abstract as well as Properties, Proxies, Arrays and Items.',
+          description: 'Main view',
           objectviews: [],
           relshipviews: []
         }
@@ -86,8 +94,9 @@ const CreateNewModel = (props: any) => {
     if (debug) console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find((m: { name: string; }) => m.name === '_ADMIN_MODEL')
     const adminmetamodel = metamodels.find((m: { id: string; }) => m.id === adminmodel?.metamodelRef)
-    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-Core_MM')
+    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-META_MM')
     const irtvmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-IRTV_MM')
+    const popsmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-POPS_MM')
     const repo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 'osdu-akm-models' : 'kavca-akm-models'
     const projNo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 3 : 1  // hardcoded for now
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
@@ -96,7 +105,7 @@ const CreateNewModel = (props: any) => {
 
     const irtvmodel = (metamodelGenerated) && {
       id: uuidv4(),
-      name: 'OSDU-Concept-Model_CM',
+      name: '02-Concept_IRTV',
       description: 'Concept model based on AKM-IRTV_MM Metamodel. It includes the Information, Roles, Tasks, and Views. The intention of this model is to define the concepts and relationships between them, as well as the Roles and Tasks operating on Views of this Information.', 
       metamodelRef: irtvmetamodel?.id,
       sourceMetamodelRef: "",
@@ -121,27 +130,58 @@ const CreateNewModel = (props: any) => {
       modified: false,
     }
 
+    const popsmodel = (metamodelGenerated) && {
+      id: uuidv4(),
+      name: '03-Overview_POPS',
+      description: 'Overview model based on AKM-POPS_MM Metamodel. It includes the Products, Organisations, Processes, and Systems. The intention of this model is to make an overview model (Citymap).', 
+      metamodelRef: popsmetamodel?.id,
+      sourceMetamodelRef: "",
+      targetMetamodelRef: "",
+      // sourceModelRef: curmodel.id,
+      targetModelRef: "",
+      includeSystemtypes: false,
+      isTemplate: false,
+      templates: [],
+      objects: [],
+      relships: [],
+      modelviews: [
+        {
+          id: uuidv4(),
+          name: '0-Main',
+          description: 'Main Overview View with selected POPS Objects.', 
+          objectviews: [],
+          relshipviews: []
+        }
+      ],
+      markedAsDeleted: false,
+      modified: false,
+    }
+
+    const generated_metamodels = [
+            {
+              ...metamodelGenerated,
+              subMetamodels: [],
+            },
+            (coremetamodel !== metamodelGenerated) && coremetamodel,
+            (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
+            (popsmetamodel !== metamodelGenerated) && popsmetamodel,
+            adminmetamodel,
+          ].filter((m: any) => m)
+
     const data = {
       phData: {
         metis: {
           ...ph.phData.metis,
           models:
             [
-              (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
               newmodel, 
+              (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
+              (popsmetamodel !== metamodelGenerated) && popsmodel,
               adminmodel
             ], // add admin to the new model
-          metamodels: [
-            {
-              ...metamodelGenerated,
-              subMetamodels: [],
-            },
-            adminmetamodel,
-            (coremetamodel !== metamodelGenerated) && coremetamodel,
-            (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
-          ],
+          metamodels: generated_metamodels,
           name: newProjectName,
-          description: 'Modelling Project',
+          description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id,
@@ -149,8 +189,8 @@ const CreateNewModel = (props: any) => {
       },
       phFocus: {
         ...ph.phFocus,
-        focusModel: { id: irtvmodel.id, name: irtvmodel.name },
-        focusModelview: { id: irtvmodel.modelviews[0].id, name: irtvmodel.modelviews[0].name },
+        focusModel: { id: newmodel.id, name: newmodel.name },
+        focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },
         focusObject: { id: '', name: '' },
         focusRelship: { id: '', name: '' },
         focusObjectview: { id: '', name: '' },
@@ -173,6 +213,7 @@ const CreateNewModel = (props: any) => {
           email: ""
         },
       },
+      phTemplate: newProjectName,
       phSource: newProjectName,
       lastUpdate: new Date().toISOString()
     }

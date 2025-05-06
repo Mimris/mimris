@@ -2,7 +2,6 @@
 // import { connect, useSelector, useDispatch } from 'react-redux';
 // import GenGojsModel from "../GenGojsModel";
 
-
 // const debug = false
 
 export default function LoadGithubParams(props: any) {

@@ -1,5 +1,6 @@
 // @ts-nocheck
 const debug = false; 
+
 import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';

@@ -1,10 +1,8 @@
 // @ts-nocheck
 // Application code
-const debug = false;
 
-const constants = require('./constants');
-const vkc = require('./viewkinds');
-
+import * as constants from './constants';
+import * as vkc from './viewkinds';
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 
@@ -19,6 +17,7 @@ Functions:
 
 // ----------------------------------------------------------------------------------
 
+const debug = false;
 export class goModel {
     key: string;
     name: string;
@@ -39,9 +38,7 @@ export class goModel {
         this.nodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
-        this.metamodel = (modelView)
-            ? ((modelView.model) ? (modelView.model.metamodel) : null)
-            : null;
+        this.metamodel = (modelView)? ((modelView.model) ? (modelView.model.metamodel) : null) : null;
         this.layout = "";
         this.layer = this.model?.layer;
         this.visible = this.layer !== 'Admin';
@@ -53,13 +50,23 @@ export class goModel {
     fixGoModel() {
         for (let i=0; i<this.nodes.length; i++) {
             let node = this.nodes[i];
-            if (!node instanceof goObjectNode) {
-                node = new goObjectNode(node.key, node.objectview);
+            if (node instanceof goObjectNode) {
+                let object = node.object;
+                let objecttype = node.objecttype;
+                if (!objecttype)
+                    objecttype = this.metamodel?.findObjectType(object.typeRef);
+                if (objecttype) {
+                    const typeviews = this.metamodel?.getObjectTypeViewsByObjectType(objecttype);
+                    if (typeviews?.length > 0) {
+                        node.typeview = typeviews[0];
+                    }
+                }
+                // node = new goObjectNode(node.key, node.objectview);
                 for (let prop in node) {
                     if (node[prop] !== this.nodes[i][prop]) {
                         node[prop] = this.nodes[i][prop];
                     }
-                }
+                }           
             }
             this.node = node;
         }
@@ -349,10 +356,10 @@ export class goNode extends goMetaObject {
     parentModelRef:  string;
     text:            string;
     loc:             string;
-    size:            string;
-    scale:           string;
-    scale1:          string;
-    memberscale:     string;
+    size:            float;
+    scale:           float;
+    memberscale:     float;
+    arrowscale:      float;
     strokecolor:     string;
     strokecolor2:    string;
     fillcolor:       string;
@@ -366,10 +373,10 @@ export class goNode extends goMetaObject {
         this.parentModelRef = model?.key;  // goModel
         this.text = "";
         this.loc = "";
-        this.size = "";
-        this.scale = "1";
-        this.scale1 = "1";
-        this.memberscale = "";
+        this.size = 1;
+        this.scale = 1;
+        this.memberscale = 1;
+        this.arrowscale = 1.3;
         this.strokecolor = "";
         this.strokecolor2 = "";
         this.fillcolor = "";
@@ -385,29 +392,22 @@ export class goNode extends goMetaObject {
     getLoc(): string {
         return this.loc;
     }
-    setSize(size: string) {
+    setSize(size: number) {
         this.size = size;
     }
-    getSize(): string {
+    getSize(): number {
         return this.size;
     }
-    setScale(scale: string) {
-        if (scale == undefined || scale == "" || scale == null)
-            scale = "1";
+    setScale(scale: number) {
+        if (scale == undefined || scale == null)
+            scale = 1;
         this.scale = scale;
-        this.scale1 = scale;
     }
-    getScale(): string {
+    getScale(): number {
         let scale = this.scale;
-        if (scale == undefined || scale == "" || scale == null)
-            this.scale = "1";
+        if (scale == undefined || scale == null)
+            this.scale = 1;
         return this.scale;
-    }
-    getScale1(): string {
-        let scale = this.scale1;
-        if (scale == undefined || scale == "" || scale == null)
-            this.scale1 = "1";
-        return this.scale1;
     }
     setViewkind(kind: string) {
         this.viewkind = kind;
@@ -438,8 +438,9 @@ export class goObjectNode extends goNode {
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
     template: string;
-    // figure: string;
-    // geometry: string;
+    template2: string;
+    figure: string;
+    geometry: string;
     strokewidth: string;
     fillcolor: string;
     fillcolor2: string;
@@ -476,23 +477,24 @@ export class goObjectNode extends goNode {
 
 
         if (objview) {
-            this.template       = objview?.template;
-            // this.figure         = objview.figure;
-            // this.geometry       = objview.geometry;
-            this.fillcolor      = objview.fillcolor;
-            this.fillcolor2      = objview.fillcolor2;
-            this.strokecolor    = objview.strokecolor;
-            this.strokecolor2   = objview.strokecolor2;
-            this.strokewidth    = objview.strokewidth;
-            this.textcolor      = objview.textcolor;
-            this.textcolor2      = objview.textcolor2;
-            this.textscale      = objview.textscale;
-            this.icon           = objview.icon;
-            this.image          = objview.image;
+            this.template       = objview.template;
+            this.template2      = objview.template2;
+            this.figure         = objview.figure ? objview.figure : "";
+            this.geometry       = objview.geometry ? objview.geometry : "";
+            this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
+            this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
+            this.strokecolor    = objview.strokecolor ? objview.strokecolor : "";
+            this.strokecolor2   = objview.strokecolor2 ? objview.strokecolor2 : "";
+            this.strokewidth    = objview.strokewidth ? objview.strokewidth : 1.0;
+            this.textcolor      = objview.textcolor ? objview.textcolor : "";
+            this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
+            this.textscale      = objview.textscale ? objview.textscale : 1.0;
+            this.icon           = objview.icon ? objview.icon : "";
+            this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
             this.size           = objview.size;
-            this.scale1         = objview.scale1;
+            this.scale         = objview.scale;
             this.memberscale    = objview.memberscale;
             this.grabIsAllowed  = objview.grabIsAllowed;
             this.isExpanded     = objview.isExpanded;
@@ -533,12 +535,14 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
-            // if (!this.geometry)
-            //     this.geometry = this.typeview?.geometry;
-            // if (!this.figure)
-            //     this.figure = this.typeview?.figure;
-            // if (!this.figure)
-            //     this.figure = "";
+            if (!this.template2)
+                this.template2 = this.typeview?.template2;
+            if (!this.geometry)
+                this.geometry = this.typeview?.geometry;
+            if (!this.figure)
+                this.figure = this.typeview?.figure;
+            if (!this.figure)
+                this.figure = "";
         }
     }
     // Methods
@@ -558,9 +562,9 @@ export class goObjectNode extends goNode {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
                     }
-                    if (prop === 'scale1') {
-                        if (objview.scale1 === "") {
-                            this[prop] = "1";
+                    if (prop === 'scale') {
+                        if (!objview.scale) {
+                            this[prop] = 1;
                         }
                         this[prop] = Number(this[prop]);
                     }
@@ -630,7 +634,9 @@ export class goObjectNode extends goNode {
         return this;
     }
     getMyScale(model: goModel): number {
-        let scale = this.scale1;
+        let scale = this.scale;
+        if (!this.group)
+            scale = 1;
         const pnode = this.getParentNode(model);
         if (pnode) {
             scale = pnode.memberscale;
@@ -642,17 +648,16 @@ export class goObjectNode extends goNode {
         return scale;
     }
     getActualScale(model: goModel): number {
-        let scale1 = this.scale1;
+        let scale = this.scale;
         if (!scale || scale == 'undefined')
-            scale1 = 1;
+            scale = 1;
         const node = this.getParentNode(model);
         if (debug) console.log('597 node', node);
         if (node && node.key !== this.key) {
-            let scale = node.getActualScale(model);
-            scale1 *= scale;
-            if (debug) console.log('601 scale, scale1', scale, scale1);
+            let scale1 = node.getActualScale(model);
+            scale *= scale1;
         }
-        return scale1;
+        return scale;
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
@@ -856,6 +861,7 @@ export class goRelshipLink extends goLink {
     typedescription:    string;
     typeview:           akm.cxRelationshipTypeView | null;
     template:           string;
+    template2:          string;
     fromNode:           goNode | null;
     toNode:             goNode | null;
     from:               string;
@@ -903,6 +909,7 @@ export class goRelshipLink extends goLink {
         this.toPort          = relview?.toPortid;
         this.typename        = "";
         this.template        = relview?.template;
+        this.template2       = relview?.template2;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
         this.strokewidth     = relview?.strokewidth;
@@ -963,6 +970,8 @@ export class goRelshipLink extends goLink {
             this.relshipkind = this.relshiptype?.getRelshipKind();
             if (!this.template)
                 this.template = this.typeview?.template;
+            if (!this.template2)
+                this.template = this.typeview?.template2;
             const fromObjview: akm.cxObjectView | null = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
@@ -1092,38 +1101,40 @@ export class goRelshipLink extends goLink {
         }
     }
     removeClassInstances() {
-        this.relshipview = null;
-        this.relship = null;
-        this.relshiptype = null;
-        this.typeview = null;
-        this.fromNode = null;
-        this.toNode = null;
+        this.relshipview    = null;
+        this.relship        = null;
+        this.relshiptype    = null;
+        this.typeview       = null;
+        this.fromNode       = null;
+        this.toNode         = null;
     }
 }
 
 export class goRelshipTypeLink extends goLink {
-    reltype:    akm.cxRelationshipType | null;
-    typeview:   akm.cxRelationshipTypeView | null;
-    fromNode:   goNode | null;
-    toNode:     goNode | null;
-    from:       string | undefined;
-    to:         string | undefined;
-    template:   string;
-    relshipkind: string;
-    cardinality: string;
+    reltype:        akm.cxRelationshipType | null;
+    typeview:       akm.cxRelationshipTypeView | null;
+    fromNode:       goNode | null;
+    toNode:         goNode | null;
+    from:           string | undefined;
+    to:             string | undefined;
+    template:       string;
+    template2:      string;
+    relshipkind:    string;
+    cardinality:    string;
     cardinalityFrom: string;
-    cardinalityTo: string;
-    nameFrom:   string;
-    nameTo:     string;
-    strokecolor: string;
-    strokewidth: string;
+    cardinalityTo:  string;
+    nameFrom:       string;
+    nameTo:         string;
+    strokecolor:    string;
+    strokewidth:    string;
     textcolor:      string;
-    arrowscale:     string;
-    textscale:      string;
+    arrowscale:     number;
+    textscale:      number;
     dash:           string;
-    routing:    string;
-    curve:      string;
-    points:     any;
+    routing:        string;
+    corner:         number;
+    curve:          number;
+    points:         any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -1134,6 +1145,7 @@ export class goRelshipTypeLink extends goLink {
         this.from       = "";
         this.to         = "";
         this.template   = "";
+        this.template2  = "";
         this.relshipkind = "";
         this.cardinality = "";
         this.cardinalityFrom = "";
@@ -1189,7 +1201,7 @@ export class goRelshipTypeLink extends goLink {
                         this.addData(data);
                         this.setName(this.reltype.getName());
                         if (!this.strokewidth)
-                            this.strokewidth = '1';
+                            this.strokewidth = '1.0';
                         if (!this.strokecolor)
                             this.strokecolor = 'black';
                         if (this.fromArrow === ' ' || this.fromArrow === 'None')
@@ -1235,8 +1247,8 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
-    // figure: string;
-    // geometry: string;
+    figure: string;
+    geometry: string;
     fillcolor: string;
     fillcolor2: string;
     strokecolor: string;
@@ -1253,12 +1265,12 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
-        // this.figure = "";
-        // this.geometry = "";
+        this.figure = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.fillcolor2 = "";
         this.strokecolor = "black";
-        this.strokewidth = "1";
+        this.strokewidth = 1.0;
         this.icon = "";
         this.image = "";
     }

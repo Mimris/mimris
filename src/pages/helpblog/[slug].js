@@ -18,13 +18,13 @@ export default function PostPage({
 
   return (
     <>
-        {/* <Layout ></Layout> */}
-    {/* <Layout> */}
+      {/* <Layout ></Layout> */}
+      {/* <Layout> */}
       <div className="container">
-          <Link href='/helpblog/'>Go Back</Link>
+        <Link href='/helpblog/'>Go Back</Link>
         <div className='card card-page' >
           <h1 className='post-title'>{title}</h1>
-          <img src={cover_image} alt='' max-width="200px"/>
+          <img src={cover_image} alt='' max-width="200px" />
           <div className='post-body'>
             <div dangerouslySetInnerHTML={{ __html: marked(content) }}></div>
           </div>

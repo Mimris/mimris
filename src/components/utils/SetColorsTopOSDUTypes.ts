@@ -7,6 +7,7 @@ const debug = false
 
 
 export const setColorsTopOSDUTypes = (osduType: string) => {
+    if (debug) console.log('10 setColorsTopOSDUTypes', osduType)
     switch (osduType) {
         case 'master-data':
             return '#FEA07A';

@@ -10,8 +10,8 @@ import LoadFile from './LoadFile';
 import LoadJsonFile from './LoadJsonFile'
 import LoadNewModelProjectFromGitHub from './LoadNewModelProjectFromGitHub';
 import ProjectDetailsForm from "../forms/ProjectDetailsForm";
-import { is } from 'cheerio/lib/api/traversing';
-import { bottom } from '@popperjs/core';
+// import { is } from 'cheerio/lib/api/traversing';
+// import { bottom } from '@popperjs/core';
 
 const debug = false;
 
@@ -51,13 +51,14 @@ export const ProjectMenuBar = (props: any) => {
 
     const handleReadProjectFile = (e: any) => {
         ReadModelFromFile(props, dispatch, e);
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
     }
 
     const handleSaveAllToFile = () => {
         setProjectname(props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (!debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
+        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
         SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 

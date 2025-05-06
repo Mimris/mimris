@@ -7,8 +7,8 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
-import Page from './page';
 
+import Page from './page';
 import ObjectTable from './table/ObjectTable'
 import RelshipTable from './table/RelshipTable'
 import LoadServer from '../components/LoadServer'

@@ -221,7 +221,9 @@ const Issues = (props: any) => {
                 Labels: {focusIssue.labels.map((label: { name: string; }) => (label.name + ', '))} <br />
                 <div className="bg-white border border-secondary p-2">
                   Details:
-                  <ReactMarkdown plugins={[remarkGfm, rehypeSlug]}>{focusIssue.body}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
+                    {focusIssue.body}
+                  </ReactMarkdown>
                 </div>
                 {/* Comments: {comments.map((comment) => (comment.map((c) => (c.issue_url === issue.comments_url) && (c.body))))} <br /> */}
                 {/* {focusIssue(issue)} */}
@@ -281,7 +283,7 @@ const Issues = (props: any) => {
     return (
       <div
         className="btn btn-sm text-success ms-1 p-1 d-flex justify-content-center align-items-center"
-        style={{ backgroundColor: "#ffffed",whiteSpace: "nowrap" }}
+        style={{ backgroundColor: "#ffffed", whiteSpace: "nowrap" }}
       // style={{ scale: "0.9", marginTop: "px", marginLeft: "-px"}}
       >
         <button
@@ -396,7 +398,8 @@ const Issues = (props: any) => {
             <hr className="m-1 p-0" />
             <div className='p-2 m-1'> {/*link to Issues */}
               <div className='text-muted'>Link to GitHub Issues:</div>
-              {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>}
+              {(repo) && <Link className='text-primary ' href={`http://github.com/${org}/${repo}/issues`} target="_blank">{org}/{repo}/issues</Link>} <br />
+              {<Link className='text-primary ' href={`http://github.com/kavca/akmm-app/issues`} target="_blank">kavca/akmm-app/issues</Link>}
             </div>
             <hr className="m-1" />
           </div>

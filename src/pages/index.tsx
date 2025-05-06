@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState,  useEffect } from "react";
+import { Router, useRouter } from "next/router";
 // import { connect } from 'react-redux';
 import { connect, useDispatch }  from 'react-redux';
 // import imageUrlBuilder from '@sanity/image-url';
@@ -32,11 +33,18 @@ const page = (props: any) => {
   const [refresh, setRefresh] = useState(false) 
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
+  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', []); //props);
   const [mount, setMount] = useState(false)
   
   const [showModal, setShowModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [focusExpanded, setFocusExpanded] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
+  const [exportTab, setExportTab] = useState(false);
+
+
+
 
   function dispatchLocalStore(locStore) { 
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
@@ -44,30 +52,40 @@ const page = (props: any) => {
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
   }
- // /**
-  // * Set up the Context items and link to select Context modal,
-  // */
+    const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
-  // useEffect(() => { 
-  //   if (debug) console.log('73 modelling useEffect 1', memoryLocState, props.phFocus.focusModelview.name)
-  //   // let data = {}
-  //   if (props.phFocus.focusProj.file === 'AKM-INIT-Startup.json') {
-  //     // if ((memoryLocState != null) && (memoryLocState.length > 0) && (memoryLocState[0].phData)) {
-  //     if ((window.confirm("Do you want to recover your last project? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
-  //       // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
-  //       if (memoryLocState) {
-  //           const locStore = (memoryLocState) 
-  //           if (locStore) {
-  //             dispatchLocalStore(locStore)
-  //             // data = {id: locStore.phFocus.focusModelview.id, name: locStore.phFocus.focusModelview.name}
-  //             // console.log('modelling 73 ', data)
-  //           }
-  //         } 
-  //       // }   
-  //     }
-  //   }
-  //   setMount(true)
-  // }, [])  
+  useEffect(() => {
+    if (debug) useEfflog('71 modelling useEffect 0 [] ');
+    const handleReload = () => {
+      let locStore = memorySessionState;
+      if (debug) console.log('81 modelling page reloaded', memorySessionState);
+      if (!memorySessionState) locStore = memoryLocState;
+      if (debug) console.log('79modelling 1 ', locStore);
+      if (locStore && locStore.phData) {
+        const data = locStore;
+        if (debug) console.log('87 modelling ', data);
+        dispatchLocalStore(data);
+        return () => clearTimeout(timer);
+      } else {
+        if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
+        if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
+          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+            if (!isReloading) {
+              setIsReloading(true);
+              window.location.reload();
+            }
+            const timer = setTimeout(() => {
+              setRefresh(!refresh);
+            }, 100);
+            return () => clearTimeout(timer);
+          }
+        }
+      }
+    };
+    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
+    handleReload();
+    let org = query.org;
+  }, []) 
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 
@@ -101,7 +119,14 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
-            <ProjectMenuBar props={props}  expanded={expanded} setExpanded={setExpanded} />
+            <ProjectMenuBar {...props}
+              expanded={expanded} setExpanded={setExpanded}
+              focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
+              refresh={refresh} setRefresh={setRefresh}
+              visibleFocusDetails={visibleFocusDetails}
+              setVisibleFocusDetails={setVisibleFocusDetails}
+              exportTab={exportTab} setExportTab={setExportTab}
+            />
             <div className="context-bar d-flex justify-content-between align-items-center" 
               style={{  backgroundColor: "#ffffed" }}>
               {expanded && 

@@ -1,12 +1,4 @@
 // @ts-nocheck
-const debug = false;
-
-const clogGreen = console.log.bind(console, '%c %s', // green colored cosole log
-  'background: green; color: white');
-const clogBlue = console.log.bind(console, '%c %s', // green colored cosole log
-  'background: blue; color: white');
-const ctrace = console.trace.bind(console, '%c %s',
-  'background: green; color: white');
 
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
@@ -17,8 +9,16 @@ import * as akm from '../akmm/metamodeller';
 // import * as jsn from '../akmm/ui_json';
 import * as uib from '../akmm/ui_buildmodels';
 // import * as uic from '../akmm/ui_common';
+import * as constants from './constants';
 
-const constants = require('../akmm/constants');
+const debug = false;
+
+const clogGreen = console.log.bind(console, '%c %s', // green colored cosole log
+  'background: green; color: white');
+const clogBlue = console.log.bind(console, '%c %s', // green colored cosole log
+  'background: blue; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+  'background: green; color: white');
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
@@ -31,14 +31,16 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
   const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-  const metis = (props.phData) && props.phData.metis // Todo: check if current model and then load only current model
-  const models = (metis) && metis.models.filter((m: any) => (m) && m) // filter out null models
-  let focusModel = props.phFocus?.focusModel
+  const metis = (props.phData) && props.phData.metis; // Todo: check if current model and then load only current model
+  const models = (metis) && metis.models.filter((m: any) => (m) && m); // filter out null models
+  let focusModel = props.phFocus?.focusModel;
   if (!focusModel) focusModel = (models) && models[0];
-  let focusModelview = props.phFocus?.focusModelview
+  let focusModelview = props.phFocus?.focusModelview;
   if (!focusModelview) focusModelview = (focusModel) && focusModel.modelviews[0];
-  if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview)
-  const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm) // filter out null metamodels
+  if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview);
+  let focusObject = props.phFocus?.focusObject;
+  let focusObjectview = props.phFocus?.focusObjectview;
+  const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm); // filter out null metamodels
   let adminModel;
 
   if (metis != null) {
@@ -78,9 +80,9 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified);
       if (debug) console.log('79 myGoMetamodel', myGoMetamodel);
       const myGoMetamodelPalette = (myMetamodel) && uib.buildGoMetaPalette();
-      if (debug) console.log('80 myMetamodelPalette', myMetamodelPalette);
+      if (debug) console.log('83 myMetamodelPalette', myMetamodelPalette);
       const myGoPalette = (myMetamodel) && uib.buildGoPalette(myMetamodel, myMetis);
-      if (debug) console.log('92 myPalette', myPalette);
+      if (debug) console.log('85 myPalette', myPalette);
 
       const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
@@ -92,6 +94,8 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       const myGoTargetModel = uib.buildGoModel(myMetis, myTargetModel, myTargetModelview, includeDeleted, includeNoObject);
       if (debug) console.log('113 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
 
+      if (focusObjectview.id) 
+        myModelview?.setFocusObjectview(focusObjectview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -107,6 +111,6 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
     }
   }
-  if (debug) console.log('172 GenGojsModel myMetis', myMetis);
+  if (!debug) console.log('114 GenGojsModel myMetis', myMetis);
 }
 export default GenGojsModel;

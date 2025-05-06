@@ -2719,7 +2719,7 @@
         },
         {
           "id": "b9f5b34e-2ea4-4f68-6421-2e1253c2322d",
-          "name": "AKM-Core_MM",
+          "name": "AKM-META_MM",
           "description": "A metamodel consisting of the core AKM types that support detailed metamodelling",
           "metamodelRefs": [],
           "subMetamodelRefs": [
@@ -8384,7 +8384,7 @@
             },
             {
               "id": "4b918162-8337-47ca-1cd4-de6c119625ce",
-              "name": "AKM-Core_MM",
+              "name": "AKM-META_MM",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -8495,7 +8495,7 @@
             },
             {
               "id": "cd38ce1c-3811-45fb-61a9-f0b302d47354",
-              "name": "AKM-Core_MM Types",
+              "name": "AKM-META_MM Types",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -8723,8 +8723,8 @@
             },
             {
               "id": "22c9f539-8091-4e4e-0fbf-fd674c217613",
-              "name": "AKM-Core_MM Types",
-              "description": "Placeholder for AKM-Core_MM Types",
+              "name": "AKM-META_MM Types",
+              "description": "Placeholder for AKM-META_MM Types",
               "abstract": false,
               "viewkind": "",
               "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
@@ -8735,7 +8735,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "AKM-Core_MM Types",
+              "nameId": "AKM-META_MM Types",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -8746,7 +8746,7 @@
             {
               "id": "9241eca7-0eb2-4931-3d41-204f6ae523fe",
               "name": "Build a Type-definition model ...",
-              "description": "## Build Type Definition Models (TD)\n\nTo build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.\nThis is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. \n\n<details>  <summary>Create Initial Containers ...</summary>\n\n\nLet us start with an empty model and the built-in ***AKM-Core_MM*** metamodel:\n\n![Initial page with blank modelling area and AKM-Core_MM types in the Palette](/images/posts/modelling/image_model001.png)\n\nThe left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.\n\n\nFrom the Palette (left pane) drag the ***Container*** type and drop it into the Modelling area.\n\nClick on the name and edit ***name*** ( Name it  ***\"Domain Types\"*** i.e. ***\"Bikerental Types\"***).\n\nRight-Click the object to edit  ***description***.\n\n\n\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n<details>  <summary>Create EntityTypes ...</summary>\n\nFrom the Palette (left pane) drag the ***EntityType*** and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description*** and ***proposedType***.\n\nThe attribute \"proposedType\" is used to give the Concept-/ Information-object a proposed TypeName.\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n\n<details>  <summary>Create Relationship types ...</summary>\n\n1.  1 - Click on the edge of an Object and drag the cursor to another object.\n<a href=\"images/help/Add-Property-2023-10-05.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/Add-Property-2023-10-05.png)</font></code>\n</span>Click on the picture to open in New Tab...</a><hr />\n\n1.  2 - Click on the name of the Relationship to edit.<hr />\n\n1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.<hr />\n</details>\n\n---\n\n<details>  <summary>Add Properties ...</summary>\n\nFrom the Palette (left pane) drag the ***Property*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Property.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Property.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Values ...</summary>\n\nFrom the Palette (left pane) drag the ***Value*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Value.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Value.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Fieldtype ...</summary>\n\nFrom the Palette (left pane) drag the ***Fieldtype*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Fieldtype.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Fieldtype.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add InputPattern ...</summary>\n\nFrom the Palette (left pane) drag the ***InputPattern*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-InputPattern.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-InputPattern.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add ViewFormat ...</summary>\n\nFrom the Palette (left pane) drag the ***ViewFormat*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-ViewFormat.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-ViewFormat.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Metamodel Object ...</summary>\n\nFrom the Palette (left pane) drag the ***Metamodel*** type and drop outside the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit ***description***.\n\nDrag a relationship with type ***contains*** from til ***Metamodel*** object to the EntityType objects to be included in the new Metamodel.\n\n<a href=\"images/help/Add-Metamodel.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Metamodel.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>",
+              "description": "## Build Type Definition Models (TD)\n\nTo build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.\nThis is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. \n\n<details>  <summary>Create Initial Containers ...</summary>\n\n\nLet us start with an empty model and the built-in ***AKM-META_MM*** metamodel:\n\n![Initial page with blank modelling area and AKM-META_MM types in the Palette](/images/posts/modelling/image_model001.png)\n\nThe left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.\n\n\nFrom the Palette (left pane) drag the ***Container*** type and drop it into the Modelling area.\n\nClick on the name and edit ***name*** ( Name it  ***\"Domain Types\"*** i.e. ***\"Bikerental Types\"***).\n\nRight-Click the object to edit  ***description***.\n\n\n\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n<details>  <summary>Create EntityTypes ...</summary>\n\nFrom the Palette (left pane) drag the ***EntityType*** and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description*** and ***proposedType***.\n\nThe attribute \"proposedType\" is used to give the Concept-/ Information-object a proposed TypeName.\n\n<a href=\"images/help/Create-EntityType.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">\n![Create EntityType](images/help/Create-EntityType.png)</font>\n</code>\n</span>Click on the picture to open in New Tab!</a>\n</details>\n\n---\n\n\n<details>  <summary>Create Relationship types ...</summary>\n\n1.  1 - Click on the edge of an Object and drag the cursor to another object.\n<a href=\"images/help/Add-Property-2023-10-05.png\" target=\"_blank\"><code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![image001](images/help/Add-Property-2023-10-05.png)</font></code>\n</span>Click on the picture to open in New Tab...</a><hr />\n\n1.  2 - Click on the name of the Relationship to edit.<hr />\n\n1.  3 - Right-Click on the relationship to open the properties panel, where you can edit Name, description etc.<hr />\n</details>\n\n---\n\n<details>  <summary>Add Properties ...</summary>\n\nFrom the Palette (left pane) drag the ***Property*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Property.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Property.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Values ...</summary>\n\nFrom the Palette (left pane) drag the ***Value*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Value.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Value.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Fieldtype ...</summary>\n\nFrom the Palette (left pane) drag the ***Fieldtype*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-Fieldtype.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Fieldtype.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add InputPattern ...</summary>\n\nFrom the Palette (left pane) drag the ***InputPattern*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-InputPattern.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-InputPattern.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add ViewFormat ...</summary>\n\nFrom the Palette (left pane) drag the ***ViewFormat*** type and drop it into the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit  ***description***.\n\n<a href=\"images/help/Add-ViewFormat.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-ViewFormat.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>\n\n---\n\n<details>  <summary>Add Metamodel Object ...</summary>\n\nFrom the Palette (left pane) drag the ***Metamodel*** type and drop outside the Container ***\"Domain\" Types***. Click on the name and edit ***name***.\nRight-Click the object to edit ***description***.\n\nDrag a relationship with type ***contains*** from til ***Metamodel*** object to the EntityType objects to be included in the new Metamodel.\n\n<a href=\"images/help/Add-Metamodel.png\" target=\"_blank\">\n<code style=\"color: blue\"> <font size=\"2\" weight=\"bold\">![Create EntityType](images/help/Add-Metamodel.png)</font></code>\nClick on the picture to open in New Tab!</a>\n\n</details>",
               "abstract": false,
               "viewkind": "",
               "typeRef": "f02d8b8c-d693-4e6b-1291-4d69f63dc8d7",
@@ -10294,7 +10294,7 @@
               "objectviews": [
                 {
                   "id": "fc8c0219-4b3d-45f9-bc8b-3a85c12b7bce",
-                  "name": "AKM-Core_MM Types",
+                  "name": "AKM-META_MM Types",
                   "description": "",
                   "objectRef": "22c9f539-8091-4e4e-0fbf-fd674c217613",
                   "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
@@ -11742,7 +11742,7 @@
                 },
                 {
                   "id": "8aca0dd3-b755-4029-f268-1599c344ae38",
-                  "name": "AKM-Core_MM",
+                  "name": "AKM-META_MM",
                   "description": "",
                   "objectRef": "4b918162-8337-47ca-1cd4-de6c119625ce",
                   "typeviewRef": "80523c26-916e-4a0b-cb0a-a758e0713fe4",
@@ -11832,7 +11832,7 @@
                 },
                 {
                   "id": "900954cd-2d7b-40cf-68cd-20e97173aafb",
-                  "name": "AKM-Core_MM Types",
+                  "name": "AKM-META_MM Types",
                   "description": "",
                   "objectRef": "cd38ce1c-3811-45fb-61a9-f0b302d47354",
                   "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
@@ -14357,7 +14357,7 @@
             },
             {
               "id": "14eeb51a-5022-4ffe-073a-36641cb34163",
-              "name": "AKM-Core_MM",
+              "name": "AKM-META_MM",
               "description": "A metamodel consisting of the core AKM types that support detailed metamodelling",
               "abstract": false,
               "viewkind": "",
@@ -14369,7 +14369,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "AKM-Core_MM",
+              "nameId": "AKM-META_MM",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -15025,7 +15025,7 @@
                 },
                 {
                   "id": "8b66be76-b88e-4289-963a-eee42a6082ff",
-                  "name": "AKM-Core_MM",
+                  "name": "AKM-META_MM",
                   "description": "",
                   "objectRef": "14eeb51a-5022-4ffe-073a-36641cb34163",
                   "typeviewRef": "80523c26-916e-4a0b-cb0a-a758e0713fe4",

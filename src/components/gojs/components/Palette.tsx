@@ -120,41 +120,28 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
-          // new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-          new go.Binding("scale", "scale1").makeTwoWay(),
+          new go.Binding("scale", "scale").makeTwoWay(),
           {
             name: "GROUP",
             resizable: true,
-            resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-            selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+            resizeObjectName: "SHAPE",
+            selectionObjectName: "GROUP",
             selectionAdorned: true,
             click: function (e, node) {
-              // const myMetis = this.myMetis;
-              // console.log('103 node, myMetis', node, myMetis);
-              // const diagram = myMetis.myDiagram;
-              // const n = diagram.findNodeForKey(node?.key);
-              // console.log('105 n, node', n, node);
-              // diagram.startTransaction("highlight");
-              // // remove any previous highlighting
-              // diagram.clearHighlighteds();           
-              // n.isHighlighted = true; 
-              // for each Link coming out of the Node, set Link.isHighlighted
-              // diagram.commitTransaction("highlight");                        
+              // Your click handler logic (optional)
             }
           },
-          // for sorting, have the Node.text be the data.name
           new go.Binding("text", "name"),
-
-          new go.Binding("scale", "scale1").makeTwoWay(),
+          new go.Binding("scale", "scale").makeTwoWay(),
           new go.Binding("background", "isHighlighted",
             function (h) {
-              return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
+              return h ? "rgba(255,0,0,0.2)" : "transparent";
             }).ofObject(),
           { // Tooltip
             toolTip:
               $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                $(go.TextBlock, { margin: 8 },
                   new go.Binding("text", "",
                     function (d) {
                       return uid.nodeInfo(d, this.myMetis);
@@ -164,51 +151,81 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               )
           },
 
-          // define the node's outer shape
+          // Define the node's outer shape
           $(go.Shape, "RoundedRectangle",
             {
               name: "SHAPE",
-              fill: "lightyellow",
+              fill: "transparent",
               stroke: "black",
+              cursor: "grabbing",
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("strokeWidth", "strokewidth")
           ),
 
+          // Horizontal Panel containing Icon and Text
           $(go.Panel, "Horizontal",
-            $(go.Picture,
+            {
+              name: "PANEL",
+              margin: new go.Margin(4, 0, 0, 2),
+            },
+
+            // Spot Panel for Icon Area
+            $(go.Panel, "Spot",
               {
-                name: "Picture",
-                desiredSize: new go.Size(20, 20),
-                margin: new go.Margin(0, 0, 0, 3),
+                alignment: go.Spot.Center,
+                cursor: "grabbing",
               },
-              new go.Binding("source", "icon", findImage)
+              // Picture Element
+              $(go.Picture,
+                {
+                  name: "Picture",
+                  desiredSize: new go.Size(30, 30),
+                  margin: new go.Margin(0, 0, 0, 0), // Reduced left margin
+                },
+                new go.Binding("source", "icon", findImage)
+              ),
+              // TextBlock for Unicode Icon
+              $(go.TextBlock, textStyle(),
+                {
+                  background: "transparent",
+                  desiredSize: new go.Size(30, 30),
+                  textAlign: "center",
+                  stroke: "#466",
+                  margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
+                  font: "24px 'FontAwesome'",
+                  editable: false,
+                  isMultiline: false,
+                  alignment: go.Spot.Center, // Center alignment
+                },
+                new go.Binding("text", "icon", findUnicodeImage)
+              ),
             ),
-            // define the panel where the text will appear
+
+            // Table Panel for Text Content
             $(go.Panel, "Table",
               {
                 defaultRowSeparatorStroke: "black",
-                //minSize: new go.Size(200, 50),
-                maxSize: new go.Size(100, 999),
-                minSize: new go.Size(90, 15),
-                margin: new go.Margin(6, 10, 0, 0),
-                defaultAlignment: go.Spot.Left
+                maxSize: new go.Size(120, 999),
+                minSize: new go.Size(128, 25),
+                margin: new go.Margin(0, 0, 0, 2),
+                defaultAlignment: go.Spot.Left,
               },
-              $(go.RowColumnDefinition, { column: 2, width: 4 }
-              ),
-              // content - the name
+              // TextBlock for Name
               $(go.TextBlock, textStyle(),
                 {
-                  row: 0, column: 0, columnSpan: 6,
-                  font: "12pt Segoe UI,sans-serif",
-                  editable: false, isMultiline: true,
-                  minSize: new go.Size(10, 16),
-                  name: "name"
+                  name: "name",
+                  font: "11pt Segoe UI,sans-serif",
+                  editable: false,
+                  isMultiline: true,
+                  minSize: new go.Size(14, 16),
+                  isMultiline: true,
                 },
-                new go.Binding("text", "name").makeTwoWay()),
+                new go.Binding("text", "name").makeTwoWay()
+              ),
             ),
-          )
+          ),
         );
 
       // Define node template map
@@ -235,21 +252,52 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
 
           $(go.Panel, "Vertical",
             // define the panel where the text will appear
-            $(go.Panel, "Table",
+            $(go.Panel, "Horizontal",
               {
                 defaultRowSeparatorStroke: "black",
                 maxSize: new go.Size(100, 999),
-                minSize: new go.Size(90, 40),
+                minSize: new go.Size(150, 20),
                 margin: new go.Margin(6, 10, 0, 3),
                 defaultAlignment: go.Spot.TopLeft
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }
               ),
               // content
+              // Spot Panel for Icon Area
+              $(go.Panel, "Spot",
+                {
+                  alignment: go.Spot.Center,
+                  cursor: "grabbing",
+                },
+                // Picture Element
+                $(go.Picture,
+                  {
+                    name: "Picture",
+                    desiredSize: new go.Size(30, 30),
+                    margin: new go.Margin(0, 0, 10, 0), // Reduced left margin
+                  },
+                  new go.Binding("source", "icon", findImage)
+                ),
+                // TextBlock for Unicode Icon
+                $(go.TextBlock, textStyle(),
+                  {
+                    background: "transparent",
+                    desiredSize: new go.Size(30, 30),
+                    textAlign: "center",
+                    stroke: "#666",
+                    margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
+                    font: "18px 'FontAwesome'",
+                    editable: false,
+                    isMultiline: false,
+                    alignment: go.Spot.Center, // Center alignment
+                  },
+                  new go.Binding("text", "icon", findGroupUnicodeImage)
+                ),
+              ),
               $(go.TextBlock, textStyle(),  // the name
                 {
                   row: 0, column: 0, columnSpan: 6,
-                  font: "12pt Segoe UI,sans-serif",
+                  font: "11pt Segoe UI,sans-serif",
                   editable: true, isMultiline: false,
                   minSize: new go.Size(80, 40),
                   name: "name"
@@ -268,10 +316,47 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
 
     // Function to identify images related to an image id
     function findImage(image: string) {
-      if (image && !image.includes('//')) {
-        return "./../images/" + image;
+      if (debug) console.log("3238 findImage: ", image);
+      if (image == "")
+        return "";
+      if (image?.includes('//')) { // this is an http:// or https:// image
+        if (debug) console.log('3249 Diagram', image);
+        return image;
+      } else if (image?.includes('/')) { // its a local image with path i.e. /images/...
+        if (debug) console.log('3250 Diagram', image);
+        return image;
+      } else if (image?.startsWith('<i ')) { // its an awesome font image
+        const img = image //{image:'data:image/svg+xml;charset=UTF-8,image'}
+        if (debug) console.log('3244', img);
+        return img;
+      } else if (image?.includes('<svg')) { // its an svg code image
+        const img = { image: 'data:image/svg+xml;charset=UTF-8,image' }
+        if (debug) console.log('3269', img);
+        return img
+      } else if (!image?.includes('images/') && image?.includes('.png')) { // its an image in public/images 
+        const img = "./../images/types/" + image
+        if (debug) console.log('3273 Diagram', image, img)
+        return img
+      } else {
+        return "";
       }
+    }
+
+    function findUnicodeImage(image: string) {
+      if (image.includes('\\u')) { // its an awesome font image
+        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+      } 
       return "";
+    }
+    function findGroupUnicodeImage(image: string) {
+      if (image.includes('\\u')) { // its an awesome font image
+        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+      } else if (image === '') {
+       const groupImage = '\\uf07c'
+        return String.fromCharCode(parseInt(groupImage.slice(2), 16)).toLowerCase();
+      } else {
+        return image;
+      }
     }
 
     // Function to specify default text style

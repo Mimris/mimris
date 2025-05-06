@@ -470,22 +470,9 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
-    const objviewRef = gjsNode.objviewRef;
+    const objviewRef = gjsNode.key;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-
-    if (!objectview) { // added by SF&CoPilot
-        console.error("Object view not found for objviewRef:", objviewRef);
-        alert("Object view not found. Please check the data.");
-        return; // Exit early if objectview is invalid
-    }
-
-    let object: akm.cxObject | null = myMetis.findObject(objectview.objectRef);
-
-    if (!object) {// added by SF&CoPilot
-        console.error("Object not found for objectRef:", objectview.objectRef);
-        alert("Object not found. Please check the data.");
-        return; // Exit early if object is invalid
-    }
+    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;
@@ -691,7 +678,7 @@ export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram:
     myDiagram.handleOpenModal(link, modalContext);
 }
 
-export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any, readOnly: boolean) {
     if (debug) console.log('680 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel; 
@@ -727,12 +714,13 @@ export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram
       icon:       icon,
       myDiagram:  myDiagram,
       myContext:  myContext,
+      readOnly:   readOnly,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
     myDiagram.handleOpenModal(gjsNode, modalContext);
 }    
 
-export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: any, readOnly: boolean) {
     if (debug) console.log('682 link, myMetis', link, myMetis);
     myMetis.myDiagram = myDiagram;
     myMetis.currentLink = link;
@@ -759,6 +747,7 @@ export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: 
       icon:       null,
       myDiagram:  myDiagram,
       myContext:  myContext,
+      readOnly:   readOnly,
     }
     if (debug) console.log('710 ui_diagram: link, modalContext', link, modalContext);
     myDiagram.handleOpenModal(link, modalContext);

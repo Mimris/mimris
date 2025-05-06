@@ -117,7 +117,11 @@
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
+<<<<<<< HEAD
     "husky": "^9.1.7",
+=======
+    "husky": "^8.0.0",
+>>>>>>> source-tmp
     "prettier": "^3.5.3",
     "pretty-quick": "^4.1.1",
     "promise": "^8.3.0",
@@ -132,4 +136,8 @@
     "fsevents": "^2.3.3",
     "utf-8-validate": "^6.0.5"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> source-tmp

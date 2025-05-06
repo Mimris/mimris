@@ -860,7 +860,12 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
+<<<<<<< HEAD
                     metamodel.addSubMetamodelRef(subMetamodelRef);
+=======
+                    if (subMetamodelRef !== metamodel.id)
+                        metamodel.addSubMetamodelRef(subMetamodelRef);
+>>>>>>> source-tmp
                 }
             });
         }
@@ -9522,6 +9527,10 @@ export class cxObjectView extends cxMetaObject {
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
+<<<<<<< HEAD
+=======
+    figure: string;
+>>>>>>> source-tmp
     group: string;
     isGroup: boolean;
     groupLayout: string;

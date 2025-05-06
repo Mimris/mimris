@@ -299,11 +299,7 @@ const Palette = (props: any) => {
           className="ps-1 m-0 bg-transparent"
         // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
         >
-<<<<<<< HEAD
-          {/* {metamodelTasks} */}
-=======
           {metamodelTasks}
->>>>>>> source-tmp
         </div>
       </div>
     </>

@@ -128,11 +128,13 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
       // Hack
       const otype = metis.findObjectTypeByName(objtype.name);
-      if (!typeview) {
-        if (otype) {
-          typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
-        } else
-          typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+      if (!otype.abstract) {
+        if (!typeview) {
+          if (otype) {
+            typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
+          } else
+            typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+        }
       }
       // End hack
       objview.setTypeView(typeview);
@@ -322,6 +324,8 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         if (!objtype) objtype = metis.findObjectType(object.typeRef);
         const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
         if (typeview) {
+          if (!node.template) node.template = typeview.template;
+          if (node.template === "") node.template = typeview.template;
           if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
           if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
           if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
@@ -331,7 +335,6 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           if (node.icon === "") node.icon = typeview.icon;
           if (node.image === "") node.image = typeview.image;
           if (node.viewkind === "") node.viewkind = typeview.viewkind;
-          if (node.template === "") node.template = typeview.template;
         }
       }
     }
@@ -549,7 +552,9 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
         let strokecolor = typeview?.strokecolor;
         let fillcolor = typeview?.fillcolor;
         if (objtype) {
-          if (!objtype.markedAsDeleted)
+          if (objtype.isAbstract())
+            includeObjtype = false;
+          else if (!objtype.markedAsDeleted)
             includeObjtype = true;
           else {
             if (debug) console.log('468 objtype', objtype);

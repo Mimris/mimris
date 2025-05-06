@@ -860,7 +860,8 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
-                    metamodel.addSubMetamodelRef(subMetamodelRef);
+                    if (subMetamodelRef !== metamodel.id)
+                        metamodel.addSubMetamodelRef(subMetamodelRef);
                 }
             });
         }
@@ -4049,12 +4050,28 @@ export class cxMetaModel extends cxMetaObject {
                     this.objecttypes.push(objtype);
             }
         }
+        const objtypes0 = metamodel.getObjectTypes0();
+        if (objtypes0) {
+            for (let i = 0; i < objtypes0.length; i++) {
+                const objtype = objtypes0[i];
+                if (!this.findObjectType0(objtype.id))
+                    this.objecttypes0.push(objtype);
+            }
+        }
         const reltypes = metamodel.getRelshipTypes();
         if (reltypes) {
             for (let i = 0; i < reltypes.length; i++) {
                 const reltype = reltypes[i];
                 if (!this.findRelationshipType(reltype.id))
                     this.relshiptypes.push(reltype);
+            }
+        }
+        const reltypes0 = metamodel.getRelshipTypes0();
+        if (reltypes0) {
+            for (let i = 0; i < reltypes0.length; i++) {
+                const reltype = reltypes0[i];
+                if (!this.findRelationshipType0(reltype.id))
+                    this.relshiptypes0.push(reltype);
             }
         }
     }
@@ -9506,6 +9523,7 @@ export class cxObjectView extends cxMetaObject {
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
+    figure: string;
     group: string;
     isGroup: boolean;
     groupLayout: string;

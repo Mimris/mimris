@@ -549,7 +549,7 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
             toObj[prop] = fromObj[prop];
     }
 }
-export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
+export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
     try {
     toObjview["isGroup"]      = fromObjview["isGroup"];
     toObjview["groupLayout"]  = fromObjview["groupLayout"];
@@ -573,6 +573,27 @@ export function copyViewAttributes(toObjview: akm.cxObjectView, fromObjview: akm
     toObjview["textcolor"]    = fromObjview["textcolor"];
     toObjview["textcolor2"]   = fromObjview["textcolor2"];
     toObjview["textscale"]    = fromObjview["textscale"];
+    } catch (error) {
+    }
+}
+
+export function copyRelviewAttributes(toRelview: akm.cxRelationshipView, fromRelview: akm.cxRelationshipView) {
+    try {
+        toRelview["template"]       = fromRelview["template"];
+        toRelview["template2"]      = fromRelview["template2"];
+        toRelview["strokecolor"]    = fromRelview["strokecolor"];
+        toRelview["strokewidth"]    = fromRelview["strokewidth"];
+        toRelview["textcolor"]      = fromRelview["textcolor"];
+        toRelview["arrowscale"]     = fromRelview["arrowscale"];
+        toRelview["textscale"]      = fromRelview["textscale"];
+        toRelview["dash"]           = fromRelview["dash"];
+        toRelview["fromArrow"]      = fromRelview["fromArrow"];
+        toRelview["toArrow"]        = fromRelview["toArrow"];
+        toRelview["fromArrowColor"] = fromRelview["fromArrowColor"];
+        toRelview["toArrowColor"]   = fromRelview["toArrowColor"];
+        toRelview["routing"]        = fromRelview["routing"];
+        toRelview["corner"]         = fromRelview["corner"];
+        toRelview["curve"]          = fromRelview["curve"];
     } catch (error) {
     }
 }
@@ -671,7 +692,7 @@ export function deleteNode(data: any, deletedFlag: boolean, context: any) {
             // If group, delete members of group
             if (node.isGroup) {
                 const gjsNode = myDiagram.findNodeForKey(data.key);
-                gjsNode.ungroupable = true;
+                if (gjsNode) gjsNode.ungroupable = true;
                 // if (debug) console.log('479 delete container', objview);
                 // const groupMembers = node.getGroupMembers(myGoModel);
                 // for (let i = 0; i < groupMembers?.length; i++) {
@@ -917,7 +938,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
                     includeInherited = true;
-                    reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                    reltypes = metamodel.findRelationshipTypes0BetweenTypes(fromType, toType, includeInherited);
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
@@ -3782,7 +3803,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-Core_MM");
+    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_MM");
     const objtypeviews = getObjectTypeviews(coreMetamodel);
     coreMetamodel.objecttypeviews = objtypeviews;
     metamodels.push(coreMetamodel);
@@ -3791,7 +3812,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     for (let i = 0; i < myMetis.metamodels?.length; i++) {
         const mmodel = myMetis.metamodels[i];
-        if (mmodel.name === 'AKM-Core_MM') continue;
+        if (mmodel.name === 'AKM-META_MM') continue;
         const objtypeviews = getObjectTypeviews(mmodel);
         mmodel.objecttypeviews = objtypeviews;
         metamodels.push(mmodel);

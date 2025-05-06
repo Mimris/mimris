@@ -12,6 +12,7 @@ import Tasks from '../components/Tasks'
 
 
 const debug = false;
+const includeCoreAndIRTV = false;
 
 const clog = console.log.bind(console, '%c %s',
   'background: blue; color: white');
@@ -81,7 +82,7 @@ const Palette = (props: any) => {
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
-  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
   let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-IRTV_MM')
   let taskNodeDataArray: any[] = ndarr
 
@@ -104,7 +105,7 @@ const Palette = (props: any) => {
     (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
 
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-Core_MM')
+    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'AKM-META_MM')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     irtvmetamodel = metamodels.find(m => m?.name === 'AKM-IRTV_MM')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -146,7 +147,7 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = (mmodel.name === 'AKM-Core_MM')
+      const wotArr = (mmodel.name === 'AKM-META_MM')
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
         : (mmodel.name === 'AKM-IRTV_MM')
           ? ['Container', 'Information', 'Role', 'Task', 'View']
@@ -227,7 +228,7 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "76vh" }}
       />
     </details>
-
+  if (includeCoreAndIRTV) {
   const gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
@@ -255,10 +256,11 @@ const Palette = (props: any) => {
         diagramStyle={{ height: "65vh" }}
       />
     </details>
-
+  }
   const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
-
-  const gojsappPaletteDiv =
+  let gojsappPaletteDiv = null;
+  if (includeCoreAndIRTV) {
+    gojsappPaletteDiv =
     <>
       <div>
       {gojsappPaletteTopDiv}
@@ -266,7 +268,14 @@ const Palette = (props: any) => {
       {gojsappPaletteIRTVDiv}
       </div>
     </>
-
+  } else {
+    gojsappPaletteDiv =
+    <>
+      <div>
+      {gojsappPaletteTopDiv}
+      </div>
+    </>
+  }
 
   const palette = // this is the left pane with the palette and toggle for refreshing
     <>

@@ -224,7 +224,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    const myContext = modalContext.context;
+    const myContext = modalContext.myContext;
     let myDiagram = modalContext.myDiagram;
     if (!myDiagram) myDiagram = myContext.myDiagram;
     // const data = modalContext.data;
@@ -344,9 +344,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               {
                 nodeCategoryProperty: "template",
                 linkCategoryProperty: "template",
-                // Uncomment the next line to turn ON linkToLink
-                // linkLabelKeysProperty: "labelKeys",
-                linkKeyProperty: 'key'
+                nodeKeyProperty: 'key',
+                linkKeyProperty: 'key',                  
+                makeUniqueKeyFunction: (m: go.Model, data: any) => {
+                  let k = utils.createGuid();
+                  return k;
+                },  
+                makeUniqueLinkKeyFunction: (m: go.GraphLinksModel, data: any) => {
+                  let k = utils.createGuid();
+                  return k;
+                },
               })
           }
         );
@@ -367,7 +374,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
           {
-            font: "bold 16pt sans-serif"
+            font: "bold 16px Arial, sans-serif"
           }
         ),
         // use a converter to display information about the diagram model
@@ -409,8 +416,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               node = myDiagram.findNodeForKey(node.key);
               try {
                 const myCollection = node.findSubGraphParts();
-                myCollection.add(node);
-                myDiagram.selectCollection(myCollection);
+                if (myCollection) {
+                  myCollection.add(node);
+                  myDiagram.selectCollection(myCollection);
+                }
               } catch {
               }
               const gjsNode = myDiagram.findNodeForKey(node?.key);
@@ -440,9 +449,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 sel.data.fromLink = getSourceLink(gjsSourceLinks, key);
                 selection.push(sel.data);
               });
-
-              myMetis.currentSelection = selection;
-              e.diagram.commandHandler.copySelection();
+              if (selection.length > 0) {
+                myMetis.currentSelection = selection;
+                e.diagram.commandHandler.copySelection();
+              }
             },
             function (o: any) {
               const node = o.part.data;
@@ -472,7 +482,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //return false;
               return o.diagram.commandHandler.canPasteSelection();
             }),
-          makeButton("----------"),
+          makeButton("Add Lane(s)",
+            function (e: any, obj: any) {
+              const modifiedObjectViews = new Array();
+              const gjsNode = obj.part.data;
+              const selection = myDiagram.selection;
+              for (let it = selection.iterator; it?.next();) {
+                let n = it.value.data;
+                if (n?.objecttype?.name === 'Swimlane') {
+                  const lane: cxObjectView = n.objectview;
+                  lane.group = gjsNode.key;
+                  const jsnObjview = new jsn.jsnObjectView(lane);
+                  uic.addItemToList(modifiedObjectViews, jsnObjview);
+                }
+              }
+              modifiedObjectViews.map(mn => {
+                let data = (mn) && mn
+                if (mn.id) {
+                  data = JSON.parse(JSON.stringify(data));
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                }
+              })
+            },
+            function (o: any) {
+              // If objtype === 'Pool' or 'SwimPool' then true else false
+              const node = o.part.data;
+              const typeName = node.objecttype.name;
+              if (typeName === 'Pool')
+                return false;
+              return false;
+            }),
           makeButton("Edit Attribute",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1136,13 +1175,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Edit Typeview",
+          makeButton("Show Typeview",
             function (e: any, obj: any) {
-              const node = o.part.data;
-              uid.editObjectTypeview(node, myMetis, myDiagram);
+              const node = obj.part.data;
+              uid.editObjectTypeview(node, myMetis, myDiagram, true);
             },
             function (o: any) {
-              return false;
+              // return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
                 if (node.isSelected) {
@@ -1153,8 +1192,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   uid.addToSelection(node, myDiagram);
                   return true;
                 }
-              else if (node.category === constants.gojs.C_OBJECTTYPE)
-                return true;
+              // else if (node.category === constants.gojs.C_OBJECTTYPE)
+              //   return true;
               else
                 return false;
             }),
@@ -2097,18 +2136,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
-          makeButton("Edit Typeview",
+          makeButton("Show Typeview",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              uid.editRelshipTypeview(link, myMetis, myDiagram);
+              uid.editRelshipTypeview(link, myMetis, myDiagram, true);
             },
             function (o: any) {
-              return false;
+              // return false;
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP)
                 return true;
-              if (link.category === constants.gojs.C_RELSHIPTYPE)
-                return true;
+              // if (link.category === constants.gojs.C_RELSHIPTYPE)
+              //   return true;
             }),
           makeButton("Reset to Typeview",
             function (e: any, rel: any) {

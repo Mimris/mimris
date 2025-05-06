@@ -359,8 +359,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             const gjsNode = myDiagram.findNodeForKey(goNode?.key)
-            if (gjsNode && goNode.scale) gjsNode.scale = Number(goNode.scale);
-            if (isGroup) gjsNode.expandTree();
+            if (gjsNode) {
+              if (goNode.scale) gjsNode.scale = Number(goNode.scale);
+              if (isGroup) gjsNode.expandTree();
+            }
           }
           // Set focus object view
           if (objview.id === focusObjectView?.id) {
@@ -1554,7 +1556,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
                                                            myPastedNode.object, myCopiedNode.descr, toModelview);
             gjsNode.key = myPastedNode.objviewId;
-            uic.copyViewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
+            uic.copyObjviewAttributes(myPastedNode.objectview, myCopiedNode.objectview);                                        
             myPastedNode.loc = gjsNode.loc;
             myPastedNode.size = gjsNode.size;
             myPastedNode.gjsKey = gjsNode.key;
@@ -1641,6 +1643,17 @@ class GoJSApp extends React.Component<{}, AppState> {
             pastedRelview.fromObjview = pastedFromObjview;
             pastedRelview.toObjview   = pastedToObjview;
             const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+            uic.copyRelviewAttributes(pastedRelview, copiedRelview); 
+
+            // Handle points
+            const points = [];
+            for (let it = gjsLink.points.iterator; it?.next();) {
+                const point = it.value;
+                points.push(point.x)
+                points.push(point.y)
+            }
+            pastedRelview.points = points;
+
             toGoModel.addLink(pastedLink);
             toModelview.addRelationshipView(pastedRelview);
             myMetis.addRelationshipView(pastedRelview);

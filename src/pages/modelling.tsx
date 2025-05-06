@@ -123,7 +123,7 @@ const Page1 = (props: any) => {
   let modelview = query.modelview;
 
   useEffect(() => {
-    if (debug) console.log('118 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('118 modelling useEffect 1', query)
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
@@ -142,7 +142,7 @@ const Page1 = (props: any) => {
           const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
           const githubData = await res?.data
           const sha = await res?.data.sha
-          if (debug) console.log('138 modelling githubData:', githubData, sha)
+          if (debug) console.log('145 modelling githubData:', githubData, sha)
           dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
           const timer = setTimeout(() => {
             setRefresh(!refresh);

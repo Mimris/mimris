@@ -603,6 +603,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionMoved": {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
+        let objectviews = myModelview.objectviews;
         let relshipviews = myModelview.relshipviews;
         myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         // First remember the original locs and scales
@@ -639,7 +640,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myFromNodes.push(myFromNode);
         }
         // Then remember the new locs
-        const myToNodes = [];
+        let myToNodes = [];
         const selection = e.subject;
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
@@ -652,9 +653,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           const group = uic.getGroupByLocation(myGoModel, loc, size, goNode);
           let groupKey = "";
           if (!group) {
-            goNode.scale = 1.0; // goNode.getMyScale(myGoModel);
+            goNode.scale = 1.0; 
           } else {
-            groupKey = n.data.group;
+            groupKey = group.key;
+            goNode.group = groupKey;
             goNode.scale = goNode.getMyScale(myGoModel);
           }
           const myToNode = {
@@ -1341,6 +1343,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.model.setDataProperty(part, "group", goNode.group);
             goNode.scale = goNode.getMyScale(myGoModel);
             part.scale = Number(goNode.scale);
+            gjs.scale = part.scale
+            myDiagram.model.setDataProperty(node, "scale", part.scale);
           }
           if (goNode) {
             goNode.object = null;
@@ -2015,14 +2019,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       const CustomSelectOption = props =>
       (
         <Option {...props}>
-          <img className="option-img mr-2" src={props.data.value} alt={props.data.label} />
+          <img className="option-img mr-2" src={props.data.value} />
           {props.data.label}
         </Option>
       )
       const CustomSelectValue = props => (
         <div>
           {/* <i className={`icon icon-${props.data.icon}`} /> */}
-          <img className="option-img mr-2" src={props.data.value} alt={props.data.label} />
+          <img className="option-img mr-2" src={props.data.value} />
           {props.data.label}
         </div>
       )

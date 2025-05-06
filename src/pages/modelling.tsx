@@ -242,14 +242,14 @@ const Page1 = (props: any) => {
               style={{ backgroundColor: "#b0cfcf" }}>
               {focusExpanded &&
                 <div className="d-flex justify-content-start align-items-center" style={{ backgroundColor: "#fffffd" }}>
-                  <div className="issuesarea" >
+                  {/* <div className="issuesarea" >
                     <Issues {...props}
                       showModal={showModal} setShowModal={setShowModal}
                       showIssueModal={showIssueModal} setShowIssueModal={setShowIssueModal}
                       minimized={minimized} setMinimized={setMinimized}
                       expanded={expanded}
                     />
-                  </div>
+                  </div> */}
                   <div className="contextarea">
                     {contextDiv}
                   </div>

@@ -1,203 +1,138 @@
-Here's a comprehensive CONTRIBUTING.md guide tailored for your tech stack:
-
-```markdown
-# Contributing Guide 🌟
-
-We welcome contributions from everyone! Before participating, please read our [Code of Conduct](CODE_OF_CONDUCT.md).
-
-## 🚀 First-Time Contributors
-
-New to open source? Check out our [Good First Issues](https://github.com/yourusername/GraphicModelingApp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) labeled `good first issue`.
-
-## 🛠️ Development Setup
-
-### Prerequisites
-- Node.js 18+
-- Yarn 1.22+
-- GoJS 3.0+ (free trial OK for development)
-- TypeScript 5.0+
-
-### Installation
-```bash
-git clone https://github.com/yourusername/GraphicModelingApp.git
-cd GraphicModelingApp
-yarn install
-```
-
-### Branch Strategy
-
-1. Create a new branch from `main`:
-
-   ```bash
-   git checkout -b feat/your-feature-name
-   ```
-
-2. Use conventional branch prefixes:
-   - `feat/`: New features
-   - `fix/`: Bug fixes
-   - `docs/`: Documentation
-   - `refactor/`: Code improvements
-
-## 💻 Development Workflow
-
-### Running the App
-
-```bash
-# Start development server
-yarn dev
-
-# Storybook for component development
-yarn storybook
-```
-
-### Key Scripts
-
-```bash
-# Type checking
-yarn typecheck
-
-# Linting
-yarn lint
-
-# Formatting
-yarn format
-
-# Build production bundle
-yarn build
-```
-
-## 📐 Technology-Specific Guidelines
-
-### TypeScript
-
-- Strict mode enabled (`strict: true` in tsconfig)
-- All components must have TypeScript interfaces
-- Use generics with Redux hooks:
-
-  ```tsx
-  const dispatch = useAppDispatch<AppDispatch>();
-  const nodes = useAppSelector(selectNodes);
-  ```
-
-### Redux Toolkit
-
-1. Create slices in `src/store/features`
-2. Use RTK Query for API interactions
-3. Follow this slice structure:
-
-   ```typescript
-   export const diagramSlice = createSlice({
-     name: 'diagram',
-     initialState,
-     reducers: {
-       addNode: (state, action: PayloadAction<Node>) => {
-         // Immutable updates only
-       }
-     },
-     extraReducers(builder) {
-       // Add async reducers
-     }
-   });
-   ```
-
-### GoJS Integration
-
-1. Create custom nodes in `src/lib/gojsTemplates`
-2. Use the diagram wrapper component:
-
-   ```tsx
-   import { ReactDiagram } from 'gojs-react';
-   import { nodeTemplate } from '../gojsTemplates';
-   
-   const DiagramWrapper = () => (
-     <ReactDiagram
-       initDiagram={initializeDiagram}
-       nodeTemplateMap={nodeTemplate}
-       skipsDiagramUpdate={false}
-     />
-   );
-   ```
-
-3. Never modify GoJS objects directly - use Redux actions
-
-### Next.js Pages
-
-- Use App Router structure
-- Server components in `src/app`
-- Client components in `src/components`
-- Dynamic routes follow `[param]/page.tsx` convention
-
-## 🧪 Testing
-
-### Test Types
-
-| Test Type       | Location              | Command         |
-|-----------------|-----------------------|-----------------|
-| Unit Tests      | `__tests__/*.test.ts` | `yarn test:unit`|
-| Integration     | `cypress/e2e`        | `yarn test:e2e` |
-| Visual Reg.     | `cypress/snapshots`  | `yarn test:visual` |
-
-### Testing Guidelines
-
-- Mock Redux store for component tests
-- Use `@testing-library/user-event` for interactions
-- Snapshots must be reviewed for GoJS diagrams
-
-## 🔀 Pull Request Process
-
-1. Ensure all tests pass
-2. Update documentation if needed
-3. Include screenshots for UI changes
-4. Describe changes in conventional commit format:
-
-   ```
-   feat: add node connection system
-   fix: resolve undo history bug
-   docs: update contributing guide
-   ```
-
-## 📚 Documentation
-
-### Updating Docs
-
-1. Modify Markdown files in `/docs`
-2. Run documentation server:
-
-   ```bash
-   yarn docs:dev
-   ```
-
-3. Keep JSDoc comments updated
-
-   ```typescript
-   /**
-    * Creates a new node in the diagram
-    * @param position - {x,y} coordinates
-    * @param type - Node type from NodeType enum
-    */
-   function createNode(position: Coord, type: NodeType): Node {
-     // implementation
-   }
-   ```
-
-## 🆘 Need Help?
-
-- Join our [Discord Server](https://discord.gg/your-invite-link)
-- Ask in GitHub Discussions
-- Attend our weekly Office Hours (Wednesdays 3PM UTC)
+Help me define and scope the following domain/topic:
+Domain Identification:
+ • Domain Name: [Insert concise and specific name]
+ • Domain Description: [Provide a clear, concise summary (2-3 sentences) that captures the essence and significance of the domain.]
+Domain scope:
+ • In-Scope: [Explicitly list the elements, activities, or areas included within the domain.]
+ • Out-of-Scope: [Clearly specify what aspects are explicitly excluded from the domain.]
+Key Domain Concepts and Terms
+ • Core Concepts: [List critical concepts fundamental to understanding the domain.]
+ • Relevant Keywords: [Provide key terminologies, acronyms, and types relevant to the domain.]
+Primary objectives: [Clearly define the main goals or outcomes this domain aims to achieve]
+Key stakeholders:
+Identify and categorize stakeholders by their roles or involvement:
+ • Primary Stakeholders: [Directly involved individuals or groups]
+ • Secondary Stakeholders: [Indirectly impacted individuals or groups]
+Current limitations and Boundaries:
+Outline existing constraints, limitations, and boundaries (technical, organizational, financial, regulatory, or operational)
+    • Constraint/Boundary 1
+ • Constraint/Boundary 2
+Success criteria:
+Define clear, measurable, and achievable indicators of success:
+ • [Success Criterion 1] (Measurable)
+ • [Success Criterion 2] (Measurable)
 
 ---
 
-🙌 Thank you for contributing to GraphicModelingApp! Your work helps build better creative tools for everyone.
+---
 
-```
+---
 
-This guide includes:
-1. Technology-specific guidelines for your stack
-2. Complete development workflow
-3. Testing strategies
-4. PR quality gates
-5. Documentation standards
-6. Community support channels
+# Domain Definition and Scoping: **Urban Micro-Mobility Solutions**  
 
-Would you like me to add any specific section or modify the existing content?
+## **Domain Identification**  
+
+- **Domain Name:** Urban Micro-Mobility Solutions  
+- **Domain Description:**  
+  Focuses on shared, short-distance transportation systems (e.g., bike/scooter rentals) in urban areas. Aims to reduce traffic congestion and carbon emissions by providing affordable, on-demand alternatives to cars. Combines technology, logistics, and sustainability to transform urban transit.  
+
+---
+
+## **Domain Scope**  
+
+### **In-Scope**  
+
+- Shared bike/e-scooter rental services  
+- Dockless and station-based systems  
+- Mobile app-based booking/payment  
+- Fleet management (maintenance, redistribution)  
+- Partnerships with municipalities/corporations  
+- User safety and accessibility features  
+
+### **Out-of-Scope**  
+
+- Long-term vehicle rentals (e.g., monthly car leases)  
+- Public transit operations (buses, trains)  
+- Private bike ownership models  
+- Infrastructure development (road construction)  
+
+---
+
+## **Key Domain Concepts and Terms**  
+
+### **Core Concepts**  
+
+1. **Last-Mile Connectivity:** Bridging gaps between transit hubs and destinations.  
+2. **Fleet Optimization:** AI-driven bike/scooter redistribution.  
+3. **Dockless Systems:** GPS-enabled free-floating vehicles.  
+4. **Dynamic Pricing:** Surge pricing based on demand/time.  
+
+### **Relevant Keywords**  
+
+- **Acronyms:** IoT (Internet of Things), GPS (Global Positioning System), SaaS (Software-as-a-Service)  
+- **Terminology:** Geofencing, ride-share compliance, carbon footprint, PMDs (Personal Mobility Devices)  
+
+---
+
+## **Primary Objectives**  
+
+1. **Reduce Urban Congestion:** Replace short car trips with micro-mobility options.  
+2. **Enhance Accessibility:** Affordable transit for low-income commuters.  
+3. **Sustainability:** Lower CO₂ emissions via zero-carbon transport.  
+4. **Profitability:** Scalable unit economics via rentals/ads/partnerships.  
+
+---
+
+## **Key Stakeholders**  
+
+### **Primary Stakeholders**  
+
+- **Users:** Tourists, daily commuters, students  
+- **Operators:** Fleet managers, app developers, maintenance crews  
+- **Investors:** Venture capitalists, municipal funds  
+
+### **Secondary Stakeholders**  
+
+- **Local Governments:** Permit issuers, urban planners  
+- **Businesses:** Retailers near docking stations  
+- **Environmental Groups:** Advocates for emission reduction  
+
+---
+
+## **Current Limitations and Boundaries**  
+
+### **Constraints**  
+
+1. **Regulatory:** City-specific bans on dockless systems.  
+2. **Technical:** GPS accuracy issues in dense urban areas.  
+3. **Financial:** High upfront costs for fleet/IoT infrastructure.  
+4. **Behavioral:** User reluctance to replace car commutes.  
+
+### **Boundaries**  
+
+- Limited to cities with population >500,000 (initial rollout).  
+- Excludes non-electric vehicles (focus on e-bikes/scooters).  
+
+---
+
+## **Success Criteria**  
+
+1. **Adoption Rate:** ≥15% of target population as active users within 12 months.  
+2. **Utilization Rate:** ≥5 rides/vehicle/day (industry benchmark).  
+3. **Sustainability:** 30% reduction in user-reported car trips.  
+4. **Profitability:** Break-even within 18 months (unit economics).  
+
+---
+
+### **Visual Summary**  
+
+```mermaid  
+pie  
+    title Key Focus Areas  
+    "Fleet Management" : 35  
+    "User Experience" : 25  
+    "Regulatory Compliance" : 20  
+    "Sustainability" : 20  
+```  
+
+*Note: Adapt scope/objectives based on target city size and funding stage (e.g., pilot vs. scale-up).*

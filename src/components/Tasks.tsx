@@ -396,7 +396,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
         </button>
         <div 
           className="tasklist">
-          {genTasksHeaderDiv}
+          {/* {genTasksHeaderDiv} */}
         </div>
         <style jsx>{`
             .tasklist {

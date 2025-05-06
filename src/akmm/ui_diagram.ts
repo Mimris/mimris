@@ -472,7 +472,20 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const objviewRef = gjsNode.objviewRef;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
+
+    if (!objectview) { // added by SF&CoPilot
+        console.error("Object view not found for objviewRef:", objviewRef);
+        alert("Object view not found. Please check the data.");
+        return; // Exit early if objectview is invalid
+    }
+
+    let object: akm.cxObject | null = myMetis.findObject(objectview.objectRef);
+
+    if (!object) {// added by SF&CoPilot
+        console.error("Object not found for objectRef:", objectview.objectRef);
+        alert("Object not found. Please check the data.");
+        return; // Exit early if object is invalid
+    }
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;

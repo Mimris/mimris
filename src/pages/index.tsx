@@ -137,9 +137,9 @@ const page = (props: any) => {
                   <div className="contextarea">
                     {contextDiv}
                   </div>
-                  <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                  {/* <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
                     <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-                  </div>
+                  </div> */}
                 </>
               }
             </div>

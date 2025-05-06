@@ -177,19 +177,23 @@ const Palette = (props: any) => {
   if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
   function getMetamodels(selectedIndex) {
-    setSelMetamodelName(metamodelList[selectedIndex].name)
-    console.log('143 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName);
-    const selmmodel = metamodelList[selectedIndex];
-    const mmodel = metamodels.find(m => m.id === selmmodel?.id);
-    const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
-    if (debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
-    const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
-    if (debug) console.log('149 Palette', filteredNodeDataArray);
-    const timer = setTimeout(() => {
-      setFilteredOtNodeDataArray(filteredNodeDataArray);
-      setRefreshPalette(!refreshPalette);
-    }, 200);
-    return () => clearTimeout(timer);
+    return new Promise((resolve) => {
+      setSelMetamodelName(metamodelList[selectedIndex].name);
+      console.log('143 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName);
+      const selmmodel = metamodelList[selectedIndex];
+      const mmodel = metamodels.find(m => m.id === selmmodel?.id);
+      const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
+      if (debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+      const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
+      if (debug) console.log('149 Palette', filteredNodeDataArray);
+
+      const timer = setTimeout(() => {
+        setFilteredOtNodeDataArray(filteredNodeDataArray);
+        setRefreshPalette(!refreshPalette);
+        resolve(); // Resolve the Promise after the asynchronous operation
+      }, 200);
+
+    });
   }
 
   const otDiv = (metamodelList && metamodelList.length > 0) && (
@@ -198,9 +202,16 @@ const Palette = (props: any) => {
       <select
         className="select-field mx-1 text-secondary"
         style={{ width: "98%" }}
-        // value={selMetamodelName}
-        // value={metamodelList?.findIndex((t) => t?.id === task.id)}
-        onChange={(e) => getMetamodels(e.target.value)}
+        onChange={async (e) => {
+          const selectedIndex = e.target.value;
+          if (selectedIndex !== "") {
+            try {
+              await getMetamodels(selectedIndex); // Wait for the asynchronous operation to complete
+            } catch (error) {
+              console.error("Error in getMetamodels:", error);
+            }
+          }
+        }}
       >
         <option value="" key="-1">
           Additional Metamodels
@@ -299,7 +310,7 @@ const Palette = (props: any) => {
           className="ps-1 m-0 bg-transparent"
         // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
         >
-          {metamodelTasks}
+          {/* {metamodelTasks} */}
         </div>
       </div>
     </>

@@ -4,7 +4,48 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
 ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
 
-Open-source Modelling tool with Graphical Diagram Editor using Cyclic   Entity-based Modeling and Metamodelling capabilities.
+Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-based Modeling and Metamodelling capabilities.
+
+Introduksjon:
+
+# Introduction to Modelling with Mimris
+
+A modelling language is an artificial, formal language designed to express data, information, or knowledge in a structured and consistent manner. Each modelling language adheres to a clearly defined set of rules that govern its syntax and semantics.
+
+In Mimris, the modelling language is graphical in nature, providing a visual means of representing complex information and relationships.
+
+## Understanding Metamodels
+
+A metamodel is a model that defines the structure and semantics of a modelling language. In practice, the term metamodel is often used interchangeably with modelling language, although the metamodel technically describes the language rather than using it. This distinction is crucial for understanding how to create and utilize custom modelling languages within Mimris.
+
+## Textual vs. Graphical Modelling Languages
+
+In textual modelling languages, we typically speak in terms of nouns (entities) and verbs (actions or relationships). In a graphical modelling language such as Mimris, the corresponding terms are objects and relationships. This shift from textual to graphical representation allows for a more intuitive and visual approach to modelling complex systems.
+
+## Mimris_META: The Core of Custom Modelling
+
+The modelling language used within Mimris to define new, custom modelling languages is called `Mimris_META`. `Mimris_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
+
+## Creating Custom Modelling Languages
+
+Once these custom types are specified (modelled), users can invoke the “Generate Metamodel” function to automatically produce their own metamodel. These metamodels—essentially new, domain-specific modelling languages—can then be used as the foundation for creating custom models tailored to specific needs or contexts.
+
+By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
+
+BPMN example model
+
+
+The Mimris version of the BPMN Metamodel as shown below is rather advanced. 
+It utilizes inheritance from an abstract object type (Gateway), relationships to and from the abstract type, in addition to relationships between non-abstract object types (Start, Task, End).  
+
+ 
+
+In addition it utilizes the “template2” field in the object and relationship views. This to achieve a completely different visualization of objects and relationships in the models built using the generated template than in the metamodel itself.
+
+Below is shown an example model built using a template generated from the metamodel above.
+
+  
+
 
 ![App Screenshot](./public/images/MimrisApp.png)
 
@@ -13,6 +54,11 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic   Entity-b
 ## Table of Contents
 
 - [Mimris-Modeling-App 🎨](#mimris-modeling-app-)
+- [Introduction to Modelling with Mimris](#introduction-to-modelling-with-mimris)
+  - [Understanding Metamodels](#understanding-metamodels)
+  - [Textual vs. Graphical Modelling Languages](#textual-vs-graphical-modelling-languages)
+  - [Mimris\_META: The Core of Custom Modelling](#mimris_meta-the-core-of-custom-modelling)
+  - [Creating Custom Modelling Languages](#creating-custom-modelling-languages)
   - [Table of Contents](#table-of-contents)
   - [🏗️ Tech Stack](#️-tech-stack)
   - [✨ Features](#-features)

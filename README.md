@@ -32,22 +32,19 @@ Once these custom types are specified (modelled), users can invoke the “Genera
 
 By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
 
-BPMN example model
-
+## BPMN example model
 
 The Mimris version of the BPMN Metamodel as shown below is rather advanced. 
 It utilizes inheritance from an abstract object type (Gateway), relationships to and from the abstract type, in addition to relationships between non-abstract object types (Start, Task, End).  
 
- 
+![BPMN-Meta](https://github.com/user-attachments/assets/d1cda36a-71e6-475e-8223-1b0a8a09b777)
 
 In addition it utilizes the “template2” field in the object and relationship views. This to achieve a completely different visualization of objects and relationships in the models built using the generated template than in the metamodel itself.
 
 Below is shown an example model built using a template generated from the metamodel above.
 
-  
+![BPMN-example](https://github.com/user-attachments/assets/322c2cec-c1bc-4ea4-813b-04675bbe86fe)
 
-
-![App Screenshot](./public/images/MimrisApp.png)
 
 [Powered by GoJS](https://gojs.net)
 

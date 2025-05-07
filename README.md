@@ -6,57 +6,16 @@
 
 Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-based Modeling and Metamodelling capabilities.
 
-Introduksjon:
-
-# Introduction to Modelling with Mimris
-
-A modelling language is an artificial, formal language designed to express data, information, or knowledge in a structured and consistent manner. Each modelling language adheres to a clearly defined set of rules that govern its syntax and semantics.
-
-In Mimris, the modelling language is graphical in nature, providing a visual means of representing complex information and relationships.
-
-## Understanding Metamodels
-
-A metamodel is a model that defines the structure and semantics of a modelling language. In practice, the term metamodel is often used interchangeably with modelling language, although the metamodel technically describes the language rather than using it. This distinction is crucial for understanding how to create and utilize custom modelling languages within Mimris.
-
-## Textual vs. Graphical Modelling Languages
-
-In textual modelling languages, we typically speak in terms of nouns (entities) and verbs (actions or relationships). In a graphical modelling language such as Mimris, the corresponding terms are objects and relationships. This shift from textual to graphical representation allows for a more intuitive and visual approach to modelling complex systems.
-
-## Mimris_META: The Core of Custom Modelling
-
-The modelling language used within Mimris to define new, custom modelling languages is called `Mimris_META`. `Mimris_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
-
-## Creating Custom Modelling Languages
-
-Once these custom types are specified (modelled), users can invoke the “Generate Metamodel” function to automatically produce their own metamodel. These metamodels—essentially new, domain-specific modelling languages—can then be used as the foundation for creating custom models tailored to specific needs or contexts.
-
-By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
-
-## BPMN example model
-
-The Mimris version of the BPMN Metamodel as shown below is rather advanced. 
-It utilizes inheritance from an abstract object type (Gateway), relationships to and from the abstract type, in addition to relationships between non-abstract object types (Start, Task, End).  
-
-![BPMN-Meta](https://github.com/user-attachments/assets/d1cda36a-71e6-475e-8223-1b0a8a09b777)
-
-In addition it utilizes the “template2” field in the object and relationship views. This to achieve a completely different visualization of objects and relationships in the models built using the generated template than in the metamodel itself.
-
-Below is shown an example model built using a template generated from the metamodel above.
-
-![BPMN-example](https://github.com/user-attachments/assets/322c2cec-c1bc-4ea4-813b-04675bbe86fe)
-
-
-[Powered by GoJS](https://gojs.net)
-
 ## Table of Contents
 
 - [Mimris-Modeling-App 🎨](#mimris-modeling-app-)
-- [Introduction to Modelling with Mimris](#introduction-to-modelling-with-mimris)
-  - [Understanding Metamodels](#understanding-metamodels)
-  - [Textual vs. Graphical Modelling Languages](#textual-vs-graphical-modelling-languages)
-  - [Mimris\_META: The Core of Custom Modelling](#mimris_meta-the-core-of-custom-modelling)
-  - [Creating Custom Modelling Languages](#creating-custom-modelling-languages)
   - [Table of Contents](#table-of-contents)
+  - [Introduction to Modelling with Mimris](#introduction-to-modelling-with-mimris)
+    - [Understanding Metamodels](#understanding-metamodels)
+    - [Textual vs. Graphical Modelling Languages](#textual-vs-graphical-modelling-languages)
+    - [Mimris\_META: The Core of Custom Modelling](#mimris_meta-the-core-of-custom-modelling)
+    - [Creating Custom Modelling Languages](#creating-custom-modelling-languages)
+    - [BPMN example model](#bpmn-example-model)
   - [🏗️ Tech Stack](#️-tech-stack)
   - [✨ Features](#-features)
   - [Quick Start �](#quick-start-)
@@ -73,20 +32,62 @@ Below is shown an example model built using a template generated from the metamo
     - [GoJS Configuration](#gojs-configuration)
   - [Contributing 🤝](#contributing-)
   - [License 📄](#license-)
-- [AKM Modeller](#akm-modeller)
+- [Mimris](#mimris)
 - [Develop branch used for deployment of beta versjon](#develop-branch-used-for-deployment-of-beta-versjon)
   - [The codebase](#the-codebase)
+
+## Introduction to Modelling with Mimris
+
+A modelling language is an artificial, formal language designed to express data, information, or knowledge in a structured and consistent manner. Each modelling language adheres to a clearly defined set of rules that govern its syntax and semantics.
+
+In Mimris, the modelling language is graphical in nature, providing a visual means of representing complex information and relationships.
+
+### Understanding Metamodels
+
+A metamodel is a model that defines the structure and semantics of a modelling language. In practice, the term metamodel is often used interchangeably with modelling language, although the metamodel technically describes the language rather than using it. This distinction is crucial for understanding how to create and utilize custom modelling languages within Mimris.
+
+### Textual vs. Graphical Modelling Languages
+
+In textual modelling languages, we typically speak in terms of nouns (entities) and verbs (actions or relationships). In a graphical modelling language such as Mimris, the corresponding terms are objects and relationships. This shift from textual to graphical representation allows for a more intuitive and visual approach to modelling complex systems.
+
+### Mimris_META: The Core of Custom Modelling
+
+The modelling language used within Mimris to define new, custom modelling languages is called `Mimris_META`. `Mimris_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
+
+### Creating Custom Modelling Languages
+
+Once these custom types are specified (modelled), users can invoke the “Generate Metamodel” function to automatically produce their own metamodel. These metamodels—essentially new, domain-specific modelling languages—can then be used as the foundation for creating custom models tailored to specific needs or contexts.
+
+By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
+
+### BPMN example model
+
+The Mimris version of the BPMN Metamodel as shown below is rather advanced. 
+It utilizes inheritance from an abstract object type (Gateway), relationships to and from the abstract type, in addition to relationships between non-abstract object types (Start, Task, End).  
+
+![BPMN-Meta](https://github.com/user-attachments/assets/d1cda36a-71e6-475e-8223-1b0a8a09b777)
+
+In addition it utilizes the “template2” field in the object and relationship views. This to achieve a completely different visualization of objects and relationships in the models built using the generated template than in the metamodel itself.
+
+Below is shown an example model built using a template generated from the metamodel above.
+
+![BPMN-example](https://github.com/user-attachments/assets/322c2cec-c1bc-4ea4-813b-04675bbe86fe)
+
+
+[Powered by GoJS](https://gojs.net)
+
+
 
 ## 🏗️ Tech Stack
 
 - **Frontend Framework**: Next.js 13 (Page Router)
 - **Language**: TypeScript 5+
 - **Diagram Library**: GoJS 3.0
-- **State Management**: Redux Toolkit
-- **Rendering**: React 18 (Server Components)
-- **Build System**: Turborepo
-- **Styling**: Tailwind CSS + CSS Modules + Shadcn
-
+- **State Management**: Redux
+- **Rendering**: React
+- **Build System**: npm
+- **Styling**: Bootstrap and ReactStrap, CSS  
+  
 ## ✨ Features
 
 - **Basic Knowledge graph**
@@ -111,8 +112,8 @@ Below is shown an example model built using a template generated from the metamo
 
 ```bash
 # Clone the repository
-git clone https://github.com/Mimris/mimris-modelling-app.git
-cd mimris-modelling-app
+git clone https://github.com/Mimris/mimris.git
+cd mimris
 ```bash
 
 - **Install dependencies
@@ -133,16 +134,16 @@ npm run dev
 
 ### Prerequisites
 
-- Node.js v18+
-- npm v9+
-- Next.js v13+
-- GoJS v2.2+
+- Node.js
+- npm
+- Next.js
+- GoJS
 
 See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 
 ## Usage 🖌️
 
-### Basic user Workflow 
+### Basic user Workflow
 
 1. Drag Objecttypes from the Palette in to the modelling area
 2. Connect nodes using relationships. Click on the obects edge and drag to another object to create a relationship
@@ -161,7 +162,7 @@ See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
     /utils      - Utility functions
   /hooks      - Custom hooks
   /styles     - CSS styles
-  /akmm       - akmm modules
+  /Mimris       - Mimris modules
   /pages       - Next.js pages
     /api         - API routes
     /helpblogs - Help blogs
@@ -285,39 +286,39 @@ This project is licensed under the GNU General Public License v3.0 - see [LICENS
 **Maintained by** [Mimris]
 
 •
- 📧 <contact@example.com>
+ 📧 <snorres@gmail.com>
 
  •
-[Live Demo](kmmclient-alfa.vercel.app/modelling)
+[Live Demo](mimris.vercel.app/modelling)
 
 
-# AKM Modeller
+# Mimris
 
-AKM Modeller is the tool for building Active Knowledge Models, a modelling tool with integrated Use-case Modeling and Meta-modelling capabilities.
+Mimris is the tool for building Active Knowledge Models, a modelling tool with integrated Use-case Modeling and Meta-modelling capabilities.
 
 Its build on some of the same concepts implemented I Metis (1985-2007) which was written in  C++. 
-AKM modeller is written in JavaScript and TypeSctipt, using libraries like:  Next.js, React, Redux, Gojs ....
+Mimris is written in JavaScript and TypeSctipt, using libraries like:  Next.js, React, Redux, Gojs ....
 
 # Develop branch used for deployment of beta versjon
 
-<!-- ![vv](https://akmclient-beta.herokuapp.com/videos/AKMM-Getting-Started-1.mp4)
+<!-- ![vv](https://Mimris-beta.herokuapp.com/videos/Mimris-Getting-Started-1.mp4)
 
-<!-- ![vv](https://akmclient-beta.herokuapp.com/videos/AKMM-Getting-Started-1.mp4)
+<!-- ![vv](https://Mimris-beta.herokuapp.com/videos/Mimris-Getting-Started-1.mp4)
 ![Getting started](./public/images/alive.png )
 <video width="420" height="240" controls>
-  <source src="https://akmclient-beta.herokuapp.com/videos/AKMM-Getting-Started-1.mp4" type="video/mp4">
+  <source src="https://Mimris-beta.herokuapp.com/videos/Mimris-Getting-Started-1.mp4" type="video/mp4">
 </video>
 -->
 
 ## The codebase
 
 
-Akmclient is a collection of functions and components written in TypeScript and React for this Modelling application.
+Mimris is a collection of functions and components written in TypeScript and React for this Modelling application.
 There are two main code parts:
 
- 1. AKMM code
- This code is JavaScript/TypeScript Object-oriented programming and is handeling all AKMM modelling parts, i.e. the the model, modelview, object- relationship, objectview- relationshipview, and the integration with GOJS graphical  diagram library.
- The main principal for AKMM modelling is that the model has a collection of Objects and Relationships.
+ 1. Mimris code
+ This code is JavaScript/TypeScript Object-oriented programming and is handling all Mimris modelling parts, i.e. the the model, modelview, object- relationship, objectview- relationshipview, and the integration with GOJS graphical  diagram library.
+ The main principal for Mimris modelling is that the model has a collection of Objects and Relationships.
  Wi have modelviews that has collection of Objectviews and Reltationshipviews that refer to the Objects and Relationships. This means that and object can have many objectviews. These Objectviews can be in same or different Modelviews.
 
  1. The Frontend backend part, functional programmed handeling the Single page App with integration with Redux store,  API's to GitHub, localStorage and the filesystem.

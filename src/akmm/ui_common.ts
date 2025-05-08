@@ -2571,6 +2571,26 @@ export function scaleNodeLocation(group: any, node: any): any {
     return loc;
 }
 
+export function scaleNodeLocation1(group: any, node: any): any {
+    if (group.scale == node.scale)
+        return;
+    let scaleFactor = node.scale / group.scale;
+    const grploc = group.loc;
+    const grpLoc = grploc?.split(" ");
+    if (!grpLoc) return;
+    const gx = parseInt(grpLoc[0]);
+    const gy = parseInt(grpLoc[1]);
+    const nodloc = node.loc;
+    const nodLoc = nodloc?.split(" ");
+    if (!nodLoc) return;
+    const nx = parseInt(nodLoc[0]);
+    const ny = parseInt(nodLoc[1]);
+    let deltaNx = (nx - gx) * scaleFactor;
+    let deltaNy = (ny - gy) * scaleFactor;
+    const loc = { "x": nx, "y": ny };
+    return loc;
+}
+
 export function scaleNodeLocation2(node: any, refloc: string, toloc: any, scaleFactor: any): any {
     if (debug) console.log('1146 node, refloc, toloc, scaleFactor ', node, refloc, toloc, scaleFactor);
     const refLoc = refloc?.split(" ");

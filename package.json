@@ -46,7 +46,7 @@
     "es6-promise": "^4.2.8",
     "file-saver": "^2.0.5",
     "fs": "0.0.1-security",
-    "go": "^2.0.2",
+    "go": "^3.0.1",
     "gojs": "^3.0.19",
     "gojs-react": "^1.1.2",
     "graphql": "^16.10.0",

@@ -12,7 +12,7 @@ import Tasks from '../components/Tasks'
 
 
 const debug = false;
-const includeCoreAndIRTV = false;
+const includeCoreAndIRTV = true;
 
 const clog = console.log.bind(console, '%c %s',
   'background: blue; color: white');
@@ -214,51 +214,60 @@ const Palette = (props: any) => {
     </>
   );
 
-  const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
-    <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
-      {/* Top palette with current metamodelpalette */}
-      <GoJSPaletteApp
-        nodeDataArray={filteredNewtypesNodeDataArray}
-        linkDataArray={[]}
-        metis={props.metis}
-        myMetis={props.myMetis}
-        phFocus={props.phFocus}
-        dispatch={props.dispatch}
-        diagramStyle={{ height: "76vh" }}
-      />
-    </details>
-  if (includeCoreAndIRTV) {
-  const gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
-    <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
-      <GoJSPaletteApp
-        nodeDataArray={IRTVOtNodeDataArray}
-        linkDataArray={[]}
-        myMetis={props.myMetis}
-        metis={props.metis}
-        phFocus={props.phFocus}
-        dispatch={props.dispatch}
-        diagramStyle={{ height: "37vh" }}
-      />
+
+    const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
+    (
+      <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
+        <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
+        {/* Top palette with current metamodelpalette */}
+        <GoJSPaletteApp
+          nodeDataArray={filteredNewtypesNodeDataArray}
+          linkDataArray={[]}
+          metis={props.metis}
+          myMetis={props.myMetis}
+          phFocus={props.phFocus}
+          dispatch={props.dispatch}
+          diagramStyle={{ height: "76vh" }}
+        />
+      </details>
+    )
+
+    let gojsappPaletteIRTVDiv = null; // Initialize with a default value
+    if (includeCoreAndIRTV) {
+      gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'AKM-IRTV_MM') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
+      <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
+        <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
+        <GoJSPaletteApp
+          nodeDataArray={IRTVOtNodeDataArray}
+          linkDataArray={[]}
+          myMetis={props.myMetis}
+          metis={props.metis}
+          phFocus={props.phFocus}
+          dispatch={props.dispatch}
+          diagramStyle={{ height: "37vh" }}
+        />
+      </details>
+  }
+
+    let gojsappPaletteCoreDiv = null; // Initialize with a default value
+    gojsappPaletteCoreDiv = (mmodel && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
+      <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
+        <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
+        <GoJSPaletteApp
+          nodeDataArray={CoreOtNodeDataArray}
+          linkDataArray={[]}
+          myMetis={props.myMetis}
+          metis={props.metis}
+          phFocus={props.phFocus}
+          dispatch={props.dispatch}
+          diagramStyle={{ height: "65vh" }}
+        />
     </details>
 
-  const gojsappPaletteCoreDiv = (mmodel && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
-    <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
-      <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
-      <GoJSPaletteApp
-        nodeDataArray={CoreOtNodeDataArray}
-        linkDataArray={[]}
-        myMetis={props.myMetis}
-        metis={props.metis}
-        phFocus={props.phFocus}
-        dispatch={props.dispatch}
-        diagramStyle={{ height: "65vh" }}
-      />
-    </details>
-  }
+
   const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
-  let gojsappPaletteDiv = null;
+
+  let gojsappPaletteDiv = null; // Initialize with a default value
   if (includeCoreAndIRTV) {
     gojsappPaletteDiv =
     <>

@@ -90,7 +90,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           {
             initialContentAlignment: go.Spot.Top,       // center the content
             // initialAutoScale: go.Diagram.Uniform,
-            maxSelectionCount: 6,
+            maxSelectionCount: 16,
             layout: $(go.GridLayout,
               {
                 // sorting: go.GridLayout.Ascending,
@@ -109,8 +109,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             model: $(go.GraphLinksModel,
               {
                 linkKeyProperty: 'key'
-              })
-
+              }),
+            scale: 0.9, // Adjust this value to make the zoom smaller (default is 1.0)
           });
 
       let paletteNodeTemplate: any;

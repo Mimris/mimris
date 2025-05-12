@@ -84,7 +84,7 @@ const Modelling = (props: any) => {
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
-  if (!curmod) curmod = models[0]
+  if (!curmod) curmod = models[0] || null
 
   const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
@@ -415,6 +415,7 @@ const Modelling = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       phUser={phUser}
+                      setVisiblePalette={props.setVisiblePalette}
                     />
                   </div>
                 </Col>

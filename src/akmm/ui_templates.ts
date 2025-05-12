@@ -2536,7 +2536,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 {
                     fill: 'transparent', stroke: null, strokeWidth: 1,
                     cursor: 'move',
-                    desiredSize: new go.Size(80, 50),
+                    desiredSize: new go.Size(130, 50),
                 },
             ),
         ),
@@ -2564,7 +2564,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             { contextMenu: contextMenu },    
             {
                 selectionObjectName: "SHAPE",
-                resizable: true, resizeObjectName: "SHAPE"
+                // resizable: true, resizeObjectName: "SHAPE"
             },
             {
                 toolTip:
@@ -2590,7 +2590,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         strokeWidth: 4,
                         cursor: "alias",                    // cursor: "pointer",
                         minSize: new go.Size(60, 60), 
-                        desiredSize: new go.Size(60, 60),   // outer Shape size 
+                        desiredSize: new go.Size(76, 76),   // outer Shape size 
                         // set the port properties
                         portId: "", 
                         fromLinkable: true,
@@ -2611,8 +2611,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: "transparent",
                         strokeWidth: 1,
                         cursor: "move",        // cursor: "pointer",
-                        minSize: new go.Size(40, 40), 
-                        desiredSize: new go.Size(40, 40), // outer Shape size 
+                        minSize: new go.Size(30, 30), 
+                        desiredSize: new go.Size(50, 50), // outer Shape size 
                     },
                 ),
             ),
@@ -2637,10 +2637,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            // new go.Binding("scale", "scale1").makeTwoWay(),
             {
                 selectionObjectName: "SHAPE",
-                resizable: true, 
+                // resizable: true, 
                 resizeObjectName: "SHAPE",
                 contextMenu: contextMenu ,    
             },
@@ -2667,8 +2667,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: "black",
                         strokeWidth: 1,
                         cursor: "alias",                    // To draw a link,
-                        minSize: new go.Size(70, 70), 
-                        desiredSize: new go.Size(70, 70),  // outer Shape size 
+                        minSize: new go.Size(60, 60), 
+                        desiredSize: new go.Size(79, 79),  // outer Shape size 
                         // set the port properties
                         portId: '', 
                         fromLinkable: true, 
@@ -2686,8 +2686,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         fill: "transparent",
                         stroke: "black",
                         strokeWidth: 3,
-                        minSize: new go.Size(25, 25), 
-                        desiredSize: new go.Size(25, 25), // outer Shape size 
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(20, 20), 
+                        desiredSize: new go.Size(30, 30), // outer Shape size 
                     },
                     new go.Binding('stroke', 'strokecolor'), 
                     new go.Binding("figure", "figure"), 
@@ -2699,7 +2700,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: "transparent",
                         strokeWidth: 1,
                         cursor: "move",                    // To move a node,
-                        minSize: new go.Size(50, 50), 
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(40, 40), 
                         desiredSize: new go.Size(50, 50),  // outer Shape size 
                     },
                 ),

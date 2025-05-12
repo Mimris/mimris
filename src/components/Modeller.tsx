@@ -675,72 +675,71 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </Modal>
         </>
 
-    const modellerDiv =
-        (props.modelType === 'model')
-            ? // modelling
-            <div className="modeller-workarea w-100 d-flex flex-col">
-                <div className={`modeller--objects me-1 
-                    ${visibleObjects
-                        ? isExpanded
-                            ? 'col-2'
-                            : 'col-1'
-                        : 'col-0'} `}
-                        style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
+    const modellerDiv = (props.modelType === 'model')
+        ? // modelling
+        <div className="modeller-workarea w-100 d-flex flex-col">
+            <div className={`modeller--objects me-1 
+                ${visibleObjects
+                    ? isExpanded
+                        ? 'col-2'
+                        : 'col-1'
+                    : 'col-0'} `}
+                    style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
+            >
+                <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
+                    style={{ backgroundColor: "#7b8" }}
                 >
-                    <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
-                        style={{ backgroundColor: "#7b8" }}
-                    >
-                        <button
-                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
-                            onClick={toggleObjects}
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
-                            {visibleObjects 
-                                ?   <span> &lt;- Objects </span> 
-                                :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
-                                    </span>}
-                        </button>
-                        <button
-                            className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                            onClick={toggleIsExpanded}
-                            data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
-                            {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-                        </button>
-                    </div>
-                    <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
-                        {(visibleObjects)
-                            ? (objectsRefresh)
-                                ? <>{objectsDiv}</>
-                                : <> {objectsDiv} </>
-                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
-                        }
-                    </div>
+                    <button
+                        className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
+                        onClick={toggleObjects}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
+                        {visibleObjects 
+                            ?   <span> &lt;- Objects </span> 
+                            :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                                </span>}
+                    </button>
+                    <button
+                        className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                        onClick={toggleIsExpanded}
+                        data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
+                        {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                    </button>
                 </div>
-                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
-                    style={{
-                        minWidth: visibleObjects ? '48%' : '28%',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        flexGrow: 1
-                    }}>
-                    {modelviewTabDiv}
+                <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
+                    {(visibleObjects)
+                        ? (objectsRefresh)
+                            ? <>{objectsDiv}</>
+                            : <> {objectsDiv} </>
+                        : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
+                    }
                 </div>
             </div>
-            : // metamodelling
-            <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
-                <div className="modeller--topbar mt-1 p-0">
-                    <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
-                    <div className="">
-                    </div>
-                    <div>
-                        {metamodelTabDiv}
-                    </div>
-                </div>
+            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
+                style={{
+                    minWidth: visibleObjects ? '48%' : '28%',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    flexGrow: 1
+                }}>
+                {modelviewTabDiv}
+            </div>
+        </div>
+        : // metamodelling
+        <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
+            <div className="modeller--topbar mt-1 p-0">
+                <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
                 <div className="">
-                    {footerButtonsDiv}
+                </div>
+                <div>
+                    {metamodelTabDiv}
                 </div>
             </div>
+            <div className="">
+                {footerButtonsDiv}
+            </div>
+        </div>
 
     return (
         <div className="" style={{ display: 'flex', flexDirection: 'row' }} >

@@ -36,6 +36,7 @@ const Palette = (props: any) => {
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
   const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
   const [POPSOtNodeDataArray, setPOPSOtNodeDataArray] = useState([])
+  const [BPMNOtNodeDataArray, setBPMNOtNodeDataArray] = useState([])
   const [CoreOtNodeDataArray, setCoreOtNodeDataArray] = useState([])
   const [filteredNewtypesNodeDataArray, setFilteredNewtypesNodeDataArray] = useState([])
   // const [metamodelList, setMetamodelList] = useState([])
@@ -85,12 +86,14 @@ const Palette = (props: any) => {
   let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'MIMRIS_META')
   let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'IRTV_META')
   let popsmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'POPS_META')
+  let bpmnmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'BPMN_META')
   let taskNodeDataArray: any[] = ndarr
 
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
     if (debug) useEfflog('89 Palette useEffect 1 [] ');
+    if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes = mmodel?.objecttypes;
@@ -112,6 +115,8 @@ const Palette = (props: any) => {
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
     popsmetamodel = metamodels.find(m => m?.name === 'POPS_META')
     const popstypes = popsmetamodel?.objecttypes.map((t: any) => t?.name);
+    bpmnmetamodel = metamodels.find(m => m?.name === 'BPMN_META')
+    const bpmnTypes = bpmnmetamodel?.objecttypes.map((t: any) => t?.name);
     const additionalmetamodel = (coremetamodel?.name === mmodel?.name) ? irtvmetamodel : coremetamodel
     const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
     setSelMetamodelName(additionalmetamodel?.name)
@@ -121,6 +126,7 @@ const Palette = (props: any) => {
     setCoreOtNodeDataArray(buildFilterOtNodeDataArray(coreTypes, coremetamodel));
     setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, irtvmetamodel));
     setPOPSOtNodeDataArray(buildFilterOtNodeDataArray(popstypes, popsmetamodel));
+    setBPMNOtNodeDataArray(buildFilterOtNodeDataArray(bpmnTypes, bpmnmetamodel));
 
     setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
     // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
@@ -157,9 +163,11 @@ const Palette = (props: any) => {
           ? ['Container', 'Information', 'Role', 'Task', 'View']
           : (mmodel.name === 'POPS_META')
             ? ['Container', 'Product', 'Facility', 'Equipment', 'Material', 'Geobody', 'DistributNetwork', 'Organisation', 'Process', 'Event', 'Data', 'Service', 'System', 'Software', 'Device']
-          : (mmodel.name === 'OSDU_META')
-            ? ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
-            : ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
+            : (mmodel.name === 'BPMN_META')
+              ? ['Pool', 'Lane', 'Start', 'Activity', 'Task','Event', 'ParallelGate', 'InclusiveGate', 'ExclusiveGate', 'End', 'DataObject', 'DataStore', 'Container']
+              : (mmodel.name === 'OSDU_META')
+                ? ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
+                : ['Container']
 
 
       const otsArrSorted = otsArr.sort((a, b) => {

@@ -119,7 +119,7 @@ const page = (props: any) => {
               <Header title='HeaderTitle' />
               <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div> */}
-            <ProjectMenuBar {...props}
+            {/* <ProjectMenuBar {...props}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               refresh={refresh} setRefresh={setRefresh}
@@ -142,7 +142,7 @@ const page = (props: any) => {
                   </div>
                 </>
               }
-            </div>
+            </div> */}
               <div className="workplace row d-flex justify-content-between ms-2" style={{backgroundColor: "#10859a"}}>
                 <div className="tasksarea bg-transparent col-4 m-1">
                   <Project props={props}/>

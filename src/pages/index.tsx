@@ -89,7 +89,7 @@ const page = (props: any) => {
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 
-  const externalPageUrl = `https://mimris.github.io/mimris/`; // Replace with the URL of the external webpage you want to display
+  const externalPageUrl = `https://mimris.github.io/mimris/`;  // Replace with the URL of the external webpage you want to display
   // const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
 
   const iframe = showExternalPage ? (

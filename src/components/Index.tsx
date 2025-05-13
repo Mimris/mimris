@@ -64,14 +64,12 @@ const page = (props) => {
             }}
           >
             <CardHeader className="card-header h-100" >Mimris release log ... </CardHeader>
-            {/* <CardBody className="card-body" >  
-              <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.05.03</CardTitle>
               <CardText >
-                  &bull; Workplace templates for reflective workplace modelling! <br />
-                  &bull; Strokewidth for synbol border and relship line!<br />
-                  &bull; GraphQL shema reporting from Solution models!<br />
+                &bull;Bugfix and added BPMN in Palette<br />
               </CardText>
-            </CardBody> */}
+            </CardBody>
             <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.05.06</CardTitle>
               <CardText >

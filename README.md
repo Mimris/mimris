@@ -4,12 +4,8 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
 ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
 
-Open-source Modelling tool with Graphical Diagram Editor using Cyclic   Entity-based Modeling and Metamodelling capabilities.
-![3B161451-6FAC-43C6-9763-ADA43329ECD7_1_105_c](https://github.com/user-attachments/assets/ea2b6b9a-f8cc-4916-aa00-3e8693015fd3)
-
-![App Screenshot](./public/images/MimrisApp.png)
-
-[Powered by GoJS](https://gojs.net)
+Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-based Modeling and Metamodelling capabilities.
+<!-- <img src="https://github.com/user-attachments/assets/ea2b6b9a-f8cc-4916-aa00-3e8693015fd3" alt="Image Description" width="200" /> -->
 
 ## Table of Contents
 

@@ -89,7 +89,8 @@ const page = (props: any) => {
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 
-  const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
+  const externalPageUrl = `https://mimris.github.io/mimris/`; // Replace with the URL of the external webpage you want to display
+  // const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
 
   const iframe = showExternalPage ? (
     <iframe src={externalPageUrl} width="100%" height="1500px" />
@@ -132,13 +133,13 @@ const page = (props: any) => {
               {expanded && 
                 <>
                   <div className="issuesarea">
-                    <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
+                    {/* <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/> */}
                   </div>
                   <div className="contextarea">
-                    {contextDiv}
+                    {/* {contextDiv} */}
                   </div>
                   <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                    <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                    {/* <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} /> */}
                   </div>
                 </>
               }

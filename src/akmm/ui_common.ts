@@ -3823,7 +3823,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_MM");
+    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_META");
     const objtypeviews = getObjectTypeviews(coreMetamodel);
     coreMetamodel.objecttypeviews = objtypeviews;
     metamodels.push(coreMetamodel);
@@ -3832,7 +3832,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     for (let i = 0; i < myMetis.metamodels?.length; i++) {
         const mmodel = myMetis.metamodels[i];
-        if (mmodel.name === 'AKM-META_MM') continue;
+        if (mmodel.name === 'AKM-META_META') continue;
         const objtypeviews = getObjectTypeviews(mmodel);
         mmodel.objecttypeviews = objtypeviews;
         metamodels.push(mmodel);
@@ -4477,7 +4477,7 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
 
 export function isGenericMetamodel(myMetis: akm.cxMetis) {
     const metamodel = myMetis.currentMetamodel;
-    if (metamodel.name === 'GENERIC_MM')
+    if (metamodel.name === 'GENERIC_META')
         return true;
     return false;
 }

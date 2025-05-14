@@ -20,7 +20,7 @@ export function askForMetamodel(context: any, create: boolean) {
     let mmlist = "";
     for (let i = 0; i < metamodels.length; i++) {
         const mm = metamodels[i];
-        if (mm.name === constants.admin.AKM_ADMIN_MM)
+        if (mm.name === constants.admin.AKM_ADMIN_META)
             continue;
         if (i == 0) {
             mmlist = "'" + mm.name + "'";
@@ -888,7 +888,7 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
             break;
         }
     }
-    if (mmname === constants.core.AKM_CORE_MM) {
+    if (mmname === constants.core.AKM_CORE_META) {
         myMetis.currentModel.includeSystemtypes = true;
     } else {
         myMetis.currentModel.includeSystemtypes = false;
@@ -969,7 +969,7 @@ export function askForTargetMetamodel(context: any) {
             const mm = metamodels[i];
             if (!mm.id)
                 continue;
-            if (mm.name === constants.admin.AKM_ADMIN_MM)
+            if (mm.name === constants.admin.AKM_ADMIN_META)
                 continue;
             if (!myMetis.allowGenerateCurrentMetamodel) {
                 if (mm.id === myMetamodel.id)
@@ -1005,7 +1005,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         return false;
     if (!sourcemodelview)
         return false;
-    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
+    if (targetMetamodel.name === constants.core.AKM_CORE_META) {
         const typelist = new Array();
         typelist.push("Default");
         typelist.push("Entity Type");
@@ -1015,7 +1015,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
         targetMetamodel?.clearContent();
     }
-    if (targetMetamodel?.name !== constants.core.AKM_CORE_MM) {
+    if (targetMetamodel?.name !== constants.core.AKM_CORE_META) {
         modelviewList = new Array();
         modelviewList.push(sourcemodelview.name);
     } else {
@@ -1429,7 +1429,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     const mmname = targetMetamodel.name;
     if (debug) console.log('1268 generateMetamodel 1');
     let isCoreMetamodel = false;
-    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
+    if (targetMetamodel.name === constants.core.AKM_CORE_META) {
         isCoreMetamodel = true;
         includeMetamodelling = true;
     }
@@ -1526,7 +1526,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
-    const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_MM);
+    const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_META);
     let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     let containsTypeView = containsType?.typeview;
     let hasSubMetamodelType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);

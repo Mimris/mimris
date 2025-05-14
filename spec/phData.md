@@ -467,7 +467,7 @@ It stands for "placeholder Data" (should maybe changed to )
       "metamodels": [
         {
           "id": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
-          "name": "BASIC_MM",
+          "name": "BASIC_META",
           "description": "",
           "metamodelRefs": [],
           "viewstyles": [

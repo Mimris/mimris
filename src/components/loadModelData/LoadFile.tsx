@@ -96,7 +96,7 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef)
-    SaveMetamodelToFile(metamodel, metamodel.name, '_MM')
+    SaveMetamodelToFile(metamodel, metamodel.name, '_META')
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
 
@@ -120,8 +120,8 @@ const LoadFile = (props: any) => {
 
     if (debug) console.log('199 Loadfile', newmm, filename)
     SaveAllToFile(data, filename, '_PR')
-    const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
-    SaveMetamodelToFile(newmm, metamodelname, '_MM')
+    const metamodelname = newmm?.name.replace('_META', '') // remove _META to avoid twice
+    SaveMetamodelToFile(newmm, metamodelname, '_META')
   }
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
@@ -183,7 +183,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
-        onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._MM.json
+        onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._META.json
       </button >
     </div>
 
@@ -203,7 +203,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
-        onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_MM.json
+        onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_META.json
       </button >
     </div>
 

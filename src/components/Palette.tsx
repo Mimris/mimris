@@ -83,7 +83,7 @@ const Palette = (props: any) => {
 
 
   if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
-  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'MIMRIS_META')
+  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'CORE_META')
   let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'IRTV_META')
   let popsmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'POPS_META')
   let bpmnmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'BPMN_META')
@@ -109,7 +109,7 @@ const Palette = (props: any) => {
     (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
 
     if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'MIMRIS_META')
+    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'CORE_META')
     const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
     irtvmetamodel = metamodels.find(m => m?.name === 'IRTV_META')
     const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
@@ -157,7 +157,7 @@ const Palette = (props: any) => {
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
       // sort the array by order with these first: Container, EntityType, Property, Datatype, Value, FieldType, InputPattern, ViewFormat
-      const wotArr = (mmodel.name === 'MIMRIS_META')
+      const wotArr = (mmodel.name === 'CORE_META')
         ? ['Container', 'EntityType', 'RelshipType', 'Property', 'Datatype', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat', 'Method', 'MethodType']
         : (mmodel.name === 'IRTV_META')
           ? ['Container', 'Information', 'Role', 'Task', 'View']
@@ -282,7 +282,7 @@ const Palette = (props: any) => {
   }
 
     let gojsappPaletteMETADiv = null; // Initialize with a default value
-  gojsappPaletteMETADiv = (mmodel && (mmodel?.name !== 'MIMRIS_META') && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
+  gojsappPaletteMETADiv = (mmodel && (mmodel?.name !== 'CORE_META') && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
       <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
         <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
         <GoJSPaletteApp
@@ -306,7 +306,7 @@ const Palette = (props: any) => {
       {gojsappPaletteTopDiv}
       {(mmodel?.name !== 'IRTV_META')   && gojsappPaletteIRTVDiv}
       {(mmodel?.name !== 'POPS_META')   && gojsappPalettePOPSDiv}
-      {(mmodel?.name !== 'MIMRIS_META') && gojsappPaletteMETADiv}
+      {(mmodel?.name !== 'CORE_META') && gojsappPaletteMETADiv}
     </>
   } else {
     gojsappPaletteDiv =

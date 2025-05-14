@@ -107,7 +107,7 @@ const InitStateJson = StartInitStateJson
 if (debug) console.log('86 InitStateJson', InitStateJson);
 const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
-// import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
+// import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
 // const InitProject = JSON.parse(JSON.stringify(InitProject))
 // // const InitMetamodels = JSON.parse(JSON.stringify(InitMetamodelsJson)) 
@@ -123,8 +123,8 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 //   phData: null, //InitState.phData,
 //   // phData: {
 //   //   metis: {
-//   //     name: 'Empty AKMM model',
-//   //     description: 'AKMM Model',
+//   //     name: 'Empty Mimris model',
+//   //     description: 'Mimris Model',
 //   //     metamodels: [],
 //   //     models: [], 
 //   //     currentMetamodelRef: '',

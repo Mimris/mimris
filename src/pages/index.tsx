@@ -43,6 +43,7 @@ const page = (props: any) => {
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
   const [exportTab, setExportTab] = useState(false);
 
+  const [activeTab, setActiveTab] = useState('tab1');
 
 
 
@@ -89,7 +90,8 @@ const page = (props: any) => {
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 
-  const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
+  const externalPageUrl = `https://mimris.github.io/mimris/`;  // Replace with the URL of the external webpage you want to display
+  // const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
 
   const iframe = showExternalPage ? (
     <iframe src={externalPageUrl} width="100%" height="1500px" />
@@ -115,47 +117,86 @@ const page = (props: any) => {
       <Layout user={ props.phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper">
-            {/* <div className="header">
-              <Header title='HeaderTitle' />
-              <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
-            </div> */}
-            {/* <ProjectMenuBar {...props}
-              expanded={expanded} setExpanded={setExpanded}
-              focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
-              refresh={refresh} setRefresh={setRefresh}
-              visibleFocusDetails={visibleFocusDetails}
-              setVisibleFocusDetails={setVisibleFocusDetails}
-              exportTab={exportTab} setExportTab={setExportTab}
-            />
-            <div className="context-bar d-flex justify-content-between align-items-center" 
-              style={{  backgroundColor: "#ffffed" }}>
-              {expanded && 
-                <>
-                  <div className="issuesarea">
-                    <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
-                  </div>
-                  <div className="contextarea">
-                    {contextDiv}
-                  </div>
-                  <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
-                    <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
-                  </div>
-                </>
-              }
-            </div> */}
-              <div className="workplace row d-flex justify-content-between ms-2" style={{backgroundColor: "#10859a"}}>
+              {/* <div className="header">
+                <Header title='HeaderTitle' />
+                <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
+              </div> */}
+              {/* <ProjectMenuBar {...props}
+                expanded={expanded} setExpanded={setExpanded}
+                focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
+                refresh={refresh} setRefresh={setRefresh}
+                visibleFocusDetails={visibleFocusDetails}
+                setVisibleFocusDetails={setVisibleFocusDetails}
+                exportTab={exportTab} setExportTab={setExportTab}
+              />
+              <div className="context-bar d-flex justify-content-between align-items-center" 
+                style={{  backgroundColor: "#ffffed" }}>
+                {expanded && 
+                  <>
+                    <div className="issuesarea">
+                      <Issues props={props} showModal={showModal} setShowModal={setShowModal} minimized={minimized} setMinimized={setMinimized}/>
+                    </div>
+                    <div className="contextarea">
+                      {contextDiv}
+                    </div>
+                    <div className="tasksarea mr-1 bg-trasparent" style={{backgroundColor: "#ffe", borderRadius: "5px 5px 5px 5px" }}>
+                      <Tasks taskFocusModel={undefined} asPage={false} visible={false} props={props} />
+                    </div>
+                  </>
+                }
+              </div> */}
+            <div className="workplace d-flex justify-content-between ms-2" style={{backgroundColor: "#10859a"}}>
                 <div className="tasksarea bg-transparent col-4 m-1">
                   <Project props={props}/>
                 </div>
-                <div className="col-4 m-2 mx-0 ms-2 p-0 border rounded">
-                  <div className="text-center bg-light">
-                    GitHub:  README.md
-                  {iframe}
+                <div className="text-center bg-light col-4 m-1">
+                  <div className="nav-tabs-container">
+                    <div className="nav nav-tabs">
+                      <button
+                        className={`nav-link ${activeTab === 'tab1' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('tab1')}
+                        type="button"
+                      >
+                        GitHub Mimris: README.md
+                      </button>
+                      <button
+                        className={`nav-link ${activeTab === 'tab2' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('tab2')}
+                        type="button"
+                      >
+                        GitHub models: README.md
+                      </button>
+                    </div>
+                  </div>
+                  <div className="tab-content">
+                    {activeTab === 'tab1' && (
+                      <div className="tab-pane show active">
+                        <iframe
+                          src="https://mimris.github.io/mimris/"
+                          width="100%"
+                          height="1500px"
+                        />
+                      </div>
+                    )}
+                    {activeTab === 'tab2' && (
+                      <div className="tab-pane show active">
+                        <iframe
+                          src={
+                            props.phFocus?.focusProj?.repo
+                              ? `https://kavca.github.io/${props.phFocus.focusProj.repo}/`
+                              : "https://example.com" // Fallback URL
+                          }
+                          width="100%"
+                          height="1500px"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {/* <div className="tasksarea">
-                <TasksHelp />
-              </div> */}
+
+                {/* <div className="tasksarea">
+                  <TasksHelp />
+                </div> */}
               <div className="workarea col-4 ">
                   {(refresh)? <> {indexDiv} </> : <>{indexDiv}</>}
               </div>

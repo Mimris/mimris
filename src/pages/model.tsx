@@ -17,7 +17,7 @@ const page = (props: any) => {
 
     // Retrieve memorySessionState using the useSessionStorage hook
     const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []);
-    console.log('20 MemoryLocState:', memoryLocState); // Debug log
+    // console.log('20 MemoryLocState:', memoryLocState); // Debug log
     const [data, setData] = useState(() => {
         try {
             return memoryLocState && typeof memoryLocState === 'string'
@@ -58,7 +58,7 @@ const page = (props: any) => {
         }
     }, [memoryLocState]);
 
-    console.log('47 Data passed to Modelling:', data, props);
+    // console.log('47 Data passed to Modelling:', data, props);
     return (
         <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
             <Modelling {...data}

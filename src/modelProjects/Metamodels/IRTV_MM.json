@@ -1,11 +1,11 @@
 {
   "id": "c25488d8-087c-4d96-2137-91ad04663b41",
-  "name": "IRTV_MM",
+  "name": "IRTV_META",
   "description": "",
   "viewstyles": [
     {
       "id": "90318e79-9493-4fef-2eb5-0818e7cf9dac",
-      "name": "IRTV_MM_Viewstyle",
+      "name": "IRTV_META_Viewstyle",
       "description": "",
       "markedAsDeleted": false,
       "modified": false

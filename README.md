@@ -14,7 +14,7 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Introduction to Modelling with Mimris](#introduction-to-modelling-with-mimris)
     - [Understanding Metamodels](#understanding-metamodels)
     - [Textual vs. Graphical Modelling Languages](#textual-vs-graphical-modelling-languages)
-    - [Mimris\_META: The Core of Custom Modelling](#mimris_meta-the-core-of-custom-modelling)
+    - [CORE\_META: The Core of Custom Modelling](#core_meta-the-core-of-custom-modelling)
     - [Creating Custom Modelling Languages](#creating-custom-modelling-languages)
     - [BPMN example model](#bpmn-example-model)
   - [Authors](#authors)
@@ -52,15 +52,15 @@ A metamodel is a model that defines the structure and semantics of a modelling l
 
 In textual modelling languages, we typically speak in terms of nouns (entities) and verbs (actions or relationships). In a graphical modelling language such as Mimris, the corresponding terms are objects and relationships. This shift from textual to graphical representation allows for a more intuitive and visual approach to modelling complex systems.
 
-### Mimris_META: The Core of Custom Modelling
+### CORE_META: The Core of Custom Modelling
 
-The modelling language used within Mimris to define new, custom modelling languages is called `Mimris_META`. `Mimris_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
+The modelling language used within Mimris to define new, custom modelling languages is called `CORE_META`. `CORE_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
 
 ### Creating Custom Modelling Languages
 
 Once these custom types are specified (modelled), users can invoke the “Generate Metamodel” function to automatically produce their own metamodel. These metamodels—essentially new, domain-specific modelling languages—can then be used as the foundation for creating custom models tailored to specific needs or contexts.
 
-By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
+By leveraging `CORE_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
 
 ### BPMN example model
 

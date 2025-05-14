@@ -4040,12 +4040,12 @@
         },
         {
           "id": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "name": "TEST_MM",
+          "name": "TEST_META",
           "description": "",
           "viewstyles": [
             {
               "id": "0f0e551a-70f1-4a6a-5f10-69e5b331b7cc",
-              "name": "TEST_MM_Viewstyle",
+              "name": "TEST_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -6137,12 +6137,12 @@
         },
         {
           "id": "f7070601-d8be-45d9-b687-53058cfa7e2c",
-          "name": "ABSTRACT_MM",
+          "name": "ABSTRACT_META",
           "description": "",
           "viewstyles": [
             {
               "id": "f039c238-9d3e-4302-3141-7ec8dea027d2",
-              "name": "ABSTRACT_MM_Viewstyle",
+              "name": "ABSTRACT_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false

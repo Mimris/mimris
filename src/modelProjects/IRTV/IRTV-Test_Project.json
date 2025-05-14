@@ -3479,12 +3479,12 @@
         },
         {
           "id": "166fc895-6c45-49eb-4bc4-986a7ac625d4",
-          "name": "Modelling_MM",
+          "name": "Modelling_META",
           "description": "",
           "viewstyles": [
             {
               "id": "f2a06507-c5e4-486f-63a8-747a0574a34e",
-              "name": "Modelling_MM_Viewstyle",
+              "name": "Modelling_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -5034,12 +5034,12 @@
         },
         {
           "id": "c25488d8-087c-4d96-2137-91ad04663b41",
-          "name": "IRTV_MM",
+          "name": "IRTV_META",
           "description": "",
           "viewstyles": [
             {
               "id": "90318e79-9493-4fef-2eb5-0818e7cf9dac",
-              "name": "IRTV_MM_Viewstyle",
+              "name": "IRTV_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -9580,7 +9580,7 @@
     },
     "focusTargetMetamodel": {
       "id": "166fc895-6c45-49eb-4bc4-986a7ac625d4",
-      "name": "Modelling_MM"
+      "name": "Modelling_META"
     }
   },
   "phUser": {

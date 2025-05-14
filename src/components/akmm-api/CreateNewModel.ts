@@ -32,37 +32,42 @@ const CreateNewModel = (props: any) => {
   if (!metamodelGenerated) return null;
 
   const createNewModelJson = () => {
-
     const newProjectName = 
-      (metamodelGenerated?.name === 'AKM-META_MM')
-        ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
-        : (metamodelGenerated.name === 'AKM-IRTV_MM')
-          ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
-          : (metamodelGenerated.name === 'AKM-POPS_MM')
-            ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
-            : (metamodelGenerated.name === 'AKM-OSDU_MM')
-                ? `${metamodelGenerated?.name.slice(0, -3)}-Template`
-                : `${metamodelGenerated?.name.slice(0, -3)}-Modelling-Template`
+      (metamodelGenerated?.name === 'CORE_META')
+        ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
+        : (metamodelGenerated.name === 'IRTV_META')
+          ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
+          : (metamodelGenerated.name === 'POPS_META')
+            ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
+            : (metamodelGenerated.name === 'BPMN_META')
+              ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
+              : (metamodelGenerated.name === 'OSDU_META')
+                  ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
+                  : `${metamodelGenerated?.name.slice(0, -5)}-Modelling-Template`
 
-    const newModelName = (metamodelGenerated?.name === 'AKM-META_MM')
-      ? '01-Typedef_META'
-      : (metamodelGenerated.name === 'AKM-IRTV_MM')
-        ? '01-Concept_IRTV'
-        : (metamodelGenerated.name === 'AKM-POPS_MM')
-          ? '01-Overview_POPS'
-          : (metamodelGenerated.name === 'AKM-OSDU_MM')
-            ? '01-OSDU-Typedef_META'
-            : 'Basic-Models_META'
+    const newModelName = (metamodelGenerated?.name === 'CORE_META')
+      ? '00-CORE_TypeDef'
+      : (metamodelGenerated?.name === 'IRTV_META')
+        ? '00-Concept_IRTV'
+        : (metamodelGenerated?.name === 'POPS_META')
+          ? '00-Overview_POPS'
+          : (metamodelGenerated?.name === 'BPMN_META')
+            ? '00-Process_BPMN'
+            : (metamodelGenerated?.name === 'OSDU_META')
+              ? '00-OSDU-Typedef_META'
+              : 'Basic-Models_META'
 
-    const newModelDesc = (metamodelGenerated?.name === 'AKM-META_MM')
+    const newModelDesc = (metamodelGenerated?.name === 'CORE_META')
       ? 'Type Definition Model, modeling with the EntityTypes'
-      : (metamodelGenerated?.name === 'AKM-IRTV_MM')
+      : (metamodelGenerated?.name === 'IRTV_META')
         ? 'Concept Model, modeling based on IRTV (Information, Roles, Tasks, Views)'
-        : (metamodelGenerated?.name === 'AKM-POPS_MM')
+        : (metamodelGenerated?.name === 'POPS_META')
           ? 'Overview Model, modeling based on POPS (Products, Organisations, Processes, Systems)'
-          : (metamodelGenerated?.name === 'AKM-OSDU_MM')
-              ? 'OSDU EntityType Model, modeling with the OSDU EntityTypes based on AKM-OSDU_MM Metamodel and OSDU Schema Model'
-              : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
+          : (metamodelGenerated?.name === 'BPMN_META')
+            ? 'Process Model, modeling based on BPMN (Business Process Model and Notation)'
+            : (metamodelGenerated?.name === 'OSDU_META')
+                ? 'OSDU EntityType Model, modeling with the OSDU EntityTypes based on AKM-OSDU_META Metamodel and OSDU Schema Model'
+                : 'Model based on' + metamodelGenerated?.name + ' Metamodel'
 
     const newmodel = (metamodelGenerated) && {
       id: uuidv4(),
@@ -94,19 +99,47 @@ const CreateNewModel = (props: any) => {
     if (debug) console.log('69 CreateNewModel', newmodel)
     const adminmodel = models.find((m: { name: string; }) => m.name === '_ADMIN_MODEL')
     const adminmetamodel = metamodels.find((m: { id: string; }) => m.id === adminmodel?.metamodelRef)
-    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-META_MM')
-    const irtvmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-IRTV_MM')
-    const popsmetamodel = metamodels.find((m: { name: string; }) => m.name === 'AKM-POPS_MM')
-    const repo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 'osdu-akm-models' : 'kavca-akm-models'
-    const projNo = (metamodelGenerated?.name.includes('AKM-OSDU_MM')) ? 3 : 1  // hardcoded for now
+    const coremetamodel = metamodels.find((m: { name: string; }) => m.name === 'CORE_META')
+    const irtvmetamodel = metamodels.find((m: { name: string; }) => m.name === 'IRTV_META')
+    const popsmetamodel = metamodels.find((m: { name: string; }) => m.name === 'POPS_META')
+    const bpmnmetamodel = metamodels.find((m: { name: string; }) => m.name === 'BPMN_META')
+    const repo = (metamodelGenerated?.name.includes('OSDU_META')) ? 'osdu-akm-models' : 'kavca-akm-models'
+    const projNo = (metamodelGenerated?.name.includes('OSDU_META')) ? 3 : 1  // hardcoded for now
     // const additionalmetamodel = (coremetamodel?.name !== metamodelGenerated?.name) ? coremetamodel : irtvmetamodel
     if (debug) console.log('73 CreateNewModel', metamodelGenerated, adminmetamodel, coremetamodel, irtvmetamodel, metamodels)
     if (debug) console.log('74 CreateNewModel', metamodelGenerated?.name, adminmetamodel?.name, coremetamodel?.name)
 
+    const coremodel = (metamodelGenerated) && {
+      id: uuidv4(),
+      name: '01-CORE_TypeDef',
+      description: 'Type Definition model based on CORE_META Metamodel. It includes the EntityTypes and Relationships. The intention of this model is to define the types and relationships between them.', 
+      metamodelRef: coremetamodel?.id,
+      sourceMetamodelRef: "",
+      targetMetamodelRef: "",
+      // sourceModelRef: curmodel.id,
+      targetModelRef: "",
+      includeSystemtypes: false,
+      isTemplate: false,
+      templates: [],
+      objects: [],
+      relships: [],
+      modelviews: [
+        {
+          id: uuidv4(),
+          name: '0-Main',
+          description: 'Main Type Definition View with selected CORE Objects.', 
+          objectviews: [],
+          relshipviews: []
+        }
+      ],
+      markedAsDeleted: false,
+      modified: false,
+    }
+
     const irtvmodel = (metamodelGenerated) && {
       id: uuidv4(),
       name: '02-Concept_IRTV',
-      description: 'Concept model based on AKM-IRTV_MM Metamodel. It includes the Information, Roles, Tasks, and Views. The intention of this model is to define the concepts and relationships between them, as well as the Roles and Tasks operating on Views of this Information.', 
+      description: 'Concept model based on IRTV_META Metamodel. It includes the Information, Roles, Tasks, and Views. The intention of this model is to define the concepts and relationships between them, as well as the Roles and Tasks operating on Views of this Information.', 
       metamodelRef: irtvmetamodel?.id,
       sourceMetamodelRef: "",
       targetMetamodelRef: "",
@@ -133,7 +166,7 @@ const CreateNewModel = (props: any) => {
     const popsmodel = (metamodelGenerated) && {
       id: uuidv4(),
       name: '03-Overview_POPS',
-      description: 'Overview model based on AKM-POPS_MM Metamodel. It includes the Products, Organisations, Processes, and Systems. The intention of this model is to make an overview model (Citymap).', 
+      description: 'Overview model based on AKM-POPS_META Metamodel. It includes the Products, Organisations, Processes, and Systems. The intention of this model is to make an overview model (Citymap).', 
       metamodelRef: popsmetamodel?.id,
       sourceMetamodelRef: "",
       targetMetamodelRef: "",
@@ -157,28 +190,59 @@ const CreateNewModel = (props: any) => {
       modified: false,
     }
 
+    const bpmnmodel = (metamodelGenerated) && {
+      id: uuidv4(),
+      name: '04-Process_BPMN',
+      description: 'Process model based on AKM-BPMN_META Metamodel. It includes the Business Process Model and Notation. The intention of this model is to define the processes and relationships between them.',
+      metamodelRef: bpmnmetamodel?.id,
+      sourceMetamodelRef: "",
+      targetMetamodelRef: "",
+      // sourceModelRef: curmodel.id,
+      targetModelRef: "",
+      includeSystemtypes: false,
+      isTemplate: false,
+      templates: [],
+      objects: [],
+      relships: [],
+      modelviews: [
+        {
+          id: uuidv4(),
+          name: '0-Main',
+          description: 'Main Process View with selected BPMN Objects.',
+          objectviews: [],
+          relshipviews: []
+        }
+      ],
+      markedAsDeleted: false,
+      modified: false,
+    }
+
     const generated_metamodels = [
-            {
-              ...metamodelGenerated,
-              subMetamodels: [],
-            },
-            (coremetamodel !== metamodelGenerated) && coremetamodel,
-            (irtvmetamodel !== metamodelGenerated) && irtvmetamodel,
-            (popsmetamodel !== metamodelGenerated) && popsmetamodel,
-            adminmetamodel,
-          ].filter((m: any) => m)
+      {
+        ...metamodelGenerated,
+        subMetamodels: [],
+      },
+      (coremetamodel.name !== metamodelGenerated.name) ? coremetamodel : null,
+      (irtvmetamodel.name !== metamodelGenerated.name) ? irtvmetamodel : null,
+      (popsmetamodel.name !== metamodelGenerated.name) ? popsmetamodel : null,
+      (bpmnmetamodel.name !== metamodelGenerated.name) ? bpmnmetamodel : null,
+      adminmetamodel,
+    ].filter((m: any) => m)
+    
+    const startmodels = [
+      newmodel,
+      (coremetamodel.name !== metamodelGenerated.name) ? coremodel : null,
+      (irtvmetamodel.name !== metamodelGenerated.name) ? irtvmodel : null,
+      (popsmetamodel.name !== metamodelGenerated.name) ? popsmodel : null,
+      (bpmnmetamodel?.name !== metamodelGenerated.name) ? bpmnmodel : null,
+      adminmodel
+    ].filter((m: any) => m)
 
     const data = {
       phData: {
         metis: {
           ...ph.phData.metis,
-          models:
-            [
-              newmodel, 
-              (irtvmetamodel !== metamodelGenerated) && irtvmodel, 
-              (popsmetamodel !== metamodelGenerated) && popsmodel,
-              adminmodel
-            ], // add admin to the new model
+          models: startmodels,
           metamodels: generated_metamodels,
           name: newProjectName,
           description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',

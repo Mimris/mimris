@@ -11,7 +11,7 @@ cover_image: 'images/posts/osdu/image11-1.png'
 
 Make sure you are on the “OSDU-Schema-model_TD” model-tab
 
-This model has the **“AKM-OSDU_MM”** metamodel palette to the left.
+This model has the **“OSDU_META”** metamodel palette to the left.
 
 1. -Right-click the background and select **“New Modelview”**. Then Type inn a name: **“1-WellLog”** as Modelview name and click “OK”.
 

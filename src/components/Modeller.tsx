@@ -125,7 +125,7 @@ const Modeller = (props: any) => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
         setSelectedOption('Sorted alphabetical')
-        if (mmodel?.name === 'AKM-OSDU_MM') {
+        if (mmodel?.name === 'OSDU_META') {
             setSelectedOption('OSDUType')
         } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')

@@ -50,7 +50,7 @@ export const SaveModelToFile = (model, name, type) => {
 
 
 export const SaveMetamodelToFile = (metamodel, name, type) => {
-    const fileName = (name.includes('_MM')) ? name : name+type 
+    const fileName = (name.includes('_META')) ? name : name+type 
     const json = JSON.safeStringify(metamodel);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);

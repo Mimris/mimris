@@ -19,7 +19,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   const modelRef = metamodel?.generatedFromModelRef;
   let model = metis?.findModel(modelRef);
   let objtypes = [];
-  const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
+  const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_META;
   if (metamodel) {
     const mmtypenames = [];
     objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
@@ -663,7 +663,7 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
 }
 
 export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
-  const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+  const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
   if (!adminMetamodel) {
     if (debug) console.log('555 No Admin Metamodel found!');
     return;
@@ -744,7 +744,7 @@ export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
       for (let i = 0; i < metamodels.length; i++) {
         const mm = metamodels[i];
         if (mm) {
-          if (mm.name === constants.admin.AKM_ADMIN_MM)
+          if (mm.name === constants.admin.AKM_ADMIN_META)
             continue;
           let mmObj;
           if (!mmObj) { // Metamodel object

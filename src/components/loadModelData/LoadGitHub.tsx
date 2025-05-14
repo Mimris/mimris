@@ -171,7 +171,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('160 onModelChange', impProjFile, props)
 
     if (impProjFile != null) {
-      if (filename.includes('_MM.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
+      if (filename.includes('_META.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = projFile as { id: string }; // Add type assertion to specify that mprojFile is of type { id: string }
         let mmindex = props.ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) && mm.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id

@@ -16,6 +16,7 @@ import {
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_PHFOCUS,
+  SET_CURRENT_METAMODEL,
   SET_FOCUS_USER,
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
@@ -84,7 +85,8 @@ import {
   UPDATE_OBJECT_PROPERTIES,
   UPDATE_RELSHIP_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
-  UPDATE_OBJECTVIEW_NAME
+  UPDATE_OBJECTVIEW_NAME,
+  UPDATE_DOMAIN_PROPERTIES,
 } from './types';
 
 const debug = false
@@ -197,6 +199,14 @@ export const loadToStoreNewModelview = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const setCurrentMetamodel = (data) => {
+  // if (debug) console.log('21---actions | setCurrentMetamodel ', data);
+  return {
+    type: SET_CURRENT_METAMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+ 
 export const setFocusUser = (data) => {
   // if (debug) console.log('21---actions |', data);
   return {
@@ -606,6 +616,14 @@ export const setVisibleContext = (data) => {
   if (debug) console.log('590 action-type-data', data);
   return {
     type: SET_VISIBLE_CONTEXT,
+    data: JSON.parse(data.value)
+  }
+}
+
+export const update_domain_properties = (data) => {
+  if (!debug) console.log('205 actions update_domain_properties', data.payload);
+  return {
+    type: UPDATE_DOMAIN_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

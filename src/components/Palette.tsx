@@ -24,9 +24,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const Palette = (props: any) => {
 
   if (debug) clog('22 Palette', props);
-
   const dispatch = useDispatch();
-
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
 
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -34,10 +32,11 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
-  const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
-  const [POPSOtNodeDataArray, setPOPSOtNodeDataArray] = useState([])
-  const [BPMNOtNodeDataArray, setBPMNOtNodeDataArray] = useState([])
-  const [CoreOtNodeDataArray, setCoreOtNodeDataArray] = useState([])
+  // const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
+  // const [POPSOtNodeDataArray, setPOPSOtNodeDataArray] = useState([])
+  // const [BPMNOtNodeDataArray, setBPMNOtNodeDataArray] = useState([])
+  // const [CoreOtNodeDataArray, setCoreOtNodeDataArray] = useState([])
+  const [currentMetamodelRef, setCurrentMetamodelRef] = useState('')
   const [filteredNewtypesNodeDataArray, setFilteredNewtypesNodeDataArray] = useState([])
   // const [metamodelList, setMetamodelList] = useState([])
   const [role, setRole] = useState('')
@@ -74,71 +73,47 @@ const Palette = (props: any) => {
 
   let focusTask = props.phFocus?.focusTask
 
-  function toggleRefresh() { setRefresh(!refresh); }
+  // function toggleRefresh() { setRefresh(!refresh); }
   function togglePalette() { setVisiblePalette(!visiblePalette); }
-  function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
+  // function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
   // let ndarr = props.gojsMetamodel?.nodeDataArray
   let ndarr = uib.buildGoPalette(props.myMetis.currentMetamodel, props.myMetis).nodes;
 
-
-  if (debug) console.log('65 Palette', model?.name, mmodel?.name, ndarr);
-  let coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'CORE_META')
-  let irtvmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'IRTV_META')
-  let popsmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'POPS_META')
-  let bpmnmetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'BPMN_META')
   let taskNodeDataArray: any[] = ndarr
 
   if (debug) console.log('76 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
-    if (debug) useEfflog('89 Palette useEffect 1 [] ');
+    const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id);
+    // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
+    const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
+    if (!debug) useEfflog('89 Palette useEffect 1 ', model, mmodel, props.phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
     const { focusRole, focusTask } = props.phFocus;
     const objecttypes = mmodel?.objecttypes;
     if (!metamodels) return null;
-
     if (props.modelType === 'metamodel') setVisiblePalette(false);
-
     setRole(focusRole);
     setTask(focusTask);
     const types = objecttypes?.map((t: any) => t?.name);
     setTypes(types);
 
-    (types) && setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
-
-    if (debug) console.log('89 Palette useEffect 1', mmodel, props);
-    coremetamodel = props.myMetis?.metamodels?.find(m => m?.name === 'CORE_META')
-    const coreTypes = coremetamodel?.objecttypes.map((t: any) => t?.name);
-    irtvmetamodel = metamodels.find(m => m?.name === 'IRTV_META')
-    const irtvTypes = irtvmetamodel?.objecttypes.map((t: any) => t?.name);
-    popsmetamodel = metamodels.find(m => m?.name === 'POPS_META')
-    const popstypes = popsmetamodel?.objecttypes.map((t: any) => t?.name);
-    bpmnmetamodel = metamodels.find(m => m?.name === 'BPMN_META')
-    const bpmnTypes = bpmnmetamodel?.objecttypes.map((t: any) => t?.name);
-    const additionalmetamodel = (coremetamodel?.name === mmodel?.name) ? irtvmetamodel : coremetamodel
-    const seltypes = additionalmetamodel?.objecttypes.map((t: any) => t?.name);
-    setSelMetamodelName(additionalmetamodel?.name)
-    if (debug) console.log('115 Palette', additionalmetamodel);
-    setAddMetamodelName(additionalmetamodel?.name)
-
-    setCoreOtNodeDataArray(buildFilterOtNodeDataArray(coreTypes, coremetamodel));
-    setIRTVOtNodeDataArray(buildFilterOtNodeDataArray(irtvTypes, irtvmetamodel));
-    setPOPSOtNodeDataArray(buildFilterOtNodeDataArray(popstypes, popsmetamodel));
-    setBPMNOtNodeDataArray(buildFilterOtNodeDataArray(bpmnTypes, bpmnmetamodel));
-
-    setFilteredOtNodeDataArray(buildFilterOtNodeDataArray(seltypes, additionalmetamodel));  // build the palette for additional metamodel
-    // setFilteredOtNodeDataArray(buildFilter(role, task, metamodelList, seltypes, mmodel.submetamodels[0]));  // build the palette for current metamodel
-
+    // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
+    const newFilteredData = buildFilterOtNodeDataArray(types, mmodel);
+    setFilteredOtNodeDataArray(newFilteredData);
+    if (!debug) console.log('104 Palette useEffect 2', types, mmodel, filteredNewtypesNodeDataArray);
+    
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
-      if (debug) console.log('124 Palette useEffect ', irtvTypes, IRTVOtNodeDataArray);
+      if (!debug) console.log('124 Palette useEffect 3', filteredNewtypesNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [model]);
 
   if (!metamodels) return null;
+
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
     if (debug) console.log('106 Palette', mmodel, props.myMetis);
 
@@ -169,26 +144,17 @@ const Palette = (props: any) => {
                 ? ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
                 : ['Container']
 
-
       const otsArrSorted = otsArr.sort((a, b) => {
         const aIndex = wotArr.indexOf(a?.name);
         const bIndex = wotArr.indexOf(b?.name);
-
         if (aIndex === -1) return 1; // a is not found in wotArr, sort a to the end
         if (bIndex === -1) return -1; // b is not found in wotArr, sort b to the end
-
         return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
       });
 
       return otsArr
     } else { return ndarr }
   };
-
-  // const buildFilter = (role, task, metamodelList, types, metamodel) => {
-  //   if (debug) console.log('102 Palette useEffect 1', role, task, metamodelList, types, metamodel);
-  //   // setTypes(metamodel?.objecttypes.map((t: any) => t?.name));
-  //     return buildFilterOtNodeDataArray(types, metamodel);
-  // };
 
   if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
@@ -198,13 +164,16 @@ const Palette = (props: any) => {
     const selmmodel = metamodelList[selectedIndex];
     const mmodel = metamodels.find(m => m.id === selmmodel?.id);
     const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
-    if (debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+    setTypes(types);
+    dispatch({ type: 'SET_CURRENT_METAMODEL', data: mmodel });
+    if (!debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
     const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
-    if (debug) console.log('149 Palette', filteredNodeDataArray);
+    if (!debug) console.log('149 Palette', filteredNodeDataArray);
     const timer = setTimeout(() => {
       setFilteredOtNodeDataArray(filteredNodeDataArray);
       setRefreshPalette(!refreshPalette);
     }, 200);
+
     return () => clearTimeout(timer);
   }
 
@@ -219,9 +188,9 @@ const Palette = (props: any) => {
         onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
-          Additional Metamodels
+          Change Metamodel
         </option>
-        {metamodelList?.map((t, i) => (t?.name !== mmodel?.name) && (
+        {metamodelList?.map((t, i) => (
           <option key={i} value={i}>
             {t?.name}
           </option>
@@ -231,13 +200,14 @@ const Palette = (props: any) => {
   );
 
 
-    const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
+    // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
+    const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
     (
       <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
         <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
-          nodeDataArray={filteredNewtypesNodeDataArray}
+          nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={[]}
           metis={props.metis}
           myMetis={props.myMetis}
@@ -248,53 +218,53 @@ const Palette = (props: any) => {
       </details>
     )
 
-    let gojsappPaletteIRTVDiv = null; // Initialize with a default value
-    if (includeCoreAndIRTVAndPOPS) {
-      gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'IRTV_META') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
-      <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
-        <GoJSPaletteApp
-          nodeDataArray={IRTVOtNodeDataArray}
-          linkDataArray={[]}
-          myMetis={props.myMetis}
-          metis={props.metis}
-          phFocus={props.phFocus}
-          dispatch={props.dispatch}
-          diagramStyle={{ height: "76vh" }}
-        />
-      </details>
-  }
-    let gojsappPalettePOPSDiv = null; // Initialize with a default value
-    if (includeCoreAndIRTVAndPOPS) {
-      gojsappPalettePOPSDiv = (mmodel && (mmodel?.name !== 'POPS_META') && POPSOtNodeDataArray) && // this is the palette with the IRTV metamodel
-      <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{popsmetamodel?.name}</summary>
-        <GoJSPaletteApp
-          nodeDataArray={POPSOtNodeDataArray}
-          linkDataArray={[]}
-          myMetis={props.myMetis}
-          metis={props.metis}
-          phFocus={props.phFocus}
-          dispatch={props.dispatch}
-          diagramStyle={{ height: "76vh" }}
-        />
-      </details>
-  }
+  //   let gojsappPaletteIRTVDiv = null; // Initialize with a default value
+  //   if (includeCoreAndIRTVAndPOPS) {
+  //     gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'IRTV_META') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
+  //     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
+  //       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
+  //       <GoJSPaletteApp
+  //         nodeDataArray={IRTVOtNodeDataArray}
+  //         linkDataArray={[]}
+  //         myMetis={props.myMetis}
+  //         metis={props.metis}
+  //         phFocus={props.phFocus}
+  //         dispatch={props.dispatch}
+  //         diagramStyle={{ height: "76vh" }}
+  //       />
+  //     </details>
+  // }
+  //   let gojsappPalettePOPSDiv = null; // Initialize with a default value
+  //   if (includeCoreAndIRTVAndPOPS) {
+  //     gojsappPalettePOPSDiv = (mmodel && (mmodel?.name !== 'POPS_META') && POPSOtNodeDataArray) && // this is the palette with the IRTV metamodel
+  //     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
+  //       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{popsmetamodel?.name}</summary>
+  //       <GoJSPaletteApp
+  //         nodeDataArray={POPSOtNodeDataArray}
+  //         linkDataArray={[]}
+  //         myMetis={props.myMetis}
+  //         metis={props.metis}
+  //         phFocus={props.phFocus}
+  //         dispatch={props.dispatch}
+  //         diagramStyle={{ height: "76vh" }}
+  //       />
+  //     </details>
+  // }
 
-    let gojsappPaletteMETADiv = null; // Initialize with a default value
-  gojsappPaletteMETADiv = (mmodel && (mmodel?.name !== 'CORE_META') && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
-      <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
-        <GoJSPaletteApp
-          nodeDataArray={CoreOtNodeDataArray}
-          linkDataArray={[]}
-          myMetis={props.myMetis}
-          metis={props.metis}
-          phFocus={props.phFocus}
-          dispatch={props.dispatch}
-          diagramStyle={{ height: "76vh" }}
-        />
-    </details>
+  //   let gojsappPaletteMETADiv = null; // Initialize with a default value
+  // gojsappPaletteMETADiv = (mmodel && (mmodel?.name !== 'CORE_META') && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
+  //     <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
+  //       <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
+  //       <GoJSPaletteApp
+  //         nodeDataArray={CoreOtNodeDataArray}
+  //         linkDataArray={[]}
+  //         myMetis={props.myMetis}
+  //         metis={props.metis}
+  //         phFocus={props.phFocus}
+  //         dispatch={props.dispatch}
+  //         diagramStyle={{ height: "76vh" }}
+  //       />
+  //   </details>
 
 
   const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
@@ -303,10 +273,8 @@ const Palette = (props: any) => {
   if (includeCoreAndIRTVAndPOPS) {
     gojsappPaletteDiv =
     <>
+      {otDiv}
       {gojsappPaletteTopDiv}
-      {(mmodel?.name !== 'IRTV_META')   && gojsappPaletteIRTVDiv}
-      {(mmodel?.name !== 'POPS_META')   && gojsappPalettePOPSDiv}
-      {(mmodel?.name !== 'CORE_META') && gojsappPaletteMETADiv}
     </>
   } else {
     gojsappPaletteDiv =

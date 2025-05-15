@@ -2,11 +2,74 @@ import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
-
+import { AppState, DomainData } from '../../types/state';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import GenGojsModel from '../GenGojsModel';
 
 const debug = false;
+
+// interface Relationship {
+//   name: string;
+//   description: string;
+//   nameFrom: string;
+//   nameTo: string;
+// }
+
+// interface DomainData {
+//   name: string;
+//   description: string;
+//   presentation: string;
+//   concepts: { name: string; description: string }[];
+//   relationships: Relationship[];
+// }
+// interface Props {
+//   phData: {
+//     metis: {
+//       models: any[];
+//       metamodels: any[];
+//       name: string;
+//       description: string;
+//       currentModelRef: string;
+//       currentModelviewRef: string;
+//       currentMetamodelRef: string;
+//     };
+//     domain: DomainData;
+//     ontology: {
+//       name: string;
+//       description: string;
+//       presentation: string;
+//       concepts: { name: string; description: string }[];
+//       relationships: { name: string; description: string; nameFrom: string; nameTo: string }[];
+//     };
+//   };
+//   phFocus: {
+//     focusModel: { id: string; name: string };
+//     focusModelview: { id: string; name: string };
+//     focusObject: { id: string; name: string };
+//     focusRelship: { id: string; name: string };     
+//     focusObjectview: { id: string; name: string };
+//     focusRelshipview: { id: string; name: string };
+//     focusProj: {
+//       id: string;
+//       name: string;
+//       projectNumber: number;
+//       org: string;
+//       repo: string;
+//       branch: string;   
+//     }
+//   };
+//   phUser: {
+//     focusUser: {
+//       id: string;
+//       name: string;
+//       email: string;
+//     };
+//   };
+//   phTemplate: string;
+//   phSource: string;
+//   lastUpdate: string;
+// }
+
 
 const CreateNewModel = (props: any) => {
   console.log('8 SaveNewModel props', props);
@@ -31,7 +94,7 @@ const CreateNewModel = (props: any) => {
 
   if (!metamodelGenerated) return null;
 
-  const createNewModelJson = () => {
+  const createNewModelJson = (): any => {
     const newProjectName = 
       (metamodelGenerated?.name === 'CORE_META')
         ? `${metamodelGenerated?.name.slice(0, -5)}-Template`
@@ -238,7 +301,7 @@ const CreateNewModel = (props: any) => {
       adminmodel
     ].filter((m: any) => m)
 
-    const data = {
+    const dataAll: AppState = {
       phData: {
         metis: {
           ...ph.phData.metis,
@@ -248,27 +311,78 @@ const CreateNewModel = (props: any) => {
           description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',
           currentModelRef: newmodel.id,
           currentModelviewRef: newmodel.modelviews[0].id,
-          currentMetamodelRef: metamodelGenerated?.id,
+          currentMetamodelRef: metamodelGenerated?.id
+        },
+        domain: '[Describe the domain here]',
+        ontology: {
+          name: '',
+          description: '',
+          presentation: '',
+          concepts: [],
+          relationships: []
+        },
+      },
+      phFocus: {
+      ...ph.phFocus,
+      focusModel: { id: newmodel.id, name: newmodel.name },
+      focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },
+      focusObject: { id: '', name: '' },
+      focusRelship: { id: '', name: '' },
+      focusObjectview: { id: '', name: '' },
+      focusRelshipview: { id: '', name: '' },
+      focusProj: {
+        id: newProjectName,
+        name: newProjectName,
+        projectNumber: projNo,
+        org: "kavca",
+        repo: repo,
+        branch: "main",
+        path: "",
+        file: newProjectName + ".json",
+      },
+      },
+      phUser: {
+      focusUser: {
+        id: "0",
+        name: "User",
+        email: ""
+      },
+      },
+      phTemplate: newProjectName,
+      phSource: newProjectName,
+      lastUpdate: new Date().toISOString()
+    }
+
+    const data: AppState = {
+      phData: {
+        metis: {
+          ...ph.phData.metis,
+          models: [newmodel],
+          metamodels: [
+            {
+            ...metamodelGenerated,
+            subMetamodels: [],
+            }
+        ],
+          name: newProjectName,
+          description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',
+          currentModelRef: newmodel.id,
+          currentModelviewRef:  newmodel.modelviews[0].id,
+          currentMetamodelRef: metamodelGenerated?.id
+        },
+        domain: '[Describe the domain here]',
+        ontology: {
+          name: '',
+          description: '',
+          presentation: '',
+          concepts: [],
+          relationships: []
         },
       },
       phFocus: {
         ...ph.phFocus,
         focusModel: { id: newmodel.id, name: newmodel.name },
-        focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },
-        focusObject: { id: '', name: '' },
-        focusRelship: { id: '', name: '' },
-        focusObjectview: { id: '', name: '' },
-        focusRelshipview: { id: '', name: '' },
-        focusProj: {
-          id: newProjectName,
-          name: newProjectName,
-          projectNumber: projNo,
-          org: "kavca",
-          repo: repo,
-          branch: "main",
-          path: "",
-          file: newProjectName + ".json",
-        },
+        focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },   
       },
       phUser: {
         focusUser: {
@@ -277,12 +391,12 @@ const CreateNewModel = (props: any) => {
           email: ""
         },
       },
-      phTemplate: newProjectName,
-      phSource: newProjectName,
+      phTemplate: '',
+      phSource: '',
       lastUpdate: new Date().toISOString()
     }
-    console.log('112 CreateNewModel', data)
-    return data
+    console.log('112 CreateNewModel', data, dataAll)
+    return [data, dataAll]
   }
 
   const modelJson = createNewModelJson();

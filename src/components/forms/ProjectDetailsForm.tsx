@@ -16,7 +16,7 @@ const debug = false;
 
 function ProjectDetailsForm(props: any) {
   const dispatch = useDispatch();
-  console.log("7 ProjectDetailsForm", props.props.phFocus);
+  // console.log("7 ProjectDetailsForm", props.props.phFocus);
 
   const [projectName, setProjectName] = useState(props.props.phFocus.focusProj.name);
 
@@ -159,7 +159,7 @@ function ProjectDetailsForm(props: any) {
             <label>Path:</label>
             <input className='rounded bg-white px-1 border-light w-75'
               type="text"
-              placeholder="models"
+              // placeholder="models"
               value={path}
               onChange={(e) => setPath(e.target.value)}
               title='Path to the project file in the GitHub repository'
@@ -179,7 +179,7 @@ function ProjectDetailsForm(props: any) {
             <input className='rounded bg-light border-light px-1 w-75'
               type="text"
               // readOnly
-              defaultValue={file}
+              // defaultValue={file}
               value={file}
               onChange={(e) => { setFile(e.target.value) }}
               title='Project filename'
@@ -191,7 +191,8 @@ function ProjectDetailsForm(props: any) {
             <label>github.com/</label>
             <input className='rounded bg-white px-1 border-light w-100'
               type="text"
-              value={`${org}/${repo}${(!path || path === '') ? '/' : `/${path.toString()}/`}${file}`}
+              // defaultValue={source}
+              defaultValue={`${org}/${repo}${(!path || path === '') ? '/' : `/${path.toString()}/`}${file}`}
               title="File path to the project file in the GitHub repository"
             // onChange={(e) => setSource(e.target.value)}
             />

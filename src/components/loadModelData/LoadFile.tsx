@@ -102,26 +102,47 @@ const LoadFile = (props: any) => {
 
   function handleSaveNewModel() {
     const ph = props.ph
-    // const models = ph?.phData?.metis?.models
     const metamodels = ph?.phData?.metis?.metamodels
-    // const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
-    // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
-    const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
+
+    const data = CreateNewModel(props.ph)
     if (debug) console.log('194 Loadfile', metamodels, data)
     if (!data) {
       if (debug) console.log('196 Loadfile', data)
       alert('No metamodel found in this modelview')
       return
     }
-    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
-    const filename = data.phData.metis.name
+    // Check if data is an array or an object and access it safely
+    const project = Array.isArray(data) ? data[0] : data
+    const template = Array.isArray(data) ? data[1] : null
+
+    // Make sure we have the expected structure before accessing nested properties
+    if (!project?.phData?.metis?.metamodels?.length) {
+      console.error('Invalid data structure returned from CreateNewModel', project)
+      alert('Error creating new model: Invalid data structure')
+      return
+    }
+
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') &&
+      m.id === project.phData.metis.metamodels[0].id)
+
+    const filename = project.phData.metis.name
 
     if (debug) console.log('199 Loadfile', newmm, filename)
-    SaveAllToFile(data, filename, '_PR')
-    const metamodelname = newmm?.name.replace('_META', '') // remove _META to avoid twice
-    SaveMetamodelToFile(newmm, metamodelname, '_META')
+    SaveAllToFile(project, filename, '_PR')
+
+    // More robust template checking
+    if (template) {
+      console.log('138 Loadfile', filename)
+      if (!filename.includes('OSDU')) {
+        SaveAllToFile(template, 'Mimris-template', '_PR')
+      }
+    }
+
+    if (newmm) {
+      const metamodelname = newmm.name.replace('_META', '') // remove _META to avoid twice
+      SaveMetamodelToFile(newmm, metamodelname, '_META')
+    }
   }
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder

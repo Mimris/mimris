@@ -52,6 +52,53 @@ const Project = (props) => {
   const [projectNumber, setProjectNumber] = useState(modeldata.phFocus.focusProj?.projectNumber); // this is the project number in the list of github project
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber);
 
+  // Add state for domain editing
+  const [editingDomain, setEditingDomain] = useState(false);
+  const [editedDomain, setEditedDomain] = useState({
+    name: modeldata?.phData?.domain?.name || '',
+    description: modeldata?.phData?.domain?.description || '',
+    presentation: modeldata?.phData?.domain?.presentation || ''
+  });
+
+  // Reset edited domain data when domain changes
+  useEffect(() => {
+    if (modeldata?.phData?.domain) {
+      setEditedDomain({
+        name: modeldata.phData.domain.name || '',
+        description: modeldata.phData.domain.description || '',
+        presentation: modeldata.phData.domain.presentation || ''
+      });
+    }
+  }, [modeldata?.phData?.domain]);
+
+  // Handle domain field changes
+  const handleDomainChange = (e) => {
+    const { name, value } = e.target;
+    setEditedDomain(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Save domain changes
+  const saveDomainChanges = () => {
+    dispatch({
+      type: 'UPDATE_DOMAIN_PROPERTIES',
+      data: editedDomain
+    });
+    setEditingDomain(false);
+  };
+
+  // Cancel domain editing
+  const cancelDomainEditing = () => {
+    setEditedDomain({
+      name: modeldata.phData.domain.name || '',
+      description: modeldata.phData.domain.description || '',
+      presentation: modeldata.phData.domain.presentation || ''
+    });
+    setEditingDomain(false);
+    };
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -91,13 +138,90 @@ const Project = (props) => {
         <Tab eventKey="domain" title="ModelSuite Domain">
           {/* <div className="domain bg-warning"> */}
           <Card className="metis px-1 mx-1 me-0 mt-0">
-            {/* <CardHeader className="card-header">AKM Domain :</CardHeader> */}
             <div className="card-body">
-              <CardTitle className="card-title-bold nobreak">Domain : {modeldata.phData.domain?.name}</CardTitle>
-              <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.domain?.description}</CardSubtitle>
-              <CardText className="card-text"> </CardText>
-                <div className="border fs-6 p-1">Summary: {modeldata.phData.domain?.presentation}</div>
-             
+              {!editingDomain ? (
+                <>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <CardTitle className="card-title-bold nobreak">Domain : {modeldata.phData.domain?.name}</CardTitle>
+                    <Button
+                      color="muted"
+                      size="sm"
+                      className="px-2 py-0"
+                      style={{ fontSize: '0.8rem' }}
+                      onClick={() => setEditingDomain(true)}
+                    >
+                      edit
+                    </Button>
+                  </div>
+                  <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.domain?.description}</CardSubtitle>
+                  <CardText className="card-text"> </CardText>
+                  <div className="border fs-6 p-1">Summary: {modeldata.phData.domain?.presentation}</div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label">Domain Name:</label>
+                    <input
+                      label="Domain Name"
+                      placeholder="Domain Name"
+                      type="text"
+                      className="form-control"
+                      name="name"
+                      value={editedDomain.name}
+                      onChange={handleDomainChange}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Description:</label>
+                    <textarea
+                      label="Description"
+                      placeholder="Description"
+                      type="text"
+                      className="form-control"
+                      name="description"
+                      value={editedDomain.description}
+                      onChange={handleDomainChange}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Summary:</label>
+                    <textarea
+                      label="Summary"
+                      placeholder="Summary"
+                      type="text"
+                      className="form-control"
+                      name="presentation"
+                      value={editedDomain.presentation}
+                      onChange={handleDomainChange}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="d-flex justify-content-end gap-2">
+                      <Button
+                        color="muted"
+                        size="sm"
+                        className="px-2 py-0"
+                        style={{ fontSize: '0.8rem' }} 
+                        onClick={cancelDomainEditing}
+                      >
+                      Cancel
+                    </Button>
+                      <Button
+                        color="muted"
+                        size="sm"
+                        className="px-2 py-0"
+                        style={{ fontSize: '0.8rem' }} 
+                        onClick={saveDomainChanges}
+                      >
+                      Save Changes
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </Card>
           {/* </div> */}

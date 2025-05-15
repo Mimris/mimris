@@ -92,6 +92,7 @@ const page = (props: any) => {
 
   const externalPageUrl = `https://mimris.github.io/mimris/`;  // Replace with the URL of the external webpage you want to display
   // const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
+  // if (!debug) console.log('95 modelling page', props.phFocus.focusProj);
 
   const iframe = showExternalPage ? (
     <iframe src={externalPageUrl} width="100%" height="1500px" />
@@ -181,11 +182,7 @@ const page = (props: any) => {
                     {activeTab === 'tab2' && (
                       <div className="tab-pane show active">
                         <iframe
-                          src={
-                            props.phFocus?.focusProj?.repo
-                              ? `https://kavca.github.io/${props.phFocus.focusProj.repo}/`
-                              : "https://example.com" // Fallback URL
-                          }
+                          src={props.phFocus?.focusProj?.repo && `https://kavca.github.io/${props.phFocus.focusProj.repo}/`}
                           width="100%"
                           height="1500px"
                         />

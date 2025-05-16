@@ -96,10 +96,10 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
       if (focusObjectview.id) 
         myModelview?.setFocusObjectview(focusObjectview);
-      myMetis?.setGojsModel(myGoModel);
-      myMetis?.setCurrentMetamodel(myMetamodel);
-      myMetis?.setCurrentModel(myModel);
-      myMetis?.setCurrentModelview(myModelview);
+        myMetis?.setGojsModel(myGoModel);
+        myMetis?.setCurrentMetamodel(myMetamodel);
+        myMetis?.setCurrentModel(myModel);
+        myMetis?.setCurrentModelview(myModelview);
 
       if (debug) console.log('81 GenGojsModel: metis', myMetis.gojsModel);
       if (debug) console.log('121 GenGojsModel  myMetis', myMetis);

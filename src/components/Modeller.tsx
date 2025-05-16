@@ -110,16 +110,9 @@ const Modeller = (props: any) => {
     };
 
     function toggleObjects() {
-        // // props.setRefresh(!props.refresh)
-        // if (selectedOption === 'Sorted by type') {
-        //     setSelectedOption('In this modelview')
-        // // } else {
-        // //     setSelectedOption('In this modelview')
-        // }
         setObjectsRefresh(!objectsRefresh)
         setVisibleObjects(!visibleObjects);
     }
-
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
@@ -176,11 +169,12 @@ const Modeller = (props: any) => {
     }, [props.phFocus?.focusObjectview?.id])
 
     // put current modell on top 
-    const selmods = (models) ? [
-        models[modelindex],
-        ...models.slice(0, modelindex),
-        ...models.slice(modelindex + 1, models.length)
-    ]
+    const selmods = (models) 
+        ? [
+            models[modelindex],
+            ...models.slice(0, modelindex),
+            ...models.slice(modelindex + 1, models.length)
+        ]
         : []
     const selmodviews = modelviews
 

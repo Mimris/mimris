@@ -103,25 +103,25 @@ const Palette = (props: any) => {
     // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
     const newFilteredData = buildFilterOtNodeDataArray(types, mmodel);
     setFilteredOtNodeDataArray(newFilteredData);
-    if (!debug) console.log('104 Palette useEffect 2', types, mmodel, filteredNewtypesNodeDataArray);
+    if (!debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
     const timer = setTimeout(() => {
       setRefreshPalette(!refreshPalette);
-      if (!debug) console.log('124 Palette useEffect 3', filteredNewtypesNodeDataArray);
+      if (!debug) console.log('110 Palette useEffect 3', mmodel.name, filteredOtNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [model]);
+  }, []);
 
   if (!metamodels) return null;
 
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
-    if (debug) console.log('106 Palette', mmodel, props.myMetis);
+    if (debug) console.log('118 Palette', mmodel, props.myMetis);
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
-    if (debug) console.log('109 Palette', props.myMetis, curMyMetamodel)
+    if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
 
-    if (debug) console.log('118 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
+    if (debug) console.log('124 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
 
     if (types?.length > 0) {
       const otsArr = types.map(wot =>
@@ -156,20 +156,22 @@ const Palette = (props: any) => {
     } else { return ndarr }
   };
 
-  if (debug) console.log('127 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  if (debug) console.log('159 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
 
   function getMetamodels(selectedIndex) {
     setSelMetamodelName(metamodelList[selectedIndex].name)
-    console.log('143 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName);
+    console.log('163 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName);
     const selmmodel = metamodelList[selectedIndex];
     const mmodel = metamodels.find(m => m.id === selmmodel?.id);
     const types = mmodel?.objecttypes?.map((t: any) => t?.name) || [];
     setTypes(types);
     dispatch({ type: 'SET_CURRENT_METAMODEL', data: mmodel });
-    if (!debug) console.log('147 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
+    setCurrentMetamodelRef(mmodel?.id);
+    if (debug) console.log('169 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
     const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
-    if (!debug) console.log('149 Palette', filteredNodeDataArray);
+    if (!debug) console.log('171 Palette', mmodel.name, filteredNodeDataArray);
     const timer = setTimeout(() => {
+
       setFilteredOtNodeDataArray(filteredNodeDataArray);
       setRefreshPalette(!refreshPalette);
     }, 200);

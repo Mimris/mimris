@@ -1697,7 +1697,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis }
         data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: shoud not dispatch the whole phData????
         if (false) {
             // Dispatch modelview
             const modifiedModelviews = new Array();

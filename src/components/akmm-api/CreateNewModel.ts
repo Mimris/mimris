@@ -109,15 +109,15 @@ const CreateNewModel = (props: any) => {
                   : `${metamodelGenerated?.name.slice(0, -5)}-Modelling-Template`
 
     const newModelName = (metamodelGenerated?.name === 'CORE_META')
-      ? '00-CORE_TypeDef'
+      ? '01-Typedef_CORE'
       : (metamodelGenerated?.name === 'IRTV_META')
-        ? '00-Concept_IRTV'
+        ? '02-Concept_IRTV'
         : (metamodelGenerated?.name === 'POPS_META')
-          ? '00-Overview_POPS'
+          ? '03-Overview_POPS'
           : (metamodelGenerated?.name === 'BPMN_META')
-            ? '00-Process_BPMN'
+            ? '04-Process_BPMN'
             : (metamodelGenerated?.name === 'OSDU_META')
-              ? '00-OSDU-Typedef_META'
+              ? '05-OSDU-Typedef_META'
               : 'Basic-Models_META'
 
     const newModelDesc = (metamodelGenerated?.name === 'CORE_META')
@@ -362,7 +362,8 @@ const CreateNewModel = (props: any) => {
             {
             ...metamodelGenerated,
             subMetamodels: [],
-            }
+            },
+            adminmetamodel
         ],
           name: newProjectName,
           description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',

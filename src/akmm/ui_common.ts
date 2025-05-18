@@ -1091,9 +1091,12 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
-        if (askForRelshipName) {
-            relname = prompt("Enter relationship name:", typename);
-            relship.name = relname;
+        // if (askForRelshipName) {
+        //     relname = prompt("Enter relationship name:", typename);
+        //     relship.name = relname;
+        // }
+        if (relname = "flowsTo") {
+            relship.name = "..."
         }
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);

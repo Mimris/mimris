@@ -35,8 +35,10 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
           }
           if (!objtype.abstract )
             mmtypenames.push(objtype.name);
+
         }
       }
+      console.log('41 mmtypenames', mmtypenames); 
     }
     typenames = [...new Set(mmtypenames)];
     if (debug) console.log('32 MM objecttypes', typenames);
@@ -54,9 +56,11 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
     }
     inheritedTypenames = [...new Set(objtypenames)];
-    if (debug) console.log('47 objecttypes', inheritedTypenames);
+    if (!debug) console.log('47 objecttypes', inheritedTypenames);
   }
+  
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
+
   let objecttypes: akm.cxObjectType[] | null = objtypes; //  metamodel?.objecttypes0;
   if (objecttypes) {
     objecttypes.sort(utils.compare);
@@ -98,6 +102,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     if (debug) console.log('78 otypes', otypes);
     const noTypes = otypes.length;
     for (let i = 0; i < noTypes; i++) {
+      if (otypes[i].abstract) continue;  // abstract types are not included
       const objtype: akm.cxObjectType = otypes[i];
       if (!includesSystemtypes) {    // Systemtypes are not included
         // Check if objtype is one of typenames
@@ -137,9 +142,9 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
         }
       }
       // End hack
-      objview.setTypeView(typeview);
+      objview.setTypeView(typeview); 
       const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
-      node.loadNodeContent(myGoPaletteModel);
+      node.loadNodeContent(myGoPaletteModel);  
       if (debug) console.log('121 node', objtype, objview, node);
       node.isGroup = objtype.isContainer();
       if (node.isGroup)
@@ -147,7 +152,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       myGoPaletteModel.addNode(node);
     }
   }
-  if (debug) console.log('128 Objecttype palette', myGoPaletteModel);
+  if (!debug) console.log('154 Objecttype palette', myGoPaletteModel.nodes);
   return myGoPaletteModel;
 }
 
@@ -224,6 +229,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   const myGoModel = new gjs.goModel(guid, "myModel", modelview);
   // load object views
   let objviews = modelview?.getObjectViews() as akm.cxObjectView[];
+  if (debug) console.log('232 objviews', objviews);
   if (objviews) {
     const focusObjview = modelview?.focusObjectview;
     for (let i = 0; i < objviews.length; i++) {
@@ -317,7 +323,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
-         myGoModel.addNode(node);
+        myGoModel.addNode(node);
         node.name = objview.name;
         const object = node.object as akm.cxObject;
         let objtype = object?.type as akm.cxObjectType;

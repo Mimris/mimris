@@ -115,16 +115,16 @@ const Modelling = (props: any) => {
 
   let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
 
-  // let myMetis = new akm.cxMetis();
-  // GenGojsModel(props, myMetis)
+  let myMetis = new akm.cxMetis();
+  GenGojsModel(props, myMetis)
 
-  const myMetis = useMemo(() => {
-    const metisInstance = new akm.cxMetis();
-    if (curmod?.objects) {
-      GenGojsModel(props, metisInstance);
-    }
-    return metisInstance;
-  }, [curmod?.objects, curmod?.relships]);  // Only execute when objects or relationships change
+  // const myMetis = useMemo(() => {
+  //   const metisInstance = new akm.cxMetis();
+  //   if (curmod?.objects) {
+  //     GenGojsModel(props, metisInstance);
+  //   }
+  //   return metisInstance;
+  // }, [metis]);  // Only execute when objects or relationships change
   
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const Modelling = (props: any) => {
   useEffect(() => { // Genereate GoJs node model 
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
     if (!debug) console.log('131 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    // GenGojsModel(props, myMetis)
+    GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
     setMount(true);
@@ -177,23 +177,23 @@ const Modelling = (props: any) => {
     if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
   }, [props.phSource]) // add mount to the dependency array
 
-  // useEffect(() => {
-  //   if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
-  //   const timer = setTimeout(() => {
-  //     doRefresh()
-  //     if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-  //     // setRefresh(!refresh)
-  //   }, 50);
-  // }, [props.phFocus?.focusRefresh?.id])
+  useEffect(() => {
+    if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
+    const timer = setTimeout(() => {
+      doRefresh()
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      // setRefresh(!refresh)
+    }, 50);
+  }, [props.phFocus?.focusRefresh?.id])
 
-  // useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-  //   if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-  //   const timer = setTimeout(() => {
-  //     if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
-  //     setRefresh(!refresh)
-  //   }, 50);
-  //   return () => clearTimeout(timer);
-  // }, [props.phFocus?.focusModelview?.id])
+  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+    const timer = setTimeout(() => {
+      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
+      setRefresh(!refresh)
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [props.phFocus?.focusModelview?.id])
 
   function doRefresh() { // 
     setMemorySessionState(props)
@@ -293,7 +293,7 @@ const Modelling = (props: any) => {
         metis={metis}
         phFocus={phFocus}
         dispatch={dispatch}
-        modelType='model'
+        modelType='metamodel'
       />
 
 
@@ -608,8 +608,8 @@ const Modelling = (props: any) => {
                 {modellingDiv}
               </div>
               <div className="modellingContent mt-1 ">
-                {modellingtabs}
-                {/* {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>} */}
+                {/* {modellingtabs} */}
+                {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
               </div>
             </>
          )}

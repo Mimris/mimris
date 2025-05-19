@@ -1571,7 +1571,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 if (obj.isOfType('Metamodel')) {
                     const fromType = obj.type;
                     let toType = fromType;
-                    // Follow 'contains' relationships
+                    // Follow 'contains' relationships (but not relship views)
                     let containsType = myMetis.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, fromType, toType);
                     const containedObjects = getSubMetaModelObjects(obj, containsType);
                     for (let i = 0; i < containedObjects?.length; i++) {

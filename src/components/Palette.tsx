@@ -129,7 +129,7 @@ const Palette = (props: any) => {
       const otsArr = types.map(wot =>
         curPalette?.nodes.find(i => {
           if (debug) console.log('123 Palette', i?.name, wot, i?.name === wot);
-          return i?.name === wot && i;
+          return i?.name === wot && i;g
         })
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);

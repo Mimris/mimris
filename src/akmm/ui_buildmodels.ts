@@ -17,15 +17,15 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   let inheritedTypenames = []; 
   let typenames;
   const modelRef = metamodel?.generatedFromModelRef;
-  let model = metis?.findModel(modelRef);
+  let genFromModel = metis?.findModel(modelRef);
   let objtypes = [];
   const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
   if (metamodel) {
     const mmtypenames = [];
-    objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
-    if (objtypes) {
-      for (let i = 0; i < objtypes.length; i++) {
-        const objtype = objtypes[i];
+    const allObjtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
+    if (allObjtypes) {
+      for (let i = 0; i < allObjtypes.length; i++) {
+        const objtype = allObjtypes[i];
         if (objtype) {
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
             if (isCoreMetamodel || !metamodel.includeSystemtypes) {
@@ -33,16 +33,18 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
             } else
               continue;
           }
-          if (!objtype.abstract )
+          if (!objtype.abstract ) {
             mmtypenames.push(objtype.name);
+            objtypes.push(objtype);
+          }
         }
       }
     }
     typenames = [...new Set(mmtypenames)];
     if (debug) console.log('32 MM objecttypes', typenames);
   }
-  if (model) {
-    const mmodel = model.metamodel;
+  if (genFromModel) {
+    const mmodel = genFromModel.metamodel;
     const objtypenames = [];
     const objtypes = mmodel?.objecttypes;
     if (objtypes) {

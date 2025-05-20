@@ -5,7 +5,7 @@ const debug = false;
 
 // import React from "react";
 import { useRouter } from "next/router";
-import { useState, useEffect, useLayoutEffect, useRef, use } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -84,7 +84,7 @@ const Modelling = (props: any) => {
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
-  if (!curmod) curmod = models[0]
+  if (!curmod) curmod = models[0] || null
 
   const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
@@ -116,7 +116,16 @@ const Modelling = (props: any) => {
   let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
 
   let myMetis = new akm.cxMetis();
+  GenGojsModel(props, myMetis)
 
+  // const myMetis = useMemo(() => {
+  //   const metisInstance = new akm.cxMetis();
+  //   if (curmod?.objects) {
+  //     GenGojsModel(props, metisInstance);
+  //   }
+  //   return metisInstance;
+  // }, [metis]);  // Only execute when objects or relationships change
+  
 
   useEffect(() => {
     if (debug) console.log('Modelling 126', mmToggle)
@@ -124,11 +133,12 @@ const Modelling = (props: any) => {
   }, [mmToggle])
 
 
-  GenGojsModel(props, myMetis)
 
-  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
+
+
+  useEffect(() => { // Genereate GoJs node model 
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
-    if (debug) console.log('226 ', myMetis, activeTab, activetabindex);
+    if (!debug) console.log('131 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
@@ -232,6 +242,7 @@ const Modelling = (props: any) => {
     //   SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
     // }
     const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
+    
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
@@ -402,7 +413,7 @@ const Modelling = (props: any) => {
           <TabPane >   {/* Model ---------------------------------------*/}
             <div className="workpad p-1 pt-2 bg-white">
               <Row className="row1">
-                {/* Objects Palette area */}
+                {/* Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
@@ -415,6 +426,7 @@ const Modelling = (props: any) => {
                       dispatch={dispatch}
                       modelType='model'
                       phUser={phUser}
+                      setVisiblePalette={props.setVisiblePalette}
                     />
                   </div>
                 </Col>
@@ -529,11 +541,11 @@ const Modelling = (props: any) => {
               {loadfile}
             </span>
           </div>
+          <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+
             {/* <span className="btn me-1 d-flex justify-content-center align-items-center bg-secondary" onClick={exportToClipboard}>
             <i className="fas fa-copy me-2"></i> Objects
             </span> */}
-          <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
-
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
           <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
@@ -574,24 +586,33 @@ const Modelling = (props: any) => {
               </button>
             </div> */}
           <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary"
-            onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
+            onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} 
+          </span>
         </div>
       </>
 
 
     // return (models.length > 0) && (
     // return (mount && (gojsmodelobjects?.length > 0)) && (
+    if (!curmod || !curmod.modelviews) {
+      return <div>Loading model data...</div>;
+      }
+
     return ((mmToggle)
       ? (myMetis) &&
-      <>
-        <div className="diagramtabs pb-0" >
-          <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
-            {modellingDiv}
-          </div>
-          <div className="modellingContent mt-1 ">
-            {/* {modellingtabs} */}
-            {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
-          </div>
+        <>
+          <div className="diagramtabs pb-0" >
+            {mount && (
+            <>
+              <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+                {modellingDiv}
+              </div>
+              <div className="modellingContent mt-1 ">
+                {/* {modellingtabs} */}
+                {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+              </div>
+            </>
+         )}
         </div>
         {projectModalDiv}
       </>

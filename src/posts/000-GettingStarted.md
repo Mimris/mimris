@@ -36,7 +36,7 @@ Open the modeller by clicking on the modelling tab in the top menu.
 ![Modellingpage](/images/posts/overview/image01.png)
 
 An initial project will be opened. 
-- 1 The left pane you find the Metamodel-palette with AKM-IRTV_MM metamodel.
+- 1 The left pane you find the Metamodel-palette with IRTV_META metamodel.
 - 2 The Objects-palette (empty) 
 - 3 The Modelling area.
 - 4 Main Project menu (Hamburger menu) File, Import, Export.

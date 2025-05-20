@@ -4217,12 +4217,12 @@
         },
         {
           "id": "28362053-7550-453a-c580-5571b10780da",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [
             {
               "id": "d645dcff-80f5-4834-fc92-8754f87c185c",
-              "name": "AKM-ADMIN_MM_Viewstyle",
+              "name": "AKM-ADMIN_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -6308,12 +6308,12 @@
         },
         {
           "id": "0faeb1c2-b58f-4bf4-71ff-d09e6a9441d8",
-          "name": "PROD_STRUCT_MM",
+          "name": "PROD_STRUCT_META",
           "description": "",
           "viewstyles": [
             {
               "id": "7c8c619b-ba42-48cc-ac83-4cc3d12b809c",
-              "name": "PRODSTRUCT_MM_Viewstyle",
+              "name": "PRODSTRUCT_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -9306,7 +9306,7 @@
             },
             {
               "id": "3719e5f4-bec6-4669-28e9-58429bfe340e",
-              "name": "PROD_STRUCT_MM",
+              "name": "PROD_STRUCT_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -9658,7 +9658,7 @@
                 },
                 {
                   "id": "07ccb9f9-cdaf-4211-fd26-c52723fb5419",
-                  "name": "PROD_STRUCT_MM",
+                  "name": "PROD_STRUCT_META",
                   "description": "",
                   "objectRef": "3719e5f4-bec6-4669-28e9-58429bfe340e",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

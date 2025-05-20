@@ -96,32 +96,53 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef)
-    SaveMetamodelToFile(metamodel, metamodel.name, '_MM')
+    SaveMetamodelToFile(metamodel, metamodel.name, '_META')
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
 
   function handleSaveNewModel() {
     const ph = props.ph
-    // const models = ph?.phData?.metis?.models
     const metamodels = ph?.phData?.metis?.metamodels
-    // const curmodel = models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    // const curmodelview = curmodel?.modelviews?.find(mv => mv.id === ph?.phFocus?.focusModelview?.id)
-    // const curMetamodel = metamodels?.find(m => m.id === curmodel?.metamodelRef)
-    const data = CreateNewModel(props.ph)//,  curmodel, curmodelview)
+
+    const data = CreateNewModel(props.ph)
     if (debug) console.log('194 Loadfile', metamodels, data)
     if (!data) {
       if (debug) console.log('196 Loadfile', data)
       alert('No metamodel found in this modelview')
       return
     }
-    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') && m.id === data.phData.metis.metamodels[0].id) // this is the new metamodel
 
-    const filename = data.phData.metis.name
+    // Check if data is an array or an object and access it safely
+    const project = Array.isArray(data) ? data[0] : data
+    const template = Array.isArray(data) ? data[1] : null
+
+    // Make sure we have the expected structure before accessing nested properties
+    if (!project?.phData?.metis?.metamodels?.length) {
+      console.error('Invalid data structure returned from CreateNewModel', project)
+      alert('Error creating new model: Invalid data structure')
+      return
+    }
+
+    const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') &&
+      m.id === project.phData.metis.metamodels[0].id)
+
+    const filename = project.phData.metis.name
 
     if (debug) console.log('199 Loadfile', newmm, filename)
-    SaveAllToFile(data, filename, '_PR')
-    const metamodelname = newmm?.name.replace('_MM', '') // remove _MM to avoid twice
-    SaveMetamodelToFile(newmm, metamodelname, '_MM')
+    SaveAllToFile(project, filename, '_PR')
+
+    // More robust template checking
+    if (template) {
+      console.log('138 Loadfile', filename)
+      if (!filename.includes('OSDU')) {
+        SaveAllToFile(template, 'Mimris-template', '_PR')
+      }
+    }
+
+    if (newmm) {
+      const metamodelname = newmm.name.replace('_META', '') // remove _META to avoid twice
+      SaveMetamodelToFile(newmm, metamodelname, '_META')
+    }
   }
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
@@ -183,7 +204,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."
-        onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._MM.json
+        onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File: ..._META.json
       </button >
     </div>
 
@@ -203,7 +224,7 @@ const LoadFile = (props: any) => {
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
         title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
-        onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_MM.json
+        onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_META.json
       </button >
     </div>
 

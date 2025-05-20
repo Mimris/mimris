@@ -273,8 +273,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    */
 
   private initDiagram(): go.Diagram {
-    go.Diagram.licenseKey = "73f944e5b16131b700ca0d2b113f69ef1bb37a619ed11ff55e5141f3ef586c102b9dec7a598099d0d4ac1ef41a7d978c89cc6b2f96440c32e330da8847e282fbb23574b7165a148ca00675919aad2df4f47b63e2c4e027a4da2adcf3f9b8c09d5feaecdd57c90a";
-    this.diagramRef.current?.clear();
+    go.Diagram.licenseKey = "73f944e5b16131b700ca0d2a113f69ec5ef62e33c9820ce00b5645f4ed5b381476c9eb7c55d783c3d7ff46f41e2fc6deddcc6a2f951e556be238c1cc45b6d6f1b23724e740014588a50b2fca9dfb23f5f87875f0c2b770a7d82adff0efad90ce5fbff48140c91cab2f2d5637562cff4ba5ebda7afa06d34a7464";
+
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
@@ -4154,7 +4154,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </TabPane>
         </TabContent>
       </>
-
+    // console.log('4157 Diagram render: ', this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
     return (
       <div>
         <ReactDiagram

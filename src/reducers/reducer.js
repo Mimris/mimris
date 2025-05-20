@@ -17,6 +17,7 @@ import {
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
+  SET_CURRENT_METAMODEL,
   SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_TAB,
@@ -88,7 +89,8 @@ import {
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME,
-  SET_VISIBLE_CONTEXT
+  SET_VISIBLE_CONTEXT,
+  UPDATE_DOMAIN_PROPERTIES,
 } from '../actions/types';
 
 //import context from '../pages/context';
@@ -107,7 +109,7 @@ const InitStateJson = StartInitStateJson
 if (debug) console.log('86 InitStateJson', InitStateJson);
 const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
-// import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
+// import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
 // const InitProject = JSON.parse(JSON.stringify(InitProject))
 // // const InitMetamodels = JSON.parse(JSON.stringify(InitMetamodelsJson)) 
@@ -123,8 +125,8 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 //   phData: null, //InitState.phData,
 //   // phData: {
 //   //   metis: {
-//   //     name: 'Empty AKMM model',
-//   //     description: 'AKMM Model',
+//   //     name: 'Empty Mimris model',
+//   //     description: 'Mimris Model',
 //   //     metamodels: [],
 //   //     models: [], 
 //   //     currentMetamodelRef: '',
@@ -173,7 +175,7 @@ let focusCollection
 
 function reducer(state = InitialState, action) {
 
-  const { phData, phFocus, phUser } = state;
+  const { phData, domain, phFocus, phUser } = state;
   const { type, payload } = action;
   const focusModel = phFocus?.focusModel
   const curModel = phData.metis.models.find((m) => m.id === focusModel?.id) || phData.metis.models[0] //current model;
@@ -322,6 +324,10 @@ function reducer(state = InitialState, action) {
             models: [
               ...state.phData.metis.models, action.data
             ]
+          },
+          domain: {
+            ...state.phData.domain,
+            ...action.data.domain 
           }
         }
       }
@@ -346,6 +352,19 @@ function reducer(state = InitialState, action) {
           }
         }
       }
+    case SET_CURRENT_METAMODEL:
+      if (!debug) console.log('113 SET_CURRENT_METAMODEL', action);
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            currentMetamodelRef: action.data.id
+          }
+        }
+      }
+
     case SET_FOCUS_PHFOCUS:
       if (debug) console.log('190 SET_FOCUS_PHFOCUS', action.data);
       return {
@@ -1780,9 +1799,28 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('1784 SET_VISIBLE_CONTEXT', retval_SET_VISIBLE_CONTEXT.phUser.appSkin.visibleContext);
       return retval_SET_VISIBLE_CONTEXT;
 
+    case UPDATE_DOMAIN_PROPERTIES:
+      if (!debug) console.log('1785 UPDATE_DOMAIN_PROPERTIES', action);
+      let retval_UPDATE_DOMAIN_PROPERTIES = {
+        ...state,
+        phData: {
+          ...state.phData,
+          domain: {
+            ...state.phData.domain,
+            name: action.data.name,
+            description: action.data.description,
+            presentation: action.data.presentation,
+          }
+        },
+      }
+      if (!debug) console.log('1794 UPDATE_DOMAIN_PROPERTIES', retval_UPDATE_DOMAIN_PROPERTIES);
+      return retval_UPDATE_DOMAIN_PROPERTIES;
+
     default:
       return state
   }
 }
+
+
 
 export default reducer

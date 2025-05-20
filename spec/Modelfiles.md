@@ -7,7 +7,7 @@ Naming conventions
 
 - Project-name_PR.json
 - Model-name_MO.json
-- Metamodel-name_MM.json
+- Metamodel-name_META.json
 - Modelview-name_MV.json
 - Object-name_OB.json
 - Relationship-name_RE.json
@@ -15,7 +15,7 @@ Naming conventions
 - Workplace-name_WP.json
 
 ex. 
-MyProject_PR.json, MyMetamodel_MM.json, MyModelview_MV.json, MyObject_OB.json, MyRelationship_RE.json, MyWorkspace_WS.json, MyWorkplace_WP.json
+MyProject_PR.json, MyMetamodel_META.json, MyModelview_MV.json, MyObject_OB.json, MyRelationship_RE.json, MyWorkspace_WS.json, MyWorkplace_WP.json
 
 ## Project_PR.json
 
@@ -29,7 +29,7 @@ MyProject_PR.json, MyMetamodel_MM.json, MyModelview_MV.json, MyObject_OB.json, M
             "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/BBBBB_MO.json"
         ], 
         "metamodelFiles": [
-            "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/CCCCC_MM.json"
+            "https://github.com/Kavca/kavca-akm-models/blob/main/metaprojects/CCCCC_META.json"
         ],
         "modelviewFiles": [
 

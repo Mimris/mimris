@@ -1,13 +1,13 @@
 #### Build Type Definition Model (_TD)
 
 To build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.
-This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. 
+This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_META** metamodel. 
 
 <details>  <summary>Create Initial Containers ...</summary>
 
-Let us start with an empty model and the built-in ***AKM-META_MM*** metamodel:
+Let us start with an empty model and the built-in ***AKM-META_META*** metamodel:
 
-![Initial page with blank modelling area and AKM-META_MM types in the Palette](images/posts/modelling/image_model001.png)
+![Initial page with blank modelling area and AKM-META_META types in the Palette](images/posts/modelling/image_model001.png)
 
 The left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.
 

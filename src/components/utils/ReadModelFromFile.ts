@@ -412,7 +412,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         //         };
         //     }
         //     if (debug) console.log('399 ReadModelFromFile', data)
-        // } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
+        // } else if (filename.includes('_META')) { // its a metamodel file, merge with existing project'
         //     data = {
         //         phData: {
         //             ...props.phData,

@@ -1194,7 +1194,7 @@ export function addToSelection(obj: any, myDiagram: any) {
 }
 
 export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
-    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
     const adminModel    = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     const projectType   = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
     const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
@@ -1421,7 +1421,7 @@ function askForMetamodel(context: any) {
             continue;
         if (metaModel.markedAsDeleted)
             continue;
-        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+        if (metaModel.name === constants.admin.AKM_ADMIN_META)
             continue;
         if (myMetamodel && (metaModel.id === myMetamodel?.id)) {
             if (context.case !== 'New Model')
@@ -1815,7 +1815,7 @@ function createModel(context: any) {
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
     let model, modelName, modelview, modelviewName;
-    if (metamodel.name === constants.admin.AKM_ADMIN_MM) {
+    if (metamodel.name === constants.admin.AKM_ADMIN_META) {
         modelName = constants.admin.AKM_ADMIN_MODEL;
         modelviewName = constants.admin.AKM_ADMIN_MODELVIEW;
         model = myMetis.findModelByName(modelName);
@@ -2535,7 +2535,7 @@ export function getSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): 
 }
 function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): akm.cxModel[] {
     const models: akm.cxModel[] = new Array();
-    const metamodel = myMetis.findMetamodelByName('AKM-IRTV_MM');
+    const metamodel = myMetis.findMetamodelByName('AKM-IRTV_META');
     const modifiedModels = new Array();
     const modifiedMetamodels = new Array();
     for (let i=0; i<submodelObjects.length; i++) {

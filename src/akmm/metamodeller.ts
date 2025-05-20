@@ -115,7 +115,7 @@ export class cxMetis {
             for (let i = len - 1; i >= 0; i--) {
                 const metamodel = metamodels[i];
                 if (!metamodel) continue;
-                if (metamodel.name === constants.core.AKM_CORE_MM)
+                if (metamodel.name === constants.core.AKM_CORE_META)
                     continue;
                 if (metamodel && metamodel.id) {
                     this.importMetamodel(metamodel);
@@ -125,7 +125,7 @@ export class cxMetis {
             for (let i = len - 1; i >= 0; i--) {
                 const metamodel = metamodels[i];
                 if (!metamodel) continue;
-                if (metamodel.name !== constants.core.AKM_CORE_MM)
+                if (metamodel.name !== constants.core.AKM_CORE_META)
                     continue;
                 if (metamodel && metamodel.id) {
                     this.importMetamodel(metamodel);

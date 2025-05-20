@@ -14,25 +14,26 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Introduction to Modelling with Mimris](#introduction-to-modelling-with-mimris)
     - [Understanding Metamodels](#understanding-metamodels)
     - [Textual vs. Graphical Modelling Languages](#textual-vs-graphical-modelling-languages)
-    - [Mimris\_META: The Core of Custom Modelling](#mimris_meta-the-core-of-custom-modelling)
+    - [CORE\_META: The Core of Custom Modelling](#core_meta-the-core-of-custom-modelling)
     - [Creating Custom Modelling Languages](#creating-custom-modelling-languages)
     - [BPMN example model](#bpmn-example-model)
-  - [🏗️ Tech Stack](#️-tech-stack)
-  - [✨ Features](#-features)
+  - [Authors](#authors)
+  - [Tech Stack](#tech-stack)
+  - [Features](#features)
   - [Quick Start �](#quick-start-)
-  - [Installation 📦](#installation-)
+  - [Installation](#installation)
     - [Prerequisites](#prerequisites)
   - [Usage 🖌️](#usage-️)
     - [Basic user Workflow](#basic-user-workflow)
-  - [Development 💻](#development-)
+  - [Development](#development)
     - [Project Structure](#project-structure)
     - [Run Tests](#run-tests)
-  - [🧩 State Management](#-state-management)
+  - [State Management](#state-management)
     - [Redux Store Structure](#redux-store-structure)
-  - [📐 Diagram Engine](#-diagram-engine)
+  - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
-  - [Contributing 🤝](#contributing-)
-  - [License 📄](#license-)
+  - [Contributing](#contributing)
+  - [License](#license)
 - [Mimris](#mimris)
 - [Develop branch used for deployment of beta versjon](#develop-branch-used-for-deployment-of-beta-versjon)
   - [The codebase](#the-codebase)
@@ -51,15 +52,15 @@ A metamodel is a model that defines the structure and semantics of a modelling l
 
 In textual modelling languages, we typically speak in terms of nouns (entities) and verbs (actions or relationships). In a graphical modelling language such as Mimris, the corresponding terms are objects and relationships. This shift from textual to graphical representation allows for a more intuitive and visual approach to modelling complex systems.
 
-### Mimris_META: The Core of Custom Modelling
+### CORE_META: The Core of Custom Modelling
 
-The modelling language used within Mimris to define new, custom modelling languages is called `Mimris_META`. `Mimris_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
+The modelling language used within Mimris to define new, custom modelling languages is called `CORE_META`. `CORE_META` provides a set of modelling primitives that enable users to define custom object types (analogous to nouns) and relationship types (analogous to verbs), along with associated properties and methods.
 
 ### Creating Custom Modelling Languages
 
 Once these custom types are specified (modelled), users can invoke the “Generate Metamodel” function to automatically produce their own metamodel. These metamodels—essentially new, domain-specific modelling languages—can then be used as the foundation for creating custom models tailored to specific needs or contexts.
 
-By leveraging `Mimris_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
+By leveraging `CORE_META`, users can develop highly specialized modelling languages that cater to the unique requirements of their projects, ensuring a more precise and effective modelling process.
 
 ### BPMN example model
 
@@ -77,9 +78,13 @@ Below is shown an example model built using a template generated from the metamo
 
 [Powered by GoJS](https://gojs.net)
 
+## Authors
+
+[Authors](docs/AUTHORS.md)
 
 
-## 🏗️ Tech Stack
+
+## Tech Stack
 
 - **Frontend Framework**: Next.js 13 (Page Router)
 - **Language**: TypeScript 5+
@@ -89,7 +94,7 @@ Below is shown an example model built using a template generated from the metamo
 - **Build System**: npm
 - **Styling**: Bootstrap and ReactStrap, CSS  
   
-## ✨ Features
+## Features
 
 - **Basic Knowledge graph**
   - Object/node Relationship/edge arrays based on types defined in Metamodel with Objecttype and Relationshiptypes.
@@ -131,7 +136,7 @@ npm install
 npm run dev
 ```
 
-## Installation 📦
+## Installation
 
 ### Prerequisites
 
@@ -151,7 +156,7 @@ See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 3. Arrange the objects in the modelling area by dragging them to the desired position and arrange them in Containers.
 4. Click on the Hamburger menu in the top left corner to open the menu to Save, Export or Import a model.
 
-## Development 💻
+## Development
 
 ### Project Structure
 
@@ -182,7 +187,7 @@ See [INSTALLATION.md](/docs/INSTALLATION.md) for detailed instructions.
 npm test (no tests implemented yet)
 ```
 
-## 🧩 State Management
+## State Management
 
 ### Redux Store Structure
 
@@ -196,7 +201,7 @@ initialState = {
 }
 ```
 
-## 📐 Diagram Engine
+## Diagram Engine
 
 ### GoJS Configuration
 
@@ -236,16 +241,16 @@ export const nodeTemplate = (
 );
 ```
 
-## Contributing 🤝
+## Contributing
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 We welcome contributions under these guidelines:
 
-1. Fork the repository
+1. Clone the repository
 2. Create a feature branch
 3. Submit a pull request
 
-Review our [CONTRIBUTING GUIDE](CONTRIBUTING.md) before submitting code.
+Review our [CONTRIBUTING GUIDE](docs/CONTRIBUTING.md) before submitting code.
 
 Priority Areas:
 
@@ -270,7 +275,7 @@ Priority Areas:
 - 🧩 Add more modelling frameworks
 - 🧩 Add more modelling standards
 
-## License 📄
+## License
 
 This project is licensed under the GNU General Public License v3.0 - see [LICENSE](LICENSE) file for details.
 
@@ -286,19 +291,16 @@ This project is licensed under the GNU General Public License v3.0 - see [LICENS
 
 **Maintained by** [Mimris]
 
-•
  📧 <snorres@gmail.com>
 
- •
-[Live Demo](mimris.vercel.app/modelling)
-
+![Mimris Live Demo](mimris.vercel.app/modelling)
 
 # Mimris
 
 Mimris is the tool for building Active Knowledge Models, a modelling tool with integrated Use-case Modeling and Meta-modelling capabilities.
 
 Its build on some of the same concepts implemented I Metis (1985-2007) which was written in  C++. 
-Mimris is written in JavaScript and TypeSctipt, using libraries like:  Next.js, React, Redux, Gojs ....
+Mimris is written in JavaScript and TypeScript, using libraries like:  Next.js, React, Redux, Gojs ....
 
 # Develop branch used for deployment of beta versjon
 
@@ -322,12 +324,10 @@ There are two main code parts:
  The main principal for Mimris modelling is that the model has a collection of Objects and Relationships.
  Wi have modelviews that has collection of Objectviews and Reltationshipviews that refer to the Objects and Relationships. This means that and object can have many objectviews. These Objectviews can be in same or different Modelviews.
 
- 1. The Frontend backend part, functional programmed handeling the Single page App with integration with Redux store,  API's to GitHub, localStorage and the filesystem.
+ 1. The Frontend backend part, functional programmed handling the Single page App with integration with Redux store,  API's to GitHub, localStorage and the filesystem.
  To keep track of the state of the App, we have implemented a state focus object that set the focus/context of the current  situation lig current: model, modelview, object, objectview, relationship, relationshipview, current role and task, organisation and project.
  This means that when a Project file is loaded, the state will be set to current focus.
  This focus will be changed every time the user select an item in the modelling area (modelview)
-
-
 
  The functions and components are responsible for handling various tasks such as updating the properties of objects and relationships, handling events on the diagram, toggling tasks, dispatching data to the store, and loading data from local storage, local files or GigHub. 
  The code also includes functions for setting and updating the focus of the application, refreshing the objects, and handling the state of the application. Overall, the code is used to manage the state and behavior of the modeling application.

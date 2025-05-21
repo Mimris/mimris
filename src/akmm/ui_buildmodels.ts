@@ -19,7 +19,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   const modelRef = metamodel?.generatedFromModelRef;
   let genFromModel = metis?.findModel(modelRef);
   let objtypes = [];
-  const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_META;
+  const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
   if (metamodel) {
     const mmtypenames = [];
     const allObjtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
@@ -28,8 +28,12 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
         const objtype = allObjtypes[i];
         if (objtype) {
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+            if (isCoreMetamodel) {              
+              objtype.abstract = false;
+            }
             if (isCoreMetamodel || !metamodel.includeSystemtypes) {
               mmtypenames.push(objtype.name);
+              objtypes.push(objtype);
             } else
               continue;
           }

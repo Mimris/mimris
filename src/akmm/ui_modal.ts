@@ -701,7 +701,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedModelviews.map(mn => {
         let data = mn;
         data = JSON.parse(JSON.stringify(data));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+       // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       })
     return;
     }

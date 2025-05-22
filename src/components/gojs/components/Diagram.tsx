@@ -3563,7 +3563,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) {
-              return true;
+              return false;
             }),
           makeButton("Toggle 'Include Inherited Relshiptypes' On/Off",
             function (e: any, obj: any) {

@@ -10,6 +10,7 @@ import {
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
 import Page from './page';
+import Index from "./Index";
 
 const page = (props) => {
   // console.log('12', props);
@@ -40,34 +41,7 @@ const page = (props) => {
       <div className="workpad p-1 bg-light">
         <div className="homepage1 bg-light">
           <div className="row">
-            <CardGroup className="col-12" border border-dark  style={{ backgroundColor: "#b0cfcf" }}>
-              <div className="col-3">
-                <Card className="card "
-                    style={{
-                    background: "rgba(255,255,255,0.4)",
-                    borderRadius: "10px",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    position: "relative",
-                    backdropFilter: "blur(5px)",
-                    WebkitBackdropFilter: "blur(5px)",
-                    // display: "block",
-                    // margin: "0 auto",
-                    padding: "2px"
-                    }}
-                >
-                    <CardHeader className="card-header">Mimris Modeller</CardHeader>
-                    <CardBody className="card-body" >
-                    {/* <CardTitle style={{ fontWeight: "bolder" }}>Mimris Modeller</CardTitle> */}
-                    <CardText className="card-text">          
-                    Mimris Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
-                        <br /><br />
-                    With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-                    The Mimris Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
-                    </CardText>
-                    </CardBody>
-                </Card>
-
-              </div>
+            <CardGroup className="col-12 border border-dark"  style={{ backgroundColor: "#b0cfcf" }}>
               <CardColumns className="col-3">
                 {/* <Card> */}
                 <Card className="card" body outline color="warning"
@@ -90,12 +64,30 @@ const page = (props) => {
                       Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and innovation and learning. AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
                       <br /><br />
                       The AKM novelty comes from how relationships between roles, tasks, properties and knowledge and data are captured and presented in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
-                      <br /><br />
+                    </CardText>
+                    <CardText>
                       An enterprise development and innovation team can model new Concepts and Capabilities. These Concept models may be used to enhance the meta-models of innovation projects, which again design new POPS components and solutions.
                       <br /><br />
                       The effects from deploying AKM based solutions are many. Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. Shared views supporting design parameter balancing are modelled, and task execution can be in line with applicable regulations and policies. Role-specific task execution may create new tasks and services for other roles, and as such AKM makes collaboration and alignment more transparent, effective and precise, with direct impact on design quality, safety and security.
                       <br />
                     </CardText>
+                  </CardBody>
+                </Card>
+                <Card body inverse color="warning" >
+                  <CardBody className="hompage4">
+                    <CardText>
+                      AKM is used to create Visual Collaboration Arena (VCA) that provide role-holder’s with contextualized workspaces and workplaces.
+                      <br />Workspaces captures the dynamic interdependencies between roles, tasks, views and information.
+                      <br />Workplaces is the instantiation of a workspace for a specific end user, supporting end user capabilities and data for workspace interaction.
+                      <br />Role holders can be humans or software agents (bots) or a combination of the two that are accountable for the execution of tasks in line with the rules that apply for the task.
+                    </CardText>
+                    <CardText>
+                      <br />The VCA can be understood as an “intelligent agent” that runs tasks capturing work environments and execute actions to enhance the environments.
+                      <br />The environments will be a digital representation of the knowledge architectures including digital twins and alternative solutions.
+                    </CardText>
+                    <Link href="/">
+                      <Button color="light"></Button>
+                    </Link>
                   </CardBody>
                 </Card>
               </CardColumns>
@@ -134,15 +126,24 @@ const page = (props) => {
                   <CardHeader>POPS Modelling</CardHeader>
                   <CardBody className="homepage3" >
                     {/* <CardTitle>IRTV modelling</CardTitle> */}
-                    <CardText>
                     <CardImg top width="90%" src="images/irtv1.png" alt="irtv figur" />
+                    <CardText>
                     With AKM we can easily model new product structures, such as self-configurable components, systems and product families. 
+                    </CardText>
+                    <CardText>
                     This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-                    <br /><br />
+                  </CardText>
+                  <CardText>
                     <strong>Product design, engineering and life-cycle services</strong> are currently based on modelling and using these disjoint structures:
                       <br />- <strong>Product structures:</strong> - functions, components, systems configurations, production and operations, and repair,
+                    </CardText>
+                    <CardText>
                       <br />- <strong>Organizational hierarchies</strong>, domain teams and discipline groups, and composed project teams,
+                    </CardText>
+                    <CardText>
                       <br />-  <strong>Processes flows:</strong> -activity-decomposed tasks, BPM delivery flows, IDEF0 patterns, work-patterns (eg. swimlanes),
+                    </CardText>
+                    <CardText>
                       <br />- <strong>Systems</strong>; - functions, components, modules, systems configurations
                   </CardText>
                   </CardBody>
@@ -188,11 +189,19 @@ const page = (props) => {
                   <CardTitle style={{ fontWeight: "bolder" }}>Process design, engineering and execution</CardTitle>
                   <CardText>
                     are currently based on:
-                    <br />- Activity decomposition and disjoint flows – business and project
-                    <br />- Jobs are defined by tasks needed, no context is captured
-                    <br />- Separate progress reporting and communication from processes
-                    <br />- No balancing of parameters and values across disciplines and roles
-                    <br />- No capture of practical dependencies and settings.
+                    - Activity decomposition and disjoint flows – business and project
+                    </CardText>
+                    <CardText>
+                    - Jobs are defined by tasks needed, no context is captured
+                    </CardText>
+                    <CardText>
+                    - Separate progress reporting and communication from processes
+                    </CardText>
+                    <CardText>
+                    - No balancing of parameters and values across disciplines and roles
+                    </CardText>
+                    <CardText>
+                    - No capture of practical dependencies and settings.
                   </CardText>
                 </CardBody>
                 <Link href="/">
@@ -200,24 +209,34 @@ const page = (props) => {
                 </Link>
               </Card>
               </CardColumns>
+              <CardColumns className="col-3 h-100">
+                <Index />
+              </CardColumns>
+                {/* <div className="col-3">
+                  <Card className="card "
+                    style={{
+                      background: "rgba(255,255,255,0.4)",
+                      borderRadius: "10px",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      position: "relative",
+                      backdropFilter: "blur(5px)",
+                      WebkitBackdropFilter: "blur(5px)",
+                      // display: "block",
+                      // margin: "0 auto",
+                      padding: "2px"
+                    }}
+                  >
+                    <CardHeader className="card-header">Mimris versions:</CardHeader>
+                    <CardBody className="card-body" >
+                      <CardText className="card-text">
+                      </CardText>
+                    </CardBody>
+                  </Card>
+                </div> */}
+                
             </CardGroup>
           </div>
-            <Card body inverse color="warning" >
-              <CardBody className="hompage4">
-                <CardText>
-                  AKM is used to create Visual Collaboration Arena (VCA) that provide role-holder’s with contextualized workspaces and workplaces.
-                  <br />Workspaces captures the dynamic interdependencies between roles, tasks, views and information.
-                  <br />Workplaces is the instantiation of a workspace for a specific end user, supporting end user capabilities and data for workspace interaction.
-                  <br />Role holders can be humans or software agents (bots) or a combination of the two that are accountable for the execution of tasks in line with the rules that apply for the task.
-                  <br />
-                  <br />The VCA can be understood as an “intelligent agent” that runs tasks capturing work environments and execute actions to enhance the environments.
-                  <br />The environments will be a digital representation of the knowledge architectures including digital twins and alternative solutions.
-                </CardText>
-                <Link href="/">
-                  <Button color="light"></Button>
-                </Link>
-              </CardBody>
-            </Card>
+
 
         </div>
         <style jsx>{`

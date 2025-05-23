@@ -492,13 +492,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
                       const gjsNodeData = myDiagram.findNodeForKey(node.key);
-                      gjsNodeData.name = text;
-                      const jsnObjview = new jsn.jsnObjectView(objview);
-                      jsnObjview.name = text;
-                      jsnObjview.text = text;
-                      modifiedObjectViews.push(jsnObjview);
-                      let data = JSON.parse(JSON.stringify(jsnObjview));
-                      context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                      if (gjsNodeData) {
+                        gjsNodeData.text = textvalue;
+                        gjsNodeData.name = text;
+                        const jsnObjview = new jsn.jsnObjectView(objview);
+                        jsnObjview.name = text;
+                        jsnObjview.text = text;
+                        modifiedObjectViews.push(jsnObjview);
+                        let data = JSON.parse(JSON.stringify(jsnObjview));
+                        context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                      }
                     }
                   }
                 }

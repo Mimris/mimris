@@ -647,6 +647,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
         if (dtype) {
             // Datatype exists
             myTargetMetamodel.addDatatype(dtype);
+            datatype = dtype;
         } else {
             // Create a new datatype
             datatype = new akm.cxDatatype(utils.createGuid(), name, descr);
@@ -1797,9 +1798,6 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 if (!relview) continue;
                  if (debug) console.log('1427 rel.name', rel.name);
                 if (rel.isSystemRel()) {
-                    continue;
-                }
-                if (rel.name === constants.types.AKM_CONTAINS) {
                     continue;
                 }
                 const fromObj = rel.fromObject as akm.cxObject;

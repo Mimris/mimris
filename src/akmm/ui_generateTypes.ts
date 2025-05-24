@@ -647,6 +647,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
         if (dtype) {
             // Datatype exists
             myTargetMetamodel.addDatatype(dtype);
+            datatype = dtype;
         } else {
             // Create a new datatype
             datatype = new akm.cxDatatype(utils.createGuid(), name, descr);

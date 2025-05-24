@@ -28,9 +28,6 @@ const Project = (props) => {
   const models = modeldata?.phData?.metis?.models || [];
   const curmodel = models.find((model: any) => model?.id === modeldata?.phFocus?.focusModelview?.id);
   const modelviews = curmodel?.modelviews;
-
-
-
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [issues, setIssues] = useState([]);
   const [projectFile, setProjectFile] = useState([]);
@@ -59,6 +56,38 @@ const Project = (props) => {
     description: modeldata?.phData?.domain?.description || '',
     presentation: modeldata?.phData?.domain?.presentation || ''
   });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [modeldata]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Any async operations here
+    const loadData = async () => {
+      // Example async operation
+      try {
+        // Perform async operations
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [modeldata]);
 
   // Reset edited domain data when domain changes
   useEffect(() => {
@@ -99,11 +128,6 @@ const Project = (props) => {
     setEditingDomain(false);
     };
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const handleSubmit = (details) => {
     props.onSubmit(details);
     handleCloseProjectModal();
@@ -132,9 +156,12 @@ const Project = (props) => {
 
   if (debug) console.log('79 Project ', modeldata, props);
 
-  return mounted && (
+  return (
     <div className="project bg-light h-100">
-      <Tabs defaultActiveKey="domain" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+      <Tabs defaultActiveKey="modelSuiteDetails" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
         <Tab eventKey="domain" title="ModelSuite Domain">
           {/* <div className="domain bg-warning"> */}
           <Card className="metis px-1 mx-1 me-0 mt-0">
@@ -231,7 +258,7 @@ const Project = (props) => {
             <Card className="metis p-1 m-1 me-0">
               <CardHeader className="card-header">Model Suite Details</CardHeader>
               <CardBody className="card-body bg-light">
-                <CardTitle className="card-title-bold nobreak">Model Suite : {modeldata.phData.metis.name}</CardTitle>
+                <CardTitle className="card-title-bold nobreak">Model Suite : {modeldata.phData.metis.name || ''}</CardTitle>
                 <CardSubtitle className="card-subtitle-bold"> {modeldata.phData.metis.description}</CardSubtitle>
                <CardText className="card-text"></CardText>
                   <span>GitHub:</span>
@@ -254,7 +281,7 @@ const Project = (props) => {
                     <div className="border fs-6 p-1">Object: {modeldata.phFocus.focusObject?.name} </div>
                     <div className="border fs-6 p-1">Objecttype: {modeldata.phFocus.focusObjecttype?.name} </div>
                     <div className="border fs-6 p-1">Target metamodel: {modeldata.phFocus.focusTargetMetamodel?.name} </div>
-                    <div className="border fs-6 p-1">Source: {modeldata.phFocus.focusSource.name} </div>
+                    <div className="border fs-6 p-1">Source: {modeldata?.phFocus?.focusSource?.name || ''} </div>
                   </div>
 
               </CardBody>
@@ -296,6 +323,7 @@ const Project = (props) => {
           </div>
         </Tab>
       </Tabs>
+        )}
       <style jsx>{`
         .custom-tabs .nav-link {
           background-color: #f8f9fa; /* Default background color for tabs */

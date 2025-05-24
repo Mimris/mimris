@@ -46,7 +46,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       console.log('41 mmtypenames', mmtypenames); 
     }
     typenames = [...new Set(mmtypenames)];
-    if (debug) console.log('32 MM objecttypes', typenames);
+    if (!debug) console.log('32 MM objecttypes', typenames);
   }
   if (genFromModel) {
     const mmodel = genFromModel.metamodel;
@@ -67,10 +67,11 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
 
   let objecttypes: akm.cxObjectType[] | null = objtypes; //  metamodel?.objecttypes0;
+  if (!debug) console.log('66 objecttypes', objecttypes);
   if (objecttypes) {
     objecttypes.sort(utils.compare);
   }
-  if (debug) console.log('54 objecttypes', objecttypes);
+  if (!debug) console.log('69 objecttypes', objecttypes);
   if (objecttypes) {
     let includesSystemtypes = false;
     const otypes = new Array();

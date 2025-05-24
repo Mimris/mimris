@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import Link from 'next/link';
+import { useRouter } from 'next/router'; // Add this import
 
 import { ReadModelFromFile } from '../utils/ReadModelFromFile';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
@@ -18,6 +19,7 @@ const debug = false;
 export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
     const dispatch = useDispatch();
+    const router = useRouter(); // Initialize router
     if (!props.phData) return null;
     const project = props.phData.metis;
     const source = props.phSource;
@@ -49,9 +51,25 @@ export const ProjectMenuBar = (props: any) => {
     // setIsLeftDropdownOpen(!isLeftDropdownOpen);
     // };
 
+    function handleItemClick(item: any) {
+        // Check if the action is 'Open' or 'New'
+        if (item === 'Open' || item === 'New') {
+            // Ask the user to save before opening or creating new
+            const userWantsToSave = window.confirm('Have you save your current project? Click OK to proceed without saving, or Cancel to save first.');
+            if (userWantsToSave) {
+                setActiveItem(null);
+                router.push('/modelling'); // Navigate to the modelling page
+            } else {
+                setActiveItem(item);
+            }
+        }
+    }
+
     const handleReadProjectFile = (e: any) => {
         ReadModelFromFile(props, dispatch, e);
-        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } });
+        // Navigate to the modelling page after file processing
+        router.push('/modelling');
     }
 
     const handleSaveAllToFile = () => {
@@ -143,18 +161,6 @@ export const ProjectMenuBar = (props: any) => {
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
 
-    function handleItemClick(item: any) {
-        // Check if the action is 'Open' or 'New'
-        if (item === 'Open' || item === 'New') {
-            // Ask the user to save before opening or creating new
-            const userWantsToSave = window.confirm('Have you save your current project? Click OK to proceed without saving, or Cancel to save first.');
-            if (userWantsToSave) {
-                setActiveItem(null);
-            } else {
-                setActiveItem(item);
-            }
-        }
-    }
 
     const loadFile = (
         <>

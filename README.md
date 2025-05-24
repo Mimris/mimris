@@ -40,6 +40,8 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
 
 ## Introduction to Modelling with Mimris
 
+![Mimris Modeller](https://github.com/user-attachments/assets/d27506a0-4fa1-4d92-b783-f2f4eb65efc2)
+
 A modelling language is an artificial, formal language designed to express data, information, or knowledge in a structured and consistent manner. Each modelling language adheres to a clearly defined set of rules that govern its syntax and semantics.
 
 In Mimris, the modelling language is graphical in nature, providing a visual means of representing complex information and relationships.

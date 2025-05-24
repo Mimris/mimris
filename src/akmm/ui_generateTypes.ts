@@ -1800,9 +1800,6 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 if (rel.isSystemRel()) {
                     continue;
                 }
-                if (rel.name === constants.types.AKM_CONTAINS) {
-                    continue;
-                }
                 const fromObj = rel.fromObject as akm.cxObject;
                 if (!fromObj) continue;
                 // let fromObj = fromObjview?.object as akm.cxObject;

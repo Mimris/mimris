@@ -16,8 +16,8 @@ const Footer = props => {
         <FaRegSave className="ms-5 me-1" />
         <div>
           {(props.phSource) 
-            ? <div>AKM file: {props.phSource}</div>
-            : <div>AKM file: {props.phFocus?.focusProj.filename} </div>
+            ? <div>Mimris file: {props.phSource}</div>
+            : <div>Mimris file: {props.phFocus?.focusProj.filename} </div>
           }
         </div>
       </div>

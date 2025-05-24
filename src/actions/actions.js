@@ -621,7 +621,7 @@ export const setVisibleContext = (data) => {
 }
 
 export const update_domain_properties = (data) => {
-  if (!debug) console.log('205 actions update_domain_properties', data.payload);
+  if (debug) console.log('205 actions update_domain_properties', data.payload);
   return {
     type: UPDATE_DOMAIN_PROPERTIES,
     data: JSON.parse(data.value)

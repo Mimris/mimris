@@ -55,10 +55,10 @@ export const ProjectMenuBar = (props: any) => {
         // Check if the action is 'Open' or 'New'
         if (item === 'Open' || item === 'New') {
             // Ask the user to save before opening or creating new
-            const userWantsToSave = window.confirm('Have you save your current project? Click OK to proceed without saving, or Cancel to save first.');
+            const userWantsToSave = window.confirm('Have you saved your current project? Click OK to proceed without saving, or Cancel to save first.');
             if (userWantsToSave) {
                 setActiveItem(null);
-                router.push('/modelling'); // Navigate to the modelling page
+                // router.push('/modelling'); // Navigate to the modelling page
             } else {
                 setActiveItem(item);
             }
@@ -102,6 +102,7 @@ export const ProjectMenuBar = (props: any) => {
         }
         setShowProjectModal(true);
     };
+    
     const handleCloseProjectModal = () => setShowProjectModal(false);
 
     const handleSubmit = (details: any) => {
@@ -305,7 +306,7 @@ export const ProjectMenuBar = (props: any) => {
                     {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '') &&
                         <Link
                             className="text-primary ms-1"
-                            href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
+                            href={props.phFocus.focusProj.org ? `https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}` : "#"}
                             target="_blank"
                         >
                             {props.phFocus.focusProj.repo}
@@ -316,7 +317,7 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Project No. :
                     <Link
                         className="text-primary"
-                        href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
+                        href={props.phFocus.focusProj.org ? `https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}` : "#"}
                         target="_blank"
                     >
                         <button className="text-primary border rounded bg-transparent px-5" >{props.phFocus.focusProj.projectNumber} </button>
@@ -414,7 +415,7 @@ export const ProjectMenuBar = (props: any) => {
                                 {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '') &&
                                     <Link
                                         className="text-primary"
-                                        href={`https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}`}
+                                        href={props.phFocus.focusProj.org ? `https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}` :"#"}
                                         target="_blank"
                                     >
                                         <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>

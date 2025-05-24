@@ -22,14 +22,12 @@ import Issues from "../components/Issues";
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 
-
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
 
 const Page1 = (props: any) => {
 
   const dispatch = useDispatch();
-
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -38,7 +36,6 @@ const Page1 = (props: any) => {
   const [minimized, setMinimized] = useState(true);
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
   const [exportTab, setExportTab] = useState(0);
-
 
   function dispatchLocalStore(locStore: any) {
     // filter out null models and metamodels

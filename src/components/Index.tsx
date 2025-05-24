@@ -63,6 +63,12 @@ const page = (props) => {
           >
             <CardHeader className="card-header h-100" >Mimris release log ... </CardHeader>
             <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.05.24</CardTitle>
+              <CardText >
+                &bull; Bugfix and Updated Templates<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.05.23</CardTitle>
               <CardText >
                 &bull;Updated Home and About pages<br />

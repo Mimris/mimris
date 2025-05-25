@@ -1974,7 +1974,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
-      if (!debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
+      if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
       modifiedRelshipViews.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
@@ -2011,7 +2011,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       data = JSON.parse(JSON.stringify(data));
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
-    if (!debug) console.log('1704 myMetis', myMetis);
+    if (debug) console.log('1704 myMetis', myMetis);
   }
 
   public render() {

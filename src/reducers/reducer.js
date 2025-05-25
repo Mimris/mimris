@@ -353,7 +353,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_CURRENT_METAMODEL:
-      if (!debug) console.log('113 SET_CURRENT_METAMODEL', action);
+      if (debug) console.log('113 SET_CURRENT_METAMODEL', action);
       return {
         ...state,
         phData: {
@@ -1800,7 +1800,7 @@ function reducer(state = InitialState, action) {
       return retval_SET_VISIBLE_CONTEXT;
 
     case UPDATE_DOMAIN_PROPERTIES:
-      if (!debug) console.log('1785 UPDATE_DOMAIN_PROPERTIES', action);
+      if (debug) console.log('1785 UPDATE_DOMAIN_PROPERTIES', action);
       let retval_UPDATE_DOMAIN_PROPERTIES = {
         ...state,
         phData: {
@@ -1813,7 +1813,7 @@ function reducer(state = InitialState, action) {
           }
         },
       }
-      if (!debug) console.log('1794 UPDATE_DOMAIN_PROPERTIES', retval_UPDATE_DOMAIN_PROPERTIES);
+      if (debug) console.log('1794 UPDATE_DOMAIN_PROPERTIES', retval_UPDATE_DOMAIN_PROPERTIES);
       return retval_UPDATE_DOMAIN_PROPERTIES;
 
     default:

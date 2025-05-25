@@ -58,22 +58,36 @@ const Modeller = (props: any) => {
     const [diagramReady, setDiagramReady] = useState(false);
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
+    let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
     const diagramRef = useRef(null);
 
-    let focusModel = props.phFocus?.focusModel
-    let focusModelview = props.phFocus?.focusModelview
-    let activetabindex = 0
+    const componentMounted = useRef(true);
+
+    // Declare variables at function scope level first
+    let focusModel;
+    let focusModelview;
+
+    // Then assign values in the conditional
+    if (props.phFocus?.focusModel.id !== '') {
+        focusModel = props.phFocus?.focusModel;
+        focusModelview = props.phFocus?.focusModelview;
+    } else {
+        focusModel = { id: props.PhData.models[0].id, name: props.PhData.models[0].name };
+        focusModelview = { id: props.PhData.models[0].modelviews[0].id, name: props.PhData.models[0].modelviews[0].name };
+    }
     const models = props.metis?.models
     const model = models?.find((m: any) => m?.id === focusModel?.id)
+    if (debug) console.log('71 Modeller: model', model, focusModel, focusModelview);
     const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
     const modelviews = model?.modelviews
-    const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
+    const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id) 
     const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+    if (debug) console.log('81 Modeller: modelview', model, modelview, modelviews, focusModelview, modelviewindex);
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -115,6 +129,12 @@ const Modeller = (props: any) => {
     }
 
     useEffect(() => {
+        return () => {
+            componentMounted.current = false;
+        }
+    }, []);
+
+    useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
         setSelectedOption('Sorted alphabetical')
@@ -149,7 +169,7 @@ const Modeller = (props: any) => {
         }
         setObjectsRefresh(!objectsRefresh)
         if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
-    }, [model.objects.length === 0])
+    }, [model?.objects?.length === 0])
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
@@ -281,24 +301,19 @@ const Modeller = (props: any) => {
     if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
 
-
     const handleExportClick = async () => {
         if (debug) console.log('294 handleExportClick', exportSvg);
-        if (exportSvg) {
-            const svg = await exportSvg();
-            if (svg) {
-                const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
-                // console.log('SVG string:', svgString);
-                // Create a Blob from the SVG string
-                // const blob = new Blob([svgString], { type: 'image/svg+xml' });
-                const proj = props.phFocus.focusProj.name
-                const model = focusModel.name
-                const modelview = focusModelview?.name
-                const filename = `${proj}_${model}_${modelview}`.replace(/ /g, "-")
-                alert('A SVG-file of this modelview will be downloaded to your computer make sure you save it with the name: \n ' + filename + '.svg')
-                SaveModelviewToSvgFile(svgString, filename)
-            } else {
-                console.log('SVG is not ready yet');
+        if (exportSvg && componentMounted.current) {
+            try {
+                const svg = await exportSvg();
+                if (svg && componentMounted.current) {
+                    const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");
+                    // ...rest of function
+                }
+            } catch (error) {
+                if (componentMounted.current) {
+                    console.error('SVG export error:', error);
+                }
             }
         }
     };

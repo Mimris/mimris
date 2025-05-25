@@ -381,7 +381,11 @@ const CreateNewModel = (props: any) => {
         },
       },
       phFocus: {
-        ...ph.phFocus,
+        focusProj: { id: '', name: '', projectNumber: 0, org: '', repo: '', branch: '', path: '', file: '' },
+        focusObject: { id: '', name: '' },
+        focusRelship: { id: '', name: '' },
+        focusObjectview: { id: '', name: '' },
+        focusRelshipview: { id: '', name: '' },
         focusModel: { id: newmodel.id, name: newmodel.name },
         focusModelview: { id: newmodel.modelviews[0].id, name: newmodel.modelviews[0].name },   
       },

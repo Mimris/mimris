@@ -113,7 +113,7 @@ const Modelling = (props: any) => {
     }
   })
 
-  let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel.id) // if no model in focus, set the active tab to 0
+  let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel?.id) // if no model in focus, set the active tab to 0
 
   let myMetis = new akm.cxMetis();
   GenGojsModel(props, myMetis)
@@ -138,7 +138,7 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Genereate GoJs node model 
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
-    if (!debug) console.log('131 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
+    if (debug) console.log('131 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)
@@ -174,8 +174,9 @@ const Modelling = (props: any) => {
 
   useEffect(() => {
     if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-    if (props.phSource.includes('Template_PR.json')) handleShowProjectModal()
-  }, [props.phSource]) // add mount to the dependency array
+    // if (props.phFocus.focusProj.name ===('')) handleShowProjectModal(true)
+    if (props.phSource.includes('-Template')) handleShowProjectModal(true)
+  }, [props.phSource]) // Show project modal when the phSource is a template project
 
   useEffect(() => {
     if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)

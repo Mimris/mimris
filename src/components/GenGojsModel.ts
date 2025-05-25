@@ -46,7 +46,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   if (metis != null) {
     clogGreen('43 GenGojsModel: props', props);
     if (debug) clogGreen('44 GenGojsModel: metis', props.phData.metis);
-    const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
+    const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id) || models[0]; // if focusModel does not exist set it to the first
     const curmodview = (curmod && focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id))
       ? curmod?.modelviews?.find((mv: any) => mv.id === focusModelview.id)
       : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
@@ -111,6 +111,6 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
     }
   }
-  if (!debug) console.log('114 GenGojsModel myMetis', myMetis);
+  if (debug) console.log('114 GenGojsModel myMetis', myMetis);
 }
 export default GenGojsModel;

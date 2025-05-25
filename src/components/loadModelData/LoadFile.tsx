@@ -53,34 +53,34 @@ const LoadFile = (props: any) => {
     lastUpdate: new Date().toISOString()
   }
 
-  // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
+  // Save all models and metamodels in current templates to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
-    const projectname = props.ph.phData.metis.name
+    const templatesname = props.ph.phData.metis.name
     if (debug) console.log('37 LoadFile', data);
-    SaveAllToFile(data, projectname, '_PR')
-    // SaveAllToFile(data, projectname, 'AKMM-Project')
+    SaveAllToFile(data, templatesname, '_PR')
+    // SaveAllToFile(data, templatesname, 'AKMM-Project')
   }
 
-  // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
+  // Save all models and metamodels in current templates to a file with date and time in the name to the downloads folder
   function handleSaveAllToFileDate() {
-    const projectname = props.ph.phData.metis.name
+    const templatesname = props.ph.phData.metis.name
     if (debug) console.log('37 LoadFile', data);
 
-    // SaveAllToFileDate(data, projectname, 'Project')
-    SaveAllToFileDate(data, projectname, '_PR')
+    // SaveAllToFileDate(data, templatesname, 'Project')
+    SaveAllToFileDate(data, templatesname, '_PR')
   }
 
   // Save current model, metamodel, modelview, container to a file to the downloads folder
   // Attatch the metamodel to the model or modelview
   function handleSaveModelToFile() {
-    const projectname = props.ph.phData.metis.name
+    const templatesname = props.ph.phData.metis.name
     const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const curmmodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
     const model = { metamodels: curmmodel, models: curmodel }
     SaveModelToFile(model, curmodel.name, "_MO")
   }
   function handleSaveModelviewToFile() {
-    const projectname = props.ph.phData.metis.name
+    const templatesname = props.ph.phData.metis.name
     const curmodel = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     if (debug) console.log('73 LoadFile', curmodel)
     const focusModelviewIndex = curmodel.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id)
@@ -113,23 +113,26 @@ const LoadFile = (props: any) => {
     }
 
     // Check if data is an array or an object and access it safely
-    const project = Array.isArray(data) ? data[0] : data
+    const templates = Array.isArray(data) ? data[0] : data
     const template = Array.isArray(data) ? data[1] : null
 
+    if (debug) console.log('198 Loadfile', templates, template)
+
     // Make sure we have the expected structure before accessing nested properties
-    if (!project?.phData?.metis?.metamodels?.length) {
-      console.error('Invalid data structure returned from CreateNewModel', project)
+    if (!templates?.phData?.metis?.metamodels?.length) {
+      console.error('Invalid data structure returned from CreateNewModel', templates)
       alert('Error creating new model: Invalid data structure')
       return
     }
 
     const newmm = metamodels?.find(m => (m.name !== '_ADMIN_METAMODEL') &&
-      m.id === project.phData.metis.metamodels[0].id)
+      m.id === templates.phData.metis.metamodels[0].id)
 
-    const filename = project.phData.metis.name
+    const filename = templates.phData.metis.name
 
     if (debug) console.log('199 Loadfile', newmm, filename)
-    SaveAllToFile(project, filename, '_PR')
+
+    SaveAllToFile(templates, filename, '_PR')
 
     // More robust template checking
     if (template) {
@@ -147,12 +150,12 @@ const LoadFile = (props: any) => {
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
-    const projectname = props.ph.phData.metis.name
+    const templatesname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id)
     const modelview = model.modelviews?.find(mv => mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
     WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
     // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+    // SaveModelToFile(model, templatesname+'.'+model.name, 'AKMM-Model')
   }
 
   const { buttonLabel, className } = props;
@@ -218,12 +221,12 @@ const LoadFile = (props: any) => {
   //     </button >
   //   </div>
 
-  const buttonSaveModelprojectToFileDiv =
+  const buttonSaveModeltemplatesToFileDiv =
     <div>
       <button
         className="btn-secondary border rounded border-secondary mr-2  w-100  "
         data-toggle="tooltip" data-placement="top" data-bs-html="true"
-        title="Click to save create a new startmodel project based on the generated metamodel from this modelview"
+        title="Click to save create a new startmodel templates based on the generated metamodel from this modelview"
         onClick={handleSaveNewModel}>Create files: "New-Project"_PR.json and "New-Metamodel"_META.json
       </button >
     </div>
@@ -276,12 +279,12 @@ const LoadFile = (props: any) => {
                   {buttonSaveMetamodelToFileDiv}
                 </div>
                 {/* <div className="selectbox mb-2 border">
-                  <h6>Export start project with Metamodel, sub-metamodels and sub-models to file </h6>
+                  <h6>Export start templates with Metamodel, sub-metamodels and sub-models to file </h6>
                   {buttonSaveMetamodelWithSubToFileDiv}
                 </div> */}
                 <div className="selectbox mb-2 border">
                   <h6>Export New Startmodel-file and Metamodel-file from this modelview</h6>
-                  {buttonSaveModelprojectToFileDiv}
+                  {buttonSaveModeltemplatesToFileDiv}
                 </div>
               </div>
             </div>

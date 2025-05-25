@@ -1797,9 +1797,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     fill: 'transparent', 
                     stroke: "#aaa",  
                     strokeWidth: 2, 
-                    margin: new go.Margin(1, 1, 1, 1),
+                    margin: new go.Margin(0, 0, 0, 0),
                     shadowVisible: true,
-                    desiredSize: new go.Size(198, 68), // outer Shape size with icon
+                    desiredSize: new go.Size(199, 69), // outer Shape size with icon
                     // set the port properties
                     portId: "", 
                     fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,

@@ -1077,8 +1077,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
-              myDiagram.dispatch = e.diagram.dispatch;
-              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+              const metamodelName = obj.part.data.name;
+              if (confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+                let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+                if (!targetMetamodel) {
+                  targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
+                  myMetis.addMetamodel(targetMetamodel);
+                  myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
+                  let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
+                  mmdata = JSON.parse(JSON.stringify(mmdata));
+                  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+                }
+                const myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
+                const myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
+
+                const context = {
+                  "myMetis": myMetis,
+                  "myMetamodel": myMetis.currentMetamodel,
+                  "myTargetMetamodel": targetMetamodel,
+                  "myModel": myMetis.currentModel,
+                  "myModelview": myMetis.currentModelview,
+                  "myCurrentObject": myCurrentObject,
+                  "myCurrentObjectview": myCurrentObjectview,
+                  "myDiagram": e.diagram,
+                  "dispatch": e.diagram.dispatch
+                }
+                gen.generateTargetMetamodel2(context);
+              }
             },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling')

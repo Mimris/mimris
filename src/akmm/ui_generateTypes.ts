@@ -889,7 +889,7 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
             break;
         }
     }
-    if (mmname === constants.core.AKM_CORE_META) {
+    if (mmname === constants.core.AKM_CORE_MM) {
         myMetis.currentModel.includeSystemtypes = true;
     } else {
         myMetis.currentModel.includeSystemtypes = false;
@@ -999,16 +999,16 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     const myDiagram = context.myDiagram;
     const myMetis: akm.cxMetis = context.myMetis;
     const myCurrentObjectview = context.myCurrentObjectview;
-    const myCurrentObject = myCurrentObjectview.object;
+    const myCurrentObject = context.myCurrentObject;
     // let sourcemodelview = buildTemporaryModelView(context);
-    let sourcemodelview = context.myCurrentModelview;
+    let sourcemodelview = context.myModelview;
     const args = context.args;
     let targetMetamodel: akm.cxMetaModel = context.myTargetMetamodel;
     if (!targetMetamodel)
         return false;
     if (!sourcemodelview)
         return false;
-    if (targetMetamodel.name === constants.core.AKM_CORE_META) {
+    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         const typelist = new Array();
         typelist.push("Default");
         typelist.push("Entity Type");
@@ -1018,7 +1018,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
         targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
         targetMetamodel?.clearContent();
     }
-    if (targetMetamodel?.name !== constants.core.AKM_CORE_META) {
+    if (targetMetamodel?.name !== constants.core.AKM_CORE_MM) {
         modelviewList = new Array();
         modelviewList.push(sourcemodelview.name);
     } else {
@@ -1410,7 +1410,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     const myModel = context.myModel as akm.cxModel;
     const myGoModel = context.myGoModel;
     const myDiagram = context.myDiagram;
-    const myModelview = context.myCurrentModelview as akm.cxModelView;
+    const myModelview = context.myModelview as akm.cxModelView;
     const myObjectview = context.myCurrentObjectview;
     const mmType = myMetamodel.findObjectTypeByName(constants.types.AKM_METAMODEL);
     const entType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
@@ -1432,7 +1432,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     const mmname = targetMetamodel.name;
     if (debug) console.log('1268 generateMetamodel 1');
     let isCoreMetamodel = false;
-    if (targetMetamodel.name === constants.core.AKM_CORE_META) {
+    if (targetMetamodel.name === constants.core.AKM_CORE_MM) {
         isCoreMetamodel = true;
         includeMetamodelling = true;
     }
@@ -1529,7 +1529,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
-    const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_META);
+    const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_MM);
     let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     let containsTypeView = containsType?.typeview;
     let hasSubMetamodelType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);

@@ -34,7 +34,7 @@ If you do that, and then regenerate the metamodel, those properties will appear 
 
 If nothing further is said about the properties, they will all be “*string*” properties, with no restrictions on the values.
 
-By adding “*Datatype*” to a property, you start adding constraints to the allowed values. The potential constraints are covered by the part of the AKMM initial metamodel, shown in the figure below.
+By adding “*Datatype*” to a property, you start adding constraints to the allowed values. The potential constraints are covered by the part of Mimris initial metamodel, shown in the figure below.
 
 ![alt text](/images/posts/modelling/image_model0351.png)
 
@@ -76,7 +76,7 @@ The **FieldTypes** currently supported by the Modeller are the following:
     -	week
 
 **InputPatterns** are used to check if values entered by the user are valid / allowed values. 
-The mechanism to check this is “**Regular Expressions**”. A regular expression engine has been embedded in AKMM for this purpose.
+The mechanism to check this is “**Regular Expressions**”. A regular expression engine has been embedded in Mimris for this purpose.
 Ref: https://www.w3schools.com/jsref/jsref_obj_regexp.asp 
 and https://www.regular-expressions.info/examples.html
 

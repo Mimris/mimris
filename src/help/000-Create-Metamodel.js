@@ -1,8 +1,6 @@
 const Help = `
 #### MIMRIS Metamodeling Guide
 
-
-
 ##### Creating a Type Definition Model
 
 A Type Definition Model (TD) defines your custom types using the **AKM-CORE_MM** metamodel. Follow these steps to create your metamodel:
@@ -18,7 +16,6 @@ A Type Definition Model (TD) defines your custom types using the **AKM-CORE_MM**
   3. Click the name and change it to **"Domain Types"** (e.g., "Bikerental Types")
   4. Right-click the container to add a description
   
-
 </details>
 
 <details>

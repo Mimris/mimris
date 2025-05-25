@@ -98,7 +98,10 @@ import {
 
 // import InitStateJson from './InitialState.json'
 
-import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
+
+
+import StartInitStateJson from '../startupModel/CORE-Template_PR.json'
+// import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
 // import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
 // import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
 // import LoadInitmodel from '../components/LoadModelData/LoadInitmodel'

@@ -317,12 +317,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               {focusRole?.name}
             </span>
           </div>
-          <div>
+          {/* <div>
             Task:{" "}
             <span className="font-weight-bold text-success bg-white p-1">
               {focusTask?.name}
             </span>
-          </div>
+          </div> */}
           <div className="mb-3">
             {(!collapsed) // collapsed task container
               ?

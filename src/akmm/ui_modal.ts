@@ -682,9 +682,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
+      objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;
       objview.icon = selObj.icon;
+      goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;

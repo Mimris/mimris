@@ -334,19 +334,21 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         const object = node.object as akm.cxObject;
         let objtype = object?.type as akm.cxObjectType;
         if (!objtype) objtype = metis.findObjectType(object.typeRef);
-        const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-        if (typeview) {
-          if (!node.template) node.template = typeview.template;
-          if (node.template === "") node.template = typeview.template;
-          if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
-          if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
-          if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
-          if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
-          if (node.textcolor === "") node.textcolor = typeview.textcolor;
-          if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
-          if (node.icon === "") node.icon = typeview.icon;
-          if (node.image === "") node.image = typeview.image;
-          if (node.viewkind === "") node.viewkind = typeview.viewkind;
+        if (objtype.name !== 'EntityType') {
+          const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
+          if (typeview) {
+            if (!node.template) node.template = typeview.template;
+            if (node.template === "") node.template = typeview.template;
+            if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
+            if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
+            if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
+            if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
+            if (node.textcolor === "") node.textcolor = typeview.textcolor;
+            if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
+            if (node.icon === "") node.icon = typeview.icon;
+            if (node.image === "") node.image = typeview.image;
+            if (node.viewkind === "") node.viewkind = typeview.viewkind;
+          }
         }
       }
     }

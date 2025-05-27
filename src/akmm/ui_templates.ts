@@ -488,7 +488,7 @@ export function groupTop2(contextMenu: any, notation: string) {
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
-                fill: "transparent", 
+                // fill: "transparent", 
                 stroke: "transparent",
                 margin: new go.Margin(30, 12, 12, 12),
                 minSize: new go.Size(150, 55),
@@ -3398,7 +3398,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     // define a custom resize adornment that has two resize handles if the group is expanded
     groupTemplateMap.get("Container1").resizeAdornmentTemplate = addResizeAdornment("Container1");
 
-    if (true) { // groupWithPorts
+    if (false) { // groupWithPorts
         const groupWithPorts1 =
         $(go.Group, "Spot",
             {

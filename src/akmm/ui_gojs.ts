@@ -437,26 +437,34 @@ export class goObjectNode extends goNode {
     rightPorts: akm.cxPort[] | null;
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
-    template: string;
-    template2: string;
+
+    grabIsAllowed: boolean;
+    isExpanded: boolean;
+
+    // arrowscale: number;
     figure: string;
-    geometry: string;
-    strokewidth: string;
     fillcolor: string;
     fillcolor2: string;
+    geometry: string;
+    group: string;
+    icon: string;
+    image: string;
+    isGroup: boolean | "";
+    isSelected: boolean | "";
+    loc:             string;
+    memberscale:     float;
+    scale:           float;
+    size:            float;
     strokecolor: string;
     strokecolor2: string;
+    strokewidth: string;
+    template: string;
+    template2: string;
     textcolor: string;
     textcolor2: string;
     textscale: string;
-    icon: string;
-    image: string;
-    grabIsAllowed: boolean;
-    isGroup: boolean | "";
-    isExpanded: boolean | "";
-    isSelected: boolean | "";
+
     groupLayout: string;
-    group: string;
     parent: string;
     constructor(key: string, model: goModel, objview: akm.cxObjectView) {
         super(key, model);

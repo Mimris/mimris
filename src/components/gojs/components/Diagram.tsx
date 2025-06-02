@@ -2410,6 +2410,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const p = object.getPort(side, portname);
               portname = prompt('Enter port name', portname);
               if (p) p.name = portname;
+              uit.changePortName(port, portname, myDiagram);
               const jsnObj = new jsn.jsnObject(object);
               const modifiedObjects = new Array();
               modifiedObjects.push(jsnObj);
@@ -2418,7 +2419,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               });
-              uit.changePortName(port, portname, myDiagram);
             }),
           makeButton("Change port color",
             function (e: any, obj: any) {
@@ -2432,6 +2432,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               portcolor = prompt('Enter port color', portcolor);
               if (!portcolor || !portcolor.trim()) portcolor = "transparent";
               if (p) p.color = portcolor;
+              uit.changePortColor(port, portcolor, myDiagram);
               const jsnObj = new jsn.jsnObject(object);
               const modifiedObjects = new Array();
               modifiedObjects.push(jsnObj);
@@ -2440,7 +2441,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               });
-              uit.changePortColor(port, portcolor, myDiagram);
             }),
           makeButton("Remove port",
             // in the click event handler, the obj.part is the Adornment;

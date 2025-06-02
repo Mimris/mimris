@@ -3398,7 +3398,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     // define a custom resize adornment that has two resize handles if the group is expanded
     groupTemplateMap.get("Container1").resizeAdornmentTemplate = addResizeAdornment("Container1");
 
-    if (false) { // groupWithPorts
+    if (true) { // groupWithPorts
         const groupWithPorts1 =
         $(go.Group, "Spot",
             {

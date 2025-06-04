@@ -750,7 +750,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (relview) {
                     let fromObjview = relview.fromObjview; 
                     // Handle the relationship from group to its member
-                    if (fromObjview?.isGroup) {
+                    if (false && fromObjview?.isGroup) {
                       // Relocate
                       const relship = relview.relship;
                       const oldFromObj = relship.fromObject;

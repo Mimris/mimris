@@ -1144,6 +1144,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const relship = relview.relship;
                 if (myMetis.deleteViewsOnly)
                   relship.markedAsDeleted = false;
+                else
+                  relship.markedAsDeleted = deletedFlag;
                 const jsnRelship = new jsn.jsnRelationship(relship);
                 modifiedRelships.push(jsnRelship);
                 const jsnRelview = new jsn.jsnRelshipView(relview);

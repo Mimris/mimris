@@ -375,6 +375,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         node.text = objview.name;
       }
       let typeview = objview.typeview;
+      if (!typeview) 
+        typeview = objview.object?.type?.typeview as akm.cxObjectTypeView;
+
       if (typeview && typeview instanceof akm.cxObjectTypeView) {
         typeview = metis.findObjectTypeView(typeview.id);
         objview.setTypeView(typeview);

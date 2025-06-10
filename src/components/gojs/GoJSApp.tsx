@@ -114,7 +114,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!modalContext) return;
     const myDiagram = modalContext.context?.myDiagram;
     const gjsLink = modalContext.context?.link;
-    const data = modalContext.data;
+    const data = gjsLink.data;
     if (e === 'x') {
       myDiagram.remove(gjsLink);
       this.setState({ showModal: false, selectedData: null, modalContext: null });
@@ -126,13 +126,15 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('113 typename: ', typename);
     if (debug) console.log('122 modalContext', modalContext);
     const args = {
-      data: modalContext.data,
+      data: data,
       metamodel: modalContext.myMetamodel,
       typename: typename,
       fromType: modalContext.fromType,
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,
       nodeTo: modalContext.nodeTo,
+      fromPort: data.fromPort,
+      toPort: data.toPort,
       context: modalContext.context
     }
     if (debug) console.log('128 args', args);
@@ -748,7 +750,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (relview) {
                     let fromObjview = relview.fromObjview; 
                     // Handle the relationship from group to its member
-                    if (fromObjview?.isGroup) {
+                    if (false && fromObjview?.isGroup) {
                       // Relocate
                       const relship = relview.relship;
                       const oldFromObj = relship.fromObject;
@@ -1142,6 +1144,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const relship = relview.relship;
                 if (myMetis.deleteViewsOnly)
                   relship.markedAsDeleted = false;
+                else
+                  relship.markedAsDeleted = deletedFlag;
                 const jsnRelship = new jsn.jsnRelationship(relship);
                 modifiedRelships.push(jsnRelship);
                 const jsnRelview = new jsn.jsnRelshipView(relview);

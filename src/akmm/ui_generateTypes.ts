@@ -1809,6 +1809,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 // if (!toObjview) continue;
                 // let toObj = toObjview?.object as akm.cxObject;
                 // toObj = myModel.findObjectByName(toObj.name);
+                if (rel.name === constants.types.AKM_CONTAINS)
                 if (rel.name === constants.types.AKM_IS) {
                     for (let j = 0; j < objecttypes.length; j++) {
                         const otype1 = objecttypes[j];
@@ -2035,6 +2036,10 @@ export function configureMetamodel(object: akm.cxObject, myMetis: akm.cxMetis, m
         }
     } else {
         myMetamodel.description = object.description;
+        const container = myMetis.findObjectTypeByName(constants.types.AKM_CONTAINER);
+        myMetamodel.addObjectType(container);
+        const label = myMetis.findObjectTypeByName(constants.types.AKM_LABEL);
+        myMetamodel.addObjectType(label);
     }
     // Do the configuration
     const isType = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);

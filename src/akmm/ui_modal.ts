@@ -642,9 +642,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (k === constants.props.DRAFT) {
           myDiagram.model.setDataProperty(gjsData, 'name', rel[k]);
         }
+        try {
         myDiagram.model.setDataProperty(gjsData, k, relship[k]);
-      }
-      if (relship.name === 'Is') {
+        } catch (e) {}
         // relview['fromArrow'] = 'None';
         // relview['toArrow'] = 'Triangle';
         relship.relshipkind = 'Generalization';
@@ -682,10 +682,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
-      goNode.template = selObj.template;
+      objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
-      goNode.template2 = selObj.template2;
       objview.template2 = selObj.template2;
+      objview.icon = selObj.icon;
+      objview.figure = selObj.figure;
+      goNode.viewkind = selObj.viewkind;
+      goNode.template = selObj.template;
+      goNode.template2 = selObj.template2;
+      goNode.icon = selObj.icon;
+      goNode.figure = selObj.figure;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);

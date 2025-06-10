@@ -45,7 +45,7 @@ Change the relationship names to “fromAtoB” and to “fromAtoC”, as shown 
 
 Now you have defined the content of your first Mimris metamodel, except you need to specify what metamodel it is meant to be part of. 
 
-To do that you need to drag in another type, the “Metamodel” type and drop it somewhere in your model. Change the name to your metamodel name, as in our example is “TEST_MM”.
+To do that you need to drag in another type, the “Metamodel” type and drop it somewhere in your model. Change the name to your metamodel name, as in our example is “TEST_META”.
 Then drag relationships of type “contains” from the Metamodel object to each of the object types, as shown below.
 This is all you need to be able to create your first Mimris metamodel. 
 
@@ -54,14 +54,14 @@ This is all you need to be able to create your first Mimris metamodel.
 Now right-click the metamodel object and choose “Generate Metamodel”.
 A dialog appears that asks you to confirm that you want to generate the metamodel. 
 When done you should get a message saying : 
-“The metamodel TEST_MM has been successfully generated!” 
+“The metamodel TEST_META has been successfully generated!” 
 
 That is all. 
 When this is done, you are ready to test your very first metamodel in action.
 
 ### Build a test model
 First, right-click the background to open up the background menu and choose “New Model”. 
-You will be asked to “Select Metamodel”, click on “Select…” and choose “TEST_MM”.
+You will be asked to “Select Metamodel”, click on “Select…” and choose “TEST_META”.
 Then you will be asked to enter a model name. You enter a name of your choice and click OK. The screen will change to something like this:
 
 ![alt text](/images/posts/metamodelling/image107.png)
@@ -80,7 +80,7 @@ In the diagram below type A has got two properties, pA1 and pA2, while B and C h
 
 ![alt text](/images/posts/metamodelling/image109.png)
 
-When you have modeled this, you should do another “Generate Metamodel” and choose “TEST_MM” as before. 
+When you have modeled this, you should do another “Generate Metamodel” and choose “TEST_META” as before. 
 When done, go back to your test model and open the property dialog on each of the objects to verify that the properties have been added to the corresponding types. 
 
 E.g. the property dialog of A1 now looks as follows:

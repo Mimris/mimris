@@ -957,7 +957,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        { /////////
+        { // links
         const links = myDiagram.links;
         for (let it = links.iterator; it?.next();) {
           const link = it.value;
@@ -1156,9 +1156,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           const relshipviews = myModelview.relshipviews;
           for (let i=0; i<relshipviews.length; i++) {
             const relview = relshipviews[i];
-            if (relview.markedAsDeletet) {
-              const gjsData = myDiagram.findNodeForKey(relview.key);
-              uic.deleteLink(gjsData, true, context);
+            if (relview.markedAsDeleted) {
+              const gjsData = myDiagram.findNodeForKey(relview.id);
+              if (gjsData) 
+                uic.deleteLink(gjsData, true, context);
             }
           }
           // Handle objects

@@ -702,13 +702,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       const modifiedModelviews = new Array();
       
-      const jsnModelview = new jsn.jsnModelView(myModelview);
-      modifiedModelviews.push(jsnModelview);
-      modifiedModelviews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-       // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-      })
+      // const jsnModelview = new jsn.jsnModelView(myModelview);
+      // modifiedModelviews.push(jsnModelview);
+      // modifiedModelviews.map(mn => {
+      //   let data = mn;
+      //   data = JSON.parse(JSON.stringify(data));
+      //  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+      // })
     return;
     }
 

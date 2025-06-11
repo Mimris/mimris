@@ -711,7 +711,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
               let parentObjview = goParentGroup?.objectview; // The container objectview
               if (!parentObjview) {
-                parentObjview = myModelview.findObjectView(goParentGroup?.objviewRef);
+                parentObjview = myModelview.findObjectView(goParentGroup?.key);
               }
               if (goParentGroup && parentObjview) { // the container (group)
                 // goToNode IS member of a group

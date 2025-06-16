@@ -645,9 +645,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         try {
         myDiagram.model.setDataProperty(gjsData, k, relship[k]);
         } catch (e) {}
-        // relview['fromArrow'] = 'None';
-        // relview['toArrow'] = 'Triangle';
-        relship.relshipkind = 'Generalization';
       }
       if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);

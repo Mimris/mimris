@@ -646,7 +646,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, k, relship[k]);
         } catch (e) {}
       }
-      if (relship.relshipkind !== constants.relkinds.REL) {
+      // if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
         let fromArrow = relview.fromArrow;
@@ -657,7 +657,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'toArrow', toArrow);
         myDiagram.model.setDataProperty(gjsData, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(gjsData, 'toArrowColor', relview.toArrowColor);
-      }
+      // }
       if (myModelview.showCardinality) {
         myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', relship.getCardinalityFrom());
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', relship.getCardinalityTo());

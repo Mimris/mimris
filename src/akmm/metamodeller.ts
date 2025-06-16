@@ -10159,6 +10159,8 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
+                this.setFromArrow('');
+                this.textcolor = 'black';
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -10189,9 +10191,13 @@ export class cxRelationshipView extends cxMetaObject {
             case 'Aggregation':
             case 'Composition':
                 this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
                 this.textcolor = 'black';
                 break;
             default:
+                this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
+                this.textcolor = 'black';
                 break;
         }
     }

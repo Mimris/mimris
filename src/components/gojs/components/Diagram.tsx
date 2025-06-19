@@ -3994,7 +3994,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let namelist = useTabs ? uic.getNameList(rel, context, true) : [];
       // Define the tabs
       selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
+      for (let i = 0; i < namelist?.length; i++) {
         let name = namelist[i];
 
         const proptab = { tabName: name };

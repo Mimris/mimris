@@ -2746,7 +2746,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
     // if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
+    // if (k === 'relshipkind') retVal = false;
     if (type?.name !== 'ViewFormat' &&
         type?.name !== 'Datatype' &&
         type?.name !== 'Property') {

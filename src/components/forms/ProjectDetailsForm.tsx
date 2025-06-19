@@ -26,7 +26,7 @@ function ProjectDetailsForm(props: any) {
   const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg?.name);
   const [repo, setRepo] = useState(props.props.phFocus?.focusProj?.repo);
   const [path, setPath] = useState(props.props.phFocus?.focusProj?.path);
-  const [file, setFile] = useState(props.props.phFocus?.focusProj?.file || props.props.phData.metis.name || props.props.phSource + '.json');
+  const [file, setFile] = useState(props.props.phSource || props.props.phFocus?.focusProj?.file || props.props.phData.metis.name + '.json');
   const [source, setSource] = useState(props.props.phSource);
   const [branch, setBranch] = useState(props.props.phFocus?.focusProj?.branch);
 
@@ -74,7 +74,7 @@ function ProjectDetailsForm(props: any) {
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
     console.log("79 ProjectDetailsForm", data, datasource);
     dispatch({ type: 'SET_FOCUS_PROJ', data });
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: datasource });
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: file });
 
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);

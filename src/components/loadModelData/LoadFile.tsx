@@ -137,7 +137,11 @@ const LoadFile = (props: any) => {
     // More robust template checking
     if (template) {
       console.log('138 Loadfile', filename)
-      if (!filename.includes('OSDU')) {
+      if (
+        filename.includes('POPS') &&
+        filename.includes('IRTV') &&
+        filename.includes('META')
+      ) {
         SaveAllToFile(template, 'Mimris-template', '_PR')
       }
     }

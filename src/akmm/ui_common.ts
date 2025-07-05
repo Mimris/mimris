@@ -4647,3 +4647,89 @@ export function fullFillGoModel(myGoModel: gjs.goModel, myModelView: akm.cxModel
     return myGoModel;
 }
 
+/**
+ * Returns the parent group for a given cxObjectView, if one exists.
+ * This example assumes that the child's "group" property holds the parent’s id
+ * and that you have access to the current model view (e.g. "currentModelView")
+ * which can be used to find an object view by its id.
+ *
+ * Modify this implementation to suit your project’s structure.
+ *
+ * @param ov The child cxObjectView.
+ * @returns The parent cxObjectView if found, otherwise null.
+ */
+export function getParent(ov: cxObjectView): cxObjectView | null {
+  if (ov && ov.group) {
+    // Assuming you have a reference to the current model view.
+    // For example, if it's globally accessible via "currentModelView":
+    const currentModelView = ov.modelview; // Replace with your actual model view reference
+    return currentModelView.findObjectView(ov.group);
+  }
+  return null;
+}
+
+
+/**
+ * Recursively calculates the effective scale for a member view by accumulating the scale factors
+ * of all its ancestor groups using the global getParent function.
+ *
+ * @param member - The child cxObjectView whose effective scale is to be calculated.
+ * @returns The effective scale as a number.
+ */
+function getEffectiveScale(member: cxObjectView): number {
+    let effectiveScale = member.scale || 1.0;
+    let currentParent = getParent(member);
+    while (currentParent) {
+        effectiveScale *= (currentParent.scale || 1.0) * (currentParent.memberscale || 1.0);
+        currentParent = getParent(currentParent);
+    }
+    return effectiveScale;
+}
+
+/**
+ * Calculates and returns the new (x,y) position and (width, height) for a member object view,
+ * based on the recursively accumulated effective scale. Assumes that member.loc is in the format "x y"
+ * and member.size is in the format "width height".
+ *
+ * @param member - The child cxObjectView to be repositioned and resized.
+ * @returns An object containing the calculated x, y, width and height.
+ */
+function calculateRecursiveMemberLayout(member: cxObjectView): { x: number; y: number; width?: number; height?: number } {
+    const effectiveScale = getEffectiveScale(member);
+    let x = 0, y = 0;
+    let width: number | undefined, height: number | undefined;
+    
+    if (member.loc) {
+        const parts = member.loc.split(" ").map(s => parseFloat(s.trim()));
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            x = parts[0] * effectiveScale;
+            y = parts[1] * effectiveScale;
+        }
+    }
+    
+    if (member.size) {
+        const parts = member.size.split(" ").map(s => parseFloat(s.trim()));
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            width = parts[0] * effectiveScale;
+            height = parts[1] * effectiveScale;
+        }
+    }
+    
+    return { x, y, width, height };
+}
+
+/**
+ * Updates the member's 'loc' and 'size' properties using the recursively computed effective scale.
+ *
+ * @param member - The cxObjectView to update.
+ */
+export function updateRecursiveMemberLayout(member: cxObjectView): void {
+    const layout = calculateRecursiveMemberLayout(member);
+    member.loc = `${layout.x} ${layout.y}`;
+    
+    if (layout.width !== undefined && layout.height !== undefined) {
+        member.size = `${layout.width} ${layout.height}`;
+    }
+    
+    console.log(`Updated recursive layout for ${member.id}: loc=${member.loc}, size=${member.size}`);
+}

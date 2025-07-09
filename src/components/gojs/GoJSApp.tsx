@@ -703,7 +703,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (!goToNode instanceof gjs.goObjectNode) {
                   myGoModel = myGoModel.fixGoModel();
                 }
-                goToNode.loc = myToNode.loc.valueOf();
+                goToNode.loc = myToNode.loc;
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
               }
@@ -724,8 +724,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.scale = goToNode.getMyScale(myGoModel);
                 gjsPart.scale = Number(goToNode.scale);
                 myObjectview.scale = gjsPart.scale;
-
-                const loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
+                if (goParentGroup.isSelected) {
+                  continue;
+                }
+                let loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
+                myToNode.loc = loc;
+                myToNode.gjsData.loc = loc;
                 goToNode.loc = myToNode.loc;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
                 myObjectview.loc = myToNode.loc;

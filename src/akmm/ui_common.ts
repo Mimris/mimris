@@ -2569,7 +2569,7 @@ export function scaleNodeLocation(group: any, node: any): any {
     deltaNy *= scale;
     nx = gx + deltaNx;
     ny = gy + deltaNy;
-    const loc = { "x": nx, "y": ny };
+    const loc = nx + " " + ny;
     if (debug) console.log('921 node, node.loc, loc', node, node.loc, loc);
     return loc;
 }
@@ -2590,8 +2590,11 @@ export function scaleNodeLocation1(group: any, node: any): any {
     const ny = parseInt(nodLoc[1]);
     let deltaNx = (nx - gx) * scaleFactor;
     let deltaNy = (ny - gy) * scaleFactor;
-    const loc = { "x": nx, "y": ny };
-    return loc;
+    const deltaX = nx - deltaNx;
+    const deltaY = ny - deltaNy;
+    const loc1 = deltaX + " " + deltaY;
+    const loc2 = nx + " " + ny;
+    return loc2;
 }
 
 export function scaleNodeLocation2(node: any, refloc: string, toloc: any, scaleFactor: any): any {
@@ -2611,7 +2614,7 @@ export function scaleNodeLocation2(node: any, refloc: string, toloc: any, scaleF
     if (debug) console.log('1159 rx, ry, nx, ny, deltaNx, deltaNy', rx, ry, nx, ny, deltaNx, deltaNy);
     nx = rx + deltaNx;
     ny = ry + deltaNy;
-    const loc = { "x": nx, "y": ny };
+    const loc = nx + " " + ny;
     if (debug) console.log('1163 node, node.loc, loc', node, node.loc, loc);
     return loc;
 }

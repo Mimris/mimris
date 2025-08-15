@@ -28,7 +28,7 @@ export const ProjectMenuBar = (props: any) => {
     const [minimized, setMinimized] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [projectname, setProjectname] = useState(props.phFocus.focusProj.name);
+    const [projectname, setProjectname] = useState(props.phFocus?.focusProj?.name);
 
     const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
     const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
@@ -303,13 +303,13 @@ export const ProjectMenuBar = (props: any) => {
                 <hr className="bg-light py-1 my-0" />
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '' && props.phFocus.focusProj.branch !== '') &&
+                    {(props.phFocus.focusProj?.org !== '' && props.phFocus.focusProj?.repo !== '' && props.phFocus.focusProj?.branch !== '') &&
                         <Link
                             className="text-primary ms-1"
-                            href={props.phFocus.focusProj.org ? `https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}` : "#"}
+                            href={props.phFocus.focusProj?.org ? `https://github.com/${props.phFocus.focusProj?.org}/${props.phFocus.focusProj?.repo}/tree/${props.phFocus.focusProj?.branch}/${props.phFocus.focusProj?.path}` : "#"}
                             target="_blank"
                         >
-                            {props.phFocus.focusProj.repo}
+                            {props.phFocus.focusProj?.repo}
                         </Link>
                     }
                 </div>
@@ -317,10 +317,10 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Project No. :
                     <Link
                         className="text-primary"
-                        href={props.phFocus.focusProj.org ? `https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}` : "#"}
+                        href={props.phFocus.focusProj?.org ? `https://github.com/orgs/${props.phFocus.focusProj?.org}/projects/${props.phFocus.focusProj?.projectNumber}` : "#"}
                         target="_blank"
                     >
-                        <button className="text-primary border rounded bg-transparent px-5" >{props.phFocus.focusProj.projectNumber} </button>
+                        <button className="text-primary border rounded bg-transparent px-5" >{props.phFocus.focusProj?.projectNumber} </button>
                     </Link>
                 </div>
             </div>

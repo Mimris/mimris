@@ -728,12 +728,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                   continue;
                 }
                 let loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
-                myToNode.loc = loc;
-                myToNode.gjsData.loc = loc;
-                goToNode.loc = myToNode.loc;
+                if (loc) {
+                  myToNode.loc = loc;
+                  myToNode.gjsData.loc = loc;
+                  goToNode.loc = myToNode.loc;
+                  myObjectview.loc = myToNode.loc;
+                  myDiagram.model.setDataProperty(myToNode.n, "loc", myToNode.loc);
+                }
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
-                myObjectview.loc = myToNode.loc;
-                myDiagram.model.setDataProperty(myToNode.n, "loc", myToNode.loc);
                 //
                 // const objvIdName = { id: goToNode.key, name: goToNode.name };
                 // const objIdName = { id: goToNode.object.id, name: goToNode.object.name };

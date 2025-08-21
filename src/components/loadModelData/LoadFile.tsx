@@ -47,6 +47,19 @@ const LoadFile = (props: any) => {
         metamodels: props.ph.phData.metis.metamodels.filter(mm => mm),
       },
     },
+    domain: {
+      name: '',
+      description: '',
+      additionalContext: '',
+      prompt: ''
+    },
+    ontology: {
+      name: '',
+      description: '',
+      presentation: '',
+      concepts: [],
+      relationships: []
+    },
     phFocus: props.ph.phFocus,
     phUser: props.ph.phUser,
     phSource: props.phSource,

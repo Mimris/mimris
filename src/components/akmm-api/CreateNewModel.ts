@@ -313,7 +313,11 @@ const CreateNewModel = (props: any) => {
           currentModelviewRef: newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id
         },
-        domain: '[Describe the domain here]',
+        domain: {
+          name: '',
+          description: '',
+          presentation: ''
+        },
         ontology: {
           name: '',
           description: '',
@@ -371,7 +375,11 @@ const CreateNewModel = (props: any) => {
           currentModelviewRef:  newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id
         },
-        domain: '[Describe the domain here]',
+        domain: {
+          name: '',
+          description: '',
+          presentation: '',
+        },
         ontology: {
           name: '',
           description: '',

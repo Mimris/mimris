@@ -717,7 +717,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const data = node.data;
           let objview = data.objectview;
           if (!objview) {
-            objview = myModelview.findObjectView(data.objviewRef);
+            objview = myModelview.findObjectView(selObj.key);
             data.objectview = objview;
           }
           if (objview) {

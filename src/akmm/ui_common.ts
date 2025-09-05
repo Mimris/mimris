@@ -2714,6 +2714,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'points') retVal = false;
     if (k === 'propertyValues') retVal = false;
     if (k === 'relship') retVal = false;
+    if (k === 'relshipkind') retVal = false;
     if (k === 'relshipRef') retVal = false;
     if (k === 'relshiptype') retVal = false;
     if (k === 'relview') retVal = false;

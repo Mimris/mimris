@@ -715,7 +715,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const selObj = selectedData;
           const node = myDiagram.findNodeForKey(selObj.key);
           const data = node.data;
-          const objview = data.objectview;
+          let objview = data.objectview;
+          if (!objview) {
+            objview = myModelview.findObjectView(data.objviewRef);
+            data.objectview = objview;
+          }
           if (objview) {
             objview.icon = data.icon;
             const jsnObjview = new jsn.jsnObjectView(data.objectview);

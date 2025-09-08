@@ -1088,21 +1088,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   mmdata = JSON.parse(JSON.stringify(mmdata));
                   myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
                 }
-                const myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
-                const myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
-
-                const context = {
-                  "myMetis": myMetis,
-                  "myMetamodel": myMetis.currentMetamodel,
-                  "myTargetMetamodel": targetMetamodel,
-                  "myModel": myMetis.currentModel,
-                  "myModelview": myMetis.currentModelview,
-                  "myCurrentObject": myCurrentObject,
-                  "myCurrentObjectview": myCurrentObjectview,
-                  "myDiagram": e.diagram,
-                  "dispatch": e.diagram.dispatch
+                let myCurrentObject;
+                let myCurrentObjectview;
+                myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
+                myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
+                if (myCurrentObject && myCurrentObjectview) {
+                  const context = {
+                    "myMetis": myMetis,
+                    "myMetamodel": myMetis.currentMetamodel,
+                    "myTargetMetamodel": targetMetamodel,
+                    "myModel": myMetis.currentModel,
+                    "myModelview": myMetis.currentModelview,
+                    "myCurrentObject": myCurrentObject,
+                    "myCurrentObjectview": myCurrentObjectview,
+                    "myDiagram": e.diagram,
+                    "dispatch": e.diagram.dispatch
+                  }
+                  gen.generateTargetMetamodel2(context);
                 }
-                gen.generateTargetMetamodel2(context);
               }
             },
             function (o: any) {

@@ -52,7 +52,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                              models: Array.isArray(importedfile.models) ? importedfile.models : [importedfile.models]};
         
                             
-        if (debug) console.log('52 ReadModelFromFile', importedModel)
+        if (!debug) console.log('52 ReadModelFromFile', importedModel)
 
         const impObjecttypes = importedfile.objecttypes || null
         const impRelshiptypes = importedfile.relshiptypes || null

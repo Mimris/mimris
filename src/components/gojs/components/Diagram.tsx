@@ -1088,21 +1088,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   mmdata = JSON.parse(JSON.stringify(mmdata));
                   myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
                 }
-                const myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
-                const myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
-
-                const context = {
-                  "myMetis": myMetis,
-                  "myMetamodel": myMetis.currentMetamodel,
-                  "myTargetMetamodel": targetMetamodel,
-                  "myModel": myMetis.currentModel,
-                  "myModelview": myMetis.currentModelview,
-                  "myCurrentObject": myCurrentObject,
-                  "myCurrentObjectview": myCurrentObjectview,
-                  "myDiagram": e.diagram,
-                  "dispatch": e.diagram.dispatch
+                let myCurrentObject;
+                let myCurrentObjectview;
+                myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
+                myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
+                if (myCurrentObject && myCurrentObjectview) {
+                  const context = {
+                    "myMetis": myMetis,
+                    "myMetamodel": myMetis.currentMetamodel,
+                    "myTargetMetamodel": targetMetamodel,
+                    "myModel": myMetis.currentModel,
+                    "myModelview": myMetis.currentModelview,
+                    "myCurrentObject": myCurrentObject,
+                    "myCurrentObjectview": myCurrentObjectview,
+                    "myDiagram": e.diagram,
+                    "dispatch": e.diagram.dispatch
+                  }
+                  gen.generateTargetMetamodel2(context);
                 }
-                gen.generateTargetMetamodel2(context);
               }
             },
             function (o: any) {
@@ -2410,6 +2413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const p = object.getPort(side, portname);
               portname = prompt('Enter port name', portname);
               if (p) p.name = portname;
+              uit.changePortName(port, portname, myDiagram);
               const jsnObj = new jsn.jsnObject(object);
               const modifiedObjects = new Array();
               modifiedObjects.push(jsnObj);
@@ -2418,7 +2422,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               });
-              uit.changePortName(port, portname, myDiagram);
             }),
           makeButton("Change port color",
             function (e: any, obj: any) {
@@ -2432,6 +2435,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               portcolor = prompt('Enter port color', portcolor);
               if (!portcolor || !portcolor.trim()) portcolor = "transparent";
               if (p) p.color = portcolor;
+              uit.changePortColor(port, portcolor, myDiagram);
               const jsnObj = new jsn.jsnObject(object);
               const modifiedObjects = new Array();
               modifiedObjects.push(jsnObj);
@@ -2440,7 +2444,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               });
-              uit.changePortColor(port, portcolor, myDiagram);
             }),
           makeButton("Remove port",
             // in the click event handler, the obj.part is the Adornment;
@@ -3994,7 +3997,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let namelist = useTabs ? uic.getNameList(rel, context, true) : [];
       // Define the tabs
       selpropgroup = [];
-      for (let i = 0; i < namelist.length; i++) {
+      for (let i = 0; i < namelist?.length; i++) {
         let name = namelist[i];
 
         const proptab = { tabName: name };

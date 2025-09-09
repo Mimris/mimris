@@ -4469,7 +4469,13 @@
       "name": "CORE-Template",
       "description": "Modelling based on CORE_META Metamodel"
     },
-    "domain": "[Describe the domain here]",
+    "domain": {
+      "name": "",
+      "description": "",
+      "presentation": "",
+      "additionalContext": "",
+      "prompt": ""
+    },
     "ontology": {
       "name": "",
       "description": "",

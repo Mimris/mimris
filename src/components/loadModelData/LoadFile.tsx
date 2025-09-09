@@ -47,6 +47,19 @@ const LoadFile = (props: any) => {
         metamodels: props.ph.phData.metis.metamodels.filter(mm => mm),
       },
     },
+    domain: {
+      name: '',
+      description: '',
+      additionalContext: '',
+      prompt: ''
+    },
+    ontology: {
+      name: '',
+      description: '',
+      presentation: '',
+      concepts: [],
+      relationships: []
+    },
     phFocus: props.ph.phFocus,
     phUser: props.ph.phUser,
     phSource: props.phSource,
@@ -137,7 +150,11 @@ const LoadFile = (props: any) => {
     // More robust template checking
     if (template) {
       console.log('138 Loadfile', filename)
-      if (!filename.includes('OSDU')) {
+      if (
+        filename.includes('POPS') &&
+        filename.includes('IRTV') &&
+        filename.includes('META')
+      ) {
         SaveAllToFile(template, 'Mimris-template', '_PR')
       }
     }

@@ -9519,45 +9519,47 @@ export class cxObjectView extends cxMetaObject {
     category: string;
     object: cxObject | null;
     objectRef: string;
+    parent: string;
     inputrelviews: cxRelationshipView[] | null;
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
-    figure: string;
-    group: string;
-    isGroup: boolean;
+
     groupLayout: string;
-    parent: string;
-    isExpanded: boolean;
-    isSelected: boolean;
-    visible: boolean;
     grabIsAllowed: boolean;
+    isExpanded: boolean;
     readonly: boolean;
+    visible: boolean;
+    
     text: string;
-    loc: string;
-    size: string;
-    scale: number;
-    memberscale: number;
-    arrowscale: number;
-    viewkind: string;
-    template: string;
-    template2: string;
-    figure: string;
-    geometry: string;
-    icon: string;
-    image: string;
     routing: string;
     linkcurve: string;
-    fillcolor: string;
     fillcolor1: string;
-    fillcolor2: string;
-    strokecolor: string;
     strokecolor1: string;
+
+    figure: string;
+    fillcolor: string;
+    fillcolor2: string;
+    geometry: string;
+    group: string;
+    icon: string;
+    image: string;
+    isGroup: boolean;
+    isSelected: boolean;
+    loc: string;
+    memberscale: number;
+    modified: boolean;
+    scale: number;
+    size: string;
+    strokecolor: string;
     strokecolor2: string;
     strokewidth: number;
+    template: string;
+    template2: string;
     textcolor: string;
     textcolor2: string;
     textscale: number;
+    viewkind: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.modelview = modelview;
@@ -9574,7 +9576,7 @@ export class cxObjectView extends cxMetaObject {
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
-        if (false) {
+        if (true) {
         this.group = "";
         this.isGroup = false;
         this.groupLayout = "";
@@ -9849,7 +9851,7 @@ export class cxObjectView extends cxMetaObject {
     }
     setFigure(figure: string) {
         if (figure == undefined)
-        figure = "";
+            figure = "";
         this.figure = figure;
     }
     getFigure(): string {
@@ -10157,6 +10159,8 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
+                this.setFromArrow('');
+                this.textcolor = 'black';
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -10187,9 +10191,13 @@ export class cxRelationshipView extends cxMetaObject {
             case 'Aggregation':
             case 'Composition':
                 this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
                 this.textcolor = 'black';
                 break;
             default:
+                this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
+                this.textcolor = 'black';
                 break;
         }
     }

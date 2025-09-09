@@ -642,14 +642,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (k === constants.props.DRAFT) {
           myDiagram.model.setDataProperty(gjsData, 'name', rel[k]);
         }
+        try {
         myDiagram.model.setDataProperty(gjsData, k, relship[k]);
+        } catch (e) {}
       }
-      if (relship.name === 'Is') {
-        // relview['fromArrow'] = 'None';
-        // relview['toArrow'] = 'Triangle';
-        relship.relshipkind = 'Generalization';
-      }
-      if (relship.relshipkind !== constants.relkinds.REL) {
+      // if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
         let fromArrow = relview.fromArrow;
@@ -660,7 +657,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'toArrow', toArrow);
         myDiagram.model.setDataProperty(gjsData, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(gjsData, 'toArrowColor', relview.toArrowColor);
-      }
+      // }
       if (myModelview.showCardinality) {
         myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', relship.getCardinalityFrom());
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', relship.getCardinalityTo());
@@ -682,10 +679,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
       const objview = myModelview.findObjectView(selObj.key);
-      goNode.template = selObj.template;
+      objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
-      goNode.template2 = selObj.template2;
       objview.template2 = selObj.template2;
+      objview.icon = selObj.icon;
+      objview.figure = selObj.figure;
+      goNode.viewkind = selObj.viewkind;
+      goNode.template = selObj.template;
+      goNode.template2 = selObj.template2;
+      goNode.icon = selObj.icon;
+      goNode.figure = selObj.figure;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);
@@ -696,13 +699,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       const modifiedModelviews = new Array();
       
-      const jsnModelview = new jsn.jsnModelView(myModelview);
-      modifiedModelviews.push(jsnModelview);
-      modifiedModelviews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-       // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-      })
+      // const jsnModelview = new jsn.jsnModelView(myModelview);
+      // modifiedModelviews.push(jsnModelview);
+      // modifiedModelviews.map(mn => {
+      //   let data = mn;
+      //   data = JSON.parse(JSON.stringify(data));
+      //  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+      // })
     return;
     }
 
@@ -712,7 +715,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const selObj = selectedData;
           const node = myDiagram.findNodeForKey(selObj.key);
           const data = node.data;
-          const objview = data.objectview;
+          let objview = data.objectview;
+          if (!objview) {
+            objview = myModelview.findObjectView(selObj.key);
+            data.objectview = objview;
+          }
           if (objview) {
             objview.icon = data.icon;
             const jsnObjview = new jsn.jsnObjectView(data.objectview);

@@ -724,9 +724,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.scale = goToNode.getMyScale(myGoModel);
                 gjsPart.scale = Number(goToNode.scale);
                 myObjectview.scale = gjsPart.scale;
-                if (goParentGroup.isSelected) {
-                  continue;
-                }
                 let loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
                 if (loc) {
                   myToNode.loc = loc;
@@ -1291,15 +1288,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               myMetis.addObjectView(objview);
             }
             myModelview.setFocusObjectview(objview);
-            // Dispatch modelview
-            const modifiedModelviews = new Array();
-            const jsnModelview = new jsn.jsnModelView(myModelview);
-            modifiedModelviews.push(jsnModelview);
-            modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
-            });
           }
           let fillcolor = "";
           let strokecolor = "";
@@ -1364,11 +1352,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             gjs.scale = part.scale
             myDiagram.model.setDataProperty(node, "scale", part.scale);
           }
-          if (goNode) {
-            goNode.object = null;
-            goNode.objecttype = null;
-            goNode.objectview = null;
-          }
+          // if (goNode) {
+          //   goNode.object = null;
+          //   goNode.objecttype = null;
+          //   goNode.objectview = null;
+          // }
           const isLabel = (part.typename === 'Label');
           if (isLabel) {
             part.text = "Label";
@@ -1404,6 +1392,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
           node.updateTargetBindings();
         })
+        // Dispatch modelview
+        const modifiedModelviews = new Array();
+        const jsnModelview = new jsn.jsnModelView(myModelview);
+        modifiedModelviews.push(jsnModelview);
+        modifiedModelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+        });
         break;
       }
       case "ObjectDoubleClicked": {

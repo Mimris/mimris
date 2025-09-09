@@ -3684,9 +3684,41 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );   
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
-  
         // define a custom resize adornment that has two resize handles if the group is expanded
-        groupTemplateMap.get("Lane").resizeAdornmentTemplate = addResizeAdornment("Lane");
+  
+        const laneTemplate2 = 
+        $(go.Group, "Horizontal", groupStyle(),
+        {
+            name: "GROUP",
+            selectionObjectName: "GROUP",  // selecting a lane causes the body of the lane to be highlit, not the label
+            resizable: true, 
+            minSize: getMinSize(),
+            selectionAdorned: true,
+            contextMenu: contextMenu,
+        },
+        new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        // the lane header consisting of a Shape and a TextBlock
+        new go.Binding("layout", "groupLayout").makeTwoWay(),
+        { // Tooltip
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            return uid.nodeInfo(d, myMetis);                
+                        }
+                    )
+                )
+            )
+        },
+        groupTop3(contextMenu, 'Icon', 1),
+        );   
+        groupTemplateMap.add("Lane_w_handles", laneTemplate2);
+        addGroupTemplateName('Lane_w_handles');
+        groupTemplateMap.get("Lane_w_handles").resizeAdornmentTemplate = addResizeAdornment("Lane_w_handles");
     }
     if (true) { // poolTemplate
         const poolTemplate =

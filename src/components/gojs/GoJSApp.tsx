@@ -1349,7 +1349,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.model.setDataProperty(part, "group", goNode.group);
             goNode.scale = goNode.getMyScale(myGoModel);
             part.scale = Number(goNode.scale);
-            gjs.scale = part.scale
+            gjsNode.scale = part.scale
             myDiagram.model.setDataProperty(node, "scale", part.scale);
           }
           // if (goNode) {

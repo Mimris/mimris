@@ -59,11 +59,14 @@ go.Shape.defineFigureGenerator("Message", function(shape, w, h) {
     fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
     fig.add(new go.PathSegment(go.PathSegment.Line, 0, h));
     fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0).close());
-    
+    fig.add(new go.PathSegment(go.PathSegment.Line, w, 0));
+    fig.add(new go.PathSegment(go.PathSegment.Line, 0.5*w, 0.5*h));
+    fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.5*h));
+
     // Add a fold line
-    fig = new go.PathFigure(0.5 * w, 0, false);
-    geo.add(fig);
-    fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
+    // fig = new go.PathFigure(0.5 * w, 0, false);
+    // geo.add(fig);
+    // fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
     
     return geo;
 });
@@ -129,7 +132,7 @@ let figureNames = [
                     'Rectangle',
                     'RoundedRectangle',
                     'Square',
-                    // 'FivePointedStar',
+                    'FivePointedStar',
                     // 'ThinX',
                     // 'ThickX',
                     // 'ThinCross',

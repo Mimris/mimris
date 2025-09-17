@@ -6736,6 +6736,17 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure(): string {
+        if (this.figure2)
+            return this.figure;
+        else if (this.data.figure2)
+            return this.data.figure2;
+        return "";
+    }
+    setFigure2(figure: string) {
+        this.data.figure2 = figure;
+        this.figure2 = figure;
+    }
+    getFigure2(): string {
         if (this.figure)
             return this.figure;
         else if (this.data.figure)

@@ -488,6 +488,7 @@ export class goObjectNode extends goNode {
             this.template       = objview.template;
             this.template2      = objview.template2;
             this.figure         = objview.figure ? objview.figure : "";
+            this.figure2        = objview.figure2 ? objview.figure2 : "";
             this.geometry       = objview.geometry ? objview.geometry : "";
             this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
             this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
@@ -551,6 +552,10 @@ export class goObjectNode extends goNode {
                 this.figure = this.typeview?.figure;
             if (!this.figure)
                 this.figure = "";
+            if (!this.figure2)
+                this.figure2 = this.typeview?.figure2;
+            if (!this.figure2)
+                this.figure2 = "";
         }
     }
     // Methods

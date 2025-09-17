@@ -456,6 +456,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                     currentObjectView['template'] = data.template;
                     currentObjectView['template2'] = data.template2;
                     currentObjectView['figure'] = data.figure;
+                    currentObjectView['figure2'] = data.figure2;
                     currentObjectView['fillcolor'] = data.fillcolor;
                     currentObjectView['strokecolor'] = data.strokecolor;
                     currentObjectView['strokewidth'] = data.strokewidth;
@@ -561,6 +562,7 @@ export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: 
     toObjview["icon"]         = fromObjview["icon"];
     toObjview["geometry"]     = fromObjview["geometry"];
     toObjview["figure"]       = fromObjview["figure"];
+    toObjview["figure2"]      = fromObjview["figure2"];
     toObjview["routing"]      = fromObjview["routing"];
     toObjview["linkcurve"]    = fromObjview["linkcurve"];
     toObjview["fillcolor"]    = fromObjview["fillcolor"];
@@ -3257,6 +3259,16 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "First do some initial checks\n";
     const metamodels = myMetis.metamodels;
     let modifiedRelshipViews = new Array();
+
+    const mViews = new Array();
+    // Check for corrupt modelviews}
+    for (let i = 0; i < modelviews?.length; i++) {
+        const modelview = modelviews[i];
+        if (!modelview) continue;
+        if (!modelview.id) continue;
+        mViews.push(modelview);
+    }
+    model.modelviews = mViews;
 
     { // Check for duplicate relship types in the metamodels
         for (let i = 0; i < metamodels?.length; i++) {

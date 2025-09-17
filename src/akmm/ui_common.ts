@@ -3260,6 +3260,16 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     const metamodels = myMetis.metamodels;
     let modifiedRelshipViews = new Array();
 
+    const mViews = new Array();
+    // Check for corrupt modelviews}
+    for (let i = 0; i < modelviews?.length; i++) {
+        const modelview = modelviews[i];
+        if (!modelview) continue;
+        if (!modelview.id) continue;
+        mViews.push(modelview);
+    }
+    model.modelviews = mViews;
+
     { // Check for duplicate relship types in the metamodels
         for (let i = 0; i < metamodels?.length; i++) {
             const mm = metamodels[i];

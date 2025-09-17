@@ -474,7 +474,7 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
-                    if (items) items.sort(utils.compare);
+                    // if (items) items.sort(utils.compare);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item1 = items[i];
@@ -588,10 +588,16 @@ export class cxMetis {
                             //     }
                             // }
                             // Model views
-                            let mvs = item.modelviews;
-                            if (mvs && mvs.length) {
-                                for (let i = 0; i < mvs.length; i++) {
-                                    const item = mvs[i];
+                            let mvs = new Array();
+                            let mvs0 = item.modelviews;
+                            item.modelviews = mvs;
+                            if (mvs0 && mvs0.length) {
+                                for (let i = 0; i < mvs0.length; i++) {
+                                    const item = mvs0[i];
+                                    if (!item.id) { // Hack to avoid null id's
+                                        continue;
+                                    }
+                                    mvs.push(item);
                                     if (includeDeleted || !item.markedAsDeleted) {
                                         if (debug) console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
@@ -1006,7 +1012,7 @@ export class cxMetis {
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
         if (!item.template || item.template === "") item.template = constants.gojs.C_NODETEMPLATE;
-        if (!item.geometry) item.geometry = "";
+        // if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(Number(item.strokewidth));
@@ -1017,6 +1023,7 @@ export class cxMetis {
             objtypeview.setMemberscale(Number(item.memberscale));
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
+            objtypeview.setFigure2(item.figure2);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -6540,6 +6547,7 @@ export class cxObjtypeviewData {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
     icon: string;
     image: string;
@@ -6560,6 +6568,7 @@ export class cxObjtypeviewData {
         this.template = "textAndIcon";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.icon = "";
         this.image = "";
@@ -6585,6 +6594,7 @@ export class cxObjectTypeView extends cxMetaObject {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
     icon: string;
     image: string;
@@ -6606,6 +6616,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.template = "";
         this.template2 = "";
         this.figure      = "";
+        this.figure2     = "";
         this.geometry    = "";
         this.arrowscale = 1.0;
         this.memberscale = 1.0;
@@ -6735,11 +6746,22 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.figure = figure;
         this.figure = figure;
     }
+    setFigure2(figure: string) {
+        this.data.figure = figure;
+        this.figure2 = figure;
+    }
     getFigure(): string {
         if (this.figure)
             return this.figure;
         else if (this.data.figure)
             return this.data.figure;
+        return "";
+    }
+    getFigure2(): string {
+        if (this.figure2)
+            return this.figure2;
+        else if (this.data.figure2)
+            return this.data.figure2;
         return "";
     }
     setGeometry(geometry: string) {
@@ -9538,6 +9560,7 @@ export class cxObjectView extends cxMetaObject {
     strokecolor1: string;
 
     figure: string;
+    figure2: string;
     fillcolor: string;
     fillcolor2: string;
     geometry: string;
@@ -9594,6 +9617,7 @@ export class cxObjectView extends cxMetaObject {
         this.template = "";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -9858,6 +9882,16 @@ export class cxObjectView extends cxMetaObject {
         if (this.template == undefined)
             return "";
         return this.template;
+    }
+    setFigure2(figure: string) {
+        if (figure == undefined)
+            figure = "";
+        this.figure2 = figure;
+    }
+    getFigure2(): string {
+        if (this.figure2 == undefined)
+            return "";
+        return this.figure2;
     }
     setGrabIsAllowed(flag: boolean) {
         this.grabIsAllowed = flag;

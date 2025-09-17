@@ -920,6 +920,7 @@ export class jsnObjectTypeView {
         this.template        = objtypeview.getTemplate();
         // this.template2       = objtypeview.getTemplate2();
         this.figure          = objtypeview.getFigure();
+        this.figure2         = objtypeview.getFigure2();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
@@ -1719,6 +1720,7 @@ export class jsnObjectView {
         this.template        = objview?.template;
         this.template2       = objview?.template2;
         this.figure          = objview?.figure;
+        this.figure2        = objview?.figure2;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.fillcolor2      = objview?.fillcolor2;
@@ -2014,6 +2016,7 @@ export class jsnImportMetis {
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
         objtypeview.setFigure(item.figure);
+        objtypeview.setFigure2(item.figure2);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setFillcolor2(item.fillcolor2);

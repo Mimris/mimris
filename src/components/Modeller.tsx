@@ -577,8 +577,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     onClick={() => typeof props.setVisibleFocusDetails === 'function' && props.setVisibleFocusDetails(!props.visibleFocusDetails)}
                 >
                     {(props.visibleFocusDetails)
-                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1"></i> </span>
-                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1"></i></span>
+                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1 me-3"></i> </span>
+                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1 me-3"></i></span>
                     }
                 </button>
             </Nav>

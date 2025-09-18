@@ -1006,7 +1006,7 @@ export class cxMetis {
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
         if (!item.template || item.template === "") item.template = constants.gojs.C_NODETEMPLATE;
-        if (!item.geometry) item.geometry = "";
+        // if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(Number(item.strokewidth));
@@ -1150,7 +1150,7 @@ export class cxMetis {
                 }
                 const modelviews: any[] = item.modelviews;
                 if (modelviews && (modelviews.length > 0)) {
-                    modelviews.sort(utils.compare);
+                    // modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
                         if (mv.id) {
                             if (model) this.importModelView(mv, model);

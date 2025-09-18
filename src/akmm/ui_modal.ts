@@ -328,11 +328,11 @@ export function handleSelectDropdownChange(selected, context) {
         targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
         myMetis.addMetamodel(targetMetamodel);
       }
-      // myMetis.currentTargetMetamodel = targetMetamodel;
+      myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
       let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
       mmdata = JSON.parse(JSON.stringify(mmdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
       break;
     }
     case "Change Relationship type": { 

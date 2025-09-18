@@ -1168,7 +1168,8 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     // uid.addSubModels(myObject, myMetis, context.myDiagram);
     uic.repairEntityType(myMetis, targetMetamodel, myDiagram);
     uic.repairContainsTypeview(myMetis, null, myDiagram);
-
+    uic.purgeDuplicateMetamodels(myMetis);
+    
     // Dispatch
     const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data: jsnMetamodel });

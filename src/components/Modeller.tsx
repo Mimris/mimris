@@ -579,7 +579,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     {(props.visibleFocusDetails)
                         ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1 me-3"></i> </span>
                         : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1 me-3"></i></span>
-                    }
+                       }
                 </button>
             </Nav>
             <TabContent className=" p-0 m-0 border border-white">

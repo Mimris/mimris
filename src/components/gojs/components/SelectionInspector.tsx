@@ -648,6 +648,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 fieldType = 'radio';
               }
               break;
+            case 'figure2':
+              if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                values = uit.getFigure2Names();
+                defValue = '';
+                fieldType = 'radio';
+              }
+              break;
             case 'routing':
               values = ['Normal', 'Orthogonal', 'AvoidsNodes'];
               defValue = 'None';
@@ -1165,6 +1172,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             case 'figure':
               if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
                 values = uit.getFigureNames();
+                defValue = '';
+                fieldType = 'radio';
+              }
+              break;
+            case 'figure2':
+              if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
+                values = uit.getFigure2Names();
                 defValue = '';
                 fieldType = 'radio';
               }

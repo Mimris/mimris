@@ -456,6 +456,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                     currentObjectView['template'] = data.template;
                     currentObjectView['template2'] = data.template2;
                     currentObjectView['figure'] = data.figure;
+                    currentObjectView['figure2'] = data.figure2;
                     currentObjectView['fillcolor'] = data.fillcolor;
                     currentObjectView['strokecolor'] = data.strokecolor;
                     currentObjectView['strokewidth'] = data.strokewidth;
@@ -561,6 +562,7 @@ export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: 
     toObjview["icon"]         = fromObjview["icon"];
     toObjview["geometry"]     = fromObjview["geometry"];
     toObjview["figure"]       = fromObjview["figure"];
+    toObjview["figure2"]      = fromObjview["figure2"];
     toObjview["routing"]      = fromObjview["routing"];
     toObjview["linkcurve"]    = fromObjview["linkcurve"];
     toObjview["fillcolor"]    = fromObjview["fillcolor"];
@@ -3202,6 +3204,27 @@ export function purgeDuplicatedLinks(links: any[]): any[] {
     return links;
 }
 
+export function purgeDuplicateMetamodels(metis: akm.cxMetis) {
+
+    const metamodels = metis.metamodels;
+    const newMetamodels = new Array();
+    for (let i = 0; i < metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        let found = false;
+        for (let j = 0; j < newMetamodels?.length; j++) {
+            const metamodel2 = newMetamodels[j];
+            if (metamodel2.name === metamodel.name) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            newMetamodels.push(metamodel);
+        }
+    }
+    metis.metamodels = newMetamodels;
+}
+
 function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): boolean {
     if (objview?.group) { // then objview is a member of a group
         let mview = objview.modelview; // Current modelview
@@ -3257,6 +3280,16 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "First do some initial checks\n";
     const metamodels = myMetis.metamodels;
     let modifiedRelshipViews = new Array();
+
+    const mViews = new Array();
+    // Check for corrupt modelviews}
+    for (let i = 0; i < modelviews?.length; i++) {
+        const modelview = modelviews[i];
+        if (!modelview) continue;
+        if (!modelview.id) continue;
+        mViews.push(modelview);
+    }
+    model.modelviews = mViews;
 
     { // Check for duplicate relship types in the metamodels
         for (let i = 0; i < metamodels?.length; i++) {
@@ -3819,6 +3852,9 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
             }
         }
     }
+    // Then go through the metamodels and remove duplicates
+    purgeDuplicateMetamodels(myMetis);
+
     // repair RelationshipTypeViews
     purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis, myDiagram);
@@ -3830,7 +3866,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_META");
+    const coreMetamodel = myMetis.findMetamodelByName("CORE_META");
     const objtypeviews = getObjectTypeviews(coreMetamodel);
     coreMetamodel.objecttypeviews = objtypeviews;
     metamodels.push(coreMetamodel);
@@ -3839,7 +3875,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     for (let i = 0; i < myMetis.metamodels?.length; i++) {
         const mmodel = myMetis.metamodels[i];
-        if (mmodel.name === 'AKM-META_META') continue;
+        if (mmodel.name === 'CORE_META') continue;
         const objtypeviews = getObjectTypeviews(mmodel);
         mmodel.objecttypeviews = objtypeviews;
         metamodels.push(mmodel);
@@ -3863,6 +3899,12 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
     });
+    // Dispatch myMetis
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    msg = "End Verification\n";
 
     report += printf(format, msg);
     if (debug) console.log(report);

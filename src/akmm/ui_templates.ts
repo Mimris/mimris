@@ -15,6 +15,13 @@ let myDiagram: go.Diagram;
 
 const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
 
+// custom figures for Shapes
+
+go.Shape.defineFigureGenerator('Empty', function (shape, w, h) {
+return new go.Geometry();
+});
+
+// Define a File shape Annotation
 go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
     let len = Math.min(w, 10);
     let maxlen = Math.max(w, 10);
@@ -28,9 +35,9 @@ go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
         //    .add(new go.PathSegment(go.PathSegment.Line, maxlen, h))
         //    .add(new go.PathSegment(go.PathSegment.Line, maxlen-len, h))
         );
-  });
+});
 
-  // Define a File shape figure
+// Define a File shape File
 go.Shape.defineFigureGenerator("File", function(shape, w, h) {
     var geo = new go.Geometry();
     var fig = new go.PathFigure(0, 0, true);
@@ -50,18 +57,19 @@ go.Shape.defineFigureGenerator("File", function(shape, w, h) {
     return geo;
 });
 
+// Define a File shape Message
 go.Shape.defineFigureGenerator("Message", function(shape, w, h) {
     var geo = new go.Geometry();
     var fig = new go.PathFigure(0, 0, true);
     geo.add(fig);
     
-    fig.add(new go.PathSegment(go.PathSegment.Line, w, 0));
-    fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
-    fig.add(new go.PathSegment(go.PathSegment.Line, 0, h));
+    fig.add(new go.PathSegment(go.PathSegment.Line, w, 1));
+    fig.add(new go.PathSegment(go.PathSegment.Line, w, 0.8*h));
+    fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.8*h));
     fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0).close());
     fig.add(new go.PathSegment(go.PathSegment.Line, w, 0));
     fig.add(new go.PathSegment(go.PathSegment.Line, 0.5*w, 0.5*h));
-    fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.5*h));
+    fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0 ));
 
     // Add a fold line
     // fig = new go.PathFigure(0.5 * w, 0, false);
@@ -70,6 +78,33 @@ go.Shape.defineFigureGenerator("Message", function(shape, w, h) {
     
     return geo;
 });
+
+  // BpmnTaskService
+  const gearStr =
+    'F M 391,5L 419,14L 444.5,30.5L 451,120.5L 485.5,126L 522,141L 595,83L 618.5,92L 644,106.5' +
+    'L 660.5,132L 670,158L 616,220L 640.5,265.5L 658.122,317.809L 753.122,322.809L 770.122,348.309L 774.622,374.309' +
+    'L 769.5,402L 756.622,420.309L 659.122,428.809L 640.5,475L 616.5,519.5L 670,573.5L 663,600L 646,626.5' +
+    'L 622,639L 595,645.5L 531.5,597.5L 493.192,613.462L 450,627.5L 444.5,718.5L 421.5,733L 393,740.5L 361.5,733.5' +
+    'L 336.5,719L 330,627.5L 277.5,611.5L 227.5,584.167L 156.5,646L 124.5,641L 102,626.5L 82,602.5L 78.5,572.5' +
+    'L 148.167,500.833L 133.5,466.833L 122,432.5L 26.5,421L 11,400.5L 5,373.5L 12,347.5L 26.5,324L 123.5,317.5' +
+    'L 136.833,274.167L 154,241L 75.5,152.5L 85.5,128.5L 103,105.5L 128.5,88.5001L 154.872,82.4758L 237,155' +
+    'L 280.5,132L 330,121L 336,30L 361,15L 391,5 Z M 398.201,232L 510.201,275L 556.201,385L 505.201,491L 399.201,537' +
+    'L 284.201,489L 242.201,385L 282.201,273L 398.201,232 Z';
+  const gearGeo = go.Geometry.parse(gearStr);
+  gearGeo.normalize();
+  go.Shape.defineFigureGenerator('BpmnTaskService', function (shape, w, h) {
+    const geo = gearGeo.copy();
+    // calculate how much to scale the Geometry so that it fits in w x h
+    const bounds = geo.bounds;
+    const scale = Math.min(w / bounds.width, h / bounds.height);
+    geo.scale(scale, scale);
+    // text should go in the hand
+    geo.spot1 = new go.Spot(0, 0.6, 10, 0);
+    geo.spot2 = new go.Spot(1, 1);
+    return geo;
+  });
+// End BpmnTaskService
+
 
 export function getMinSize(): go.Size {
     return new go.Size(200, 100);
@@ -148,65 +183,100 @@ let figureNames = [
 export function getFigureNames() {
     return figureNames;
 }
-                
-export function getFigure(f: string): any {
-    switch(f) {
-    case 'Circle':
-        return go.Shape.Circle;
-    case 'Diamond':
-        return go.Shape.Diamond;
-    case 'Ellipse':
-        return go.Shape.Ellipse;
-    case 'File':
-        return go.Shape.File;
-    case 'Message':
-        return go.Shape.Message;
-    case 'Hexagon':
-        return go.Shape.Hexagon;
-    case 'LineH':
-        return go.Shape.LineH;
-    case 'LineV':
-        return go.Shape.LineV;
-    case 'MinusLine':
-        return go.Shape.MinusLine;
-    case 'Pentagon':
-        return go.Shape.Pentagon;
-    case 'PlusLine':
-        return go.Shape.PlusLine;
-    case 'Rectangle':
-        return go.Shape.Rectangle;
-    case 'RoundedRectangle':
-        return go.Shape.RoundedRectangle;
-    case 'Square':
-        return go.Shape.Square;
-    case 'Star':
-        return go.Shape.Star;
-    case 'Square':
-        return go.Shape.Square;
-    case 'ThickX':
-        return go.Shape.ThickX;
-    case 'ThinX':
-        return go.Shape.ThinX;
-    case 'ThickCross':
-        return go.Shape.ThickCross;
-    case 'ThinCross':
-        return go.Shape.ThinCross;
-    case 'Triangle':
-        return go.Shape.Triangle;
-    case 'TriangleDown':
-        return go.Shape.TriangleDown;
-    case 'TriangleLeft':
-        return go.Shape.TriangleLeft;
-    case 'TriangleRight':
-        return go.Shape.TriangleRight;
-    case 'TriangleUp':
-        return go.Shape.TriangleUp;
-    case 'XLine':
-        return go.Shape.XLine;
-    default:
-        return go.Shape.Rectangle;
-   }
+
+let figure2Names = [ 
+                    'Timer',
+                    'Message',
+                    'DarkMessage',
+                    'Circle',
+                    'DarkCircle',
+                    'BpmnTaskManual',
+                    "BpmnTaskService",
+                    'CatchMessage',
+                    'ThrowMessage',
+                    'Inclusive',
+                    'EventGateway',
+                    'SignalStart',
+                    'SignalEnd',
+                    'Escalation',
+                    'ThrowEscalation',
+                    'CatchConditional',
+                    'CatchTimer',
+                    'CatchSignal',
+                    'CatchLink',
+                    'ThrowLink',
+                    'Compensation',
+                    'Multiple',
+                    'Parallel',
+                    'Complex',
+                    'ConditionalStart',
+                    'ExclusiveStart',
+                    'ParallelStart',
+                    'Cancel',
+                ]; 
+          
+export function getFigure2Names() {
+    return figure2Names;
 }
+                
+// export function getFigure(f: string): any {
+//     switch(f) {
+//     case 'Circle':
+//         return go.Shape.Circle;
+//     case 'Diamond':
+//         return go.Shape.Diamond;
+//     case 'Ellipse':
+//         return go.Shape.Ellipse;
+//     case 'File':
+//         return go.Shape.File;
+//     case 'Message':
+//         return go.Shape.Message;
+//     case 'Hexagon':
+//         return go.Shape.Hexagon;
+//     case 'LineH':
+//         return go.Shape.LineH;
+//     case 'LineV':
+//         return go.Shape.LineV;
+//     case 'MinusLine':
+//         return go.Shape.MinusLine;
+//     case 'Pentagon':
+//         return go.Shape.Pentagon;
+//     case 'PlusLine':
+//         return go.Shape.PlusLine;
+//     case 'Rectangle':
+//         return go.Shape.Rectangle;
+//     case 'RoundedRectangle':
+//         return go.Shape.RoundedRectangle;
+//     case 'Square':
+//         return go.Shape.Square;
+//     case 'Star':
+//         return go.Shape.Star;
+//     case 'Square':
+//         return go.Shape.Square;
+//     case 'ThickX':
+//         return go.Shape.ThickX;
+//     case 'ThinX':
+//         return go.Shape.ThinX;
+//     case 'ThickCross':
+//         return go.Shape.ThickCross;
+//     case 'ThinCross':
+//         return go.Shape.ThinCross;
+//     case 'Triangle':
+//         return go.Shape.Triangle;
+//     case 'TriangleDown':
+//         return go.Shape.TriangleDown;
+//     case 'TriangleLeft':
+//         return go.Shape.TriangleLeft;
+//     case 'TriangleRight':
+//         return go.Shape.TriangleRight;
+//     case 'TriangleUp':
+//         return go.Shape.TriangleUp;
+//     case 'XLine':
+//         return go.Shape.XLine;
+//     default:
+//         return go.Shape.Rectangle;
+//    }
+// }
 
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 
@@ -243,6 +313,20 @@ function makeGeometry() {
 function makeFigure() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure", "figure"), 
+        new go.Binding("fill", "fillcolor2"), 
+        {     
+            column: 2, 
+            margin: new go.Margin(2, 0, 0, 0),
+            desiredSize: new go.Size(20, 20),
+            alignment: go.Spot.Right,
+        },
+        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+    )
+}
+
+function makeFigure2() {
+    return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
+        new go.Binding("figure2", "figure2"), 
         new go.Binding("fill", "fillcolor2"), 
         {     
             column: 2, 
@@ -334,6 +418,23 @@ function makeGeoImage() {
 function makeFigureImage() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure", "figure"), 
+        new go.Binding("fill", "fillcolor2"), 
+        {     
+            column: 2, 
+            margin: new go.Margin(2, 0, 0, 0),
+            desiredSize: new go.Size(20, 20),
+            alignment: go.Spot.Right,
+            imageStretch: go.GraphObject.Uniform,
+            cursor: "move",
+        },
+        new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+    )
+}
+
+function makeFigure2Image() {
+    return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
+        new go.Binding("figure2", "figure2"), 
         new go.Binding("fill", "fillcolor2"), 
         {     
             column: 2, 
@@ -2673,16 +2774,19 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         return typeof val === 'number' ? val : parseInt(val) || 1; 
                     }),
                 ),
-                $(go.Shape,  // Inner circle
+                $(go.Shape,  // Inner icon
                     { 
-                        figure: "Circle", 
-                        fill: "transparent",
-                        stroke: "transparent",
+                        alignment: go.Spot.Center,
+                        figure: "Circle", // "Message", 
+                        fill: "white",
+                        stroke: "black",
                         strokeWidth: 1,
                         cursor: "move",        // cursor: "pointer",
                         minSize: new go.Size(30, 30), 
-                        desiredSize: new go.Size(50, 50), // outer Shape size 
+                        desiredSize: new go.Size(40, 35), // outer Shape size 
                     },
+                    new go.Binding("figure", "figure2").makeTwoWay(),
+                    new go.Binding('fill', 'fillcolor2'),
                 ),
             ),
             // end Spot Panel

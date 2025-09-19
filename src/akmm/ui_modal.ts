@@ -328,11 +328,11 @@ export function handleSelectDropdownChange(selected, context) {
         targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
         myMetis.addMetamodel(targetMetamodel);
       }
-      // myMetis.currentTargetMetamodel = targetMetamodel;
+      myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
       let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
       mmdata = JSON.parse(JSON.stringify(mmdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
       break;
     }
     case "Change Relationship type": { 
@@ -684,11 +684,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       objview.template2 = selObj.template2;
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
+      objview.figure2 = selObj.figure2;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
+      goNode.figure2 = selObj.figure2;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);

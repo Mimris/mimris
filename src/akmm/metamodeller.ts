@@ -474,7 +474,6 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
-                    if (items) items.sort(utils.compare);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item1 = items[i];
@@ -1006,7 +1005,7 @@ export class cxMetis {
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
         if (!item.template || item.template === "") item.template = constants.gojs.C_NODETEMPLATE;
-        if (!item.geometry) item.geometry = "";
+        // if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(Number(item.strokewidth));
@@ -1150,7 +1149,7 @@ export class cxMetis {
                 }
                 const modelviews: any[] = item.modelviews;
                 if (modelviews && (modelviews.length > 0)) {
-                    modelviews.sort(utils.compare);
+                    // modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
                         if (mv.id) {
                             if (model) this.importModelView(mv, model);
@@ -6609,13 +6608,13 @@ export class cxObjectTypeView extends cxMetaObject {
         this.geometry    = "";
         this.arrowscale = 1.0;
         this.memberscale = 1.0;
-        this.fillcolor = "";
-        this.fillcolor2 = "";
-        this.strokecolor = "";
-        this.strokecolor2 = "";
+        this.fillcolor = "white";
+        this.fillcolor2 = "white";
+        this.strokecolor = "black";
+        this.strokecolor2 = "black";
         this.strokewidth = 1.0;
-        this.textcolor = "";
-        this.textcolor2 = "";
+        this.textcolor = "black";
+        this.textcolor2 = "black";
         this.textscale = 1.0;
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
@@ -9023,8 +9022,8 @@ export class cxModelView extends cxMetaObject {
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
     focusObjectview: cxObjectView | null;
-    scale: string;
-    memberscale: string;
+    scale: number;
+    memberscale: number;
     layout: string;
     routing: string;
     linkcurve: string;

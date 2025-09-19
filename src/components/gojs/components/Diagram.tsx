@@ -3642,8 +3642,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               alert("The metamodels have been repaired");
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
+              // if (myMetis.modelType === 'Metamodelling')
+              //   return false;
               return true;
             }),
           makeButton("Verify and Repair myMetis",

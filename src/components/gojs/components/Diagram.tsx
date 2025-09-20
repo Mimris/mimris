@@ -3409,6 +3409,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
+          makeButton("Verify and Repair Metamodels",
+            function (e: any, obj: any) {
+              uic.verifyAndRepairMetamodels(myMetis, myDiagram);
+              alert("The metamodels have been repaired");
+            },
+            function (o: any) {
+              // if (myMetis.modelType === 'Metamodelling')
+              //   return false;
+              return true;
+            }),
           makeButton("Undo",
             function (e: any, obj: any) {
               e.diagram.commandHandler.undo();
@@ -3634,16 +3644,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling')
                 return false;
-              return true;
-            }),
-          makeButton("Verify and Repair Metamodels",
-            function (e: any, obj: any) {
-              uic.verifyAndRepairMetamodels(myMetis, myDiagram);
-              alert("The metamodels have been repaired");
-            },
-            function (o: any) {
-              // if (myMetis.modelType === 'Metamodelling')
-              //   return false;
               return true;
             }),
           makeButton("Verify and Repair myMetis",

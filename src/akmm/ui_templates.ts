@@ -2752,6 +2752,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Spot',
                 $(go.Shape,  // Outer circle
                     { 
+                        alignment: go.Spot.Center,
                         figure: "Circle", 
                         fill: "white",
                         stroke: "black",
@@ -2770,24 +2771,26 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     },
                     // Shape bindings
                     new go.Binding('fill', 'fillcolor'),
+                    new go.Binding('stroke', 'strokecolor'),
                     new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                         return typeof val === 'number' ? val : parseInt(val) || 1; 
                     }),
                 ),
-                // $(go.Shape,  // Inner icon
-                //     { 
-                //         alignment: go.Spot.Center,
-                //         figure: "Circle", // "Message", 
-                //         fill: "white",
-                //         stroke: "fillcolor", //"black",
-                //         strokeWidth: 1,
-                //         cursor: "move",        // cursor: "pointer",
-                //         minSize: new go.Size(30, 30), 
-                //         desiredSize: new go.Size(40, 35), // outer Shape size 
-                //     },
-                //     new go.Binding("figure", "figure2").makeTwoWay(),
-                //     new go.Binding('fill', 'fillcolor'), // fillcolor2
-                // ),
+                $(go.Shape,  // Inner icon
+                    { 
+                        alignment: go.Spot.Center,
+                        figure: "Circle", // "Message", 
+                        fill: "white",
+                        stroke: "black", //"black",
+                        strokeWidth: 1,
+                        cursor: "move",        // cursor: "pointer",
+                        minSize: new go.Size(30, 30), 
+                        desiredSize: new go.Size(40, 40), // outer Shape size 
+                    },
+                    new go.Binding("figure", "figure2").makeTwoWay(),
+                    new go.Binding('fill', 'fillcolor2'), // fillcolor2
+                    new go.Binding('stroke', 'strokecolor2'),
+                ),
             ),
             // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------

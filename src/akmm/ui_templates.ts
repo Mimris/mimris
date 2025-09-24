@@ -418,7 +418,7 @@ function makeGeoImage() {
 function makeFigureImage() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure", "figure"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor"), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -2774,20 +2774,20 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         return typeof val === 'number' ? val : parseInt(val) || 1; 
                     }),
                 ),
-                $(go.Shape,  // Inner icon
-                    { 
-                        alignment: go.Spot.Center,
-                        figure: "Circle", // "Message", 
-                        fill: "white",
-                        stroke: "black",
-                        strokeWidth: 1,
-                        cursor: "move",        // cursor: "pointer",
-                        minSize: new go.Size(30, 30), 
-                        desiredSize: new go.Size(40, 35), // outer Shape size 
-                    },
-                    new go.Binding("figure", "figure2").makeTwoWay(),
-                    new go.Binding('fill', 'fillcolor2'),
-                ),
+                // $(go.Shape,  // Inner icon
+                //     { 
+                //         alignment: go.Spot.Center,
+                //         figure: "Circle", // "Message", 
+                //         fill: "white",
+                //         stroke: "fillcolor", //"black",
+                //         strokeWidth: 1,
+                //         cursor: "move",        // cursor: "pointer",
+                //         minSize: new go.Size(30, 30), 
+                //         desiredSize: new go.Size(40, 35), // outer Shape size 
+                //     },
+                //     new go.Binding("figure", "figure2").makeTwoWay(),
+                //     new go.Binding('fill', 'fillcolor'), // fillcolor2
+                // ),
             ),
             // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------

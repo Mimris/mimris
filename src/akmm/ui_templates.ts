@@ -2652,19 +2652,46 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             textAlign: 'center', 
             margin: 2,
             editable: true,
+            scale: 1,
           },
           new go.Binding("text", "name").makeTwoWay(),
+          new go.Binding("scale", "textscale").makeTwoWay(),
+          new go.Binding("stroke", "textcolor").makeTwoWay(),
         ),
         $(go.Picture,
             { 
                 name: "nodeImage", 
                 desiredSize: new go.Size(30, 30),
-                alignment: new go.Spot(0, 0, 5, 5),
                 alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 5, 5),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
             },
             new go.Binding("source", "icon", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 30, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon1", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 100, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon2", findImage),
         ),
 
       )  // end Auto Panel
@@ -2774,7 +2801,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         )
                     )
                 )
-            },
+            },            
             $(go.Panel, 'Spot',
                 $(go.Shape, // figure
                     { 
@@ -2805,6 +2832,32 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     },
                     new go.Binding("source", "icon", findImage),
                 ),    
+                $(go.Shape,  // Plus line
+                    { 
+                        cursor: "move",    
+                        figure: "PlusLine", 
+                        fill: "transparent",
+                        stroke: "transparent",
+                        strokeWidth: 3,
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(20, 20), 
+                        desiredSize: new go.Size(30, 30), // outer Shape size 
+                    },
+                    new go.Binding('stroke', 'strokecolor2'), 
+                    new go.Binding("figure", "figure"), 
+                ),
+                $(go.Shape,  // move
+                    { 
+                        figure: "Diamond", 
+                        fill: "transparent",
+                        stroke: "transparent",
+                        strokeWidth: 1,
+                        cursor: "move",                    // To move a node,
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(40, 40), 
+                        desiredSize: new go.Size(50, 50),  // outer Shape size 
+                    },
+                ),
             ),    // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
                 { 

@@ -844,6 +844,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myToNode.group = goToNode.group; // ""
                 myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
                 let scale = Number(goToNode.scale); // Not part of group
+                if (!scale || scale === 0) scale = 1.0;
                 gjsPart.scale = scale;
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);

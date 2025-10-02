@@ -448,6 +448,8 @@ export class goObjectNode extends goNode {
     geometry: string;
     group: string;
     icon: string;
+    icon1: string;
+    icon2: string;
     image: string;
     isGroup: boolean | "";
     isSelected: boolean | "";
@@ -499,6 +501,8 @@ export class goObjectNode extends goNode {
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
             this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
+            this.icon1           = objview.icon ? objview.icon1 : "";
+            this.icon2           = objview.icon ? objview.icon2 : "";
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;

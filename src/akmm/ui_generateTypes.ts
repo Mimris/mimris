@@ -357,6 +357,8 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             // Do the dispatch
             const jsnObjTypeview = new jsn.jsnObjectTypeView(objtypeview);
             context.dispatch({ type: 'UPDATE_OBJTYPEVIEW_PROPERTIES', data: jsnObjTypeview });
+            const jsnObjType = new jsn.jsnObjectType(objtype);
+            context.dispatch({ type: 'UPDATE_OBJTYPE_PROPERTIES', data: jsnObjType });
         }
     }
     { // Handle relationship to parent ('Is' relationship)
@@ -438,7 +440,6 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
     // Dispatch the object
     const jsnObject = new jsn.jsnObject(object);
     context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: jsnObject });
-
     return objtype;
 }
 

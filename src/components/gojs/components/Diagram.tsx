@@ -1644,7 +1644,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Select connected objects 1",
+          makeButton("Select connected objects",
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
@@ -1691,7 +1691,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return false;
             }),
-          makeButton("Select Connected Objects",
+          makeButton("Select Connected Objects 1",
             function (e: any, obj: any) {
               let node = obj.part.data;
               uid.selectConnectedObjects(node, myMetis, myDiagram);

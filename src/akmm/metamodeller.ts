@@ -1016,6 +1016,7 @@ export class cxMetis {
             objtypeview.setMemberscale(Number(item.memberscale));
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
+            objtypeview.setFigure2(item.figure2);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -1275,6 +1276,8 @@ export class cxMetis {
                     objview.setMemberscale(Number(item.memberscale));
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.figure = item.figure;
+                    objview.figure2 = item.figure2;
                     objview.fillcolor = item.fillcolor;
                     objview.fillcolor2 = item.fillcolor2;
                     objview.strokecolor = item.strokecolor;
@@ -6539,8 +6542,11 @@ export class cxObjtypeviewData {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
     icon: string;
+    icon1: string;
+    icon2: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6559,8 +6565,11 @@ export class cxObjtypeviewData {
         this.template = "textAndIcon";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.icon = "";
+        this.icon1 = "";
+        this.icon2 = "";
         this.image = "";
         this.grabIsAllowed = false;
         this.fillcolor = "";
@@ -6584,8 +6593,11 @@ export class cxObjectTypeView extends cxMetaObject {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
     icon: string;
+    icon1: string;
+    icon2: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6604,8 +6616,9 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef = type?.id;
         this.template = "";
         this.template2 = "";
-        this.figure      = "";
-        this.geometry    = "";
+        this.figure = "";
+        this.figure2 = "";
+        this.geometry = "";
         this.arrowscale = 1.0;
         this.memberscale = 1.0;
         this.fillcolor = "white";
@@ -6619,6 +6632,8 @@ export class cxObjectTypeView extends cxMetaObject {
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
         this.icon = "";
+        this.icon1 = "";
+        this.icon2 = "";
         this.image = "";
         this.data = new cxObjtypeviewData();
         if (type) {
@@ -6629,6 +6644,7 @@ export class cxObjectTypeView extends cxMetaObject {
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
         if (objview) {
+            if (objview['figure2'] == "") objview['figure2'] = objview['figure'];
             let prop: any;
             let data: any = this.data;
             for (prop in data) {
@@ -6884,6 +6900,28 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.icon;
         // else if (this.data.icon)
         //     return this.data.icon;
+        return "";
+    }
+    setIcon1(icon: string) {
+        this.data.icon1 = icon;
+        this.icon1 = icon;
+    }
+    getIcon1(): string {
+        if (this.icon1)
+            return this.icon1;
+        // else if (this.data.icon1)
+        //     return this.data.icon1;
+        return "";
+    }
+    setIcon2(icon: string) {
+        this.data.icon2 = icon;
+        this.icon2 = icon;
+    }
+    getIcon2(): string {
+        if (this.icon2)
+            return this.icon2;
+        // else if (this.data.icon2)
+        //     return this.data.icon2;
         return "";
     }
     setImage(image: string) {
@@ -9548,11 +9586,14 @@ export class cxObjectView extends cxMetaObject {
     strokecolor1: string;
 
     figure: string;
+    figure2: string;
     fillcolor: string;
     fillcolor2: string;
     geometry: string;
     group: string;
     icon: string;
+    icon1: string;
+    icon2: string;
     image: string;
     isGroup: boolean;
     isSelected: boolean;
@@ -9604,6 +9645,7 @@ export class cxObjectView extends cxMetaObject {
         this.template = "";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -9617,6 +9659,8 @@ export class cxObjectView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.icon = "";
+        this.icon1 = "";
+        this.icon2 = "";
         this.image = "";
         }
     }
@@ -9865,9 +9909,19 @@ export class cxObjectView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure(): string {
-        if (this.template == undefined)
+        if (this.figure == undefined)
             return "";
-        return this.template;
+        return this.figure;
+    }
+    setFigure2(figure: string) {
+        if (figure == undefined)
+            figure = "";
+        this.figure2 = figure;
+    }
+    getFigure2(): string {
+        if (this.figure2 == undefined)
+            return "";
+        return this.figure2;
     }
     setGrabIsAllowed(flag: boolean) {
         this.grabIsAllowed = flag;

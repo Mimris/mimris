@@ -610,6 +610,8 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
+    const icon1 = uit.findImage(goNode?.icon1);
+    const icon2 = uit.findImage(goNode?.icon2);
     if (!object)
         object = myModel.findObject(goNode?.objRef);
     if (!objectview)
@@ -636,6 +638,8 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       what:       "editObjectview",
       title:      "Edit Object View",
       icon:       icon,
+      icon1:      icon1,
+      icon2:      icon2,
       myDiagram:  myDiagram,
       myContext:  myContext,
     }

@@ -152,10 +152,10 @@ export function getGatewayType(t: string): any {
 let figureNames = [ 
                     'Circle',
                     'Diamond',
-                    // 'Ellipse',
-                    // 'Gear',
-                    // 'Help',
-                    // 'Hexagon',
+                    'Ellipse',
+                    'Gear',
+                    'Help',
+                    'Hexagon',
                     'File',
                     'Message',
                     'LineH',
@@ -163,15 +163,15 @@ let figureNames = [
                     'MinusLine',
                     'PlusLine',
                     'XLine',
-                    // 'Pentagon',
+                    'Pentagon',
                     'Rectangle',
                     'RoundedRectangle',
                     'Square',
                     'FivePointedStar',
-                    // 'ThinX',
-                    // 'ThickX',
-                    // 'ThinCross',
-                    // 'ThickCross',
+                    'ThinX',
+                    'ThickX',
+                    'ThinCross',
+                    'ThickCross',
                     'Triangle',
                     'TriangleRight',
                     'TriangleLeft',
@@ -219,64 +219,6 @@ export function getFigure2Names() {
     return figure2Names;
 }
                 
-// export function getFigure(f: string): any {
-//     switch(f) {
-//     case 'Circle':
-//         return go.Shape.Circle;
-//     case 'Diamond':
-//         return go.Shape.Diamond;
-//     case 'Ellipse':
-//         return go.Shape.Ellipse;
-//     case 'File':
-//         return go.Shape.File;
-//     case 'Message':
-//         return go.Shape.Message;
-//     case 'Hexagon':
-//         return go.Shape.Hexagon;
-//     case 'LineH':
-//         return go.Shape.LineH;
-//     case 'LineV':
-//         return go.Shape.LineV;
-//     case 'MinusLine':
-//         return go.Shape.MinusLine;
-//     case 'Pentagon':
-//         return go.Shape.Pentagon;
-//     case 'PlusLine':
-//         return go.Shape.PlusLine;
-//     case 'Rectangle':
-//         return go.Shape.Rectangle;
-//     case 'RoundedRectangle':
-//         return go.Shape.RoundedRectangle;
-//     case 'Square':
-//         return go.Shape.Square;
-//     case 'Star':
-//         return go.Shape.Star;
-//     case 'Square':
-//         return go.Shape.Square;
-//     case 'ThickX':
-//         return go.Shape.ThickX;
-//     case 'ThinX':
-//         return go.Shape.ThinX;
-//     case 'ThickCross':
-//         return go.Shape.ThickCross;
-//     case 'ThinCross':
-//         return go.Shape.ThinCross;
-//     case 'Triangle':
-//         return go.Shape.Triangle;
-//     case 'TriangleDown':
-//         return go.Shape.TriangleDown;
-//     case 'TriangleLeft':
-//         return go.Shape.TriangleLeft;
-//     case 'TriangleRight':
-//         return go.Shape.TriangleRight;
-//     case 'TriangleUp':
-//         return go.Shape.TriangleUp;
-//     case 'XLine':
-//         return go.Shape.XLine;
-//     default:
-//         return go.Shape.Rectangle;
-//    }
-// }
 
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 
@@ -418,7 +360,7 @@ function makeGeoImage() {
 function makeFigureImage() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure", "figure"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor"), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -599,7 +541,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                 stretch: go.GraphObject.Fill,
             },
             new go.Binding("fill", "fillcolor"),
-            // new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "strokecolor"),
         ),
 
         $(go.Panel, "Table",  // position header above the subgraph
@@ -1992,12 +1934,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 {
                                     name: "Picture",
                                     desiredSize: new go.Size(48, 48),
-                                    // imageStretch: go.GraphObject.Fill,
-                                    // margin: new go.Margin(2, 2, 2, 4),
-                                    // margin: new go.Margin(4, 4, 4, 4),
-                                    // click: (e, obj) => {
-                                    //     e.diagram.commandHandler.showContextMenu(obj.part);
-                                    // },
                                 },
                                 new go.Binding("source", "icon", findImage),
                             ),    
@@ -2716,9 +2652,48 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             textAlign: 'center', 
             margin: 2,
             editable: true,
+            scale: 1,
           },
           new go.Binding("text", "name").makeTwoWay(),
-        )
+          new go.Binding("scale", "textscale").makeTwoWay(),
+          new go.Binding("stroke", "textcolor").makeTwoWay(),
+        ),
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 5, 5),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 30, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon1", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 100, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon2", findImage),
+        ),
+
       )  // end Auto Panel
     );
     addNodeTemplateName('ActivityNode');
@@ -2729,12 +2704,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            { contextMenu: contextMenu },    
             {
                 selectionObjectName: "SHAPE",
-                // resizable: true, resizeObjectName: "SHAPE"
+                // resizable: true, resizeObjectName: "SHAPE",
+                resizeObjectName: "SHAPE",
+                contextMenu: contextMenu
             },
-            {
+            { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
@@ -2752,6 +2728,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Spot',
                 $(go.Shape,  // Outer circle
                     { 
+                        alignment: go.Spot.Center,
                         figure: "Circle", 
                         fill: "white",
                         stroke: "black",
@@ -2770,24 +2747,18 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     },
                     // Shape bindings
                     new go.Binding('fill', 'fillcolor'),
+                    new go.Binding('stroke', 'strokecolor'),
                     new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                         return typeof val === 'number' ? val : parseInt(val) || 1; 
                     }),
                 ),
-                $(go.Shape,  // Inner icon
-                    { 
-                        alignment: go.Spot.Center,
-                        figure: "Circle", // "Message", 
-                        fill: "white",
-                        stroke: "black",
-                        strokeWidth: 1,
-                        cursor: "move",        // cursor: "pointer",
-                        minSize: new go.Size(30, 30), 
-                        desiredSize: new go.Size(40, 35), // outer Shape size 
+                $(go.Picture,  // the image -------------------------------------
+                    {
+                        name: "Picture",
+                        desiredSize: new go.Size(48, 48),
                     },
-                    new go.Binding("figure", "figure2").makeTwoWay(),
-                    new go.Binding('fill', 'fillcolor2'),
-                ),
+                    new go.Binding("source", "icon", findImage),
+                ),    
             ),
             // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
@@ -2810,7 +2781,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            // new go.Binding("scale", "scale1").makeTwoWay(),
             {
                 selectionObjectName: "SHAPE",
                 // resizable: true, 
@@ -2831,14 +2801,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         )
                     )
                 )
-            },
+            },            
             $(go.Panel, 'Spot',
                 $(go.Shape, // figure
                     { 
                         figure: "Diamond", 
-                        // fill: "lightyellow",
+                        fill: "lightyellow",
                         stroke: "black",
-                        strokeWidth: 1,
+                        strokeWidth: 3,
                         cursor: "alias",                    // To draw a link,
                         minSize: new go.Size(60, 60), 
                         desiredSize: new go.Size(79, 79),  // outer Shape size 
@@ -2851,19 +2821,29 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     },
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding('stroke', 'strokecolor'), 
+                    new go.Binding('strokeWidth', 'strokewidth', function(val) { 
+                        return typeof val === 'number' ? val : parseInt(val) || 1; 
+                    }),
                 ),                      
+                $(go.Picture,  // the image -------------------------------------
+                    {
+                        name: "Picture",
+                        desiredSize: new go.Size(48, 48),
+                    },
+                    new go.Binding("source", "icon", findImage),
+                ),    
                 $(go.Shape,  // Plus line
                     { 
                         cursor: "move",    
-                        figure: "XLine", 
+                        figure: "PlusLine", 
                         fill: "transparent",
-                        stroke: "black",
+                        stroke: "transparent",
                         strokeWidth: 3,
                         // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
                         minSize: new go.Size(20, 20), 
                         desiredSize: new go.Size(30, 30), // outer Shape size 
                     },
-                    new go.Binding('stroke', 'strokecolor'), 
+                    new go.Binding('stroke', 'strokecolor2'), 
                     new go.Binding("figure", "figure"), 
                 ),
                 $(go.Shape,  // move

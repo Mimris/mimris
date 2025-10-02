@@ -1178,7 +1178,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'figure2':
               if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                values = uit.getFigure2Names();
+                values = uit.getFigureNames();
                 defValue = '';
                 fieldType = 'radio';
               }

@@ -106,7 +106,7 @@ const CreateNewModel = (props: any) => {
 
     const coremodel = (metamodelGenerated) && {
       id: uuidv4(),
-      name: '01-CORE_TypeDef',
+      name: '01-TypeDef_CORE',
       description: 'Type Definition model based on CORE_META Metamodel. It includes the EntityTypes and Relationships. The intention of this model is to define the types and relationships between them.', 
       metamodelRef: coremetamodel?.id,
       sourceMetamodelRef: "",

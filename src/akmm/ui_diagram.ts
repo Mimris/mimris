@@ -3109,6 +3109,12 @@ export function swapDirection(selectedLinks, myMetis: akm.cxMetis, myDiagram) {
             const jsnRelView = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelView);
         }
+        let linkfromNode = link.fromNode;
+        let linktoNode = link.toNode;
+        link.fromNode = linktoNode;
+        link.toNode = linkfromNode;
+        myDiagram.model.setDataProperty(link, "from", link.fromNode.key);
+        myDiagram.model.setDataProperty(link, "to", link.toNode.key);
     }
     modifiedRelshipViews.map(mn => {
         let data = mn;

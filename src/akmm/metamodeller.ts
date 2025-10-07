@@ -6545,8 +6545,10 @@ export class cxObjtypeviewData {
     figure2: string;
     geometry: string;
     icon: string;
+    iconpath: string;
     icon1: string;
     icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6568,8 +6570,10 @@ export class cxObjtypeviewData {
         this.figure2 = "";
         this.geometry = "";
         this.icon = "";
+        this.iconpath = "";
         this.icon1 = "";
         this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.grabIsAllowed = false;
         this.fillcolor = "";
@@ -6596,8 +6600,10 @@ export class cxObjectTypeView extends cxMetaObject {
     figure2: string;
     geometry: string;
     icon: string;
+    iconpath: string;
     icon1: string;
     icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6632,8 +6638,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
         this.icon = "";
+        this.iconpath = "";
         this.icon1 = "";
         this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.data = new cxObjtypeviewData();
         if (type) {
@@ -6891,6 +6899,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.arrowscale;
         return 1.3; // Default  1
     }
+    setIconPath(iconpath: string) {
+        this.data.iconpath = iconpath;
+        this.iconpath = iconpath;
+    }
+    getIconPath(): string {
+        if (this.iconpath)
+            return this.iconpath;
+        // else if (this.data.iconpath)
+        //     return this.data.iconpath;
+        return "";
+    }
     setIcon(icon: string) {
         this.data.icon = icon;
         this.icon = icon;
@@ -6922,6 +6941,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.icon2;
         // else if (this.data.icon2)
         //     return this.data.icon2;
+        return "";
+    }
+    setIcon3(icon: string) {
+        this.data.icon3 = icon;
+        this.icon3 = icon;
+    }
+    getIcon3(): string {
+        if (this.icon3)
+            return this.icon3;
+        // else if (this.data.icon3)
+        //     return this.data.icon3;
         return "";
     }
     setImage(image: string) {
@@ -9592,8 +9622,10 @@ export class cxObjectView extends cxMetaObject {
     geometry: string;
     group: string;
     icon: string;
+    iconpath: string;
     icon1: string;
     icon2: string;
+    icon3: string;
     image: string;
     isGroup: boolean;
     isSelected: boolean;
@@ -9659,8 +9691,10 @@ export class cxObjectView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.icon = "";
+        this.iconpath = "";
         this.icon1 = "";
         this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         }
     }

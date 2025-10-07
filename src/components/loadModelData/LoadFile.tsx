@@ -129,7 +129,7 @@ const LoadFile = (props: any) => {
     const templates = Array.isArray(data) ? data[0] : data
     const template = Array.isArray(data) ? data[1] : null
 
-    if (debug) console.log('198 Loadfile', templates, template)
+    if (!debug) console.log('198 Loadfile', templates, template)
 
     // Make sure we have the expected structure before accessing nested properties
     if (!templates?.phData?.metis?.metamodels?.length) {
@@ -143,18 +143,20 @@ const LoadFile = (props: any) => {
 
     const filename = templates.phData.metis.name
 
-    if (debug) console.log('199 Loadfile', newmm, filename)
+    if (!debug) console.log('199 Loadfile', newmm, filename)
 
     SaveAllToFile(templates, filename, '_PR')
 
     // More robust template checking
     if (template) {
-      console.log('138 Loadfile', filename)
+      console.log('152 Loadfile', template, filename)
       if (
-        filename.includes('POPS') &&
-        filename.includes('IRTV') &&
-        filename.includes('META')
+        filename.includes('POPS') ||
+        filename.includes('IRTV') ||
+        filename.includes('CORE') ||
+        filename.includes('BPMN')
       ) {
+        console.log('159 Loadfile', template, filename)
         SaveAllToFile(template, 'Mimris-template', '_PR')
       }
     }

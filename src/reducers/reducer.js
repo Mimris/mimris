@@ -100,7 +100,7 @@ import {
 
 
 
-import StartInitStateJson from '../startupModel/CORE-Template_PR.json'
+import StartInitStateJson from '../startupModel/Mimris-template_PR.json'
 // import StartInitStateJson from '../startupModel/AKM-INIT-Startup_PR.json'
 // import StartInitStateJson from '../startupModel/AKM-Core-Type-Definitions_PR.json'
 // import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'

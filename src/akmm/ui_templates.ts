@@ -2687,11 +2687,23 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 name: "nodeImage", 
                 desiredSize: new go.Size(30, 30),
                 alignmentFocus: go.Spot.TopLeft,
-                alignment: new go.Spot(0, 0, 100, 65),
+                alignment: new go.Spot(0, 0, 65, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
             },
             new go.Binding("source", "icon2", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 100, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon3", findImage),
         ),
 
       )  // end Auto Panel

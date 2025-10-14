@@ -2649,7 +2649,7 @@ export function addItemToList(list: any, item: any) {
     list?.push(item);
 }
 
-export function isPropIncluded(k: string, type: akm.cxType): boolean {
+export function isPropIncluded(k: string, type: akm.cxType, includeInherited: boolean): boolean {
     let retVal = true;
     if (k === '__gohashid') retVal = false;
     // if (k === 'abstract') retVal = false;
@@ -2751,6 +2751,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'valueset') retVal = false;
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
+    if (k === 'iconpath') retVal = false;
     // if (k === 'viewkind') retVal = false;
     // if (k === 'relshipkind') retVal = false;
     if (type?.name !== 'ViewFormat' &&
@@ -2767,6 +2768,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
         if (k === 'fieldType') retVal = false;
     }
+    if (type.name !== 'Task') {
+        if (k === 'icon1') retVal = false;
+        if (k === 'icon2') retVal = false;
+        if (k === 'icon3') retVal = false;
+    }
+    if (type.template === 'ActivityNode') {
+        if (k === 'figure') retVal = false;
+        if (k === 'figure2') retVal = false;
+    }
+    // if (includeInherited === true) {
+    //     // Check if property exists in inherited type
+    //     const inheritedProp = type?.findPropertyByName2(k, true);
+    //     if (inheritedProp.length > 0) {
+    //         retVal = true;
+    //     }
+    // }
     return retVal;
 }
 export function isPropIncluded2(k: string, type: akm.cxType): boolean {

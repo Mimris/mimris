@@ -2577,11 +2577,12 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("scale", "scale1").makeTwoWay(),
-        { contextMenu: contextMenu },
-        {
-            selectionObjectName: "SHAPE",
-            resizable: true, resizeObjectName: "SHAPE"
-        },
+            {
+                selectionObjectName: "SHAPE",
+                // resizable: true, 
+                // resizeObjectName: "SHAPE",
+                contextMenu: contextMenu ,    
+            },
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -2598,7 +2599,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         {
             locationObjectName: 'SHAPE', 
             locationSpot: go.Spot.Center,
-            resizable: true, 
+            resizable: false, 
             resizeObjectName: 'PANEL',
             selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
             //itemTemplate: boundaryEventItemTemplate
@@ -2617,11 +2618,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         name: 'SHAPE',
                         fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
                         stroke: '#CDAA7D',
+                        strokeWidth: 3,
                         parameter1: 10, // corner size
                         portId: '', 
                         fromLinkable: true,
-                        fromSpot: go.Spot.RightSide,
-                        toLinkable: true,
+                        fromSpot: go.Spot.RightSide, 
                         toSpot: go.Spot.LeftSide,
                         fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                         toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
@@ -2817,11 +2818,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Spot',
                 $(go.Shape, // figure
                     { 
+                        cursor: "alias",                    // To draw a link,
                         figure: "Diamond", 
                         fill: "lightyellow",
                         stroke: "black",
                         strokeWidth: 3,
-                        cursor: "alias",                    // To draw a link,
                         minSize: new go.Size(60, 60), 
                         desiredSize: new go.Size(79, 79),  // outer Shape size 
                         // set the port properties
@@ -3390,7 +3391,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             relinkableFrom: true, 
             relinkableTo: true,
             fromSpot: go.Spot.AllSides,
-            toSpot: go.Spot.AllSides,
+            toSpot: go.Spot.BottomSide,
             toEndSegmentLength: 20, // fromEndSegmentLength: 40
         },
         new go.Binding('points').makeTwoWay(),
@@ -3412,11 +3413,13 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
           contextMenu: contextMenu,
           routing: go.Link.AvoidsNodes,
           corner: 10,
-          // fromSpot: go.Spot.RightSide, toSpot: go.Spot.LeftSide,
+          // fromSpot: go.Spot.RightSide, 
+          // toSpot: go.Spot.LeftSide,
+          // toSpot: go.Spot.BottomSide,
           reshapable: true,
           relinkableFrom: true,
           relinkableTo: true,
-          toEndSegmentLength: 20,
+          toEndSegmentLength: 0,
         },
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
@@ -3455,7 +3458,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                         )
                     ),
                 )
-            },
+        },
       );    
       linkTemplateMap.add("sequenceLinkTemplate", sequenceLinkTemplate);
       addLinkTemplateName('sequenceLinkTemplate');

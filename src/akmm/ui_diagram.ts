@@ -666,10 +666,6 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       what:       "editObjectview",
       title:      "Edit Object View",
       icon:       icon,
-      iconpath:   iconpath,
-      icon1:      icon1,
-      icon2:      icon2,
-      icon3:      icon3,
       myDiagram:  myDiagram,
       myContext:  myContext,
     }

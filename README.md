@@ -161,7 +161,7 @@ import * as go from 'gojs';
 
 export function initializeDiagram(): go.Diagram {
   const $ = go.GraphObject.make;
-  
+
   return $(go.Diagram, {
     'undoManager.isEnabled': true,
     layout: $(go.ForceDirectedLayout),
@@ -177,19 +177,28 @@ export const nodeTemplate = (
     locationSpot={go.Spot.Center}
     selectionAdorned={true}
   >
-    <Shape 
-      figure="Rectangle" 
-      fill="#2F80ED" 
+    <Shape
+      figure="Rectangle"
+      fill="#2F80ED"
       strokeWidth={0}
     />
-    <TextBlock 
-      text="{name}" 
-      margin={8} 
+    <TextBlock
+      text="{name}"
+      margin={8}
       stroke="white"
     />
   </Node>
 );
 ```
+
+## 📚 Documentation
+
+Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
+
+- **Landing page** – https://mimris.github.io/mimris/
+- **Getting started guide** – https://mimris.github.io/mimris/getting-started
+
+To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
 
 ## Contributing 🤝
 

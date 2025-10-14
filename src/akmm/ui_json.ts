@@ -1700,8 +1700,11 @@ export class jsnObjectView {
     textcolor:       string;
     textcolor2:      string;
     textscale:       number;
+    icon:            string;
+    iconpath:        string;
     icon1:           string;
     icon2:           string;
+    icon3:           string;
     image:           string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
@@ -1731,8 +1734,10 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.textcolor2      = objview?.textcolor2;
         this.icon            = objview?.icon;
+        this.iconpath        = objview?.iconpath;
         this.icon1            = objview?.icon1;
         this.icon2            = objview?.icon2;
+        this.icon3            = objview?.icon3;
         this.image           = objview?.image;
         this.size            = objview?.size;
         this.scale           = objview?.scale;

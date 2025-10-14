@@ -2381,7 +2381,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
-            );
+          makeButton("Swap Direction",
+            function (e: any, obj: any) {
+              let mySelection = myDiagram.selection;
+              const selectedLinks = [];
+              mySelection.each(function(l) {
+                if (l instanceof go.Node) 
+                  return;
+                else {
+                  selectedLinks.push(l);
+                }
+              });
+              uid.swapDirection(selectedLinks, myMetis, myDiagram);
+            },
+            function (obj: any) {
+              const link = obj.part.data;
+              const modelview = myMetis.currentModelview;
+              const metamodel = myMetis.currentMetamodel;
+              if (uid.swapDirectionIsAllowed(link, modelview, metamodel))
+                return true;
+              return false;
+            }),
           makeButton("Undo",
             function (e, obj) {
               e.diagram.commandHandler.undo();
@@ -2396,6 +2416,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o) {
               return o.diagram.commandHandler.canRedo();
             })
+          );
     }
 
     // A CONTEXT MENU for ports

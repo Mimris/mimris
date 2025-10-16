@@ -1546,28 +1546,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (!objview?.isGroup) {
                   const mySelection = myDiagram.selection;
                   uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
-                  myDiagram.selection.each(function (sel) {
-                    const link = sel.data;
-                    if (link.category === constants.gojs.C_RELATIONSHIP) {
-                      const fromLink = link.from;
-                      const toLink = link.to;
-                      let relview: akm.cxRelationshipView = link.relshipview;
-                      relview = myModelview.findRelationshipView(relview?.id);
-                      if (relview) {
-                        const fromObjview = relview.fromObjview;
-                        const toObjview = relview.toObjview;
-                        link.points = [];
-                        link.from = fromLink;
-                        link.to = toLink;
-                        myDiagram.model.setDataProperty(link, "points", link.points);
-                        relview.points = [];
-                        relview.fromObjview = fromObjview;
-                        relview.toObjview = toObjview;
-                        // const jsnRelView = new jsn.jsnRelshipView(relview);
-                        // modifiedRelshipViews.push(jsnRelView);
-                      }
-                    }
-                  })
+
+                //   myDiagram.selection.each(function (sel) {
+                //     const link = sel.data;
+                //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+                //       const fromLink = link.from;
+                //       const toLink = link.to;
+                //       let relview: akm.cxRelationshipView = link.relshipview;
+                //       relview = myModelview.findRelationshipView(relview?.id);
+                //       if (relview) {
+                //         const fromObjview = relview.fromObjview;
+                //         const toObjview = relview.toObjview;
+                //         link.points = [];
+                //         link.from = fromLink;
+                //         link.to = toLink;
+                //         myDiagram.model.setDataProperty(link, "points", link.points);
+                //         relview.points = [];
+                //         relview.fromObjview = fromObjview;
+                //         relview.toObjview = toObjview;
+                //         // const jsnRelView = new jsn.jsnRelshipView(relview);
+                //         // modifiedRelshipViews.push(jsnRelView);
+                //       }
+                //     }
+                //   }
+                // )
+
                 } else {
                   if (objview?.groupLayout)
                     uid.doGroupLayout(objview, myDiagram);

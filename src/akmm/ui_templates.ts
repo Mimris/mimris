@@ -2610,7 +2610,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             minSize: new go.Size(160, 80),
             desiredSize: new go.Size(160, 80)
             },
-            new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
             $(go.Panel, 'Spot',
                 $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
                     {

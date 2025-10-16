@@ -32,7 +32,8 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
     - [Redux Store Structure](#redux-store-structure)
   - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
-  - [Contributing](#contributing)
+  - [📚 Documentation](#-documentation)
+  - [Contributing 🤝](#contributing-)
   - [License](#license)
 - [Mimris](#mimris)
 - [Develop branch used for deployment of beta versjon](#develop-branch-used-for-deployment-of-beta-versjon)
@@ -213,7 +214,7 @@ import * as go from 'gojs';
 
 export function initializeDiagram(): go.Diagram {
   const $ = go.GraphObject.make;
-  
+
   return $(go.Diagram, {
     'undoManager.isEnabled': true,
     layout: $(go.ForceDirectedLayout),
@@ -229,21 +230,30 @@ export const nodeTemplate = (
     locationSpot={go.Spot.Center}
     selectionAdorned={true}
   >
-    <Shape 
-      figure="Rectangle" 
-      fill="#2F80ED" 
+    <Shape
+      figure="Rectangle"
+      fill="#2F80ED"
       strokeWidth={0}
     />
-    <TextBlock 
-      text="{name}" 
-      margin={8} 
+    <TextBlock
+      text="{name}"
+      margin={8}
       stroke="white"
     />
   </Node>
 );
 ```
 
-## Contributing
+## 📚 Documentation
+
+Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
+
+- **Landing page** – https://mimris.github.io/mimris/
+- **Getting started guide** – https://mimris.github.io/mimris/getting-started
+
+To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
+
+## Contributing 🤝
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 We welcome contributions under these guidelines:

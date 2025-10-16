@@ -72,6 +72,13 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   }
 
+  public componentDidUpdate(prevProps: any) {
+    const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
+    if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
+      this.setState({ noOfCols: nextCols, skipsDiagramUpdate: false });
+    }
+  }
+
   /**
    * Update map of node keys to their index in the array.
    */
@@ -91,6 +98,55 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       this.mapLinkKeyIdx.set(l.key, idx);
     });
   }
+
+  private applyFocusForNode = (diagram: go.Diagram, node: go.Node | null) => {
+    if (!node) {
+      return;
+    }
+    const nodeData = node.data as go.ObjectData;
+    if (!nodeData) {
+      return;
+    }
+    const myMetis = this.state.myMetis;
+    if (!myMetis) {
+      return;
+    }
+
+    let object = nodeData.object;
+    if (!object) {
+      return;
+    }
+    const foundObject = myMetis.findObject(object?.id);
+    object = foundObject ? foundObject : object;
+
+    if (object) {
+      const jsnObj = new jsn.jsnObject(object);
+      const focusData = { id: jsnObj.id, name: jsnObj.name };
+      this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECT', data: focusData });
+    }
+
+    const myModelview = myMetis.currentModelview;
+    let dataov = { id: '', name: '' };
+    const objview = myModelview?.objectviews?.filter(ov => ov.object?.id === object?.id);
+    if (objview && objview[0]?.id) {
+      dataov = { id: objview[0]?.id, name: objview[0]?.name };
+    }
+    this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov });
+
+    const nodes = diagram?.nodes;
+    this.suppressSelectionChange = true;
+    try {
+      for (let it = nodes?.iterator; it?.next();) {
+        const candidateNode = it.value as go.Node;
+        const nodeObject = candidateNode?.data?.object;
+        if (nodeObject?.id === object?.id) {
+          candidateNode.isSelected = true;
+        }
+      }
+    } finally {
+      this.suppressSelectionChange = false;
+    }
+  };
 
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
@@ -119,63 +175,68 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         }
         const sel = e.subject.first();
         if (!sel) break;
-        let part = sel.data;
-        let myDiagram = e.diagram;
-        let node = myDiagram.findNodeForKey(part.key);
-        if (debug) console.log('122 data', part, sel, sel.data, e);
-        const myMetis = this.state.myMetis;
-        if (debug) console.log('106 myMetis', myMetis);
-        let object = node.data.object;
-        if (!object) {
-            // This is in the Types Palette
-            // There are no objects in the Types Palette
-            break;
-        }
-        // This is in the Objects Palette
-        const obj = myMetis.findObject(object?.id);
-        object = obj ? obj : object;
-        if (debug) console.log('110 obj', obj);
-        if (object) {
-          const jsnObj = new jsn.jsnObject(object);
-          const modifiedObjects = new Array();
-          modifiedObjects.push(jsnObj);
-          modifiedObjects.map(mn => {
-            // let data = mn
-            // data = JSON.parse(JSON.stringify(data));
-            let data = { id: mn.id, name: mn.name };
-            if (debug) console.log('120 data', data);
-            this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
-          })
-        }
-        // find  all nodes of a given object in the current diagram (modelview)
-        const myModelview = myMetis.currentModelview;
-        let objview = myModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
-        const nodes = myDiagram?.nodes;
-        this.suppressSelectionChange = true;
-        try {
-          for (let it = nodes?.iterator; it?.next();) {
-            const candidateNode = it.value;
-            const nodeObject = candidateNode?.data?.object;
-            if (nodeObject?.id === object.id && !candidateNode.isSelected) {
-              candidateNode.isSelected = true;
-              // candidateNode.isHighlighted = true;
-            }
-          }
-        } finally {
-          this.suppressSelectionChange = false;
-        }
-        // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
-        let dataov = { id: '', name: '' };
-        if (objview && objview[0]?.id) {
-          dataov = { id: objview[0]?.id, name: objview[0]?.name };
-        }
-        if (debug) console.log('134 dataov', dataov);
-        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov })
+        const myDiagram = e.diagram;
+        const node = myDiagram.findNodeForKey(sel.data?.key);
+        if (debug) console.log('122 data', sel.data, sel, sel.data, e);
+        this.applyFocusForNode(myDiagram, node);
         break;
       }
       default:
         break;
     }
+  };
+
+  public handleSelectConnected = (nodeData: go.ObjectData, diagram: go.Diagram) => {
+    if (!diagram || !nodeData) {
+      return;
+    }
+    const targetKey = nodeData.key as go.Key;
+    if (targetKey === undefined || targetKey === null) {
+      return;
+    }
+    const links = this.state.linkDataArray || [];
+    const visited = new Set<go.Key>();
+    const queue: go.Key[] = [];
+
+    visited.add(targetKey);
+    queue.push(targetKey);
+
+    while (queue.length > 0) {
+      const currentKey = queue.shift();
+      if (currentKey === undefined || currentKey === null) {
+        continue;
+      }
+      links.forEach((link: go.ObjectData) => {
+        const from = link.from as go.Key;
+        const to = link.to as go.Key;
+        if (from === undefined || from === null || to === undefined || to === null) {
+          return;
+        }
+        if (from === currentKey && !visited.has(to)) {
+          visited.add(to);
+          queue.push(to);
+        } else if (to === currentKey && !visited.has(from)) {
+          visited.add(from);
+          queue.push(from);
+        }
+      });
+    }
+
+    this.suppressSelectionChange = true;
+    try {
+      diagram.clearSelection();
+      visited.forEach((key: go.Key) => {
+        const part = diagram.findNodeForKey(key);
+        if (part) {
+          part.isSelected = true;
+        }
+      });
+    } finally {
+      this.suppressSelectionChange = false;
+    }
+
+    const focusNode = diagram.findNodeForKey(targetKey);
+    this.applyFocusForNode(diagram, focusNode);
   };
 
   /**
@@ -371,6 +432,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     return (
       <div>
         <PaletteWrapper
+          divClassName={this.props?.divClassName || 'diagram-component-palette'}
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={this.state.linkDataArray}
           modelData={this.state.modelData}
@@ -379,6 +441,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           onModelChange={this.handleModelChange}
           diagramStyle={this.state.diagramStyle}
           noOfCols={this.state.noOfCols}
+          onNodeContextMenu={this.handleSelectConnected}
 
         />
         {/* <label>

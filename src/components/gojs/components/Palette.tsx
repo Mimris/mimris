@@ -28,6 +28,7 @@ interface DiagramProps {
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
   noOfCols?: number;
+  onNodeContextMenu?: (nodeData: go.ObjectData, diagram: go.Diagram) => void;
 }
 
 const debug = false;
@@ -43,7 +44,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       return;
     }
     diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
-    diagram.scale = diagram.scale * 1.05;
+    this.updatePalettePresentation(diagram);
   };
   /** @internal */
   constructor(props: DiagramProps) {
@@ -66,6 +67,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
+      this.updatePalettePresentation(diagram);
     }
   }
 
@@ -78,6 +80,46 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
+    }
+  }
+
+  public componentDidUpdate(prevProps: DiagramProps) {
+    if (prevProps.noOfCols !== this.props.noOfCols || prevProps.divClassName !== this.props.divClassName) {
+      this.updatePalettePresentation();
+    }
+  }
+
+  private updatePalettePresentation(diagram?: go.Diagram) {
+    const palette = diagram ?? this.diagramRef.current?.getDiagram();
+    if (!(palette instanceof go.Diagram)) {
+      return;
+    }
+
+    const cols = (this.props.noOfCols && this.props.noOfCols > 0) ? this.props.noOfCols : 1;
+    const layout = palette.layout;
+    let layoutChanged = false;
+    if (layout instanceof go.GridLayout) {
+      if (layout.wrappingColumn !== cols) {
+        layout.wrappingColumn = cols;
+        layout.invalidateLayout();
+        layoutChanged = true;
+      }
+    }
+
+    const isObjectsPalette = this.props.divClassName === 'diagram-component-objects';
+    if (isObjectsPalette) {
+      const collapsedScale = 1.15;
+      const expandedScale = 1.15;
+      const desiredScale = cols <= 1 ? collapsedScale : expandedScale;
+      if (Math.abs(palette.scale - desiredScale) > 0.01) {
+        palette.scale = desiredScale;
+      }
+    } else if (Math.abs(palette.scale - 1) < 0.01) {
+      palette.scale = 1.05;
+    }
+
+    if (layoutChanged) {
+      palette.layoutDiagram(true);
     }
   }
 
@@ -96,6 +138,22 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // console.log('68 myPalette', this);      
     // define myPalette
     if (true) {
+      const contextMenu = this.props.onNodeContextMenu
+        ? $('ContextMenu',
+          $('ContextMenuButton',
+            $(go.TextBlock, 'Select Connected Objects'),
+            {
+              click: (e: go.InputEvent, button: go.GraphObject) => {
+                const part = button?.part as go.Adornment;
+                const node = part?.adornedPart as go.Node;
+                if (node && this.props.onNodeContextMenu) {
+                  this.props.onNodeContextMenu(node.data, e.diagram);
+                }
+              }
+            }
+          )
+        )
+        : null;
       myPalette =
         $(go.Palette,       // must name or refer to the DIV HTML element
           {
@@ -114,7 +172,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 // sorting: go.GridLayout.Descending,
                 wrappingColumn: this.props.noOfCols ?? 1, // Use prop, default to 1
                 cellSize: new go.Size(1, 1),
-                spacing: new go.Size(14, 4),
+                spacing: new go.Size(10, 6),
                 alignment: go.GridLayout.Position,
                 isViewportSized: true,
                 // comparer: uid.alphabeticalComparer
@@ -150,7 +208,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             selectionAdorned: true,
             click: function (e, node) {
               // Your click handler logic (optional)
-            }
+            },
+            contextMenu: contextMenu || undefined
           },
           new go.Binding("text", "name"),
           new go.Binding("scale", "scale").makeTwoWay(),

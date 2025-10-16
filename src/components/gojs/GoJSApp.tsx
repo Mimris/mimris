@@ -996,6 +996,27 @@ class GoJSApp extends React.Component<{}, AppState> {
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
+        const toolManager = myDiagram.toolManager;
+        const activeTool = toolManager.currentTool;
+        if (activeTool && activeTool.isActive) {
+          if (activeTool instanceof go.DraggingTool) {
+            activeTool.stopTool();
+          } else {
+            activeTool.doCancel();
+          }
+        }
+        const dropDragTool = toolManager.draggingTool;
+        if (dropDragTool && dropDragTool.isActive) {
+          dropDragTool.stopTool();
+        }
+        const dropDraggedParts = dropDragTool?.draggedParts;
+        if (dropDraggedParts?.count > 0) {
+          dropDraggedParts.clear();
+        }
+        const dropCopiedParts = dropDragTool?.copiedParts;
+        if (dropCopiedParts?.count > 0) {
+          dropCopiedParts.clear();
+        }
         break;
       }
       case "SelectionDeleting": {
@@ -1200,10 +1221,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case 'ExternalObjectsDropped': {
         e.subject.each(function (n) {
-          const node = myDiagram.findNodeForKey(n.data.key);
-          const gjsNode = node.data;
-          let type: akm.cxObjectType = n.data.objecttype;
-          let typeview: akm.cxObjectTypeView = n.data.typeview;
+          const partData = n?.data;
+          if (!partData) {
+            return;
+          }
+          const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
+          const gjsNode = node?.data || partData;
+          let type: akm.cxObjectType = partData.objecttype;
+          let typeview: akm.cxObjectTypeView = partData.typeview;
           let objview: akm.cxObjectView;
           let objId: string;
           let object: akm.cxObject;
@@ -1211,23 +1236,35 @@ class GoJSApp extends React.Component<{}, AppState> {
           let objDescr: string;
           if (!type || !typeview) {
             // An object has been dropped (dragged from object palette)
-            type = myMetis.findObjectType(n.data.objtypeRef);
-            typeview = type.typeview;
-            objId = n.data.objRef;
+            const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
+            if (resolvedType) {
+              type = resolvedType;
+            }
+            if (!type) {
+              return;
+            }
+            typeview = type.typeview || typeview || partData.typeview;
+            if (!typeview && typeof (type as any)?.getDefaultTypeView === 'function') {
+              typeview = (type as any).getDefaultTypeView();
+            }
+            if (!typeview) {
+              return;
+            }
+            objId = partData.objRef;
             object = myMetis.findObject(objId);
             if (object) {
               myModel.addObject(object);
-              const key = n.data.key;
-              objview = new akm.cxObjectView(key, n.data.name, object, object.description, myModelview);
+              const key = partData.key;
+              objview = new akm.cxObjectView(key, partData.name, object, object.description, myModelview);
               objview.viewkind = constants.viewkinds.CONT;
-              objview.isGroup = n.data.isGroup;
-              objview.size = n.data.size;
+              objview.isGroup = partData.isGroup;
+              objview.size = partData.size;
               if (objview.isGroup) {
                 objview.viewkind = constants.viewkinds.CONT;
               } else {
                 objview.viewkind = constants.viewkinds.OBJ;
               }
-              objview = uic.setObjviewColors(n.data, object, objview, typeview, myDiagram);
+              objview = uic.setObjviewColors(partData, object, objview, typeview, myDiagram);
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
               myModelview.setFocusObjectview(objview);
@@ -1257,8 +1294,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
-            objName = node.data.object.name;
-            objDescr = node.data.object.description;
+            objName = node?.data?.object?.name || partData.object?.name;
+            objDescr = node?.data?.object?.description || partData.object?.description;
             type = myMetis.findObjectType(type.id);
             typeview = type.typeview;
             if (type.name === 'Datatype' && objName === 'Datatype') {
@@ -1269,7 +1306,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               if (!found)
                 objName = prompt("Enter Datatype name;", objName);
-              n.data.name = objName;
+              partData.name = objName;
             }
             // Create a new object
             objId = utils.createGuid();
@@ -1277,12 +1314,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             object.parentModelRef = myModel.id;
             myModel.addObject(object);
             myMetis.addObject(object);
-            console.log('1241 node, data', node, n.data);
+            console.log('1241 node, data', node, partData);
             // Find the objectview
-            objview = myModelview.findObjectView(node.data.key);
+            objview = myModelview.findObjectView(partData.key);
             if (!objview) {
-              objview = new akm.cxObjectView(node.data.key, node.data.name, object, node.data.description, myModelview);
-              objview.isGroup = node.data.isGroup;
+              objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
+              objview.isGroup = partData.isGroup;
               objview.objectRef = object.id;
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
@@ -1293,7 +1330,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
-          let part = n.data;
+          let part = partData;
           part.scale = Number(n.scale);
           if (part.size === "" || !part.size) {
             if (part.isGroup) {
@@ -1351,7 +1388,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.scale = goNode.getMyScale(myGoModel);
             part.scale = Number(goNode.scale);
             gjsNode.scale = part.scale
-            myDiagram.model.setDataProperty(node, "scale", part.scale);
+            if (node?.data) {
+              myDiagram.model.setDataProperty(node.data, "scale", part.scale);
+            }
           }
           // if (goNode) {
           //   goNode.object = null;
@@ -1391,7 +1430,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
             myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
         }
-          node.updateTargetBindings();
+          node?.updateTargetBindings();
         })
         // Dispatch modelview
         const modifiedModelviews = new Array();

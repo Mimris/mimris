@@ -58,6 +58,7 @@ const Modeller = (props: any) => {
     const [diagramReady, setDiagramReady] = useState(false);
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
+    const [objColumns, setObjColumns] = useState(1);
     let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -78,6 +79,7 @@ const Modeller = (props: any) => {
         focusModel = { id: props.PhData.models[0].id, name: props.PhData.models[0].name };
         focusModelview = { id: props.PhData.models[0].modelviews[0].id, name: props.PhData.models[0].modelviews[0].name };
     }
+
     const models = props.metis?.models
     const model = models?.find((m: any) => m?.id === focusModel?.id)
     if (debug) console.log('71 Modeller: model', model, focusModel, focusModelview);
@@ -119,9 +121,15 @@ const Modeller = (props: any) => {
     }
 
     // Function to toggle the expanded state
-    const toggleIsExpanded = () => {
-        setIsExpanded(!isExpanded);
-    };
+    // const toggleIsExpanded = () => {
+    //     console.log('123 Modeller: toggleIsExpanded', isExpanded);
+    //     setIsExpanded(!isExpanded);
+    //     if (!isExpanded) {
+    //         setObjColumns(4)
+    //     } else {
+    //         setObjColumns(1)
+    //     }
+    // };
 
     function toggleObjects() {
         setObjectsRefresh(!objectsRefresh)
@@ -133,6 +141,15 @@ const Modeller = (props: any) => {
             componentMounted.current = false;
         }
     }, []);
+
+    useEffect(() => {
+        if (isExpanded) {
+            setObjColumns(4)
+        } else {
+            setObjColumns(1)
+        }
+    }, [isExpanded]);
+
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
@@ -147,7 +164,7 @@ const Modeller = (props: any) => {
         }
         setMounted(true)
 
-        setVisibleObjects(false);
+        setVisibleObjects(true);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
@@ -338,9 +355,13 @@ const Modeller = (props: any) => {
 
     // Objects palette
     const myModel = props.myMetis?.findModel(model.id);
-    let ndArr1 = uib.buildObjectPalette(myModel?.objects, props.myMetis)
-    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))
-    let ldArr = []
+    const { nodeArray, linkArray } = uib.buildObjectPalette(myModel?.objects, myModel?.relships || []);
+
+
+    // Map object IDs to their corresponding GoJS node keys
+    if (debug) console.log('340 Modeller nodeArray, linkArray', nodeArray, linkArray);
+    let ndArr = nodeArray?.map((nd: any) => filterObject(nd))
+    let ldArr = (isExpanded) ? linkArray?.map((ld: any) => filterObject(ld)) : [];
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
     const uniqueTypes = [...new Set(ndTypes)].sort();
@@ -417,7 +438,7 @@ const Modeller = (props: any) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
         }
         setObjectsRefresh(!objectsRefresh);
-    }, [selectedOption]);
+    }, [selectedOption, isExpanded]);
 
     // useEffect(() => {
     //     setRefresh(!refresh)
@@ -518,6 +539,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
+                    noOfCols={isExpanded ? 4 : 1}
                 />
             </div>
         </>
@@ -653,7 +675,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     {objectsTabDiv}
                 </div>
             </Col>
-            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
+            {/* <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
                 <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
             </button>
             <button className="btn me-1 d-flex justify-content-center align-items-center w-100  bg-secondary my-1" onClick={openPasteDialog} style={{ fontSize: "10px"}}>
@@ -681,7 +703,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         Import
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
         </>
 
     const modellerDiv = (props.modelType === 'model')
@@ -690,7 +712,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             <div className={`modeller--objects me-1 
                 ${visibleObjects
                     ? isExpanded
-                        ? 'col-2'
+                        ? 'col-6'
                         : 'col-1'
                     : 'col-0'} `}
                     style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
@@ -711,7 +733,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     </button>
                     <button
                         className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                        onClick={toggleIsExpanded}
+                        onClick={() => setIsExpanded(!isExpanded)}
                         data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
                         {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
                     </button>
@@ -725,9 +747,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     }
                 </div>
             </div>
-            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
+            
+            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-1' : 'col-2') : 'col-12'}`}
                 style={{
-                    minWidth: visibleObjects ? '48%' : '28%',
+                    minWidth: visibleObjects ? '8%' : '28%',
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                     flexGrow: 1

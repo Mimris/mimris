@@ -27,6 +27,7 @@ interface DiagramProps {
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
+  noOfCols?: number;
 }
 
 const debug = false;
@@ -36,6 +37,14 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
    */
   private diagramRef: React.RefObject<ReactDiagram>;
   public myMetis: akm.cxMetis;
+  private handleInitialLayout = (e: go.DiagramEvent) => {
+    const diagram = e.diagram;
+    if (!(diagram instanceof go.Diagram)) {
+      return;
+    }
+    diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
+    diagram.scale = diagram.scale * 1.05;
+  };
   /** @internal */
   constructor(props: DiagramProps) {
     super(props);
@@ -56,6 +65,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
     }
   }
 
@@ -67,6 +77,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
     }
   }
 
@@ -88,15 +99,25 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       myPalette =
         $(go.Palette,       // must name or refer to the DIV HTML element
           {
-            initialContentAlignment: go.Spot.Top,       // center the content
-            // initialAutoScale: go.Diagram.Uniform,
+            initialContentAlignment: go.Spot.Top,
+            contentAlignment: go.Spot.Top,
+            initialAutoScale: go.Diagram.Uniform,  // scale to show all of the content
+            // "animationManager.isEnabled": false, // disable animations
+            // "undoManager.isEnabled": true,  // enable undo & redo
+            // "toolManager.hoverDelay": 10,  // how quickly tooltips are shown
+           
             maxSelectionCount: 16,
             layout: $(go.GridLayout,
               {
                 // sorting: go.GridLayout.Ascending,
                 sorting: go.GridLayout.Forward,
-                // sorting: go.GridLayout.Descending,   
-                wrappingColumn: 1
+                // sorting: go.GridLayout.Descending,
+                wrappingColumn: this.props.noOfCols ?? 1, // Use prop, default to 1
+                cellSize: new go.Size(1, 1),
+                spacing: new go.Size(14, 4),
+                alignment: go.GridLayout.Position,
+                isViewportSized: true,
+                // comparer: uid.alphabeticalComparer
               }),
 
             draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
@@ -110,7 +131,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               {
                 linkKeyProperty: 'key'
               }),
-            scale: 0.9, // Adjust this value to make the zoom smaller (default is 1.0)
+            scale: 1, // baseline scale; we nudge it after the initial layout
           });
 
       let paletteNodeTemplate: any;

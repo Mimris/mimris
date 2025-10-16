@@ -162,28 +162,32 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   return myGoPaletteModel;
 }
 
-export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: boolean = false): gjs.goModel {
+export function buildObjectPalette(
+  objects: akm.cxObject[],
+  relships: akm.cxRelship[] = [],
+  includeDeleted: boolean = false
+): { nodeArray: any[]; linkArray: any[] } {
+  relships = relships || []; // Ensure relships is always an array
   const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
   if (debug) console.log('134 ui_buildmodels objects', objects);
-  if (objects) {
-    // console.log('136 ui_buildmodels objects', objects);
-    // objects.sort(utils.compare);
-  }
-  const nodeArray = new Array();
+
+  const nodeArray = [];
+  const linkArray = [];
+    const objectViewMap = {}; // <-- Add this
+
+  // Build nodes
   for (let i = 0; i < objects?.length; i++) {
     let includeObject = false;
     const obj = objects[i];
-    if (debug) console.log('142 obj', obj);
     const objtype = obj?.getObjectType();
-    if (!objtype) continue; // added 2022-09-29 sf 
-    if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
+    if (!objtype) continue;
+    if (!objtype.getDefaultTypeView) continue;
     const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
     const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "", null);
     objview.setTypeView(typeview);
-    if (debug) console.log('147 obj, objview:', obj, objview);
+
     if (!includeDeleted) {
-      if (obj.isDeleted())
-        includeObject = false;
+      if (obj.isDeleted()) includeObject = false;
     }
     if (includeDeleted) {
       if (obj.markedAsDeleted) {
@@ -192,14 +196,10 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       }
     }
     if (!includeNoType) {
-      if (!obj.type) {
-        if (debug) console.log('160 obj', obj);
-        obj.markedAsDeleted = true;
-      }
+      if (!obj.type) obj.markedAsDeleted = true;
     }
     if (includeNoType) {
       if (!obj.type) {
-        if (debug) console.log('166 obj', obj);
         objview.strokecolor = "green";
         includeObject = true;
       }
@@ -217,11 +217,44 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       }
       if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
         vdata.fillcolor = obj.fillcolor;
-      node.addData(vdata);
-      nodeArray.push(node);
+        node.addData(vdata);
+        node.objectview = objview; // <-- Assign objectview to node
+        node.object = obj;         // <-- Assign object to node for lookup
+        nodeArray.push(node);
+        objectViewMap[obj.id] = objview; // <-- Map object id to objectview
     }
   }
-  return nodeArray;
+
+  // after building nodeArray
+  const objIdToNodeKey = new Map<string, string>();
+  for (const n of nodeArray) {
+    // pick the actual GoJS key used by your node class
+    const nodeKey = n.key ?? n.id ?? n.objectview?.id;
+    objIdToNodeKey.set(n.object?.id, nodeKey);
+  }
+
+
+  // Build links between objects
+  for (const rel of relships) {
+  const fromObjId = rel.fromobjectRef || rel.fromObject?.id;
+  const toObjId   = rel.toobjectRef   || rel.toObject?.id;
+
+  const fromKey = objIdToNodeKey.get(fromObjId);
+  const toKey   = objIdToNodeKey.get(toObjId);
+
+  if (!fromKey || !toKey) continue;
+
+  const relView = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+  if (objectViewMap[fromObjId]) relView.setFromObjectView(objectViewMap[fromObjId]);
+  if (objectViewMap[toObjId])   relView.setToObjectView(objectViewMap[toObjId]);
+
+  const link = new gjs.goRelshipLink(relView.id, myGoObjectPalette, relView);
+  link.from = fromKey;
+  link.to   = toKey;
+  linkArray.push(link);
+}
+  
+  return { nodeArray, linkArray };
 }
 
 export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {

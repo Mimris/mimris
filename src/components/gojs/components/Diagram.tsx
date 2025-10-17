@@ -406,9 +406,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     // A CONTEXT is an Adornment with a bunch of buttons in them
+    let advancedPartContextMenu: go.Adornment | null = null;
+    let advancedLinkContextMenu: go.Adornment | null = null;
+    let partContextMenu: go.HTMLInfo;
+    let linkContextMenu: go.HTMLInfo;
+
     // Nodes CONTEXT MENU
     {
-      var partContextMenu =
+      advancedPartContextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Copy",
             function (e: any, obj: any) {
@@ -1830,7 +1835,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // A CONTEXT MENU for links    
     {
-      var linkContextMenu =
+      advancedLinkContextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Edit Relationship",
             function (e: any, obj: any) {
@@ -4184,6 +4189,489 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           diagram.dispatch?.({ type: 'UPDATE_MODEL_PROPERTIES', data })
         });
       };
+
+      const ensurePartInSelection = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        if (!part.isSelected) {
+          diagram.select(part);
+        }
+      };
+
+      const handlePartCopy = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        if (part instanceof go.Node) {
+          const nodePart = diagram.findPartForKey(part.data?.key) as go.Node;
+          if (nodePart) {
+            try {
+              const subParts = nodePart.findSubGraphParts();
+              if (subParts) {
+                subParts.add(nodePart);
+                diagram.selectCollection(subParts);
+              }
+            } catch {
+              // ignore issues when node is not a subgraph
+            }
+          }
+          const currentNodeData = part.data;
+          if (diagram.selection.count === 0 && currentNodeData) {
+            const selectedPart = diagram.findPartForKey(currentNodeData.key);
+            if (selectedPart) diagram.select(selectedPart);
+          }
+        } else {
+          ensurePartInSelection(diagram, part);
+        }
+
+        const sourceNodes: any[] = [];
+        const sourceLinks: any[] = [];
+        const sel = diagram.selection;
+        for (let it = sel.iterator; it?.next();) {
+          const selected = it.value;
+          if (selected instanceof go.Node) {
+            addSourceNode(sourceNodes, selected);
+          } else if (selected instanceof go.Link) {
+            addSourceLink(sourceLinks, selected);
+          }
+        }
+
+        const copied: any[] = [];
+        sel.each((selectedPart) => {
+          const data = selectedPart.data;
+          if (!data) return;
+          const key = data.key;
+          data.fromModelview = myMetis.currentModelview;
+          data.fromGoModel = myMetis.gojsModel;
+          data.fromNode = getSourceNode(sourceNodes, key);
+          data.fromLink = getSourceLink(sourceLinks, key);
+          copied.push(data);
+        });
+
+        if (copied.length > 0) {
+          myMetis.currentSelection = copied;
+          diagram.commandHandler.copySelection();
+        }
+      };
+
+      const handlePartPaste = (diagram: go.Diagram, viewsOnly: boolean) => {
+        if (!diagram) return;
+        myMetis.pasteViewsOnly = viewsOnly;
+        const point = diagram.toolManager.contextMenuTool.mouseDownPoint;
+        diagram.commandHandler.pasteSelection(point);
+      };
+
+      const canEditAttribute = (part: go.Part) => {
+        const data = part?.data;
+        if (!data) return false;
+        if (data.category === constants.gojs.C_OBJECT) {
+          const object = data.object;
+          const objtype = object?.type;
+          if (objtype) {
+            const props = objtype.properties;
+            if (props && props.length > 0) return true;
+            if (objtype.name === 'ViewFormat' || objtype.name === 'InputPattern') return true;
+          }
+        }
+        if (data.category === constants.gojs.C_RELATIONSHIP) {
+          const relship = data.relship;
+          const reltype = relship?.type;
+          if (reltype?.properties?.length) return true;
+        }
+        if (data.category === constants.gojs.C_RELSHIPTYPE) {
+          return true;
+        }
+        return false;
+      };
+
+      const handleEditAttribute = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const data = part?.data;
+        if (!data) return;
+
+        if (data.category === constants.gojs.C_OBJECT) {
+          let object = data.object;
+          if (!object) return;
+          object = myMetis.findObject(object.id);
+          const objtype = object?.type;
+          if (!objtype) return;
+          const choices: string[] = ['description'];
+          if (objtype.name === 'ViewFormat') choices.push('viewFormat');
+          if (objtype.name === 'InputPattern') choices.push('inputPattern');
+          const props = objtype.properties;
+          for (let i = 0; i < props?.length; i++) {
+            const prop = props[i];
+            choices.push(prop.name);
+          }
+          if (choices.length === 0) return;
+          const modalContext = {
+            what: "selectDropdown",
+            title: "Select Property",
+            case: "Edit Attribute",
+            myDiagram: diagram
+          };
+          myMetis.currentNode = data;
+          myMetis.myDiagram = diagram;
+          diagram.handleOpenModal(choices, modalContext);
+          return;
+        }
+
+        if (data.category === constants.gojs.C_RELATIONSHIP) {
+          const relship = data.relship;
+          const reltype = relship?.type;
+          if (!reltype) return;
+          const choices: string[] = ['description'];
+          const props = reltype.properties;
+          for (let i = 0; i < props?.length; i++) {
+            const prop = props[i];
+            choices.push(prop.name);
+          }
+          if (choices.length === 0) return;
+          const modalContext = {
+            what: "selectDropdown",
+            title: "Select Attribute",
+            case: "Edit Attribute",
+            myDiagram: diagram
+          };
+          myMetis.currentLink = data;
+          myMetis.myDiagram = diagram;
+          diagram.handleOpenModal(choices, modalContext);
+          return;
+        }
+
+        if (data.category === constants.gojs.C_RELSHIPTYPE) {
+          const choices: string[] = ['description', 'cardinality'];
+          const modalContext = {
+            what: "selectDropdown",
+            title: "Select Attribute",
+            case: "Edit Attribute",
+            myDiagram: diagram
+          };
+          myMetis.currentLink = data;
+          myMetis.myDiagram = diagram;
+          diagram.handleOpenModal(choices, modalContext);
+        }
+      };
+
+      const handleEditObject = (part: go.Part) => {
+        const data = part?.data;
+        if (!data) return;
+        uid.editObject(data, myMetis, myDiagram);
+      };
+
+      const handleEditObjectview = (part: go.Part) => {
+        const data = part?.data;
+        if (!data) return;
+        uid.editObjectview(data, myMetis, myDiagram);
+      };
+
+      const handleDeletePart = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        ensurePartInSelection(diagram, part);
+        if (!diagram.commandHandler.canDeleteSelection()) return;
+        if (confirm('Do you really want to delete the current selection?')) {
+          myMetis.deleteViewsOnly = false;
+          myMetis.currentNode = part.data;
+          diagram.commandHandler.deleteSelection();
+        }
+      };
+
+      const handleEditRelationship = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !part) return;
+        const linkData: any = part.data;
+        if (!linkData) return;
+        const relship = myMetis.findRelationship(linkData?.relshipRef);
+        const relshipview = myMetis.findRelationshipView(linkData?.relviewRef);
+        const relshiptype = myMetis.findRelationshipType(relship?.typeRef);
+        const relshiptypeview = relshiptype?.typeview;
+        const context = {
+          object: null,
+          objectview: null,
+          objecttype: null,
+          objecttypeview: null,
+          relship: relship,
+          relshipview: relshipview,
+          relshiptype: relshiptype,
+          relshiptypeview: relshiptypeview,
+          model: myMetis.currentModel,
+          modelview: myMetis.currentModelview,
+          metamodel: myMetis.currentMetamodel,
+        };
+        const modalContext = {
+          what: "editRelationship",
+          title: "Edit Relationship",
+          myDiagram: diagram,
+          myContext: context,
+        };
+        myMetis.currentLink = linkData;
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(linkData, modalContext);
+      };
+
+      const handleEditRelationshipView = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !part) return;
+        const linkData: any = part.data;
+        if (!linkData) return;
+        const relship = myMetis.findRelationship(linkData?.relshipRef);
+        const relshipview = myMetis.findRelationshipView(linkData?.relviewRef);
+        const relshiptype = myMetis.findRelationshipType(relship?.reltypeRef || relship?.typeRef);
+        const relshiptypeview = relshiptype?.typeview;
+        const context = {
+          object: null,
+          objectview: null,
+          objecttype: null,
+          objecttypeview: null,
+          relship: relship,
+          relshipview: relshipview,
+          relshiptype: relshiptype,
+          relshiptypeview: relshiptypeview,
+          model: myMetis.currentModel,
+          modelview: myMetis.currentModelview,
+          metamodel: myMetis.currentMetamodel,
+        };
+        const modalContext = {
+          what: "editRelshipview",
+          title: "Edit Relationship View",
+          myDiagram: diagram,
+          myContext: context,
+        };
+        myMetis.currentLink = linkData;
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(linkData, modalContext);
+      };
+
+      const handleLinkDelete = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !part) return;
+        ensurePartInSelection(diagram, part);
+        if (!diagram.commandHandler.canDeleteSelection()) return;
+        if (confirm('Do you really want to delete the current selection?')) {
+          myMetis.deleteViewsOnly = false;
+          myMetis.currentLink = part.data;
+          diagram.commandHandler.deleteSelection();
+        }
+      };
+
+      const handleDeleteSelection = (diagram: go.Diagram) => {
+        if (!diagram) return;
+        if (!diagram.commandHandler.canDeleteSelection()) return;
+        if (confirm('Do you really want to delete the current selection?')) {
+          myMetis.deleteViewsOnly = false;
+          diagram.commandHandler.deleteSelection();
+        }
+      };
+
+      const deleteNodeMenuItems = (part: go.Part): HtmlMenuItem[] => [
+        {
+          label: "Delete Selection",
+          action: (diagram) => handleDeleteSelection(diagram),
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+        },
+        {
+          label: "Delete",
+          action: (diagram) => handleDeletePart(diagram, part),
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+        },
+        {
+          label: "Delete View",
+          action: (diagram) => {
+            if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+            if (!confirm('Do you really want to delete the current selection?')) return;
+            myMetis.deleteViewsOnly = true;
+            myMetis.currentNode = part.data;
+            diagram.commandHandler.deleteSelection();
+          },
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+        },
+        {
+          label: "Delete Selected Views",
+          action: (diagram) => {
+            if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+            if (!confirm('Do you really want to delete the current selection?')) return;
+            myMetis.deleteViewsOnly = true;
+            diagram.commandHandler.deleteSelection();
+          },
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+        },
+      ];
+
+      const deleteLinkMenuItems = (part: go.Link): HtmlMenuItem[] => [
+        {
+          label: "Delete Selection",
+          action: (diagram) => handleDeleteSelection(diagram),
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+        },
+        {
+          label: "Delete",
+          action: (diagram) => handleLinkDelete(diagram, part),
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+        },
+      ];
+
+      const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
+        const items: HtmlMenuItem[] = [];
+        items.push({
+          label: "Copy",
+          action: (diagram) => handlePartCopy(diagram, part),
+        });
+        items.push({
+          label: "Paste",
+          action: (diagram) => handlePartPaste(diagram, false),
+          enabled: (diagram) => diagram.commandHandler.canPasteSelection(),
+        });
+        items.push({
+          label: "Paste View",
+          action: (diagram) => handlePartPaste(diagram, true),
+          enabled: (diagram) => diagram.commandHandler.canPasteSelection(),
+        });
+        if (canEditAttribute(part)) {
+          items.push({
+            label: "Edit Attribute",
+            action: (diagram) => handleEditAttribute(diagram, part),
+          });
+        }
+        const data: any = part.data || {};
+        const isObject = data.category === constants.gojs.C_OBJECT;
+        if (isObject) {
+          items.push({
+            label: "Edit Object",
+            action: () => handleEditObject(part),
+          });
+          items.push({
+            label: "Edit Object View",
+            action: () => handleEditObjectview(part),
+          });
+        }
+        items.push({ separator: true });
+        items.push({
+          label: "Delete…",
+          action: showSubMenu(deleteNodeMenuItems(part)),
+          closeOnClick: false,
+        });
+        items.push({ separator: true });
+        items.push({
+          label: "More…",
+          action: (diagram, tool) => showAdvancedPartMenu(diagram, tool, part),
+          closeOnClick: false,
+        });
+        return items;
+      };
+
+      const buildLinkMenuItems = (part: go.Link): HtmlMenuItem[] => {
+        const items: HtmlMenuItem[] = [];
+        const data: any = part.data || {};
+        const category = data.category;
+        const isRelationship = category === constants.gojs.C_RELATIONSHIP;
+
+        items.push({
+          label: "Copy",
+          action: (diagram) => handlePartCopy(diagram, part),
+        });
+        if (canEditAttribute(part)) {
+          items.push({
+            label: "Edit Attribute",
+            action: (diagram) => handleEditAttribute(diagram, part),
+          });
+        }
+        if (isRelationship) {
+          items.push({
+            label: "Edit Relationship",
+            action: (diagram) => handleEditRelationship(diagram, part),
+          });
+          items.push({
+            label: "Edit Relationship View",
+            action: (diagram) => handleEditRelationshipView(diagram, part),
+          });
+        }
+
+        items.push({ separator: true });
+        items.push({
+          label: "Delete…",
+          action: showSubMenu(deleteLinkMenuItems(part)),
+          closeOnClick: false,
+        });
+        items.push({ separator: true });
+        items.push({
+          label: "More…",
+          action: (diagram, tool) => showAdvancedLinkMenu(diagram, tool, part),
+          closeOnClick: false,
+        });
+        return items;
+      };
+
+      const buildPartMenuItems = (part: go.Part): HtmlMenuItem[] => {
+        if (part instanceof go.Link) {
+          return buildLinkMenuItems(part);
+        }
+        return buildNodeMenuItems(part);
+      };
+
+      const showAdvancedPartMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part) => {
+        if (!advancedPartContextMenu) return;
+        disposeBackgroundMenu();
+        const cmTool = diagram.toolManager.contextMenuTool;
+        const originalMenu = part.contextMenu;
+        part.contextMenu = advancedPartContextMenu;
+        try {
+          cmTool.currentContextMenu = advancedPartContextMenu;
+          cmTool.showContextMenu(advancedPartContextMenu, part);
+        } finally {
+          part.contextMenu = originalMenu ?? null;
+        }
+      };
+
+      const showAdvancedLinkMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part) => {
+        if (!advancedLinkContextMenu) return;
+        disposeBackgroundMenu();
+        const cmTool = diagram.toolManager.contextMenuTool;
+        const originalMenu = part.contextMenu;
+        part.contextMenu = advancedLinkContextMenu;
+        try {
+          cmTool.currentContextMenu = advancedLinkContextMenu;
+          cmTool.showContextMenu(advancedLinkContextMenu, part);
+        } finally {
+          part.contextMenu = originalMenu ?? null;
+        }
+      };
+
+      const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null) => {
+        const targetPart = part ?? (diagram?.selection?.first() as go.Part);
+        if (!diagram || !(targetPart instanceof go.Part)) return;
+        const items = buildPartMenuItems(targetPart);
+        if (!items || items.length === 0) return;
+        disposeBackgroundMenu();
+        const menu = buildBackgroundMenu(items, diagram, tool);
+        document.body.appendChild(menu);
+        activeSubMenuDiv = menu;
+        const diagramDiv = diagram.div;
+        if (diagramDiv) {
+          const rect = diagramDiv.getBoundingClientRect();
+          const viewPoint = diagram.lastInput.viewPoint;
+          let left = rect.left + window.pageXOffset + viewPoint.x;
+          let top = rect.top + window.pageYOffset + viewPoint.y;
+          const menuRect = menu.getBoundingClientRect();
+          const maxLeft = window.pageXOffset + window.innerWidth - menuRect.width - 8;
+          const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
+          left = Math.max(window.pageXOffset + 4, Math.min(left, maxLeft));
+          top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
+          menu.style.left = `${left}px`;
+          menu.style.top = `${top}px`;
+        } else {
+          positionBackgroundMenu(menu, diagram);
+        }
+      };
+
+      partContextMenu = new go.HTMLInfo({
+        show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          const part = obj ? obj.part : null;
+          showPartHtmlMenu(diagram, tool, part as go.Part);
+        },
+        hide: disposeBackgroundMenu,
+      });
+
+      linkContextMenu = new go.HTMLInfo({
+        show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          const part = obj ? obj.part : null;
+          showPartHtmlMenu(diagram, tool, part as go.Part);
+        },
+        hide: disposeBackgroundMenu,
+      });
 
       const handleCopySelected = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;

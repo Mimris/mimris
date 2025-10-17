@@ -2619,7 +2619,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: '#CDAA7D',
                         strokeWidth: 3,
                         parameter1: 10, // corner size
-                        portId: '', 
+                        portId: 'activityPort',  // the main port
                         fromLinkable: true,
                         fromSpot: go.Spot.RightSide, 
                         toSpot: go.Spot.LeftSide,

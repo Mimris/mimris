@@ -2576,13 +2576,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("scale", "scale1").makeTwoWay(),
-            {
-                selectionObjectName: "SHAPE",
-                // resizable: true, 
-                // resizeObjectName: "SHAPE",
-                contextMenu: contextMenu ,    
-            },
+        // new go.Binding("scale", "scale1").makeTwoWay(),
+        {
+            selectionObjectName: "SHAPE",
+            // resizable: true, 
+            resizeObjectName: "SHAPE",
+            contextMenu: contextMenu ,    
+        },
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -2599,7 +2599,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         {
             locationObjectName: 'SHAPE', 
             locationSpot: go.Spot.Center,
-            resizable: false, 
+            resizable: true, 
             resizeObjectName: 'PANEL',
             selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
             //itemTemplate: boundaryEventItemTemplate
@@ -2610,7 +2610,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             minSize: new go.Size(160, 80),
             desiredSize: new go.Size(160, 80)
             },
-            new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
             $(go.Panel, 'Spot',
                 $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
                     {

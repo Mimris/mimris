@@ -3710,6 +3710,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       let activeMenuDiv: HTMLDivElement | null = null;
       let activeSubMenuDiv: HTMLDivElement | null = null;
+      let lastAnchorElement: HTMLElement | null = null;
 
       const disposeSubMenu = () => {
         if (activeSubMenuDiv && activeSubMenuDiv.parentElement) {
@@ -3724,13 +3725,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           activeMenuDiv.parentElement.removeChild(activeMenuDiv);
         }
         activeMenuDiv = null;
+        lastAnchorElement = null;
       };
 
-      const positionBackgroundMenu = (menu: HTMLDivElement, diagram: go.Diagram) => {
+      const positionBackgroundMenu = (menu: HTMLDivElement, diagram: go.Diagram, tool?: go.ContextMenuTool) => {
         const diagramDiv = diagram.div;
         if (!diagramDiv) return;
+        const cmTool = tool || diagram.toolManager.contextMenuTool;
+        const isPointReal = (pt?: go.Point | null) => !!(pt && pt.isReal && pt.isReal());
+        const mouseDownPoint = cmTool && isPointReal(cmTool.mouseDownPoint) ? cmTool.mouseDownPoint : null;
+        let viewPoint: go.Point | null = null;
+        if (mouseDownPoint) {
+          viewPoint = diagram.transformDocToView(mouseDownPoint);
+        } else {
+          const lastInput = diagram.lastInput;
+          if (lastInput) {
+            const docPoint = isPointReal(lastInput.documentPoint) ? lastInput.documentPoint : null;
+            if (docPoint) {
+              viewPoint = diagram.transformDocToView(docPoint);
+            } else if (isPointReal(lastInput.viewPoint)) {
+              const vp = lastInput.viewPoint;
+              viewPoint = new go.Point(vp.x, vp.y);
+            }
+          }
+        }
+        if (!viewPoint) {
+          viewPoint = new go.Point(0, 0);
+        }
         const rect = diagramDiv.getBoundingClientRect();
-        const viewPoint = diagram.transformDocToView(diagram.lastInput.documentPoint);
         let left = rect.left + window.pageXOffset + viewPoint.x;
         let top = rect.top + window.pageYOffset + viewPoint.y;
 
@@ -3843,7 +3865,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const menu = buildBackgroundMenu(items, diagram, tool);
         document.body.appendChild(menu);
         activeMenuDiv = menu;
-        positionBackgroundMenu(menu, diagram);
+        positionBackgroundMenu(menu, diagram, tool);
       };
 
       const renderSubMenu = (items: HtmlMenuItem[], diagram: go.Diagram, tool: go.ContextMenuTool, anchor?: HTMLElement) => {
@@ -3851,21 +3873,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const menu = buildBackgroundMenu(items, diagram, tool);
         document.body.appendChild(menu);
         activeSubMenuDiv = menu;
-        const anchorRect = anchor ? anchor.getBoundingClientRect() : (activeMenuDiv ? activeMenuDiv.getBoundingClientRect() : null);
+        if (anchor) {
+          lastAnchorElement = anchor;
+        }
+        const targetAnchor = anchor || lastAnchorElement;
+        const anchorRect = targetAnchor ? targetAnchor.getBoundingClientRect() : (activeMenuDiv ? activeMenuDiv.getBoundingClientRect() : null);
         if (anchorRect) {
-          const anchorStyle = window.getComputedStyle(anchor || activeMenuDiv || menu);
-          const anchorPadding = parseFloat(anchorStyle.paddingRight || "0");
-          let left = anchorRect.right + window.pageXOffset - anchorPadding;
-          let top = anchorRect.top + window.pageYOffset;
           const menuRect = menu.getBoundingClientRect();
-          const maxLeft = window.pageXOffset + window.innerWidth - menuRect.width - 8;
+          const viewportLeft = window.pageXOffset + 4;
+          const viewportRight = window.pageXOffset + window.innerWidth - 4;
+          let left = anchorRect.right + window.pageXOffset + 4;
+          let top = anchorRect.top + window.pageYOffset;
+          if (left + menuRect.width > viewportRight) {
+            left = anchorRect.left + window.pageXOffset - menuRect.width - 4;
+          }
+          left = Math.max(viewportLeft, left);
           const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
-          left = Math.max(window.pageXOffset + 4, Math.min(left, maxLeft));
           top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
           menu.style.left = `${left}px`;
           menu.style.top = `${top}px`;
         } else {
-          positionBackgroundMenu(menu, diagram);
+          positionBackgroundMenu(menu, diagram, tool);
         }
       };
 
@@ -4603,31 +4631,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       };
 
       const showAdvancedPartMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part) => {
-        if (!advancedPartContextMenu) return;
+        if (!advancedPartContextMenu || !part) return;
         disposeBackgroundMenu();
-        const cmTool = diagram.toolManager.contextMenuTool;
-        const originalMenu = part.contextMenu;
-        part.contextMenu = advancedPartContextMenu;
-        try {
-          cmTool.currentContextMenu = advancedPartContextMenu;
-          cmTool.showContextMenu(advancedPartContextMenu, part);
-        } finally {
-          part.contextMenu = originalMenu ?? null;
-        }
+        const cmTool = tool || diagram.toolManager.contextMenuTool;
+        const menuCopy = advancedPartContextMenu.copy() as go.Adornment;
+        menuCopy.adornedObject = part;
+        cmTool.currentContextMenu = menuCopy;
+        cmTool.showContextMenu(menuCopy, part);
       };
 
       const showAdvancedLinkMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part) => {
-        if (!advancedLinkContextMenu) return;
+        if (!advancedLinkContextMenu || !part) return;
         disposeBackgroundMenu();
-        const cmTool = diagram.toolManager.contextMenuTool;
-        const originalMenu = part.contextMenu;
-        part.contextMenu = advancedLinkContextMenu;
-        try {
-          cmTool.currentContextMenu = advancedLinkContextMenu;
-          cmTool.showContextMenu(advancedLinkContextMenu, part);
-        } finally {
-          part.contextMenu = originalMenu ?? null;
-        }
+        const cmTool = tool || diagram.toolManager.contextMenuTool;
+        const menuCopy = advancedLinkContextMenu.copy() as go.Adornment;
+        menuCopy.adornedObject = part;
+        cmTool.currentContextMenu = menuCopy;
+        cmTool.showContextMenu(menuCopy, part);
       };
 
       const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null) => {
@@ -4638,7 +4658,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         disposeBackgroundMenu();
         const menu = buildBackgroundMenu(items, diagram, tool);
         document.body.appendChild(menu);
-        activeSubMenuDiv = menu;
+        activeMenuDiv = menu;
+        activeSubMenuDiv = null;
         const diagramDiv = diagram.div;
         if (diagramDiv) {
           const rect = diagramDiv.getBoundingClientRect();
@@ -4653,7 +4674,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           menu.style.left = `${left}px`;
           menu.style.top = `${top}px`;
         } else {
-          positionBackgroundMenu(menu, diagram);
+          positionBackgroundMenu(menu, diagram, tool);
         }
       };
 

@@ -4225,6 +4225,44 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       };
 
+      const exclusiveSelectPart = (diagram: go.Diagram | null, part: go.Part | null) => {
+        if (!diagram || !part) {
+          return () => {};
+        }
+        const wasSelected = part.isSelected;
+        const partKey = part.key;
+        const wasLink = part instanceof go.Link;
+        const previous: Array<{ key: any; isLink: boolean }> = [];
+        diagram.selection.each((sel) => {
+          if (sel === part) return;
+          const key = sel.data?.key;
+          if (key === undefined || key === null) return;
+          previous.push({ key, isLink: sel instanceof go.Link });
+        });
+        diagram.clearSelection();
+        diagram.select(part);
+        return () => {
+          diagram.clearSelection();
+          for (let i = 0; i < previous.length; i++) {
+            const entry = previous[i];
+            const found = entry.isLink ? diagram.findLinkForKey(entry.key) : diagram.findPartForKey(entry.key);
+            if (found) found.isSelected = true;
+          }
+          if (wasSelected) {
+            const current = wasLink ? diagram.findLinkForKey(partKey) : diagram.findPartForKey(partKey);
+            if (current) current.isSelected = true;
+          }
+        };
+      };
+
+      const canDeleteSinglePart = (diagram: go.Diagram | null, part: go.Part | null) => {
+        if (!diagram || !part) return false;
+        const restore = exclusiveSelectPart(diagram, part);
+        const canDelete = diagram.commandHandler.canDeleteSelection();
+        restore();
+        return canDelete;
+      };
+
       const handlePartCopy = (diagram: go.Diagram, part: go.Part) => {
         if (!diagram || !part) return;
         if (part instanceof go.Node) {
@@ -4390,15 +4428,345 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.editObjectview(data, myMetis, myDiagram);
       };
 
+      const handleSortSelection = (diagram: go.Diagram) => {
+        if (!diagram) return;
+        uid.sortSelection(diagram);
+      };
+
+      const handleConnectToSelected = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const node: any = part.data;
+        if (!node || node.category !== constants.gojs.C_OBJECT) return;
+
+        const nodePart = diagram.findPartForKey(node.key) as go.Node;
+        if (!nodePart) return;
+
+        const selection = diagram.selection;
+        const hadSelection = selection.count > 0;
+        if (!nodePart.isSelected) {
+          if (hadSelection) {
+            nodePart.isSelected = true;
+          } else {
+            diagram.select(nodePart);
+          }
+        }
+
+        const nodes: any[] = [];
+        for (let it = selection.iterator; it?.next();) {
+          const selPart = it.value as go.Part;
+          if (!selPart || !selPart.data) continue;
+          if (selPart.data.key === node.key) continue;
+          nodes.push(selPart.data);
+        }
+
+        const choices = uid.getConnectToSelectedTypes(node, selection, myMetis, diagram);
+
+        const fromTypeRef = node.objtypeRef;
+        const fromType = myMetis.findObjectType(fromTypeRef);
+        const args = {
+          fromType: fromType,
+          nodeFrom: node,
+          nodesTo: nodes,
+          typeNames: choices,
+        };
+
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Select Relationship Type",
+          case: "Connect to Selected",
+          myDiagram: diagram,
+          args: args
+        };
+
+        myMetis.currentNode = node;
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(node, modalContext);
+      };
+
+      const handleDeleteSelectedViews = (diagram: go.Diagram) => {
+        if (!diagram) return;
+        if (diagram.selection.count === 0) return;
+        if (!diagram.commandHandler.canDeleteSelection()) return;
+        if (!confirm('Do you really want to delete the current selection?')) return;
+        myMetis.deleteViewsOnly = true;
+        const first = diagram.selection.first();
+        if (first && first.data) {
+          myMetis.currentNode = first.data;
+        }
+        diagram.commandHandler.deleteSelection();
+      };
+
+      const handleAddConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const nodeData: any = part.data;
+        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
+
+        let noLevels: string | number = '9';
+        let reltypes = 'All';
+        let reldir = 'All';
+        const useDefaults = confirm('Use default parameters?');
+        if (!useDefaults) {
+          const levelInput = prompt('Enter number of sublevels to follow', String(noLevels));
+          if (levelInput !== null && levelInput.trim().length > 0) {
+            noLevels = levelInput;
+          }
+          const reltypeInput = prompt('Enter relationship type to follow', reltypes);
+          if (reltypeInput !== null && reltypeInput.trim().length > 0) {
+            reltypes = reltypeInput;
+          }
+          const reldirInput = prompt('Enter relationship direction to follow (in | out | All)', reldir);
+          if (reldirInput !== null && reldirInput.trim().length > 0) {
+            reldir = reldirInput;
+          }
+        }
+
+        const params = {
+          noLevels,
+          reltypes: reltypes === 'All' ? '' : reltypes,
+          reldir
+        };
+
+        const selection = diagram.selection.count > 0 ? diagram.selection : (() => {
+          const nodePart = diagram.findPartForKey(nodeData.key);
+          if (nodePart) {
+            diagram.select(nodePart);
+            return diagram.selection;
+          }
+          return diagram.selection;
+        })();
+
+        for (let it = selection.iterator; it?.next();) {
+          const sel = it.value;
+          const selData = sel?.data;
+          if (selData && selData.category === constants.gojs.C_OBJECT) {
+            uid.addConnectedObjects(selData, params, myMetis, diagram);
+          }
+        }
+      };
+
+      const handleHideConnectedRelationships = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const nodeData: any = part.data;
+        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
+        const nodePart = diagram.findNodeForKey(nodeData.key);
+        if (!nodePart) return;
+        uid.hideConnectedRelationships(nodePart, myMetis, diagram);
+      };
+
+      const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const nodeData: any = part.data;
+        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
+        uid.selectConnectedObjects(nodeData, myMetis, diagram);
+      };
+
+      const handleSelectAllObjectsOfSameType = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const nodeData: any = part.data;
+        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
+        const myModel = myMetis.currentModel;
+        const myGoModel = myMetis.gojsModel;
+        if (!myModel || !myGoModel) return;
+        const typeName =
+          nodeData?.object?.type?.name ||
+          nodeData?.objecttype?.name ||
+          nodeData?.objtype?.name ||
+          nodeData?.objtypeName;
+        if (!typeName) return;
+
+        const objects = myModel.getObjectsByTypename(typeName, false) || [];
+        let firstTime = true;
+        for (let i = 0; i < objects.length; i++) {
+          const obj = objects[i];
+          if (!obj) continue;
+          const oviews = obj.objectviews;
+          if (!oviews) continue;
+          for (let j = 0; j < oviews.length; j++) {
+            const ov = oviews[j];
+            if (!ov) continue;
+            const node = myGoModel.findNodeByViewId(ov?.id);
+            const gjsNode = diagram.findNodeForKey(node?.key);
+            if (gjsNode) {
+              if (firstTime) {
+                diagram.select(gjsNode);
+                firstTime = false;
+              } else {
+                gjsNode.isSelected = true;
+              }
+            }
+          }
+        }
+      };
+
+      const handleSelectAllRelationshipsOfSameType = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+        const relship = data.relship || myMetis.findRelationship(data?.relshipRef);
+        const typeName = relship?.type?.name || data?.relshiptype?.name;
+        if (!typeName) return;
+        let first = true;
+        diagram.links.each((link) => {
+          const linkData: any = link.data;
+          if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+          const otherRel = linkData.relship || myMetis.findRelationship(linkData?.relshipRef);
+          const otherTypeName = otherRel?.type?.name || linkData?.relshiptype?.name;
+          if (otherTypeName === typeName) {
+            if (first) {
+              diagram.select(link);
+              first = false;
+            } else {
+              link.isSelected = true;
+            }
+          }
+        });
+      };
+
+      const handleSelectAllRelationshipsBetweenObjects = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+        const relship = data.relship || myMetis.findRelationship(data?.relshipRef);
+        const fromId = relship?.fromObject?.id;
+        const toId = relship?.toObject?.id;
+        if (!fromId || !toId) return;
+        let first = true;
+        diagram.links.each((link) => {
+          const linkData: any = link.data;
+          if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+          const rel = linkData.relship || myMetis.findRelationship(linkData?.relshipRef);
+          const otherFrom = rel?.fromObject?.id;
+          const otherTo = rel?.toObject?.id;
+          if (!otherFrom || !otherTo) return;
+          const sameDirection = otherFrom === fromId && otherTo === toId;
+          const reverseDirection = otherFrom === toId && otherTo === fromId;
+          if (sameDirection || reverseDirection) {
+            if (first) {
+              diagram.select(link);
+              first = false;
+            } else {
+              link.isSelected = true;
+            }
+          }
+        });
+      };
+
+      const handleShowRelationshipTypeview = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+        uid.editRelshipTypeview(data, myMetis, diagram, true);
+      };
+
+      const canResetRelationshipToTypeview = (part: go.Link) => {
+        const data: any = part?.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return false;
+        const relship = myMetis.findRelationship(data?.relshipRef) || data.relship;
+        const relshipview = myMetis.findRelationshipView(data?.relviewRef) || data.relshipview;
+        const reltype = relship?.type;
+        const typeView = data.typeview || relshipview?.typeview;
+        const defaultTypeview = reltype?.typeview;
+        if (!relship || !relshipview || !reltype || !defaultTypeview) return false;
+        if (!typeView) return true;
+        return typeView.id !== defaultTypeview.id;
+      };
+
+      const handleResetRelationshipToTypeview = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+        uid.resetToTypeview(data, myMetis, diagram);
+      };
+
+      const handleClearRelationshipPath = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const selectedLinks: go.Link[] = [];
+        diagram.selection.each((sel) => {
+          if (sel instanceof go.Link) {
+            selectedLinks.push(sel);
+          }
+        });
+        if (selectedLinks.length === 0) {
+          selectedLinks.push(part);
+        }
+        uid.clearPath(selectedLinks, myMetis, diagram);
+      };
+
+      const handleChangeRelationshipType = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+
+        const myModelview = myMetis.currentModelview;
+        const myMetamodel = myMetis.currentMetamodel;
+        const relship = myMetis.findRelationship(data.relshipRef) || data.relship;
+        if (!relship || !myModelview || !myMetamodel) return;
+
+        let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+        let includeIsType = false;
+
+        const fromObj = relship.fromObject;
+        const toObj = relship.toObject;
+        if (!fromObj || !toObj) return;
+
+        let fromType = myMetamodel.findObjectType(fromObj.type.id) || myMetis.findObjectType(fromObj.type.id);
+        let toType = myMetamodel.findObjectType(toObj.type.id) || myMetis.findObjectType(toObj.type.id);
+
+        if (fromType?.name === constants.types.AKM_ENTITY_TYPE && toType?.name === constants.types.AKM_ENTITY_TYPE) {
+          includeIsType = true;
+        }
+
+        let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
+        const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
+        for (let i = 0; i < extraTypes.length; i++) {
+          const rtype = extraTypes[i];
+          if (!rtype) continue;
+          if (rtype.name === constants.types.AKM_GENERIC_REL || rtype.name === constants.types.AKM_REFERS_TO) {
+            reltypes.push(rtype);
+          }
+        }
+
+        const choices: string[] = [];
+        reltypes?.forEach((rtype: any) => {
+          if (rtype?.name) choices.push(rtype.name);
+        });
+        if (includeIsType) {
+          choices.push(constants.types.AKM_IS);
+        }
+
+        const uniqueChoices = utils.removeArrayDuplicates(choices);
+        if (uniqueChoices.length === 0) return;
+
+        const args = {
+          typeNames: uniqueChoices,
+        };
+
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Select Relationship Type",
+          case: "Change Relationship type",
+          myDiagram: diagram,
+          args,
+        };
+
+        myMetis.currentLink = data;
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(uniqueChoices, modalContext);
+      };
+
       const handleDeletePart = (diagram: go.Diagram, part: go.Part) => {
         if (!diagram || !part) return;
-        ensurePartInSelection(diagram, part);
-        if (!diagram.commandHandler.canDeleteSelection()) return;
-        if (confirm('Do you really want to delete the current selection?')) {
+        const restore = exclusiveSelectPart(diagram, part);
+        if (!diagram.commandHandler.canDeleteSelection()) {
+          restore();
+          return;
+        }
+        if (confirm('Do you really want to delete this object?')) {
           myMetis.deleteViewsOnly = false;
           myMetis.currentNode = part.data;
           diagram.commandHandler.deleteSelection();
         }
+        restore();
       };
 
       const handleEditRelationship = (diagram: go.Diagram, part: go.Link) => {
@@ -4494,18 +4862,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         {
           label: "Delete",
           action: (diagram) => handleDeletePart(diagram, part),
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+          enabled: (diagram) => canDeleteSinglePart(diagram, part),
         },
         {
           label: "Delete View",
           action: (diagram) => {
-            if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
-            if (!confirm('Do you really want to delete the current selection?')) return;
+            if (!diagram) return;
+            const restore = exclusiveSelectPart(diagram, part);
+            if (!diagram.commandHandler.canDeleteSelection()) {
+              restore();
+              return;
+            }
+            if (!confirm('Do you really want to delete this object view?')) {
+              restore();
+              return;
+            }
             myMetis.deleteViewsOnly = true;
             myMetis.currentNode = part.data;
             diagram.commandHandler.deleteSelection();
+            restore();
           },
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+          enabled: (diagram) => canDeleteSinglePart(diagram, part),
         },
         {
           label: "Delete Selected Views",
@@ -4527,8 +4904,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         },
         {
           label: "Delete",
-          action: (diagram) => handleLinkDelete(diagram, part),
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count === 1,
+          action: (diagram) => {
+            if (!diagram || !(part instanceof go.Link)) return;
+            const restore = exclusiveSelectPart(diagram, part);
+            if (!diagram.commandHandler.canDeleteSelection()) {
+              restore();
+              return;
+            }
+            if (!confirm('Do you really want to delete this relationship?')) {
+              restore();
+              return;
+            }
+            myMetis.deleteViewsOnly = false;
+            myMetis.currentLink = part.data;
+            diagram.commandHandler.deleteSelection();
+            restore();
+          },
+          enabled: (diagram) => canDeleteSinglePart(diagram, part),
+        },
+        {
+          label: "Delete View",
+          action: (diagram) => {
+            if (!diagram || !(part instanceof go.Link)) return;
+            const restore = exclusiveSelectPart(diagram, part);
+            if (!diagram.commandHandler.canDeleteSelection()) {
+              restore();
+              return;
+            }
+            if (!confirm('Do you really want to delete the current relationship view?')) {
+              restore();
+              return;
+            }
+            myMetis.deleteViewsOnly = true;
+            myMetis.currentLink = part.data;
+            diagram.commandHandler.deleteSelection();
+            restore();
+          },
+          enabled: (diagram) => canDeleteSinglePart(diagram, part),
         },
       ];
 
@@ -4550,7 +4962,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         });
         if (canEditAttribute(part)) {
           items.push({
-            label: "Edit Attribute",
+            label: "Edit Relationship Type",
             action: (diagram) => handleEditAttribute(diagram, part),
           });
         }
@@ -4565,6 +4977,60 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Edit Object View",
             action: () => handleEditObjectview(part),
           });
+          const connectionsMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Connect to Selected",
+              action: (diagram) => handleConnectToSelected(diagram, part),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 0,
+            },
+            {
+              label: "Add Connected Objects",
+              action: (diagram) => handleAddConnectedObjects(diagram, part),
+            },
+            {
+              label: "Hide Connected Relationships",
+              action: (diagram) => handleHideConnectedRelationships(diagram, part),
+            },
+            {
+              label: "Select Connected Objects",
+              action: (diagram) => handleSelectConnectedObjects(diagram, part),
+            },
+          ];
+          items.push({
+            label: "Connections…",
+            action: showSubMenu(connectionsMenuItems),
+            closeOnClick: false,
+          });
+          const selectionMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Sort Selection",
+              action: (diagram) => handleSortSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
+            },
+            {
+              label: "Delete Selection",
+              action: (diagram) => handleDeleteSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Delete Selected Views",
+              action: (diagram) => handleDeleteSelectedViews(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Add to Selection",
+              action: (_diagram) => uid.addToSelection(part, myDiagram),
+            },
+            {
+              label: "Select All Objects of This Type",
+              action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
+            },
+          ];
+          items.push({
+            label: "Selection…",
+            action: showSubMenu(selectionMenuItems),
+            closeOnClick: false,
+          });
         }
         items.push({ separator: true });
         items.push({
@@ -4574,7 +5040,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         });
         items.push({ separator: true });
         items.push({
-          label: "More…",
+          label: "More… (old menu)",
           action: (diagram, tool) => showAdvancedPartMenu(diagram, tool, part),
           closeOnClick: false,
         });
@@ -4587,17 +5053,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const category = data.category;
         const isRelationship = category === constants.gojs.C_RELATIONSHIP;
 
-        items.push({
-          label: "Copy",
-          action: (diagram) => handlePartCopy(diagram, part),
-        });
-        if (canEditAttribute(part)) {
-          items.push({
-            label: "Edit Attribute",
-            action: (diagram) => handleEditAttribute(diagram, part),
-          });
-        }
+        // if (canEditAttribute(part)) {
+        //   items.push({
+        //     label: "Edit Attribute",
+        //     action: (diagram) => handleEditAttribute(diagram, part),
+        //   });
+        // }
         if (isRelationship) {
+          const linkPart = part as go.Link;
           items.push({
             label: "Edit Relationship",
             action: (diagram) => handleEditRelationship(diagram, part),
@@ -4605,6 +5068,64 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           items.push({
             label: "Edit Relationship View",
             action: (diagram) => handleEditRelationshipView(diagram, part),
+          });
+          items.push({
+            label: "Change Relationship Type",
+            action: (diagram) => handleChangeRelationshipType(diagram, linkPart),
+          });
+          items.push({
+            label: "Clear Path",
+            action: (diagram) => handleClearRelationshipPath(diagram, linkPart),
+          });
+          const typeviewMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Show Typeview",
+              action: (diagram) => handleShowRelationshipTypeview(diagram, linkPart),
+            },
+            {
+              label: "Reset to Typeview",
+              action: (diagram) => handleResetRelationshipToTypeview(diagram, linkPart),
+              enabled: (_diagram) => canResetRelationshipToTypeview(linkPart),
+            },
+          ];
+          items.push({
+            label: "Typeview…",
+            action: showSubMenu(typeviewMenuItems),
+            closeOnClick: false,
+          });
+          const selectionMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Sort Selection",
+              action: (diagram) => handleSortSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
+            },
+            {
+              label: "Delete Selection",
+              action: (diagram) => handleDeleteSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Delete Selected Views",
+              action: (diagram) => handleDeleteSelectedViews(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Add to Selection",
+              action: (_diagram) => uid.addToSelection(part, myDiagram),
+            },
+            {
+              label: "Select All Relationships of This Type",
+              action: (diagram) => handleSelectAllRelationshipsOfSameType(diagram, linkPart),
+            },
+            {
+              label: "Select All Between These Objects",
+              action: (diagram) => handleSelectAllRelationshipsBetweenObjects(diagram, linkPart),
+            },
+          ];
+          items.push({
+            label: "Selection…",
+            action: showSubMenu(selectionMenuItems),
+            closeOnClick: false,
           });
         }
 
@@ -4616,7 +5137,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         });
         items.push({ separator: true });
         items.push({
-          label: "More…",
+          label: "More… (old menu)",
           action: (diagram, tool) => showAdvancedLinkMenu(diagram, tool, part),
           closeOnClick: false,
         });
@@ -5297,7 +5818,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         },
         { separator: true },
         {
-          label: "More…",
+          label: "More… (old menu)",
           action: (diagram, tool) => {
             showAdvancedGoMenu(diagram, tool);
           },

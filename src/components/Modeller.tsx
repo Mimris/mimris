@@ -735,7 +735,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
                         onClick={() => setIsExpanded(!isExpanded)}
                         data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
-                        {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                        {visibleObjects ? (isExpanded) ? <span> &lt; -- </span> : <span>-- &gt;</span> : <span></span>}
                     </button>
                 </div>
                 <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >

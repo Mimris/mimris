@@ -176,7 +176,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 // sorting: go.GridLayout.Descending,
                 wrappingColumn: this.props.noOfCols ?? 1, // Use prop, default to 1
                 cellSize: new go.Size(1, 1),
-                spacing: new go.Size(10, 6),
+                spacing: new go.Size(50, 20),
                 alignment: go.GridLayout.Position,
                 isViewportSized: true,
                 // comparer: uid.alphabeticalComparer

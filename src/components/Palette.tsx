@@ -12,7 +12,7 @@ import Tasks from '../components/Tasks'
 
 
 const debug = false;
-const includeCoreAndIRTVAndPOPS = true;
+const includeMetamodelSelector = true;
 
 const clog = console.log.bind(console, '%c %s',
   'background: blue; color: white');
@@ -47,7 +47,7 @@ const Palette = (props: any) => {
   const [openDetail, setOpenDetail] = useState<string | null>('top');
 
   const [visibleTypes, setVisibleTypes] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleToggle = (id: string) => {
     setOpenDetail(id);
@@ -85,7 +85,8 @@ const Palette = (props: any) => {
     : null;
 
   let ndarr = paletteModel?.nodes ?? [];
-  let ldArr = (isExpanded) ? paletteModel?.links ?? [] : [];
+  let ldArr =  paletteModel?.links ?? [];
+  // let ldArr = (isExpanded) ? paletteModel?.links ?? [] : [];
 
   console.log('90 Palette', paletteModel, ndarr, ldArr);
 
@@ -221,8 +222,9 @@ const Palette = (props: any) => {
     // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
     (
-      <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
+      <div className="metamodel-pad pt-2">
+        {/* <detail open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">*/}
+        {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
           nodeDataArray={filteredOtNodeDataArray}
@@ -234,13 +236,14 @@ const Palette = (props: any) => {
           diagramStyle={{ height: "76vh" }}
           noOfCols={isExpanded ? 4 : 1}
         />
-      </details>
+      {/* </detail> */}
+      </div>
     )
 
   const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
 
   let gojsappPaletteDiv = null; // Initialize with a default value
-  if (includeCoreAndIRTVAndPOPS) {
+  if (includeMetamodelSelector) {
     gojsappPaletteDiv =
     <>
       {otDiv}
@@ -255,12 +258,12 @@ const Palette = (props: any) => {
     </>
   }
 
-  const paletteControls =
+  const paletteControls = // Palette controls: toggle palette visibility and width
     <div
-      className="palette-top d-flex px-0 py-1 mb-1"
-      style={{ backgroundColor: "#9cd" }}
+      className="palette-top d-flex pl-1 pr-2 py-0 mb-1 w-100"
+      style={{ backgroundColor: "#9cd", width: "100%" }}
     >
-      <div className="d-flex align-items-center justify-content-between" style={{ columnGap: '0.5rem' }}>
+      <div className="d-flex align-items-center justify-content-between w-100" style={{ columnGap: '0.5rem' }}>
         <button
           className="btn-sm text-light bg-transparent border-0"
           onClick={togglePalette}
@@ -269,29 +272,31 @@ const Palette = (props: any) => {
           title="Show or hide palette content"
         >
           {visiblePalette
-            ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i> 
-            Palette: Obj. Types
-            </span>
-            : <i className="fa fa-lg fa-angle-right pull-right-container"></i>}
+          ? <span className="fs-8 px-1"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
+          Palette: Obj. Types
+          </span>
+          : <i className="fa fa-lg fa-angle-right pull-right-container ps-1"></i>}
         </button>
-        <button
-          className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent"
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+          <button
+          className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
           style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => { setIsExpanded(!isExpanded); (isExpanded) ? setRefreshPalette(true) : setRefreshPalette(false); }}
           data-toggle="tooltip"
           data-placement="top"
           title="Toggle palette width"
           disabled={!visibleTypes}
-        >
-          {visiblePalette ? (isExpanded ? <span>&lt; --</span> : <span>-- &gt;</span>) : <span></span>}
-        </button>
+          >
+            {visiblePalette ? (isExpanded ? <span>&lt; --</span> : <span>-- &gt;</span>) : <span></span>}
+          </button>
+        </div>
       </div>
     </div>
 
   const paletteBody =
-    <div className="d-flex flex-column h-100">
+    <div className="d-flex flex-column px-2">
       {visiblePalette
-        ? (refreshPalette ? <>{gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>)
+        ? (refreshPalette ? <> {gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>)
         : <div
           className="d-flex justify-content-between fs-900"
           style={{
@@ -300,11 +305,11 @@ const Palette = (props: any) => {
             minWidth: "12px",
             maxWidth: "12px",
             padding: 0,
-            fontSize: "20px",
+            fontSize: "16px",
             fontWeight: "bold",
             overflow: "hidden",
             // textOverflow: "ellipsis",
-            color: "#5f5f5fff",        // Ensure text is visible
+            color: "#ffffffff",        // Ensure text is visible
             writingMode: "horizontal-tb", // force horizontal text
             transform: "none"             // remove any rotation
           }}
@@ -315,8 +320,8 @@ const Palette = (props: any) => {
     </div>
 
   const paletteSidebarWidth = visiblePalette
-    ? (visibleTypes ? (isExpanded ? 460 : 220) : 160)
-    : 15
+    ? (visibleTypes ? (isExpanded ? 600 : 220) : 160)
+    : 1
 
   const paletteSidebar =
     <div
@@ -327,7 +332,7 @@ const Palette = (props: any) => {
         maxWidth: paletteSidebarWidth,
         transition: 'width 0.2s ease',
         backgroundColor: '#9cd',
-        height: '100vh', // <-- ensure full viewport height
+        // height: '100vh', // <-- ensure full viewport height
       }}
     >
       {paletteControls}
@@ -336,19 +341,20 @@ const Palette = (props: any) => {
 
   const paletteGuide =
     <div
-      className="palette--workarea flex-grow-1 m-0 p-0"
+      className="palette--workarea flex-grow-1"
       style={{
         minWidth: 0,
         overflow: 'hidden',
         whiteSpace: 'nowrap',
-        height: '100vh', // <-- ensure full viewport height
+        backgroundColor: 'rgba(255, 253, 229, 1)',
+        height: '89vh', // <-- ensure full viewport height
       }}
     >
       {metamodelTasks}
     </div>
 
   return (props.metis) ? (
-    <div className="palette-workarea d-flex flex-row" style={{ height: '89vh' }}>
+    <div className="palette-workarea d-flex flex-row pe-3" style={{ height: 'calc(100vh - 11vh)' }}>
       {paletteGuide}
       {paletteSidebar}
     </div>

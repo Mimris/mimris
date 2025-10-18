@@ -696,9 +696,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={closePasteDialog}>
+                    <Butto variant="secondary" onClick={closePasteDialog}>
                         Cancel
-                    </Button>
+                    </Butto
                     <Button variant="primary" onClick={handleJsonPaste}>
                         Import
                     </Button>

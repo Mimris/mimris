@@ -418,9 +418,6 @@ const Modelling = (props: any) => {
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
-                      // gojsModelObjects={gojsmodelobjects}
-                      // gojsModel={gojsmodel}
-                      // gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
                       metis={metis}
                       phFocus={phFocus}

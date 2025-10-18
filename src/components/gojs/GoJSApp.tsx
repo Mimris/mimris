@@ -1220,9 +1220,14 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case 'ExternalObjectsDropped': {
+        const droppedRelLinks: go.ObjectData[] = [];
         e.subject.each(function (n) {
           const partData = n?.data;
           if (!partData) {
+            return;
+          }
+          if (n instanceof go.Link) {
+            droppedRelLinks.push(partData);
             return;
           }
           const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
@@ -1294,10 +1299,20 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
-            objName = node?.data?.object?.name || partData.object?.name;
-            objDescr = node?.data?.object?.description || partData.object?.description;
-            type = myMetis.findObjectType(type.id);
-            typeview = type.typeview;
+            objName = node?.data?.object?.name
+              || partData.object?.name
+              || partData.name
+              || type?.name;
+            if (!objName || objName?.trim().length === 0) {
+              objName = type?.name || 'Object';
+            }
+            objDescr = node?.data?.object?.description
+              || partData.object?.description
+              || partData.description
+              || type?.description
+              || '';
+            type = myMetis.findObjectType(type?.id);
+            typeview = type?.typeview || typeview || partData.typeview;
             if (type.name === 'Datatype' && objName === 'Datatype') {
               let found = true;
               while (found) {
@@ -1331,6 +1346,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           let strokecolor = "";
           let textcolor = "";
           let part = partData;
+          if (!part.name || (typeof part.name === 'string' && part.name.trim().length === 0)) {
+            part.name = objName;
+          }
           part.scale = Number(n.scale);
           if (part.size === "" || !part.size) {
             if (part.isGroup) {
@@ -1432,6 +1450,62 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
           node?.updateTargetBindings();
         })
+
+        droppedRelLinks.forEach((linkData: any) => {
+          const fromKey = linkData?.from || linkData?.fromNode?.key;
+          const toKey = linkData?.to || linkData?.toNode?.key;
+          if (!fromKey || !toKey) {
+            return;
+          }
+
+          const fromObjview = myModelview?.findObjectView(fromKey);
+          const toObjview = myModelview?.findObjectView(toKey);
+          const fromObject = fromObjview?.object;
+          const toObject = toObjview?.object;
+          if (!fromObjview || !toObjview || !fromObject || !toObject) {
+            return;
+          }
+
+          const fromType = fromObject.type || (fromObject.typeRef ? myMetamodel?.findObjectType(fromObject.typeRef) : null);
+          const toType = toObject.type || (toObject.typeRef ? myMetamodel?.findObjectType(toObject.typeRef) : null);
+          if (!fromType || !toType) {
+            return;
+          }
+
+          let reltype = linkData?.reltype || linkData?.relshiptype;
+          if (!reltype && linkData?.reltypeRef) {
+            reltype = myMetamodel?.findRelationshipType(linkData.reltypeRef) || myMetis.findRelationshipType(linkData.reltypeRef);
+          }
+          const relName = (reltype && reltype.name) || linkData?.name;
+          if (!reltype && relName) {
+            reltype = myMetamodel?.findRelationshipTypeByName2(relName, fromType, toType)
+              || myMetis.findRelationshipTypeByName2(relName, fromType, toType);
+          }
+          if (!reltype) {
+            return;
+          }
+
+          const relContext = {
+            ...context,
+            gjsData: linkData,
+          };
+
+          const args = {
+            data: linkData,
+            metamodel: myMetamodel,
+            typename: reltype.name,
+            fromType,
+            toType,
+            nodeFrom: null,
+            nodeTo: null,
+            fromPort: linkData?.fromPort || linkData?.portFrom,
+            toPort: linkData?.toPort || linkData?.portTo,
+            context: relContext,
+          };
+
+          uic.createRelshipCallback(args);
+        });
+
         // Dispatch modelview
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);

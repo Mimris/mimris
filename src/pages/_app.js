@@ -46,6 +46,9 @@ const MyApp = ({ Component, pageProps }) => {
 };
 
 export default MyApp;
+
+
+
 // import { Provider } from 'react-redux';
 // import { makeStore } from '../store'; // Adjust path as needed
 // // // Bootstrap Bundle JS

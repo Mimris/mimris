@@ -32,6 +32,7 @@ const Palette = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
+  const [filteredLinkDataArray, setFilteredLinkDataArray] = useState([])
   // const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
   // const [POPSOtNodeDataArray, setPOPSOtNodeDataArray] = useState([])
   // const [BPMNOtNodeDataArray, setBPMNOtNodeDataArray] = useState([])
@@ -80,18 +81,6 @@ const Palette = (props: any) => {
   function togglePalette() { setVisiblePalette(!visiblePalette); }
   // function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
-  const paletteModel = props?.myMetis?.currentMetamodel
-    ? uib.buildGoPalette(props.myMetis.currentMetamodel, props.myMetis)
-    : null;
-
-  let ndarr = paletteModel?.nodes ?? [];
-  let ldArr =  paletteModel?.links ?? [];
-  // let ldArr = (isExpanded) ? paletteModel?.links ?? [] : [];
-
-  console.log('90 Palette', paletteModel, ndarr, ldArr);
-
-  let taskNodeDataArray: any[] = ndarr
-
   if (debug) console.log('85 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
@@ -111,13 +100,13 @@ const Palette = (props: any) => {
     setTypes(types);
     setVisibleTypes(true);
 
-    // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
-    const newFilteredData = buildFilterOtNodeDataArray(types, mmodel);
-    setFilteredOtNodeDataArray(newFilteredData);
+    const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
+    setFilteredOtNodeDataArray(nodes);
+    setFilteredLinkDataArray(links);
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
     const timer = setTimeout(() => {
-      setRefreshPalette(!refreshPalette);
+      setRefreshPalette(prev => !prev);
       if (debug) console.log('110 Palette useEffect 3', mmodel.name, filteredOtNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
@@ -135,16 +124,19 @@ const Palette = (props: any) => {
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
-    setTypes(curPalette?.nodes?.map((t: any) => t?.name));  
+    const paletteNodes = curPalette?.nodes ?? [];
+    const paletteLinks = curPalette?.links ?? [];
+    setTypes(paletteNodes?.map((t: any) => t?.name));
     if (debug) console.log('123 Palette', curPalette?.nodes?.map((t: any) => t?.name), curPalette);
 
     if (debug) console.log('124 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
 
+    let filteredNodes = paletteNodes;
     if (types?.length > 0) {
       const otsArr = types.map(wot =>
         curPalette?.nodes.find(i => {
           if (debug) console.log('123 Palette', i?.name, wot, i?.name === wot);
-          return i?.name === wot && i;g
+          return (i?.name === wot) ? i : undefined;
         })
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
@@ -169,8 +161,20 @@ const Palette = (props: any) => {
         return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
       });
 
-      return otsArr
-    } else { return ndarr }
+      filteredNodes = otsArrSorted;
+    }
+
+    const nodeKeys = new Set(
+      filteredNodes
+        ?.map((n: any) => n?.key ?? n?.objecttype?.id ?? n?.objecttype?.key)
+        ?.filter(Boolean)
+    );
+
+    const filteredLinks = paletteLinks.filter(
+      (link: any) => nodeKeys.has(link?.from) && nodeKeys.has(link?.to)
+    );
+
+    return { nodes: filteredNodes, links: filteredLinks };
   };
 
   if (debug) console.log('159 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
@@ -185,12 +189,13 @@ const Palette = (props: any) => {
     dispatch({ type: 'SET_CURRENT_METAMODEL', data: mmodel });
     setCurrentMetamodelRef(mmodel?.id);
     if (debug) console.log('169 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
-    const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
-    if (debug) console.log('171 Palette', mmodel.name, filteredNodeDataArray);
+    const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
+    if (debug) console.log('171 Palette', mmodel.name, nodes, links);
     const timer = setTimeout(() => {
 
-      setFilteredOtNodeDataArray(filteredNodeDataArray);
-      setRefreshPalette(!refreshPalette);
+      setFilteredOtNodeDataArray(nodes);
+      setFilteredLinkDataArray(links);
+      setRefreshPalette(prev => !prev);
     }, 200);
 
     return () => clearTimeout(timer);
@@ -217,7 +222,7 @@ const Palette = (props: any) => {
       </select>
     </>
   );
-
+  const paletteLinkData = isExpanded ? filteredLinkDataArray : [];
 
     // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
@@ -227,13 +232,14 @@ const Palette = (props: any) => {
         {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
+          key={props.myMetis?.currentMetamodel?.id ?? 'palette-default'}
           nodeDataArray={filteredOtNodeDataArray}
-          linkDataArray={ldArr}
+          linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "76vh" }}
+          diagramStyle={{ height: '76vh' }}
           noOfCols={isExpanded ? 4 : 1}
         />
       {/* </detail> */}

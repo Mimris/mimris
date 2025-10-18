@@ -1261,14 +1261,18 @@ class GoJSApp extends React.Component<{}, AppState> {
               myModel.addObject(object);
               const key = partData.key;
               objview = new akm.cxObjectView(key, partData.name, object, object.description, myModelview);
-              objview.viewkind = constants.viewkinds.CONT;
-              objview.isGroup = partData.isGroup;
-              objview.size = partData.size;
-              if (objview.isGroup) {
-                objview.viewkind = constants.viewkinds.CONT;
-              } else {
-                objview.viewkind = constants.viewkinds.OBJ;
+              const isContainer = Boolean(
+                partData.viewkind === constants.viewkinds.CONT ||
+                type?.viewkind === constants.viewkinds.CONT ||
+                (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+              );
+              objview.isGroup = isContainer;
+              objview.viewkind = isContainer ? constants.viewkinds.CONT : constants.viewkinds.OBJ;
+              partData.isGroup = isContainer;
+              if (isContainer) {
+                partData.viewkind = constants.viewkinds.CONT;
               }
+              objview.size = partData.size;
               objview = uic.setObjviewColors(partData, object, objview, typeview, myDiagram);
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
@@ -1334,7 +1338,16 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = myModelview.findObjectView(partData.key);
             if (!objview) {
               objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
-              objview.isGroup = partData.isGroup;
+              const isContainer = Boolean(
+                partData.viewkind === constants.viewkinds.CONT ||
+                type?.viewkind === constants.viewkinds.CONT ||
+                (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+              );
+              objview.isGroup = isContainer;
+              if (isContainer) {
+                partData.isGroup = true;
+                partData.viewkind = constants.viewkinds.CONT;
+              }
               objview.objectRef = object.id;
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
@@ -1372,21 +1385,29 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (!objview || !(objview instanceof akm.cxObjectView)) {
             objview = new akm.cxObjectView(part.key, part.name, object, part.description, myModelview);
-            objview.isGroup = part.isGroup;
+            const isContainer = Boolean(
+              part.viewkind === constants.viewkinds.CONT ||
+              type?.viewkind === constants.viewkinds.CONT ||
+              (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+            );
+            objview.isGroup = isContainer;
             objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
             objview.loc = part.loc;
-            objview.viewkind = type.viewkind;
+            objview.viewkind = isContainer ? constants.viewkinds.CONT : type.viewkind;
             objview.scale = Number(part.scale);
             objview.size = part.size;
-            if (objview.viewkind === 'Container') {
-              objview.isGroup = true;
-            }
             objview.setModified();
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
           } else {
             objview.loc = part.loc;
             objview.size = part.size;
+          }
+          if (objview.isGroup) {
+            part.isGroup = true;
+            part.viewkind = constants.viewkinds.CONT;
+          } else {
+            part.isGroup = false;
           }
           let goNode = myGoModel.findNodeByViewId(objview.id);
           if (!goNode) {

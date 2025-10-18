@@ -19,6 +19,7 @@ import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
+import { applyDropLayout, deriveDropLayoutConfig } from './layout/DropLayoutManager';
 
 const debug = false;
 const linkToLink = false;
@@ -1221,6 +1222,84 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case 'ExternalObjectsDropped': {
         const droppedRelLinks: go.ObjectData[] = [];
+        const droppedNodesForLayout: go.Node[] = [];
+        const nodeIterator = e.subject.iterator;
+        while (nodeIterator?.next()) {
+          const part = nodeIterator.value;
+          if (part instanceof go.Node) {
+            droppedNodesForLayout.push(part);
+          }
+        }
+
+        if (droppedNodesForLayout.length > 1) {
+          const primaryDiagram = e.diagram || myDiagram;
+          const dropPoint =
+            primaryDiagram?.lastInput?.documentPoint?.copy() ||
+            myDiagram?.lastInput?.documentPoint?.copy() ||
+            null;
+          const firstGroup = droppedNodesForLayout[0]?.containingGroup ?? null;
+          const sharedGroup = droppedNodesForLayout.every(
+            node => node?.containingGroup === firstGroup
+          )
+            ? firstGroup
+            : null;
+
+          const modelData = (myDiagram?.model as any)?.modelData ?? {};
+          const dropOverrides = modelData?.dropLayout && typeof modelData.dropLayout === 'object'
+            ? modelData.dropLayout
+            : undefined;
+          const presetName = dropOverrides?.preset ?? myModelview?.layout;
+          const layoutConfig = deriveDropLayoutConfig(presetName, dropOverrides);
+
+          applyDropLayout({
+            diagram: myDiagram,
+            parts: droppedNodesForLayout,
+            dropPoint,
+            config: layoutConfig,
+            targetGroup: sharedGroup,
+          });
+        }
+
+        const applyGroupTemplateToDiagram = (part: go.Node | null, template: string | null) => {
+          if (!myDiagram || !part || !template) return;
+          myDiagram.startTransaction('apply-drop-group-template');
+          try {
+            const data = part.data;
+            if (!data) return;
+            data.isGroup = true;
+            data.viewkind = constants.viewkinds.CONT;
+            data.template = template;
+            if (typeof myDiagram.model.setCategoryForNodeData === 'function') {
+              myDiagram.model.setCategoryForNodeData(data, template);
+            } else {
+              myDiagram.model.setDataProperty(data, 'category', template);
+            }
+            myDiagram.model.updateTargetBindings(data);
+            part.updateTargetBindings();
+            part.ensureBounds();
+          } finally {
+            myDiagram.commitTransaction('apply-drop-group-template');
+          }
+          myDiagram.layoutDiagram(true);
+        };
+        const clearGroupTemplateFromDiagram = (part: go.Node | null) => {
+          if (!myDiagram || !part) return;
+          myDiagram.startTransaction('revert-drop-to-node');
+          try {
+            const data = part.data;
+            if (!data) return;
+            data.isGroup = false;
+            data.viewkind = constants.viewkinds.OBJ;
+            data.template = data.template || constants.gojs.C_NODETEMPLATE;
+            myDiagram.model.setCategoryForNodeData(data, data.template || constants.gojs.C_NODETEMPLATE);
+            myDiagram.model.updateTargetBindings(data);
+            part.updateTargetBindings();
+            part.ensureBounds();
+          } finally {
+            myDiagram.commitTransaction('revert-drop-to-node');
+          }
+          myDiagram.layoutDiagram(true);
+        };
         e.subject.each(function (n) {
           const partData = n?.data;
           if (!partData) {

@@ -36,7 +36,7 @@ const LoadFile = (props: any) => {
 
   if (debug) console.log('36 LoadLocal', props, typeof (window));
 
-  if (debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (!debug) console.log('38 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
     phData: {
@@ -51,14 +51,14 @@ const LoadFile = (props: any) => {
       name: '',
       description: '',
       additionalContext: '',
-      prompt: ''
-    },
-    ontology: {
-      name: '',
-      description: '',
-      presentation: '',
-      concepts: [],
-      relationships: []
+      prompt: '',
+      ontology: {
+        name: '',
+        description: '',
+        presentation: '',
+        concepts: [],
+        relationships: []
+      },
     },
     phFocus: props.ph.phFocus,
     phUser: props.ph.phUser,

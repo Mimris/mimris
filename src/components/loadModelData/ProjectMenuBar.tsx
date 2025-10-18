@@ -79,6 +79,7 @@ export const ProjectMenuBar = (props: any) => {
     }
 
     const handleReadProjectFile = (e: any) => {
+        if (!debug) console.log('82 handleReadProjectFile', e);
         ReadModelFromFile(props, dispatch, e);
         dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } });
         // Navigate to the modelling page after file processing
@@ -147,15 +148,15 @@ export const ProjectMenuBar = (props: any) => {
     //     // } , 20000);
     // };
 
-    const handleLeftMenuLeave = () => {
-        setIsLeftDropdownOpen(false);
-        setIsLeftHovered(false);
-    };
+    // const handleLeftMenuLeave = () => {
+    //     setIsLeftDropdownOpen(false);
+    //     setIsLeftHovered(false);
+    // };
 
-    const handleRightMenuLeave = () => {
-        setIsRightDropdownOpen(false);
-        setIsRightHovered(false);
-    };
+    // const handleRightMenuLeave = () => {
+    //     setIsRightDropdownOpen(false);
+    //     setIsRightHovered(false);
+    // };
 
     const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
@@ -180,12 +181,12 @@ export const ProjectMenuBar = (props: any) => {
 
     const loadGitHub = <LoadGitHub buttonLabel=' Open Project File' className='ContextModal' ph={props} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
     const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel=' New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
-    const loadMimrisTemplates = <span className="btn ms-3 bg-light text-dark ps-auto mt-0 pt-1 " onClick={loadInitialProject} data-toggle="tooltip" data-placement="top" title="Load Mimris Modeller templates from Kavca/Equinor GitHub repo" > Mimris templates </span>;
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
     const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
+    
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
-
+    const loadMimrisTemplates = <span className="btn ms-3 bg-light text-dark ps-auto mt-0 pt-1 " onClick={loadInitialProject} data-toggle="tooltip" data-placement="top" title="Load Mimris Modeller templates from Kavca/Equinor GitHub repo" > Mimris templates </span>;
 
     const loadFile = (
         <>
@@ -279,7 +280,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropLeftMenuDiv = (isLeftDropdownOpen || isLeftHovered) && (
         <div
-            onMouseLeave={handleLeftMenuLeave}
+            // onMouseLeave={handleLeftMenuLeave}
             className="bg-light rounded-2"
             style={{
                 whiteSpace: "nowrap",
@@ -356,7 +357,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropRightMenuDiv = (isRightDropdownOpen || isRightHovered) &&
         <div className="bg-light "
-            onMouseLeave={handleRightMenuLeave}
+            // onMouseLeave={handleRightMenuLeave}
             style={{
                 whiteSpace: "nowrap", position: "absolute", top: "32px", right: "-12px", width: "18rem", height: "100%",
                 backgroundColor: "#b0cfcf", zIndex: "99"

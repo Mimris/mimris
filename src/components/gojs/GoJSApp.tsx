@@ -1487,26 +1487,30 @@ class GoJSApp extends React.Component<{}, AppState> {
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
-        const toolManager = myDiagram.toolManager;
-        const activeTool = toolManager.currentTool;
-        if (activeTool && activeTool.isActive) {
-          if (activeTool instanceof go.DraggingTool) {
-            activeTool.stopTool();
-          } else {
-            activeTool.doCancel();
+        if (myDiagram) {
+          const toolManager = myDiagram.toolManager;
+          const activeTool = toolManager.currentTool;
+          if (activeTool && activeTool.isActive) {
+            if (activeTool instanceof go.DraggingTool) {
+              activeTool.stopTool();
+            } else if (typeof activeTool.doCancel === 'function') {
+              activeTool.doCancel();
+            }
           }
-        }
-        const dropDragTool = toolManager.draggingTool;
-        if (dropDragTool && dropDragTool.isActive) {
-          dropDragTool.stopTool();
-        }
-        const dropDraggedParts = dropDragTool?.draggedParts;
-        if (dropDraggedParts?.count > 0) {
-          dropDraggedParts.clear();
-        }
-        const dropCopiedParts = dropDragTool?.copiedParts;
-        if (dropCopiedParts?.count > 0) {
-          dropCopiedParts.clear();
+          const dropDragTool = toolManager.draggingTool;
+          if (dropDragTool && dropDragTool.isActive) {
+            dropDragTool.stopTool();
+          }
+          const dropDraggedParts = dropDragTool?.draggedParts;
+          if (dropDraggedParts?.count > 0) {
+            dropDraggedParts.clear();
+          }
+          const dropCopiedParts = dropDragTool?.copiedParts;
+          if (dropCopiedParts?.count > 0) {
+            dropCopiedParts.clear();
+          }
+          myDiagram.toolManager.draggingTool.reset();
+          myDiagram.toolManager.currentTool = myDiagram.defaultTool;
         }
         break;
       }

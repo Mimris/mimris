@@ -502,6 +502,7 @@ function layoutNodeGroup(args: {
       config,
       existingRects,
       placedRects,
+      nodeSizeMap,
       targetGroup,
     });
     return;
@@ -520,6 +521,7 @@ function layoutNodeGroup(args: {
     maxHeight,
     existingRects,
     placedRects,
+    nodeSizeMap,
     targetGroup,
   });
 }
@@ -669,6 +671,21 @@ function getGroupKeyFromData(data: any): string | number | null {
   return String(key);
 }
 
+function getNodeKey(node: go.Node | null | undefined): string | number | undefined {
+  if (!node) {
+    return undefined;
+  }
+  const dataKey = node.data?.key;
+  if (dataKey !== undefined && dataKey !== null) {
+    return dataKey;
+  }
+  const partKey = node.key;
+  if (partKey !== undefined && partKey !== null) {
+    return partKey;
+  }
+  return undefined;
+}
+
 function getTypeRefFromNodeData(data: any): string | null {
   if (!data) {
     return null;
@@ -760,6 +777,7 @@ interface PositioningBaseArgs {
   config: DropLayoutConfig;
   existingRects: go.Rect[];
   placedRects: go.Rect[];
+  nodeSizeMap: Map<go.Node, go.Size>;
   targetGroup?: go.Group | null;
 }
 
@@ -781,6 +799,7 @@ function positionAsGrid(args: GridPositioningArgs): void {
     maxHeight,
     existingRects,
     placedRects,
+    nodeSizeMap,
     targetGroup,
   } = args;
 
@@ -788,16 +807,49 @@ function positionAsGrid(args: GridPositioningArgs): void {
   const nodeCount = nodes.length;
   const effectiveColumns =
     columns && columns > 0 && columns !== Number.MAX_SAFE_INTEGER
-      ? Math.min(columns, nodeCount)
+
+    ? Math.min(columns, nodeCount)
       : Math.max(1, Math.round(Math.sqrt(nodeCount)));
 
-  const metadata = (config as any)?.metadata ?? {};
-  const laneTypeIds = Array.isArray(metadata?.laneTypeIds)
+  const metadata = (config as any).metadata ?? {};
+  const laneTypeIds = Array.isArray(metadata.laneTypeIds)
     ? metadata.laneTypeIds.map((id: any) => String(id))
     : [];
-  const laneNodesByGroup = new Map<string | number, go.Node[]>();
-  const overlapNodesByGroup = new Map<string | number, go.Node[]>();
+  const lanesByPool = new Map<string | number, go.Node[]>();
+  const laneNodeByKey = new Map<string | number, go.Node>();
+  const overlapNodesByLane = new Map<string | number, go.Node[]>();
   const laneNodeSet = new Set<go.Node>();
+
+  // Pre-populate lane metadata so non-lane nodes can target the lanes even if they
+  // appear earlier in the array.
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (!node) continue;
+    const typeRef = getTypeRefFromNodeData(node?.data);
+    const viewkind = (node?.data?.viewkind || node?.data?.viewKind || '').toString().toLowerCase();
+    const templateName = (node?.data?.template || node?.data?.category || '').toString().toLowerCase();
+    const isLaneNode = Boolean(
+      (typeRef && laneTypeIds.includes(typeRef)) ||
+        viewkind === 'lane' ||
+        templateName.includes('lane')
+    );
+    if (!isLaneNode) continue;
+
+    const laneKey = getNodeKey(node);
+    if (laneKey !== undefined && laneKey !== null && !laneNodeByKey.has(laneKey)) {
+      laneNodeByKey.set(laneKey, node);
+    }
+
+    const parentPoolKey = node?.containingGroup ? node.containingGroup.key : getGroupKeyFromData(node?.data);
+    if (parentPoolKey !== undefined && parentPoolKey !== null) {
+      const laneList = lanesByPool.get(parentPoolKey) ?? [];
+      if (!laneList.includes(node)) {
+        laneList.push(node);
+        lanesByPool.set(parentPoolKey, laneList);
+      }
+      laneNodeSet.add(node);
+    }
+  }
 
   const slotWidth = maxWidth + spacingX;
   const slotHeight = maxHeight + spacingY;
@@ -812,7 +864,9 @@ function positionAsGrid(args: GridPositioningArgs): void {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const nodeSize = nodeSizes[i];
-    const groupKey = getGroupKeyFromData(node?.data);
+    const dataGroupKey = getGroupKeyFromData(node?.data);
+    const containingGroupKey = node?.containingGroup ? node.containingGroup.key : null;
+    const groupKey = dataGroupKey ?? containingGroupKey;
     const typeRef = getTypeRefFromNodeData(node?.data);
     const viewkind = (node?.data?.viewkind || node?.data?.viewKind || '').toString().toLowerCase();
     const templateName = (node?.data?.template || node?.data?.category || '').toString().toLowerCase();
@@ -830,19 +884,53 @@ function positionAsGrid(args: GridPositioningArgs): void {
         anchorPoint.copy();
       applyLocation(diagram, node, existingLocation, nodeSize, placedRects, config.padding);
 
-      if (groupKey !== null && groupKey !== undefined && isLaneNode) {
-        const laneList = laneNodesByGroup.get(groupKey) ?? [];
-        laneList.push(node);
-        laneNodesByGroup.set(groupKey, laneList);
-        laneNodeSet.add(node);
+      if (isLaneNode) {
+        const parentPoolKey = node?.containingGroup ? node.containingGroup.key : groupKey;
+        if (parentPoolKey !== undefined && parentPoolKey !== null) {
+          const laneList = lanesByPool.get(parentPoolKey) ?? [];
+          if (!laneList.includes(node)) {
+            laneList.push(node);
+            lanesByPool.set(parentPoolKey, laneList);
+          }
+          laneNodeSet.add(node);
+        }
+        const laneKey = getNodeKey(node);
+        if (laneKey !== undefined && laneKey !== null) {
+          laneNodeByKey.set(laneKey, node);
+        }
       }
       continue;
     }
 
-    if (groupKey !== null && groupKey !== undefined) {
-      const overlapList = overlapNodesByGroup.get(groupKey) ?? [];
+    let targetLaneKey: string | number | null = null;
+    if (groupKey !== null && groupKey !== undefined && laneNodeByKey.has(groupKey)) {
+      targetLaneKey = groupKey;
+    } else if (containingGroupKey !== null && containingGroupKey !== undefined && laneNodeByKey.has(containingGroupKey)) {
+      targetLaneKey = containingGroupKey;
+    } else if (containingGroupKey !== null && containingGroupKey !== undefined) {
+      const laneCandidates = lanesByPool.get(containingGroupKey);
+      if (laneCandidates && laneCandidates.length) {
+        const laneCandidate = laneCandidates[0];
+        const laneCandidateKey = getNodeKey(laneCandidate);
+        if (laneCandidateKey !== undefined && laneCandidateKey !== null) {
+          targetLaneKey = laneCandidateKey;
+        }
+      }
+    }
+
+    if (targetLaneKey !== null && targetLaneKey !== undefined) {
+      const overlapList = overlapNodesByLane.get(targetLaneKey) ?? [];
       overlapList.push(node);
-      overlapNodesByGroup.set(groupKey, overlapList);
+      overlapNodesByLane.set(targetLaneKey, overlapList);
+      continue;
+    }
+
+    const firstLaneEntry = laneNodeByKey.entries().next();
+    if (!firstLaneEntry.done) {
+      const inferredLaneKey = firstLaneEntry.value[0];
+      const overlapList = overlapNodesByLane.get(inferredLaneKey) ?? [];
+      overlapList.push(node);
+      overlapNodesByLane.set(inferredLaneKey, overlapList);
       continue;
     }
 
@@ -867,8 +955,8 @@ function positionAsGrid(args: GridPositioningArgs): void {
 
   }
 
-  laneNodesByGroup.forEach((laneNodes, groupKey) => {
-    const group = diagram.findNodeForKey(groupKey);
+  lanesByPool.forEach((laneNodes, poolKey) => {
+    const group = diagram.findNodeForKey(poolKey);
     if (!(group instanceof go.Group)) {
       return;
     }
@@ -903,37 +991,29 @@ function positionAsGrid(args: GridPositioningArgs): void {
     }
   });
 
-  overlapNodesByGroup.forEach((memberNodes, groupKey) => {
-    const group = diagram.findNodeForKey(groupKey);
-    if (!(group instanceof go.Group)) {
+  overlapNodesByLane.forEach((memberNodes, laneKey) => {
+    const lane = laneNodeByKey.get(laneKey) ?? diagram.findNodeForKey(laneKey);
+    if (!(lane instanceof go.Part)) {
       return;
     }
-    const bounds = group.actualBounds;
-    if (!bounds) {
+    const laneBounds = lane.actualBounds;
+    if (!laneBounds) {
       return;
     }
-    const referenceLane = laneNodesByGroup.get(groupKey)?.[0];
-    const laneBounds = referenceLane?.actualBounds ?? bounds;
     const padding = (config.padding ?? 0) + 20;
     const availableWidth = Math.max(1, laneBounds.width - padding * 2);
-    const availableHeight = Math.max(1, laneBounds.height - padding * 2);
     const nodesToPlace = memberNodes.filter(node => !laneNodeSet.has(node) && !isContainerNode(node));
     if (!nodesToPlace.length) {
       return;
     }
 
-    const columns = Math.max(1, Math.floor(Math.sqrt(nodesToPlace.length)));
-    const rows = Math.max(1, Math.ceil(nodesToPlace.length / columns));
-    const slotWidth = availableWidth / columns;
-    const slotHeight = availableHeight / rows;
+    const count = nodesToPlace.length;
+    const slotWidth = availableWidth / Math.max(1, count);
+    const centerY = laneBounds.centerY;
     const startX = laneBounds.x + padding + slotWidth / 2;
-    const startY = laneBounds.y + padding + slotHeight / 2;
 
     nodesToPlace.forEach((member, index) => {
-      const col = index % columns;
-      const row = Math.floor(index / columns);
-      const centerX = startX + col * slotWidth;
-      const centerY = startY + row * slotHeight;
+      const centerX = startX + index * slotWidth;
       const loc = new go.Point(centerX, centerY);
       const memberSize = nodeSizeMap.get(member) ?? getNodeSize(member);
       applyLocation(diagram, member, loc, memberSize, placedRects, config.padding);
@@ -1177,6 +1257,14 @@ function applyLocation(
 ): void {
   const locationString = go.Point.stringify(location);
   if (node?.data) {
+    const fill = node.data.fillcolor || node.data.fill || node.data.color;
+    if (!fill || !go.Brush.isValidColor(fill)) {
+      if (typeof diagram.model.setDataProperty === 'function') {
+        diagram.model.setDataProperty(node.data, 'fillcolor', '#ffffff');
+      } else {
+        node.data.fillcolor = '#ffffff';
+      }
+    }
     diagram.model.setDataProperty(node.data, 'loc', locationString);
   }
   node.location = location;

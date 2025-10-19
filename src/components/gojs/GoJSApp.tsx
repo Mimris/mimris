@@ -28,6 +28,476 @@ const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Uni
   'Value', 'FieldType', 'InputPattern', 'ViewFormat',
   'Generic', 'Container'];
 
+function buildDropLayoutOverridesFromMetis(myMetis) {
+  const objectTypes = getObjectTypesForDropLayout(myMetis);
+  if (!objectTypes.length) {
+    return undefined;
+  }
+
+  const containerIds = [];
+  const poolIds = [];
+  const laneIds = [];
+  const eventIds = [];
+  const gatewayIds = [];
+  const taskIds = [];
+
+  const containerViewkind = normalizeToKey(constants.viewkinds && constants.viewkinds.CONT);
+  const poolViewkind = normalizeToKey(constants.viewkinds && constants.viewkinds.POOL);
+  const laneViewkind = normalizeToKey(constants.viewkinds && constants.viewkinds.LANE);
+
+  for (let i = 0; i < objectTypes.length; i++) {
+    const type = objectTypes[i];
+    if (!type || type.markedAsDeleted) continue;
+    const id = type.id;
+    if (!id) continue;
+    const viewkind = normalizeToKey(type.viewkind);
+    const nameKey = normalizeToKey(type.name);
+    const isContainerType =
+      (containerViewkind && viewkind === containerViewkind) ||
+      (typeof type.isContainer === 'function' && type.isContainer());
+    if (isContainerType) {
+      containerIds.push(id);
+      continue;
+    }
+    if (poolViewkind && viewkind === poolViewkind) {
+      poolIds.push(id);
+      continue;
+    }
+    if (laneViewkind && viewkind === laneViewkind) {
+      laneIds.push(id);
+      continue;
+    }
+    if (nameKey.indexOf('gateway') !== -1 || nameKey.indexOf('gate') !== -1) {
+      gatewayIds.push(id);
+      continue;
+    }
+    const isEventType =
+      nameKey.indexOf('event') !== -1 ||
+      nameKey.indexOf('start') !== -1 ||
+      nameKey === 'end' ||
+      nameKey.endsWith(' end') ||
+      nameKey.startsWith('end ');
+    if (isEventType) {
+      eventIds.push(id);
+      continue;
+    }
+    if (
+      nameKey.indexOf('task') !== -1 ||
+      nameKey.indexOf('activity') !== -1 ||
+      nameKey.indexOf('process') !== -1
+    ) {
+      taskIds.push(id);
+      continue;
+    }
+  }
+
+  const rules = [];
+
+  const pools = uniqueStringValues(poolIds);
+  if (pools.length) {
+    rules.push({
+      id: 'drop-rule-pools',
+      order: -40,
+      matchProperty: 'objtypeRef',
+      matchValues: pools,
+      anchor: 'dropPoint',
+      layout: {
+        pattern: 'grid',
+        padding: 3,
+        grid: {
+          columns: 1,
+          spacingX: 220,
+          spacingY: 360,
+          align: 'topLeft',
+        },
+      },
+    });
+  }
+
+  const lanes = uniqueStringValues(laneIds);
+  if (lanes.length) {
+    rules.push({
+      id: 'drop-rule-lanes',
+      order: -35,
+      matchProperty: 'objtypeRef',
+      matchValues: lanes,
+      anchor: 'dropPoint',
+      layout: {
+        pattern: 'grid',
+        padding: 2,
+        grid: {
+          columns: 1,
+          spacingX: 140,
+          spacingY: 260,
+          align: 'topLeft',
+        },
+      },
+    });
+  }
+
+  const containers = uniqueStringValues(containerIds);
+  if (containers.length) {
+    rules.push({
+      id: 'drop-rule-containers',
+      order: -30,
+      matchProperty: 'objtypeRef',
+      matchValues: containers,
+      anchor: 'dropPoint',
+      layout: {
+        pattern: 'grid',
+        padding: 2,
+        grid: {
+          columns: 2,
+          spacingX: 240,
+          spacingY: 200,
+          align: 'center',
+        },
+      },
+    });
+  }
+
+  const gateways = uniqueStringValues(gatewayIds);
+  if (gateways.length) {
+    rules.push({
+      id: 'drop-rule-gateways',
+      order: 5,
+      matchProperty: 'objtypeRef',
+      matchValues: gateways,
+      layout: {
+        pattern: 'circle',
+        circle: {
+          radius: 140,
+          radiusStep: 40,
+          startAngle: -90,
+          clockwise: true,
+        },
+      },
+    });
+  }
+
+  const events = uniqueStringValues(eventIds);
+  if (events.length) {
+    rules.push({
+      id: 'drop-rule-events',
+      order: 10,
+      matchProperty: 'objtypeRef',
+      matchValues: events,
+      layout: {
+        pattern: 'circle',
+        circle: {
+          radius: 110,
+          radiusStep: 30,
+          startAngle: -90,
+          clockwise: true,
+        },
+      },
+    });
+  }
+
+  const tasks = uniqueStringValues(taskIds);
+  if (tasks.length) {
+    rules.push({
+      id: 'drop-rule-tasks',
+      order: 20,
+      matchProperty: 'objtypeRef',
+      matchValues: tasks,
+      anchor: 'dropPoint',
+      layout: {
+        pattern: 'grid',
+        grid: {
+          columns: 4,
+          spacingX: 200,
+          spacingY: 160,
+          align: 'center',
+        },
+      },
+    });
+  }
+
+  if (!rules.length) {
+    if (!pools.length && !lanes.length && !containers.length) {
+      return undefined;
+    }
+  }
+
+  return {
+    rules,
+    metadata: {
+      poolTypeIds: pools,
+      laneTypeIds: lanes,
+      containerTypeIds: containers,
+      poolPadding: 80,
+    },
+  };
+}
+
+function getObjectTypesForDropLayout(myMetis) {
+  if (!myMetis) {
+    return [];
+  }
+  if (typeof myMetis.getObjectTypes === 'function') {
+    const types = myMetis.getObjectTypes();
+    if (Array.isArray(types)) {
+      return types.slice();
+    }
+  }
+  if (Array.isArray(myMetis.objecttypes)) {
+    return myMetis.objecttypes.slice();
+  }
+  const metamodel = myMetis.currentMetamodel;
+  if (metamodel && typeof metamodel.getObjectTypes === 'function') {
+    const metaTypes = metamodel.getObjectTypes();
+    if (Array.isArray(metaTypes)) {
+      return metaTypes.slice();
+    }
+  }
+  return [];
+}
+
+function uniqueStringValues(values) {
+  const result = [];
+  const seen = Object.create(null);
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+    if (value === undefined || value === null) continue;
+    const key = String(value);
+    if (seen[key]) continue;
+    seen[key] = true;
+    result.push(key);
+  }
+  result.sort();
+  return result;
+}
+
+function normalizeToKey(value) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  return String(value).trim().toLowerCase();
+}
+
+function getNodeTypeRef(node) {
+  if (!node || !node.data) {
+    return undefined;
+  }
+  const data = node.data;
+  return (
+    data.objtypeRef ||
+    data.typeRef ||
+    (data.objecttype && (data.objecttype.typeRef || data.objecttype.id)) ||
+    (data.object && (data.object.typeRef || (data.object.type && data.object.type.id))) ||
+    (data.type && data.type.id) ||
+    (data.objtype && data.objtype.id) ||
+    data.objTypeRef ||
+    undefined
+  );
+}
+
+function getNodeKey(node) {
+  if (!node) {
+    return undefined;
+  }
+  if (node.data && node.data.key !== undefined && node.data.key !== null) {
+    return node.data.key;
+  }
+  if (node.key !== undefined && node.key !== null) {
+    return node.key;
+  }
+  return undefined;
+}
+
+function getGroupKeyFromData(data) {
+  if (!data) {
+    return null;
+  }
+  const groupKey = data.group;
+  if (groupKey === undefined || groupKey === null) {
+    return null;
+  }
+  return groupKey;
+}
+
+function getSizeOptionsForType(typeName: string | undefined | null) {
+  if (!typeName) {
+    return undefined;
+  }
+  const normalized = typeName.toString().toLowerCase();
+  switch (normalized) {
+    case 'pool':
+      return { minWidth: 1600, minHeight: 900 };
+    case 'lane':
+      return { minWidth: 1400, minHeight: 260 };
+    default:
+      return undefined;
+  }
+}
+
+interface CenterNodeOptions {
+  offset?: { x?: number; y?: number };
+  padding?: number;
+  fillParent?: boolean;
+}
+
+function centerNodeInGroup(
+  diagram: go.Diagram | null,
+  node: go.Node | null,
+  groupKey: string | number | null,
+  options?: CenterNodeOptions
+): void {
+  if (!diagram || !node || groupKey === null || groupKey === undefined) {
+    return;
+  }
+  const group = diagram.findNodeForKey(groupKey);
+  if (!(group instanceof go.Group)) {
+    return;
+  }
+  const bounds = group.actualBounds;
+  if (!bounds) {
+    return;
+  }
+  if (node?.data) {
+    const existingFill = node.data.fillcolor || node.data.fill || node.data.color;
+    const validFill = existingFill && go.Brush.isValidColor(existingFill)
+      ? existingFill
+      : '#ffffff';
+    if (typeof diagram.model.setDataProperty === 'function') {
+      diagram.model.setDataProperty(node.data, 'fillcolor', validFill);
+    } else {
+      node.data.fillcolor = validFill;
+    }
+  }
+  const padding = options?.padding ?? 20;
+  const offsetX = options?.offset?.x ?? 0;
+  const offsetY = options?.offset?.y ?? 0;
+  const nodeSizeData = parseSizeString(node?.data?.size);
+
+  let desiredWidth: number;
+  let desiredHeight: number;
+
+  if (options?.fillParent) {
+    desiredWidth = Math.max(0, bounds.width - padding * 2);
+    desiredHeight = Math.max(0, bounds.height - padding * 2);
+  } else {
+    desiredWidth =
+      nodeSizeData?.width ??
+      Math.max(0, bounds.width - padding * 2);
+    desiredHeight = nodeSizeData?.height ?? 200;
+  }
+
+  const centerX = bounds.centerX + offsetX;
+  const centerY = bounds.centerY + offsetY;
+  const locPoint = new go.Point(centerX, centerY);
+  if (typeof diagram.model.setDataProperty === 'function' && node.data) {
+    diagram.model.setDataProperty(node.data, 'loc', go.Point.stringify(locPoint));
+  } else if (node.data) {
+    node.data.loc = go.Point.stringify(locPoint);
+  }
+  node.location = locPoint;
+  const resizeObj = node.resizeObject || node.reshapeObject || node;
+  if (resizeObj) {
+    resizeObj.desiredSize = new go.Size(desiredWidth, desiredHeight);
+  }
+  if (node.data) {
+    const sizeString = `${desiredWidth} ${desiredHeight}`;
+    if (typeof diagram.model.setDataProperty === 'function') {
+      diagram.model.setDataProperty(node.data, 'size', sizeString);
+    } else {
+      node.data.size = sizeString;
+    }
+  }
+  node.ensureBounds();
+}
+
+function parseSizeString(value) {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+  const parts = value
+    .split(/[\s,]+/)
+    .map(token => parseFloat(token))
+    .filter(num => !isNaN(num));
+  if (parts.length >= 2) {
+    return { width: parts[0], height: parts[1] };
+  }
+  return null;
+}
+
+function ensureInitialGroupSize(diagram, node, data, options) {
+  if (!data) {
+    return;
+  }
+  const defaults = { minWidth: 1000, minHeight: 600 };
+  const merged = { ...defaults, ...(options || {}) };
+  let minWidth = merged.minWidth;
+  let minHeight = merged.minHeight;
+  const parsed = parseSizeString(data.size);
+  let width = parsed?.width ?? 0;
+  let height = parsed?.height ?? 0;
+
+  if (width >= minWidth && height >= minHeight) {
+    return;
+  }
+
+  if (width < minWidth) {
+    width = minWidth;
+  }
+  if (height < minHeight) {
+    height = minHeight;
+  }
+
+  const sizeString = `${width} ${height}`;
+  if (typeof diagram?.model?.setDataProperty === 'function') {
+    if (data.size !== sizeString) {
+      diagram.model.setDataProperty(data, 'size', sizeString);
+    }
+    diagram.model.setDataProperty(data, 'desiredSize', sizeString);
+  } else {
+    data.size = sizeString;
+    data.desiredSize = sizeString;
+  }
+
+  if (node instanceof go.Part) {
+    const desired = new go.Size(width, height);
+    const resizeObj = node.resizeObject || node.reshapeObject || node;
+    if (resizeObj) {
+      resizeObj.desiredSize = desired;
+    } else {
+      node.desiredSize = desired;
+    }
+    node.ensureBounds();
+  }
+}
+
+function ensureNodeIsGroup(diagram, node) {
+  if (!diagram || !node || !node.data) {
+    return;
+  }
+  if (node.data.isGroup) {
+    return;
+  }
+  node.data.isGroup = true;
+  node.isSubGraphExpanded = true;
+}
+
+function setNodeGroup(diagram, node, groupKey) {
+  if (!diagram || !node || !node.data) {
+    return;
+  }
+  const normalizedKey = groupKey === undefined ? null : groupKey;
+  const currentKey = getGroupKeyFromData(node.data);
+  if (currentKey === normalizedKey) {
+    return;
+  }
+  const model = diagram.model;
+  if (model && typeof model.setGroupKeyForNodeData === 'function') {
+    model.setGroupKeyForNodeData(node.data, normalizedKey);
+  } else if (model && typeof model.setDataProperty === 'function') {
+    model.setDataProperty(node.data, 'group', normalizedKey);
+  } else {
+    node.data.group = normalizedKey;
+  }
+}
+
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
@@ -56,11 +526,13 @@ class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
     if (debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
+    const initialDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
       modelData: {
-        canRelink: true
+        canRelink: true,
+        ...(initialDropLayout ? { dropLayout: initialDropLayout } : {})
       },
       selectedData: null,
       editedData: null,
@@ -81,6 +553,24 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleSelectDropdownChange = this.handleSelectDropdownChange.bind(this);
+  }
+
+  public componentDidUpdate() {
+    const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
+    const currentDropLayout = this.state?.modelData?.dropLayout;
+    const currentSerialized = currentDropLayout ? JSON.stringify(currentDropLayout) : '';
+    const nextSerialized = nextDropLayout ? JSON.stringify(nextDropLayout) : '';
+    if (nextSerialized !== currentSerialized) {
+      this.setState(state => {
+        const updatedModelData = { ...(state.modelData || {}) };
+        if (nextDropLayout) {
+          updatedModelData.dropLayout = nextDropLayout;
+        } else if (updatedModelData.dropLayout) {
+          delete updatedModelData.dropLayout;
+        }
+        return { modelData: updatedModelData };
+      });
+    }
   }
 
   public handleOpenModal(node: any, modalContext: any) {
@@ -1223,6 +1713,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         const droppedRelLinks: go.ObjectData[] = [];
         const droppedNodesForLayout: go.Node[] = [];
+        const poolNodes: go.Node[] = [];
+        const poolKeys: Array<string | number> = [];
         const nodeIterator = e.subject.iterator;
         while (nodeIterator?.next()) {
           const part = nodeIterator.value;
@@ -1231,18 +1723,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
-        if (droppedNodesForLayout.length > 1) {
+        if (droppedNodesForLayout.length) {
           const primaryDiagram = e.diagram || myDiagram;
           const dropPoint =
             primaryDiagram?.lastInput?.documentPoint?.copy() ||
             myDiagram?.lastInput?.documentPoint?.copy() ||
             null;
-          const firstGroup = droppedNodesForLayout[0]?.containingGroup ?? null;
-          const sharedGroup = droppedNodesForLayout.every(
-            node => node?.containingGroup === firstGroup
-          )
-            ? firstGroup
-            : null;
 
           const modelData = (myDiagram?.model as any)?.modelData ?? {};
           const dropOverrides = modelData?.dropLayout && typeof modelData.dropLayout === 'object'
@@ -1251,13 +1737,168 @@ class GoJSApp extends React.Component<{}, AppState> {
           const presetName = dropOverrides?.preset ?? myModelview?.layout;
           const layoutConfig = deriveDropLayoutConfig(presetName, dropOverrides);
 
-          applyDropLayout({
-            diagram: myDiagram,
-            parts: droppedNodesForLayout,
-            dropPoint,
-            config: layoutConfig,
-            targetGroup: sharedGroup,
+          const metadata = layoutConfig?.metadata || {};
+          const poolTypeIds = Array.isArray(metadata.poolTypeIds) ? metadata.poolTypeIds : [];
+          const laneTypeIds = Array.isArray(metadata.laneTypeIds) ? metadata.laneTypeIds : [];
+          const containerTypeIds = Array.isArray(metadata.containerTypeIds) ? metadata.containerTypeIds : [];
+          if (myDiagram) {
+            const shouldCommitGrouping = !myDiagram.isInTransaction;
+            if (shouldCommitGrouping) {
+              myDiagram.startTransaction('assign-drop-groups');
+            }
+            try {
+              const laneNodes: go.Node[] = [];
+              const containerNodes: go.Node[] = [];
+              const otherNodes: go.Node[] = [];
+
+              for (let i = 0; i < droppedNodesForLayout.length; i++) {
+                const node = droppedNodesForLayout[i];
+                const typeRef = getNodeTypeRef(node);
+                if (typeRef && poolTypeIds.includes(typeRef)) {
+                  poolNodes.push(node);
+                  continue;
+                }
+                if (typeRef && laneTypeIds.includes(typeRef)) {
+                  laneNodes.push(node);
+                  continue;
+                }
+                if (typeRef && containerTypeIds.includes(typeRef)) {
+                  containerNodes.push(node);
+                  continue;
+                }
+                otherNodes.push(node);
+              }
+
+              if (poolNodes.length) {
+                const uniquePoolKeys = new Set<string | number>();
+                for (let i = 0; i < poolNodes.length; i++) {
+                  const poolNode = poolNodes[i];
+                  ensureNodeIsGroup(myDiagram, poolNode);
+                  const poolKey = getNodeKey(poolNode);
+                  if (poolKey !== undefined && poolKey !== null && !uniquePoolKeys.has(poolKey)) {
+                    uniquePoolKeys.add(poolKey);
+                    poolKeys.push(poolKey);
+                  }
+                }
+
+              if (poolKeys.length) {
+                  for (let i = 0; i < laneNodes.length; i++) {
+                    const laneNode = laneNodes[i];
+                    ensureNodeIsGroup(myDiagram, laneNode);
+                    const existing = getGroupKeyFromData(laneNode?.data);
+                    const poolKey = poolKeys[i % poolKeys.length];
+                    if (existing === null || existing === undefined) {
+                      setNodeGroup(myDiagram, laneNode, poolKey);
+                    }
+                    centerNodeInGroup(myDiagram, laneNode, poolKey, {
+                      fillParent: true,
+                      padding: 20,
+                    });
+                  }
+
+                  const laneKeys: Array<string | number> = [];
+                  const laneKeySet = new Set<string | number>();
+                  for (let i = 0; i < laneNodes.length; i++) {
+                    const laneKey = getNodeKey(laneNodes[i]);
+                    if (laneKey !== undefined && laneKey !== null && !laneKeySet.has(laneKey)) {
+                      laneKeySet.add(laneKey);
+                      laneKeys.push(laneKey);
+                    }
+                  }
+
+                  for (let i = 0; i < containerNodes.length; i++) {
+                    const containerNode = containerNodes[i];
+                    ensureNodeIsGroup(myDiagram, containerNode);
+                    const existing = getGroupKeyFromData(containerNode?.data);
+                    if (existing !== null && existing !== undefined) {
+                      continue;
+                    }
+                    const poolKey = poolKeys[i % poolKeys.length];
+                    setNodeGroup(myDiagram, containerNode, poolKey);
+                  }
+
+                  for (let i = 0; i < otherNodes.length; i++) {
+                    const node = otherNodes[i];
+                    const existing = getGroupKeyFromData(node?.data);
+                    if (existing !== null && existing !== undefined) {
+                      continue;
+                    }
+                    let assignedKey = null;
+                    if (laneKeys.length) {
+                      assignedKey = laneKeys[i % laneKeys.length];
+                    } else if (poolKeys.length) {
+                      assignedKey = poolKeys[i % poolKeys.length];
+                    }
+                    if (assignedKey !== null && assignedKey !== undefined) {
+                      setNodeGroup(myDiagram, node, assignedKey);
+                    }
+                  }
+                }
+              }
+            } finally {
+              if (shouldCommitGrouping && myDiagram.isInTransaction) {
+                myDiagram.commitTransaction('assign-drop-groups');
+              }
+            }
+          }
+
+          const buckets = new Map<
+            string,
+            { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
+          >();
+
+          for (let i = 0; i < droppedNodesForLayout.length; i++) {
+            const node = droppedNodesForLayout[i];
+            const groupKey = getGroupKeyFromData(node?.data);
+            const bucketKey = groupKey === null ? '__drop-root__' : String(groupKey);
+            if (!buckets.has(bucketKey)) {
+              const groupPart =
+                groupKey !== null && myDiagram
+                  ? myDiagram.findNodeForKey(groupKey)
+                  : null;
+              buckets.set(bucketKey, {
+                nodes: [],
+                targetGroup: groupPart instanceof go.Group ? groupPart : null,
+                groupKey: groupKey,
+              });
+            }
+            const bucket = buckets.get(bucketKey);
+            if (bucket) {
+              bucket.nodes.push(node);
+            }
+          }
+
+          const bucketList = Array.from(buckets.values());
+          bucketList.sort((a, b) => {
+            const aRoot = a.groupKey === null || a.groupKey === undefined;
+            const bRoot = b.groupKey === null || b.groupKey === undefined;
+            if (aRoot && !bRoot) return -1;
+            if (!aRoot && bRoot) return 1;
+            return 0;
           });
+
+          for (let i = 0; i < bucketList.length; i++) {
+            const bucket = bucketList[i];
+            if (!bucket.nodes.length) continue;
+            let bucketDropPoint: go.Point | null = null;
+            if (bucket.targetGroup && bucket.targetGroup.actualBounds) {
+              const bounds = bucket.targetGroup.actualBounds;
+              if (bounds && bounds.center) {
+                bucketDropPoint = bounds.center.copy();
+              }
+            }
+            if (!bucketDropPoint && dropPoint) {
+              bucketDropPoint = dropPoint.copy ? dropPoint.copy() : dropPoint;
+            }
+            applyDropLayout({
+              diagram: myDiagram,
+              parts: bucket.nodes,
+              dropPoint: bucketDropPoint,
+              config: layoutConfig,
+              targetGroup: bucket.targetGroup,
+            });
+          }
+
         }
 
         const applyGroupTemplateToDiagram = (part: go.Node | null, template: string | null) => {
@@ -1310,6 +1951,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             return;
           }
           const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
+          const diagramNode = n instanceof go.Node ? n : node instanceof go.Node ? node : null;
           const gjsNode = node?.data || partData;
           let type: akm.cxObjectType = partData.objecttype;
           let typeview: akm.cxObjectTypeView = partData.typeview;
@@ -1347,9 +1989,50 @@ class GoJSApp extends React.Component<{}, AppState> {
               );
               objview.isGroup = isContainer;
               objview.viewkind = isContainer ? constants.viewkinds.CONT : constants.viewkinds.OBJ;
+              const templateName =
+                partData.template ||
+                partData.category ||
+                (isContainer ? constants.gojs.C_CONTAINER : constants.gojs.C_NODETEMPLATE);
+              const typeName = type?.name || objview?.object?.type?.name;
               partData.isGroup = isContainer;
               if (isContainer) {
                 partData.viewkind = constants.viewkinds.CONT;
+              } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
+                partData.viewkind = constants.viewkinds.OBJ;
+              }
+              if (diagramNode) {
+                diagramNode.isGroup = isContainer;
+                if (diagramNode.data) {
+                  diagramNode.data.isGroup = isContainer;
+                }
+              }
+              if (isContainer) {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(partData, templateName);
+                } else {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data) {
+                  diagramNode.data.category = templateName;
+                }
+                ensureInitialGroupSize(
+                  myDiagram,
+                  diagramNode,
+                  partData,
+                  getSizeOptionsForType(typeName)
+                );
+              } else {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(
+                    partData,
+                    templateName || constants.gojs.C_NODETEMPLATE
+                  );
+                } else if (templateName) {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
+                  diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
+                }
               }
               objview.size = partData.size;
               objview = uic.setObjviewColors(partData, object, objview, typeview, myDiagram);
@@ -1362,6 +2045,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goNode = new gjs.goObjectNode(key, myGoModel, objview);
                 goNode.loadNodeContent(myGoModel);
                 myGoModel.addNode(goNode);
+              }
+              if (isContainer) {
+                applyGroupTemplateToDiagram(diagramNode, templateName);
+              } else {
+                clearGroupTemplateFromDiagram(diagramNode);
               }
               // Dispatch modelview
               const modifiedModelviews = new Array();
@@ -1423,14 +2111,60 @@ class GoJSApp extends React.Component<{}, AppState> {
                 (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
               );
               objview.isGroup = isContainer;
+              const typeName = type?.name || objview?.object?.type?.name;
+              const templateName =
+                partData.template ||
+                partData.category ||
+                (isContainer ? constants.gojs.C_CONTAINER : constants.gojs.C_NODETEMPLATE);
+              partData.isGroup = isContainer;
               if (isContainer) {
-                partData.isGroup = true;
                 partData.viewkind = constants.viewkinds.CONT;
+              } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
+                partData.viewkind = constants.viewkinds.OBJ;
+              }
+              if (diagramNode) {
+                diagramNode.isGroup = isContainer;
+                if (diagramNode.data) {
+                  diagramNode.data.isGroup = isContainer;
+                }
+              }
+              if (isContainer) {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(partData, templateName);
+                } else {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data) {
+                  diagramNode.data.category = templateName;
+                }
+                ensureInitialGroupSize(
+                  myDiagram,
+                  diagramNode,
+                  partData,
+                  getSizeOptionsForType(typeName)
+                );
+              } else {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(
+                    partData,
+                    templateName || constants.gojs.C_NODETEMPLATE
+                  );
+                } else if (templateName) {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
+                  diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
+                }
               }
               objview.objectRef = object.id;
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
               myMetis.addObjectView(objview);
+              if (isContainer) {
+                applyGroupTemplateToDiagram(diagramNode, templateName);
+              } else {
+                clearGroupTemplateFromDiagram(diagramNode);
+              }
             }
             myModelview.setFocusObjectview(objview);
           }
@@ -1484,9 +2218,43 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (objview.isGroup) {
             part.isGroup = true;
+            const templateName = part.template || part.category || constants.gojs.C_CONTAINER;
             part.viewkind = constants.viewkinds.CONT;
+            if (diagramNode) {
+              diagramNode.isGroup = true;
+              if (diagramNode.data) {
+                diagramNode.data.isGroup = true;
+              }
+            }
+            if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+              myDiagram.model.setCategoryForNodeData(part, templateName);
+            } else if (templateName) {
+              part.category = templateName;
+            }
+            if (diagramNode?.data) {
+              diagramNode.data.category = templateName;
+            }
+            applyGroupTemplateToDiagram(diagramNode, templateName);
           } else {
             part.isGroup = false;
+            part.viewkind = constants.viewkinds.OBJ;
+            if (diagramNode) {
+              diagramNode.isGroup = false;
+              if (diagramNode.data) {
+                diagramNode.data.isGroup = false;
+              }
+            }
+            if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+              myDiagram.model.setCategoryForNodeData(
+                part,
+                part.template || part.category || constants.gojs.C_NODETEMPLATE
+              );
+            }
+            if (diagramNode?.data) {
+              diagramNode.data.category =
+                part.template || part.category || constants.gojs.C_NODETEMPLATE;
+            }
+            clearGroupTemplateFromDiagram(diagramNode);
           }
           let goNode = myGoModel.findNodeByViewId(objview.id);
           if (!goNode) {
@@ -1615,6 +2383,29 @@ class GoJSApp extends React.Component<{}, AppState> {
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
+        if (myDiagram) {
+          const toolManager = myDiagram.toolManager;
+          const activeTool = toolManager.currentTool;
+          if (activeTool && activeTool.isActive) {
+            if (activeTool instanceof go.DraggingTool) {
+              activeTool.stopTool();
+            } else if (typeof activeTool.doCancel === 'function') {
+              activeTool.doCancel();
+            }
+          }
+          const dropDragTool = toolManager.draggingTool;
+          if (dropDragTool && dropDragTool.isActive) {
+            dropDragTool.stopTool();
+          }
+          const dropDraggedParts = dropDragTool?.draggedParts;
+          if (dropDraggedParts?.count > 0) {
+            dropDraggedParts.clear();
+          }
+          const dropCopiedParts = dropDragTool?.copiedParts;
+          if (dropCopiedParts?.count > 0) {
+            dropCopiedParts.clear();
+          }
+        }
         break;
       }
       case "ObjectDoubleClicked": {

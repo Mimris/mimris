@@ -9661,7 +9661,15 @@ export class cxObjectView extends cxMetaObject {
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
         if (true) {
         this.group = "";
-        this.isGroup = false;
+        const baseViewkind =
+            this.typeview?.getViewKind?.() ||
+            this.typeview?.viewkind ||
+            object?.type?.viewkind ||
+            "";
+        const inferredContainer =
+            baseViewkind === constants.viewkinds.CONT ||
+            typeof (object?.type as any)?.isContainer === 'function' && (object?.type as any).isContainer();
+        this.isGroup = inferredContainer;
         this.groupLayout = "";
         this.parent = "";
         this.isExpanded = true;
@@ -9670,7 +9678,7 @@ export class cxObjectView extends cxMetaObject {
         this.visible = true;
         this.readonly = false;
         this.grabIsAllowed = false;
-        this.viewkind = "";
+        this.viewkind = inferredContainer ? constants.viewkinds.CONT : "";
         this.loc = "";
         this.size = "";
         this.scale = 1.0;

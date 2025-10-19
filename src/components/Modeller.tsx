@@ -58,22 +58,38 @@ const Modeller = (props: any) => {
     const [diagramReady, setDiagramReady] = useState(false);
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
+    const [objColumns, setObjColumns] = useState(1);
+    let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
     const diagramRef = useRef(null);
 
-    let focusModel = props.phFocus?.focusModel
-    let focusModelview = props.phFocus?.focusModelview
-    let activetabindex = 0
+    const componentMounted = useRef(true);
+
+    // Declare variables at function scope level first
+    let focusModel;
+    let focusModelview;
+
+    // Then assign values in the conditional
+    if (props.phFocus?.focusModel.id !== '') {
+        focusModel = props.phFocus?.focusModel;
+        focusModelview = props.phFocus?.focusModelview;
+    } else {
+        focusModel = { id: props.PhData.models[0].id, name: props.PhData.models[0].name };
+        focusModelview = { id: props.PhData.models[0].modelviews[0].id, name: props.PhData.models[0].modelviews[0].name };
+    }
+
     const models = props.metis?.models
     const model = models?.find((m: any) => m?.id === focusModel?.id)
+    if (debug) console.log('71 Modeller: model', model, focusModel, focusModelview);
     const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
     const modelviews = model?.modelviews
-    const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
+    const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id) 
     const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+    if (debug) console.log('81 Modeller: modelview', model, modelview, modelviews, focusModelview, modelviewindex);
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -105,27 +121,41 @@ const Modeller = (props: any) => {
     }
 
     // Function to toggle the expanded state
-    const toggleIsExpanded = () => {
-        setIsExpanded(!isExpanded);
-    };
+    // const toggleIsExpanded = () => {
+    //     console.log('123 Modeller: toggleIsExpanded', isExpanded);
+    //     setIsExpanded(!isExpanded);
+    //     if (!isExpanded) {
+    //         setObjColumns(4)
+    //     } else {
+    //         setObjColumns(1)
+    //     }
+    // };
 
     function toggleObjects() {
-        // // props.setRefresh(!props.refresh)
-        // if (selectedOption === 'Sorted by type') {
-        //     setSelectedOption('In this modelview')
-        // // } else {
-        // //     setSelectedOption('In this modelview')
-        // }
         setObjectsRefresh(!objectsRefresh)
         setVisibleObjects(!visibleObjects);
     }
+
+    useEffect(() => {
+        return () => {
+            componentMounted.current = false;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isExpanded) {
+            setObjColumns(4)
+        } else {
+            setObjColumns(1)
+        }
+    }, [isExpanded]);
 
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
         // setObjectsRefresh(!objectsRefresh)
         setSelectedOption('Sorted alphabetical')
-        if (mmodel?.name === 'AKM-OSDU_MM') {
+        if (mmodel?.name === 'OSDU_META') {
             setSelectedOption('OSDUType')
         } else if (model?.objects?.length > 500) {
             setSelectedOption('Sorted by type')
@@ -134,7 +164,7 @@ const Modeller = (props: any) => {
         }
         setMounted(true)
 
-        setVisibleObjects(false);
+        setVisibleObjects(true);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
@@ -156,7 +186,7 @@ const Modeller = (props: any) => {
         }
         setObjectsRefresh(!objectsRefresh)
         if (debug) console.log('136 Modeller useEffect , selectedOption] : ', selectedOption);
-    }, [model.objects.length === 0])
+    }, [model?.objects?.length === 0])
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
@@ -176,11 +206,12 @@ const Modeller = (props: any) => {
     }, [props.phFocus?.focusObjectview?.id])
 
     // put current modell on top 
-    const selmods = (models) ? [
-        models[modelindex],
-        ...models.slice(0, modelindex),
-        ...models.slice(modelindex + 1, models.length)
-    ]
+    const selmods = (models) 
+        ? [
+            models[modelindex],
+            ...models.slice(0, modelindex),
+            ...models.slice(modelindex + 1, models.length)
+        ]
         : []
     const selmodviews = modelviews
 
@@ -287,24 +318,19 @@ const Modeller = (props: any) => {
     if (debug) console.log('78 Modeller', focusModel?.name, focusModelview?.name, activetabindex);
 
 
-
     const handleExportClick = async () => {
         if (debug) console.log('294 handleExportClick', exportSvg);
-        if (exportSvg) {
-            const svg = await exportSvg();
-            if (svg) {
-                const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");;
-                // console.log('SVG string:', svgString);
-                // Create a Blob from the SVG string
-                // const blob = new Blob([svgString], { type: 'image/svg+xml' });
-                const proj = props.phFocus.focusProj.name
-                const model = focusModel.name
-                const modelview = focusModelview?.name
-                const filename = `${proj}_${model}_${modelview}`.replace(/ /g, "-")
-                alert('A SVG-file of this modelview will be downloaded to your computer make sure you save it with the name: \n ' + filename + '.svg')
-                SaveModelviewToSvgFile(svgString, filename)
-            } else {
-                console.log('SVG is not ready yet');
+        if (exportSvg && componentMounted.current) {
+            try {
+                const svg = await exportSvg();
+                if (svg && componentMounted.current) {
+                    const svgString = new XMLSerializer().serializeToString(svg).replace(/'/g, "\\'");
+                    // ...rest of function
+                }
+            } catch (error) {
+                if (componentMounted.current) {
+                    console.error('SVG export error:', error);
+                }
             }
         }
     };
@@ -329,9 +355,13 @@ const Modeller = (props: any) => {
 
     // Objects palette
     const myModel = props.myMetis?.findModel(model.id);
-    let ndArr1 = uib.buildObjectPalette(myModel?.objects, props.myMetis)
-    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))
-    let ldArr = []
+    const { nodeArray, linkArray } = uib.buildObjectPalette(myModel?.objects, myModel?.relships || []);
+
+
+    // Map object IDs to their corresponding GoJS node keys
+    if (debug) console.log('340 Modeller nodeArray, linkArray', nodeArray, linkArray);
+    let ndArr = nodeArray?.map((nd: any) => filterObject(nd))
+    let ldArr = (isExpanded) ? linkArray?.map((ld: any) => filterObject(ld)) : [];
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
     const uniqueTypes = [...new Set(ndTypes)].sort();
@@ -408,7 +438,7 @@ const Modeller = (props: any) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
         }
         setObjectsRefresh(!objectsRefresh);
-    }, [selectedOption]);
+    }, [selectedOption, isExpanded]);
 
     // useEffect(() => {
     //     setRefresh(!refresh)
@@ -509,6 +539,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
+                    noOfCols={isExpanded ? 4 : 1}
                 />
             </div>
         </>
@@ -568,9 +599,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     onClick={() => typeof props.setVisibleFocusDetails === 'function' && props.setVisibleFocusDetails(!props.visibleFocusDetails)}
                 >
                     {(props.visibleFocusDetails)
-                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1"></i> </span>
-                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1"></i></span>
-                    }
+                        ? <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-right  pull-right-container ms-1 me-3"></i> </span>
+                        : <span className="fs-8">Object Details<i className="fa fa-lg fa-angle-left pull-left-container ms-1 me-3"></i></span>
+                       }
                 </button>
             </Nav>
             <TabContent className=" p-0 m-0 border border-white">
@@ -644,7 +675,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     {objectsTabDiv}
                 </div>
             </Col>
-            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
+            {/* <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
                 <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
             </button>
             <button className="btn me-1 d-flex justify-content-center align-items-center w-100  bg-secondary my-1" onClick={openPasteDialog} style={{ fontSize: "10px"}}>
@@ -672,75 +703,75 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                         Import
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
         </>
 
-    const modellerDiv =
-        (props.modelType === 'model')
-            ? // modelling
-            <div className="modeller-workarea w-100 d-flex flex-col">
-                <div className={`modeller--objects me-1 
-                    ${visibleObjects
-                        ? isExpanded
-                            ? 'col-2'
-                            : 'col-1'
-                        : 'col-0'} `}
-                        style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
+    const modellerDiv = (props.modelType === 'model')
+        ? // modelling
+        <div className="modeller-workarea w-100 d-flex flex-col">
+            <div className={`modeller--objects me-1 
+                ${visibleObjects
+                    ? isExpanded
+                        ? 'col-6'
+                        : 'col-1'
+                    : 'col-0'} `}
+                    style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
+            >
+                <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
+                    style={{ backgroundColor: "#7b8" }}
                 >
-                    <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
-                        style={{ backgroundColor: "#7b8" }}
-                    >
-                        <button
-                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
-                            onClick={toggleObjects}
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
-                            {visibleObjects 
-                                ?   <span> &lt;- Objects </span> 
-                                :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
-                                    </span>}
-                        </button>
-                        <button
-                            className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                            onClick={toggleIsExpanded}
-                            data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
-                            {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
-                        </button>
-                    </div>
-                    <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
-                        {(visibleObjects)
-                            ? (objectsRefresh)
-                                ? <>{objectsDiv}</>
-                                : <> {objectsDiv} </>
-                            : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
-                        }
-                    </div>
+                    <button
+                        className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
+                        onClick={toggleObjects}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
+                        {visibleObjects 
+                            ?   <span> &lt;- Objects </span> 
+                            :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                                </span>}
+                    </button>
+                    <button
+                        className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
+                        {visibleObjects ? (isExpanded) ? <span> &lt; -- </span> : <span>-- &gt;</span> : <span></span>}
+                    </button>
                 </div>
-                <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
-                    style={{
-                        minWidth: visibleObjects ? '48%' : '28%',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        flexGrow: 1
-                    }}>
-                    {modelviewTabDiv}
+                <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
+                    {(visibleObjects)
+                        ? (objectsRefresh)
+                            ? <>{objectsDiv}</>
+                            : <> {objectsDiv} </>
+                        : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal" style={{ fontSize: "10px" }}></div></Col> </>
+                    }
                 </div>
             </div>
-            : // metamodelling
-            <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
-                <div className="modeller--topbar mt-1 p-0">
-                    <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
-                    <div className="">
-                    </div>
-                    <div>
-                        {metamodelTabDiv}
-                    </div>
-                </div>
+            
+            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-1' : 'col-2') : 'col-12'}`}
+                style={{
+                    minWidth: visibleObjects ? '8%' : '28%',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    flexGrow: 1
+                }}>
+                {modelviewTabDiv}
+            </div>
+        </div>
+        : // metamodelling
+        <div className="modeller-workarea w-100" > {/*data-placement="top" title="Modelling workarea" > */}
+            <div className="modeller--topbar mt-1 p-0">
+                <span className="modeller--heading float-left text-dark m-0 p-0 ms-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%" }}>Meta Model</span>
                 <div className="">
-                    {footerButtonsDiv}
+                </div>
+                <div>
+                    {metamodelTabDiv}
                 </div>
             </div>
+            <div className="">
+                {footerButtonsDiv}
+            </div>
+        </div>
 
     return (
         <div className="" style={{ display: 'flex', flexDirection: 'row' }} >

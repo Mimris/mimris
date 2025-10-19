@@ -1,11 +1,11 @@
 ---
-title: 'Build custom metamodels in AKMM'
+title: 'Build custom metamodels in Mimris'
 date: 'Sept 18, 2023'
 excerpt: 'Build or extend a Metamodel by making a Concept model and then generate the metamodel'
 cover_image: '/images/posts/CustomMeta/Picture1.png'
 ---
 
-# AKMM – Build custom metamodels using AKM-META_MM Metamodel
+# Mimris – Build custom metamodels using CORE_META Metamodel
 
 ## Type Definition Model
 
@@ -14,20 +14,20 @@ To build the new Metamodel we have to define the ObjectTypes and RelationshipsTy
 This is done by building a Type-definition-model_TD
 
 
-Out of the box AKMM contains one metamodel that is meant to use to develop custom metamodels. The name of the metamodel is AKM-CORE_MM. 
+Out of the box Mimris contains one metamodel that is meant to use to develop custom metamodels. The name of the metamodel is AKM-CORE_META. 
 
-AKM-CORE_MM consists of types that allow users to define custom object and relationship types, with custom properties and methods.
+AKM-CORE_META consists of types that allow users to define custom object and relationship types, with custom properties and methods.
 
 When the new types are defined (modelled) the user can do “Generate Metamodel” to generate the customized metamodel. 
 
 Based on the new metamodel user models can be created. 
 
-Out of the box AKMM also includes some example metamodels and models. 
+Out of the box Mimris also includes some example metamodels and models. 
 
 
 # The core metamodel
 
-The core metamodel (AKM-CORE_MM) that allows you to build your own metamodel is shown below. 
+The core metamodel (CORE_META) that allows you to build your own metamodel is shown below. 
 
 
  ![image001](/images/posts/CustomMeta/Picture1.png)
@@ -229,31 +229,32 @@ The dialog below shows an example that defines a method that starts on a Product
  ![image0019](/images/posts/CustomMeta/Picture19.png)
 
 The relevant parameters in the dialog are:
--	reltype that contains the name of the relationship type to follow. If empty – all relationships will be followed.
--	 reldir contains either in or out or left empty, and tells what relationship direction to follow. No value means that both directions will be followed.
--	typecondition contains the name of the object type to check for. If not given the object type will not be checked.
--	valuecondition contains the condition that needs to be met. 
--	preaction specifies the action to perform on each object when the traversal is moving down the hierarchy
--	postaction specifies the action to perform on each object when the traversal is moving up the hierarchy
+
+- reltype that contains the name of the relationship type to follow. If empty – all relationships will be followed.
+- reldir contains either in or out or left empty, and tells what relationship direction to follow. No value means that both directions will be followed.
+- typecondition contains the name of the object type to check for. If not given the object type will not be checked.
+- valuecondition contains the condition that needs to be met. 
+- preaction specifies the action to perform on each object when the traversal is moving down the hierarchy
+- postaction specifies the action to perform on each object when the traversal is moving up the hierarchy
 
 The method is executed when you rightclick the Product object, choose “Execute Method” in the pulldown list that pops up, and then chooses “Select Assemblies”.
  
 # Structuring and combining Metamodels
 	
-The AKM Modeller allows you to build metamodels that are combinations of smaller (sub-) metamodels. Hence you can build a library of metamodels that you can combine in many different ways. 
+The Mimris Modeller allows you to build metamodels that are combinations of smaller (sub-) metamodels. Hence you can build a library of metamodels that you can combine in many different ways. 
 
-You start with a project based on the AKM-CORE_MM metamodel and you define one Modelview for each metamodel you plan to develop.
+You start with a project based on the AKM-CORE_META metamodel and you define one Modelview for each metamodel you plan to develop.
 
 The example below has two small metamodels that can be combined to a larger one. They are modelled in separate modelviews. 
 
 The first metamodel is a simplified version of our previous product metamodel (shown below). 
-Note the new object of type Metamodel (PROD_MM) that has contains relationships to the object types in the metamodel.
+Note the new object of type Metamodel (PROD_META) that has contains relationships to the object types in the metamodel.
 
 
  ![image0020](/images/posts/CustomMeta/Picture20.png)
 
 The second metamodel is a simple organization metamodel as shown below.
-Also here note the object of type Metamodel (ORG_MM) that has contains relationships to the object types in this metamodel. 
+Also here note the object of type Metamodel (ORG_META) that has contains relationships to the object types in this metamodel. 
 
 
  ![image0021](/images/posts/CustomMeta/Picture21.png)
@@ -265,9 +266,9 @@ Now we want to combine the two metamodels into one. We do that by creating a new
  ![image0022](/images/posts/CustomMeta/Picture22.png)
 
 
-Then we click on the background, choose “Generate Metamodel” and get the choice “ORG-PROD_MM”. Only the top metamodel is shown in the popup dialog. 
+Then we click on the background, choose “Generate Metamodel” and get the choice “ORG-PROD_META”. Only the top metamodel is shown in the popup dialog. 
 When we create a model based on this metamodel, the types we can choose when we model are the sum of the types in the two “sub”-metamodels. 
-The “ORG_MM” and “PROD_MM” are registered as sub-metamodels in “ORG-PROD_MM”. 
+The “ORG_META” and “PROD_META” are registered as sub-metamodels in “ORG-PROD_META”. 
 
 When we combine metamodels there is a need to add relationship types that relate object types in the two sub-metamodels. 
 This can be done as shown below where OrganisationUnit and Product are related. It is important that the two objects are objectviews of the corresponding objects in the modelviews they are defined.  

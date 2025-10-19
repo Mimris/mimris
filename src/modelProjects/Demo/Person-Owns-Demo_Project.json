@@ -4081,12 +4081,12 @@
         },
         {
           "id": "f738227d-8a0b-4500-5ea5-b047a17b479f",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [
             {
               "id": "7981354b-c92f-4e34-8281-82b5b21c8414",
-              "name": "AKM-ADMIN_MM_Viewstyle",
+              "name": "AKM-ADMIN_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -5932,12 +5932,12 @@
         },
         {
           "id": "efa099ce-edd8-435d-5840-c4cfffd41547",
-          "name": "PERSON_OWNS_MM",
+          "name": "PERSON_OWNS_META",
           "description": "",
           "viewstyles": [
             {
               "id": "b3d95e60-aa44-4614-7aeb-5074ed25f78d",
-              "name": "PERSON_OWNS_MM_Viewstyle",
+              "name": "PERSON_OWNS_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -7618,7 +7618,7 @@
             },
             {
               "id": "9c13d24c-6d13-475d-b4ee-ef1d1e94dc38",
-              "name": "PERSON_OWNS_MM",
+              "name": "PERSON_OWNS_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -7903,7 +7903,7 @@
                 },
                 {
                   "id": "d159daa8-c622-4463-66b6-46fc268bd508",
-                  "name": "PERSON_OWNS_MM",
+                  "name": "PERSON_OWNS_META",
                   "description": "",
                   "objectRef": "9c13d24c-6d13-475d-b4ee-ef1d1e94dc38",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

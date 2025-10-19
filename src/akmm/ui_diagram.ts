@@ -19,6 +19,18 @@ import * as constants from './constants';
 
 const $ = go.GraphObject.make;
 
+const uidTemplates = {
+    "default":          uit.textAndIconTemplate,
+    "ActivityNode":     uit.activityNodeTemplate,
+    "EventNode":        uit.eventNodeTemplate,
+    "GatewayNode":      uit.gatewayNodeTemplate,
+    "DataObjectNode":   uit.dataObjectNodeTemplate,
+    "textAndIcon":      uit.textAndIconTemplate,
+    "textAndFigure":    uit.textAndFigureTemplate,
+}
+
+
+
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
         modelview.focusObjectview = objview;
@@ -593,6 +605,20 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     myDiagram.handleOpenModal(node, modalContext);
 }
 
+export function askForTemplate(context: any) {
+    const myDiagram = context.myDiagram;
+    const modalContext = {
+        what:       "askForTemplate",
+        title:      context.title,
+        icon:       null,
+        case:       context.case,
+        myContext:  context,
+        myDiagram:  myDiagram
+    }
+    if (debug) console.log('606 ui_diagram: modalContext', modalContext);
+    myDiagram.handleOpenModal(null, modalContext);
+}
+
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('597 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
@@ -610,6 +636,10 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
+    const iconpath = uit.findImage(goNode?.iconpath);
+    const icon1 = uit.findImage(goNode?.icon1);
+    const icon2 = uit.findImage(goNode?.icon2);
+    const icon3 = uit.findImage(goNode?.icon3);
     if (!object)
         object = myModel.findObject(goNode?.objRef);
     if (!objectview)
@@ -1194,7 +1224,7 @@ export function addToSelection(obj: any, myDiagram: any) {
 }
 
 export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
-    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
     const adminModel    = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     const projectType   = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
     const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
@@ -1421,7 +1451,7 @@ function askForMetamodel(context: any) {
             continue;
         if (metaModel.markedAsDeleted)
             continue;
-        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+        if (metaModel.name === constants.admin.AKM_ADMIN_META)
             continue;
         if (myMetamodel && (metaModel.id === myMetamodel?.id)) {
             if (context.case !== 'New Model')
@@ -1815,7 +1845,7 @@ function createModel(context: any) {
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
     let model, modelName, modelview, modelviewName;
-    if (metamodel.name === constants.admin.AKM_ADMIN_MM) {
+    if (metamodel.name === constants.admin.AKM_ADMIN_META) {
         modelName = constants.admin.AKM_ADMIN_MODEL;
         modelviewName = constants.admin.AKM_ADMIN_MODELVIEW;
         model = myMetis.findModelByName(modelName);
@@ -2535,7 +2565,7 @@ export function getSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): 
 }
 function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis): akm.cxModel[] {
     const models: akm.cxModel[] = new Array();
-    const metamodel = myMetis.findMetamodelByName('AKM-IRTV_MM');
+    const metamodel = myMetis.findMetamodelByName('AKM-IRTV_META');
     const modifiedModels = new Array();
     const modifiedMetamodels = new Array();
     for (let i=0; i<submodelObjects.length; i++) {
@@ -3025,4 +3055,66 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
 
 export function editTraverseDialog() {
     
+}
+
+export function swapDirectionIsAllowed(link, modelview: akm.cxModelView, metamodel: akm.cxMetaModel) {
+    let retval = false;
+    let fromTypeId;
+    let toTypeId;
+    let relshpType = link.relship?.type;
+    fromTypeId = link.relship?.fromObject.type.id;
+    if (!fromTypeId) {
+        let relview = modelview.findRelationshipView(link.relviewRef);
+        if (relview)
+            fromTypeId = relview.fromObjview?.objecttype.id;
+    }
+    toTypeId = link.relship?.toObject.type.id;
+    if (!toTypeId) {
+        let relview = modelview.findRelationshipView(link.relviewRef);
+        if (relview)
+            toTypeId = relview.toObjview?.objecttype.id;
+    }
+
+    // Check if the swap direction is allowed based on your criteria
+    if (fromTypeId && toTypeId) {
+        // Example criteria: both links must be of the same type
+        if (fromTypeId === toTypeId)
+            retval = true;
+    }
+    if (relshpType?.name === 'refersTo')
+            retval = true;
+    return retval;
+}
+
+export function swapDirection(selectedLinks, myMetis: akm.cxMetis, myDiagram) {
+    const myModelview = myMetis.currentModelview;
+    const modifiedRelshipViews = new Array();
+    for (let i=0; i<selectedLinks.length; i++) {
+        const sel = selectedLinks[i];
+        const link = sel.data;
+        const reltype: akm.cxRelationshipType = myMetis.findRelationshipType(link.reltypeRef);
+        const fromTypeId = link.fromNode.objecttype.id;
+        const toTypeId = link.toNode.objecttype.id;
+        let relview: akm.cxRelationshipView;
+        relview = myModelview.findRelationshipView(link.key);
+        if (relview ) {
+            const fromObjview = relview.fromObjview;
+            const toObjview = relview.toObjview;
+            relview.fromObjview = toObjview;
+            relview.toObjview = fromObjview;
+            const jsnRelView = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelView);
+        }
+        let linkfromNode = link.fromNode;
+        let linktoNode = link.toNode;
+        link.fromNode = linktoNode;
+        link.toNode = linkfromNode;
+        myDiagram.model.setDataProperty(link, "from", link.fromNode.key);
+        myDiagram.model.setDataProperty(link, "to", link.toNode.key);
+    }
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
 }

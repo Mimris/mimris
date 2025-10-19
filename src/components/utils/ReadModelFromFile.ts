@@ -38,7 +38,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     const reader = new FileReader();
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
-    if (!debug) console.log('42 ReadModelFromFile', props, reader.fileName)
+    if (debug) console.log('42 ReadModelFromFile', props, reader.fileName)
     if (!reader.fileName) return null
     reader.onload = async (e) => {
         const text = (e.target.result)
@@ -102,7 +102,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 }
             }
 
-        if (!debug) console.log('105 ReadModelFromFile', data)
+        if (debug) console.log('105 ReadModelFromFile', data)
 
 
         // check if imported objtype is compatible with current metamodel
@@ -339,7 +339,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         //         },
         //     }
         // } else if (filename.includes('_MO')) { // its a model, modelview or metamodel file, merge with existing project
-        //     if (!debug) console.log('402 ReadModelFromFile', data)//, data.models[0].modelviews.length)
+        //     if (debug) console.log('402 ReadModelFromFile', data)//, data.models[0].modelviews.length)
         //     if (!Array.isArray(data.models))
         //         data.models = [data.models];
         //     if (data.models[0].modelviews.length === 0) { // if modelview exists, then add it to   data.phData.metis.models
@@ -412,7 +412,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         //         };
         //     }
         //     if (debug) console.log('399 ReadModelFromFile', data)
-        // } else if (filename.includes('_MM')) { // its a metamodel file, merge with existing project'
+        // } else if (filename.includes('_META')) { // its a metamodel file, merge with existing project'
         //     data = {
         //         phData: {
         //             ...props.phData,
@@ -458,7 +458,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // }
 
 
-        if (!debug) console.log('356 ReadModelFromFile', data)
+        if (debug) console.log('356 ReadModelFromFile', data)
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)

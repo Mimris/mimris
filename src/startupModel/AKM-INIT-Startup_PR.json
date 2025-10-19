@@ -26767,7 +26767,13 @@
       "currentTargetModelRef": "",
       "currentTargetModelviewRef": "",
       "currentTaskModelRef": ""
-    }
+    },
+    "domain": {
+      "name": "",
+      "description": "",
+      "presentation": "",
+      "prompt": ""
+   }
   },
   "phFocus": {
     "focusTab": "Modelling",

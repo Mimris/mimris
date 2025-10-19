@@ -305,7 +305,7 @@
   background: rgba(255, 255, 255, 0.3);
   font-family: Arial;
   color: #333;
-  font-size: 20px;
+  /* font-size: 20px; */
   padding: 6px 10px;
   text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
   text-transform: uppercase;
@@ -313,12 +313,12 @@
 
 .card-text {
   box-shadow: 6px, 6px, 20px rgba(122, 122, 122, 0.5);
-  font-size: 18px;
+  /* font-size: 18px; */
 }
 
 .card-title-bold {
   font-weight: bolder;
-  font-size: 120%;
+  /* font-size: 120%; */
 }
 
 /* .workarea div:nth-child(3) {   grid-row:  2;
@@ -1079,6 +1079,8 @@ li span {
   border-radius: 100%;
   /* background-color: #f38e23; */
 }
+
+
 
 /* @media only screen and (max-with: 410px) {
   .wrapper {

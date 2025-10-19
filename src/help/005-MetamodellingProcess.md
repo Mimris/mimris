@@ -8,7 +8,7 @@ cover_image: 'images/posts/modelling/image_model001.png'
 ## Build Type Definition Models (TD)
 
 To build the new Metamodel we have to define the **ObjectTypes** and **RelationshipsTypes** we want to use.
-This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_MM** metamodel. 
+This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_META** metamodel. 
 
 <details>  <summary>Build a Type-definition model ...</summary>
 
@@ -19,9 +19,9 @@ This is done by building a **Type-definition-model_TD** based on the **AKM-CORE_
 <details>  <summary>Create Initial Containers ...</summary>
 
 
-Let us start with an empty model and the built-in ***AKM-META_MM*** metamodel:
+Let us start with an empty model and the built-in ***CORE_META*** metamodel:
 
-![Initial page with blank modelling area and AKM-META_MM types in the Palette](/images/posts/modelling/image_model001.png)
+![Initial page with blank modelling area and CORE_META types in the Palette](/images/posts/modelling/image_model001.png)
 
 The left pane contains the object types in the initial metamodel, that the user can use to build a type definition model.
 
@@ -69,7 +69,7 @@ Click on the picture to open in New Tab!</a>
 
 <details>  <summary>Add Tasks and Role ...</summary>
 
-In the  Palette > ***Additional Metamodels*** (lower left pane) select AKM-IRTV_MM metamodel.
+In the  Palette > ***Additional Metamodels*** (lower left pane) select AKM-IRTV_META metamodel.
 
 From this Palette drag the ***Task*** object-type and drop it into the Container ***"Tasks and Roles"***. Click on the name and edit ***name***.
 Right-Click the object to edit  ***description*** and ***proposedType***.
@@ -257,11 +257,11 @@ To verify our new generated Metamodel, we will build a Use-case model, using the
 
 You create the new model by right clicking the background and choose “*New Model*” in the popup menu. You will be asked to select a metamodel – select the one you just generated.
 
-Then you will be asked for a model name and a modelview name. When the model has been created, open the new model by selecting the modelname in the pulldown dialog "*Model:*" ***in the top right corner of the AKMM window***. 
+Then you will be asked for a model name and a modelview name. When the model has been created, open the new model by selecting the modelname in the pulldown dialog "*Model:*" ***in the top right corner of the Mimris window***. 
 
 The object types in the metamodel you created should now appear in the Palette as object types in the left pane, and you should be ready to build a new model. 
 
-The left pane contains the 4 Object-types defined in the Type-definition Model, plus the "*Generic*" and "*Container*" types, which are found in all metamodels used for modeling in AKMM. 
+The left pane contains the 4 Object-types defined in the Type-definition Model, plus the "*Generic*" and "*Container*" types, which are found in all metamodels used for modeling in Mimris. 
 
 ![Inital modelarea](/images/posts/modelling/image_model003.png)
 
@@ -327,14 +327,14 @@ This small type definition model is enough to generate a new metamodel, that wil
 ---
 <details><summary>More about The Core Metamodel ...</summary>
 
-## AKM-CORE_MM Metamodel
+## AKM-CORE_META Metamodel
 
 ![image001](images/posts/CustomMeta/Picture1.png)
 
 ## Links
 
 You can find more info following this link : 
-<a href="/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank">
+<a href="/helpblog/002-BuildCustomMetamodels#Mimris%20Help" target="_blank">
 
 <code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
 
@@ -347,7 +347,7 @@ You can find more info following this link :
 
 
 You can find more info following this link : 
-<a href="http://localhost:3000/helpblog/002-BuildCustomMetamodels#AKMM%20Help" target="_blank"><code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
+<a href="http://localhost:3000/helpblog/002-BuildCustomMetamodels#Mimris%20Help" target="_blank"><code style="color: blue"> <font size="2" weight="bold"> How to make Custom Metamodels...</font></code>
 </span></a>
 
 </details>

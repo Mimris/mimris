@@ -1,7 +1,7 @@
 ---
-title: ' Overview the AKM Modeller User Interface'
+title: 'Overview the Mimris Modeller User Interface'
 date: 'May 29, 2023'
-excerpt: 'An overview of the AKM Modeller modelling user interface.
+excerpt: 'An overview of the Mimris Modeller modelling user interface.
 with Metamodel palette, Object Palette and Modelling Area'
 cover_image: '/images/posts/overview/image01.png'
 ---
@@ -10,9 +10,9 @@ cover_image: '/images/posts/overview/image01.png'
 
 ![Modellingpage](/images/posts/overview/image01.png)
 
+An initial project will be opened.
 
-An initial project will be opened. 
-- 1 The left pane you find the Metamodel-palette with AKM-IRTV_MM metamodel.
+- 1 The left pane you find the Metamodel-palette with IRTV_META metamodel.
 - 2 The Objects-palette (empty) 
 - 3 The Modelling area.
 - 4 Main Project menu (Hamburger menu) File, Import, Export.
@@ -28,4 +28,6 @@ An initial project will be opened.
 ---
 
 ---
- - [-back to the top-](#introduction)
+
+[-back to the top-](#overview-of-the-graphical-user-interface)
+  

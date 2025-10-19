@@ -2815,7 +2815,7 @@
         },
         {
           "id": "4bbbdc92-db56-4539-f686-8b256d362a4b",
-          "name": "IDEF_MM",
+          "name": "IDEF_META",
           "description": "",
           "objecttypes": [
             {

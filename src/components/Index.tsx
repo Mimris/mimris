@@ -44,15 +44,13 @@ const page = (props) => {
   // }, [focusModelview])
 
   return (
-    <div className="workpad me-2 h-100" >
-      <div className="homepage pt-2 pr-0 h-100">
+    <div className="workpad h-100" >
+      <div className="homepage p-1 h-100">
         <div className="p-0 pt-0">
-          <GettingStarted />
-          {/* </div>
-        <div className="col" style={{maxHeight: "42px"}}> releasenotes */}
-          <Card className="card mt-2 me-3 h-100"
+          <Card className="card mt-1 h-100"
             style={{
-              maxHeight: "98vh", overflow: "scroll",
+              maxHeight: "208vh",
+              overflow: "scroll",
               borderRadius: "10px",
               border: "1px solid rgba(255,255,255,0.2)",
               position: "relative",
@@ -64,14 +62,24 @@ const page = (props) => {
             }}
           >
             <CardHeader className="card-header h-100" >Mimris release log ... </CardHeader>
-            {/* <CardBody className="card-body" >  
-              <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.05.24</CardTitle>
               <CardText >
-                  &bull; Workplace templates for reflective workplace modelling! <br />
-                  &bull; Strokewidth for synbol border and relship line!<br />
-                  &bull; GraphQL shema reporting from Solution models!<br />
+                &bull; Bugfix and Updated Templates<br />
               </CardText>
-            </CardBody> */}
+            </CardBody>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.05.23</CardTitle>
+              <CardText >
+                &bull;Updated Home and About pages<br />
+              </CardText>
+            </CardBody>
+            <CardBody className="card-body h-100" >
+              <CardTitle className="card-title-bold" >Release Alpha: 2025.05.03</CardTitle>
+              <CardText >
+                &bull;Bugfix and added BPMN in Palette<br />
+              </CardText>
+            </CardBody>
             <CardBody className="card-body h-100" >
               <CardTitle className="card-title-bold" >Release Alpha: 2025.05.06</CardTitle>
               <CardText >

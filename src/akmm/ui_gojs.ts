@@ -437,26 +437,37 @@ export class goObjectNode extends goNode {
     rightPorts: akm.cxPort[] | null;
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
-    template: string;
-    template2: string;
+
+    grabIsAllowed: boolean;
+    isExpanded: boolean;
+
+    // arrowscale: number;
     figure: string;
-    geometry: string;
-    strokewidth: string;
     fillcolor: string;
     fillcolor2: string;
+    geometry: string;
+    group: string;
+    icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    image: string;
+    isGroup: boolean | "";
+    isSelected: boolean | "";
+    loc:             string;
+    memberscale:     float;
+    scale:           float;
+    size:            float;
     strokecolor: string;
     strokecolor2: string;
+    strokewidth: string;
+    template: string;
+    template2: string;
     textcolor: string;
     textcolor2: string;
     textscale: string;
-    icon: string;
-    image: string;
-    grabIsAllowed: boolean;
-    isGroup: boolean | "";
-    isExpanded: boolean | "";
-    isSelected: boolean | "";
+
     groupLayout: string;
-    group: string;
     parent: string;
     constructor(key: string, model: goModel, objview: akm.cxObjectView) {
         super(key, model);
@@ -480,6 +491,7 @@ export class goObjectNode extends goNode {
             this.template       = objview.template;
             this.template2      = objview.template2;
             this.figure         = objview.figure ? objview.figure : "";
+            this.figure2        = objview.figure2 ? objview.figure2 : "";
             this.geometry       = objview.geometry ? objview.geometry : "";
             this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
             this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
@@ -490,6 +502,10 @@ export class goObjectNode extends goNode {
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
             this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
+            this.iconpath       = objview.iconpath ? objview.iconpath : "";
+            this.icon1           = objview.icon1 ? objview.icon1 : "";
+            this.icon2           = objview.icon2 ? objview.icon2 : "";
+            this.icon3           = objview.icon3 ? objview.icon3 : "";
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
@@ -543,6 +559,10 @@ export class goObjectNode extends goNode {
                 this.figure = this.typeview?.figure;
             if (!this.figure)
                 this.figure = "";
+            if (!this.figure2)
+                this.figure2 = this.typeview?.figure2;
+            if (!this.figure2)
+                this.figure2 = "";
         }
     }
     // Methods

@@ -3,7 +3,6 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 import * as go from 'gojs';
-import { produce } from 'immer';
 import * as React from 'react';
 
 import { update_objectview_properties } from '../../actions/actions';
@@ -34,12 +33,14 @@ interface AppState {
   phFocus: any;
   dispatch: any;
   diagramStyle: any;
+  noOfCols?: number;
 }
 
 class GoJSPaletteApp extends React.Component<{}, AppState> {
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
+  private suppressSelectionChange = false;
 
   constructor(props: object) {
     super(props);
@@ -57,7 +58,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       // myGoModel: this.props.myGoModel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
-      diagramStyle: this.props.diagramStyle
+      diagramStyle: this.props.diagramStyle,
+      noOfCols: this.props.noOfCols ? this.props.noOfCols : 1,
+
     };
     if (debug) console.log('55 myMetis', this.state.myMetis);
     // init maps
@@ -67,10 +70,13 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     this.refreshLinkIndex(this.state.linkDataArray);
     // bind handler methods
 
-    this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    //this.handleModelChange = this.handleModelChange.bind(this);
-    //this.handleInputChange = this.handleInputChange.bind(this);
-    //this.handleRelinkChange = this.handleRelinkChange.bind(this);
+  }
+
+  public componentDidUpdate(prevProps: any) {
+    const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
+    if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
+      this.setState({ noOfCols: nextCols, skipsDiagramUpdate: false });
+    }
   }
 
   /**
@@ -93,12 +99,61 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     });
   }
 
+  private applyFocusForNode = (diagram: go.Diagram, node: go.Node | null) => {
+    if (!node) {
+      return;
+    }
+    const nodeData = node.data as go.ObjectData;
+    if (!nodeData) {
+      return;
+    }
+    const myMetis = this.state.myMetis;
+    if (!myMetis) {
+      return;
+    }
+
+    let object = nodeData.object;
+    if (!object) {
+      return;
+    }
+    const foundObject = myMetis.findObject(object?.id);
+    object = foundObject ? foundObject : object;
+
+    if (object) {
+      const jsnObj = new jsn.jsnObject(object);
+      const focusData = { id: jsnObj.id, name: jsnObj.name };
+      this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECT', data: focusData });
+    }
+
+    const myModelview = myMetis.currentModelview;
+    let dataov = { id: '', name: '' };
+    const objview = myModelview?.objectviews?.filter(ov => ov.object?.id === object?.id);
+    if (objview && objview[0]?.id) {
+      dataov = { id: objview[0]?.id, name: objview[0]?.name };
+    }
+    this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov });
+
+    const nodes = diagram?.nodes;
+    this.suppressSelectionChange = true;
+    try {
+      for (let it = nodes?.iterator; it?.next();) {
+        const candidateNode = it.value as go.Node;
+        const nodeObject = candidateNode?.data?.object;
+        if (nodeObject?.id === object?.id) {
+          candidateNode.isSelected = true;
+        }
+      }
+    } finally {
+      this.suppressSelectionChange = false;
+    }
+  };
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
    * @param e a GoJS DiagramEvent
    */
-  public handleDiagramEvent(e: go.DiagramEvent) {
+  public handleDiagramEvent = (e: go.DiagramEvent) => {
     const name = e.name;
     switch (name) {
       case "InitialLayoutCompleted": {
@@ -115,67 +170,81 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         break;
       }
       case 'ChangedSelection': {
+        if (this.suppressSelectionChange) {
+          break;
+        }
         const sel = e.subject.first();
         if (!sel) break;
-        let part = sel.data;
-        let myDiagram = e.diagram;
-        let node = myDiagram.findNodeForKey(part.key);
-        if (debug) console.log('122 data', part, sel, sel.data, e);
-        const myMetis = this.state.myMetis;
-        if (debug) console.log('106 myMetis', myMetis);
-        let object = node.data.object;
-        if (!object) {
-            // This is in the Types Palette
-            // There are no objects in the Types Palette
-            break;
-        }
-        // This is in the Objects Palette
-        const obj = myMetis.findObject(object?.id);
-        object = obj ? obj : object;
-        if (debug) console.log('110 obj', obj);
-        if (object) {
-          const jsnObj = new jsn.jsnObject(object);
-          const modifiedObjects = new Array();
-          modifiedObjects.push(jsnObj);
-          modifiedObjects.map(mn => {
-            // let data = mn
-            // data = JSON.parse(JSON.stringify(data));
-            let data = { id: mn.id, name: mn.name };
-            if (debug) console.log('120 data', data);
-            this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
-          })
-        }
-        // find  all nodes of a given object in the current diagram (modelview)
-        const myModelview = myMetis.currentModelview;
-        let objview = myModelview.objectviews?.filter(ov => ov.object?.id === object?.id);
-        const nodes = myDiagram?.nodes;
-        for (let it = nodes?.iterator; it?.next();) {
-          const node = it.value;
-          if (node.data.object.id == object.id) {
-            node.isSelected = true;
-            // node.isHighlighted = true;
-          }
-        }
-        // for now use first objectview ---- this should be changed to show all objectviews of selected object ------------------
-        let dataov = { id: '', name: '' };
-        if (objview && objview[0]?.id) {
-          dataov = { id: objview[0]?.id, name: objview[0]?.name };
-        }
-        if (debug) console.log('134 dataov', dataov);
-        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov })
+        const myDiagram = e.diagram;
+        const node = myDiagram.findNodeForKey(sel.data?.key);
+        if (debug) console.log('122 data', sel.data, sel, sel.data, e);
+        this.applyFocusForNode(myDiagram, node);
         break;
       }
       default:
         break;
     }
-  }
+  };
+
+  public handleSelectConnected = (nodeData: go.ObjectData, diagram: go.Diagram) => {
+    if (!diagram || !nodeData) {
+      return;
+    }
+    const targetKey = nodeData.key as go.Key;
+    if (targetKey === undefined || targetKey === null) {
+      return;
+    }
+    const links = this.state.linkDataArray || [];
+    const visited = new Set<go.Key>();
+    const queue: go.Key[] = [];
+
+    visited.add(targetKey);
+    queue.push(targetKey);
+
+    while (queue.length > 0) {
+      const currentKey = queue.shift();
+      if (currentKey === undefined || currentKey === null) {
+        continue;
+      }
+      links.forEach((link: go.ObjectData) => {
+        const from = link.from as go.Key;
+        const to = link.to as go.Key;
+        if (from === undefined || from === null || to === undefined || to === null) {
+          return;
+        }
+        if (from === currentKey && !visited.has(to)) {
+          visited.add(to);
+          queue.push(to);
+        } else if (to === currentKey && !visited.has(from)) {
+          visited.add(from);
+          queue.push(from);
+        }
+      });
+    }
+
+    this.suppressSelectionChange = true;
+    try {
+      diagram.clearSelection();
+      visited.forEach((key: go.Key) => {
+        const part = diagram.findNodeForKey(key);
+        if (part) {
+          part.isSelected = true;
+        }
+      });
+    } finally {
+      this.suppressSelectionChange = false;
+    }
+
+    const focusNode = diagram.findNodeForKey(targetKey);
+    this.applyFocusForNode(diagram, focusNode);
+  };
 
   /**
    * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
    * This method iterates over those changes and updates state to keep in sync with the GoJS model.
    * @param obj a JSON-formatted string
    */
-  public handleModelChange(obj: go.IncrementalData) {
+  public handleModelChange = (obj: go.IncrementalData) => {
     const insertedNodeKeys = obj.insertedNodeKeys;
     const modifiedNodeData = obj.modifiedNodeData;
     const removedNodeKeys = obj.removedNodeKeys;
@@ -187,83 +256,97 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     // maintain maps of modified data so insertions don't need slow lookups
     const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
     const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
-    this.setState(
-      produce((draft: AppState) => {
-        let narr = draft.nodeDataArray;
-        if (modifiedNodeData) {
-          modifiedNodeData.forEach((nd: go.ObjectData) => {
-            modifiedNodeMap.set(nd.key, nd);
-            const idx = this.mapNodeKeyIdx.get(nd.key);
-            if (idx !== undefined && idx >= 0) {
-              narr[idx] = nd;
-              if (draft.selectedData && draft.selectedData.key === nd.key) {
-                draft.selectedData = nd;
-              }
-            }
-          });
-        }
-        if (insertedNodeKeys) {
-          insertedNodeKeys.forEach((key: go.Key) => {
-            const nd = modifiedNodeMap.get(key);
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (nd && idx === undefined) {
-              this.mapNodeKeyIdx.set(nd.key, narr.length);
-              narr.push(nd);
-            }
-          });
-        }
-        if (removedNodeKeys) {
-          narr = narr.filter((nd: go.ObjectData) => {
-            if (removedNodeKeys.includes(nd.key)) {
-              return false;
-            }
-            return true;
-          });
-          draft.nodeDataArray = narr;
-          this.refreshNodeIndex(narr);
-        }
 
-        let larr = draft.linkDataArray;
-        if (modifiedLinkData) {
-          modifiedLinkData.forEach((ld: go.ObjectData) => {
-            modifiedLinkMap.set(ld.key, ld);
-            const idx = this.mapLinkKeyIdx.get(ld.key);
-            if (idx !== undefined && idx >= 0) {
-              larr[idx] = ld;
-              if (draft.selectedData && draft.selectedData.key === ld.key) {
-                draft.selectedData = ld;
-              }
-            }
-          });
+    let nodeDataArray = this.state.nodeDataArray ? [...this.state.nodeDataArray] : [];
+    let linkDataArray = this.state.linkDataArray ? [...this.state.linkDataArray] : [];
+    let selectedData = this.state.selectedData;
+    let modelData = this.state.modelData;
+    let nodesChanged = false;
+    let linksChanged = false;
+
+    if (modifiedNodeData) {
+      modifiedNodeData.forEach((nd: go.ObjectData) => {
+        modifiedNodeMap.set(nd.key, nd);
+        const idx = this.mapNodeKeyIdx.get(nd.key);
+        if (idx !== undefined && idx >= 0) {
+          nodeDataArray[idx] = nd;
+          nodesChanged = true;
+          if (selectedData && selectedData.key === nd.key) {
+            selectedData = nd;
+          }
         }
-        if (insertedLinkKeys) {
-          insertedLinkKeys.forEach((key: go.Key) => {
-            const ld = modifiedLinkMap.get(key);
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (ld && idx === undefined) {
-              this.mapLinkKeyIdx.set(ld.key, larr.length);
-              larr.push(ld);
-            }
-          });
+      });
+    }
+    if (insertedNodeKeys) {
+      insertedNodeKeys.forEach((key: go.Key) => {
+        const nd = modifiedNodeMap.get(key);
+        const idx = this.mapNodeKeyIdx.get(key);
+        if (nd && idx === undefined) {
+          nodeDataArray.push(nd);
+          nodesChanged = true;
         }
-        if (removedLinkKeys) {
-          larr = larr.filter((ld: go.ObjectData) => {
-            if (removedLinkKeys.includes(ld.key)) {
-              return false;
-            }
-            return true;
-          });
-          draft.linkDataArray = larr;
-          this.refreshLinkIndex(larr);
+      });
+    }
+    if (removedNodeKeys && removedNodeKeys.length > 0) {
+      const removedSet = new Set(removedNodeKeys);
+      nodeDataArray = nodeDataArray.filter((nd: go.ObjectData) => !removedSet.has(nd.key));
+      nodesChanged = true;
+      if (selectedData && removedSet.has(selectedData.key)) {
+        selectedData = null;
+      }
+    }
+
+    if (modifiedLinkData) {
+      modifiedLinkData.forEach((ld: go.ObjectData) => {
+        modifiedLinkMap.set(ld.key, ld);
+        const idx = this.mapLinkKeyIdx.get(ld.key);
+        if (idx !== undefined && idx >= 0) {
+          linkDataArray[idx] = ld;
+          linksChanged = true;
+          if (selectedData && selectedData.key === ld.key) {
+            selectedData = ld;
+          }
         }
-        // handle model data changes, for now just replacing with the supplied object
-        if (modifiedModelData) {
-          draft.modelData = modifiedModelData;
+      });
+    }
+    if (insertedLinkKeys) {
+      insertedLinkKeys.forEach((key: go.Key) => {
+        const ld = modifiedLinkMap.get(key);
+        const idx = this.mapLinkKeyIdx.get(key);
+        if (ld && idx === undefined) {
+          linkDataArray.push(ld);
+          linksChanged = true;
         }
-        draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
-      })
-    );
-  }
+      });
+    }
+    if (removedLinkKeys && removedLinkKeys.length > 0) {
+      const removedSet = new Set(removedLinkKeys);
+      linkDataArray = linkDataArray.filter((ld: go.ObjectData) => !removedSet.has(ld.key));
+      linksChanged = true;
+      if (selectedData && removedSet.has(selectedData.key)) {
+        selectedData = null;
+      }
+    }
+
+    if (modifiedModelData) {
+      modelData = modifiedModelData;
+    }
+
+    this.setState({
+      nodeDataArray,
+      linkDataArray,
+      modelData,
+      selectedData,
+      skipsDiagramUpdate: true
+    }, () => {
+      if (nodesChanged) {
+        this.refreshNodeIndex(this.state.nodeDataArray);
+      }
+      if (linksChanged) {
+        this.refreshLinkIndex(this.state.linkDataArray);
+      }
+    });
+  };
 
   /**
    * Handle inspector changes, and on input field blurs, update node/link data state.
@@ -271,40 +354,65 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
    * @param value the new value of that property
    * @param isBlur whether the input event was a blur, indicating the edit is complete
    */
-  public handleInputChange(path: string, value: string, isBlur: boolean) {
-    this.setState(
-      produce((draft: AppState) => {
-        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        data[path] = value;
-        if (isBlur) {
-          const key = data.key;
-          if (key < 0) {  // negative keys are links
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined && idx >= 0) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } else {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined && idx >= 0) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
+  public handleInputChange = (path: string, value: string, isBlur: boolean) => {
+    let refreshNodes = false;
+    let refreshLinks = false;
+    this.setState(prevState => {
+      const currentSelection = prevState.selectedData;
+      if (!currentSelection) {
+        return null;
+      }
+      const updatedSelection = { ...currentSelection, [path]: value };
+      let nodeDataArray = prevState.nodeDataArray;
+      let linkDataArray = prevState.linkDataArray;
+      let skipsDiagramUpdate = prevState.skipsDiagramUpdate;
+
+      if (isBlur) {
+        const key = updatedSelection.key;
+        if (key < 0) {  // negative keys are links
+          const idx = this.mapLinkKeyIdx.get(key);
+          if (idx !== undefined && idx >= 0) {
+            linkDataArray = [...prevState.linkDataArray];
+            linkDataArray[idx] = updatedSelection;
+            skipsDiagramUpdate = false;
+            refreshLinks = true;
+          }
+        } else {
+          const idx = this.mapNodeKeyIdx.get(key);
+          if (idx !== undefined && idx >= 0) {
+            nodeDataArray = [...prevState.nodeDataArray];
+            nodeDataArray[idx] = updatedSelection;
+            skipsDiagramUpdate = false;
+            refreshNodes = true;
           }
         }
-      })
-    );
-  }
+      }
+
+      return {
+        selectedData: updatedSelection,
+        nodeDataArray,
+        linkDataArray,
+        skipsDiagramUpdate
+      };
+    }, () => {
+      if (refreshNodes) {
+        this.refreshNodeIndex(this.state.nodeDataArray);
+      }
+      if (refreshLinks) {
+        this.refreshLinkIndex(this.state.linkDataArray);
+      }
+    });
+  };
 
   /**
    * Handle changes to the checkbox on whether to allow relinking.
    * @param e a change event from the checkbox
    */
-  public handleRelinkChange(e: any) {
+  public handleRelinkChange = (e: any) => {
     const target = e.target;
     const value = target.checked;
     this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
-  }
+  };
 
   public render() {
     const selectedData = this.state.selectedData;
@@ -324,6 +432,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     return (
       <div>
         <PaletteWrapper
+          divClassName={this.props?.divClassName || 'diagram-component-palette'}
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={this.state.linkDataArray}
           modelData={this.state.modelData}
@@ -331,6 +440,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           onDiagramEvent={this.handleDiagramEvent}
           onModelChange={this.handleModelChange}
           diagramStyle={this.state.diagramStyle}
+          noOfCols={this.state.noOfCols}
+          onNodeContextMenu={this.handleSelectConnected}
 
         />
         {/* <label>

@@ -3,15 +3,14 @@
 We welcome contributions from everyone! Before participating, please read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Table of Contents
-1. [First-Time Contributors](#first-time-contributors)
-2. [Development Setup](#development-setup)
-3. [Development Workflow](#development-workflow)
-4. [Technology-Specific Guidelines](#technology-specific-guidelines)
-5. [Testing](#testing)
-6. [Pull Request Process](#pull-request-process)
-7. [Documentation](#documentation)
-8. [Need Help?](#need-help)
-9. [Acknowledgements](#acknowledgements)
+- [Contributing Guide 🌟](#contributing-guide-)
+  - [Table of Contents](#table-of-contents)
+  - [🚀 First-Time Contributors](#-first-time-contributors)
+  - [🛠️ Development Setup](#️-development-setup)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+- [Start development server](#start-development-server)
+- [Build production bundle](#build-production-bundle)
 
 ## 🚀 First-Time Contributors
 
@@ -21,20 +20,25 @@ New to open source? Check out our [Good First Issues](https://github.com/mimris/
 
 ### Prerequisites
 
-- Node.js 18+
-- GoJS 3.0+ (free trial OK for development)
-- TypeScript 5.0+
+- Node.js
+- Next.js
+- Redux Toolkit
+- React
+- GoJS
+- TypeScript
 
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/GraphicModelingApp.git
-cd GraphicModelingApp
+git clone https://github.com/mimris/mimris.git
+cd mimris
 npm install
 Branch Strategy
 Create a new branch from main:
 
 git checkout -b feat/your-feature-name
+
+```
 Use conventional branch prefixes:
 
 feat/: New features
@@ -44,32 +48,26 @@ refactor/: Code improvements
 💻 Development Workflow
 Running the App
 # Start development server
-yarn dev
-
-# Storybook for component development
-yarn storybook
-Key Scripts
-# Type checking
-yarn typecheck
-
-# Linting
-yarn lint
-
-# Formatting
-yarn format
+<<<<<<< HEAD
+npm dev
+=======
+npm run dev
+>>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 
 # Build production bundle
-yarn build
+npm run build
 📐 Technology-Specific Guidelines
 TypeScript
 Strict mode enabled (strict: true in tsconfig)
 
+<<<<<<< HEAD
+Update documentation if needed
+=======
 All components must have TypeScript interfaces
 
 Use generics with Redux hooks:
 
 const dispatch = useAppDispatch<AppDispatch>();
-const nodes = useAppSelector(selectNodes);
 Redux Toolkit
 Create slices in src/store/features
 
@@ -89,73 +87,29 @@ export const diagramSlice = createSlice({
     // Add async reducers
   }
 });
-GoJS Integration
-Create custom nodes in src/lib/gojsTemplates
-
-Use the diagram wrapper component:
-
-import { ReactDiagram } from 'gojs-react';
-import { nodeTemplate } from '../gojsTemplates';
-
-const DiagramWrapper = () => (
-  <ReactDiagram
-    initDiagram={initializeDiagram}
-    nodeTemplateMap={nodeTemplate}
-    skipsDiagramUpdate={false}
-  />
-);
-Never modify GoJS objects directly - use Redux actions
 
 Next.js Pages
-Use App Router structure
-Server components in src/app
 Client components in src/components
 Dynamic routes follow [param]/page.tsx convention
-🧪 Testing
-Test Types
-Test Type Location Command
-Unit Tests __tests__/*.test.ts yarn test:unit
-Integration cypress/e2e yarn test:e2e
-Visual Reg. cypress/snapshots yarn test:visual
-Testing Guidelines
-Mock Redux store for component tests
-Use @testing-library/user-event for interactions
-Snapshots must be reviewed for GoJS diagrams
-🔀 Pull Request Process
-Ensure all tests pass
-
-Update documentation if needed
+documentation if needed
+>>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 
 Include screenshots for UI changes
 
 Describe changes in conventional commit format:
 
-feat: add node connection system
-fix: resolve undo history bug
-docs: update contributing guide
 📚 Documentation
 Updating Docs
 Modify Markdown files in /docs
 
-Run documentation server:
-
-yarn docs:dev
-Keep JSDoc comments updated
-
-/**
- * Creates a new node in the diagram
- * @param position - {x,y} coordinates
- * @param type - Node type from NodeType enum
- */
-function createNode(position: Coord, type: NodeType): Node {
-  // implementation
-}
+<<<<<<< HEAD
+=======
 🆘 Need Help?
 Join our Discord Server
 Ask in GitHub Discussions
 Attend our weekly Office Hours (Wednesdays 3PM UTC)
+>>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 🙌 Thank you for contributing to GraphicModelingApp! Your work helps build better creative tools for everyone.
-
 
 This guide includes:
 1. Technology-specific guidelines for your stack
@@ -166,3 +120,7 @@ This guide includes:
 6. Community support channels
 
 Would you like me to add any specific section or modify the existing content?
+
+##aknowledgements
+
+

@@ -6,12 +6,12 @@
       "metamodels": [
         {
           "id": "f738227d-8a0b-4500-5ea5-b047a17b479f",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [
             {
               "id": "7981354b-c92f-4e34-8281-82b5b21c8414",
-              "name": "AKM-ADMIN_MM_Viewstyle",
+              "name": "AKM-ADMIN_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -1868,12 +1868,12 @@
         },
         {
           "id": "c25488d8-087c-4d96-2137-91ad04663b41",
-          "name": "IRTV_MM",
+          "name": "IRTV_META",
           "description": "",
           "viewstyles": [
             {
               "id": "90318e79-9493-4fef-2eb5-0818e7cf9dac",
-              "name": "IRTV_MM_Viewstyle",
+              "name": "IRTV_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -5050,7 +5050,7 @@
             },
             {
               "id": "360c265e-28dd-477a-9b30-f2c3d132bf9f",
-              "name": "IRTV_MM1",
+              "name": "IRTV_META1",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -5060,7 +5060,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "IRTV_MM1",
+              "nameId": "IRTV_META1",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -5070,7 +5070,7 @@
             },
             {
               "id": "f9cabce6-16a2-43af-3d3e-f74479062be3",
-              "name": "IRTV_MM",
+              "name": "IRTV_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -5080,7 +5080,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "IRTV_MM",
+              "nameId": "IRTV_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -5258,7 +5258,7 @@
                 },
                 {
                   "id": "54b3de9a-00ea-4d92-8135-8391533211c9",
-                  "name": "IRTV_MM1",
+                  "name": "IRTV_META1",
                   "description": "",
                   "objectRef": "360c265e-28dd-477a-9b30-f2c3d132bf9f",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
@@ -5282,7 +5282,7 @@
                 },
                 {
                   "id": "704af9b1-b4cc-4fcd-c946-70c7f4364e6e",
-                  "name": "IRTV_MM",
+                  "name": "IRTV_META",
                   "description": "",
                   "objectRef": "f9cabce6-16a2-43af-3d3e-f74479062be3",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

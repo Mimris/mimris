@@ -1,13 +1,13 @@
 ---
-title: 'AKM Modeller overview'
+title: 'Mimris Modeller overview'
 date: 'Oct 18, 2021'
-excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface.'
+excerpt: 'Mimris Modeller is a free, open-source, cross-platform modeling tool. It is based on the Mimris Modeller Core, which includes model and metamodel definitions, and a graphical user interface.'
 cover_image: 'images/posts/overview/image001.png'
 ---
 
 # Introduction
 
-The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. 
+The Mimris Modeller is a generic platform for developing and utilizing knowledge models. 
 It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types. Both entities and relationships may be described by relevant properties and associated methods.
 
 The user interface is implemented as a graphic modelling environment where each concept is visualized graphically to ease communication between users. The visualization of objects and relationships is customizable.
@@ -32,7 +32,7 @@ table of contents
 
 # Concepts
 
-The models in AKMM are organized in Projects, as shown in the figure below.
+The models in MimrisM are organized in Projects, as shown in the figure below.
 
 ## The Project
 
@@ -49,13 +49,13 @@ To see the content of a model, <b>Modelviews</b> are used. A Modelview shows vis
 
 ## The Metamodel
 
-A fundamental concept in AKMM is the Metamodel as illustrated in the figure below.
+A fundamental concept in Mimris is the Metamodel as illustrated in the figure below.
 
 On the base level the Metamodel consists of <b>Object types</b> and <b>Relationship types</b>, 
 and the definition of how they play together. <br>
 A Relationship type points to two object types, 
 the FROM object type and the TO object type, <br>
-which tells us that a relationship in AKMM has a direction, <br> 
+which tells us that a relationship in Mimris has a direction, <br> 
 which normally is shown in the model views with an arrow pointing to the TO object. <br>
 In addition, 
 the Metamodel contains Object Typeviews, <br>

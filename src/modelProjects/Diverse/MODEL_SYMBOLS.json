@@ -4185,7 +4185,7 @@
         },
         {
           "id": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "name": "TEST_MM",
+          "name": "TEST_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -4208,12 +4208,12 @@
         },
         {
           "id": "f738227d-8a0b-4500-5ea5-b047a17b479f",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [
             {
               "id": "7981354b-c92f-4e34-8281-82b5b21c8414",
-              "name": "AKM-ADMIN_MM_Viewstyle",
+              "name": "AKM-ADMIN_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false

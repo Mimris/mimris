@@ -456,6 +456,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                     currentObjectView['template'] = data.template;
                     currentObjectView['template2'] = data.template2;
                     currentObjectView['figure'] = data.figure;
+                    currentObjectView['figure2'] = data.figure2;
                     currentObjectView['fillcolor'] = data.fillcolor;
                     currentObjectView['strokecolor'] = data.strokecolor;
                     currentObjectView['strokewidth'] = data.strokewidth;
@@ -561,6 +562,7 @@ export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: 
     toObjview["icon"]         = fromObjview["icon"];
     toObjview["geometry"]     = fromObjview["geometry"];
     toObjview["figure"]       = fromObjview["figure"];
+    toObjview["figure2"]      = fromObjview["figure2"];
     toObjview["routing"]      = fromObjview["routing"];
     toObjview["linkcurve"]    = fromObjview["linkcurve"];
     toObjview["fillcolor"]    = fromObjview["fillcolor"];
@@ -1091,10 +1093,13 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
-        if (askForRelshipName) {
-            relname = prompt("Enter relationship name:", typename);
-            relship.name = relname;
-        }
+        // if (askForRelshipName) {
+        //     relname = prompt("Enter relationship name:", typename);
+        //     relship.name = relname;
+        // }
+        // if (relname = "flowsTo") {
+        //     relship.name = "..."
+        // }
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);
         myModel.addRelationship(relship);
@@ -2566,9 +2571,32 @@ export function scaleNodeLocation(group: any, node: any): any {
     deltaNy *= scale;
     nx = gx + deltaNx;
     ny = gy + deltaNy;
-    const loc = { "x": nx, "y": ny };
+    const loc = nx + " " + ny;
     if (debug) console.log('921 node, node.loc, loc', node, node.loc, loc);
     return loc;
+}
+
+export function scaleNodeLocation1(group: any, node: any): any {
+    if (group.scale == node.scale)
+        return;
+    let scaleFactor = node.scale / group.scale;
+    const grploc = group.loc;
+    const grpLoc = grploc?.split(" ");
+    if (!grpLoc) return;
+    const gx = parseInt(grpLoc[0]);
+    const gy = parseInt(grpLoc[1]);
+    const nodloc = node.loc;
+    const nodLoc = nodloc?.split(" ");
+    if (!nodLoc) return;
+    const nx = parseInt(nodLoc[0]);
+    const ny = parseInt(nodLoc[1]);
+    let deltaNx = (nx - gx) * scaleFactor;
+    let deltaNy = (ny - gy) * scaleFactor;
+    const deltaX = nx - deltaNx;
+    const deltaY = ny - deltaNy;
+    const loc1 = deltaX + " " + deltaY;
+    const loc2 = nx + " " + ny;
+    return loc2;
 }
 
 export function scaleNodeLocation2(node: any, refloc: string, toloc: any, scaleFactor: any): any {
@@ -2588,7 +2616,7 @@ export function scaleNodeLocation2(node: any, refloc: string, toloc: any, scaleF
     if (debug) console.log('1159 rx, ry, nx, ny, deltaNx, deltaNy', rx, ry, nx, ny, deltaNx, deltaNy);
     nx = rx + deltaNx;
     ny = ry + deltaNy;
-    const loc = { "x": nx, "y": ny };
+    const loc = nx + " " + ny;
     if (debug) console.log('1163 node, node.loc, loc', node, node.loc, loc);
     return loc;
 }
@@ -2621,7 +2649,7 @@ export function addItemToList(list: any, item: any) {
     list?.push(item);
 }
 
-export function isPropIncluded(k: string, type: akm.cxType): boolean {
+export function isPropIncluded(k: string, type: akm.cxType, includeInherited: boolean): boolean {
     let retVal = true;
     if (k === '__gohashid') retVal = false;
     // if (k === 'abstract') retVal = false;
@@ -2688,6 +2716,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'points') retVal = false;
     if (k === 'propertyValues') retVal = false;
     if (k === 'relship') retVal = false;
+    if (k === 'relshipkind') retVal = false;
     if (k === 'relshipRef') retVal = false;
     if (k === 'relshiptype') retVal = false;
     if (k === 'relview') retVal = false;
@@ -2722,8 +2751,9 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'valueset') retVal = false;
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
+    if (k === 'iconpath') retVal = false;
     // if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
+    // if (k === 'relshipkind') retVal = false;
     if (type?.name !== 'ViewFormat' &&
         type?.name !== 'Datatype' &&
         type?.name !== 'Property') {
@@ -2738,6 +2768,22 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
         if (k === 'fieldType') retVal = false;
     }
+    if (type.name !== 'Task') {
+        if (k === 'icon1') retVal = false;
+        if (k === 'icon2') retVal = false;
+        if (k === 'icon3') retVal = false;
+    }
+    if (type.template === 'ActivityNode') {
+        if (k === 'figure') retVal = false;
+        if (k === 'figure2') retVal = false;
+    }
+    // if (includeInherited === true) {
+    //     // Check if property exists in inherited type
+    //     const inheritedProp = type?.findPropertyByName2(k, true);
+    //     if (inheritedProp.length > 0) {
+    //         retVal = true;
+    //     }
+    // }
     return retVal;
 }
 export function isPropIncluded2(k: string, type: akm.cxType): boolean {
@@ -3175,6 +3221,27 @@ export function purgeDuplicatedLinks(links: any[]): any[] {
     return links;
 }
 
+export function purgeDuplicateMetamodels(metis: akm.cxMetis) {
+
+    const metamodels = metis.metamodels;
+    const newMetamodels = new Array();
+    for (let i = 0; i < metamodels?.length; i++) {
+        const metamodel = metamodels[i];
+        let found = false;
+        for (let j = 0; j < newMetamodels?.length; j++) {
+            const metamodel2 = newMetamodels[j];
+            if (metamodel2.name === metamodel.name) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            newMetamodels.push(metamodel);
+        }
+    }
+    metis.metamodels = newMetamodels;
+}
+
 function isMemberOfSubmodel(myMetis: akm.cxMetis, objview: akm.cxObjectView): boolean {
     if (objview?.group) { // then objview is a member of a group
         let mview = objview.modelview; // Current modelview
@@ -3230,6 +3297,16 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg = "First do some initial checks\n";
     const metamodels = myMetis.metamodels;
     let modifiedRelshipViews = new Array();
+
+    const mViews = new Array();
+    // Check for corrupt modelviews}
+    for (let i = 0; i < modelviews?.length; i++) {
+        const modelview = modelviews[i];
+        if (!modelview) continue;
+        if (!modelview.id) continue;
+        mViews.push(modelview);
+    }
+    model.modelviews = mViews;
 
     { // Check for duplicate relship types in the metamodels
         for (let i = 0; i < metamodels?.length; i++) {
@@ -3792,6 +3869,9 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
             }
         }
     }
+    // Then go through the metamodels and remove duplicates
+    purgeDuplicateMetamodels(myMetis);
+
     // repair RelationshipTypeViews
     purgeUnusedRelshiptypes(myMetis);
     repairRelationshipTypeViews(myMetis, myDiagram);
@@ -3803,7 +3883,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
     // repair ObjectTypeViews
     const modifiedMetamodels = new Array();
     const metamodels: akm.cxMetaModel[] = [];
-    const coreMetamodel = myMetis.findMetamodelByName("AKM-META_MM");
+    const coreMetamodel = myMetis.findMetamodelByName("CORE_META");
     const objtypeviews = getObjectTypeviews(coreMetamodel);
     coreMetamodel.objecttypeviews = objtypeviews;
     metamodels.push(coreMetamodel);
@@ -3812,7 +3892,7 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
 
     for (let i = 0; i < myMetis.metamodels?.length; i++) {
         const mmodel = myMetis.metamodels[i];
-        if (mmodel.name === 'AKM-META_MM') continue;
+        if (mmodel.name === 'CORE_META') continue;
         const objtypeviews = getObjectTypeviews(mmodel);
         mmodel.objecttypeviews = objtypeviews;
         metamodels.push(mmodel);
@@ -3836,6 +3916,12 @@ export function verifyAndRepairMetamodels(myMetis: akm.cxMetis, myDiagram: any) 
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
     });
+    // Dispatch myMetis
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = { metis: jsnMetis }
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    msg = "End Verification\n";
 
     report += printf(format, msg);
     if (debug) console.log(report);
@@ -4457,7 +4543,7 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
 
 export function isGenericMetamodel(myMetis: akm.cxMetis) {
     const metamodel = myMetis.currentMetamodel;
-    if (metamodel.name === 'GENERIC_MM')
+    if (metamodel.name === 'GENERIC_META')
         return true;
     return false;
 }
@@ -4624,3 +4710,89 @@ export function fullFillGoModel(myGoModel: gjs.goModel, myModelView: akm.cxModel
     return myGoModel;
 }
 
+/**
+ * Returns the parent group for a given cxObjectView, if one exists.
+ * This example assumes that the child's "group" property holds the parent’s id
+ * and that you have access to the current model view (e.g. "currentModelView")
+ * which can be used to find an object view by its id.
+ *
+ * Modify this implementation to suit your project’s structure.
+ *
+ * @param ov The child cxObjectView.
+ * @returns The parent cxObjectView if found, otherwise null.
+ */
+export function getParent(ov: cxObjectView): cxObjectView | null {
+  if (ov && ov.group) {
+    // Assuming you have a reference to the current model view.
+    // For example, if it's globally accessible via "currentModelView":
+    const currentModelView = ov.modelview; // Replace with your actual model view reference
+    return currentModelView.findObjectView(ov.group);
+  }
+  return null;
+}
+
+
+/**
+ * Recursively calculates the effective scale for a member view by accumulating the scale factors
+ * of all its ancestor groups using the global getParent function.
+ *
+ * @param member - The child cxObjectView whose effective scale is to be calculated.
+ * @returns The effective scale as a number.
+ */
+function getEffectiveScale(member: cxObjectView): number {
+    let effectiveScale = member.scale || 1.0;
+    let currentParent = getParent(member);
+    while (currentParent) {
+        effectiveScale *= (currentParent.scale || 1.0) * (currentParent.memberscale || 1.0);
+        currentParent = getParent(currentParent);
+    }
+    return effectiveScale;
+}
+
+/**
+ * Calculates and returns the new (x,y) position and (width, height) for a member object view,
+ * based on the recursively accumulated effective scale. Assumes that member.loc is in the format "x y"
+ * and member.size is in the format "width height".
+ *
+ * @param member - The child cxObjectView to be repositioned and resized.
+ * @returns An object containing the calculated x, y, width and height.
+ */
+function calculateRecursiveMemberLayout(member: cxObjectView): { x: number; y: number; width?: number; height?: number } {
+    const effectiveScale = getEffectiveScale(member);
+    let x = 0, y = 0;
+    let width: number | undefined, height: number | undefined;
+    
+    if (member.loc) {
+        const parts = member.loc.split(" ").map(s => parseFloat(s.trim()));
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            x = parts[0] * effectiveScale;
+            y = parts[1] * effectiveScale;
+        }
+    }
+    
+    if (member.size) {
+        const parts = member.size.split(" ").map(s => parseFloat(s.trim()));
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            width = parts[0] * effectiveScale;
+            height = parts[1] * effectiveScale;
+        }
+    }
+    
+    return { x, y, width, height };
+}
+
+/**
+ * Updates the member's 'loc' and 'size' properties using the recursively computed effective scale.
+ *
+ * @param member - The cxObjectView to update.
+ */
+export function updateRecursiveMemberLayout(member: cxObjectView): void {
+    const layout = calculateRecursiveMemberLayout(member);
+    member.loc = `${layout.x} ${layout.y}`;
+    
+    if (layout.width !== undefined && layout.height !== undefined) {
+        member.size = `${layout.width} ${layout.height}`;
+    }
+    
+    console.log(`Updated recursive layout for ${member.id}: loc=${member.loc}, size=${member.size}`);
+}

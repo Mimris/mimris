@@ -17,32 +17,39 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   let inheritedTypenames = []; 
   let typenames;
   const modelRef = metamodel?.generatedFromModelRef;
-  let model = metis?.findModel(modelRef);
+  let genFromModel = metis?.findModel(modelRef);
   let objtypes = [];
   const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
   if (metamodel) {
     const mmtypenames = [];
-    objtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
-    if (objtypes) {
-      for (let i = 0; i < objtypes.length; i++) {
-        const objtype = objtypes[i];
+    const allObjtypes = metamodel.includeSystemtypes ? metamodel?.objecttypes : metamodel?.objecttypes0;
+    if (allObjtypes) {
+      for (let i = 0; i < allObjtypes.length; i++) {
+        const objtype = allObjtypes[i];
         if (objtype) {
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
+            if (isCoreMetamodel) {              
+              objtype.abstract = false;
+            }
             if (isCoreMetamodel || !metamodel.includeSystemtypes) {
               mmtypenames.push(objtype.name);
+              objtypes.push(objtype);
             } else
               continue;
           }
-          if (!objtype.abstract )
+          if (!objtype.abstract ) {
             mmtypenames.push(objtype.name);
+            objtypes.push(objtype);
+          }
         }
       }
+      console.log('41 mmtypenames', mmtypenames); 
     }
     typenames = [...new Set(mmtypenames)];
     if (debug) console.log('32 MM objecttypes', typenames);
   }
-  if (model) {
-    const mmodel = model.metamodel;
+  if (genFromModel) {
+    const mmodel = genFromModel.metamodel;
     const objtypenames = [];
     const objtypes = mmodel?.objecttypes;
     if (objtypes) {
@@ -56,12 +63,15 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     inheritedTypenames = [...new Set(objtypenames)];
     if (debug) console.log('47 objecttypes', inheritedTypenames);
   }
+  
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
+
   let objecttypes: akm.cxObjectType[] | null = objtypes; //  metamodel?.objecttypes0;
+  if (debug) console.log('66 objecttypes', objecttypes);
   if (objecttypes) {
     objecttypes.sort(utils.compare);
   }
-  if (debug) console.log('54 objecttypes', objecttypes);
+  if (debug) console.log('69 objecttypes', objecttypes);
   if (objecttypes) {
     let includesSystemtypes = false;
     const otypes = new Array();
@@ -98,6 +108,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     if (debug) console.log('78 otypes', otypes);
     const noTypes = otypes.length;
     for (let i = 0; i < noTypes; i++) {
+      if (otypes[i].abstract) continue;  // abstract types are not included
       const objtype: akm.cxObjectType = otypes[i];
       if (!includesSystemtypes) {    // Systemtypes are not included
         // Check if objtype is one of typenames
@@ -137,9 +148,9 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
         }
       }
       // End hack
-      objview.setTypeView(typeview);
+      objview.setTypeView(typeview); 
       const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
-      node.loadNodeContent(myGoPaletteModel);
+      node.loadNodeContent(myGoPaletteModel);  
       if (debug) console.log('121 node', objtype, objview, node);
       node.isGroup = objtype.isContainer();
       if (node.isGroup)
@@ -147,32 +158,36 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       myGoPaletteModel.addNode(node);
     }
   }
-  if (debug) console.log('128 Objecttype palette', myGoPaletteModel);
+  if (debug) console.log('154 Objecttype palette', myGoPaletteModel.nodes);
   return myGoPaletteModel;
 }
 
-export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: boolean = false): gjs.goModel {
+export function buildObjectPalette(
+  objects: akm.cxObject[],
+  relships: akm.cxRelship[] = [],
+  includeDeleted: boolean = false
+): { nodeArray: any[]; linkArray: any[] } {
+  relships = relships || []; // Ensure relships is always an array
   const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
   if (debug) console.log('134 ui_buildmodels objects', objects);
-  if (objects) {
-    // console.log('136 ui_buildmodels objects', objects);
-    // objects.sort(utils.compare);
-  }
-  const nodeArray = new Array();
+
+  const nodeArray = [];
+  const linkArray = [];
+    const objectViewMap = {}; // <-- Add this
+
+  // Build nodes
   for (let i = 0; i < objects?.length; i++) {
     let includeObject = false;
     const obj = objects[i];
-    if (debug) console.log('142 obj', obj);
     const objtype = obj?.getObjectType();
-    if (!objtype) continue; // added 2022-09-29 sf 
-    if (!objtype.getDefaultTypeView) continue; // added 2022-09-29 sf 
+    if (!objtype) continue;
+    if (!objtype.getDefaultTypeView) continue;
     const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
     const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "", null);
     objview.setTypeView(typeview);
-    if (debug) console.log('147 obj, objview:', obj, objview);
+
     if (!includeDeleted) {
-      if (obj.isDeleted())
-        includeObject = false;
+      if (obj.isDeleted()) includeObject = false;
     }
     if (includeDeleted) {
       if (obj.markedAsDeleted) {
@@ -181,14 +196,10 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       }
     }
     if (!includeNoType) {
-      if (!obj.type) {
-        if (debug) console.log('160 obj', obj);
-        obj.markedAsDeleted = true;
-      }
+      if (!obj.type) obj.markedAsDeleted = true;
     }
     if (includeNoType) {
       if (!obj.type) {
-        if (debug) console.log('166 obj', obj);
         objview.strokecolor = "green";
         includeObject = true;
       }
@@ -206,11 +217,44 @@ export function buildObjectPalette(objects: akm.cxObject[], includeDeleted: bool
       }
       if (obj.fillcolor !== "" && obj.fillcolor !== undefined)
         vdata.fillcolor = obj.fillcolor;
-      node.addData(vdata);
-      nodeArray.push(node);
+        node.addData(vdata);
+        node.objectview = objview; // <-- Assign objectview to node
+        node.object = obj;         // <-- Assign object to node for lookup
+        nodeArray.push(node);
+        objectViewMap[obj.id] = objview; // <-- Map object id to objectview
     }
   }
-  return nodeArray;
+
+  // after building nodeArray
+  const objIdToNodeKey = new Map<string, string>();
+  for (const n of nodeArray) {
+    // pick the actual GoJS key used by your node class
+    const nodeKey = n.key ?? n.id ?? n.objectview?.id;
+    objIdToNodeKey.set(n.object?.id, nodeKey);
+  }
+
+
+  // Build links between objects
+  for (const rel of relships) {
+  const fromObjId = rel.fromobjectRef || rel.fromObject?.id;
+  const toObjId   = rel.toobjectRef   || rel.toObject?.id;
+
+  const fromKey = objIdToNodeKey.get(fromObjId);
+  const toKey   = objIdToNodeKey.get(toObjId);
+
+  if (!fromKey || !toKey) continue;
+
+  const relView = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+  if (objectViewMap[fromObjId]) relView.setFromObjectView(objectViewMap[fromObjId]);
+  if (objectViewMap[toObjId])   relView.setToObjectView(objectViewMap[toObjId]);
+
+  const link = new gjs.goRelshipLink(relView.id, myGoObjectPalette, relView);
+  link.from = fromKey;
+  link.to   = toKey;
+  linkArray.push(link);
+}
+  
+  return { nodeArray, linkArray };
 }
 
 export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView, includeDeleted: boolean, includeNoObject: boolean, showModified: boolean): gjs.goModel {
@@ -224,6 +268,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   const myGoModel = new gjs.goModel(guid, "myModel", modelview);
   // load object views
   let objviews = modelview?.getObjectViews() as akm.cxObjectView[];
+  if (debug) console.log('232 objviews', objviews);
   if (objviews) {
     const focusObjview = modelview?.focusObjectview;
     for (let i = 0; i < objviews.length; i++) {
@@ -317,24 +362,26 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
-         myGoModel.addNode(node);
+        myGoModel.addNode(node);
         node.name = objview.name;
         const object = node.object as akm.cxObject;
         let objtype = object?.type as akm.cxObjectType;
         if (!objtype) objtype = metis.findObjectType(object.typeRef);
-        const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-        if (typeview) {
-          if (!node.template) node.template = typeview.template;
-          if (node.template === "") node.template = typeview.template;
-          if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
-          if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
-          if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
-          if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
-          if (node.textcolor === "") node.textcolor = typeview.textcolor;
-          if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
-          if (node.icon === "") node.icon = typeview.icon;
-          if (node.image === "") node.image = typeview.image;
-          if (node.viewkind === "") node.viewkind = typeview.viewkind;
+        if (objtype?.name !== 'EntityType') {
+          const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
+          if (typeview) {
+            if (!node.template) node.template = typeview.template;
+            if (node.template === "") node.template = typeview.template;
+            if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
+            if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
+            if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
+            if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
+            if (node.textcolor === "") node.textcolor = typeview.textcolor;
+            if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
+            if (node.icon === "") node.icon = typeview.icon;
+            if (node.image === "") node.image = typeview.image;
+            if (node.viewkind === "") node.viewkind = typeview.viewkind;
+          }
         }
       }
     }
@@ -361,6 +408,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         node.text = objview.name;
       }
       let typeview = objview.typeview;
+      if (!typeview) 
+        typeview = objview.object?.type?.typeview as akm.cxObjectTypeView;
+
       if (typeview && typeview instanceof akm.cxObjectTypeView) {
         typeview = metis.findObjectTypeView(typeview.id);
         objview.setTypeView(typeview);
@@ -663,7 +713,7 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
 }
 
 export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
-  const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+  const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
   if (!adminMetamodel) {
     if (debug) console.log('555 No Admin Metamodel found!');
     return;
@@ -744,7 +794,7 @@ export function buildAdminModel(myMetis: akm.cxMetis): akm.cxModel {
       for (let i = 0; i < metamodels.length; i++) {
         const mm = metamodels[i];
         if (mm) {
-          if (mm.name === constants.admin.AKM_ADMIN_MM)
+          if (mm.name === constants.admin.AKM_ADMIN_META)
             continue;
           let mmObj;
           if (!mmObj) { // Metamodel object

@@ -36,7 +36,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
             name: "Modeller 1",
             tasks: [
                 {
-                    id: "AKM-IRTV-POPS_MM",
+                    id: "AKM-IRTV-POPS_META",
                     name: "IRTV-POPS Modelling",
                     description: "Modeling with AKM-IRTV-POPS objects",
                     workOnTypes: [
@@ -146,7 +146,7 @@ const genRoleTasks = (currole, curtask, curtasks, curtypes, mmodel, dispatch: Di
     const foundRole = datarole?.focusRole // hardcode for now
 
     const foundMMTask = foundRole?.tasks?.find(t =>  t.id === mmodel.name && t) || null
-    const foundPOPSTask = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (t.name === 'AKM-IRTV-POPS_MM') && t) || null
+    const foundPOPSTask = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t =>  (t.name === 'AKM-IRTV-POPS_META') && t) || null
     const foundProcessTask = (foundMMTask?.id.includes("POPS")) && foundRole?.tasks?.find(t => (t.id === 'Process') && t) || null
     const foundIRTVTask =  (!foundMMTask?.id.includes("IRTV")) && foundRole?.tasks?.find(t =>  ((mmodel.name.includes("IRTV")) || (mmodel.id.includes("Role"))) && t) || null
     const foundPropertyObj = mmodel.objecttypes.find(ot => ot.name === "Property") || null

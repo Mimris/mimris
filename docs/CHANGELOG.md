@@ -1,10 +1,7 @@
 # Changelog
 
-## [2.1.0] - 2023-08-20
+## [1.1.0] - 2025-04-09
 ### Added
-- Node grouping functionality
-- Plugin version checker
-
+- Establish Mimris and copied all code from AKMM
 ### Fixed
-- Memory leak in undo stack
-...
+- Renamed AKMM to Mimris in user interface

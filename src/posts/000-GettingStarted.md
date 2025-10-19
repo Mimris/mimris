@@ -1,14 +1,14 @@
 ---
-title: 'Getting Started with AKM Modeller'
+title: 'Getting Started with Mimris Modeller'
 date: 'Oct 18, 2021'
-excerpt: 'AKM Modeller is a tool for Active Knowledge Modelling (AKM). 
+excerpt: 'Mimris Modeller is a tool for Active Knowledge Modelling (AKM). 
 This Guide help you getting started and show you how to load and save a Project with models and metamodels from local Json-files and a GitHub Repository'
 cover_image: 'images/posts/overview/image00.png'
 ---
 
 ## Introduction
 
-AKM Modeller is a tool for modeling, creating and managing AKM models and metamodels.
+Mimris Modeller is a tool for modeling, creating and managing AKM models and metamodels.
 The models are stored in Json-files and can be loaded and saved from local files or from GitHub.
 
 table of contents:
@@ -24,19 +24,19 @@ table of contents:
 
 ## Getting started
 
-When you start AKM Modeller you will see a welcome screen.
+When you start Mimris Modeller you will see a welcome screen.
 
 ![Homepage](/images/posts/overview/image00.png)
 
-Here you will find some information about AKM (Active Knowledge Models) and the AKM Modeller Tool.
-There are more information about AKM Modeller in the [About page](/about).
+Here you will find some information about AKM (Active Knowledge Models) and the Mimris Modeller Tool.
+There are more information about Mimris Modeller in the [About page](/about).
 
 Open the modeller by clicking on the modelling tab in the top menu.
 
 ![Modellingpage](/images/posts/overview/image01.png)
 
 An initial project will be opened. 
-- 1 The left pane you find the Metamodel-palette with AKM-IRTV_MM metamodel.
+- 1 The left pane you find the Metamodel-palette with IRTV_META metamodel.
 - 2 The Objects-palette (empty) 
 - 3 The Modelling area.
 - 4 Main Project menu (Hamburger menu) File, Import, Export.

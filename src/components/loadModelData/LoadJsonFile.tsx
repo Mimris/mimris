@@ -217,12 +217,12 @@ const LoadJsonFile = (props: any) => {
   const modalDiv = (
     <Modal size="lg" isOpen={modal} toggle={toggle}>
       <ModalHeader toggle={() => { toggle(); props.setRefresh(!props.refresh); }}>Import OSDU Schema:</ModalHeader>
-      {curMetamodel?.name !== 'AKM-OSDU_MM' && modal ? (
+      {curMetamodel?.name !== 'OSDU_META' && modal ? (
         <ModalBody className="d-flex flex-column">
           <div className="source bg-warning p-5 m-5 fs-3">
-            <div>Current metamodel is not an AKM-OSDU_MM metamodel!</div>
+            <div>Current metamodel is not an OSDU_META metamodel!</div>
             <br />
-            <div>Please select a model with an AKM-OSDU_MM metamodel to import OSDU JSON files.</div>
+            <div>Please select a model with an OSDU_META metamodel to import OSDU JSON files.</div>
           </div>
         </ModalBody>
       ) : (

@@ -22,14 +22,12 @@ import Issues from "../components/Issues";
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 
-
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
 
 const Page1 = (props: any) => {
 
   const dispatch = useDispatch();
-
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -38,7 +36,6 @@ const Page1 = (props: any) => {
   const [minimized, setMinimized] = useState(true);
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
   const [exportTab, setExportTab] = useState(0);
-
 
   function dispatchLocalStore(locStore: any) {
     // filter out null models and metamodels
@@ -208,6 +205,7 @@ const Page1 = (props: any) => {
     const locProps = { ...props, phMymetis: null }
     setMemorySessionState(locProps)
   }, [props.phSource])
+  
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
@@ -220,6 +218,19 @@ const Page1 = (props: any) => {
       />
     </div>
   )
+
+  const handleExternalLinkClick = () => {
+    // Copy sessionStorage to localStorage
+    const sessionData = sessionStorage.getItem('memorystate');
+    if (sessionData) {
+      setMemoryLocState(sessionData);
+    }
+
+    // Construct the URL and open it in a new tab
+    const url = `/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
+      }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`;
+    window.open(url, "_blank");
+  };
 
   const modellingDiv = (mount)
     ?
@@ -260,13 +271,22 @@ const Page1 = (props: any) => {
               }
             </div>
             <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>
-              <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
-                }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
-                target="_blank"
-                style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "lightgray" }}
+              <button
+                onClick={() => handleExternalLinkClick()}
+                style={{
+                  position: "absolute",
+                  marginRight: "9px",
+                  marginTop: "8px",
+                  right: "0",
+                  top: "",
+                  color: "lightgray",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer"
+                }}
               >
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
-              </Link>
+              </button>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling {...props}
                   visibleFocusDetails={visibleFocusDetails}

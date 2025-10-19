@@ -12,6 +12,8 @@ import Button from "react-bootstrap/Button";
 import taskIcon from "/public/images/task.png";
 import ReportModule from "./export/ReportModule";
 
+import Help from "../help/000-Create-Metamodel";
+
 // import {ObjDetailTable} from './forms/ObjDetailTable';
 // import { set } from 'immer/dist/internal';
 // import { addLinkToDataArray } from '../akmm/ui_common';
@@ -29,6 +31,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
   const dispatch = useDispatch();
+  const [helpContent, setHelpContent] = useState('');
 
   const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
@@ -53,6 +56,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   //   }
   //   openOneLevel();
   // } , []);
+
 
   useEffect(() => {
     if (debug) useEfflog('59 Tasks useEffect 1 [props.visible]');
@@ -313,12 +317,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               {focusRole?.name}
             </span>
           </div>
-          <div>
+          {/* <div>
             Task:{" "}
             <span className="font-weight-bold text-success bg-white p-1">
               {focusTask?.name}
             </span>
-          </div>
+          </div> */}
           <div className="mb-3">
             {(!collapsed) // collapsed task container
               ?
@@ -343,12 +347,15 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               </button>
             }
           </div>
-          <hr className="m-0 p-2" />
+          <hr className="m-0" />
         </div>
-        <div className="tasks" style={{ maxHeight: "70vh", overflow: "scroll" }}>
-          <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
-            {genTasksDiv()}
-          </div>
+        <div className="tasks" style={{ maxHeight: "68vh", overflow: "scroll" }}>
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+            {Help}
+          </ReactMarkdown>
+          {/* <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
+            {genTasksDiv()}  // rmoved for now
+          </div> */}
         </div>
       </div>
     </>

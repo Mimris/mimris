@@ -2681,8 +2681,19 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, groupNo
 }
 
 function normalizeGroupMemberPositions(group: go.Group, myGroup: akm.cxObjectView, diagram: go.Diagram) {
-  const padding = 40;
+  const horizontalPadding = 30;
+  const topPadding = horizontalPadding + 50;
   const groupLoc = group?.location?.copy() || new go.Point(0, 0);
+  const modelview = myGroup?.modelview;
+  const members: Array<{
+    node: go.Node;
+    data: any;
+    bounds: go.Rect | null;
+    location: go.Point;
+    objview: akm.cxObjectView | null;
+    baseScale: number;
+  }> = [];
+
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -2690,52 +2701,86 @@ function normalizeGroupMemberPositions(group: go.Group, myGroup: akm.cxObjectVie
 
   group.memberParts.each((part) => {
     if (!(part instanceof go.Node)) return;
-    const bounds = part.actualBounds;
-    if (!bounds) return;
-    if (bounds.left < minX) minX = bounds.left;
-    if (bounds.top < minY) minY = bounds.top;
-    if (bounds.right > maxX) maxX = bounds.right;
-    if (bounds.bottom > maxY) maxY = bounds.bottom;
+    const node = part as go.Node;
+    const bounds = node.actualBounds?.copy();
+    const loc = node.location.copy();
+    if (bounds) {
+      if (bounds.left < minX) minX = bounds.left;
+      if (bounds.top < minY) minY = bounds.top;
+      if (bounds.right > maxX) maxX = bounds.right;
+      if (bounds.bottom > maxY) maxY = bounds.bottom;
+    }
+    const data: any = node.data;
+    let objview: akm.cxObjectView | null = null;
+    if (data?.objectview) {
+      objview = data.objectview;
+    } else if (modelview && data?.objviewRef) {
+      objview = modelview.findObjectView(data.objviewRef);
+    }
+    const baseScale = data?.originalScale ?? data?.scale ?? 1;
+    members.push({ node, data, bounds, location: loc, objview, baseScale });
   });
 
+  if (members.length === 0) return;
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return;
 
-  const offsetX = (groupLoc.x + padding) - minX;
-  const offsetY = (groupLoc.y + padding) - minY;
+  const groupDataSize = (() => {
+    const raw = group?.data?.size;
+    if (typeof raw === "string" && raw.length > 0) {
+      const parsed = go.Size.parse(raw);
+      if (parsed.width > 0 && parsed.height > 0) return parsed;
+    }
+    const bounds = group.actualBounds?.copy();
+    if (bounds) return new go.Size(bounds.width, bounds.height);
+    return new go.Size(maxX - minX + horizontalPadding * 2, maxY - minY + topPadding + horizontalPadding);
+  })();
 
-  const modelview = myGroup?.modelview;
-  group.memberParts.each((part) => {
-    if (!(part instanceof go.Node)) return;
-    const node = part as go.Node;
-    const loc = node.location.copy();
-    loc.x += offsetX;
-    loc.y += offsetY;
-    node.location = loc;
-    const data: any = node.data;
-    const locString = go.Point.stringify(loc);
+  const availableWidth = Math.max(10, groupDataSize.width - horizontalPadding * 2);
+  const availableHeight = Math.max(10, groupDataSize.height - topPadding - horizontalPadding);
+  const contentWidth = Math.max(1, maxX - minX);
+  const contentHeight = Math.max(1, maxY - minY);
+  const scaleX = availableWidth / contentWidth;
+  const scaleY = availableHeight / contentHeight;
+  const scaleFactor = Math.min(1, scaleX, scaleY);
+
+  const targetLeft = groupLoc.x + horizontalPadding;
+  const targetTop = groupLoc.y + topPadding;
+
+  members.forEach((info) => {
+    const bounds = info.bounds || new go.Rect(info.location.x, info.location.y, 0, 0);
+    const relativeX = bounds.left - minX;
+    const relativeY = bounds.top - minY;
+    const newX = targetLeft + relativeX * scaleFactor;
+    const newY = targetTop + relativeY * scaleFactor;
+    const newPoint = new go.Point(newX, newY);
+    info.node.location = newPoint;
+
+    const data = info.data;
     if (data) {
+      const locString = go.Point.stringify(newPoint);
       diagram.model.setDataProperty(data, "loc", locString);
-      let memberObjview = data.objectview;
-      if (!memberObjview && modelview && data.objviewRef) {
-        memberObjview = modelview.findObjectView(data.objviewRef);
+      if (data.originalScale === undefined) {
+        diagram.model.setDataProperty(data, "originalScale", info.baseScale);
       }
-      if (memberObjview) {
-        memberObjview.loc = locString;
+      const newScale = info.baseScale * scaleFactor;
+      info.node.scale = newScale;
+      diagram.model.setDataProperty(data, "scale", newScale);
+      if (info.objview) {
+        info.objview.loc = locString;
+        info.objview.setScale?.(newScale);
+        info.objview.scale = newScale;
       }
     }
   });
 
-  const contentWidth = Math.max(0, maxX - minX);
-  const contentHeight = Math.max(0, maxY - minY);
-  const desiredWidth = contentWidth + padding * 2;
-  const desiredHeight = contentHeight + padding * 2;
-  const size = new go.Size(desiredWidth, desiredHeight);
-  const sizeString = go.Size.stringify(size);
+  const appliedScale = scaleFactor;
+  (group as any).memberscale = appliedScale;
   if (group.data) {
-    diagram.model.setDataProperty(group.data, "size", sizeString);
+    diagram.model.setDataProperty(group.data, "memberscale", appliedScale);
   }
   if (myGroup) {
-    myGroup.size = sizeString;
+    myGroup.setMemberscale?.(appliedScale);
+    myGroup.memberscale = appliedScale;
   }
 }
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {

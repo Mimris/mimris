@@ -4561,6 +4561,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const nodeData: any = part.data;
         if (!isGroupNode(nodeData)) return;
         if (!(part instanceof go.Group)) return;
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
         uid.doGroupLayout(objview, targetDiagram, part as go.Group);

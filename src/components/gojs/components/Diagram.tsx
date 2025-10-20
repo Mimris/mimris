@@ -34,6 +34,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
+import { applyDropLayout, deriveDropLayoutConfig } from '../layout/DropLayoutManager';
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
@@ -4533,6 +4534,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return isContainerView(data);
       }
 
+      function isPoolGroup(part: go.Part | null | undefined): boolean {
+        if (!part) return false;
+        const data: any = part.data || {};
+        const template = (data.template || data.category || '').toString().toLowerCase();
+        const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+        const typeName = (data.objecttype?.name || data.name || '').toString().toLowerCase();
+        return template.includes('pool') || viewkind === 'pool' || typeName.includes('pool');
+      }
+
+      function isLaneGroup(part: go.Part | null | undefined): boolean {
+        if (!part) return false;
+        if (isPoolGroup(part)) return false;
+        const data: any = part.data || {};
+        const template = (data.template || data.category || '').toString().toLowerCase();
+        const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+        const typeName = (data.objecttype?.name || data.name || '').toString().toLowerCase();
+        return template.includes('lane') || viewkind === 'lane' || typeName.includes('lane');
+      }
+
       function handleGroupSelectLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
         const targetDiagram = diagram || myDiagram;
         if (!targetDiagram || !part) return;
@@ -4602,6 +4622,67 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }
+
+      function applyGroupDropLayout(
+        diagram: go.Diagram | null | undefined,
+        part: go.Part | null,
+        preset?: string | null
+      ) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        if (!(part instanceof go.Group)) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
+
+        const dropOverrides = ((targetDiagram.model as any)?.modelData?.dropLayout) ?? null;
+        const dropConfig = deriveDropLayoutConfig(preset ?? null, dropOverrides);
+
+        const members: go.Node[] = [];
+        part.memberParts.each((member: go.Part) => {
+          if (member instanceof go.Node) {
+            members.push(member);
+          }
+        });
+        if (!members.length) return;
+
+        const bounds = part.actualBounds ? part.actualBounds.copy() : null;
+        const dropPoint = bounds ? bounds.center : part.location?.copy?.() || null;
+
+        applyDropLayout({
+          diagram: targetDiagram,
+          parts: members,
+          dropPoint,
+          config: dropConfig,
+          targetGroup: part as go.Group,
+        });
+
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
+      }
+
+      const globalLayoutOptions = [
+        { label: "Grid", value: "Grid" },
+        { label: "Circular", value: "Circular" },
+        { label: "Tree", value: "Tree" },
+        { label: "Force Directed", value: "ForceDirected" },
+        { label: "Layered Digraph", value: "LayeredDigraph" },
+        { label: "Manual", value: "Manual" },
+      ];
+
+      const dropLayoutMenuOptions = [
+        { label: "Default Drop Layout", value: null },
+        ...globalLayoutOptions
+          .filter(option => option.value !== "Manual")
+          .map(option => ({
+            label: `${option.label} Drop Layout`,
+            value: option.value,
+          })),
+      ];
 
       function applyGroupLayoutScheme(diagram: go.Diagram | null | undefined, part: go.Part | null, layoutKey: string) {
         const targetDiagram = diagram || myDiagram;
@@ -5242,6 +5323,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             closeOnClick: false,
           });
           if (part instanceof go.Group && isGroupNode(part?.data)) {
+            if (isPoolGroup(part)) {
+              items.push({
+                label: "Pool Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            } else if (isLaneGroup(part)) {
+              items.push({
+                label: "Lane Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            }
+
             const groupLayoutMenuItems: HtmlMenuItem[] = [
               ...globalLayoutOptions.map(option => ({
                 label: option.label,
@@ -5892,15 +5985,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           action: (diagram) => zoomSelection(diagram),
           enabled: (diagram) => diagram.selection.count > 0,
         },
-      ];
-
-      const globalLayoutOptions = [
-        { label: "Grid", value: "Grid" },
-        { label: "Circular", value: "Circular" },
-        { label: "Tree", value: "Tree" },
-        { label: "Force Directed", value: "ForceDirected" },
-        { label: "Layered Digraph", value: "LayeredDigraph" },
-        { label: "Manual", value: "Manual" },
       ];
 
       const layoutMenuItems: HtmlMenuItem[] = [

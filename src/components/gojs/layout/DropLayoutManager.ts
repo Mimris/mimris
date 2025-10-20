@@ -935,8 +935,11 @@ function positionAsGrid(args: GridPositioningArgs): void {
     }
 
     let location: go.Point | null = null;
+    let lastClamped: go.Point | null = null;
+    const maxAttempts = Math.max(nodeCount * 10, 100);
+    let attempts = 0;
 
-    while (!location) {
+    while (!location && attempts < maxAttempts) {
       const row = Math.floor(slotIndex / effectiveColumns);
       const col = slotIndex % effectiveColumns;
       slotIndex++;
@@ -945,10 +948,16 @@ function positionAsGrid(args: GridPositioningArgs): void {
       const centerY = offsetY + row * slotHeight;
       const candidate = new go.Point(centerX, centerY);
       const clamped = clampToGroup(candidate, nodeSize, targetGroup, config.padding);
+      lastClamped = clamped;
 
       if (!config.avoidOverlap || !hasCollision(clamped, nodeSize, existingRects, placedRects, config.padding)) {
         location = clamped;
       }
+      attempts++;
+    }
+
+    if (!location) {
+      location = lastClamped ?? clampToGroup(anchorPoint, nodeSize, targetGroup, config.padding);
     }
 
     applyLocation(diagram, node, location, nodeSize, placedRects, config.padding);
@@ -960,7 +969,7 @@ function positionAsGrid(args: GridPositioningArgs): void {
     if (!(group instanceof go.Group)) {
       return;
     }
-    const bounds = group.actualBounds;
+    const bounds = group.actualBounds?.copy();
     if (!bounds) {
       return;
     }
@@ -968,27 +977,112 @@ function positionAsGrid(args: GridPositioningArgs): void {
     if (!laneCount) {
       return;
     }
-    const padding = config.padding ?? 0;
-    const desiredWidth = Math.max(0, bounds.width - padding * 2);
-    const desiredHeight = Math.max(0, bounds.height - padding * 2);
-    const centerPoint = bounds.center;
+    const poolPadding =
+      typeof config.metadata?.poolPadding === 'number' && !isNaN(config.metadata.poolPadding)
+        ? config.metadata.poolPadding
+        : config.padding ?? 0;
+    const lanePadding =
+      typeof config.metadata?.lanePadding === 'number' && !isNaN(config.metadata.lanePadding)
+        ? config.metadata.lanePadding
+        : 8;
 
-    for (let i = 0; i < laneNodes.length; i++) {
-      const lane = laneNodes[i];
-      if (typeof diagram.model.setDataProperty === 'function' && lane.data) {
-        diagram.model.setDataProperty(lane.data, 'size', `${desiredWidth} ${desiredHeight}`);
-        diagram.model.setDataProperty(lane.data, 'loc', go.Point.stringify(centerPoint));
-      } else if (lane.data) {
-        lane.data.size = `${desiredWidth} ${desiredHeight}`;
-        lane.data.loc = go.Point.stringify(centerPoint);
-      }
-      lane.location = centerPoint.copy();
-      lane.ensureBounds();
-      const resizeObj = lane.resizeObject || lane.reshapeObject || lane;
-      if (resizeObj) {
-        resizeObj.desiredSize = new go.Size(desiredWidth, desiredHeight);
-      }
+    const leftPadding = Math.max(14, poolPadding * 0.45);
+    const rightPadding = Math.max(2, poolPadding * 0.18);
+    const topPadding = Math.max(2, poolPadding * 0.18);
+    const bottomPadding = Math.max(2, poolPadding * 0.3);
+
+    const availableWidth = Math.max(1, bounds.width - leftPadding - rightPadding);
+    const availableHeight = Math.max(1, bounds.height - topPadding - bottomPadding);
+    const left = bounds.x + leftPadding;
+    const top = bounds.y + topPadding;
+
+    const laneInfos = laneNodes
+      .map(lane => {
+        const data: any = lane.data || {};
+        let height = 0;
+        if (typeof data.size === 'string' && data.size.trim().length) {
+          const parsed = go.Size.parse(data.size);
+          height = parsed.height;
+        }
+        if (!height && lane.actualBounds) {
+          height = lane.actualBounds.height;
+        }
+        if (!height) {
+          height = availableHeight / laneCount;
+        }
+        height = Math.max(30, height);
+        const laneTop = lane.location?.y ?? lane.actualBounds?.y ?? 0;
+        const laneKey = getNodeKey(lane);
+        return { lane, data, height, top: laneTop, key: laneKey };
+      })
+      .sort((a, b) => {
+        if (a.top !== b.top) return a.top - b.top;
+        if (a.key !== undefined && b.key !== undefined) {
+          if (a.key < b.key) return -1;
+          if (a.key > b.key) return 1;
+        }
+        return 0;
+      });
+
+    const totalHeight =
+      laneInfos.reduce((sum, info) => sum + info.height, 0) + lanePadding * (laneInfos.length - 1);
+    let scaleFactor = 1;
+    if (totalHeight > availableHeight && totalHeight > 0) {
+      scaleFactor = availableHeight / totalHeight;
     }
+
+    let currentTop = top;
+    laneInfos.forEach((info, index) => {
+      const adjustedHeight = Math.max(20, info.height * scaleFactor);
+      const previousLocation = info.lane.location?.copy?.() || new go.Point(left, currentTop);
+      const topLeft = new go.Point(left, currentTop);
+      const sizeString = `${availableWidth} ${adjustedHeight}`;
+      if (typeof diagram.model.setDataProperty === 'function') {
+        diagram.model.setDataProperty(info.data, 'size', sizeString);
+        diagram.model.setDataProperty(info.data, 'loc', go.Point.stringify(topLeft));
+      } else {
+        info.data.size = sizeString;
+        info.data.loc = go.Point.stringify(topLeft);
+      }
+      info.lane.locationSpot = go.Spot.TopLeft;
+      info.lane.location = topLeft;
+      info.lane.ensureBounds();
+      const resizeObj = info.lane.resizeObject || info.lane.reshapeObject || info.lane;
+      if (resizeObj) {
+        resizeObj.desiredSize = new go.Size(availableWidth, adjustedHeight);
+      }
+      const deltaX = topLeft.x - previousLocation.x;
+      const deltaY = topLeft.y - previousLocation.y;
+      const laneMembers: go.Node[] = [];
+      info.lane.memberParts.each((memberPart: go.Part) => {
+        if (memberPart instanceof go.Node) laneMembers.push(memberPart);
+        const currentLoc = memberPart.location?.copy?.();
+        if (currentLoc) {
+          const newMemberLoc = new go.Point(currentLoc.x + deltaX, currentLoc.y + deltaY);
+          memberPart.location = newMemberLoc;
+          if (memberPart.data) {
+            diagram.model.setDataProperty(memberPart.data, 'loc', go.Point.stringify(newMemberLoc));
+          }
+        }
+      });
+      const memberHorizontalPadding = Math.max(2, lanePadding * 0.5);
+      const availableMemberWidth = Math.max(1, availableWidth - memberHorizontalPadding * 2);
+      const memberCount = laneMembers.length;
+      if (memberCount > 0) {
+        const spacing = availableMemberWidth / Math.max(1, memberCount);
+        laneMembers.forEach((memberNode, memberIndex) => {
+          const memberSize = getNodeSize(memberNode);
+          const targetX = left + memberHorizontalPadding + spacing * memberIndex + spacing / 2;
+          const targetY = currentTop + Math.min(adjustedHeight * 0.4, adjustedHeight / 2);
+          const targetPoint = new go.Point(targetX, targetY);
+          memberNode.location = targetPoint;
+          if (memberNode.data) {
+            diagram.model.setDataProperty(memberNode.data, 'loc', go.Point.stringify(targetPoint));
+          }
+        });
+      }
+      currentTop += adjustedHeight + (index < laneInfos.length - 1 ? lanePadding : 0);
+    });
   });
 
   overlapNodesByLane.forEach((memberNodes, laneKey) => {

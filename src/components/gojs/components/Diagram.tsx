@@ -3971,8 +3971,39 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.openCloseAllGroups(targetDiagram, open);
       };
 
-      const handleSetLayoutScheme = (diagram: go.Diagram) => {
+      const applyLayoutScheme = (diagram: go.Diagram, layoutName: string) => {
         const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram) return;
+        const normalized = layoutName;
+        const isMetamodelling = myMetis.modelType === 'Metamodelling';
+        if (isMetamodelling) {
+          const myMetamodel = myMetis.currentMetamodel;
+          if (myMetamodel) myMetamodel.layout = normalized;
+        } else {
+          const myModelview = myMetis.currentModelview;
+          if (myModelview) myModelview.layout = normalized;
+        }
+
+        if (normalized === 'Manual') {
+          const layout = targetDiagram.layout;
+          if (layout) {
+            layout.isInitial = false;
+            layout.isOngoing = false;
+          }
+          return;
+        }
+
+        setLayout(targetDiagram, normalized);
+        handleDoLayout(targetDiagram);
+      };
+
+      const handleSetLayoutScheme = (diagram: go.Diagram, selectedLayout?: string) => {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram) return;
+        if (selectedLayout) {
+          applyLayoutScheme(targetDiagram, selectedLayout);
+          return;
+        }
         const layoutList = () => getLayoutOptions();
         const modalContext = {
           what: "selectDropdown",
@@ -3980,7 +4011,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           case: "Set Layout Scheme",
           layoutList: layoutList(),
           myDiagram: targetDiagram
-        }
+        };
         myMetis.myDiagram = targetDiagram;
         targetDiagram.handleOpenModal(targetDiagram, modalContext);
       };
@@ -4567,6 +4598,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
+        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
+      }
+
+      function applyGroupLayoutScheme(diagram: go.Diagram | null | undefined, part: go.Part | null, layoutKey: string) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        if (!(part instanceof go.Group)) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
+
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+
+        const normalized = layoutKey && layoutKey !== 'Manual' ? (layoutKey.endsWith('Layout') ? layoutKey : `${layoutKey}Layout`) : '';
+        objview.groupLayout = normalized;
+        targetDiagram.model.setDataProperty(nodeData, 'groupLayout', normalized);
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        let data: any = jsnObjview;
+        data = JSON.parse(JSON.stringify(data));
+        const dispatchTarget = targetDiagram.dispatch ?? myMetis.myDiagram?.dispatch;
+        dispatchTarget?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        if (layoutKey === 'Manual') {
+          targetDiagram.requestUpdate();
+          return;
+        }
+
         uid.doGroupLayout(objview, targetDiagram, part as go.Group);
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
@@ -5177,17 +5243,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           if (part instanceof go.Group && isGroupNode(part?.data)) {
             const groupLayoutMenuItems: HtmlMenuItem[] = [
+              ...globalLayoutOptions.map(option => ({
+                label: option.label,
+                action: (diagram) => applyGroupLayoutScheme(diagram, part, option.value),
+              })),
               {
-                label: "Select Layout",
-                action: (diagram) => handleGroupSelectLayout(diagram, part),
+                label: "Do Layout (Current)",
+                action: (diagram) => handleGroupDoLayout(diagram, part),
               },
               {
                 label: "Save Layout",
                 action: (diagram) => handleGroupSaveLayout(diagram, part),
-              },
-              {
-                label: "Do Layout",
-                action: (diagram) => handleGroupDoLayout(diagram, part),
               },
             ];
             items.push({
@@ -5828,20 +5894,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         },
       ];
 
+      const globalLayoutOptions = [
+        { label: "Grid", value: "Grid" },
+        { label: "Circular", value: "Circular" },
+        { label: "Tree", value: "Tree" },
+        { label: "Force Directed", value: "ForceDirected" },
+        { label: "Layered Digraph", value: "LayeredDigraph" },
+        { label: "Manual", value: "Manual" },
+      ];
+
       const layoutMenuItems: HtmlMenuItem[] = [
-        {
-          label: "Select Layout",
-          action: (diagram) => handleSetLayoutScheme(diagram),
+        ...globalLayoutOptions.map(option => ({
+          label: option.label,
+          action: (diagram: go.Diagram) => handleSetLayoutScheme(diagram, option.value),
           visible: () => !isMetamodellingMode(),
+        })),
+        {
+          separator: true,
         },
         {
           label: "Save Layout",
           action: (diagram) => handleSaveLayout(diagram),
-          visible: () => true,
-        },
-        {
-          label: "Do Layout",
-          action: (diagram) => handleDoLayout(diagram),
           visible: () => true,
         },
         {

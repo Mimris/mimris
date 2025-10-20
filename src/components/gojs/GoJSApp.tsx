@@ -19,7 +19,7 @@ import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
-import { applyDropLayout, deriveDropLayoutConfig } from './layout/DropLayoutManager';
+import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
 
 const debug = false;
 const linkToLink = false;
@@ -1758,15 +1758,33 @@ class GoJSApp extends React.Component<{}, AppState> {
               for (let i = 0; i < droppedNodesForLayout.length; i++) {
                 const node = droppedNodesForLayout[i];
                 const typeRef = getNodeTypeRef(node);
-                if (typeRef && poolTypeIds.includes(typeRef)) {
+                const data: any = node?.data || {};
+                const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+                const templateName = (data.template || data.category || '').toString().toLowerCase();
+                const name = (data.name || '').toString().toLowerCase();
+                const isPool =
+                  (typeRef && poolTypeIds.includes(typeRef)) ||
+                  viewkind === 'pool' ||
+                  templateName.includes('pool') ||
+                  name.includes('pool');
+                if (isPool) {
                   poolNodes.push(node);
                   continue;
                 }
-                if (typeRef && laneTypeIds.includes(typeRef)) {
+                const isLane =
+                  (typeRef && laneTypeIds.includes(typeRef)) ||
+                  viewkind === 'lane' ||
+                  templateName.includes('lane') ||
+                  name.includes('lane');
+                if (isLane) {
                   laneNodes.push(node);
                   continue;
                 }
-                if (typeRef && containerTypeIds.includes(typeRef)) {
+                const isContainer =
+                  (typeRef && containerTypeIds.includes(typeRef)) ||
+                  viewkind === 'container' ||
+                  templateName.includes('container');
+                if (isContainer) {
                   containerNodes.push(node);
                   continue;
                 }
@@ -1846,10 +1864,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
 
-          const buckets = new Map<
-            string,
-            { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
-          >();
+        const buckets = new Map<
+          string,
+          { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
+        >();
 
           for (let i = 0; i < droppedNodesForLayout.length; i++) {
             const node = droppedNodesForLayout[i];
@@ -1873,6 +1891,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
 
           const bucketList = Array.from(buckets.values());
+          const groupsForFollowUp = new Set<go.Group>();
           bucketList.sort((a, b) => {
             const aRoot = a.groupKey === null || a.groupKey === undefined;
             const bRoot = b.groupKey === null || b.groupKey === undefined;
@@ -1901,7 +1920,21 @@ class GoJSApp extends React.Component<{}, AppState> {
               config: layoutConfig,
               targetGroup: bucket.targetGroup,
             });
+            if (bucket.targetGroup instanceof go.Group) {
+              groupsForFollowUp.add(bucket.targetGroup);
+              const container = bucket.targetGroup.containingGroup;
+              if (container instanceof go.Group) {
+                groupsForFollowUp.add(container);
+              }
+            }
           }
+
+          groupsForFollowUp.forEach(group => {
+            applyDropLayoutToGroup(myDiagram, group);
+            if (group.containingGroup instanceof go.Group) {
+              applyDropLayoutToGroup(myDiagram, group.containingGroup);
+            }
+          });
 
         }
 

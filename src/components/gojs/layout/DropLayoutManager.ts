@@ -462,6 +462,41 @@ export function applyDropLayout(args: ApplyDropLayoutArgs): void {
   }
 }
 
+export function applyDropLayoutToGroup(
+  diagram: go.Diagram | null | undefined,
+  group: go.Group | null | undefined,
+  preset?: string | null
+): void {
+  const targetDiagram = diagram || group?.diagram || null;
+  if (!targetDiagram || !group) return;
+
+  const dropOverrides = ((targetDiagram.model as any)?.modelData?.dropLayout) ?? null;
+  const dropConfig = deriveDropLayoutConfig(preset ?? null, dropOverrides);
+
+  const members: go.Node[] = [];
+  group.memberParts.each((member: go.Part) => {
+    if (member instanceof go.Node) {
+      members.push(member);
+    }
+  });
+  if (!members.length) return;
+
+  const bounds = group.actualBounds ? group.actualBounds.copy() : null;
+  const dropPoint =
+    bounds?.center?.copy() ||
+    group.location?.copy?.() ||
+    targetDiagram.lastInput?.documentPoint?.copy() ||
+    null;
+
+  applyDropLayout({
+    diagram: targetDiagram,
+    parts: members,
+    dropPoint,
+    config: dropConfig,
+    targetGroup: group,
+  });
+}
+
 function copyPoint(point: go.Point): go.Point {
   return new go.Point(point.x, point.y);
 }
@@ -1069,16 +1104,23 @@ function positionAsGrid(args: GridPositioningArgs): void {
       const availableMemberWidth = Math.max(1, availableWidth - memberHorizontalPadding * 2);
       const memberCount = laneMembers.length;
       if (memberCount > 0) {
-        const spacing = availableMemberWidth / Math.max(1, memberCount);
+        const memberSizes = laneMembers.map(node => getNodeSize(node) || new go.Size(160, 70));
+        const totalMemberWidth = memberSizes.reduce((sum, size) => sum + (size.width || 160), 0);
+        const remainingWidth = Math.max(0, availableMemberWidth - totalMemberWidth);
+        const spacing = remainingWidth / Math.max(1, memberCount + 1);
+        let cursor = left + memberHorizontalPadding + spacing;
         laneMembers.forEach((memberNode, memberIndex) => {
-          const memberSize = getNodeSize(memberNode);
-          const targetX = left + memberHorizontalPadding + spacing * memberIndex + spacing / 2;
+          const memberSize = memberSizes[memberIndex] || getNodeSize(memberNode);
+          const width = memberSize.width || 160;
+          const halfWidth = width / 2;
+          const targetX = cursor + halfWidth;
           const targetY = currentTop + Math.min(adjustedHeight * 0.4, adjustedHeight / 2);
           const targetPoint = new go.Point(targetX, targetY);
           memberNode.location = targetPoint;
           if (memberNode.data) {
             diagram.model.setDataProperty(memberNode.data, 'loc', go.Point.stringify(targetPoint));
           }
+          cursor += width + spacing;
         });
       }
       currentTop += adjustedHeight + (index < laneInfos.length - 1 ? lanePadding : 0);

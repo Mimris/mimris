@@ -34,7 +34,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-import { applyDropLayout, deriveDropLayoutConfig } from '../layout/DropLayoutManager';
+import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from '../layout/DropLayoutManager';
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
@@ -4639,27 +4639,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           dragTool.doCancel();
         }
 
-        const dropOverrides = ((targetDiagram.model as any)?.modelData?.dropLayout) ?? null;
-        const dropConfig = deriveDropLayoutConfig(preset ?? null, dropOverrides);
-
-        const members: go.Node[] = [];
-        part.memberParts.each((member: go.Part) => {
-          if (member instanceof go.Node) {
-            members.push(member);
-          }
-        });
-        if (!members.length) return;
-
-        const bounds = part.actualBounds ? part.actualBounds.copy() : null;
-        const dropPoint = bounds ? bounds.center : part.location?.copy?.() || null;
-
-        applyDropLayout({
-          diagram: targetDiagram,
-          parts: members,
-          dropPoint,
-          config: dropConfig,
-          targetGroup: part as go.Group,
-        });
+        applyDropLayoutToGroup(targetDiagram, part as go.Group, preset ?? null);
 
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();

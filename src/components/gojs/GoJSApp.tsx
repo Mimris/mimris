@@ -1509,7 +1509,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (dropCopiedParts?.count > 0) {
             dropCopiedParts.clear();
           }
-          myDiagram.toolManager.draggingTool.reset();
+          // myDiagram.toolManager.draggingTool.reset();
           myDiagram.toolManager.currentTool = myDiagram.defaultTool;
         }
         break;
@@ -1964,8 +1964,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           let object: akm.cxObject;
           let objName: string;
           let objDescr: string;
-          if (!type || !typeview) {
-            // An object has been dropped (dragged from object palette)
+          if (!type || !typeview) { // An object has been dropped (dragged from object palette)
             const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
             if (resolvedType) {
               type = resolvedType;
@@ -2071,8 +2070,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
               myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
             }
-          } else {
-            // An object type has been dropped - create an object
+          } else { // An object type has been dropped - create an object
             // i.e. new object, new objectview, 
             objName = node?.data?.object?.name
               || partData.object?.name
@@ -2281,6 +2279,27 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node?.data) {
               myDiagram.model.setDataProperty(node.data, "scale", part.scale);
             }
+            // Check if the node has a relationship (hasPart) FROM a group
+            const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PART);
+            const parenttype = parentgroup.objecttype;
+            const parentObj = parentgroup.object;
+            const childtype = type;
+            const childObj = object;
+            const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
+            if (!myHasPartRelship) {
+              // Create the relationship
+              const relId = utils.createGuid();
+              const relName = constants.types.AKM_HAS_PART;
+              const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
+              hasPartRelship.parentModelRef = myModel.id;
+              myModel.addRelationship(hasPartRelship);
+              parentObj.addOutputrel(hasPartRelship);
+              childObj.addInputrel(hasPartRelship);
+              myMetis.addRelationship(hasPartRelship);
+              // Prepare dispatch
+              const jsnRel = new jsn.jsnRelationship(hasPartRelship);
+              modifiedRelships.push(jsnRel);
+             }
           }
           // if (goNode) {
           //   goNode.object = null;

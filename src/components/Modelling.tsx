@@ -175,7 +175,7 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
     // if (props.phFocus.focusProj.name ===('')) handleShowProjectModal(true)
-    if (props.phSource.includes('-Template')) handleShowProjectModal(true)
+    // if (props.phSource.includes('-Template')) handleShowProjectModal(false)
   }, [props.phSource]) // Show project modal when the phSource is a template project
 
   useEffect(() => {

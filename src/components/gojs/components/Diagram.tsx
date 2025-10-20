@@ -1082,44 +1082,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
-              const metamodelName = obj.part.data.name;
-              if (confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
-                let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
-                if (!targetMetamodel) {
-                  targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
-                  myMetis.addMetamodel(targetMetamodel);
-                  myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
-                  let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
-                  mmdata = JSON.parse(JSON.stringify(mmdata));
-                  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
-                }
-                let myCurrentObject;
-                let myCurrentObjectview;
-                myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
-                myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
-                if (myCurrentObject && myCurrentObjectview) {
-                  const context = {
-                    "myMetis": myMetis,
-                    "myMetamodel": myMetis.currentMetamodel,
-                    "myTargetMetamodel": targetMetamodel,
-                    "myModel": myMetis.currentModel,
-                    "myModelview": myMetis.currentModelview,
-                    "myCurrentObject": myCurrentObject,
-                    "myCurrentObjectview": myCurrentObjectview,
-                    "myDiagram": e.diagram,
-                    "dispatch": e.diagram.dispatch
-                  }
-                  gen.generateTargetMetamodel2(context);
-                }
-              }
+              const data = obj?.part?.data;
+              handleGenerateMetamodel(e?.diagram, data);
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
+              const data = o?.part?.data;
+              return canGenerateMetamodelFromData(data);
             }),
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
@@ -1263,83 +1231,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Convert to Group",
             function (e: any, obj: any) {
-              const noPorts = confirm("No Ports (OK) or Allow Ports?");
-              const allowPorts = !noPorts;
-              const node = obj.part.data; 
-              let objview = myMetis.findObjectView(node?.key);
-              if (objview) {
-                objview.viewkind = 'Container';
-                let template = node.template;
-                switch (template) {
-                  case 'textAndGeometry':
-                    template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
-                    break;
-                  case 'textAndFigure':
-                    template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
-                    break;
-                  case 'textAndIcon':
-                  default:
-                    template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
-                    break;
-                }
-                objview.template = template;
-                objview.isGroup = true;
-                // objview.size = "200 100";
-                objview.viewkind = 'Container';
-                // node.objectview = objview;
-                node.template = template;
-                node.viewkind = 'Container';
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                jsnObjview.template = template;
-                const data = JSON.parse(JSON.stringify(jsnObjview));
-                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-
-                myDiagram.model.setCategoryForNodeData(node.data, template);
-              } else 
-                alert("You need to do a Reload to see the change!");
+              handleConvertToGroup(e?.diagram, obj?.part);
             },
             function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                if (node.viewkind !== 'Container')
-                  return true;
-              }
-              return false;
+              return canConvertToGroup(o?.part?.data);
             }),
           makeButton("Convert to Node",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              let objview = myMetis.findObjectView(node?.key);
-              objview = myMetis.findObjectView(objview?.id);
-              if (objview) {
-                objview.viewkind = 'Object';
-                objview.template = 'textAndIcon'
-                objview.isGroup = false;
-                // objview?.size = "200 100";
-                // node.objectview = objview;
-              }
-              node.viewkind = 'Object';
-            //  this.setState(
-            //     {
-            //       nodeDataArray: [
-            //         ...this.state.nodeDataArray,
-            //         node
-            //       ]
-            //     }
-            //   );
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              const data = JSON.parse(JSON.stringify(jsnObjview));
-              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              alert("You need to a Reload to see the change!");
+              handleConvertToNode(e?.diagram, obj?.part);
             },
             function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                const objview = node.objectview;
-                if (objview?.viewkind === 'Container')
-                  return true;
-              }
-              return false;
+              return canConvertToNode(o?.part?.data);
             }),
           makeButton("Open Group",
             function (e: any, obj: any) {
@@ -4428,6 +4330,182 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.editObjectview(data, myMetis, myDiagram);
       };
 
+      const canGenerateMetamodelFromData = (data: any): boolean => {
+        if (!data) return false;
+        if (myMetis.modelType === 'Metamodelling') return false;
+        if (uic.isGenericMetamodel(myMetis)) return false;
+        if (!data.name) return false;
+        if (!data.object || !data.objectview) return false;
+        const objectTypeName =
+          data.object?.type?.name ||
+          data.objecttype?.name ||
+          data.type?.name;
+        if (objectTypeName !== constants.types.AKM_METAMODEL) return false;
+        return true;
+      };
+
+      const handleGenerateMetamodel = (diagram: go.Diagram | null | undefined, data: any) => {
+        if (!diagram || !data) return;
+        if (!canGenerateMetamodelFromData(data)) return;
+
+        const metamodelName = data.name;
+        if (!metamodelName) return;
+
+        if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+          return;
+        }
+
+        let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+        const dispatchTarget = diagram.dispatch ?? myMetis.myDiagram?.dispatch;
+
+        if (!targetMetamodel) {
+          targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
+          myMetis.addMetamodel(targetMetamodel);
+          myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
+          let mmdata: any = new jsn.jsnModel(myMetis.currentModel, true);
+          mmdata = JSON.parse(JSON.stringify(mmdata));
+          dispatchTarget?.({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+        }
+
+        const objectId = data.object?.id;
+        const objectviewId = data.objectview?.id;
+        if (!objectId || !objectviewId) return;
+
+        const myCurrentObject = myMetis.currentModel.findObject(objectId);
+        const myCurrentObjectview = myMetis.currentModelview.findObjectView(objectviewId);
+        if (!myCurrentObject || !myCurrentObjectview) return;
+
+        const context = {
+          "myMetis": myMetis,
+          "myMetamodel": myMetis.currentMetamodel,
+          "myTargetMetamodel": targetMetamodel,
+          "myModel": myMetis.currentModel,
+          "myModelview": myMetis.currentModelview,
+          "myCurrentObject": myCurrentObject,
+          "myCurrentObjectview": myCurrentObjectview,
+          "myDiagram": diagram,
+          "dispatch": dispatchTarget
+        };
+        gen.generateTargetMetamodel2(context);
+      };
+
+      function resolveObjectview(nodeData: any): any {
+        if (!nodeData) return null;
+        let objview = myMetis.findObjectView(nodeData?.key);
+        if (!objview && nodeData?.objectview?.id) {
+          objview = myMetis.findObjectView(nodeData.objectview.id);
+        }
+        if (!objview) {
+          objview = nodeData.objectview;
+        }
+        return objview;
+      }
+
+      function isObjectNodeData(data: any): boolean {
+        return data?.category === constants.gojs.C_OBJECT;
+      }
+
+      function isContainerView(data: any): boolean {
+        if (!data) return false;
+        const viewkind = data?.viewkind ?? data?.objectview?.viewkind;
+        return viewkind === 'Container';
+      }
+
+      function canConvertToGroup(data: any): boolean {
+        return isObjectNodeData(data) && !isContainerView(data);
+      }
+
+      function canConvertToNode(data: any): boolean {
+        return isObjectNodeData(data) && isContainerView(data);
+      }
+
+      function handleConvertToGroup(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!canConvertToGroup(nodeData)) return;
+
+        const noPorts = confirm("No Ports (OK) or Allow Ports?");
+        const allowPorts = !noPorts;
+
+        let objview: any = resolveObjectview(nodeData);
+        if (!objview) {
+          alert("You need to do a Reload to see the change!");
+          return;
+        }
+
+        const templateFromNode = nodeData?.template || objview?.template;
+        let template = templateFromNode;
+        switch (templateFromNode) {
+          case 'textAndGeometry':
+            template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
+            break;
+          case 'textAndFigure':
+            template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
+            break;
+          case 'textAndIcon':
+          default:
+            template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+            break;
+        }
+
+        objview.viewkind = 'Container';
+        objview.template = template;
+        objview.isGroup = true;
+
+        if (nodeData.objectview) {
+          nodeData.objectview.viewkind = 'Container';
+          nodeData.objectview.template = template;
+          nodeData.objectview.isGroup = true;
+        }
+
+        nodeData.viewkind = 'Container';
+        nodeData.template = template;
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        const nodeModelData = nodeData.data ?? nodeData;
+        try {
+          (targetDiagram.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
+        } catch (_err) {
+          // Ignore if category update fails
+        }
+      }
+
+      function handleConvertToNode(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!canConvertToNode(nodeData)) return;
+
+        let objview: any = resolveObjectview(nodeData);
+        if (!objview) {
+          alert("You need to a Reload to see the change!");
+          return;
+        }
+
+        objview.viewkind = 'Object';
+        objview.template = 'textAndIcon';
+        objview.isGroup = false;
+
+        if (nodeData.objectview) {
+          nodeData.objectview.viewkind = 'Object';
+          nodeData.objectview.template = 'textAndIcon';
+          nodeData.objectview.isGroup = false;
+        }
+
+        nodeData.viewkind = 'Object';
+        nodeData.template = 'textAndIcon';
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        alert("You need to a Reload to see the change!");
+      }
+
       const handleSortSelection = (diagram: go.Diagram) => {
         if (!diagram) return;
         uid.sortSelection(diagram);
@@ -5030,6 +5108,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Selection…",
             action: showSubMenu(selectionMenuItems),
             closeOnClick: false,
+          });
+        }
+        items.push({ separator: true });
+        items.push({
+          label: "Generate Metamodel",
+          action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+          enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+          visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+        });
+        const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
+        if (canConvertObject) {
+          items.push({ separator: true });
+          items.push({
+            label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
+            action: (diagram) => {
+              if (canConvertToGroup(part?.data)) {
+                handleConvertToGroup(diagram, part);
+              } else if (canConvertToNode(part?.data)) {
+                handleConvertToNode(diagram, part);
+              }
+            },
+            enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
           });
         }
         items.push({ separator: true });

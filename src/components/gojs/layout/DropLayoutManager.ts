@@ -1000,23 +1000,23 @@ function positionAsGrid(args: GridPositioningArgs): void {
     if (!laneBounds) {
       return;
     }
-    const padding = (config.padding ?? 0) + 20;
-    const availableWidth = Math.max(1, laneBounds.width - padding * 2);
+    const padding = (config.padding ?? 0) + 2; //10; extra padding to avoid edge collisions
+    const availableWidth = Math.max(1, laneBounds.width - padding * 1); // * 2 to pad both sides 
     const nodesToPlace = memberNodes.filter(node => !laneNodeSet.has(node) && !isContainerNode(node));
     if (!nodesToPlace.length) {
       return;
     }
 
     const count = nodesToPlace.length;
-    const slotWidth = availableWidth / Math.max(1, count);
-    const centerY = laneBounds.centerY;
-    const startX = laneBounds.x + padding + slotWidth / 2;
+    const slotWidth = availableWidth / Math.max(1, count); // divide space evenly
+    const centerY = laneBounds.centerY; // center vertically within lane
+    const startX = laneBounds.x + padding + slotWidth / 2; // start after padding
 
     nodesToPlace.forEach((member, index) => {
-      const centerX = startX + index * slotWidth;
-      const loc = new go.Point(centerX, centerY);
-      const memberSize = nodeSizeMap.get(member) ?? getNodeSize(member);
-      applyLocation(diagram, member, loc, memberSize, placedRects, config.padding);
+      const centerX = startX + index * slotWidth * 8; // increase spacing within lane
+      const loc = new go.Point(centerX, centerY); // center vertically
+      const memberSize = nodeSizeMap.get(member) ?? getNodeSize(member); // fallback
+      applyLocation(diagram, member, loc, memberSize, placedRects, config.padding); // apply location
     });
   });
 }

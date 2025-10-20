@@ -1412,14 +1412,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const n = obj.part.data;
               let objview = n.objectview;
               objview = myModelview.findObjectView(n.key);
-              const layoutList = () => [
-                { value: "Circular", label: "Circular Layout" },
-                { value: "Grid", label: "Grid Layout" },
-                { value: "Tree", label: "Tree Layout" },
-                { value: "ForceDirected", label: "ForceDirected Layout" },
-                { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-                { value: "Manual", label: "Manual Layout" },
-              ];
+              const layoutList = () => getLayoutOptions();
               const modalContext = {
                 what: "selectDropdown",
                 title: "Set Layout Scheme",
@@ -1480,7 +1473,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
                 } else {
                   if (objview?.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+                    uid.doGroupLayout(objview, myDiagram, obj?.part as go.Group);
                 }
               }
               myDiagram.requestUpdate();
@@ -3006,14 +2999,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Set Layout Scheme",
           function (e: any, obj: any) {
-            const layoutList = () => [
-              { value: "Circular", label: "Circular Layout" },
-              { value: "Grid", label: "Grid Layout" },
-              { value: "Tree", label: "Tree Layout" },
-              { value: "ForceDirected", label: "ForceDirected Layout" },
-              { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-              { value: "Manual", label: "Manual Layout" },
-            ];
+            const layoutList = () => getLayoutOptions();
             const llist = layoutList();
             const layoutLabels = llist.map(ll => (ll) && ll.label);
             const modalContext = {
@@ -3987,14 +3973,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const handleSetLayoutScheme = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;
-        const layoutList = () => [
-          { value: "Circular", label: "Circular Layout" },
-          { value: "Grid", label: "Grid Layout" },
-          { value: "Tree", label: "Tree Layout" },
-          { value: "ForceDirected", label: "ForceDirected Layout" },
-          { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-          { value: "Manual", label: "Manual Layout" },
-        ];
+        const layoutList = () => getLayoutOptions();
         const modalContext = {
           what: "selectDropdown",
           title: "Set Layout Scheme",
@@ -4504,6 +4483,89 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
 
         alert("You need to a Reload to see the change!");
+      }
+
+      function getLayoutOptions() {
+        return [
+          { value: "Circular", label: "Circular Layout" },
+          { value: "Grid", label: "Grid Layout" },
+          { value: "Tree", label: "Tree Layout" },
+          { value: "ForceDirected", label: "ForceDirected Layout" },
+          { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
+          { value: "Manual", label: "Manual Layout" },
+        ];
+      }
+
+      function isGroupNode(data: any): boolean {
+        const objview = resolveObjectview(data);
+        if (objview?.isGroup) return true;
+        return isContainerView(data);
+      }
+
+      function handleGroupSelectLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Set Layout Scheme",
+          case: "Set Layout Scheme",
+          layoutList: getLayoutOptions(),
+          myDiagram: targetDiagram,
+          myModelview: myMetis.currentModelview,
+          objectview: objview,
+        };
+        myMetis.myDiagram = targetDiagram;
+        targetDiagram.handleOpenModal(targetDiagram, modalContext);
+      }
+
+      function handleGroupSaveLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        if (!(part instanceof go.Group)) return;
+        const groupPart = part as go.Group;
+        const members = groupPart.memberParts;
+        const myModelview = myMetis.currentModelview;
+        if (!myModelview) return;
+        if (members) {
+          members.each((member) => {
+            if (!(member instanceof go.Node)) return;
+            const memberData: any = member.data;
+            if (!memberData) return;
+            let memberObjview = memberData.objectview;
+            if (!memberObjview) {
+              memberObjview = myModelview.findObjectView(memberData.objviewRef);
+            }
+            const locPoint = member.location;
+            const locString = go.Point.stringify(locPoint);
+            targetDiagram.model.setDataProperty(memberData, "loc", locString);
+            if (memberObjview) {
+              memberObjview.loc = locString;
+            }
+          });
+        }
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        let data = { metis: jsnMetis };
+        data = JSON.parse(JSON.stringify(data));
+        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+      }
+
+      function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        if (!(part instanceof go.Group)) return;
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
       }
 
       const handleSortSelection = (diagram: go.Diagram) => {
@@ -5109,6 +5171,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             action: showSubMenu(selectionMenuItems),
             closeOnClick: false,
           });
+          if (part instanceof go.Group && isGroupNode(part?.data)) {
+            const groupLayoutMenuItems: HtmlMenuItem[] = [
+              {
+                label: "Select Layout",
+                action: (diagram) => handleGroupSelectLayout(diagram, part),
+              },
+              {
+                label: "Save Layout",
+                action: (diagram) => handleGroupSaveLayout(diagram, part),
+              },
+              {
+                label: "Do Layout",
+                action: (diagram) => handleGroupDoLayout(diagram, part),
+              },
+            ];
+            items.push({
+              label: "Layout…",
+              action: showSubMenu(groupLayoutMenuItems),
+              closeOnClick: false,
+            });
+          }
         }
         items.push({ separator: true });
         items.push({
@@ -5743,18 +5826,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const layoutMenuItems: HtmlMenuItem[] = [
         {
-          label: "Set Layout Scheme",
+          label: "Select Layout",
           action: (diagram) => handleSetLayoutScheme(diagram),
           visible: () => !isMetamodellingMode(),
         },
         {
-          label: "Do Layout",
-          action: (diagram) => handleDoLayout(diagram),
+          label: "Save Layout",
+          action: (diagram) => handleSaveLayout(diagram),
           visible: () => true,
         },
         {
-          label: "Save Layout",
-          action: (diagram) => handleSaveLayout(diagram),
+          label: "Do Layout",
+          action: (diagram) => handleDoLayout(diagram),
           visible: () => true,
         },
         {

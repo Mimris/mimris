@@ -175,7 +175,7 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
     // if (props.phFocus.focusProj.name ===('')) handleShowProjectModal(true)
-    if (props.phSource.includes('-Template')) handleShowProjectModal(true)
+    // if (props.phSource.includes('-Template')) handleShowProjectModal(false)
   }, [props.phSource]) // Show project modal when the phSource is a template project
 
   useEffect(() => {
@@ -412,15 +412,12 @@ const Modelling = (props: any) => {
         </Nav>
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
-            <div className="workpad p-1 pt-2 bg-white">
+            <div className="workpad px-1 pt-2 bg-white">
               <Row className="row1">
                 {/* Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
-                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                  <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
-                      // gojsModelObjects={gojsmodelobjects}
-                      // gojsModel={gojsmodel}
-                      // gojsMetamodel={gojsmetamodel}
                       myMetis={myMetis}
                       metis={metis}
                       phFocus={phFocus}

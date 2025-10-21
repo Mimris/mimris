@@ -832,6 +832,15 @@ export class goObjectTypeNode extends goNode {
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
                 this.setViewkind(objtype.getViewKind());
+                const viewkind = objtype.getViewKind() || (typeof typeview.getViewKind === 'function'
+                    ? typeview.getViewKind()
+                    : (typeview as any).viewkind);
+                if (viewkind === constants.viewkinds.CONT) {
+                    this.isGroup = true;
+                    const templateName = typeview.getTemplate?.() || typeview.template || constants.gojs.C_CONTAINER;
+                    this.template = templateName;
+                    this.category = templateName || constants.gojs.C_CONTAINER;
+                }
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);

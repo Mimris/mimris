@@ -766,12 +766,38 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
 }
 
 function addResizeAdornment(groupName: string) {
+    if (
+        groupName === "Pool" ||
+        groupName === "Lane" ||
+        groupName === "Lane_w_handles" ||
+        groupName === "Container1" ||
+        groupName === "groupWithPorts" ||
+        groupName === "groupWithIconAndPorts" ||
+        groupName === "groupWithGeoAndPorts" ||
+        groupName === "groupWithFigAndPorts" ||
+        groupName === "groupNoPorts" ||
+        groupName === "groupIconNoPorts" ||
+        groupName === "groupGeoNoPorts" ||
+        groupName === "groupFigNoPorts"
+    ) {
+        return $(go.Adornment, "Spot",
+            $(go.Placeholder),
+            $(go.Shape, { alignment: go.Spot.TopLeft, desiredSize: new go.Size(14, 14), fill: "lightblue", stroke: "dodgerblue", cursor: "nw-resize" }),
+            $(go.Shape, { alignment: go.Spot.Top, desiredSize: new go.Size(28, 10), fill: "lightblue", stroke: "dodgerblue", cursor: "s-resize" }),
+            $(go.Shape, { alignment: go.Spot.TopRight, desiredSize: new go.Size(14, 14), fill: "lightblue", stroke: "dodgerblue", cursor: "ne-resize" }),
+            $(go.Shape, { alignment: go.Spot.Right, desiredSize: new go.Size(10, 28), fill: "lightblue", stroke: "dodgerblue", cursor: "w-resize" }),
+            $(go.Shape, { alignment: go.Spot.BottomRight, desiredSize: new go.Size(14, 14), fill: "lightblue", stroke: "dodgerblue", cursor: "se-resize" }),
+            $(go.Shape, { alignment: go.Spot.Bottom, desiredSize: new go.Size(28, 10), fill: "lightblue", stroke: "dodgerblue", cursor: "n-resize" }),
+            $(go.Shape, { alignment: go.Spot.BottomLeft, desiredSize: new go.Size(14, 14), fill: "lightblue", stroke: "dodgerblue", cursor: "sw-resize" }),
+            $(go.Shape, { alignment: go.Spot.Left, desiredSize: new go.Size(10, 28), fill: "lightblue", stroke: "dodgerblue", cursor: "e-resize" })
+        );
+    }
     return $(go.Adornment, "Spot",
         $(go.Placeholder),
-        $(go.Shape,  // for changing the length of a lane
+            $(go.Shape,
         {
             alignment: go.Spot.Right,
-            desiredSize: new go.Size(7, 50),
+            desiredSize: new go.Size(10, 50),
             fill: "lightblue", stroke: "dodgerblue",
             cursor: "col-resize"
         },
@@ -779,10 +805,10 @@ function addResizeAdornment(groupName: string) {
             if (ad.adornedPart === null) return false;
             return ad.adornedPart.isSubGraphExpanded;
         }).ofObject()),
-        $(go.Shape,  // for changing the breadth of a lane
+        $(go.Shape,
         {
             alignment: go.Spot.Bottom,
-            desiredSize: new go.Size(50, 7),
+            desiredSize: new go.Size(50, 10),
             fill: "lightblue", stroke: "dodgerblue",
             cursor: "row-resize"
         },
@@ -3993,8 +4019,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTemplateMap.add("Pool", poolTemplate);
         addGroupTemplateName('Pool');
 
-        // define a custom resize adornment that has two resize handles if the group is expanded
-        groupTemplateMap.get("Pool").resizeAdornmentTemplate = addResizeAdornment("Lane");
+        // define the pool resize adornment with handles on all sides
+        groupTemplateMap.get("Pool").resizeAdornmentTemplate = addResizeAdornment("Pool");
     }
     
     if (false) { // groupTemplate4
@@ -4664,4 +4690,3 @@ InputOutputGroupLayout.prototype.doLayout = function(coll) {
         if (icon !== null) icon.desiredSize = new go.Size(iconAreaWidth + leftwidth / 2 + rightwidth / 2, Math.max(leftheight, rightheight) + 10);
     }
 };
-

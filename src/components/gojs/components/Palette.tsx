@@ -154,6 +154,10 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           )
         )
         : null;
+      const arrowConverter = (value: string) => {
+        if (!value || value === 'None' || value === ' ') return '';
+        return value;
+      };
       myPalette =
         $(go.Palette,       // must name or refer to the DIV HTML element
           {
@@ -172,7 +176,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 // sorting: go.GridLayout.Descending,
                 wrappingColumn: this.props.noOfCols ?? 1, // Use prop, default to 1
                 cellSize: new go.Size(1, 1),
-                spacing: new go.Size(10, 6),
+                spacing: (this.props.noOfCols <= 1) ? new go.Size(30, 6) : new go.Size(50, 20),
                 alignment: go.GridLayout.Position,
                 isViewportSized: true,
                 // comparer: uid.alphabeticalComparer
@@ -312,6 +316,40 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       const paletteNodeTemplateMap = new go.Map<string, go.Part>();
       paletteNodeTemplateMap.add("", paletteNodeTemplate);
       myPalette.nodeTemplateMap = paletteNodeTemplateMap;
+
+      myPalette.linkTemplate =
+        $(go.Link,
+          {
+            routing: go.Link.Normal,
+            curve: go.Link.None,
+            corner: 0,
+            selectable: false
+          },
+          new go.Binding("curve", "curve"),
+          new go.Binding("points", "points"),
+          $(go.Shape,
+            { strokeWidth: 1.4, stroke: "#555" },
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("strokeWidth", "strokewidth", (w: any) => {
+              const width = typeof w === 'string' ? parseFloat(w) : w;
+              return width && !isNaN(width) ? width : 1.4;
+            })),
+          $(go.Shape,
+            { fromArrow: "", stroke: null },
+            new go.Binding("fromArrow", "fromArrow", arrowConverter),
+            new go.Binding("fill", "strokecolor")),
+          $(go.Shape,
+            { toArrow: "Standard", stroke: null },
+            new go.Binding("toArrow", "toArrow", arrowConverter),
+            new go.Binding("fill", "strokecolor")),
+          $(go.TextBlock,
+            {
+              segmentOffset: new go.Point(0, -10),
+              font: "9pt Segoe UI,sans-serif",
+              stroke: "#444"
+            },
+            new go.Binding("text", "name"))
+        );
 
       const groupTemplate =
         $(go.Group, "Auto",

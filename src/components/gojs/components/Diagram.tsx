@@ -34,6 +34,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
+import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from '../layout/DropLayoutManager';
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
@@ -1082,44 +1083,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) {
-              const metamodelName = obj.part.data.name;
-              if (confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
-                let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
-                if (!targetMetamodel) {
-                  targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
-                  myMetis.addMetamodel(targetMetamodel);
-                  myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
-                  let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
-                  mmdata = JSON.parse(JSON.stringify(mmdata));
-                  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
-                }
-                let myCurrentObject;
-                let myCurrentObjectview;
-                myCurrentObject = myMetis.currentModel.findObject(obj.part.data.object.id);
-                myCurrentObjectview = myMetis.currentModelview.findObjectView(obj.part.data.objectview.id);
-                if (myCurrentObject && myCurrentObjectview) {
-                  const context = {
-                    "myMetis": myMetis,
-                    "myMetamodel": myMetis.currentMetamodel,
-                    "myTargetMetamodel": targetMetamodel,
-                    "myModel": myMetis.currentModel,
-                    "myModelview": myMetis.currentModelview,
-                    "myCurrentObject": myCurrentObject,
-                    "myCurrentObjectview": myCurrentObjectview,
-                    "myDiagram": e.diagram,
-                    "dispatch": e.diagram.dispatch
-                  }
-                  gen.generateTargetMetamodel2(context);
-                }
-              }
+              const data = obj?.part?.data;
+              handleGenerateMetamodel(e?.diagram, data);
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
+              const data = o?.part?.data;
+              return canGenerateMetamodelFromData(data);
             }),
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
@@ -1263,83 +1232,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Convert to Group",
             function (e: any, obj: any) {
-              const noPorts = confirm("No Ports (OK) or Allow Ports?");
-              const allowPorts = !noPorts;
-              const node = obj.part.data; 
-              let objview = myMetis.findObjectView(node?.key);
-              if (objview) {
-                objview.viewkind = 'Container';
-                let template = node.template;
-                switch (template) {
-                  case 'textAndGeometry':
-                    template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
-                    break;
-                  case 'textAndFigure':
-                    template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
-                    break;
-                  case 'textAndIcon':
-                  default:
-                    template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
-                    break;
-                }
-                objview.template = template;
-                objview.isGroup = true;
-                // objview.size = "200 100";
-                objview.viewkind = 'Container';
-                // node.objectview = objview;
-                node.template = template;
-                node.viewkind = 'Container';
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                jsnObjview.template = template;
-                const data = JSON.parse(JSON.stringify(jsnObjview));
-                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-
-                myDiagram.model.setCategoryForNodeData(node.data, template);
-              } else 
-                alert("You need to do a Reload to see the change!");
+              handleConvertToGroup(e?.diagram, obj?.part);
             },
             function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                if (node.viewkind !== 'Container')
-                  return true;
-              }
-              return false;
+              return canConvertToGroup(o?.part?.data);
             }),
           makeButton("Convert to Node",
             function (e: any, obj: any) {
-              const node = obj.part.data;
-              let objview = myMetis.findObjectView(node?.key);
-              objview = myMetis.findObjectView(objview?.id);
-              if (objview) {
-                objview.viewkind = 'Object';
-                objview.template = 'textAndIcon'
-                objview.isGroup = false;
-                // objview?.size = "200 100";
-                // node.objectview = objview;
-              }
-              node.viewkind = 'Object';
-            //  this.setState(
-            //     {
-            //       nodeDataArray: [
-            //         ...this.state.nodeDataArray,
-            //         node
-            //       ]
-            //     }
-            //   );
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              const data = JSON.parse(JSON.stringify(jsnObjview));
-              myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              alert("You need to a Reload to see the change!");
+              handleConvertToNode(e?.diagram, obj?.part);
             },
             function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                const objview = node.objectview;
-                if (objview?.viewkind === 'Container')
-                  return true;
-              }
-              return false;
+              return canConvertToNode(o?.part?.data);
             }),
           makeButton("Open Group",
             function (e: any, obj: any) {
@@ -1510,14 +1413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const n = obj.part.data;
               let objview = n.objectview;
               objview = myModelview.findObjectView(n.key);
-              const layoutList = () => [
-                { value: "Circular", label: "Circular Layout" },
-                { value: "Grid", label: "Grid Layout" },
-                { value: "Tree", label: "Tree Layout" },
-                { value: "ForceDirected", label: "ForceDirected Layout" },
-                { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-                { value: "Manual", label: "Manual Layout" },
-              ];
+              const layoutList = () => getLayoutOptions();
               const modalContext = {
                 what: "selectDropdown",
                 title: "Set Layout Scheme",
@@ -1578,7 +1474,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
                 } else {
                   if (objview?.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+                    uid.doGroupLayout(objview, myDiagram, obj?.part as go.Group);
                 }
               }
               myDiagram.requestUpdate();
@@ -3104,14 +3000,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Set Layout Scheme",
           function (e: any, obj: any) {
-            const layoutList = () => [
-              { value: "Circular", label: "Circular Layout" },
-              { value: "Grid", label: "Grid Layout" },
-              { value: "Tree", label: "Tree Layout" },
-              { value: "ForceDirected", label: "ForceDirected Layout" },
-              { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-              { value: "Manual", label: "Manual Layout" },
-            ];
+            const layoutList = () => getLayoutOptions();
             const llist = layoutList();
             const layoutLabels = llist.map(ll => (ll) && ll.label);
             const modalContext = {
@@ -4083,23 +3972,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.openCloseAllGroups(targetDiagram, open);
       };
 
-      const handleSetLayoutScheme = (diagram: go.Diagram) => {
+      const applyLayoutScheme = (diagram: go.Diagram, layoutName: string) => {
         const targetDiagram = diagram || myDiagram;
-        const layoutList = () => [
-          { value: "Circular", label: "Circular Layout" },
-          { value: "Grid", label: "Grid Layout" },
-          { value: "Tree", label: "Tree Layout" },
-          { value: "ForceDirected", label: "ForceDirected Layout" },
-          { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
-          { value: "Manual", label: "Manual Layout" },
-        ];
+        if (!targetDiagram) return;
+        const normalized = layoutName;
+        const isMetamodelling = myMetis.modelType === 'Metamodelling';
+        if (isMetamodelling) {
+          const myMetamodel = myMetis.currentMetamodel;
+          if (myMetamodel) myMetamodel.layout = normalized;
+        } else {
+          const myModelview = myMetis.currentModelview;
+          if (myModelview) myModelview.layout = normalized;
+        }
+
+        if (normalized === 'Manual') {
+          const layout = targetDiagram.layout;
+          if (layout) {
+            layout.isInitial = false;
+            layout.isOngoing = false;
+          }
+          return;
+        }
+
+        setLayout(targetDiagram, normalized);
+        handleDoLayout(targetDiagram);
+      };
+
+      const handleSetLayoutScheme = (diagram: go.Diagram, selectedLayout?: string) => {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram) return;
+        if (selectedLayout) {
+          applyLayoutScheme(targetDiagram, selectedLayout);
+          return;
+        }
+        const layoutList = () => getLayoutOptions();
         const modalContext = {
           what: "selectDropdown",
           title: "Set Layout Scheme",
           case: "Set Layout Scheme",
           layoutList: layoutList(),
           myDiagram: targetDiagram
-        }
+        };
         myMetis.myDiagram = targetDiagram;
         targetDiagram.handleOpenModal(targetDiagram, modalContext);
       };
@@ -4427,6 +4340,364 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!data) return;
         uid.editObjectview(data, myMetis, myDiagram);
       };
+
+      const canGenerateMetamodelFromData = (data: any): boolean => {
+        if (!data) return false;
+        if (myMetis.modelType === 'Metamodelling') return false;
+        if (uic.isGenericMetamodel(myMetis)) return false;
+        if (!data.name) return false;
+        if (!data.object || !data.objectview) return false;
+        const objectTypeName =
+          data.object?.type?.name ||
+          data.objecttype?.name ||
+          data.type?.name;
+        if (objectTypeName !== constants.types.AKM_METAMODEL) return false;
+        return true;
+      };
+
+      const handleGenerateMetamodel = (diagram: go.Diagram | null | undefined, data: any) => {
+        if (!diagram || !data) return;
+        if (!canGenerateMetamodelFromData(data)) return;
+
+        const metamodelName = data.name;
+        if (!metamodelName) return;
+
+        if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+          return;
+        }
+
+        let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+        const dispatchTarget = diagram.dispatch ?? myMetis.myDiagram?.dispatch;
+
+        if (!targetMetamodel) {
+          targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
+          myMetis.addMetamodel(targetMetamodel);
+          myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
+          let mmdata: any = new jsn.jsnModel(myMetis.currentModel, true);
+          mmdata = JSON.parse(JSON.stringify(mmdata));
+          dispatchTarget?.({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+        }
+
+        const objectId = data.object?.id;
+        const objectviewId = data.objectview?.id;
+        if (!objectId || !objectviewId) return;
+
+        const myCurrentObject = myMetis.currentModel.findObject(objectId);
+        const myCurrentObjectview = myMetis.currentModelview.findObjectView(objectviewId);
+        if (!myCurrentObject || !myCurrentObjectview) return;
+
+        const context = {
+          "myMetis": myMetis,
+          "myMetamodel": myMetis.currentMetamodel,
+          "myTargetMetamodel": targetMetamodel,
+          "myModel": myMetis.currentModel,
+          "myModelview": myMetis.currentModelview,
+          "myCurrentObject": myCurrentObject,
+          "myCurrentObjectview": myCurrentObjectview,
+          "myDiagram": diagram,
+          "dispatch": dispatchTarget
+        };
+        gen.generateTargetMetamodel2(context);
+      };
+
+      function resolveObjectview(nodeData: any): any {
+        if (!nodeData) return null;
+        let objview = myMetis.findObjectView(nodeData?.key);
+        if (!objview && nodeData?.objectview?.id) {
+          objview = myMetis.findObjectView(nodeData.objectview.id);
+        }
+        if (!objview) {
+          objview = nodeData.objectview;
+        }
+        return objview;
+      }
+
+      function isObjectNodeData(data: any): boolean {
+        return data?.category === constants.gojs.C_OBJECT;
+      }
+
+      function isContainerView(data: any): boolean {
+        if (!data) return false;
+        const viewkind = data?.viewkind ?? data?.objectview?.viewkind;
+        return viewkind === 'Container';
+      }
+
+      function canConvertToGroup(data: any): boolean {
+        return isObjectNodeData(data) && !isContainerView(data);
+      }
+
+      function canConvertToNode(data: any): boolean {
+        return isObjectNodeData(data) && isContainerView(data);
+      }
+
+      function handleConvertToGroup(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!canConvertToGroup(nodeData)) return;
+
+        const noPorts = confirm("No Ports (OK) or Allow Ports?");
+        const allowPorts = !noPorts;
+
+        let objview: any = resolveObjectview(nodeData);
+        if (!objview) {
+          alert("You need to do a Reload to see the change!");
+          return;
+        }
+
+        const templateFromNode = nodeData?.template || objview?.template;
+        let template = templateFromNode;
+        switch (templateFromNode) {
+          case 'textAndGeometry':
+            template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
+            break;
+          case 'textAndFigure':
+            template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
+            break;
+          case 'textAndIcon':
+          default:
+            template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
+            break;
+        }
+
+        objview.viewkind = 'Container';
+        objview.template = template;
+        objview.isGroup = true;
+
+        if (nodeData.objectview) {
+          nodeData.objectview.viewkind = 'Container';
+          nodeData.objectview.template = template;
+          nodeData.objectview.isGroup = true;
+        }
+
+        nodeData.viewkind = 'Container';
+        nodeData.template = template;
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        const nodeModelData = nodeData.data ?? nodeData;
+        try {
+          (targetDiagram.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
+        } catch (_err) {
+          // Ignore if category update fails
+        }
+      }
+
+      function handleConvertToNode(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!canConvertToNode(nodeData)) return;
+
+        let objview: any = resolveObjectview(nodeData);
+        if (!objview) {
+          alert("You need to a Reload to see the change!");
+          return;
+        }
+
+        objview.viewkind = 'Object';
+        objview.template = 'textAndIcon';
+        objview.isGroup = false;
+
+        if (nodeData.objectview) {
+          nodeData.objectview.viewkind = 'Object';
+          nodeData.objectview.template = 'textAndIcon';
+          nodeData.objectview.isGroup = false;
+        }
+
+        nodeData.viewkind = 'Object';
+        nodeData.template = 'textAndIcon';
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        alert("You need to a Reload to see the change!");
+      }
+
+      function getLayoutOptions() {
+        return [
+          { value: "Circular", label: "Circular Layout" },
+          { value: "Grid", label: "Grid Layout" },
+          { value: "Tree", label: "Tree Layout" },
+          { value: "ForceDirected", label: "ForceDirected Layout" },
+          { value: "LayeredDigraph", label: "LayeredDigraph Layout" },
+          { value: "Manual", label: "Manual Layout" },
+        ];
+      }
+
+      function isGroupNode(data: any): boolean {
+        const objview = resolveObjectview(data);
+        if (objview?.isGroup) return true;
+        return isContainerView(data);
+      }
+
+      function isPoolGroup(part: go.Part | null | undefined): boolean {
+        if (!part) return false;
+        const data: any = part.data || {};
+        const template = (data.template || data.category || '').toString().toLowerCase();
+        const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+        const typeName = (data.objecttype?.name || data.name || '').toString().toLowerCase();
+        return template.includes('pool') || viewkind === 'pool' || typeName.includes('pool');
+      }
+
+      function isLaneGroup(part: go.Part | null | undefined): boolean {
+        if (!part) return false;
+        if (isPoolGroup(part)) return false;
+        const data: any = part.data || {};
+        const template = (data.template || data.category || '').toString().toLowerCase();
+        const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+        const typeName = (data.objecttype?.name || data.name || '').toString().toLowerCase();
+        return template.includes('lane') || viewkind === 'lane' || typeName.includes('lane');
+      }
+
+      function handleGroupSelectLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Set Layout Scheme",
+          case: "Set Layout Scheme",
+          layoutList: getLayoutOptions(),
+          myDiagram: targetDiagram,
+          myModelview: myMetis.currentModelview,
+          objectview: objview,
+        };
+        myMetis.myDiagram = targetDiagram;
+        targetDiagram.handleOpenModal(targetDiagram, modalContext);
+      }
+
+      function handleGroupSaveLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        if (!(part instanceof go.Group)) return;
+        const groupPart = part as go.Group;
+        const members = groupPart.memberParts;
+        const myModelview = myMetis.currentModelview;
+        if (!myModelview) return;
+        if (members) {
+          members.each((member) => {
+            if (!(member instanceof go.Node)) return;
+            const memberData: any = member.data;
+            if (!memberData) return;
+            let memberObjview = memberData.objectview;
+            if (!memberObjview) {
+              memberObjview = myModelview.findObjectView(memberData.objviewRef);
+            }
+            const locPoint = member.location;
+            const locString = go.Point.stringify(locPoint);
+            targetDiagram.model.setDataProperty(memberData, "loc", locString);
+            if (memberObjview) {
+              memberObjview.loc = locString;
+            }
+          });
+        }
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        let data = { metis: jsnMetis };
+        data = JSON.parse(JSON.stringify(data));
+        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+      }
+
+      function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+        if (!(part instanceof go.Group)) return;
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
+      }
+
+      function applyGroupDropLayout(
+        diagram: go.Diagram | null | undefined,
+        part: go.Part | null,
+        preset?: string | null
+      ) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        if (!(part instanceof go.Group)) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
+
+        applyDropLayoutToGroup(targetDiagram, part as go.Group, preset ?? null);
+
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
+      }
+
+      const globalLayoutOptions = [
+        { label: "Grid", value: "Grid" },
+        { label: "Circular", value: "Circular" },
+        { label: "Tree", value: "Tree" },
+        { label: "Force Directed", value: "ForceDirected" },
+        { label: "Layered Digraph", value: "LayeredDigraph" },
+        { label: "Manual", value: "Manual" },
+      ];
+
+      const dropLayoutMenuOptions = [
+        { label: "Default Drop Layout", value: null },
+        ...globalLayoutOptions
+          .filter(option => option.value !== "Manual")
+          .map(option => ({
+            label: `${option.label} Drop Layout`,
+            value: option.value,
+          })),
+      ];
+
+      function applyGroupLayoutScheme(diagram: go.Diagram | null | undefined, part: go.Part | null, layoutKey: string) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        if (!(part instanceof go.Group)) return;
+        const nodeData: any = part.data;
+        if (!isGroupNode(nodeData)) return;
+
+        const dragTool = targetDiagram.currentTool;
+        if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
+          dragTool.doCancel();
+        }
+
+        const objview = resolveObjectview(nodeData);
+        if (!objview) return;
+
+        const normalized = layoutKey && layoutKey !== 'Manual' ? (layoutKey.endsWith('Layout') ? layoutKey : `${layoutKey}Layout`) : '';
+        objview.groupLayout = normalized;
+        targetDiagram.model.setDataProperty(nodeData, 'groupLayout', normalized);
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        let data: any = jsnObjview;
+        data = JSON.parse(JSON.stringify(data));
+        const dispatchTarget = targetDiagram.dispatch ?? myMetis.myDiagram?.dispatch;
+        dispatchTarget?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        if (layoutKey === 'Manual') {
+          targetDiagram.requestUpdate();
+          return;
+        }
+
+        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        handleGroupSaveLayout(targetDiagram, part);
+        targetDiagram.requestUpdate();
+      }
 
       const handleSortSelection = (diagram: go.Diagram) => {
         if (!diagram) return;
@@ -5030,6 +5301,61 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Selection…",
             action: showSubMenu(selectionMenuItems),
             closeOnClick: false,
+          });
+          if (part instanceof go.Group && isGroupNode(part?.data)) {
+            if (isPoolGroup(part)) {
+              items.push({
+                label: "Pool Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            } else if (isLaneGroup(part)) {
+              items.push({
+                label: "Lane Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            }
+
+            const groupLayoutMenuItems: HtmlMenuItem[] = [
+              ...globalLayoutOptions.map(option => ({
+                label: option.label,
+                action: (diagram) => applyGroupLayoutScheme(diagram, part, option.value),
+              })),
+              {
+                label: "Do Layout (Current)",
+                action: (diagram) => handleGroupDoLayout(diagram, part),
+              },
+              {
+                label: "Save Layout",
+                action: (diagram) => handleGroupSaveLayout(diagram, part),
+              },
+            ];
+            items.push({
+              label: "Layout…",
+              action: showSubMenu(groupLayoutMenuItems),
+              closeOnClick: false,
+            });
+          }
+        }
+        items.push({ separator: true });
+        items.push({
+          label: "Generate Metamodel",
+          action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+          enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+          visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+        });
+        const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
+        if (canConvertObject) {
+          items.push({ separator: true });
+          items.push({
+            label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
+            action: (diagram) => {
+              if (canConvertToGroup(part?.data)) {
+                handleConvertToGroup(diagram, part);
+              } else if (canConvertToNode(part?.data)) {
+                handleConvertToNode(diagram, part);
+              }
+            },
+            enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
           });
         }
         items.push({ separator: true });
@@ -5642,15 +5968,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       ];
 
       const layoutMenuItems: HtmlMenuItem[] = [
-        {
-          label: "Set Layout Scheme",
-          action: (diagram) => handleSetLayoutScheme(diagram),
+        ...globalLayoutOptions.map(option => ({
+          label: option.label,
+          action: (diagram: go.Diagram) => handleSetLayoutScheme(diagram, option.value),
           visible: () => !isMetamodellingMode(),
-        },
+        })),
         {
-          label: "Do Layout",
-          action: (diagram) => handleDoLayout(diagram),
-          visible: () => true,
+          separator: true,
         },
         {
           label: "Save Layout",

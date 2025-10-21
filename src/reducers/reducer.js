@@ -280,6 +280,10 @@ function reducer(state = InitialState, action) {
               ...state.phData.metis.models.slice(loadmodindex + 1, state.phData.metis.models.length),
             ]
           },
+          domain: {
+            ...state.phData.domain,
+            ...action.data.domain
+          }
         },
         phSource: 'Model server'
       }

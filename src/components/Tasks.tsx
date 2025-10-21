@@ -381,13 +381,42 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   if (minimizedTask) {
     return (
-      <button
-        className="btn btn-sm border text-success px-0 py-0 float-end"
-        style={{ backgroundColor: "#ffffdd" }}
-        onClick={() => setMinimizedTask(false)}
-      >
-        <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question pull-right-container"></i></span>
-      </button>
+    <div className="d-flex flex-column h-100">
+        <button
+          className="btn btn-sm text-success p-0 pt-0 "
+          style={{ backgroundColor: "#ffffdd" }}
+          onClick={() => setMinimizedTask(false)}
+        >
+          <span className="fs-5" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question "></i></span>
+        </button>
+        <div
+          className="d-flex ms-0 mt-3 fs-900"
+          style={{
+            height: "100%",
+            width: "10px",
+            minWidth: "8px",
+            maxWidth: "10px",
+            padding: 0,
+            fontSize: "16px",
+            fontWeight: "bold",
+            overflow: "hidden",
+            color: "#5f5f5fff",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
+        >
+          {/* Option 1: */}
+          {/* <span style={{ writingMode: "vertical-rl", textAlign: "center", width: "100%" }}>Guide</span> */}
+
+          {/* Option 2: */}
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+            {Array.from("Guide").map((ch, i) => (
+              <span key={i}>{ch}</span>
+            ))}
+          </span>
+        </div>
+      </div>
     );
   } else {
     return (

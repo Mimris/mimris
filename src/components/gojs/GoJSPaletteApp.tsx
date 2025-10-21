@@ -72,10 +72,28 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   }
 
-  public componentDidUpdate(prevProps: any) {
+  public componentDidUpdate(prevProps: DiagramProps) {
     const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
     if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
       this.setState({ noOfCols: nextCols, skipsDiagramUpdate: false });
+    }
+
+    const nodesChanged = prevProps.nodeDataArray !== this.props.nodeDataArray;
+    const linksChanged = prevProps.linkDataArray !== this.props.linkDataArray;
+
+    if (nodesChanged || linksChanged) {
+      const nextNodes = nodesChanged ? (this.props.nodeDataArray ?? []) : this.state.nodeDataArray;
+      const nextLinks = linksChanged ? (this.props.linkDataArray ?? []) : this.state.linkDataArray;
+
+      this.setState({
+        nodeDataArray: nextNodes,
+        linkDataArray: nextLinks,
+        selectedData: null,
+        skipsDiagramUpdate: false
+      }, () => {
+        if (nodesChanged) this.refreshNodeIndex(nextNodes);
+        if (linksChanged) this.refreshLinkIndex(nextLinks);
+      });
     }
   }
 

@@ -769,7 +769,6 @@ function addResizeAdornment(groupName: string) {
     if (
         groupName === "Pool" ||
         groupName === "Lane" ||
-        groupName === "Lane_w_handles" ||
         groupName === "Container1" ||
         groupName === "groupWithPorts" ||
         groupName === "groupWithIconAndPorts" ||
@@ -3951,7 +3950,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );   
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
-        // define a custom resize adornment that has two resize handles if the group is expanded
+        // define a custom resize adornment bigger
+        groupTemplateMap.get("Lane").resizeAdornmentTemplate = addResizeAdornment("Lane");
   
         const laneTemplate2 = 
         $(go.Group, "Horizontal", groupStyle(),
@@ -3983,9 +3983,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         },
         groupTop3(contextMenu, 'Icon', 1),
         );   
-        groupTemplateMap.add("Lane_w_handles", laneTemplate2);
-        addGroupTemplateName('Lane_w_handles');
-        groupTemplateMap.get("Lane_w_handles").resizeAdornmentTemplate = addResizeAdornment("Lane_w_handles");
     }
     if (true) { // poolTemplate
         const poolTemplate =

@@ -53,6 +53,9 @@ const Modelling = (props: any) => {
   const dispatch = useDispatch();
 
   const projectModalRef = useRef(null);
+  const modellerRef = useRef<any>(null);
+  const paletteRef = useRef<any>(null); // metamodel palette
+  const paletteObjRef = useRef<any>(null); // objects palette (left column)
 
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
@@ -64,6 +67,7 @@ const Modelling = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   const [mount, setMount] = useState(false)
+  const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -295,6 +299,7 @@ const Modelling = (props: any) => {
         phFocus={phFocus}
         dispatch={dispatch}
         modelType='metamodel'
+        ref={paletteRef}
       />
 
 
@@ -331,21 +336,31 @@ const Modelling = (props: any) => {
       <>
         <Nav tabs style={{ minWidth: "350px" }} >
           <span className="ms-1 me-5">
-            <button className="mb-1 pb-4 ms-0 me-5"
-              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model"
+            <button
+              className={`btn btn-model-toggle ms-0 me-2 d-flex align-items-center justify-content-center ${!mmToggle ? 'active' : ''}`}
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Toggle between Metamodel and Model"
               onClick={() => setMmToggle(!mmToggle)}
-              style={{ borderColor: "transparent", width: "116px", height: "20px", fontSize: "16px", backgroundColor: "#77aacc" }}
-            >{(mmToggle) ? '< Metamodel >' : '< Metamodel >'}</button>
+              aria-pressed={!mmToggle ? 'true' : 'false'}
+            >
+              <i className={`fa ${!mmToggle ? 'fa-layer-group' : 'fa-cubes'} me-2`} aria-hidden="true" />
+              <span>{'Metamodel'}</span>
+            </button>
           </span>
         </Nav>
         <TabPane tabId="1">   {/* Metamodel --------------------------------*/}
           <div className="workpad p-1 pt-2 bg-white" >
             <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-              <Col className="col1 m-0 p-0 pl-3" xs="auto">
-                <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                  {paletteDiv}
-                </div>
-              </Col>
+              {palettesOpen ? (
+                <Col className="col1 m-0 p-0 pl-3" xs="auto">
+                  <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    {paletteDiv}
+                  </div>
+                </Col>
+              ) : (
+                <Col xs="auto" className="p-0 m-0" style={{ width: '8px' }} />
+              )}
               <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                 <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", width: "100%", border: "solid 1px black" }}>
                   {paletteMetamodelDiv}
@@ -400,14 +415,36 @@ const Modelling = (props: any) => {
 
     const modellingtabs = (
       <>
+        {/* compact toggle will be placed inline inside the Nav below */}
         <Nav tabs style={{ minWidth: "50px", borderBottom: "white" }} >
-          <span className="ms-1 me-5">
-            <button className="p-0 ms-0 me-5"
-              data-toggle="tooltip" data-placement="top" title="Click to toggle between Metamodel and Model"
+          <span className="ms-1 me-2">
+            <button
+              className={`btn btn-model-toggle ms-0 me-2 d-flex align-items-center justify-content-center ${mmToggle ? 'active' : ''}`}
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Toggle between Metamodel and Model"
               onClick={() => setMmToggle(!mmToggle)}
-              style={{ borderColor: "transparent", width: "116px", height: "24px", fontSize: "16px", backgroundColor: "#a0caca" }}
-            >{(mmToggle) ? '< Model >' : '< Model >'}</button>
+              aria-pressed={mmToggle ? 'true' : 'false'}
+            >
+              <i className={`fa ${mmToggle ? 'fa-cubes' : 'fa-layer-group'} me-2`} aria-hidden="true" />
+              <span>{mmToggle ? 'Model' : 'etamodel'}</span>
+            </button>
           </span>
+          {/* Small icon-only toggle placed between the Model button and the model tabs */}
+          <button
+            className="btn btn-outline-secondary btn-sm p-1 me-2"
+            onClick={() => {
+              const next = !palettesOpen;
+              setPalettesOpen(next);
+              if (modellerRef.current && typeof modellerRef.current.setVisibleAll === 'function') modellerRef.current.setVisibleAll(next);
+              if (paletteRef.current && typeof paletteRef.current.setVisibleAll === 'function') paletteRef.current.setVisibleAll(next);
+              if (paletteObjRef.current && typeof paletteObjRef.current.setVisibleAll === 'function') paletteObjRef.current.setVisibleAll(next);
+            }}
+            title="Toggle Palettes"
+            aria-label="Toggle Palettes"
+          >
+            <i className="fa fa-columns" aria-hidden="true" />
+          </button>
           {modelTabsDiv}
         </Nav>
         <TabContent  >
@@ -415,19 +452,24 @@ const Modelling = (props: any) => {
             <div className="workpad px-1 pt-2 bg-white">
               <Row className="row1">
                 {/* Palette area */}
-                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
-                  <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                    <Palette // this is the Objects Palette area
-                      myMetis={myMetis}
-                      metis={metis}
-                      phFocus={phFocus}
-                      dispatch={dispatch}
-                      modelType='model'
-                      phUser={phUser}
-                      setVisiblePalette={props.setVisiblePalette}
-                    />
-                  </div>
-                </Col>
+                {palettesOpen ? (
+                  <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
+                    <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                      <Palette // this is the Objects Palette area
+                        myMetis={myMetis}
+                        metis={metis}
+                        phFocus={phFocus}
+                        dispatch={dispatch}
+                        modelType='model'
+                        phUser={phUser}
+                        setVisiblePalette={props.setVisiblePalette}
+                        ref={paletteObjRef}
+                      />
+                    </div>
+                  </Col>
+                ) : (
+                  <Col xs="auto" className="p-0 m-0" style={{ width: '8px' }} />
+                )}
                 {/* Modelling area */}
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
@@ -444,6 +486,7 @@ const Modelling = (props: any) => {
                       visibleFocusDetails={props.visibleFocusDetails}
                       setVisibleFocusDetails={props.setVisibleFocusDetails}
                       exportTab={props.exportTab}
+                      ref={modellerRef}
                     />
                   </div>
                 </Col>
@@ -518,6 +561,7 @@ const Modelling = (props: any) => {
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center" style={{ maxHeight: "22px", minHeight: "18px", whiteSpace: "nowrap" }}>
           <div className="d-flex justify-content-between align-items-center">
+            {/* Toggle control moved below before the tabs as requested */}
             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
               ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}

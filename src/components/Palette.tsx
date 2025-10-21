@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { set } from "immer/dist/internal";
@@ -21,7 +21,7 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
-const Palette = (props: any) => {
+const Palette = React.forwardRef((props: any, ref: any) => {
 
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
@@ -115,6 +115,17 @@ const Palette = (props: any) => {
   function toggleTypes() {
     setVisibleTypes(!visibleTypes);
   }
+
+  useImperativeHandle(ref, () => ({
+    toggleAll: () => {
+      setVisibleTypes(v => !v);
+      setVisiblePalette(p => !p);
+    },
+    setVisibleAll: (v: boolean) => {
+      setVisibleTypes(v);
+      setVisiblePalette(v);
+    }
+  }), [visibleTypes, visiblePalette]);
 
   if (!metamodels) return null;
 
@@ -278,7 +289,7 @@ const Palette = (props: any) => {
           title="Show or hide palette content"
         >
           {visiblePalette
-          ? <span className="fs-8 px-1"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
+          ? <span className="fs-8 px-1 palette-label"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
           Palette: Obj. Types
           </span>
           : <i className="fa fa-lg fa-angle-right pull-right-container ps-1"></i>}
@@ -365,6 +376,6 @@ const Palette = (props: any) => {
       {paletteSidebar}
     </div>
   ) : <>No metamodels found</>;
-}
+});
 
 export default Palette; 

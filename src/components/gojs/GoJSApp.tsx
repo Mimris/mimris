@@ -648,7 +648,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
 
-    return;
+
   }
 
   public addToNode(myToNodes: any, n: any) {
@@ -1756,6 +1756,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const otherNodes: go.Node[] = [];
 
               for (let i = 0; i < droppedNodesForLayout.length; i++) {
+                if (droppedNodesForLayout.length < 2) return; // No need to group a single node and try to avoid existing nodes, let the user handle that
                 const node = droppedNodesForLayout[i];
                 const typeRef = getNodeTypeRef(node);
                 const data: any = node?.data || {};
@@ -1864,7 +1865,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
 
-        const buckets = new Map<
+        const buckets = new Map< // Map to hold node buckets for layout
           string,
           { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
         >();
@@ -1913,13 +1914,54 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!bucketDropPoint && dropPoint) {
               bucketDropPoint = dropPoint.copy ? dropPoint.copy() : dropPoint;
             }
-            applyDropLayout({
-              diagram: myDiagram,
-              parts: bucket.nodes,
-              dropPoint: bucketDropPoint,
-              config: layoutConfig,
-              targetGroup: bucket.targetGroup,
-            });
+            // If the bucket currently has no targetGroup but the dropPoint lies inside a group,
+            // treat that group as the target and assign dropped nodes to it so they become members.
+            if (!bucket.targetGroup && bucketDropPoint && myDiagram) {
+              let foundGroup: go.Group | null = null;
+              const it = myDiagram.nodes.iterator;
+              while (it?.next()) {
+                const part = it.value;
+                if (!(part instanceof go.Group)) continue;
+                const b = part.actualBounds;
+                if (b && b.containsPoint && b.containsPoint(bucketDropPoint)) {
+                  foundGroup = part;
+                  break;
+                }
+              }
+              if (foundGroup) {
+                bucket.targetGroup = foundGroup;
+                bucket.groupKey = getNodeKey(foundGroup);
+                const shouldCommit = !myDiagram.isInTransaction;
+                if (shouldCommit) myDiagram.startTransaction('assign-drop-groups-for-point');
+                try {
+                  for (let j = 0; j < bucket.nodes.length; j++) {
+                    const nodeToAssign = bucket.nodes[j];
+                    const existing = getGroupKeyFromData(nodeToAssign?.data);
+                    if (existing === null || existing === undefined) {
+                      setNodeGroup(myDiagram, nodeToAssign, bucket.groupKey);
+                    }
+                  }
+                } finally {
+                  if (shouldCommit && myDiagram.isInTransaction) myDiagram.commitTransaction('assign-drop-groups-for-point');
+                }
+              }
+            }
+            // Only apply automated drop layout if explicitly enabled by the model or layout config.
+            // Default behaviour is to NOT change node positions automatically on drop so the user
+            // can choose when to run layouts.
+            const modelData: any = myDiagram?.model?.modelData || {};
+            const autoApplyFromModel = modelData?.autoApplyDropLayout === true || modelData?.autoApply === true;
+            const autoApplyFromLayout = (layoutConfig as any)?.autoApply === true || (layoutConfig as any)?.autoApplyDrop === true;
+            const autoApplyLayout = Boolean(autoApplyFromModel || autoApplyFromLayout);
+            if (autoApplyLayout) {
+              applyDropLayout({
+                diagram: myDiagram,
+                parts: bucket.nodes,
+                dropPoint: bucketDropPoint,
+                config: layoutConfig,
+                targetGroup: bucket.targetGroup,
+              });
+            }
             if (bucket.targetGroup instanceof go.Group) {
               groupsForFollowUp.add(bucket.targetGroup);
               const container = bucket.targetGroup.containingGroup;
@@ -1929,12 +1971,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
 
-          groupsForFollowUp.forEach(group => {
-            applyDropLayoutToGroup(myDiagram, group);
-            if (group.containingGroup instanceof go.Group) {
-              applyDropLayoutToGroup(myDiagram, group.containingGroup);
-            }
-          });
+          // Only apply follow-up group layouts if auto-apply is enabled.
+          if (Boolean(((myDiagram?.model as any)?.modelData?.autoApplyDropLayout === true) || ((layoutConfig as any)?.autoApply === true))) {
+            groupsForFollowUp.forEach(group => {
+              applyDropLayoutToGroup(myDiagram, group);
+              if (group.containingGroup instanceof go.Group) {
+                applyDropLayoutToGroup(myDiagram, group.containingGroup);
+              }
+            });
+          }
 
         }
 

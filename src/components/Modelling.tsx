@@ -303,7 +303,7 @@ const Modelling = (props: any) => {
       />
 
 
-    const paletteMetamodelDiv =  // this is the metamodel modelling area
+    const metamodelDiv =  // this is the metamodel modelling area
       <Modeller
         myMetis={myMetis}
         metis={metis}
@@ -363,7 +363,7 @@ const Modelling = (props: any) => {
               )}
               <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                 <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#7ac", width: "100%", border: "solid 1px black" }}>
-                  {paletteMetamodelDiv}
+                  {metamodelDiv}
                 </div>
               </Col>
             </Row>
@@ -607,9 +607,9 @@ const Modelling = (props: any) => {
         <div className="buttonrow d-flex justify-content-end align-items-center me-4" style={{ maxHeight: "29px", minHeight: "30px", whiteSpace: "nowrap" }}>
           <div className="me-4">
             {/* <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a Metamodel from GitHub" > {loadMetamodel} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a Metamodel from GitHub" > {loadMetamodel} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span> */}
           </div>
           {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
               <div className=" d-flex align-items-center me-0 pe-0">
@@ -660,6 +660,9 @@ const Modelling = (props: any) => {
       </>
       : <>
         <div className="diagramtabs pb-0 " >
+          <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+            {metamodellingDiv}
+          </div>
           <div className="modellingContent mt-1">
             {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
           </div>

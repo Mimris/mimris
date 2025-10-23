@@ -74,13 +74,13 @@ const Navbar = (props) => {
 		if ((debug)) console.log('33', domainName);
 		if (domainName === "localhost") {
 			setVersion("local");
-		} else if (domainName === "akmmclient.vercel.app") {
+		} else if (domainName === "mimris.vercel.app") {
 			setVersion("prod");
-		} else if (domainName === "akmmclient-beta.vercel.app") {
-			setVersion("beta");
-		} else if (domainName === "akmmclient-alfa.vercel.app") {
-			// } else if (domainName === "akmmclient-alpha.vercel.app") { // Change to alpha when alpha is ready
-			setVersion("alpha");
+		// } else if (domainName === "akmmclient-beta.vercel.app") {
+		// 	setVersion("beta");
+		// } else if (domainName === "akmmclient-alfa.vercel.app") {
+		// 	// } else if (domainName === "akmmclient-alpha.vercel.app") { // Change to alpha when alpha is ready
+		// 	setVersion("alpha");
 		}
 
 	}, [domainName]);
@@ -88,19 +88,19 @@ const Navbar = (props) => {
 	const options = [
 		{
 			label: 'Prod version',
-			href: 'https://akmmclient.vercel.app/modelling',
-			active: domainName === 'akmmclient.vercel.app',
+			href: 'https://mimris.vercel.app/modelling',
+			active: domainName === 'mimris.vercel.app',
 		},
-		{
-			label: 'Beta version',
-			href: 'https://akmmclient-beta.vercel.app/modelling',
-			active: domainName === 'akmmclient-beta.vercel.app',
-		},
-		{
-			label: 'Alpha version',
-			href: 'https://akmmclient-alfa.vercel.app/modelling', // Change to alpha when alpha is ready
-			active: domainName === 'akmmclient-alfa.vercel.app',
-		},
+		// {
+		// 	label: 'Beta version',
+		// 	href: 'https://akmmclient-beta.vercel.app/modelling',
+		// 	active: domainName === 'akmmclient-beta.vercel.app',
+		// },
+		// {
+		// 	label: 'Alpha version',
+		// 	href: 'https://akmmclient-alfa.vercel.app/modelling', // Change to alpha when alpha is ready
+		// 	active: domainName === 'akmmclient-alfa.vercel.app',
+		// },
 		// {
 		//   label: 'Local version',
 		//   href: 'http://localhost:3000/modelling',

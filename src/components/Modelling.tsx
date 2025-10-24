@@ -130,6 +130,7 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (debug) console.log('Modelling 126', mmToggle)
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
+    myMetis.modelType = (!mmToggle) ? 'Metamodelling' : 'Modelling';
   }, [mmToggle])
 
 

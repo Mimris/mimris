@@ -37,6 +37,7 @@ import useLocalStorage from '../hooks/use-local-storage'
 import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
+import { setMymetisModel } from "../actions/actions";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -134,7 +135,10 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (debug) console.log('Modelling 126', mmToggle)
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
+    myMetis.modelType = (!mmToggle) ? 'metamodel' : 'model';
+    // setMymetisModel(!mmToggle ? 'metamodel' : 'model')
   }, [mmToggle])
+  
 
 
 
@@ -142,7 +146,7 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Genereate GoJs node model 
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
-    if (debug) console.log('131 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
+    if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)
     setActiveTab(activetabindex)

@@ -135,10 +135,9 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (debug) console.log('Modelling 126', mmToggle)
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
-    myMetis.modelType = (!mmToggle) ? 'metamodel' : 'model';
-    // setMymetisModel(!mmToggle ? 'metamodel' : 'model')
+    myMetis.modelType = (!mmToggle) ? 'Metamodelling' : 'Modelling';
   }, [mmToggle])
-  
+
 
 
 
@@ -205,6 +204,7 @@ const Modelling = (props: any) => {
   }, [props.phFocus?.focusModelview?.id])
 
   function doRefresh() { // 
+    if (!debug) console.log('207 Modelling doRefresh', props);
     setMemorySessionState(props)
     setMemoryLocState(props)
     const timer = setTimeout(() => {

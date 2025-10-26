@@ -2819,11 +2819,15 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     strokeWidth: 2, 
                     margin: new go.Margin(0, 0, 0, 0),
                     shadowVisible: true,
-                    desiredSize: new go.Size(169, 69), // outer Shape size with icon
+                    desiredSize: new go.Size(170, 80), // outer Shape size with icon
                     // set the port properties
                     portId: "", 
-                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                    fromLinkable: true, 
+                    fromLinkableSelfNode: true, 
+                    fromLinkableDuplicates: false,
+                    toLinkable: true, 
+                    toLinkableSelfNode: false, 
+                    toLinkableDuplicates: false
                 },
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
@@ -2905,20 +2909,20 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Spot',
                 $(go.Shape,  // Outer circle
                     { 
+                        cursor: "alias",                    // cursor: "pointer",
                         alignment: go.Spot.Center,
                         figure: "Circle", 
                         fill: "white",
                         stroke: "black",
                         strokeWidth: 4,
-                        cursor: "alias",                    // cursor: "pointer",
                         minSize: new go.Size(60, 60), 
-                        desiredSize: new go.Size(76, 76),   // outer Shape size 
+                        desiredSize: new go.Size(80, 80),   // outer Shape size 
                         // set the port properties
                         portId: "", 
                         fromLinkable: true,
                         fromSpot: go.Spot.RightSide,
                         toLinkable: true,
-                        toSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.LeftSide,
                         toLinkableSelfNode: false,
                         toLinkableDuplicates: false,
                     },
@@ -2988,7 +2992,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: "black",
                         strokeWidth: 3,
                         minSize: new go.Size(60, 60), 
-                        desiredSize: new go.Size(79, 79),  // outer Shape size 
+                        desiredSize: new go.Size(80, 80),  // outer Shape size 
                         // set the port properties
                         portId: '', 
                         fromLinkable: true, 
@@ -3170,7 +3174,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         figure: "Triangle",
                         alignment: new go.Spot(0.5, 0, 0, 10.5),  // positioned at top center with no offset
                         angle: 180,  // point down
-                        desiredSize: new go.Size(77, 20),
+                        desiredSize: new go.Size(80, 20),
                         fill: null,
                         stroke: "black",
                         strokeWidth: 1,

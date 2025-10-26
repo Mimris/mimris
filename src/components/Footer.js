@@ -7,9 +7,9 @@ const Footer = props => {
     <div className="footer d-flex align-items-center">
       <FaDharmachakra className="ms-2" />
       {/* <FaLaptop className="ms-2" /> */}
-      <div>AKM Modeller - 2024</div>
+      <div>Mimris Modeller - 2025</div>
       <FaRegCopyright className='ms-2'/>
-      <div className="ms-1">Kavca AS</div>
+      <div className="ms-1">Mimris</div>
       <div className="d-flex justify-content-between align-items-center ms-auto me-4" >
         <FaCloudDownloadAlt className="me-1" />
         <div>Template : {props.phTemplate}</div>

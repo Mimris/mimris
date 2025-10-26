@@ -137,6 +137,6 @@ To build a BPMN-based model:
 | **Help Blog** | [http://localhost:3000/helpblog](http://localhost:3000/helpblog) |
 | **Video Tutorials** | [http://localhost:3000/videos](http://localhost:3000/videos) |
 | **About / Documentation** | [http://localhost:3000/about](http://localhost:3000/about) |
-| **Developer** | Kavca AS – *AKM Modeller 2024* |
+| **Developer** | Mimris – *Modeller 2025* |
 
 ---

@@ -6754,11 +6754,18 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template2;
         return "";
     }
+    getFigure(): string {
+        if (this.figure)
+            return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
+        return "";
+    }
     setFigure(figure: string) {
         this.data.figure = figure;
         this.figure = figure;
     }
-    getFigure(): string {
+    getFigure2(): string {
         if (this.figure2)
             return this.figure;
         else if (this.data.figure2)
@@ -6768,13 +6775,6 @@ export class cxObjectTypeView extends cxMetaObject {
     setFigure2(figure: string) {
         this.data.figure2 = figure;
         this.figure2 = figure;
-    }
-    getFigure2(): string {
-        if (this.figure)
-            return this.figure;
-        else if (this.data.figure)
-            return this.data.figure;
-        return "";
     }
     setGeometry(geometry: string) {
         this.data.geometry = geometry;

@@ -172,7 +172,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
   }
 
   const paletteReltypes =
-    metamodel.includeSystemtypes ? metamodel?.relshiptypes : (metamodel?.relshiptypes0 || metamodel?.relshiptypes);
+    metamodel?.includeSystemtypes ? metamodel?.relshiptypes : (metamodel?.relshiptypes0 || metamodel?.relshiptypes);
   if (paletteReltypes?.length) {
     for (let i = 0; i < paletteReltypes.length; i++) {
       const reltype = paletteReltypes[i];

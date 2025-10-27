@@ -3832,7 +3832,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );
         groupTemplateMap.add("groupNoPorts", groupWithoutPorts1);
         addGroupTemplateName('groupNoPorts');        
-        // groupTemplateMap.get("groupNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupNoPorts");
+        groupTemplateMap.get("groupNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupNoPorts");
 
         groupTemplateMap.add("groupIconNoPorts", groupWithoutPorts1);
         addGroupTemplateName('groupIconNoPorts');        
@@ -3988,6 +3988,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         groupTop3(contextMenu, 'Icon', 1),
         );   
     }
+    
     if (true) { // poolTemplate
         const poolTemplate =
         $(go.Group, "Auto",

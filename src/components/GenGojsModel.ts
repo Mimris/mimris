@@ -80,6 +80,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
 
     if (debug) console.log('51 GenGojsModel: metis', metis, myMetis);
     myMetis?.importData(metis, true);
+    myMetis.modelType = 'Modelling'; // default to modelling
     adminModel = uib.buildAdminModel(myMetis);
 
     clogBlue('83 GenGojsModel :', myMetis)

@@ -133,9 +133,10 @@ const Modelling = (props: any) => {
   
 
   useEffect(() => {
-    if (debug) console.log('Modelling 126', mmToggle)
+    if (!debug) console.log('136 Modelling', mmToggle )
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
     myMetis.modelType = (!mmToggle) ? 'Metamodelling' : 'Modelling';
+    if (!debug) console.log('139 Modelling', myMetis.modelType, myMetis)
   }, [mmToggle])
 
 
@@ -145,6 +146,7 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Genereate GoJs node model 
     if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+    myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
     setRefresh(!refresh)

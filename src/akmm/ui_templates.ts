@@ -2646,239 +2646,145 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     );
     addNodeTemplateName('Annotation');
 
-    // nodeTemplateMap.add("ActivityNode",
-    // $(go.Node, 'Spot',
-    //     new go.Binding("isSelected", "isSelected").makeTwoWay(),
-    //     new go.Binding("layerName", "layer"),
-    //     new go.Binding("deletable"),
-    //     new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-    //     // new go.Binding("scale", "scale1").makeTwoWay(),
-    //     {
-    //         selectionObjectName: "SHAPE",
-    //         // resizable: true, 
-    //         resizeObjectName: "SHAPE",
-    //         contextMenu: contextMenu ,    
-    //     },
-    //     { // Tooltip
-    //         toolTip:
-    //         $(go.Adornment, "Auto",
-    //             $(go.Shape, { fill: "lightyellow" }),
-    //             $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-    //                 new go.Binding("text", "", 
-    //                     function (d) { 
-    //                         return uid.nodeInfo(d, myMetis);                
-    //                     }
-    //                 )
-    //             )
-    //         )
-    //     },
-    //     {
-    //         locationObjectName: 'SHAPE', 
-    //         locationSpot: go.Spot.Center,
-    //         resizable: true, 
-    //         resizeObjectName: 'PANEL',
-    //         selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
-    //         //itemTemplate: boundaryEventItemTemplate
-    //     },
-    //     $(go.Panel, 'Spot',
-    //         {
-    //         name: 'PANEL',
-    //         minSize: new go.Size(160, 80),
-    //         desiredSize: new go.Size(160, 80)
-    //         },
-    //         $(go.Panel, 'Spot',
-    //             $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
-    //                 {
-    //                     cursor: 'alias',
-    //                     name: 'SHAPE',
-    //                     fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
-    //                     stroke: '#CDAA7D',
-    //                     strokeWidth: 3,
-    //                     parameter1: 10, // corner size
-    //                     portId: '', 
-    //                     fromLinkable: true,
-    //                     fromSpot: go.Spot.RightSide, 
-    //                     toSpot: go.Spot.LeftSide,
-    //                     fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-    //                     toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-    //                 },
-    //                 new go.Binding('fill', 'fillcolor'),
-    //                 new go.Binding("stroke", "strokecolor"),
-    //                 new go.Binding('strokeWidth', 'strokewidth', function(val) { 
-    //                     return typeof val === 'number' ? val : parseInt(val) || 1; 
-    //                 }),
-    //             ),
-    //         ), 
-    //     ),  // end main body rectangles spot panel
-        
-    //     $(go.Panel, 'Auto',  // make an area around text for move cursor
-    //         $(go.Shape, 'Rectangle',  // area around the text
-    //             {
-    //                 fill: 'transparent', stroke: null, strokeWidth: 1,
-    //                 cursor: 'move',
-    //                 desiredSize: new go.Size(130, 50),
-    //             },
-    //         ),
-    //     ),
-    //     $(go.TextBlock,  // the center text
-    //       {
-    //         alignment: go.Spot.Center, 
-    //         // background: 'gray',
-    //         cursor: 'move',
-    //         textAlign: 'center', 
-    //         margin: 2,
-    //         editable: true,
-    //         scale: 1,
-    //       },
-    //       new go.Binding("text", "name").makeTwoWay(),
-    //       new go.Binding("scale", "textscale").makeTwoWay(),
-    //       new go.Binding("stroke", "textcolor").makeTwoWay(),
-    //     ),
-    //     $(go.Picture,
-    //         { 
-    //             name: "nodeImage", 
-    //             desiredSize: new go.Size(30, 30),
-    //             alignmentFocus: go.Spot.TopLeft,
-    //             alignment: new go.Spot(0, 0, 5, 5),
-    //             margin: 50, //new go.Margin(5, 5, 5, 5),
-    //             cursor: "move",
-    //         },
-    //         new go.Binding("source", "icon", findImage),
-    //     ),
-
-    //     $(go.Picture,
-    //         { 
-    //             name: "nodeImage", 
-    //             desiredSize: new go.Size(30, 30),
-    //             alignmentFocus: go.Spot.TopLeft,
-    //             alignment: new go.Spot(0, 0, 30, 65),
-    //             margin: 50, //new go.Margin(5, 5, 5, 5),
-    //             cursor: "move",
-    //         },
-    //         new go.Binding("source", "icon1", findImage),
-    //     ),
-
-    //     $(go.Picture,
-    //         { 
-    //             name: "nodeImage", 
-    //             desiredSize: new go.Size(30, 30),
-    //             alignmentFocus: go.Spot.TopLeft,
-    //             alignment: new go.Spot(0, 0, 65, 65),
-    //             margin: 50, //new go.Margin(5, 5, 5, 5),
-    //             cursor: "move",
-    //         },
-    //         new go.Binding("source", "icon2", findImage),
-    //     ),
-
-    //     $(go.Picture,
-    //         { 
-    //             name: "nodeImage", 
-    //             desiredSize: new go.Size(30, 30),
-    //             alignmentFocus: go.Spot.TopLeft,
-    //             alignment: new go.Spot(0, 0, 100, 65),
-    //             margin: 50, //new go.Margin(5, 5, 5, 5),
-    //             cursor: "move",
-    //         },
-    //         new go.Binding("source", "icon3", findImage),
-    //     ),
-
-    //   )  // end Auto Panel
-    // );
-    nodeTemplateMap.add("ActivityNode", 
-        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("layerName", "layer"),
-            new go.Binding("deletable"),
-            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
-            {
-                mouseEnter: (e, node) => node.isHighlighted = true,
-                mouseLeave: (e, node) => node.isHighlighted = false,
-            },
-            { // Tooltips
-                toolTip:
-                $(go.Adornment, "Auto",
-                    $(go.Shape, { fill: "lightyellow" }),
-                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                        new go.Binding("text", "", 
-                            function (d) { 
-                                const tt = uid.nodeInfo(d, myMetis); 
-                                if (debug) console.log('234 tooltip', tt);
-                                return tt;               
-                            }
-                        )
+    nodeTemplateMap.add("ActivityNode",
+    $(go.Node, 'Spot',
+        new go.Binding("isSelected", "isSelected").makeTwoWay(),
+        new go.Binding("layerName", "layer"),
+        new go.Binding("deletable"),
+        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        // new go.Binding("scale", "scale1").makeTwoWay(),
+        {
+            selectionObjectName: "SHAPE",
+            // resizable: true, 
+            resizeObjectName: "SHAPE",
+            contextMenu: contextMenu ,    
+        },
+        { // Tooltip
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            return uid.nodeInfo(d, myMetis);                
+                        }
                     )
                 )
+            )
+        },
+        {
+            locationObjectName: 'SHAPE', 
+            locationSpot: go.Spot.Center,
+            resizable: true, 
+            resizeObjectName: 'PANEL',
+            selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
+            //itemTemplate: boundaryEventItemTemplate
+        },
+        $(go.Panel, 'Spot',
+            {
+            name: 'PANEL',
+            minSize: new go.Size(160, 80),
+            desiredSize: new go.Size(160, 80)
             },
-            $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
-                {
-                    cursor: "alias", 
-                    name: 'SHAPE', 
-                    fill: 'transparent', 
-                    stroke: "#aaa",  
-                    strokeWidth: 2, 
-                    margin: new go.Margin(0, 0, 0, 0),
-                    shadowVisible: true,
-                    desiredSize: new go.Size(170, 80), // outer Shape size with icon
-                    // set the port properties
-                    portId: "", 
-                    fromLinkable: true, 
-                    fromLinkableSelfNode: true, 
-                    fromLinkableDuplicates: false,
-                    toLinkable: true, 
-                    toLinkableSelfNode: false, 
-                    toLinkableDuplicates: false
-                },
-                // Shape bindings
-                new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", 
-                    function(h, shape) { 
-                        return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
-                    }).ofObject(),
-                // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-                new go.Binding('strokeWidth', 'strokewidth', function(val) { 
-                    return typeof val === 'number' ? val : parseInt(val) || 1; 
-                }),
-                { contextMenu: contextMenu },
-            ),
-            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-                {
-                    cursor: "move",    
-                    fill: "transparent",
-                    stroke: "transparent",
-                    strokeWidth: 10,
-                    margin: new go.Margin(1, 1, 1, 1),
-                    shadowVisible: false,
-                }    
-            ),
-
-            $(go.Panel, "Table", // Panel for text and icon ------------------------
-                { 
-                    defaultAlignment: go.Spot.Left, 
-                    margin: 1, 
-                    cursor: "move" 
-                },
-                $(go.RowColumnDefinition, 
-                    { 
-                        column: 1, 
-                        width: 4 
-                    }
-                ),
-                $(go.Panel, "Horizontal",
-                    // { margin: new go.Margin(10, 10, 10, 10) },
+            $(go.Panel, 'Spot',
+                $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
                     {
-                        defaultAlignment: go.Spot.Center,
+                        cursor: 'alias',
+                        name: 'SHAPE',
+                        fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
+                        stroke: '#CDAA7D',
+                        strokeWidth: 3,
+                        parameter1: 10, // corner size
+                        portId: '', 
+                        fromLinkable: true,
+                        fromSpot: go.Spot.RightSide, 
+                        toSpot: go.Spot.LeftSide,
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
                     },
-                    // define the panel where the text will appear
-
-                    addNodeText0(contextMenu),
+                    new go.Binding('fill', 'fillcolor'),
+                    new go.Binding("stroke", "strokecolor"),
+                    new go.Binding('strokeWidth', 'strokewidth', function(val) { 
+                        return typeof val === 'number' ? val : parseInt(val) || 1; 
+                    }),
                 ),
+            ), 
+        ),  // end main body rectangles spot panel
+        
+        $(go.Panel, 'Auto',  // make an area around text for move cursor
+            $(go.Shape, 'Rectangle',  // area around the text
+                {
+                    fill: 'transparent', stroke: null, strokeWidth: 1,
+                    cursor: 'move',
+                    desiredSize: new go.Size(130, 50),
+                },
             ),
-        )
+        ),
+        $(go.TextBlock,  // the center text
+          {
+            alignment: go.Spot.Center, 
+            // background: 'gray',
+            cursor: 'move',
+            textAlign: 'center', 
+            margin: 2,
+            editable: true,
+            scale: 1,
+          },
+          new go.Binding("text", "name").makeTwoWay(),
+          new go.Binding("scale", "textscale").makeTwoWay(),
+          new go.Binding("stroke", "textcolor").makeTwoWay(),
+        ),
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 5, 5),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 30, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon1", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 65, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon2", findImage),
+        ),
+
+        $(go.Picture,
+            { 
+                name: "nodeImage", 
+                desiredSize: new go.Size(30, 30),
+                alignmentFocus: go.Spot.TopLeft,
+                alignment: new go.Spot(0, 0, 100, 65),
+                margin: 50, //new go.Margin(5, 5, 5, 5),
+                cursor: "move",
+            },
+            new go.Binding("source", "icon3", findImage),
+        ),
+
+      )  // end Auto Panel
     );
-     addNodeTemplateName('ActivityNode');
+    addNodeTemplateName('ActivityNode');
 
     nodeTemplateMap.add("EventNode",
         $(go.Node, 'Vertical',  // the Shape will go around the TextBlock

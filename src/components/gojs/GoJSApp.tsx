@@ -1756,7 +1756,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const otherNodes: go.Node[] = [];
 
               for (let i = 0; i < droppedNodesForLayout.length; i++) {
-                if (droppedNodesForLayout.length < 2) return; // No need to group a single node and try to avoid existing nodes, let the user handle that
+                // if (droppedNodesForLayout.length < 2) return; // No need to group a single node and try to avoid existing nodes, let the user handle that
                 const node = droppedNodesForLayout[i];
                 const typeRef = getNodeTypeRef(node);
                 const data: any = node?.data || {};

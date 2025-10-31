@@ -6520,20 +6520,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let options = '';
         let comps;
         const { Option } = components
-        const CustomSelectOption = props =>
-        (
+        const fallbackImg = './../images/default.png';
+        const CustomSelectOption = (props: any) => (
           <Option {...props}>
-            <img className="option-img mr-2" src={props.data.value} />
-            {props.data.label}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                className="option-img mr-2"
+                src={props.data.value}
+                style={{ width: 20, height: 20, objectFit: 'contain', marginRight: 8 }}
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  const img = e.currentTarget as HTMLImageElement;
+                  img.onerror = null;
+                  img.src = fallbackImg;
+                }}
+              />
+              <span>{props.data.label}</span>
+            </div>
           </Option>
-        )
-        const CustomSelectValue = props => (
-          <div>
-            {/* <i className={`icon icon-${props.data.icon}`} /> */}
-            <img className="option-img mr-2" src={props.data.value} />
-            {props.data.label}
+        );
+
+        const CustomSelectValue = (props: any) => (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <img
+              className="option-img mr-2"
+              src={props.data.value}
+              style={{ width: 20, height: 20, objectFit: 'contain', marginRight: 8 }}
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                const img = e.currentTarget as HTMLImageElement;
+                img.onerror = null;
+                img.src = fallbackImg;
+              }}
+            />
+            <span>{props.data.label}</span>
           </div>
-        )
+        );
         if (modalContext?.title === 'Select Icon') {
           let img
           options = this.state.modalContext.iconList.map(icon => {
@@ -6541,8 +6561,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: img, label: icon.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Layout Scheme') {
+        } else if (modalContext?.title === 'Set Layout Scheme') {
           let layout, img;
           options = this.state.modalContext.layoutList.map(ll => {
             img = './../images/default.png'
@@ -6550,8 +6569,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: layout, label: ll.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Routing Scheme') {
+        } else if (modalContext?.title === 'Set Routing Scheme') {
           let routing, img;
           options = this.state.modalContext.routingList.map(rr => {
             img = './../images/default.png'
@@ -6559,8 +6577,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: routing, label: rr.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Link Curve') {
+        } else if (modalContext?.title === 'Set Link Curve') {
           let curve, img;
           options = this.state.modalContext.curveList.map(cc => {
             img = './../images/default.png'
@@ -6568,8 +6585,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: curve, label: cc.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Select Relationship Type') {
+        } else if (modalContext?.title === 'Select Relationship Type') {
           const choices = this.state.modalContext.args.typeNames;
           let img;
           options = choices.map(tpname => {
@@ -6577,8 +6593,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: tpname, label: tpname }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else {
+        } else {
           options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
           comps = null
         }

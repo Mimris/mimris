@@ -2840,7 +2840,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }      
       case 'LayoutCompleted': {
-        if (false) {
+        // Persist node/link positions after layout so positions survive reloads
+        if (true) {
           const nodes = myDiagram.nodes;
           for (let it = nodes.iterator; it?.next();) {
             const node = it.value;

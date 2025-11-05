@@ -1430,10 +1430,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const objview = node.objectview;
+                // show for normal group views that are expanded
                 if (objview?.isGroup) {
                   if (objview?.isExpanded === true)
                     return true;
                 }
+                // also show for Container viewkind
+                if (objview?.viewkind === 'Container') return true;
               }
               return false;
             }),
@@ -1483,10 +1486,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const key = node.key;
               const objview = myMetis.findObjectView(key);
-              if (!objview?.isGroup)
-                return true;
-              else
-                return false;
+              // show for non-group nodes
+              if (!objview?.isGroup) return true;
+              // also show for Container views (treat as group that supports layout)
+              if (objview?.viewkind === 'Container') return true;
+              return false;
             }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
@@ -5742,13 +5746,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 action: (diagram) => applyGroupDropLayout(diagram, part, null),
               });
             }
+              // Add group layout actions for groups and container views
+              items.push({
+                label: "Do Layout",
+                action: (diagram) => handleGroupDoLayout(diagram, part),
+              });
 
-            const groupLayoutMenuItems: HtmlMenuItem[] = [
-              ...globalLayoutOptions.map(option => ({
-                label: option.label,
-                action: (diagram: go.Diagram) => applyGroupLayoutScheme(diagram, part, option.value),
-              })),
-            ];
+              items.push({
+                label: "Set Layout Scheme",
+                action: (diagram) => handleGroupSelectLayout(diagram, part),
+              });
+
+              const groupLayoutMenuItems: HtmlMenuItem[] = [
+                ...globalLayoutOptions.map(option => ({
+                  label: option.label,
+                  action: (diagram: go.Diagram) => applyGroupLayoutScheme(diagram, part, option.value),
+                })),
+              ];
+
+              items.push({
+                label: "Apply Layout Scheme…",
+                action: showSubMenu(groupLayoutMenuItems),
+                closeOnClick: false,
+              });
+
           }
         }
         items.push({ separator: true });

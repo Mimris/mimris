@@ -1363,7 +1363,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 } 
 
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
-    let reltypeNames = [constants.types.AKM_REFERS_TO];
+    let reltypeNames = [constants.types.AKM_CONTAINS];
     const myMetamodel = myMetis.currentMetamodel;
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel;

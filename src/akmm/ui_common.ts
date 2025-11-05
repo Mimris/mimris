@@ -954,6 +954,11 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
                         reltypes.push(rtype);
                     }
+                    if (fromType.name === constants.types.AKM_CONTAINER && toType.name === constants.types.AKM_ENTITY_TYPE) {
+                        // reltypes = [];
+                        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+                        reltypes.push(rtype);
+                    }
                 } else {
                     const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
                     for (let i = 0; i < rtypes.length; i++) {
@@ -983,8 +988,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             }
         }
         if (reltypes) {
-            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
-            reltypes.push(rtype);
+            const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+            if (fromType.name === constants.types.AKM_CONTAINER) {
+                reltypes.push(rtype);
+            }
             if (reltypes) {
                 const choices1: string[] = [];
                 if (defText.length > 0) choices1.push(defText);

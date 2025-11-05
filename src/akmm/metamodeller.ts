@@ -122,17 +122,6 @@ export class cxMetis {
                     this.addMetamodel(metamodel);
                 }
             }
-            for (let i = len - 1; i >= 0; i--) {
-                const metamodel = metamodels[i];
-                if (!metamodel) continue;
-                if (metamodel.name !== constants.core.AKM_CORE_META)
-                    continue;
-                if (metamodel && metamodel.id) {
-                    this.importMetamodel(metamodel);
-                    this.addMetamodel(metamodel);
-                    this.coreMetamodel = metamodel;
-                }
-            }
         }
         // Handle viewstyles
         const viewstyles: any[] = (importedData) && importedData.viewstyles;
@@ -4879,7 +4868,7 @@ export class cxMetaModel extends cxMetaObject {
                 continue;
             if (reltype.name === constants.types.AKM_IS)
                 continue;
-            if (reltype.name === constants.types.AKM_REFERS_TO) {
+            if (reltype.name === constants.types.AKM_CONTAINS) {
                 reltypes.push(reltype);
                 continue;
             }
@@ -4933,7 +4922,7 @@ export class cxMetaModel extends cxMetaObject {
             if (reltype.name === constants.types.AKM_IS)
                 continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
-                reltypes.push(reltype);
+                // reltypes.push(reltype);
                 continue;
             }
             const fromObjType = reltype.getFromObjType();

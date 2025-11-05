@@ -75,6 +75,8 @@ interface DiagramState {
   // onExportSvgReady: any;
 }
 
+
+
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
@@ -273,6 +275,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    * The model's data should not be set here, as the ReactDiagram component handles that.
    */
 
+  
+
   private initDiagram(): go.Diagram {
     go.Diagram.licenseKey = "73f944e5b16131b700ca0d2a113f69ec5ef62e33c9820ce00b5645f4ed5b381476c9eb7c55d783c3d7ff46f41e2fc6deddcc6a2f951e556be238c1cc45b6d6f1b23724e740014588a50b2fca9dfb23f5f87875f0c2b770a7d82adff0efad90ce5fbff48140c91cab2f2d5637562cff4ba5ebda7afa06d34a7464";
 
@@ -416,78 +420,78 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     {
       advancedPartContextMenu =
         $(go.Adornment, "Vertical",
-          makeButton("Copy",
-            function (e: any, obj: any) {
-              let node = obj.part;
-              node = myDiagram.findNodeForKey(node.key);
-              try {
-                const myCollection = node.findSubGraphParts();
-                if (myCollection) {
-                  myCollection.add(node);
-                  myDiagram.selectCollection(myCollection);
-                }
-              } catch {
-              }
-              const gjsNode = myDiagram.findNodeForKey(node?.key);
-              let currentNode = obj.part.data;
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
-                selection = myDiagram.selection;
-              }
-              const gjsSourceNodes = []; // source nodes
-              const gjsSourceLinks = []; // source links
-              for (let it = selection.iterator; it?.next();) {
-                let n = it.value;
-                if (n instanceof go.Node) {
-                  addSourceNode(gjsSourceNodes, n);
-                } else if (n instanceof go.Link) {
-                  addSourceLink(gjsSourceLinks, n);
-                }
-              }
-              // Build the structure that is used in copy/paste
-              selection = [];
-              e.diagram.selection.each(function (sel) {
-                const key = sel.data.key;
-                sel.data.fromModelview = myMetis.currentModelview;
-                sel.data.fromGoModel   = myMetis.gojsModel;
-                sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
-                sel.data.fromLink = getSourceLink(gjsSourceLinks, key);
-                selection.push(sel.data);
-              });
-              if (selection.length > 0) {
-                myMetis.currentSelection = selection;
-                e.diagram.commandHandler.copySelection();
-              }
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                // node.diagram.selectCollection(node.findSubGraphParts());
-                return true;
-              }
-              if (node.category === constants.gojs.C_RELATIONSHIP)
-                return true;
-            }),
-          makeButton("Paste",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = false;
-              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
-              e.diagram.commandHandler.pasteSelection(point);
-            },
-            function (o: any) {
-              return o.diagram.commandHandler.canPasteSelection();
-            }),
-          makeButton("Paste View",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = true;
-              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
-              e.diagram.commandHandler.pasteSelection(point);
-            },
-            function (o: any) {
-              //return false;
-              return o.diagram.commandHandler.canPasteSelection();
-            }),
+          // makeButton("Copy",
+          //   function (e: any, obj: any) {
+          //     let node = obj.part;
+          //     node = myDiagram.findNodeForKey(node.key);
+          //     try {
+          //       const myCollection = node.findSubGraphParts();
+          //       if (myCollection) {
+          //         myCollection.add(node);
+          //         myDiagram.selectCollection(myCollection);
+          //       }
+          //     } catch {
+          //     }
+          //     const gjsNode = myDiagram.findNodeForKey(node?.key);
+          //     let currentNode = obj.part.data;
+          //     let selection = myDiagram.selection;
+          //     if (selection.count == 0) {
+          //       if (currentNode) myDiagram.select(myDiagram.findPartForKey(currentNode.key));
+          //       selection = myDiagram.selection;
+          //     }
+          //     const gjsSourceNodes = []; // source nodes
+          //     const gjsSourceLinks = []; // source links
+          //     for (let it = selection.iterator; it?.next();) {
+          //       let n = it.value;
+          //       if (n instanceof go.Node) {
+          //         addSourceNode(gjsSourceNodes, n);
+          //       } else if (n instanceof go.Link) {
+          //         addSourceLink(gjsSourceLinks, n);
+          //       }
+          //     }
+          //     // Build the structure that is used in copy/paste
+          //     selection = [];
+          //     e.diagram.selection.each(function (sel) {
+          //       const key = sel.data.key;
+          //       sel.data.fromModelview = myMetis.currentModelview;
+          //       sel.data.fromGoModel   = myMetis.gojsModel;
+          //       sel.data.fromNode = getSourceNode(gjsSourceNodes, key);
+          //       sel.data.fromLink = getSourceLink(gjsSourceLinks, key);
+          //       selection.push(sel.data);
+          //     });
+          //     if (selection.length > 0) {
+          //       myMetis.currentSelection = selection;
+          //       e.diagram.commandHandler.copySelection();
+          //     }
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       // node.diagram.selectCollection(node.findSubGraphParts());
+          //       return true;
+          //     }
+          //     if (node.category === constants.gojs.C_RELATIONSHIP)
+          //       return true;
+          //   }),
+          // makeButton("Paste",
+          //   function (e: any, obj: any) {
+          //     myMetis.pasteViewsOnly = false;
+          //     const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+          //     e.diagram.commandHandler.pasteSelection(point);
+          //   },
+          //   function (o: any) {
+          //     return o.diagram.commandHandler.canPasteSelection();
+          //   }),
+          // makeButton("Paste View",
+          //   function (e: any, obj: any) {
+          //     myMetis.pasteViewsOnly = true;
+          //     const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+          //     e.diagram.commandHandler.pasteSelection(point);
+          //   },
+          //   function (o: any) {
+          //     //return false;
+          //     return o.diagram.commandHandler.canPasteSelection();
+          //   }),
           makeButton("Add Lane(s)",
             function (e: any, obj: any) {
               const modifiedObjectViews = new Array();
@@ -569,164 +573,164 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Edit Object",
-            function (e: any, obj: any) {
-              const gjsNode = obj.part.data;
-              uid.editObject(gjsNode, myMetis, myDiagram);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  myDiagram.clearSelection();
-                  node.isSelected = true;
-                  uid.addToSelection(node, myDiagram);
-                  return true;
-                }
-              }
-            }),
-          makeButton("Edit Objectview",
-            function (e: any, obj: any) {
-              const gjsNode = obj.part.data;
-              uid.editObjectview(gjsNode, myMetis, myDiagram);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  myDiagram.clearSelection();
-                  node.isSelected = true;
-                  uid.addToSelection(node, myDiagram);
-                  return true;
-                }
-              }
-            }),
-          makeButton("Connect to Selected",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              node.isSelected = false;
-              const fromTypeRef = node.objtypeRef;
-              const fromType = myMetis.findObjectType(fromTypeRef);
-              const nodes = [];
-              const selection = myDiagram.selection;
-              for (let it = selection.iterator; it?.next();) {
-                let n = it.value;
-                if (n.data.key === node.key)
-                  continue;
-                nodes.push(n.data);
-              }
-              const choices = uid.getConnectToSelectedTypes(node, selection, myMetis, myDiagram);
-              const args = {
-                fromType: fromType,
-                nodeFrom: node,
-                nodesTo: nodes,
-                typeNames: choices,
-              }
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Relationship Type",
-                case: "Connect to Selected",
-                myDiagram: myDiagram,
-                args: args
-              }
-              myMetis.currentNode = node;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node, modalContext);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                const selection = myDiagram.selection;
-                if (selection.count > 0)
-                  return true;
-                return false;
-              }
-              return false;
-            }),
-          makeButton("Add Connected Objects",
-            function (e: any, obj: any) {
+          // makeButton("Edit Object",
+          //   function (e: any, obj: any) {
+          //     const gjsNode = obj.part.data;
+          //     uid.editObject(gjsNode, myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       if (node.isSelected) {
+          //         return true;
+          //       } else {
+          //         myDiagram.clearSelection();
+          //         node.isSelected = true;
+          //         uid.addToSelection(node, myDiagram);
+          //         return true;
+          //       }
+          //     }
+          //   }),
+          // makeButton("Edit Objectview",
+          //   function (e: any, obj: any) {
+          //     const gjsNode = obj.part.data;
+          //     uid.editObjectview(gjsNode, myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       if (node.isSelected) {
+          //         return true;
+          //       } else {
+          //         myDiagram.clearSelection();
+          //         node.isSelected = true;
+          //         uid.addToSelection(node, myDiagram);
+          //         return true;
+          //       }
+          //     }
+          //   }),
+          // makeButton("Connect to Selected",
+          //   function (e: any, obj: any) {
+          //     const node = obj.part.data;
+          //     node.isSelected = false;
+          //     const fromTypeRef = node.objtypeRef;
+          //     const fromType = myMetis.findObjectType(fromTypeRef);
+          //     const nodes = [];
+          //     const selection = myDiagram.selection;
+          //     for (let it = selection.iterator; it?.next();) {
+          //       let n = it.value;
+          //       if (n.data.key === node.key)
+          //         continue;
+          //       nodes.push(n.data);
+          //     }
+          //     const choices = uid.getConnectToSelectedTypes(node, selection, myMetis, myDiagram);
+          //     const args = {
+          //       fromType: fromType,
+          //       nodeFrom: node,
+          //       nodesTo: nodes,
+          //       typeNames: choices,
+          //     }
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Relationship Type",
+          //       case: "Connect to Selected",
+          //       myDiagram: myDiagram,
+          //       args: args
+          //     }
+          //     myMetis.currentNode = node;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(node, modalContext);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       const selection = myDiagram.selection;
+          //       if (selection.count > 0)
+          //         return true;
+          //       return false;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Add Connected Objects",
+          //   function (e: any, obj: any) {
 
-              let noLevels = '9';
-              let reltypes = 'All';
-              let reldir   = 'All';
-              let useDefaults = confirm('Use default parameters?');
-              if (useDefaults) {
-                  noLevels = 9;
-                  reltypes = 'All';
-                  reldir === 'All'
-              } else {
-                  noLevels = prompt('Enter no of sublevels to follow', noLevels);
-                  let reltypes = 'All';
-                  reltypes = prompt('Enter relationship type to follow', reltypes);
-                  if (reltypes === 'All') {
-                      reltypes = '';
-                  }
-                  let reldir = 'All';
-                  reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
-              }
-              const params = {
-                  noLevels: noLevels,
-                  reltypes: reltypes,
-                  reldir: reldir
-              }
+          //     let noLevels = '9';
+          //     let reltypes = 'All';
+          //     let reldir   = 'All';
+          //     let useDefaults = confirm('Use default parameters?');
+          //     if (useDefaults) {
+          //         noLevels = 9;
+          //         reltypes = 'All';
+          //         reldir === 'All'
+          //     } else {
+          //         noLevels = prompt('Enter no of sublevels to follow', noLevels);
+          //         let reltypes = 'All';
+          //         reltypes = prompt('Enter relationship type to follow', reltypes);
+          //         if (reltypes === 'All') {
+          //             reltypes = '';
+          //         }
+          //         let reldir = 'All';
+          //         reldir = prompt('Enter relationship direction to follow (in | out | All)', reldir);
+          //     }
+          //     const params = {
+          //         noLevels: noLevels,
+          //         reltypes: reltypes,
+          //         reldir: reldir
+          //     }
 
-              const mySelection = myDiagram.selection;
-              const nodes = [];
-              for (let it = mySelection.iterator; it?.next();) {
-                let n = it.value;
-                const node = n.data;
-                uid.addConnectedObjects(node, params, myMetis, myDiagram);                
-              }
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
-            }),
-          makeButton("Hide Connected Relationships",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              const n = myDiagram.findNodeForKey(node.key);
-              uid.hideConnectedRelationships(n, myMetis, myDiagram);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
-            }),
-          makeButton("Change Icon",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              if (node) myDiagram.select(myDiagram.findPartForKey(node.key));
-              const ilist = iconList()
-              const iconLabels = ilist.map(il => (il) && il.label)
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Icon",
-                case: "Change Icon",
-                iconList: iconList(),
-                currentNode: node,
-                myDiagram: myDiagram
-              }
-              myMetis.currentNode = node;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node, modalContext);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
-            }),
+          //     const mySelection = myDiagram.selection;
+          //     const nodes = [];
+          //     for (let it = mySelection.iterator; it?.next();) {
+          //       let n = it.value;
+          //       const node = n.data;
+          //       uid.addConnectedObjects(node, params, myMetis, myDiagram);                
+          //     }
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Hide Connected Relationships",
+          //   function (e: any, obj: any) {
+          //     const node = obj.part.data;
+          //     const n = myDiagram.findNodeForKey(node.key);
+          //     uid.hideConnectedRelationships(n, myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Change Icon",
+          //   function (e: any, obj: any) {
+          //     const node = obj.part.data;
+          //     if (node) myDiagram.select(myDiagram.findPartForKey(node.key));
+          //     const ilist = iconList()
+          //     const iconLabels = ilist.map(il => (il) && il.label)
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Icon",
+          //       case: "Change Icon",
+          //       iconList: iconList(),
+          //       currentNode: node,
+          //       myDiagram: myDiagram
+          //     }
+          //     myMetis.currentNode = node;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(node, modalContext);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -781,24 +785,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return false;
             }),
-          makeButton("Sort Selection",
-            function (e: any, obj: any) {
-              uid.sortSelection(myDiagram);
-            },
-            function (o: any) {
-              const selection = myDiagram.selection;
-              if (selection.count > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Add to Selection",
-            function (e: any, obj: any) {
-              uid.addToSelection(obj, myDiagram);
-            },
-            function (o: any) {
-              return false;
-            }),
+          // makeButton("Sort Selection",
+          //   function (e: any, obj: any) {
+          //     uid.sortSelection(myDiagram);
+          //   },
+          //   function (o: any) {
+          //     const selection = myDiagram.selection;
+          //     if (selection.count > 1)
+          //       return true;
+          //     else
+          //       return false;
+          //   }),
+          // makeButton("Add to Selection",
+          //   function (e: any, obj: any) {
+          //     uid.addToSelection(obj, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     return false;
+          //   }),
           makeButton("Cut",
             function (e: any, obj: any) {
               e.diagram.commandHandler.cutSelection();
@@ -869,121 +873,121 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     } else
           //       return true;
           //   }),
-          makeButton("Delete Selection",
-            function (e: any, obj: any) {
-              if (confirm('Do you really want to delete the current selection?')) {
-                const myModel = myMetis.currentModel;
-                const myGoModel = myMetis.gojsModel;
-                myMetis.deleteViewsOnly = false;
-                // myDiagram.selection.each(function (sel) {
-                //   const data = sel.data;
-                //   if (data.category === constants.gojs.C_OBJECT) {
-                //     const objview = myModelview.findObjectView(data.key);
-                //     const object = objview.object;
-                //     const objviews = object.objectviews;
-                //     if (objviews) {
-                //       objviews.forEach(ov => {
-                //         let ovnode = myGoModel.findNodeByViewId(ov.id);
-                //         if (ovnode) {
-                //           const n = myDiagram.findNodeForKey(ovnode.key);
-                //           if (n) n.isSelected = true;
-                //         }
-                //       })
-                //     }
-                //     let node = myGoModel.findNode(data.key);
-                //     if (node?.isGroup) {
-                //       const groupMembers = node.getGroupMembers(myGoModel);
-                //       for (let i = 0; i < groupMembers?.length; i++) {
-                //         const member = groupMembers[i];
-                //         const n = myDiagram.findNodeForKey(member?.key);
-                //       }
-                //     }
-                //     const n = myDiagram.findNodeForKey(node?.key);
-                //     if (n)
-                //       n.findLinksConnected().each(function (l) {
-                //         l.isSelected = true;
-                //       });
-                //   }
-                //   if (data.category === constants.gojs.C_OBJECTTYPE) {
-                //     const node = myDiagram.findNodeForKey(data.key);
-                //     node.findLinksConnected().each(function (l) {
-                //       l.isSelected = true;
-                //     });
-                //   }
-                // })
-                myDiagram.commandHandler.deleteSelection();
-              }
-            },
-            function (o: any) {
-              let selection = myDiagram.selection;
-              const node = o.part.data;
-              if (node.isSelected && selection.count > 1) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else
-                return false;
-            }),
-          makeButton("Delete",
-            function (e: any, obj: any) {
-              let node = obj.part;
-              node = myDiagram.findNodeForKey(node.key);
-              if (node.data.isGroup) {
-                if (confirm('Do you want to also delete the content?')) {
-                  try {
-                    const myCollection = node.findSubGraphParts();
-                    myCollection.add(node);
-                    myDiagram.selectCollection(myCollection);
-                  } catch {
-                  }
-                }
-              }
-              if (confirm('Do you really want to delete the current selection?')) {
-                myMetis.deleteViewsOnly = false;
-                myMetis.currentNode = obj.part.data;
-                myDiagram.commandHandler.deleteSelection();
-              }
-            },
-            function (o: any) {
-              let selection = myDiagram.selection;
-              const node = o.part.data;
-              if (node.isSelected && selection.count == 1) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else
-                return false;
-            }),
-          makeButton("Delete View",
-            function (e: any, obj: any) {
-              if (confirm('Do you really want to delete the current selection?')) {
-                const myModel = myMetis.currentModel;
-                myMetis.deleteViewsOnly = true;
-                myMetis.currentNode = obj.part.data;
-              }
-              myDiagram.commandHandler.deleteSelection();
-            },
-            function (o: any) {
-              let selection = myDiagram.selection;
-              const node = o.part.data;
-              if (node.isSelected && selection.count == 1) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else
-                return false;
-            }),
-          makeButton("Delete Selected Views",
-            function (e: any, obj: any) {
-              if (confirm('Do you really want to delete the current selection?')) {
-                const myModel = myMetis.currentModel;
-                myMetis.deleteViewsOnly = true;
-                myMetis.currentNode = obj.part.data;
-              }
-              myDiagram.commandHandler.deleteSelection();
-            },
-            function (o: any) {
-              let selection = myDiagram.selection;
-              const node = o.part.data;
-              if (node.isSelected && selection.count > 1) {
-                return o.diagram.commandHandler.canDeleteSelection();
-              } else
-                return false;
-            }),
+          // makeButton("Delete Selection",
+          //   function (e: any, obj: any) {
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       const myModel = myMetis.currentModel;
+          //       const myGoModel = myMetis.gojsModel;
+          //       myMetis.deleteViewsOnly = false;
+          //       // myDiagram.selection.each(function (sel) {
+          //       //   const data = sel.data;
+          //       //   if (data.category === constants.gojs.C_OBJECT) {
+          //       //     const objview = myModelview.findObjectView(data.key);
+          //       //     const object = objview.object;
+          //       //     const objviews = object.objectviews;
+          //       //     if (objviews) {
+          //       //       objviews.forEach(ov => {
+          //       //         let ovnode = myGoModel.findNodeByViewId(ov.id);
+          //       //         if (ovnode) {
+          //       //           const n = myDiagram.findNodeForKey(ovnode.key);
+          //       //           if (n) n.isSelected = true;
+          //       //         }
+          //       //       })
+          //       //     }
+          //       //     let node = myGoModel.findNode(data.key);
+          //       //     if (node?.isGroup) {
+          //       //       const groupMembers = node.getGroupMembers(myGoModel);
+          //       //       for (let i = 0; i < groupMembers?.length; i++) {
+          //       //         const member = groupMembers[i];
+          //       //         const n = myDiagram.findNodeForKey(member?.key);
+          //       //       }
+          //       //     }
+          //       //     const n = myDiagram.findNodeForKey(node?.key);
+          //       //     if (n)
+          //       //       n.findLinksConnected().each(function (l) {
+          //       //         l.isSelected = true;
+          //       //       });
+          //       //   }
+          //       //   if (data.category === constants.gojs.C_OBJECTTYPE) {
+          //       //     const node = myDiagram.findNodeForKey(data.key);
+          //       //     node.findLinksConnected().each(function (l) {
+          //       //       l.isSelected = true;
+          //       //     });
+          //       //   }
+          //       // })
+          //       myDiagram.commandHandler.deleteSelection();
+          //     }
+          //   },
+          //   function (o: any) {
+          //     let selection = myDiagram.selection;
+          //     const node = o.part.data;
+          //     if (node.isSelected && selection.count > 1) {
+          //       return o.diagram.commandHandler.canDeleteSelection();
+          //     } else
+          //       return false;
+          //   }),
+          // makeButton("Delete",
+          //   function (e: any, obj: any) {
+          //     let node = obj.part;
+          //     node = myDiagram.findNodeForKey(node.key);
+          //     if (node.data.isGroup) {
+          //       if (confirm('Do you want to also delete the content?')) {
+          //         try {
+          //           const myCollection = node.findSubGraphParts();
+          //           myCollection.add(node);
+          //           myDiagram.selectCollection(myCollection);
+          //         } catch {
+          //         }
+          //       }
+          //     }
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       myMetis.deleteViewsOnly = false;
+          //       myMetis.currentNode = obj.part.data;
+          //       myDiagram.commandHandler.deleteSelection();
+          //     }
+          //   },
+          //   function (o: any) {
+          //     let selection = myDiagram.selection;
+          //     const node = o.part.data;
+          //     if (node.isSelected && selection.count == 1) {
+          //       return o.diagram.commandHandler.canDeleteSelection();
+          //     } else
+          //       return false;
+          //   }),
+          // makeButton("Delete View",
+          //   function (e: any, obj: any) {
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       const myModel = myMetis.currentModel;
+          //       myMetis.deleteViewsOnly = true;
+          //       myMetis.currentNode = obj.part.data;
+          //     }
+          //     myDiagram.commandHandler.deleteSelection();
+          //   },
+          //   function (o: any) {
+          //     let selection = myDiagram.selection;
+          //     const node = o.part.data;
+          //     if (node.isSelected && selection.count == 1) {
+          //       return o.diagram.commandHandler.canDeleteSelection();
+          //     } else
+          //       return false;
+          //   }),
+          // makeButton("Delete Selected Views",
+          //   function (e: any, obj: any) {
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       const myModel = myMetis.currentModel;
+          //       myMetis.deleteViewsOnly = true;
+          //       myMetis.currentNode = obj.part.data;
+          //     }
+          //     myDiagram.commandHandler.deleteSelection();
+          //   },
+          //   function (o: any) {
+          //     let selection = myDiagram.selection;
+          //     const node = o.part.data;
+          //     if (node.isSelected && selection.count > 1) {
+          //       return o.diagram.commandHandler.canDeleteSelection();
+          //     } else
+          //       return false;
+          //   }),
           makeButton("----------"),
           makeButton("Add Port",
             function (e: any, obj: any) {
@@ -1081,15 +1085,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               return false;
             }),
-          makeButton("Generate Metamodel",
-            function (e: any, obj: any) {
-              const data = obj?.part?.data;
-              handleGenerateMetamodel(e?.diagram, data);
-            },
-            function (o: any) {
-              const data = o?.part?.data;
-              return canGenerateMetamodelFromData(data);
-            }),
+          // makeButton("Generate Metamodel",
+          //   function (e: any, obj: any) {
+          //     const data = obj?.part?.data;
+          //     handleGenerateMetamodel(e?.diagram, data);
+          //   },
+          //   function (o: any) {
+          //     const data = o?.part?.data;
+          //     return canGenerateMetamodelFromData(data);
+          //   }),
           makeButton("Generate Submodel(s)",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1143,62 +1147,62 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Change Object Type",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              const currentType = node.objecttype;
-              const myMetamodel = myMetis.currentMetamodel;
-              const objtypes = myMetamodel.getObjectTypes();
-              node.choices = [];
-              if (objtypes) {
-                for (let i = 0; i < objtypes.length; i++) {
-                  const otype = objtypes[i];
-                  if (!otype.markedAsDeleted) {
-                    if (otype.name === 'Generic' || otype.name === 'Element')
-                      continue;
-                    node.choices.push(otype.name);
-                  }
-                }
-              }
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Object Type",
-                case: "Change Object type",
-                myDiagram: myDiagram
-              }
-              myMetis.currentNode = node;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node.choices, modalContext);
-            },
-            function (o: any) {
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT) {
-                return true;
-              }
-              return false;
-            }),
-          makeButton("Show Typeview",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              uid.editObjectTypeview(node, myMetis, myDiagram, true);
-            },
-            function (o: any) {
-              // return false;
-              const node = o.part.data;
-              if (node.category === constants.gojs.C_OBJECT)
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  myDiagram.clearSelection();
-                  node.isSelected = true;
-                  uid.addToSelection(node, myDiagram);
-                  return true;
-                }
-              // else if (node.category === constants.gojs.C_OBJECTTYPE)
-              //   return true;
-              else
-                return false;
-            }),
+          // makeButton("Change Object Type",
+          //   function (e: any, obj: any) {
+          //     const node = obj.part.data;
+          //     const currentType = node.objecttype;
+          //     const myMetamodel = myMetis.currentMetamodel;
+          //     const objtypes = myMetamodel.getObjectTypes();
+          //     node.choices = [];
+          //     if (objtypes) {
+          //       for (let i = 0; i < objtypes.length; i++) {
+          //         const otype = objtypes[i];
+          //         if (!otype.markedAsDeleted) {
+          //           if (otype.name === 'Generic' || otype.name === 'Element')
+          //             continue;
+          //           node.choices.push(otype.name);
+          //         }
+          //       }
+          //     }
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Object Type",
+          //       case: "Change Object type",
+          //       myDiagram: myDiagram
+          //     }
+          //     myMetis.currentNode = node;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(node.choices, modalContext);
+          //   },
+          //   function (o: any) {
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Show Typeview",
+          //   function (e: any, obj: any) {
+          //     const node = obj.part.data;
+          //     uid.editObjectTypeview(node, myMetis, myDiagram, true);
+          //   },
+          //   function (o: any) {
+          //     // return false;
+          //     const node = o.part.data;
+          //     if (node.category === constants.gojs.C_OBJECT)
+          //       if (node.isSelected) {
+          //         return true;
+          //       } else {
+          //         myDiagram.clearSelection();
+          //         node.isSelected = true;
+          //         uid.addToSelection(node, myDiagram);
+          //         return true;
+          //       }
+          //     // else if (node.category === constants.gojs.C_OBJECTTYPE)
+          //     //   return true;
+          //     else
+          //       return false;
+          //   }),
           makeButton("Reset to Typeview",
             function (e: any, obj: any) {
               let selection = myDiagram.selection;
@@ -1230,20 +1234,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Convert to Group",
-            function (e: any, obj: any) {
-              handleConvertToGroup(e?.diagram, obj?.part);
-            },
-            function (o: any) {
-              return canConvertToGroup(o?.part?.data);
-            }),
-          makeButton("Convert to Node",
-            function (e: any, obj: any) {
-              handleConvertToNode(e?.diagram, obj?.part);
-            },
-            function (o: any) {
-              return canConvertToNode(o?.part?.data);
-            }),
+          // makeButton("Convert to Group",
+          //   function (e: any, obj: any) {
+          //     handleConvertToGroup(e?.diagram, obj?.part);
+          //   },
+          //   function (o: any) {
+          //     return canConvertToGroup(o?.part?.data);
+          //   }),
+          // makeButton("Convert to Node",
+          //   function (e: any, obj: any) {
+          //     handleConvertToNode(e?.diagram, obj?.part);
+          //   },
+          //   function (o: any) {
+          //     return canConvertToNode(o?.part?.data);
+          //   }),
           makeButton("Open Group",
             function (e: any, obj: any) {
               const n = obj.part.data;
@@ -1440,58 +1444,58 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Do Layout",
-            function (e: any, obj: any) {
-              let layout = ""
-              let node = obj.part.data;
-              const key = node.key;
-              const objview = myMetis.findObjectView(key);
-              if (objview) {
-                if (!objview?.isGroup) {
-                  const mySelection = myDiagram.selection;
-                  uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
+          // makeButton("Do Layout",
+          //   function (e: any, obj: any) {
+          //     let layout = ""
+          //     let node = obj.part.data;
+          //     const key = node.key;
+          //     const objview = myMetis.findObjectView(key);
+          //     if (objview) {
+          //       if (!objview?.isGroup) {
+          //         const mySelection = myDiagram.selection;
+          //         uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
 
-                //   myDiagram.selection.each(function (sel) {
-                //     const link = sel.data;
-                //     if (link.category === constants.gojs.C_RELATIONSHIP) {
-                //       const fromLink = link.from;
-                //       const toLink = link.to;
-                //       let relview: akm.cxRelationshipView = link.relshipview;
-                //       relview = myModelview.findRelationshipView(relview?.id);
-                //       if (relview) {
-                //         const fromObjview = relview.fromObjview;
-                //         const toObjview = relview.toObjview;
-                //         link.points = [];
-                //         link.from = fromLink;
-                //         link.to = toLink;
-                //         myDiagram.model.setDataProperty(link, "points", link.points);
-                //         relview.points = [];
-                //         relview.fromObjview = fromObjview;
-                //         relview.toObjview = toObjview;
-                //         // const jsnRelView = new jsn.jsnRelshipView(relview);
-                //         // modifiedRelshipViews.push(jsnRelView);
-                //       }
-                //     }
-                //   }
-                // )
+          //       //   myDiagram.selection.each(function (sel) {
+          //       //     const link = sel.data;
+          //       //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       //       const fromLink = link.from;
+          //       //       const toLink = link.to;
+          //       //       let relview: akm.cxRelationshipView = link.relshipview;
+          //       //       relview = myModelview.findRelationshipView(relview?.id);
+          //       //       if (relview) {
+          //       //         const fromObjview = relview.fromObjview;
+          //       //         const toObjview = relview.toObjview;
+          //       //         link.points = [];
+          //       //         link.from = fromLink;
+          //       //         link.to = toLink;
+          //       //         myDiagram.model.setDataProperty(link, "points", link.points);
+          //       //         relview.points = [];
+          //       //         relview.fromObjview = fromObjview;
+          //       //         relview.toObjview = toObjview;
+          //       //         // const jsnRelView = new jsn.jsnRelshipView(relview);
+          //       //         // modifiedRelshipViews.push(jsnRelView);
+          //       //       }
+          //       //     }
+          //       //   }
+          //       // )
 
-                } else {
-                  if (objview?.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram, obj?.part as go.Group);
-                }
-              }
-              myDiagram.requestUpdate();
-            },
-            function (obj: any) {
-              let node = obj.part.data;
-              const key = node.key;
-              const objview = myMetis.findObjectView(key);
-              // show for non-group nodes
-              if (!objview?.isGroup) return true;
-              // also show for Container views (treat as group that supports layout)
-              if (objview?.viewkind === 'Container') return true;
-              return false;
-            }),
+          //       } else {
+          //         if (objview?.groupLayout)
+          //           uid.doGroupLayout(objview, myDiagram, obj?.part as go.Group);
+          //       }
+          //     }
+          //     myDiagram.requestUpdate();
+          //   },
+          //   function (obj: any) {
+          //     let node = obj.part.data;
+          //     const key = node.key;
+          //     const objview = myMetis.findObjectView(key);
+          //     // show for non-group nodes
+          //     if (!objview?.isGroup) return true;
+          //     // also show for Container views (treat as group that supports layout)
+          //     if (objview?.viewkind === 'Container') return true;
+          //     return false;
+          //   }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
               const context = {
@@ -1737,82 +1741,82 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     {
       advancedLinkContextMenu =
         $(go.Adornment, "Vertical",
-          makeButton("Edit Relationship",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              const relship = myMetis.findRelationship(link?.relshipRef);
-              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
-              const relshiptype = myMetis.findRelationshipType(relship?.typeRef);
-              const relshiptypeview = relshiptype?.typeview;
-              const myContext = {
-                object:     null,
-                objectview: null,
-                objecttype: null,
-                objecttypeview: null,
-                relship:    relship,
-                relshipview: relshipview,
-                relshiptype: relshiptype,
-                relshiptypeview: relshiptypeview,
-                model:      myMetis.currentModel,
-                modelview:  myMetis.currentModelview,
-                metamodel:  myMetis.currentMetamodel,
-            }
-              const modalContext = {
-                what: "editRelationship",
-                title: "Edit Relationship",
-                myDiagram: myDiagram,
-                myContext:  myContext,
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
-            },
-            function (o: any) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                return true;
-              }
-              return false;
-            }),
-          makeButton("Edit Relationship View",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              const relship = myMetis.findRelationship(link?.relshipRef);
-              const relshipview = myMetis.findRelationshipView(link?.relviewRef);
-              const relshiptype = myMetis.findRelationshipType(relship?.reltypeRef);
-              const relshiptypeview = relshiptype?.typeview;
-              const myContext = {
-                object:     null,
-                objectview: null,
-                objecttype: null,
-                objecttypeview: null,
-                relship:    relship,
-                relshipview: relshipview,
-                relshiptype: relshiptype,
-                relshiptypeview: relshiptypeview,
-                model:      myMetis.currentModel,
-                modelview:  myMetis.currentModelview,
-                metamodel:  myMetis.currentMetamodel,
-            }
-              const modalContext = {
-                what: "editRelshipview",
-                title: "Edit Relationship View",
-                myDiagram: myDiagram,
-                myContext:  myContext,
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
-            },
-            function (o: any) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                return true;
-              }
-              return false;
-            }),
+          // makeButton("Edit Relationship",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data;
+          //     const relship = myMetis.findRelationship(link?.relshipRef);
+          //     const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+          //     const relshiptype = myMetis.findRelationshipType(relship?.typeRef);
+          //     const relshiptypeview = relshiptype?.typeview;
+          //     const myContext = {
+          //       object:     null,
+          //       objectview: null,
+          //       objecttype: null,
+          //       objecttypeview: null,
+          //       relship:    relship,
+          //       relshipview: relshipview,
+          //       relshiptype: relshiptype,
+          //       relshiptypeview: relshiptypeview,
+          //       model:      myMetis.currentModel,
+          //       modelview:  myMetis.currentModelview,
+          //       metamodel:  myMetis.currentMetamodel,
+          //   }
+          //     const modalContext = {
+          //       what: "editRelationship",
+          //       title: "Edit Relationship",
+          //       myDiagram: myDiagram,
+          //       myContext:  myContext,
+          //     }
+          //     myMetis.currentLink = link;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(link, modalContext);
+          //     // 
+          //   },
+          //   function (o: any) {
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Edit Relationship View",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data;
+          //     const relship = myMetis.findRelationship(link?.relshipRef);
+          //     const relshipview = myMetis.findRelationshipView(link?.relviewRef);
+          //     const relshiptype = myMetis.findRelationshipType(relship?.reltypeRef);
+          //     const relshiptypeview = relshiptype?.typeview;
+          //     const myContext = {
+          //       object:     null,
+          //       objectview: null,
+          //       objecttype: null,
+          //       objecttypeview: null,
+          //       relship:    relship,
+          //       relshipview: relshipview,
+          //       relshiptype: relshiptype,
+          //       relshiptypeview: relshiptypeview,
+          //       model:      myMetis.currentModel,
+          //       modelview:  myMetis.currentModelview,
+          //       metamodel:  myMetis.currentMetamodel,
+          //   }
+          //     const modalContext = {
+          //       what: "editRelshipview",
+          //       title: "Edit Relationship View",
+          //       myDiagram: myDiagram,
+          //       myContext:  myContext,
+          //     }
+          //     myMetis.currentLink = link;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(link, modalContext);
+          //     // 
+          //   },
+          //   function (o: any) {
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       return true;
+          //     }
+          //     return false;
+          //   }),
           makeButton("Cut",
             function (e, obj) {
               e.diagram.commandHandler.cutSelection();
@@ -1821,76 +1825,76 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
               //return o.diagram.commandHandler.canCutSelection(); 
             }),
-          makeButton("Delete",
-            function (e, obj) {
-              if (confirm('Do you really want to delete the current selection?')) {
-                myMetis.deleteViewsOnly = false;
-                e.diagram.commandHandler.deleteSelection();
-              }
-            },
-            function (o) {
-              return o.diagram.commandHandler.canDeleteSelection();
-            }),
-          makeButton("Delete View",
-            function (e, obj) {
-              if (confirm('Do you really want to delete the current selection?')) {
-                myMetis.deleteViewsOnly = true;
-                e.diagram.commandHandler.deleteSelection();
-              }
-            },
-            function (o) {
-              return o.diagram.commandHandler.canDeleteSelection();
-            }),
-          makeButton("Hide View",
-            function (e, obj) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentLink = obj.part.data;
-                if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
-                selection = myDiagram.selection
-              }
-              const linksHided = new Array();
-              const modifiedRelshipViews = new Array();
-              myDiagram.selection.each(function (sel) {
-                const link = sel;
-                let relview = link.data.relshipview;
-                if (relview) {
-                  relview = myModelview.findRelationshipView(relview.id);
-                  relview.visible = false;
-                  const jsnRelView = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelView);
-                  link.visible = false;
-                  linksHided.push(link);
-                }
-              });
-              for (let i=0; i<linksHided.length; i++) {
-                const link = linksHided[i];
-                myDiagram.remove(link);
-              }
-              modifiedRelshipViews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })
-            },
-            function (o) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                return true;
-              } else {
-                return false;
-              }
-            }),
-          makeButton("Add to Selection",
-            function (e: any, obj: any) {
-              const link = obj.part.data ? obj.part.data : obj.part;
-              link.isSelected = true;
-              const relship = link.relship;
-              const relshipview = link.relshipview;
-            },
-            function (o: any) {
-              return false;
-            }),
+          // makeButton("Delete",
+          //   function (e, obj) {
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       myMetis.deleteViewsOnly = false;
+          //       e.diagram.commandHandler.deleteSelection();
+          //     }
+          //   },
+          //   function (o) {
+          //     return o.diagram.commandHandler.canDeleteSelection();
+          //   }),
+          // makeButton("Delete View",
+          //   function (e, obj) {
+          //     if (confirm('Do you really want to delete the current selection?')) {
+          //       myMetis.deleteViewsOnly = true;
+          //       e.diagram.commandHandler.deleteSelection();
+          //     }
+          //   },
+          //   function (o) {
+          //     return o.diagram.commandHandler.canDeleteSelection();
+          //   }),
+          // makeButton("Hide View",
+          //   function (e, obj) {
+          //     let selection = myDiagram.selection;
+          //     if (selection.count == 0) {
+          //       const currentLink = obj.part.data;
+          //       if (currentLink) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+          //       selection = myDiagram.selection
+          //     }
+          //     const linksHided = new Array();
+          //     const modifiedRelshipViews = new Array();
+          //     myDiagram.selection.each(function (sel) {
+          //       const link = sel;
+          //       let relview = link.data.relshipview;
+          //       if (relview) {
+          //         relview = myModelview.findRelationshipView(relview.id);
+          //         relview.visible = false;
+          //         const jsnRelView = new jsn.jsnRelshipView(relview);
+          //         modifiedRelshipViews.push(jsnRelView);
+          //         link.visible = false;
+          //         linksHided.push(link);
+          //       }
+          //     });
+          //     for (let i=0; i<linksHided.length; i++) {
+          //       const link = linksHided[i];
+          //       myDiagram.remove(link);
+          //     }
+          //     modifiedRelshipViews.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o) {
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       return true;
+          //     } else {
+          //       return false;
+          //     }
+          //   }),
+          // makeButton("Add to Selection",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data ? obj.part.data : obj.part;
+          //     link.isSelected = true;
+          //     const relship = link.relship;
+          //     const relshipview = link.relshipview;
+          //   },
+          //   function (o: any) {
+          //     return false;
+          //   }),
           makeButton("----------"),
           makeButton("TEST",
             function (e: any, obj: any) {
@@ -2007,120 +2011,120 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Change Relationship Type",
-            function (e, obj) {
-              const myGoModel = myMetis.gojsModel;
-              const myModelview = myMetis.currentModelview;
-              const myMetamodel = myMetis.currentMetamodel;
-              let includeInheritedReltypes = myModelview.includeInheritedReltypes;
-              let includeIsType = false;
-              const link = obj.part.data;
-              const relshipRef = link.relshipRef;
-              const relship = myMetis.findRelationship(relshipRef);
-              let fromTypeId = relship.fromObject.type.id;
-              let fromType = myMetamodel.findObjectType(fromTypeId);
-              if (!fromType) fromType = myMetis.findObjectType(fromTypeId);
-              let toTypeId = relship.toObject.type.id;
-              let toType = myMetamodel.findObjectType(toTypeId);
-              if (!toType) toType = myMetis.findObjectType(toTypeId);
-              if (fromType?.name === constants.types.AKM_ENTITY_TYPE && 
-                toType?.name === constants.types.AKM_ENTITY_TYPE) {
-                  includeIsType = true;
-              }              
-              let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
-              const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-              for (let i = 0; i < rtypes?.length; i++) {
-                const rtype = rtypes[i];
-                if (rtype.name === constants.types.AKM_GENERIC_REL) {
-                  reltypes.push(rtype);
-                }
-                if (rtype.name === constants.types.AKM_REFERS_TO) {
-                  reltypes.push(rtype);
-                }
-              }
-              link.choices = [];
-              if (reltypes) {
-                for (let i = 0; i < reltypes?.length; i++) {
-                  const rtype = reltypes[i];
-                  link.choices.push(rtype.name);
-                }
-                if (includeIsType) {
-                  reltypes.push(constants.types.AKM_IS);
-                }
-                let uniqueSet = utils.removeArrayDuplicates(link.choices);
-                link.choices = uniqueSet;
-              }
-              const args = {
-                typeNames: link.choices,
-              }
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Relationship Type",
-                case: "Change Relationship type",
-                myDiagram: myDiagram,
-                args: args,
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link.choices, modalContext);
-            },
-            function (o) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                return true;
-              } else {
-                return false;
-              }
-            }),
-          makeButton("Show Typeview",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              uid.editRelshipTypeview(link, myMetis, myDiagram, true);
-            },
-            function (o: any) {
-              // return false;
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP)
-                return true;
-              // if (link.category === constants.gojs.C_RELSHIPTYPE)
-              //   return true;
-            }),
-          makeButton("Reset to Typeview",
-            function (e: any, rel: any) {
-              let selection = myDiagram.selection;
-              if (selection.count == 0) {
-                const currentLink = rel.part.data;
-                if (currentNode) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
-                selection = myDiagram.selection;
-              }
-              const myGoModel = myMetis.gojsModel;
-              myDiagram.selection.each(function (sel) {
-                const inst = sel.data;
-                if (inst.category === constants.gojs.C_RELATIONSHIP) {
-                  uid.resetToTypeview(inst, myMetis, myDiagram);
-                }
-              })
-            },
-            function (o: any) {
-              const link = o.part.data;
-              if (link.category === constants.gojs.C_RELATIONSHIP) {
-                const currentRelship = link.relship;
-                const currentRelshipView = link.relshipview;
-                if (currentRelship && currentRelshipView) {
-                  const reltype = currentRelship.type;
-                  const typeView = link.typeview;
-                  const defaultTypeview = reltype.typeview;
-                  if (typeView && (typeView.id !== defaultTypeview.id)) {
-                    return true;
-                  }
-                }
-                return true;
-              }
-              else if (link.category === constants.gojs.C_RELSHIPTYPE) {
-                return false;
-              }
-              return false;
-            }),
+          // makeButton("Change Relationship Type",
+          //   function (e, obj) {
+          //     const myGoModel = myMetis.gojsModel;
+          //     const myModelview = myMetis.currentModelview;
+          //     const myMetamodel = myMetis.currentMetamodel;
+          //     let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+          //     let includeIsType = false;
+          //     const link = obj.part.data;
+          //     const relshipRef = link.relshipRef;
+          //     const relship = myMetis.findRelationship(relshipRef);
+          //     let fromTypeId = relship.fromObject.type.id;
+          //     let fromType = myMetamodel.findObjectType(fromTypeId);
+          //     if (!fromType) fromType = myMetis.findObjectType(fromTypeId);
+          //     let toTypeId = relship.toObject.type.id;
+          //     let toType = myMetamodel.findObjectType(toTypeId);
+          //     if (!toType) toType = myMetis.findObjectType(toTypeId);
+          //     if (fromType?.name === constants.types.AKM_ENTITY_TYPE && 
+          //       toType?.name === constants.types.AKM_ENTITY_TYPE) {
+          //         includeIsType = true;
+          //     }              
+          //     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
+          //     const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+          //     for (let i = 0; i < rtypes?.length; i++) {
+          //       const rtype = rtypes[i];
+          //       if (rtype.name === constants.types.AKM_GENERIC_REL) {
+          //         reltypes.push(rtype);
+          //       }
+          //       if (rtype.name === constants.types.AKM_REFERS_TO) {
+          //         reltypes.push(rtype);
+          //       }
+          //     }
+          //     link.choices = [];
+          //     if (reltypes) {
+          //       for (let i = 0; i < reltypes?.length; i++) {
+          //         const rtype = reltypes[i];
+          //         link.choices.push(rtype.name);
+          //       }
+          //       if (includeIsType) {
+          //         reltypes.push(constants.types.AKM_IS);
+          //       }
+          //       let uniqueSet = utils.removeArrayDuplicates(link.choices);
+          //       link.choices = uniqueSet;
+          //     }
+          //     const args = {
+          //       typeNames: link.choices,
+          //     }
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Relationship Type",
+          //       case: "Change Relationship type",
+          //       myDiagram: myDiagram,
+          //       args: args,
+          //     }
+          //     myMetis.currentLink = link;
+          //     myMetis.myDiagram = myDiagram;
+          //     myDiagram.handleOpenModal(link.choices, modalContext);
+          //   },
+          //   function (o) {
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       return true;
+          //     } else {
+          //       return false;
+          //     }
+          //   }),
+          // makeButton("Show Typeview",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data;
+          //     uid.editRelshipTypeview(link, myMetis, myDiagram, true);
+          //   },
+          //   function (o: any) {
+          //     // return false;
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP)
+          //       return true;
+          //     // if (link.category === constants.gojs.C_RELSHIPTYPE)
+          //     //   return true;
+          //   }),
+          // makeButton("Reset to Typeview",
+          //   function (e: any, rel: any) {
+          //     let selection = myDiagram.selection;
+          //     if (selection.count == 0) {
+          //       const currentLink = rel.part.data;
+          //       if (currentNode) myDiagram.select(myDiagram.findLinkForKey(currentLink.key));
+          //       selection = myDiagram.selection;
+          //     }
+          //     const myGoModel = myMetis.gojsModel;
+          //     myDiagram.selection.each(function (sel) {
+          //       const inst = sel.data;
+          //       if (inst.category === constants.gojs.C_RELATIONSHIP) {
+          //         uid.resetToTypeview(inst, myMetis, myDiagram);
+          //       }
+          //     })
+          //   },
+          //   function (o: any) {
+          //     const link = o.part.data;
+          //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+          //       const currentRelship = link.relship;
+          //       const currentRelshipView = link.relshipview;
+          //       if (currentRelship && currentRelshipView) {
+          //         const reltype = currentRelship.type;
+          //         const typeView = link.typeview;
+          //         const defaultTypeview = reltype.typeview;
+          //         if (typeView && (typeView.id !== defaultTypeview.id)) {
+          //           return true;
+          //         }
+          //       }
+          //       return true;
+          //     }
+          //     else if (link.category === constants.gojs.C_RELSHIPTYPE) {
+          //       return false;
+          //     }
+          //     return false;
+          //   }),
           makeButton("Edit Attribute",
             function (e: any, obj: any) {
               const link = obj.part.data;
@@ -2215,101 +2219,114 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else
                 return false;
             }),
-          makeButton("----------"),
-          makeButton("Select all views of this relationship",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              let relship = myMetis.findRelationship(link.relship?.id);
-              if (!relship) relship = myMetis.findRelationship(link.relshipRef);
-              const links = myDiagram.links;
-              for (let it = links.iterator; it?.next();) {
-                const link = it.value;
-                if (link.data.relship.id == relship.id) {
-                  link.isSelected = true;
-                }
-              }
-            },
-            function (o: any) {
-              const link = o.part.data;
-              let relship = myMetis.findRelationship(link.relship?.id);
-              if (!relship) relship = myMetis.findRelationship(link.relshipRef);
-              const links = myDiagram.links;
-              let cnt = 0;
-              for (let it = links.iterator; it?.next();) {
-                const link = it.value;
-                if (link.data.relship.id == relship.id) {
-                  cnt++;
-                }
-              }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Select all relationships of this type",
-            function (e: any, obj: any) {
-              const link = obj.part.data;
-              let currentRelship = myMetis.findRelationship(link.relship?.id);
-              if (!currentRelship) currentRelship = myMetis.findRelationship(link.relshipRef);
-              const currentType = currentRelship?.type as akm.cxRelationshipType;
-              const links = myDiagram.links;
-              for (let it = links.iterator; it?.next();) {
-                const link = it.value;
-                if (link.data.relshiptype?.id == currentType?.id) {
-                  link.isSelected = true;
-                }
-              }
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Add to Selection",
-            function (e: any, obj: any) {
-              uid.addToSelection(obj, myDiagram);
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Clear Path",
-            function (e: any, obj: any) {
-              let mySelection = myDiagram.selection;
-              const selectedLinks = [];
-              mySelection.each(function(l) {
-                if (l instanceof go.Node) 
-                  return;
-                else
-                selectedLinks.push(l);
-                uid.clearPath(selectedLinks, myMetis, myDiagram);
-              });
-            },
-            function (obj: any) {
-              const link = obj.part.data;
-              if (link.points)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Swap Direction",
-            function (e: any, obj: any) {
-              let mySelection = myDiagram.selection;
-              const selectedLinks = [];
-              mySelection.each(function(l) {
-                if (l instanceof go.Node) 
-                  return;
-                else {
-                  selectedLinks.push(l);
-                }
-              });
-              uid.swapDirection(selectedLinks, myMetis, myDiagram);
-            },
-            function (obj: any) {
-              const link = obj.part.data;
-              const modelview = myMetis.currentModelview;
-              const metamodel = myMetis.currentMetamodel;
-              if (uid.swapDirectionIsAllowed(link, modelview, metamodel))
-                return true;
-              return false;
-            }),
+          // makeButton("----------"),
+          // makeButton("Select all views of this relationship",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data;
+          //     let relship = myMetis.findRelationship(link.relship?.id);
+          //     if (!relship) relship = myMetis.findRelationship(link.relshipRef);
+          //     const links = myDiagram.links;
+          //     for (let it = links.iterator; it?.next();) {
+          //       const link = it.value;
+          //       if (link.data.relship.id == relship.id) {
+          //         link.isSelected = true;
+          //       }
+          //     }
+          //   },
+          //   function (o: any) {
+          //     const link = o.part.data;
+          //     let relship = myMetis.findRelationship(link.relship?.id);
+          //     if (!relship) relship = myMetis.findRelationship(link.relshipRef);
+          //     const links = myDiagram.links;
+          //     let cnt = 0;
+          //     for (let it = links.iterator; it?.next();) {
+          //       const link = it.value;
+          //       if (link.data.relship.id == relship.id) {
+          //         cnt++;
+          //       }
+          //     }
+          //     if (cnt > 1)
+          //       return true;
+          //     else
+          //       return false;
+          //   }),
+          // makeButton("Select all relationships of this type",
+          //   function (e: any, obj: any) {
+          //     const link = obj.part.data;
+          //     let currentRelship = myMetis.findRelationship(link.relship?.id);
+          //     if (!currentRelship) currentRelship = myMetis.findRelationship(link.relshipRef);
+          //     const currentType = currentRelship?.type as akm.cxRelationshipType;
+          //     const links = myDiagram.links;
+          //     for (let it = links.iterator; it?.next();) {
+          //       const link = it.value;
+          //       if (link.data.relshiptype?.id == currentType?.id) {
+          //         link.isSelected = true;
+          //       }
+          //     }
+          //   },
+          //   function (o: any) {
+          //     return true;
+          //   }),
+          // makeButton("Add to Selection",
+          //   function (e: any, obj: any) {
+          //     uid.addToSelection(obj, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     return true;
+          //   }),
+          // makeButton("Clear Path",
+          //   function (e: any, obj: any) {
+          //     let mySelection = myDiagram.selection;
+          //     const selectedLinks = [];
+          //     mySelection.each(function(l) {
+          //       if (l instanceof go.Node) 
+          //         return;
+          //       else
+          //       selectedLinks.push(l);
+          //       uid.clearPath(selectedLinks, myMetis, myDiagram);
+          //     });
+          //   },
+          //   function (obj: any) {
+          //     const link = obj.part.data;
+          //     if (link.points)
+          //       return true;
+          //     else
+          //       return false;
+          //   }),
+          // makeButton("Swap Direction",
+          //   function (e: any, obj: any) {
+          //     let mySelection = myDiagram.selection;
+          //     const selectedLinks = [];
+          //     if (mySelection.count === 0) {
+          //       try {
+          //         const key = (linkPart && linkPart.data && linkPart.data.key) || null;
+          //         if (key) {
+          //           const linkNode = targetDiagram.findLinkForKey(key);
+          //           if (linkNode) targetDiagram.select(linkNode);
+          //           selection = targetDiagram.selection;
+          //         } else if (linkPart) {
+          //           // fallback: use the linkPart directly
+          //           selectedLinks.push(linkPart);
+          //         }
+          //       } catch (_) { }
+          //     }
+          //     mySelection.each(function(l) {
+          //       if (l instanceof go.Node) 
+          //         return;
+          //       else {
+          //         selectedLinks.push(l);
+          //       }
+          //     });
+          //     uid.swapDirection(selectedLinks, myMetis, myDiagram);
+          //   },
+          //   function (obj: any) {
+          //     const link = obj.part.data;
+          //     const modelview = myMetis.currentModelview;
+          //     const metamodel = myMetis.currentMetamodel;
+          //     if (uid.swapDirectionIsAllowed(link, modelview, metamodel))
+          //       return true;
+          //     return false;
+          //   }),
           makeButton("Undo",
             function (e, obj) {
               e.diagram.commandHandler.undo();
@@ -3086,103 +3103,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true;
             }),
-          makeButton("Save Layout",
-            function (e: any, obj: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                const myMetamodel = myMetis.currentMetamodel;
-                const nodes = myDiagram.nodes;
-                const objtypegeos = [];
-                for (let it = nodes.iterator; it?.next();) {
-                  const node = it.value;
-                  const data = node.data;
-                  const objtype = data.objecttype;
-                  if (objtype) {
-                    const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
-                    objtypeGeo.setLoc(data.loc);
-                    objtypeGeo.setSize(data.size);
-                    objtypeGeo.setModified();
-                    objtypegeos.push(objtypeGeo);
-                  }
-                }
-                myMetamodel.objtypegeos = objtypegeos;
-              } else if (myMetis.modelType === 'Modelling') {
-                const myModelview = myMetis.currentModelview;
-                const nodes = myDiagram.nodes;
-                for (let it = nodes.iterator; it?.next();) {
-                  const node = it.value;
-                  const data = node.data;
-                  let objview = data.objectview;
-                  if (!objview)
-                    objview = myModelview.findObjectView(data.objviewRef);
-                  if (objview) {
-                    objview.loc = data.loc;
-                  }
-                }
-              }
-              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-              let data = { metis: jsnMetis }
-              data = JSON.parse(JSON.stringify(data));
-              myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return true;
-              else
-                return true;
-            }),
-          makeButton("Set Link Routing",
-            function (e: any, obj: any) {
-              const routingList = () => [
-                { value: "Normal", label: "Normal" },
-                { value: "Orthogonal", label: "Orthogonal" },
-                { value: "AvoidsNodes", label: "Avoids Nodes" },
-              ];
-              const rlist = routingList();
-              const routingLabels = rlist.map(rl => (rl) && rl.label);
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Set Routing Scheme",
-                case: "Set Routing Scheme",
-                routingList: routingList(),
-                myDiagram: myDiagram
-              }
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(myDiagram, modalContext);
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Set Link Curve",
-            function (e: any, obj: any) {
-              const curveList = () => [
-                { value: "None", label: "None" },
-                { value: "Bezier", label: "Bezier" },
-                { value: "JumpOver", label: "Jump Over" },
-                { value: "JumpGap", label: "Jump Gap" },
-              ];
-              const clist = curveList();
-              const curveLabels = clist.map(cl => (cl) && cl.label);
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Set Link Curve",
-                case: "Set Link Curve",
-                curveList: curveList(),
-                myDiagram: myDiagram
-              }
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(myDiagram, modalContext);
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("----------",
-            function (e: any, obj: any) {
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
+          // makeButton("Save Layout",
+          //   function (e: any, obj: any) {
+          //     if (myMetis.modelType === 'Metamodelling') {
+          //       const myMetamodel = myMetis.currentMetamodel;
+          //       const nodes = myDiagram.nodes;
+          //       const objtypegeos = [];
+          //       for (let it = nodes.iterator; it?.next();) {
+          //         const node = it.value;
+          //         const data = node.data;
+          //         const objtype = data.objecttype;
+          //         if (objtype) {
+          //           const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, "", "");
+          //           objtypeGeo.setLoc(data.loc);
+          //           objtypeGeo.setSize(data.size);
+          //           objtypeGeo.setModified();
+          //           objtypegeos.push(objtypeGeo);
+          //         }
+          //       }
+          //       myMetamodel.objtypegeos = objtypegeos;
+          //     } else if (myMetis.modelType === 'Modelling') {
+          //       const myModelview = myMetis.currentModelview;
+          //       const nodes = myDiagram.nodes;
+          //       for (let it = nodes.iterator; it?.next();) {
+          //         const node = it.value;
+          //         const data = node.data;
+          //         let objview = data.objectview;
+          //         if (!objview)
+          //           objview = myModelview.findObjectView(data.objviewRef);
+          //         if (objview) {
+          //           objview.loc = data.loc;
+          //         }
+          //       }
+          //     }
+          //     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+          //     let data = { metis: jsnMetis }
+          //     data = JSON.parse(JSON.stringify(data));
+          //     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return true;
+          //     else
+          //       return true;
+          //   }),
+          /* Set Link Routing and Set Link Curve moved into the Layout submenu */
+          // makeButton("----------",
+            // function (e: any, obj: any) {
+            // },
+            // function (o: any) {
+            //   if (myMetis.modelType === 'Metamodelling')
+            //     return false;
+            //   return true;
+            // }),
           makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
@@ -3198,149 +3171,149 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("!!! PURGE DELETED !!!",
-            function (e: any, obj: any) {
-              if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
-                uic.purgeModelDeletions(myMetis, myDiagram);
-              }
-            },
-            function (o: any) {
-              // if (myMetis.modelType === 'Metamodelling')
-              //   return false;
-              return true;
-            }),
-          makeButton("----------",
-            function (e: any, obj: any) {
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
-          makeButton("New Metamodel",
-            function (e: any, obj: any) {
-              uid.newMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
-            }),
-          makeButton("Generate Metamodel",
-            function (e: any, obj: any) {
-              gen.generateTargetMetamodel(obj, myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return false;
-            }),
-          makeButton("Replace Current Metamodel",
-            function (e: any, obj: any) {
-              uid.replaceCurrentMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              return true;
-            }),
-          makeButton("Add Metamodel",
-            function (e: any, obj: any) {
-              const isSubMetamodel = false;
-              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              } else {
-                const noMetamodels = myMetis.metamodels.length;
-                if (noMetamodels >= 2)
-                  return true;
-                else
-                  return false;
-              }
-            }),
-          makeButton("Add Sub-Metamodel",
-            function (e: any, obj: any) {
-              const isSubMetamodel = true;
-              uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              } else {
-                return true;
-              }
-            }),
-          makeButton("Delete Metamodel",
-            function (e: any, obj: any) {
-              uid.deleteMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              let cnt = 0;
-              const metamodels = myMetis.metamodels;
-              for (let i = 0; i < metamodels.length; i++) {
-                const metamodel = metamodels[i];
-                if (metamodel.markedAsDeleted)
-                  continue;
-                cnt++;
-              }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Clear Metamodel Content",
-            function (e: any, obj: any) {
-              uid.clearMetamodel(myMetis, myDiagram);
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              } else if (uic.isGenericMetamodel(myMetis)) {
-                return false;
-              }
-              let cnt = 0;
-              const metamodels = myMetis.metamodels;
-              for (let i = 0; i < metamodels.length; i++) {
-                const metamodel = metamodels[i];
-                if (metamodel.markedAsDeleted)
-                  continue;
-                cnt++;
-              }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
-            }),
-          makeButton("Verify and Repair Metamodels",
-            function (e: any, obj: any) {
-              uic.verifyAndRepairMetamodels(myMetis, myDiagram);
-              alert("The metamodels have been repaired");
-            },
-            function (o: any) {
-              // if (myMetis.modelType === 'Metamodelling')
-              //   return false;
-              return true;
-            }),
+          // makeButton("!!! PURGE DELETED !!!",
+          //   function (e: any, obj: any) {
+          //     if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
+          //       uic.purgeModelDeletions(myMetis, myDiagram);
+          //     }
+          //   },
+          //   function (o: any) {
+          //     // if (myMetis.modelType === 'Metamodelling')
+          //     //   return false;
+          //     return true;
+          //   }),
+          // makeButton("----------",
+          //   function (e: any, obj: any) {
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     return true;
+          //   }),
+          // makeButton("New Metamodel",
+          //   function (e: any, obj: any) {
+          //     uid.newMetamodel(myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     }
+          //     return true;
+          //   }),
+          // makeButton("Generate Metamodel",
+          //   function (e: any, obj: any) {
+          //     gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     }
+          //     return false;
+          //   }),
+          // makeButton("Replace Current Metamodel",
+          //   function (e: any, obj: any) {
+          //     uid.replaceCurrentMetamodel(myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     }
+          //     return true;
+          //   }),
+          // makeButton("Add Metamodel",
+          //   function (e: any, obj: any) {
+          //     const isSubMetamodel = false;
+          //     uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling') {
+          //       return false;
+          //     } else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     } else {
+          //       const noMetamodels = myMetis.metamodels.length;
+          //       if (noMetamodels >= 2)
+          //         return true;
+          //       else
+          //         return false;
+          //     }
+          //   }),
+          // makeButton("Add Sub-Metamodel",
+          //   function (e: any, obj: any) {
+          //     const isSubMetamodel = true;
+          //     uid.addMetamodel(myMetis, myDiagram, isSubMetamodel);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling') {
+          //       return false;
+          //     } else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     } else {
+          //       return true;
+          //     }
+          //   }),
+          // makeButton("Delete Metamodel",
+          //   function (e: any, obj: any) {
+          //     uid.deleteMetamodel(myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling') {
+          //       return false;
+          //     } else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     }
+          //     let cnt = 0;
+          //     const metamodels = myMetis.metamodels;
+          //     for (let i = 0; i < metamodels.length; i++) {
+          //       const metamodel = metamodels[i];
+          //       if (metamodel.markedAsDeleted)
+          //         continue;
+          //       cnt++;
+          //     }
+          //     if (cnt > 1)
+          //       return true;
+          //     else
+          //       return false;
+          //   }),
+          // makeButton("Clear Metamodel Content",
+          //   function (e: any, obj: any) {
+          //     uid.clearMetamodel(myMetis, myDiagram);
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling') {
+          //       return false;
+          //     } else if (uic.isGenericMetamodel(myMetis)) {
+          //       return false;
+          //     }
+          //     let cnt = 0;
+          //     const metamodels = myMetis.metamodels;
+          //     for (let i = 0; i < metamodels.length; i++) {
+          //       const metamodel = metamodels[i];
+          //       if (metamodel.markedAsDeleted)
+          //         continue;
+          //       cnt++;
+          //     }
+          //     if (cnt > 1)
+          //       return true;
+          //     else
+          //       return false;
+          //   }),
+          // makeButton("Verify and Repair Metamodels",
+          //   function (e: any, obj: any) {
+          //     uic.verifyAndRepairMetamodels(myMetis, myDiagram);
+          //     alert("The metamodels have been repaired");
+          //   },
+          //   function (o: any) {
+          //     // if (myMetis.modelType === 'Metamodelling')
+          //     //   return false;
+          //     return true;
+          //   }),
           makeButton("Undo",
             function (e: any, obj: any) {
               e.diagram.commandHandler.undo();
@@ -3430,125 +3403,125 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
-          makeButton("Toggle Cardinality On/Off",
-            function (e: any, obj: any) {
-              const modelview = myMetis.currentModelview;
-              if (modelview.showCardinality == undefined)
-                modelview.showCardinality = true;
-              modelview.showCardinality = !modelview.showCardinality;
-              if (!modelview.showCardinality) {
-                alert("Cardinality on relationships will NOT be shown!");
-              } else {
-                alert("Cardinality on relationships WILL be shown!");
-              }
-              const jsnModelview = new jsn.jsnModelView(modelview);
-              const modifiedModelviews = new Array();
-              modifiedModelviews.push(jsnModelview);
-              modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              })
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
-          makeButton("Toggle 'Include Relationship Kind' On/Off",
-            function (e: any, obj: any) {
-              const model = myMetis.currentModel;
-              const relkind = model.includeRelshipkind;
-              model.includeRelshipkind = !relkind;
-              if (!model.includeRelshipkind) {
-                alert("Setting 'Relationship Kind' will NOT be allowed!");
-              } else {
-                alert("Setting 'Relationship Kind' WILL be allowed!");
-              }
-              const jsnModel = new jsn.jsnModel(model, true);
-              const modifiedModels = new Array();
-              modifiedModels.push(jsnModel);
-              modifiedModels.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-            },
-            function (o: any) {
-              return true;
-            }),
-          makeButton("Toggle Show Relationship Names On/Off",
-            function (e: any, obj: any) {
-              const modelview = myMetis.currentModelview;
-              if (modelview.showRelshipNames == undefined)
-                modelview.showRelshipNames = true;
-              modelview.showRelshipNames = !modelview.showRelshipNames;
-              if (!modelview.showRelshipNames) {
-                alert("Relationship Names will NOT be shown!");
-              } else {
-                alert("Relationship Names will be shown!");
-              }
-              const jsnModelview = new jsn.jsnModelView(modelview);
-              const modifiedModelviews = new Array();
-              modifiedModelviews.push(jsnModelview);
-              modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              })
-            },
-            function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
-            }),
-          makeButton("Toggle 'Ask for Relationship Name' On/Off",
-            function (e: any, obj: any) {
-              const modelview = myMetis.currentModelview;
-              if (modelview.askForRelshipName == undefined)
-                modelview.askForRelshipName = false;
-              modelview.askForRelshipName = !modelview.askForRelshipName;
-              if (!modelview.askForRelshipName) {
-                alert("Relationship names will NOT be asked for!");
-              } else {
-                alert("Relationship names WILL be asked for!");
-              }
-              const jsnModelview = new jsn.jsnModelView(modelview);
-              const modifiedModelviews = new Array();
-              modifiedModelviews.push(jsnModelview);
-              modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              })
-            },
-            function (o: any) {
-              return false;
-            }),
-          makeButton("Toggle 'Include Inherited Relshiptypes' On/Off",
-            function (e: any, obj: any) {
-              const modelview = myMetis.currentModelview;
-              if (modelview.includeInheritedReltypes == undefined)
-                modelview.includeInheritedReltypes = false;
-              modelview.includeInheritedReltypes = !modelview.includeInheritedReltypes;
-              if (!modelview.includeInheritedReltypes) {
-                alert("Inherited Relationship types are NOT included!");
-              } else {
-                alert("Inherited Relationship types ARE included!");
-              }
-              // Dispatch
-              const jsnModelview = new jsn.jsnModelView(modelview);
-              const modifiedModelviews = new Array();
-              modifiedModelviews.push(jsnModelview);
-              modifiedModelviews.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-              })
-            },
-            function (o: any) {
-              return true;
-            }),
+          // makeButton("Toggle Cardinality On/Off",
+          //   function (e: any, obj: any) {
+          //     const modelview = myMetis.currentModelview;
+          //     if (modelview.showCardinality == undefined)
+          //       modelview.showCardinality = true;
+          //     modelview.showCardinality = !modelview.showCardinality;
+          //     if (!modelview.showCardinality) {
+          //       alert("Cardinality on relationships will NOT be shown!");
+          //     } else {
+          //       alert("Cardinality on relationships WILL be shown!");
+          //     }
+          //     const jsnModelview = new jsn.jsnModelView(modelview);
+          //     const modifiedModelviews = new Array();
+          //     modifiedModelviews.push(jsnModelview);
+          //     modifiedModelviews.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     return true;
+          //   }),
+          // makeButton("Toggle 'Include Relationship Kind' On/Off",
+          //   function (e: any, obj: any) {
+          //     const model = myMetis.currentModel;
+          //     const relkind = model.includeRelshipkind;
+          //     model.includeRelshipkind = !relkind;
+          //     if (!model.includeRelshipkind) {
+          //       alert("Setting 'Relationship Kind' will NOT be allowed!");
+          //     } else {
+          //       alert("Setting 'Relationship Kind' WILL be allowed!");
+          //     }
+          //     const jsnModel = new jsn.jsnModel(model, true);
+          //     const modifiedModels = new Array();
+          //     modifiedModels.push(jsnModel);
+          //     modifiedModels.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o: any) {
+          //     return true;
+          //   }),
+          // makeButton("Toggle Show Relationship Names On/Off",
+          //   function (e: any, obj: any) {
+          //     const modelview = myMetis.currentModelview;
+          //     if (modelview.showRelshipNames == undefined)
+          //       modelview.showRelshipNames = true;
+          //     modelview.showRelshipNames = !modelview.showRelshipNames;
+          //     if (!modelview.showRelshipNames) {
+          //       alert("Relationship Names will NOT be shown!");
+          //     } else {
+          //       alert("Relationship Names will be shown!");
+          //     }
+          //     const jsnModelview = new jsn.jsnModelView(modelview);
+          //     const modifiedModelviews = new Array();
+          //     modifiedModelviews.push(jsnModelview);
+          //     modifiedModelviews.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o: any) {
+          //     if (myMetis.modelType === 'Metamodelling')
+          //       return false;
+          //     return true;
+          //   }),
+          // makeButton("Toggle 'Ask for Relationship Name' On/Off",
+          //   function (e: any, obj: any) {
+          //     const modelview = myMetis.currentModelview;
+          //     if (modelview.askForRelshipName == undefined)
+          //       modelview.askForRelshipName = false;
+          //     modelview.askForRelshipName = !modelview.askForRelshipName;
+          //     if (!modelview.askForRelshipName) {
+          //       alert("Relationship names will NOT be asked for!");
+          //     } else {
+          //       alert("Relationship names WILL be asked for!");
+          //     }
+          //     const jsnModelview = new jsn.jsnModelView(modelview);
+          //     const modifiedModelviews = new Array();
+          //     modifiedModelviews.push(jsnModelview);
+          //     modifiedModelviews.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o: any) {
+          //     return false;
+          //   }),
+          // makeButton("Toggle 'Include Inherited Relshiptypes' On/Off",
+          //   function (e: any, obj: any) {
+          //     const modelview = myMetis.currentModelview;
+          //     if (modelview.includeInheritedReltypes == undefined)
+          //       modelview.includeInheritedReltypes = false;
+          //     modelview.includeInheritedReltypes = !modelview.includeInheritedReltypes;
+          //     if (!modelview.includeInheritedReltypes) {
+          //       alert("Inherited Relationship types are NOT included!");
+          //     } else {
+          //       alert("Inherited Relationship types ARE included!");
+          //     }
+          //     // Dispatch
+          //     const jsnModelview = new jsn.jsnModelView(modelview);
+          //     const modifiedModelviews = new Array();
+          //     modifiedModelviews.push(jsnModelview);
+          //     modifiedModelviews.map(mn => {
+          //       let data = mn;
+          //       data = JSON.parse(JSON.stringify(data));
+          //       e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+          //     })
+          //   },
+          //   function (o: any) {
+          //     return true;
+          //   }),
           makeButton("Make Diagram",
             function (e: any, obj: any) {
               myDiagram.makeImage({
@@ -3604,18 +3577,54 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let activeMenuDiv: HTMLDivElement | null = null;
       let activeSubMenuDiv: HTMLDivElement | null = null;
       let lastAnchorElement: HTMLElement | null = null;
+  let pendingBackgroundDispose = false;
+  let docPointerDownHandler: ((e: PointerEvent) => void) | null = null;
 
       const disposeSubMenu = () => {
         if (activeSubMenuDiv && activeSubMenuDiv.parentElement) {
           activeSubMenuDiv.parentElement.removeChild(activeSubMenuDiv);
         }
         activeSubMenuDiv = null;
+        // If a background dispose was requested while a submenu was open, complete it now.
+        if (pendingBackgroundDispose) {
+          pendingBackgroundDispose = false;
+          try { disposeBackgroundMenu(); } catch (_) { /* ignore */ }
+        }
+      };
+
+      const closeAllMenus = () => {
+        // forcefully remove sub menu and main menu immediately
+        try {
+          if (activeSubMenuDiv && activeSubMenuDiv.parentElement) activeSubMenuDiv.parentElement.removeChild(activeSubMenuDiv);
+        } catch (_) {}
+        try {
+          if (activeMenuDiv && activeMenuDiv.parentElement) activeMenuDiv.parentElement.removeChild(activeMenuDiv);
+        } catch (_) {}
+        activeSubMenuDiv = null;
+        activeMenuDiv = null;
+        lastAnchorElement = null;
+        pendingBackgroundDispose = false;
+        if (docPointerDownHandler) {
+          try { document.removeEventListener('pointerdown', docPointerDownHandler as EventListener); } catch (_) {}
+          docPointerDownHandler = null;
+        }
       };
 
       const disposeBackgroundMenu = () => {
+        // If a submenu is currently open, defer disposing the background menu until the submenu is closed.
+        if (activeSubMenuDiv) {
+          pendingBackgroundDispose = true;
+          return;
+        }
+        pendingBackgroundDispose = false;
         disposeSubMenu();
         if (activeMenuDiv && activeMenuDiv.parentElement) {
           activeMenuDiv.parentElement.removeChild(activeMenuDiv);
+        }
+        // remove any document-level pointerdown handler
+        if (docPointerDownHandler) {
+          try { document.removeEventListener('pointerdown', docPointerDownHandler as EventListener); } catch (_) {}
+          docPointerDownHandler = null;
         }
         activeMenuDiv = null;
         lastAnchorElement = null;
@@ -3669,10 +3678,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         menu.style.border = "1px solid rgba(0,0,0,0.15)";
         menu.style.boxShadow = "0 6px 12px rgba(0,0,0,0.18)";
         menu.style.borderRadius = "6px";
-        menu.style.padding = "4px 0";
+        menu.style.padding = "0 0";
         menu.style.zIndex = "9999";
         menu.addEventListener("contextmenu", (ev) => ev.preventDefault());
         menu.addEventListener("mousedown", (ev) => ev.stopPropagation());
+
+        // Optional small heading for the whole menu. Callers can set (items as any).menuHeading = 'My Heading'
+        const menuHeading = (items as any)?.menuHeading;
+        if (menuHeading) {
+          const header = document.createElement('div');
+          header.textContent = menuHeading;
+          header.style.padding = '6px 16px';
+          header.style.fontSize = '12px';
+          header.style.fontWeight = '600';
+          header.style.color = '#222';
+          // make the heading background a little darker than the menu body
+          header.style.background = '#f0f0f0';
+          header.style.borderBottom = '1px solid #e0e0e0';
+          header.style.marginBottom = '4px';
+          menu.appendChild(header);
+        }
 
         items.forEach((item) => {
           if (item.visible && !item.visible(diagram)) {
@@ -3693,15 +3718,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           button.textContent = item.label ?? "";
           button.style.display = "block";
           button.style.width = "100%";
-          button.style.padding = "6px 16px";
+          // leave extra right padding so a submenu arrow can be shown without overlapping text
+          button.style.padding = "6px 36px 6px 16px";
           button.style.textAlign = "left";
           button.style.background = "transparent";
           button.style.border = "none";
           button.style.cursor = "pointer";
           button.style.fontSize = "13px";
-          button.style.color = "#333";
+          // allow items to mark themselves as 'danger' (e.g., destructive actions)
+          button.style.color = (item as any).danger ? '#c00' : '#333';
+          button.style.position = 'relative';
 
           let hoverTimer: number | null = null;
+
+          // show a right-arrow for items that open a submenu (convention: action present and closeOnClick === false)
+          if (item.action && item.closeOnClick === false) {
+            const arrow = document.createElement('span');
+            arrow.className = 'gojs-html-context-menu__arrow';
+            arrow.textContent = '\u25B6'; // black right-pointing triangle ▶
+            arrow.style.position = 'absolute';
+            arrow.style.right = '12px';
+            arrow.style.top = '50%';
+            arrow.style.transform = 'translateY(-50%)';
+            arrow.style.pointerEvents = 'none';
+            arrow.style.color = '#666';
+            arrow.style.fontSize = '11px';
+            arrow.style.lineHeight = '1';
+            button.appendChild(arrow);
+          }
 
           button.onmouseenter = () => {
             button.style.background = "rgba(0,0,0,0.06)";
@@ -3733,16 +3777,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           button.onclick = (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
-            disposeSubMenu();
+            // clear any pending hover timer
             if (hoverTimer) {
               clearTimeout(hoverTimer);
               hoverTimer = null;
             }
+            // Only dispose the active sub-menu if this item is supposed to close menus.
+            // Items that open submenus should set closeOnClick === false so the parent
+            // submenu remains visible while the subsubmenu is shown.
+            const shouldCloseSubMenu = item.closeOnClick !== false;
+            if (shouldCloseSubMenu) {
+              disposeSubMenu();
+            }
+
             if (item.action) {
               item.action(diagram, tool, button);
             }
+
+            // If this item requests the menu to close on click (the default), close the whole background menu.
             if (item.closeOnClick !== false) {
-              tool.stopTool();
+              try { tool.stopTool(); } catch (_) { /* ignore */ }
               disposeBackgroundMenu();
             }
           };
@@ -3759,6 +3813,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         document.body.appendChild(menu);
         activeMenuDiv = menu;
         positionBackgroundMenu(menu, diagram, tool);
+        // add document-level handler to close menus when clicking outside
+        if (!docPointerDownHandler) {
+          docPointerDownHandler = (ev: PointerEvent) => {
+            try {
+              const tgt = ev.target as Node | null;
+              const insideMain = activeMenuDiv && tgt && activeMenuDiv.contains(tgt as Node);
+              const insideSub = activeSubMenuDiv && tgt && activeSubMenuDiv.contains(tgt as Node);
+              if (!insideMain && !insideSub) {
+                // force close all menus immediately on outside click
+                closeAllMenus();
+              }
+            } catch (_) {}
+          };
+          try { document.addEventListener('pointerdown', docPointerDownHandler); } catch (_) {}
+        }
       };
 
       const renderSubMenu = (items: HtmlMenuItem[], diagram: go.Diagram, tool: go.ContextMenuTool, anchor?: HTMLElement) => {
@@ -3766,28 +3835,178 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const menu = buildBackgroundMenu(items, diagram, tool);
         document.body.appendChild(menu);
         activeSubMenuDiv = menu;
+        // ensure outside-click handler exists so clicking outside will close menus
+        if (!docPointerDownHandler) {
+          docPointerDownHandler = (ev: PointerEvent) => {
+            try {
+              const tgt = ev.target as Node | null;
+              const insideMain = activeMenuDiv && tgt && activeMenuDiv.contains(tgt as Node);
+              const insideSub = activeSubMenuDiv && tgt && activeSubMenuDiv.contains(tgt as Node);
+              if (!insideMain && !insideSub) {
+                closeAllMenus();
+              }
+            } catch (_) {}
+          };
+          try { document.addEventListener('pointerdown', docPointerDownHandler); } catch (_) {}
+        }
         if (anchor) {
           lastAnchorElement = anchor;
         }
         const targetAnchor = anchor || lastAnchorElement;
-        const anchorRect = targetAnchor ? targetAnchor.getBoundingClientRect() : (activeMenuDiv ? activeMenuDiv.getBoundingClientRect() : null);
-        if (anchorRect) {
-          const menuRect = menu.getBoundingClientRect();
-          const viewportLeft = window.pageXOffset + 4;
-          const viewportRight = window.pageXOffset + window.innerWidth - 4;
-          let left = anchorRect.right + window.pageXOffset + 4;
-          let top = anchorRect.top + window.pageYOffset;
-          if (left + menuRect.width > viewportRight) {
-            left = anchorRect.left + window.pageXOffset - menuRect.width - 4;
+        // try a few fallbacks to get an anchor rect to place the submenu next to the parent menu/button
+        let anchorRect: DOMRect | null = null;
+        // Prefer the actual menu-item button (or its closest ancestor button) as the anchor
+        const findAnchorButton = (el?: HTMLElement | null) => {
+          try {
+            if (!el) return null;
+            // If the element is a button already, use it
+            if (el.tagName && el.tagName.toLowerCase() === 'button') return el;
+            // Walk up to find a button ancestor (the menu item)
+            let parent: HTMLElement | null = el.parentElement;
+            let depth = 0;
+            while (parent && depth < 6) {
+              if (parent.tagName && parent.tagName.toLowerCase() === 'button') return parent;
+              parent = parent.parentElement;
+              depth++;
+            }
+            return null;
+          } catch (_) { return null; }
+        };
+        // DEBUG: log anchor info to help diagnose placement issues
+        try {
+          if (typeof window !== 'undefined' && (window as any).location) {
+            try {
+              const outer = (targetAnchor && (targetAnchor as HTMLElement).outerHTML) ? String((targetAnchor as HTMLElement).outerHTML).slice(0, 240) : String(targetAnchor);
+              console.debug('[renderSubMenu] targetAnchor outerHTML (trunc):', outer);
+            } catch (_) {
+              console.debug('[renderSubMenu] targetAnchor:', targetAnchor);
+            }
           }
-          left = Math.max(viewportLeft, left);
-          const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
-          top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
-          menu.style.left = `${left}px`;
-          menu.style.top = `${top}px`;
-        } else {
-          positionBackgroundMenu(menu, diagram, tool);
+        } catch (_) {}
+        // if targetAnchor is a nested element (e.g., the arrow span), prefer the enclosing button
+        const candidateButton = findAnchorButton(targetAnchor as HTMLElement | null) || targetAnchor as HTMLElement | null;
+        try {
+          if (candidateButton && candidateButton.getBoundingClientRect) {
+            anchorRect = candidateButton.getBoundingClientRect() as DOMRect;
+          }
+        } catch (e) {
+          anchorRect = null;
         }
+        if ((!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) && activeMenuDiv) {
+          try { anchorRect = activeMenuDiv.getBoundingClientRect() as DOMRect; } catch (_) { anchorRect = null; }
+        }
+        // final fallback: place next to the mouse-down point (if available)
+        if ((!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) && tool && (tool as any).mouseDownPoint) {
+          const p = (tool as any).mouseDownPoint;
+          anchorRect = { left: p.x, right: p.x, top: p.y, bottom: p.y, width: 0, height: 0 } as DOMRect;
+        }
+
+        // perform positioning in the next animation frame so layout measurements are reliable
+        window.requestAnimationFrame(() => {
+          try {
+            console.debug('[renderSubMenu:rAF] anchorRect before fallback:', anchorRect);
+            console.debug('[renderSubMenu:rAF] lastAnchorElement:', lastAnchorElement && (lastAnchorElement as HTMLElement).outerHTML?.slice ? (lastAnchorElement as HTMLElement).outerHTML.slice(0, 240) : lastAnchorElement);
+          } catch (_) {}
+          // if anchorRect is still invalid, try to use the anchor's parent element or the active menu as last resort
+          if (!anchorRect && targetAnchor && (targetAnchor as HTMLElement).parentElement) {
+            try {
+              const candidateButton = findAnchorButton((targetAnchor as HTMLElement).parentElement) || (targetAnchor as HTMLElement).parentElement;
+              if (candidateButton) anchorRect = candidateButton.getBoundingClientRect() as DOMRect;
+            } catch (_) { anchorRect = null; }
+          }
+          if (!anchorRect && activeMenuDiv) {
+            try {
+              // Try to locate the actual hovered menu item inside the active menu (works when the anchor was not passed correctly)
+              const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
+              if (hovered && hovered.getBoundingClientRect) {
+                anchorRect = hovered.getBoundingClientRect() as DOMRect;
+              } else {
+                // fallback to the active menu rect
+                anchorRect = activeMenuDiv.getBoundingClientRect() as DOMRect;
+              }
+            } catch (_) { anchorRect = null; }
+          }
+
+          try {
+            console.debug('[renderSubMenu:rAF] computed anchorRect:', anchorRect);
+            console.debug('[renderSubMenu:rAF] activeMenuDiv rect:', activeMenuDiv && activeMenuDiv.getBoundingClientRect());
+            console.debug('[renderSubMenu:rAF] menu rect:', menu && menu.getBoundingClientRect());
+            console.debug('[renderSubMenu:rAF] tool.mouseDownPoint:', (tool as any)?.mouseDownPoint);
+            // If DEBUG flag set, visually mark the targetAnchor element (so user can see which DOM node we used)
+            if ((window as any).DEBUG_GOJS_MENUS === true && targetAnchor && targetAnchor instanceof HTMLElement) {
+              try {
+                (targetAnchor as HTMLElement).style.outline = '2px solid rgba(255,0,0,0.9)';
+                setTimeout(() => { try { (targetAnchor as HTMLElement).style.outline = ''; } catch (_) {} }, 1200);
+              } catch (_) {}
+            }
+          } catch (_) {}
+
+          if (anchorRect) {
+            const menuRect = menu.getBoundingClientRect();
+            const viewportLeft = window.pageXOffset + 4;
+            const viewportRight = window.pageXOffset + window.innerWidth - 4;
+            // place submenu to the right of the anchor button
+            let left = anchorRect.right + window.pageXOffset + 6;
+            // align top of submenu with the top of the anchor button
+            let top = anchorRect.top + window.pageYOffset;
+
+            // If anchorRect appears to equal the active menu rect (a known issue in some layouts),
+            // try to compute the top from the candidateButton.offsetTop relative to the active menu.
+            try {
+              if (activeMenuDiv) {
+                const activeRect = activeMenuDiv.getBoundingClientRect();
+                // Heuristic: if anchorRect matches the active menu rect, use offsetTop
+                if (activeRect && Math.abs(activeRect.top - anchorRect.top) < 1 && Math.abs(activeRect.left - anchorRect.left) < 1) {
+                  if (candidateButton && candidateButton instanceof HTMLElement && activeMenuDiv.contains(candidateButton)) {
+                    const buttonOffsetTop = candidateButton.offsetTop || 0;
+                    const buttonOffsetLeft = candidateButton.offsetLeft || 0;
+                    // Put submenu to the right of the button inside the active menu
+                    top = activeRect.top + buttonOffsetTop + window.pageYOffset;
+                    left = activeRect.left + buttonOffsetLeft + (candidateButton.offsetWidth || 0) + window.pageXOffset + 6;
+                  } else {
+                    // fallback: try hovered item inside the active menu
+                    const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
+                    if (hovered) {
+                      const hr = hovered.getBoundingClientRect();
+                      top = hr.top + window.pageYOffset;
+                      left = hr.right + window.pageXOffset + 6;
+                    }
+                  }
+                }
+              }
+            } catch (_) {}
+
+            // if there's not enough space on the right, open to the left of the anchor
+            if (left + menuRect.width > viewportRight) {
+              left = anchorRect.left + window.pageXOffset - menuRect.width - 6;
+            }
+            left = Math.max(viewportLeft, left);
+            const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
+            top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+
+            // optional DEBUG visual outline if enabled on the page
+            try {
+              if ((window as any).DEBUG_GOJS_MENUS === true) {
+                menu.style.outline = '2px dashed rgba(0,128,0,0.7)';
+                const dbg = document.createElement('div');
+                dbg.style.position = 'absolute';
+                dbg.style.left = `${anchorRect.left + window.pageXOffset}px`;
+                dbg.style.top = `${anchorRect.top + window.pageYOffset}px`;
+                dbg.style.width = `${anchorRect.width}px`;
+                dbg.style.height = `${anchorRect.height}px`;
+                dbg.style.border = '2px dashed rgba(255,0,0,0.7)';
+                dbg.style.pointerEvents = 'none';
+                dbg.className = 'gojs-html-context-menu__debug-outline';
+                document.body.appendChild(dbg);
+                window.setTimeout(() => { try { dbg.remove(); } catch (_) {} }, 1200);
+              }
+            } catch (_) {}
+          } else {
+            positionBackgroundMenu(menu, diagram, tool);
+          }
+        });
       };
 
       const showAdvancedGoMenu = (diagram: go.Diagram, tool: go.ContextMenuTool) => {
@@ -5558,11 +5777,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const deleteNodeMenuItems = (part: go.Part): HtmlMenuItem[] => [
         {
-          label: "Delete Selection",
-          action: (diagram) => handleDeleteSelection(diagram),
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-        },
-        {
           label: "Delete",
           action: (diagram) => handleDeletePart(diagram, part),
           enabled: (diagram) => canDeleteSinglePart(diagram, part),
@@ -5588,6 +5802,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           enabled: (diagram) => canDeleteSinglePart(diagram, part),
         },
         {
+          label: "Delete Selection",
+          action: (diagram) => handleDeleteSelection(diagram),
+          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+        },
+        {
           label: "Delete Selected Views",
           action: (diagram) => {
             if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
@@ -5599,53 +5818,53 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         },
       ];
 
-      const deleteLinkMenuItems = (part: go.Link): HtmlMenuItem[] => [
-        {
-          label: "Delete Selection",
-          action: (diagram) => handleDeleteSelection(diagram),
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-        },
-        {
-          label: "Delete",
-          action: (diagram) => {
-            if (!diagram || !(part instanceof go.Link)) return;
-            const restore = exclusiveSelectPart(diagram, part);
-            if (!diagram.commandHandler.canDeleteSelection()) {
-              restore();
-              return;
-            }
-            if (!confirm('Do you really want to delete this relationship?')) {
-              restore();
-              return;
-            }
-            myMetis.deleteViewsOnly = false;
-            myMetis.currentLink = part.data;
-            diagram.commandHandler.deleteSelection();
-            restore();
-          },
-          enabled: (diagram) => canDeleteSinglePart(diagram, part),
-        },
-        {
-          label: "Delete View",
-          action: (diagram) => {
-            if (!diagram || !(part instanceof go.Link)) return;
-            const restore = exclusiveSelectPart(diagram, part);
-            if (!diagram.commandHandler.canDeleteSelection()) {
-              restore();
-              return;
-            }
-            if (!confirm('Do you really want to delete the current relationship view?')) {
-              restore();
-              return;
-            }
-            myMetis.deleteViewsOnly = true;
-            myMetis.currentLink = part.data;
-            diagram.commandHandler.deleteSelection();
-            restore();
-          },
-          enabled: (diagram) => canDeleteSinglePart(diagram, part),
-        },
-      ];
+      // const deleteLinkMenuItems = (part: go.Link): HtmlMenuItem[] => [
+      //   {
+      //     label: "Delete Selection",
+      //     action: (diagram) => handleDeleteSelection(diagram),
+      //     enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+      //   },
+      //   {
+      //     label: "Delete",
+      //     action: (diagram) => {
+      //       if (!diagram || !(part instanceof go.Link)) return;
+      //       const restore = exclusiveSelectPart(diagram, part);
+      //       if (!diagram.commandHandler.canDeleteSelection()) {
+      //         restore();
+      //         return;
+      //       }
+      //       if (!confirm('Do you really want to delete this relationship?')) {
+      //         restore();
+      //         return;
+      //       }
+      //       myMetis.deleteViewsOnly = false;
+      //       myMetis.currentLink = part.data;
+      //       diagram.commandHandler.deleteSelection();
+      //       restore();
+      //     },
+      //     enabled: (diagram) => canDeleteSinglePart(diagram, part),
+      //   },
+      //   {
+      //     label: "Delete View",
+      //     action: (diagram) => {
+      //       if (!diagram || !(part instanceof go.Link)) return;
+      //       const restore = exclusiveSelectPart(diagram, part);
+      //       if (!diagram.commandHandler.canDeleteSelection()) {
+      //         restore();
+      //         return;
+      //       }
+      //       if (!confirm('Do you really want to delete the current relationship view?')) {
+      //         restore();
+      //         return;
+      //       }
+      //       myMetis.deleteViewsOnly = true;
+      //       myMetis.currentLink = part.data;
+      //       diagram.commandHandler.deleteSelection();
+      //       restore();
+      //     },
+      //     enabled: (diagram) => canDeleteSinglePart(diagram, part),
+      //   },
+      // ];
 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
@@ -5657,11 +5876,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           label: "Paste",
           action: (diagram) => handlePartPaste(diagram, false),
           enabled: (diagram) => diagram.commandHandler.canPasteSelection(),
+          visible: (diagram) => diagram.commandHandler.canPasteSelection() && (
+            (part instanceof go.Group) ||
+            isGroupNode(part?.data) ||
+            isPoolGroup(part) ||
+            isLaneGroup(part)
+          ),
         });
         items.push({
           label: "Paste View",
           action: (diagram) => handlePartPaste(diagram, true),
           enabled: (diagram) => diagram.commandHandler.canPasteSelection(),
+          visible: (diagram) => diagram.commandHandler.canPasteSelection() && (
+            (part instanceof go.Group) ||
+            isGroupNode(part?.data) ||
+            isPoolGroup(part) ||
+            isLaneGroup(part)
+          ),
         });
         if (canEditAttribute(part)) {
           items.push({
@@ -5672,23 +5903,170 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const data: any = part.data || {};
         const isObject = data.category === constants.gojs.C_OBJECT;
         if (isObject) {
+          items.push({ separator: true });
           items.push({
             label: "Edit Object",
             action: () => handleEditObject(part),
           });
           items.push({
+            label: "Delete Object",
+              action: (diagram) => handleDeletePart(diagram, part),
+                enabled: (diagram) => canDeleteSinglePart(diagram, part),
+              });
+          items.push({
+            label: "Delete Selection",
+              action: (diagram) => handleDeleteSelection(diagram),
+                enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+          });
+          items.push({ separator: true });
+          items.push({
             label: "Edit Object View",
             action: () => handleEditObjectview(part),
           });
+          items.push({
+            label: "Delete Object View",
+              action: (diagram) => {
+                if (!diagram) return;
+                const restore = exclusiveSelectPart(diagram, part);
+                if (!diagram.commandHandler.canDeleteSelection()) {
+                  restore();
+                  return;
+                }
+                if (!confirm('Do you really want to delete this object view?')) {
+                  restore();
+                  return;
+                }
+                myMetis.deleteViewsOnly = true;
+                myMetis.currentNode = part.data;
+                diagram.commandHandler.deleteSelection();
+                restore();
+              },
+                enabled: (diagram) => canDeleteSinglePart(diagram, part),
+          });
+          items.push({
+            label: "Delete Selected Views",
+              action: (diagram) => {
+                if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+                if (!confirm('Do you really want to delete the current selection?')) return;
+                myMetis.deleteViewsOnly = true;
+                diagram.commandHandler.deleteSelection();
+              },
+                enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+          });
+          items.push({
+            label: "Change Icon",
+            action: (diagram) => {
+              const node = part.data;
+              if (!node) return;
+              if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+              const ilist = iconList();
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Icon",
+                case: "Change Icon",
+                iconList: iconList(),
+                currentNode: node,
+                myDiagram: diagram
+              };
+              myMetis.currentNode = node;
+              myMetis.myDiagram = diagram;
+              diagram.handleOpenModal(node, modalContext);
+            },
+            enabled: (diagram) => {
+              const node = part.data;
+              return !!node && node.category === constants.gojs.C_OBJECT;
+            }
+          });
+          items.push({ separator: true });
+
+          items.push({
+            label: "Change Object Type",
+            action: (diagram) => {
+              const node = part.data;
+              if (!node) return;
+              const currentType = node.objecttype;
+              const myMetamodel = myMetis.currentMetamodel;
+              const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
+              node.choices = [];
+              if (objtypes) {
+                for (let i = 0; i < objtypes.length; i++) {
+                  const otype = objtypes[i];
+                  if (!otype) continue;
+                  if (!otype.markedAsDeleted) {
+                    if (otype.name === 'Generic' || otype.name === 'Element') continue;
+                    node.choices.push(otype.name);
+                  }
+                }
+              }
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Object Type",
+                case: "Change Object type",
+                myDiagram: diagram
+              };
+              myMetis.currentNode = node;
+              myMetis.myDiagram = diagram;
+              diagram.handleOpenModal(node.choices, modalContext);
+            },
+            enabled: (diagram) => {
+              const node = part.data;
+              return !!node && node.category === constants.gojs.C_OBJECT;
+            }
+          });
+          // Show Typeview - open the object's typeview in read-only mode
+          items.push({
+            label: "Show Typeview",
+            action: (diagram) => {
+              const node = part.data;
+              if (!node) return;
+              uid.editObjectTypeview(node, myMetis, diagram, true);
+            },
+            enabled: (diagram) => {
+              const node = part.data;
+              return !!node && node.category === constants.gojs.C_OBJECT;
+            }
+          });
+          items.push({
+            label: "Reset to Typeview",
+            action: (diagram) => {
+              if (!diagram) return;
+              let selection: any = diagram.selection;
+              if (selection.count == 0) {
+                const currentNode = part.data;
+                if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+                selection = diagram.selection;
+              }
+              selection.each(function (sel: any) {
+                const inst = sel.data;
+                if (inst && inst.category === constants.gojs.C_OBJECT) {
+                  uid.resetToTypeview(inst, myMetis, diagram);
+                }
+              });
+            },
+            enabled: (diagram) => {
+              const node = part.data;
+              if (node?.category === constants.gojs.C_OBJECT) {
+                if (node.isSelected) {
+                  return true;
+                } else {
+                  const selection = diagram.selection;
+                  if (selection.count == 0) return true;
+                  else return false;
+                }
+              }
+              return false;
+            }
+          });
+          items.push({ separator: true });
           const connectionsMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Add Connected Objects",
+              action: (diagram) => handleAddConnectedObjects(diagram, part),
+            },
             {
               label: "Connect to Selected",
               action: (diagram) => handleConnectToSelected(diagram, part),
               enabled: (diagram) => !!diagram && diagram.selection.count > 0,
-            },
-            {
-              label: "Add Connected Objects",
-              action: (diagram) => handleAddConnectedObjects(diagram, part),
             },
             {
               label: "Hide Connected Relationships",
@@ -5706,9 +6084,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           const selectionMenuItems: HtmlMenuItem[] = [
             {
-              label: "Sort Selection",
-              action: (diagram) => handleSortSelection(diagram),
-              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
+              label: "Add to Selection",
+              action: (_diagram) => uid.addToSelection(part, myDiagram),
             },
             {
               label: "Delete Selection",
@@ -5716,13 +6093,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
             },
             {
+              label: "Sort Selection",
+              action: (diagram) => handleSortSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
+            },
+            {
               label: "Delete Selected Views",
               action: (diagram) => handleDeleteSelectedViews(diagram),
               enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
-            },
-            {
-              label: "Add to Selection",
-              action: (_diagram) => uid.addToSelection(part, myDiagram),
             },
             {
               label: "Select All Objects of This Type",
@@ -5796,12 +6174,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         items.push({ separator: true });
         items.push({
-          label: "Delete…",
-          action: showSubMenu(deleteNodeMenuItems(part)),
-          closeOnClick: false,
-        });
-        items.push({ separator: true });
-        items.push({
           label: "More… (old menu)",
           action: (diagram, tool) => showAdvancedPartMenu(diagram, tool, part),
           closeOnClick: false,
@@ -5827,13 +6199,181 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Edit Relationship",
             action: (diagram) => handleEditRelationship(diagram, part),
           });
+          // Add delete actions directly to the relationship's context menu
+          items.push({
+            label: "Delete Relationship",
+            action: (diagram) => {
+              if (!diagram) return;
+              if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
+              myMetis.deleteViewsOnly = false;
+              diagram.commandHandler.deleteSelection();
+            },
+            enabled: (diagram) => {
+              if (!diagram) return false;
+              if (!diagram.commandHandler.canDeleteSelection()) return false;
+              let found = false;
+              diagram.selection.each((p: any) => {
+                try {
+                  if ((p instanceof Object) && (p.data && p.data.category === constants.gojs.C_RELATIONSHIP)) found = true;
+                  if ((p instanceof Object) && (p instanceof (go as any).Link)) found = true;
+                } catch (_) {}
+              });
+              return found;
+            },
+            visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+          });
           items.push({
             label: "Edit Relationship View",
             action: (diagram) => handleEditRelationshipView(diagram, part),
           });
           items.push({
+            label: "Delete Relationship View",
+            action: (diagram) => {
+              if (!diagram) return;
+              if (!confirm('Do you really want to delete the selected relationship view(s)?')) return;
+              myMetis.deleteViewsOnly = true;
+              diagram.commandHandler.deleteSelection();
+            },
+            enabled: (diagram) => {
+              if (!diagram) return false;
+              if (!diagram.commandHandler.canDeleteSelection()) return false;
+              let found = false;
+              diagram.selection.each((p: any) => {
+                try {
+                  if ((p instanceof Object) && (p.data && p.data.category === constants.gojs.C_RELATIONSHIP)) found = true;
+                  if ((p instanceof Object) && (p instanceof (go as any).Link)) found = true;
+                } catch (_) {}
+              });
+              return found;
+            },
+            visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+          });
+          // items.push({
+          //   label: "Edit Relationship Type",
+          //   action: (diagram) => {
+          //     try {
+          //       const link = linkPart.data;
+          //       const modalContext = {
+          //         what: "editRelationshipType",
+          //         title: "Edit Relationship Type",
+          //         myDiagram: myDiagram
+          //       };
+          //       myMetis.currentLink = link;
+          //       myMetis.myDiagram = myDiagram;
+          //       myDiagram.handleOpenModal(link, modalContext);
+          //     } catch (_) { }
+          //   },
+          //   enabled: (diagram) => {
+          //     try {
+          //       const link = linkPart && (linkPart.data || linkPart);
+          //       if (!link) return false;
+          //       // show for both relationship instances and relationship-type nodes
+          //       return link.category === constants.gojs.C_RELATIONSHIP || link.category === constants.gojs.C_RELSHIPTYPE;
+          //     } catch (_) { return false; }
+          //   },
+          // });
+          items.push({
             label: "Change Relationship Type",
             action: (diagram) => handleChangeRelationshipType(diagram, linkPart),
+          });
+          items.push({
+            label: "Hide View",
+            action: (diagram) => {
+              const targetDiagram = diagram || myDiagram;
+              if (!targetDiagram) return;
+              let selection = targetDiagram.selection;
+              if (selection.count === 0) {
+                // select the clicked link if nothing else is selected
+                try {
+                  const key = (linkPart && linkPart.data && linkPart.data.key) || null;
+                  if (key) {
+                    const linkNode = targetDiagram.findLinkForKey(key);
+                    if (linkNode) targetDiagram.select(linkNode);
+                    selection = targetDiagram.selection;
+                  }
+                } catch (_) {}
+              }
+              const linksHided: any[] = [];
+              const modifiedRelshipViews: any[] = [];
+              selection.each(function (sel) {
+                const link = sel as any;
+                if (!link || !link.data) return;
+                let relview = link.data.relshipview;
+                if (relview) {
+                  try {
+                    relview = myModelview.findRelationshipView(relview.id);
+                    if (relview) {
+                      relview.visible = false;
+                      const jsnRelView = new jsn.jsnRelshipView(relview);
+                      modifiedRelshipViews.push(jsnRelView);
+                      // mark link hidden and collect for removal
+                      try { link.visible = false; } catch (_) {}
+                      linksHided.push(link);
+                    }
+                  } catch (_) {}
+                }
+              });
+              for (let i = 0; i < linksHided.length; i++) {
+                try { targetDiagram.remove(linksHided[i]); } catch (_) {}
+              }
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                try { targetDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data }); } catch (_) {}
+              });
+            },
+            enabled: (diagram) => {
+              if (!diagram) return false;
+              let found = false;
+              diagram.selection.each((p: any) => {
+                try {
+                  if ((p instanceof Object) && (p.data && p.data.category === constants.gojs.C_RELATIONSHIP)) found = true;
+                  if ((p instanceof Object) && (p instanceof (go as any).Link)) found = true;
+                } catch (_) {}
+              });
+              return found;
+            },
+          });
+          items.push({
+            label: "Swap Direction",
+            action: (diagram) => {
+              const targetDiagram = diagram || myDiagram;
+              if (!targetDiagram) return;
+              let selection: any = targetDiagram.selection;
+              const selectedLinks: any[] = [];
+              // If nothing is selected, try to select the clicked link (linkPart)
+              if (selection.count === 0) {
+                try {
+                  const key = (linkPart && linkPart.data && linkPart.data.key) || null;
+                  if (key) {
+                    const linkNode = targetDiagram.findLinkForKey(key);
+                    if (linkNode) targetDiagram.select(linkNode);
+                    selection = targetDiagram.selection;
+                  } else if (linkPart) {
+                    // fallback: use the linkPart directly
+                    selectedLinks.push(linkPart);
+                  }
+                } catch (_) { }
+              }
+              // collect links from (possibly updated) selection
+              try {
+                selection.each(function (l: any) {
+                  if (l instanceof go.Node) return;
+                  selectedLinks.push(l);
+                });
+              } catch (_) { }
+              try { uid.swapDirection(selectedLinks, myMetis, targetDiagram); } catch (_) {}
+            },
+            enabled: (diagram) => {return true; },
+            // enabled: (diagram) => {
+            //   try {
+            //     if (!linkPart) return false;
+            //     const link = linkPart.data || linkPart;
+            //     const modelview = myMetis.currentModelview;
+            //     const metamodel = myMetis.currentMetamodel;
+            //     return !!(link && uid.swapDirectionIsAllowed(link, modelview, metamodel));
+            //   } catch (_) { return false; }
+            // },
           });
           items.push({
             label: "Clear Path",
@@ -5892,11 +6432,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         items.push({ separator: true });
-        items.push({
-          label: "Delete…",
-          action: showSubMenu(deleteLinkMenuItems(part)),
-          closeOnClick: false,
-        });
+        // promote delete link submenu items to top-level entries
+        // const _linkDeleteItems = deleteLinkMenuItems(part);
+        // _linkDeleteItems.forEach(di => items.push(di));
         items.push({ separator: true });
         items.push({
           label: "More… (old menu)",
@@ -5937,6 +6475,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetPart = part ?? (diagram?.selection?.first() as go.Part);
         if (!diagram || !(targetPart instanceof go.Part)) return;
         const items = buildPartMenuItems(targetPart);
+        // Set a heading for object parts specifically; otherwise fall back to the part's name/label when available
+        try {
+          const data = targetPart?.data;
+          if (data && data.category === constants.gojs.C_OBJECT) {
+            (items as any).menuHeading = 'Object Menu';
+          } else if (data && data.category === constants.gojs.C_RELATIONSHIP) {
+            // Use a fixed heading for relationship context menus
+            (items as any).menuHeading = 'Relationship Menu';
+          } else {
+            const title = (data && (data.name || data.label)) || null;
+            if (title) (items as any).menuHeading = title;
+          }
+        } catch {
+          // ignore
+        }
         if (!items || items.length === 0) return;
         disposeBackgroundMenu();
         const menu = buildBackgroundMenu(items, diagram, tool);
@@ -6265,6 +6818,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             closeOnClick: false
           }
         ];
+        // Preserve any menuHeading set on the original items array so the submenu can render a heading
+        try {
+          const heading = (items as any)?.menuHeading;
+          if (heading) (submenuItems as any).menuHeading = heading;
+        } catch (_) {}
         renderSubMenu(submenuItems, diagram, tool, source);
       };
 
@@ -6323,25 +6881,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           visible: () => !isMetamodellingMode(),
         },
         {
-          label: "Edit Model Suite",
-          action: (diagram) => handleEditModelSuite(diagram),
-          visible: () => !isMetamodellingMode() && !isAdminModelActive(),
-        },
-        {
           label: "Edit Model",
           action: (diagram) => handleEditModel(diagram),
           visible: () => !isMetamodellingMode() && !isAdminModelActive(),
         },
         {
-          label: "Verify & Repair Model",
-          action: (diagram) => handleVerifyModel(diagram),
-          visible: () => !isMetamodellingMode(),
+          label: "Edit Model Suite",
+          action: (diagram) => handleEditModelSuite(diagram),
+          visible: () => !isMetamodellingMode() && !isAdminModelActive(),
         },
         {
           label: "Delete Model",
           action: () => handleDeleteModel(),
           visible: () => !isMetamodellingMode(),
           enabled: () => hasMultipleActiveModels(),
+        },
+        {
+          label: "Verify & Repair Model",
+          action: (diagram) => handleVerifyModel(diagram),
+          visible: () => !isMetamodellingMode(),
         },
       ];
 
@@ -6366,23 +6924,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const selectMenuItems: HtmlMenuItem[] = [
         {
-          label: "Select All Objects of Type",
-          action: (diagram) => handleSelectAllOfType(diagram),
-          visible: () => !isMetamodellingMode(),
-        },
-        {
-          label: "Select by Object Name",
+          label: "Select All Objects by Object Name",
           action: (diagram) => handleSelectByObjectName(diagram),
           visible: () => !isMetamodellingMode(),
         },
         {
-          label: "Add Missing Relationship Views",
-          action: (diagram) => handleAddMissingRelationshipViews(diagram),
-          visible: () => !isMetamodellingMode(),
-        },
-        {
-          label: "Unhide Hidden Relationship Views",
-          action: () => handleUnhideHiddenRelationshipViews(),
+          label: "Select All Objects of Type",
+          action: (diagram) => handleSelectAllOfType(diagram),
           visible: () => !isMetamodellingMode(),
         },
         {
@@ -6413,18 +6961,165 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           separator: true,
         },
         {
+          label: "Set Link Routing",
+          action: showSubMenu([
+            {
+              label: "Normal",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-routing');
+                // set diagram default routing
+                try {
+                  diagram.routing = go.Link.Normal;
+                } catch (_) {}
+                // update all existing links' data
+                diagram.links.each((l) => {
+                  try { diagram.model.setDataProperty(l.data, 'routing', 'Normal'); } catch (_) {}
+                });
+                diagram.commitTransaction('set-link-routing');
+              }
+            },
+            {
+              label: "Orthogonal",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-routing');
+                try { diagram.routing = go.Link.Orthogonal; } catch (_) {}
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'Orthogonal'); } catch (_) {} });
+                diagram.commitTransaction('set-link-routing');
+              }
+            },
+            {
+              label: "Avoids Nodes",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-routing');
+                try { diagram.routing = go.Link.AvoidsNodes; } catch (_) {}
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'AvoidsNodes'); } catch (_) {} });
+                diagram.commitTransaction('set-link-routing');
+              }
+            }
+          ]),
+          closeOnClick: false,
+          visible: () => !isMetamodellingMode(),
+        },
+        {
+          label: "Set Link Curve",
+          action: showSubMenu([
+            {
+              label: "None",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-curve');
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'None'); } catch (_) {} });
+                diagram.commitTransaction('set-link-curve');
+              }
+            },
+            {
+              label: "Bezier",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-curve');
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'Bezier'); } catch (_) {} });
+                diagram.commitTransaction('set-link-curve');
+              }
+            },
+            {
+              label: "Jump Over",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-curve');
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpOver'); } catch (_) {} });
+                diagram.commitTransaction('set-link-curve');
+              }
+            },
+            {
+              label: "Jump Gap",
+              action: (diagram) => {
+                if (!diagram) return;
+                diagram.startTransaction('set-link-curve');
+                diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpGap'); } catch (_) {} });
+                diagram.commitTransaction('set-link-curve');
+              }
+            }
+          ]),
+          closeOnClick: false,
+          visible: () => !isMetamodellingMode(),
+        },
+        {
+          separator: true,
+        },
+        {
+          label: "Do Layout",
+          action: (diagram) => handleDoLayout(diagram),
+          visible: () => !isMetamodellingMode(),
+        },
+        {
           label: "Save Layout",
           action: (diagram) => handleSaveLayout(diagram),
           visible: () => true,
         },
-        {
-          label: "Open / Close All Groups",
-          action: (diagram) => handleOpenCloseGroups(diagram),
-          visible: () => !isMetamodellingMode(),
-        },
       ];
 
       const toggleMenuItems: HtmlMenuItem[] = [
+        {
+          label: "Delete Relationship",
+          action: (diagram) => {
+            if (!diagram) return;
+            if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
+            myMetis.deleteViewsOnly = false;
+            diagram.commandHandler.deleteSelection();
+          },
+          enabled: (diagram) => {
+            if (!diagram) return false;
+            if (!diagram.commandHandler.canDeleteSelection()) return false;
+            let found = false;
+            diagram.selection.each((p: any) => {
+              try {
+                if ((p instanceof Object) && (p.data && p.data.category === constants.gojs.C_RELATIONSHIP)) found = true;
+                if ((p instanceof Object) && (p instanceof (go as any).Link)) found = true;
+              } catch (_) {}
+            });
+            return found;
+          },
+          visible: (diagram) => {
+            return !!diagram && diagram.commandHandler.canDeleteSelection();
+          }
+        },
+        {
+          label: "Delete Relationship View",
+          action: (diagram) => {
+            if (!diagram) return;
+            if (!confirm('Do you really want to delete the selected relationship view(s)?')) return;
+            myMetis.deleteViewsOnly = true;
+            diagram.commandHandler.deleteSelection();
+          },
+          enabled: (diagram) => {
+            if (!diagram) return false;
+            if (!diagram.commandHandler.canDeleteSelection()) return false;
+            let found = false;
+            diagram.selection.each((p: any) => {
+              try {
+                if ((p instanceof Object) && (p.data && p.data.category === constants.gojs.C_RELATIONSHIP)) found = true;
+                if ((p instanceof Object) && (p instanceof (go as any).Link)) found = true;
+              } catch (_) {}
+            });
+            return found;
+          },
+          visible: (diagram) => {
+            return !!diagram && diagram.commandHandler.canDeleteSelection();
+          }
+        },
+        {
+          label: "Add Missing Relationship Views",
+          action: (diagram) => handleAddMissingRelationshipViews(diagram),
+          visible: () => !isMetamodellingMode(),
+        },
+        {
+          label: "Unhide Hidden Relationship Views",
+          action: () => handleUnhideHiddenRelationshipViews(),
+          visible: () => !isMetamodellingMode(),
+        },
         {
           label: "Toggle Cardinality",
           action: (diagram) => handleToggleCardinality(diagram),
@@ -6447,34 +7142,93 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           label: "Toggle Include Inherited Reltypes",
           action: (diagram) => handleToggleIncludeInheritedReltypes(diagram),
         },
+        { separator: true },
+        {
+          label: "Select All Relationships of This Type",
+          action: (diagram) => {
+            const myMetamodel = myMetis.currentMetamodel;
+            const rtypes = myMetamodel?.relshiptypes || myMetis.relshiptypes || [];
+            const choices = (rtypes || []).map((rt: any) => rt && rt.name).filter(Boolean);
+            const args = { typeNames: choices };
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Relationship Type",
+              case: "Select All Relationships of This Type",
+              myDiagram: diagram,
+              args: args,
+            };
+            myMetis.myDiagram = diagram;
+            try { diagram.handleOpenModal(choices, modalContext); } catch (_) {}
+          }
+        },
+        {
+          label: "Hide Views of This Relationship Type",
+          action: (diagram) => {
+            const myMetamodel = myMetis.currentMetamodel;
+            const rtypes = myMetamodel?.relshiptypes || myMetis.relshiptypes || [];
+            const choices = (rtypes || []).map((rt: any) => rt && rt.name).filter(Boolean);
+            const args = { typeNames: choices };
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Relationship Type",
+              case: "Hide Views of Relationship Type",
+              myDiagram: diagram,
+              args: args,
+            };
+            myMetis.myDiagram = diagram;
+            try { diagram.handleOpenModal(choices, modalContext); } catch (_) {}
+          }
+        },
+        {
+          label: "Delete Views of This Relationship Type",
+          action: (diagram) => {
+            const myMetamodel = myMetis.currentMetamodel;
+            const rtypes = myMetamodel?.relshiptypes || myMetis.relshiptypes || [];
+            const choices = (rtypes || []).map((rt: any) => rt && rt.name).filter(Boolean);
+            const args = { typeNames: choices };
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Relationship Type",
+              case: "Delete Views of Relationship Type",
+              myDiagram: diagram,
+              args: args,
+            };
+            myMetis.myDiagram = diagram;
+            try { diagram.handleOpenModal(choices, modalContext); } catch (_) {}
+          }
+        },
+        {
+          label: "Delete Relationships of This Type",
+          action: (diagram) => {
+            const myMetamodel = myMetis.currentMetamodel;
+            const rtypes = myMetamodel?.relshiptypes || myMetis.relshiptypes || [];
+            const choices = (rtypes || []).map((rt: any) => rt && rt.name).filter(Boolean);
+            const args = { typeNames: choices };
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Relationship Type",
+              case: "Delete Relationships of This Type",
+              myDiagram: diagram,
+              args: args,
+            };
+            myMetis.myDiagram = diagram;
+            try { diagram.handleOpenModal(choices, modalContext); } catch (_) {}
+          }
+        },
       ];
+  // Do not set a fixed heading for the Relationships submenu here;
+  // the part-level context menu should set an appropriate heading (e.g., the relationship name)
 
       const metamodelMenuItems: HtmlMenuItem[] = [
-        {
-          label: "Edit Metamodel",
-          action: (diagram) => handleEditMetamodel(diagram),
-          visible: () => !isMetamodellingMode(),
-        },
         {
           label: "New Metamodel",
           action: () => handleNewMetamodel(),
           visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
         },
         {
-          label: "Replace Current Metamodel",
-          action: () => handleReplaceMetamodel(),
-          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
-        },
-        {
-          label: "Add Metamodel",
-          action: () => handleAddMetamodel(false),
-          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
-          enabled: () => (myMetis.metamodels?.length || 0) >= 2,
-        },
-        {
-          label: "Add Sub-Metamodel",
-          action: () => handleAddMetamodel(true),
-          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
+          label: "Edit Metamodel",
+          action: (diagram) => handleEditMetamodel(diagram),
+          visible: () => !isMetamodellingMode(),
         },
         {
           label: "Delete Metamodel",
@@ -6487,6 +7241,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           action: () => handleClearMetamodel(),
           visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
           enabled: () => hasMultipleActiveMetamodels(),
+        },
+        {
+          label: "Add Metamodel",
+          action: () => handleAddMetamodel(false),
+          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
+          enabled: () => (myMetis.metamodels?.length || 0) >= 2,
+        },
+        {
+          label: "Replace Current Metamodel",
+          action: () => handleReplaceMetamodel(),
+          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
+        },
+        {
+          label: "Add Sub-Metamodel",
+          action: () => handleAddMetamodel(true),
+          visible: () => !isMetamodellingMode() && !isGenericMetamodelContext(),
         },
         {
           label: "Verify & Repair Metamodels",
@@ -6520,21 +7290,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           enabled: (diagram) => diagram.commandHandler.canPasteSelection(),
         },
         {
-          label: "Select…",
-          action: showSubMenu(selectMenuItems),
-          closeOnClick: false,
-          visible: () => !isMetamodellingMode(),
+          label: "Delete Selection",
+          action: (diagram) => handleDeleteSelection(diagram),
+          enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+          visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
         },
         {
-          label: "Copy Selected",
-          action: (diagram) => handleCopySelected(diagram),
-          enabled: (diagram) => diagram.selection.count > 1,
-          visible: (diagram) => diagram.selection.count > 1,
+          label: "Delete Selected Views",
+          action: (diagram) => handleDeleteSelectedViews(diagram),
+          enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+          visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
         },
-        {
-          separator: true,
-          visible: (diagram) => myMetis.modelType !== 'Metamodelling' && diagram.commandHandler.canPasteSelection(),
-        },
+        
+        { separator: true },
         {
           label: "Model…",
           action: showSubMenu(modelMenuItems),
@@ -6553,16 +7321,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           closeOnClick: false,
           visible: () => !isMetamodellingMode(),
         },
+        { separator: true },
         {
-          label: "Relationship…",
+          label: "Select…",
+          action: showSubMenu(selectMenuItems),
+          closeOnClick: false,
+          visible: () => !isMetamodellingMode(),
+        },
+        {
+          label: "Copy Selected",
+          action: (diagram) => handleCopySelected(diagram),
+          enabled: (diagram) => diagram.selection.count > 1,
+          visible: (diagram) => diagram.selection.count > 1,
+        },
+        {
+          separator: true,
+          visible: (diagram) => myMetis.modelType !== 'Metamodelling' && diagram.commandHandler.canPasteSelection(),
+        },
+        {
+          label: "Relationships…",
           action: showSubMenu(toggleMenuItems),
           closeOnClick: false,
         },
+        { separator: true },
         {
           label: "Layout…",
           action: showSubMenu(layoutMenuItems),
           closeOnClick: false,
         },
+        { separator: true },
+        {
+          label: "Open / Close All Groups",
+          action: (diagram) => handleOpenCloseGroups(diagram),
+          visible: () => !isMetamodellingMode(),
+        },
+        { separator: true },
         {
           label: "Zoom All",
           action: (diagram) => {
@@ -6578,6 +7371,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         },
         { separator: true },
         {
+          label: "!! Purge Deleted !!",
+          // mark as destructive so it's shown red in the menu
+          danger: true,
+          action: (diagram) => {
+            if (!diagram) return;
+            if (!confirm('Do you really want to permanently delete all instances marked as deleted?')) return;
+            try {
+              myMetis.myDiagram = diagram;
+              uic.purgeModelDeletions(myMetis, diagram);
+            } catch (err) {
+              console.error('Error while purging deletions', err);
+            }
+          },
+          visible: () => !isMetamodellingMode(),
+        },
+        { separator: true },
+        {
           label: "More… (old menu)",
           action: (diagram, tool) => {
             showAdvancedGoMenu(diagram, tool);
@@ -6588,6 +7398,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       myDiagram.contextMenu = new go.HTMLInfo({
         show: (_obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          // use a fixed heading for the main background menu as requested
+          try {
+            (coreBackgroundMenu as any).menuHeading = 'Main Background Menu';
+          } catch {
+            // ignore
+          }
           renderBackgroundMenu(coreBackgroundMenu, diagram, tool);
         },
         hide: disposeBackgroundMenu,

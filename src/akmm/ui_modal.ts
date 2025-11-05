@@ -1220,8 +1220,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           // Get the selected relship type
           const relTypename = (selectedOption) && selectedOption; // Get the selected relship typename
           let reltype: akm.cxRelationshipType;
-          if (relTypename === constants.types.AKM_REFERS_TO)
-            reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+          if (relTypename === constants.types.AKM_CONTAINS)
+            reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
           else
             reltype = myMetis.findRelationshipTypeByName2(relTypename, fromType, toType);
           if (!reltype) continue;

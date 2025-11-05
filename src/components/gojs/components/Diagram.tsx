@@ -2030,7 +2030,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (rtype.name === constants.types.AKM_GENERIC_REL) {
                   reltypes.push(rtype);
                 }
-                if (rtype.name === constants.types.AKM_REFERS_TO) {
+                if (rtype.name === constants.types.AKM_CONTAINS) {
                   reltypes.push(rtype);
                 }
               }
@@ -3219,7 +3219,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               if (myMetis.modelType === 'Metamodelling')
-                return false;
+                return true;
               else if (uic.isGenericMetamodel(myMetis)) {
                 return false;
               }
@@ -4992,7 +4992,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
-          if (rtype.name === constants.types.AKM_GENERIC_REL || rtype.name === constants.types.AKM_REFERS_TO) {
+          if (rtype.name === constants.types.AKM_GENERIC_REL || rtype.name === constants.types.AKM_CONTAINS) {
             reltypes.push(rtype);
           }
         }

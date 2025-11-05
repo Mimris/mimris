@@ -1256,7 +1256,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                       const reltype = relship.type;
                       if (reltype.name === constants.types.AKM_HAS_MEMBER 
-                          || reltype.name === constants.types.AKM_HAS_PART) {
+                          || reltype.name === constants.types.AKM_HAS_PART
+                          || reltype.name === constants.types.AKM_CONTAINS) {
                         relview.markedAsDeleted = true;
                         const lnk = myDiagram.findLinkForKey(relview.id);
                         if (lnk) {
@@ -1727,7 +1728,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
-        if (droppedNodesForLayout.length) {
+        if (droppedNodesForLayout.length > 1) {
           const primaryDiagram = e.diagram || myDiagram;
           const dropPoint =
             primaryDiagram?.lastInput?.documentPoint?.copy() ||
@@ -2313,7 +2314,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               myDiagram.model.setDataProperty(node.data, "scale", part.scale);
             }
             // Check if the node has a relationship (hasPart) FROM a group
-            const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PART);
+            const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             const parenttype = parentgroup.objecttype;
             const parentObj = parentgroup.object;
             const childtype = type;
@@ -2322,13 +2323,18 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!myHasPartRelship) {
               // Create the relationship
               const relId = utils.createGuid();
-              const relName = constants.types.AKM_HAS_PART;
+              const relName = constants.types.AKM_CONTAINS;
               const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
               hasPartRelship.parentModelRef = myModel.id;
               myModel.addRelationship(hasPartRelship);
               parentObj.addOutputrel(hasPartRelship);
               childObj.addInputrel(hasPartRelship);
               myMetis.addRelationship(hasPartRelship);
+              const hasPartRelview = new akm.cxRelationshipView(utils.createGuid(), relName, hasPartRelship, "");
+              const typeview = hasPartRelship?.type?.typeview
+              hasPartRelview.typeview = typeview;
+              myModelview.addRelationshipView(hasPartRelview);
+              myMetis.addRelationshipView(hasPartRelview);
               // Prepare dispatch
               const jsnRel = new jsn.jsnRelationship(hasPartRelship);
               modifiedRelships.push(jsnRel);

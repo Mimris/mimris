@@ -64,10 +64,17 @@ function getObjectSystemTypes(myMetis: akm.cxMetis, includeMeta: boolean): akm.c
     }
     typenames.push(constants.types.AKM_LABEL);
     typenames.push(constants.types.AKM_CONTAINER);
+    typenames.push(constants.types.AKM_VISUAL_CONTAINER);
+    let objtypeview = null;
     for (let i = 0; i < typenames?.length; i++) {
         const typename = typenames[i];
         let objtype = myMetis.findObjectTypeByName(typename);
         if (objtype) {
+            if (objtype.name === constants.types.AKM_CONTAINER) {
+                objtypeview = objtype.typeview;
+            } else if (objtype.name === constants.types.AKM_VISUAL_CONTAINER) {
+                objtype.typeview = objtypeview;
+            }
             retval.push(objtype);
         }
     }
@@ -79,7 +86,7 @@ function getRelshipSystemTypes(myMetis: akm.cxMetis): akm.cxObjectType[] {
     let typenames = new Array();
     // typenames.push(constants.types.AKM_HAS_PART);
     // typenames.push(constants.types.AKM_HAS_MEMBER);
-    typenames.push(constants.types.AKM_REFERS_TO);
+    typenames.push(constants.types.AKM_CONTAINS);
     typenames.push(constants.types.AKM_ANNOTATES);
     typenames.push(constants.types.AKM_GENERIC_REL);
     for (let i = 0; i < typenames?.length; i++) {
@@ -135,7 +142,7 @@ function getRelationshipSystemTypes(myMetamodel: akm.cxMetaModel, includeMetamod
 function isSystemRelationshipType(reltype: akm.cxRelationshipType, includeMetamodelling: boolean, includeEntityType: boolean) {
     const typename = reltype.name;
     switch (typename) {
-        case constants.types.AKM_REFERS_TO:
+        case constants.types.AKM_CONTAINS:
         case constants.types.AKM_ANNOTATES:
         case constants.types.AKM_GENERIC_REL:
             return true;
@@ -1545,6 +1552,12 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             if (objtype) {
                 objecttypes.push(objtype);
                 objecttypes0.push(objtype);
+            } else {
+                objtype = new akm.cxObjectType(utils.createGuid(), typename, "");
+                targetMetamodel.addObjectType(objtype);
+                targetMetamodel.addObjectType0(objtype);
+                objecttypes.push(objtype);
+                objecttypes0.push(objtype);
             }
         }
         // Add system types
@@ -1811,7 +1824,9 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 // if (!toObjview) continue;
                 // let toObj = toObjview?.object as akm.cxObject;
                 // toObj = myModel.findObjectByName(toObj.name);
-                if (rel.name === constants.types.AKM_CONTAINS)
+                if (rel.name === constants.types.AKM_CONTAINS) {
+
+                }
                 if (rel.name === constants.types.AKM_IS) {
                     for (let j = 0; j < objecttypes.length; j++) {
                         const otype1 = objecttypes[j];

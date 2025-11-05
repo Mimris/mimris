@@ -34,7 +34,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from '../layout/DropLayoutManager';
+import { applyDropLayout, deriveDropLayoutConfig } from '../layout/DropLayoutManager';
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
@@ -4623,6 +4623,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         targetDiagram.requestUpdate();
       }
 
+
+      // ...existing code...
       function applyGroupDropLayout(
         diagram: go.Diagram | null | undefined,
         part: go.Part | null,
@@ -4639,11 +4641,437 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           dragTool.doCancel();
         }
 
-        applyDropLayoutToGroup(targetDiagram, part as go.Group, preset ?? null);
+        // record group location so we do NOT move the group itself
+        const originalGroupLoc = part.location ? (part.location.copy?.() ?? part.location) : null;
+        // ...existing code...
+        // POOL layout: only arrange immediate child groups (lanes) one level down
+        if (isPoolGroup(part)) {
+          const childGroups: go.Group[] = [];
+          part.memberParts.each((member: go.Part) => {
+            if (member instanceof go.Group) childGroups.push(member as go.Group);
+          });
+          if (childGroups.length === 0) return;
+
+          const gb = part.actualBounds ? part.actualBounds.copy() : null;
+          if (!gb) return;
+
+          // try to detect a top header object (common names); reserve its height
+          let headerHeight = 0;
+          try {
+            const headerObj = part.findObject('HEADER') || part.findObject('header') || part.findObject('poolHeader') || part.findObject('Header');
+            if (headerObj && headerObj.actualBounds) headerHeight = headerObj.actualBounds.height || 0;
+          } catch { headerHeight = 0; }
+
+          // try to detect a left header/label area inside the pool and reserve its width
+          let leftHeaderWidth = 0;
+          try {
+            const leftObj = part.findObject('LEFT_HEADER') || part.findObject('leftHeader') || part.findObject('poolLeftHeader') || part.findObject('leftLabel') || part.findObject('HEADER_LEFT');
+            if (leftObj && leftObj.actualBounds) leftHeaderWidth = leftObj.actualBounds.width || 0;
+          } catch { leftHeaderWidth = 0; }
+
+          // reserve a small extra margin for the pool-left header so lanes don't overlap it
+          const extraLeftReserve = 28; // increase if you need more room
+          const leftReserve = Math.max(leftHeaderWidth, extraLeftReserve);
+
+          const padding = 8;
+          const innerLeft = gb.x + leftReserve + padding;
+          const innerRight = gb.x + gb.width - padding;
+          const top = gb.y + headerHeight + padding;
+          const bottom = gb.y + gb.height - padding;
+
+          // preserve top->bottom sequence by sorting on current y
+          childGroups.sort((a, b) => {
+            const ay = (a.location && a.location.y) ?? (a.actualBounds && a.actualBounds.y) ?? 0;
+            const by = (b.location && b.location.y) ?? (b.actualBounds && b.actualBounds.y) ?? 0;
+            return ay - by;
+          });
+
+          const count = childGroups.length;
+          const availableHeight = Math.max(bottom - top, 1);
+          const cellHeight = availableHeight / count;
+          // lane width limited to inner horizontal area (leaving left header reserve)
+          const laneWidth = Math.max(innerRight - innerLeft, 1);
+          const centerX = innerLeft + laneWidth / 2;
+
+          targetDiagram.startTransaction('pool-drop-layout');
+          for (let i = 0; i < count; i++) {
+            const g = childGroups[i];
+
+            // determine group height (fallback if actualBounds not ready)
+            let gbounds: go.Rect | null = null;
+            try {
+              gbounds = (g.actualBounds && g.actualBounds.copy()) || null;
+            } catch { gbounds = null; }
+            if (!gbounds) {
+              const ds = (g.desiredSize && g.desiredSize) || new go.Size(1, 1);
+              gbounds = new go.Rect(0, 0, ds.width || 1, ds.height || 1);
+            }
+
+            // top of the lane cell (align lanes from top to bottom)
+            const cellTop = top + cellHeight * i;
+            // make lane height fill the cell (leave slight inner padding)
+            const desiredHeight = Math.max(cellHeight - 4, gbounds.height);
+            const desiredX = innerLeft;
+            const desiredY = cellTop;
+
+            // set group desired size to fill horizontal inner area and the computed height
+            try {
+              g.desiredSize = new go.Size(laneWidth, desiredHeight);
+            } catch { /* ignore if not supported */ }
+
+            // decide persisted loc depending on locationSpot
+            let locToPersist: go.Point;
+            try {
+              const spot = g.locationSpot;
+              if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
+                // store group's center horizontally at centerX and vertically centered inside the lane cell
+                locToPersist = new go.Point(centerX, cellTop + (desiredHeight / 2));
+              } else {
+                // anchor top-left to innerLeft and top of cell
+                locToPersist = new go.Point(desiredX, desiredY);
+              }
+            } catch {
+              locToPersist = new go.Point(desiredX, desiredY);
+            }
+
+            // move the lane group (child) and persist its loc
+            try {
+              g.move(locToPersist);
+            } catch {
+              try { (g as any).position = locToPersist; } catch { }
+            }
+            const gdata = g.data;
+            if (gdata) {
+              const locStr = go.Point.stringify(locToPersist);
+              try {
+                (targetDiagram.model as any).setDataProperty(gdata, 'loc', locStr);
+                const sizeStr = go.Size.stringify(new go.Size(laneWidth, desiredHeight));
+                try {
+                  (targetDiagram.model as any).setDataProperty(gdata, 'size', sizeStr);
+                } catch {
+                  gdata.size = sizeStr;
+                }
+              } catch {
+                gdata.loc = locStr;
+                gdata.size = go.Size.stringify(new go.Size(laneWidth, desiredHeight));
+              }
+            }
+
+            // also save layout for the lane's contents
+            try {
+              handleGroupSaveLayout(targetDiagram, g);
+            } catch { }
+          }
+          targetDiagram.commitTransaction('pool-drop-layout');
+
+          // restore pool location if changed
+          try {
+            if (originalGroupLoc && part.location && (!part.location.equals(originalGroupLoc))) {
+              targetDiagram.startTransaction('restore-pool-location');
+              try { part.move(originalGroupLoc); } catch { try { (part as any).position = originalGroupLoc; } catch { } }
+              targetDiagram.commitTransaction('restore-pool-location');
+            }
+          } catch { }
+
+          handleGroupSaveLayout(targetDiagram, part);
+          targetDiagram.requestUpdate();
+          return;
+        }
+        // collect initial members (only Node instances) for non-pool groups
+        const members: go.Node[] = [];
+        const filteredMembers: go.Node[] = [];
+        const seenKeys = new Set<any>();
+
+        part.memberParts.each((member: go.Part) => {
+          if (member instanceof go.Node) members.push(member);
+        });
+        if (members.length === 0) return;
+
+        // Deduplicate and ensure we never include the group node itself
+        for (let i = 0; i < members.length; i++) {
+          const m = members[i];
+          if (!m || m === part) continue;
+          const k = m.data?.key ?? (m.key ?? null);
+          if (k !== null && seenKeys.has(k)) continue;
+          if (k !== null) seenKeys.add(k);
+          filteredMembers.push(m);
+        }
+        if (filteredMembers.length === 0) return;
+
+        // Lane special-case: top-aligned & spread left→right inside group's inner bounds
+        if (isLaneGroup(part)) {
+          const gb = part.actualBounds ? part.actualBounds.copy() : null;
+          if (!gb) return;
+
+          // detect left heading area (reserve its width) and use padding
+          let headerWidth = 0;
+          try {
+            const headerObj = part.findObject('HEADER') || part.findObject('header') || part.findObject('laneHeader') || part.findObject('Header') || part.findObject('LEFT_HEADER') || part.findObject('leftHeader');
+            if (headerObj && headerObj.actualBounds) headerWidth = headerObj.actualBounds.width || 0;
+          } catch { headerWidth = 0; }
+
+          const padding = 8;
+          const innerLeft = gb.x + headerWidth + padding;
+          const innerRight = gb.x + gb.width - padding;
+          // anchor nodes to the very top of the lane (leave minimal padding)
+          const top = gb.y + padding;
+
+          const looksLike = (data: any, keyword: string) => {
+            if (!data) return false;
+            const k = (keyword || '').toString().toLowerCase();
+            const checks = [
+              data.name,
+              data.template,
+              data.category,
+              data.type,
+              data.viewkind,
+              data.objecttype && data.objecttype.name,
+              data.objtype && data.objtype.name,
+            ];
+            for (let i = 0; i < checks.length; i++) {
+              const v = checks[i];
+              if (!v) continue;
+              try {
+                if (v.toString().toLowerCase().indexOf(k) >= 0) return true;
+              } catch { }
+            }
+            return false;
+          };
+          const isStartNode = (n: go.Node) => looksLike(n.data, 'start');
+          const isEndNode = (n: go.Node) => looksLike(n.data, 'end');
+
+          // deduplication was already performed earlier for this group
+
+          // keep left→right order but stable with start/end markers
+          filteredMembers.sort((a, b) => {
+            const aStart = isStartNode(a), bStart = isStartNode(b);
+            if (aStart !== bStart) return aStart ? -1 : 1;
+            const aEnd = isEndNode(a), bEnd = isEndNode(b);
+            if (aEnd !== bEnd) return aEnd ? 1 : -1;
+            const ax = (a.location && a.location.x) ?? (a.actualBounds && a.actualBounds.x) ?? 0;
+            const bx = (b.location && b.location.x) ?? (b.actualBounds && b.actualBounds.x) ?? 0;
+            return ax - bx;
+          });
+
+          const count = filteredMembers.length;
+          const availableWidth = Math.max(innerRight - innerLeft, 1);
+          const cellWidth = availableWidth / count;
+
+          targetDiagram.startTransaction('group-drop-layout-lane');
+          for (let i = 0; i < count; i++) {
+            const m = filteredMembers[i];
+            const centerX = innerLeft + cellWidth * (i + 0.5);
+
+            let nb: go.Rect | null = null;
+            try {
+              nb = (m.actualBounds && m.actualBounds.copy()) || null;
+            } catch {
+              nb = null;
+            }
+            if (!nb) {
+              const ds = (m.desiredSize && m.desiredSize) || new go.Size(1, 1);
+              nb = new go.Rect(0, 0, ds.width || 1, ds.height || 1);
+            }
+
+            // top-aligned inside lane; x centered within its cell, y anchored to top + padding
+            const topLeft = new go.Point(centerX - (nb.width / 2), top);
+            let locToPersist: go.Point;
+            try {
+              const spot = m.locationSpot;
+              if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
+                // if node stores center, persist center at appropriate y (top + half height)
+                locToPersist = new go.Point(centerX, top + (nb.height / 2));
+              } else {
+                locToPersist = topLeft;
+              }
+            } catch {
+              locToPersist = topLeft;
+            }
+
+            try { m.move(locToPersist); } catch { try { (m as any).position = locToPersist; } catch { } }
+
+            // persist size to fill cell width but do not exceed cell width
+            try {
+              m.desiredSize = new go.Size(Math.min(Math.max(cellWidth - 4, nb.width), cellWidth), nb.height);
+            } catch { }
+
+            const mdata = m.data;
+            if (mdata) {
+              const locStr = go.Point.stringify(locToPersist);
+              try { (targetDiagram.model as any).setDataProperty(mdata, 'loc', locStr); } catch { mdata.loc = locStr; }
+            }
+          }
+          targetDiagram.commitTransaction('group-drop-layout-lane');
+
+          // ensure group wasn't moved
+          try {
+            if (originalGroupLoc && part.location && (!part.location.equals(originalGroupLoc))) {
+              targetDiagram.startTransaction('restore-group-location');
+              try { part.move(originalGroupLoc); } catch { try { (part as any).position = originalGroupLoc; } catch { } }
+              targetDiagram.commitTransaction('restore-group-location');
+            }
+          } catch { }
+
+          handleGroupSaveLayout(targetDiagram, part);
+          targetDiagram.requestUpdate();
+          return;
+        }
+
+        
+        // Lane special-case: top-aligned & spread left→right inside group's inner bounds
+        if (isLaneGroup(part)) {
+          const gb = part.actualBounds ? part.actualBounds.copy() : null;
+          if (!gb) return;
+
+          // detect left heading area (reserve its width) and use padding
+          let headerWidth = 0;
+          try {
+            const headerObj = part.findObject('HEADER') || part.findObject('header') || part.findObject('laneHeader') || part.findObject('Header') || part.findObject('LEFT_HEADER') || part.findObject('leftHeader');
+            if (headerObj && headerObj.actualBounds) headerWidth = headerObj.actualBounds.width || 0;
+          } catch { headerWidth = 0; }
+
+          // small extra reserve so nodes don't touch the header
+          const extraLeftReserve = 8;
+          const padding = 8;
+          const innerLeft = gb.x + Math.max(headerWidth, extraLeftReserve) + padding;
+          const innerRight = gb.x + gb.width - padding;
+          // anchor nodes to the very top of the lane (leave minimal padding)
+          const top = gb.y + padding;
+
+          const looksLike = (data: any, keyword: string) => {
+            if (!data) return false;
+            const k = (keyword || '').toString().toLowerCase();
+            const checks = [
+              data.name,
+              data.template,
+              data.category,
+              data.type,
+              data.viewkind,
+              data.objecttype && data.objecttype.name,
+              data.objtype && data.objtype.name,
+            ];
+            for (let i = 0; i < checks.length; i++) {
+              const v = checks[i];
+              if (!v) continue;
+              try {
+                if (v.toString().toLowerCase().indexOf(k) >= 0) return true;
+              } catch { }
+            }
+            return false;
+          };
+          const isStartNode = (n: go.Node) => looksLike(n.data, 'start');
+          const isEndNode = (n: go.Node) => looksLike(n.data, 'end');
+
+          // keep left→right order but stable with start/end markers
+          filteredMembers.sort((a, b) => {
+            const aStart = isStartNode(a), bStart = isStartNode(b);
+            if (aStart !== bStart) return aStart ? -1 : 1;
+            const aEnd = isEndNode(a), bEnd = isEndNode(b);
+            if (aEnd !== bEnd) return aEnd ? 1 : -1;
+            const ax = (a.location && a.location.x) ?? (a.actualBounds && a.actualBounds.x) ?? 0;
+            const bx = (b.location && b.location.x) ?? (b.actualBounds && b.actualBounds.x) ?? 0;
+            return ax - bx;
+          });
+
+          const count = filteredMembers.length;
+          const availableWidth = Math.max(innerRight - innerLeft, 1);
+          const cellWidth = availableWidth / count;
+
+          targetDiagram.startTransaction('group-drop-layout-lane');
+          for (let i = 0; i < count; i++) {
+            const m = filteredMembers[i];
+            const centerX = innerLeft + cellWidth * (i + 0.5);
+
+            let nb: go.Rect | null = null;
+            try {
+              nb = (m.actualBounds && m.actualBounds.copy()) || null;
+            } catch {
+              nb = null;
+            }
+            if (!nb) {
+              const ds = (m.desiredSize && m.desiredSize) || new go.Size(1, 1);
+              nb = new go.Rect(0, 0, ds.width || 1, ds.height || 1);
+            }
+
+            // top-aligned inside lane; x centered within its cell, y anchored to top + small padding
+            const topLeft = new go.Point(centerX - (nb.width / 2), top);
+            let locToPersist: go.Point;
+            try {
+              const spot = m.locationSpot;
+              if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
+                // if node stores center, persist center at appropriate y (top + half height)
+                locToPersist = new go.Point(centerX, top + (nb.height / 2));
+              } else {
+                locToPersist = topLeft;
+              }
+            } catch {
+              locToPersist = topLeft;
+            }
+
+            try { m.move(locToPersist); } catch { try { (m as any).position = locToPersist; } catch { } }
+
+            // constrain node width to cell but don't force shrink below its actual width
+            try {
+              m.desiredSize = new go.Size(Math.min(Math.max(cellWidth - 8, nb.width), cellWidth), nb.height);
+            } catch { }
+
+            const mdata = m.data;
+            if (mdata) {
+              const locStr = go.Point.stringify(locToPersist);
+              try { (targetDiagram.model as any).setDataProperty(mdata, 'loc', locStr); } catch { mdata.loc = locStr; }
+            }
+          }
+          targetDiagram.commitTransaction('group-drop-layout-lane');
+
+          // ensure group wasn't moved
+          try {
+            if (originalGroupLoc && part.location && (!part.location.equals(originalGroupLoc))) {
+              targetDiagram.startTransaction('restore-group-location');
+              try { part.move(originalGroupLoc); } catch { try { (part as any).position = originalGroupLoc; } catch { } }
+              targetDiagram.commitTransaction('restore-group-location');
+            }
+          } catch { }
+
+          handleGroupSaveLayout(targetDiagram, part);
+          targetDiagram.requestUpdate();
+          return;
+        }
+
+        // Non-lane groups: fallback to existing drop-layout flow using augmented one-level members
+        const dropOverrides = ((targetDiagram.model as any)?.modelData?.dropLayout) ?? null;
+        const dropConfig = deriveDropLayoutConfig(preset ?? null, dropOverrides);
+
+        const bounds = part.actualBounds ? part.actualBounds.copy() : null;
+        const dropPoint = bounds ? bounds.center : part.location?.copy?.() || null;
+
+        try {
+          targetDiagram.startTransaction('group-drop-layout');
+          applyDropLayout({
+            diagram: targetDiagram,
+            parts: filteredMembers,
+            dropPoint,
+            config: dropConfig,
+            targetGroup: part as go.Group,
+          });
+          targetDiagram.commitTransaction('group-drop-layout');
+        } catch (err) {
+          try { targetDiagram.commitTransaction('group-drop-layout'); } catch { }
+        }
+
+        // ensure group wasn't moved
+        try {
+          if (originalGroupLoc && part.location && (!part.location.equals(originalGroupLoc))) {
+            targetDiagram.startTransaction('restore-group-location');
+            try { part.move(originalGroupLoc); } catch { try { (part as any).position = originalGroupLoc; } catch { } }
+            targetDiagram.commitTransaction('restore-group-location');
+          }
+        } catch { }
 
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }
+
+
 
       const globalLayoutOptions = [
         { label: "Grid", value: "Grid" },
@@ -5318,22 +5746,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const groupLayoutMenuItems: HtmlMenuItem[] = [
               ...globalLayoutOptions.map(option => ({
                 label: option.label,
-                action: (diagram) => applyGroupLayoutScheme(diagram, part, option.value),
+                action: (diagram: go.Diagram) => applyGroupLayoutScheme(diagram, part, option.value),
               })),
-              {
-                label: "Do Layout (Current)",
-                action: (diagram) => handleGroupDoLayout(diagram, part),
-              },
-              {
-                label: "Save Layout",
-                action: (diagram) => handleGroupSaveLayout(diagram, part),
-              },
             ];
-            items.push({
-              label: "Layout…",
-              action: showSubMenu(groupLayoutMenuItems),
-              closeOnClick: false,
-            });
           }
         }
         items.push({ separator: true });
@@ -6500,20 +6915,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let options = '';
         let comps;
         const { Option } = components
-        const CustomSelectOption = props =>
-        (
+        const fallbackImg = './../images/default.png';
+        const CustomSelectOption = (props: any) => (
           <Option {...props}>
-            <img className="option-img mr-2" src={props.data.value} />
-            {props.data.label}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                className="option-img mr-2"
+                src={props.data.value}
+                style={{ width: 20, height: 20, objectFit: 'contain', marginRight: 8 }}
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  const img = e.currentTarget as HTMLImageElement;
+                  img.onerror = null;
+                  img.src = fallbackImg;
+                }}
+              />
+              <span>{props.data.label}</span>
+            </div>
           </Option>
-        )
-        const CustomSelectValue = props => (
-          <div>
-            {/* <i className={`icon icon-${props.data.icon}`} /> */}
-            <img className="option-img mr-2" src={props.data.value} />
-            {props.data.label}
+        );
+
+        const CustomSelectValue = (props: any) => (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <img
+              className="option-img mr-2"
+              src={props.data.value}
+              style={{ width: 20, height: 20, objectFit: 'contain', marginRight: 8 }}
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                const img = e.currentTarget as HTMLImageElement;
+                img.onerror = null;
+                img.src = fallbackImg;
+              }}
+            />
+            <span>{props.data.label}</span>
           </div>
-        )
+        );
         if (modalContext?.title === 'Select Icon') {
           let img
           options = this.state.modalContext.iconList.map(icon => {
@@ -6521,8 +6956,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: img, label: icon.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Layout Scheme') {
+        } else if (modalContext?.title === 'Set Layout Scheme') {
           let layout, img;
           options = this.state.modalContext.layoutList.map(ll => {
             img = './../images/default.png'
@@ -6530,8 +6964,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: layout, label: ll.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Routing Scheme') {
+        } else if (modalContext?.title === 'Set Routing Scheme') {
           let routing, img;
           options = this.state.modalContext.routingList.map(rr => {
             img = './../images/default.png'
@@ -6539,8 +6972,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: routing, label: rr.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Set Link Curve') {
+        } else if (modalContext?.title === 'Set Link Curve') {
           let curve, img;
           options = this.state.modalContext.curveList.map(cc => {
             img = './../images/default.png'
@@ -6548,8 +6980,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: curve, label: cc.label }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else if (modalContext?.title === 'Select Relationship Type') {
+        } else if (modalContext?.title === 'Select Relationship Type') {
           const choices = this.state.modalContext.args.typeNames;
           let img;
           options = choices.map(tpname => {
@@ -6557,8 +6988,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return { value: tpname, label: tpname }
           })
           comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        }
-        else {
+        } else {
           options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
           comps = null
         }

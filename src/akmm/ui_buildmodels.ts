@@ -45,7 +45,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
           }
         }
       }
-      console.log('41 mmtypenames', mmtypenames); 
+      if (debug) console.log('41 mmtypenames', mmtypenames); 
     }
     typenames = [...new Set(mmtypenames)];
     if (debug) console.log('32 MM objecttypes', typenames);
@@ -212,7 +212,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     }
   }
 
-  if (!debug) console.log('161 Objecttype palette', myGoPaletteModel.nodes, myGoPaletteModel.links);
+  if (debug) console.log('161 Objecttype palette', myGoPaletteModel.nodes, myGoPaletteModel.links);
   return myGoPaletteModel;
 }
 

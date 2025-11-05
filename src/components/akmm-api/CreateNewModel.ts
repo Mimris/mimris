@@ -300,7 +300,7 @@ const CreateNewModel = (props: any) => {
             adminmetamodel
         ],
           name: newProjectName,
-          description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',
+          description: 'Mimris Models (POPS, IRTV, BPNM, TYPE)',
           currentModelRef: newmodel.id,
           currentModelviewRef:  newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id

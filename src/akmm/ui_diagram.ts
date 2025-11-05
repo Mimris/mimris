@@ -484,7 +484,29 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const objviewRef = gjsNode.key;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
+    // Fallbacks if objectview is not found
+    if (!objectview) {
+        const fallbackRef = gjsNode.objviewRef || gjsNode.objectview?.id || gjsNode.objviewId || gjsNode.objectRef;
+        if (fallbackRef) {
+            objectview = myMetis.findObjectView(fallbackRef);
+        }
+    }
+    if (!objectview) {
+        console.warn('[ui_diagram.editObject] objectview not found for node', { nodeKey: objviewRef, node: gjsNode });
+        return; // can't proceed without an object view
+    }
+    let object: akm.cxObject = null;
+    if (objectview && objectview.objectRef) {
+        object = myMetis.findObject(objectview.objectRef);
+    }
+    // Try fallback to node-level objectRef if object not found
+    if (!object && gjsNode.objectRef) {
+        object = myMetis.findObject(gjsNode.objectRef);
+    }
+    if (!object) {
+        console.warn('[ui_diagram.editObject] object not found for objectview', { objectviewId: objectview?.id, objectview });
+        return; // can't proceed without an object
+    }
     const objtypeRef = gjsNode.objtypeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
     const objecttypeview = objecttype?.typeview;

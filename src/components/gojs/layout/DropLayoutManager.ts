@@ -1,5 +1,6 @@
 // @ts-nocheck
 import * as go from 'gojs';
+import * as jsn from '../../../akmm/ui_json';
 
 type DropPattern = 'grid' | 'circle' | 'radial' | 'spiral';
 
@@ -332,6 +333,7 @@ function cloneDropLayoutPartial(
 
 export function applyDropLayout(args: ApplyDropLayoutArgs): void {
   const { diagram, parts, dropPoint, config, targetGroup } = args;
+  console.log('336 applyDropLayout called with args:', { diagram, parts, dropPoint, config, targetGroup }); 
   if (!diagram || !parts) {
     return;
   }
@@ -362,6 +364,7 @@ export function applyDropLayout(args: ApplyDropLayoutArgs): void {
   }
 
   try {
+    console.log('366 Applying drop layout changes', { nodes, layoutConfig }, shouldCommit, diagram.isInTransaction);
     const processedNodes = new Set<go.Node>();
     const sortedRules = Array.isArray(layoutConfig.rules)
       ? [...layoutConfig.rules].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -456,9 +459,11 @@ export function applyDropLayout(args: ApplyDropLayoutArgs): void {
       }
     }
   } finally {
+    console.log('460 Applying drop layout changes', { nodes, layoutConfig }, shouldCommit, diagram.isInTransaction);
     if (shouldCommit && diagram.isInTransaction) {
       diagram.commitTransaction('apply-drop-layout');
     }
+
   }
 }
 
@@ -1092,12 +1097,12 @@ function positionAsGrid(args: GridPositioningArgs): void {
       info.lane.memberParts.each((memberPart: go.Part) => {
         if (memberPart instanceof go.Node) laneMembers.push(memberPart);
         const currentLoc = memberPart.location?.copy?.();
-        if (currentLoc) {
+        if (currentLoc && memberPart instanceof go.Node) {
           const newMemberLoc = new go.Point(currentLoc.x + deltaX, currentLoc.y + deltaY);
-          memberPart.location = newMemberLoc;
-          if (memberPart.data) {
-            diagram.model.setDataProperty(memberPart.data, 'loc', go.Point.stringify(newMemberLoc));
-          }
+          // applyLocation will persist loc to model and push placed rects if needed
+          applyLocation(diagram, memberPart, newMemberLoc, getNodeSize(memberPart), placedRects, config.padding);
+          // ensure node scale matches parent
+          applyParentScaleToNode(diagram, memberPart);
         }
       });
       const memberHorizontalPadding = Math.max(2, lanePadding * 0.5);
@@ -1116,10 +1121,9 @@ function positionAsGrid(args: GridPositioningArgs): void {
           const targetX = cursor + halfWidth;
           const targetY = currentTop + Math.min(adjustedHeight * 0.4, adjustedHeight / 2);
           const targetPoint = new go.Point(targetX, targetY);
-          memberNode.location = targetPoint;
-          if (memberNode.data) {
-            diagram.model.setDataProperty(memberNode.data, 'loc', go.Point.stringify(targetPoint));
-          }
+          // Use applyLocation + applyParentScaleToNode to set location and scale consistently
+          applyLocation(diagram, memberNode, targetPoint, memberSize, placedRects, config.padding);
+          applyParentScaleToNode(diagram, memberNode);
           cursor += width + spacing;
         });
       }
@@ -1338,6 +1342,20 @@ function clampToGroup(
     return candidate;
   }
 
+  // If the group explicitly allows dropping outside its bounds, do not clamp.
+  // This lets callers opt-in to placing dropped nodes that may fall outside the group's
+  // visual area by setting `group.data.allowOutsideDrop = true` (or aliases) on the group's data.
+  try {
+    const gd: any = group.data || {};
+    const allowOutside =
+      gd?.allowOutsideDrop === true || gd?.allowOutside === true || gd?.noClamp === true;
+    if (allowOutside) {
+      return candidate;
+    }
+  } catch (e) {
+    // ignore and proceed to clamp
+  }
+
   const bounds = group.actualBounds.copy();
   bounds.inflate(-padding, -padding);
 
@@ -1405,6 +1423,12 @@ function applyLocation(
   }
   node.location = location;
   node.ensureBounds();
+  // Ensure node scale matches parent group and persist it
+  try {
+    applyParentScaleToNode(diagram, node);
+  } catch (e) {
+    // ignore
+  }
 
   const halfWidth = (nodeSize.width || 160) / 2;
   const halfHeight = (nodeSize.height || 70) / 2;
@@ -1416,6 +1440,37 @@ function applyLocation(
   );
   rect.inflate(padding, padding);
   placedRects.push(rect);
+}
+
+// Ensure the node's scale matches its parent group's scale (if any).
+// The saved value is rounded to max 2 decimals.
+function applyParentScaleToNode(diagram: go.Diagram, node: go.Node) {
+  if (!node) return;
+  const model = diagram.model;
+  try {
+    const parent = node.containingGroup as go.Group | null | undefined;
+    let parentScale = 1;
+    if (parent) {
+      // Prefer explicit numeric scale on group instance if present
+      if (typeof parent.scale === 'number' && !isNaN(parent.scale)) {
+        parentScale = parent.scale;
+      } else if (parent.data && parent.data.scale !== undefined && parent.data.scale !== null) {
+        const s = parseFloat(String(parent.data.scale));
+        if (!isNaN(s)) parentScale = s;
+      }
+    }
+    const rounded = Math.round(parentScale * 100) / 100;
+    // apply to the runtime part
+    node.scale = rounded;
+    // persist to node data if available
+    if (node.data && typeof model.setDataProperty === 'function') {
+      model.setDataProperty(node.data, 'scale', rounded);
+    } else if (node.data) {
+      node.data.scale = rounded;
+    }
+  } catch (e) {
+    // ignore scale application errors
+  }
 }
 
 function getRadiusFromSizes(nodeSizes: go.Size[]): number {

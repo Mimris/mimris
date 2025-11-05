@@ -18,6 +18,52 @@ import * as constants from './constants';
 // const utils = require('./utilities');
 import * as utils from './utilities';
 
+// Safe stringifier that avoids circular reference errors and strips functions
+function safeClone<T>(obj: T): T {
+  try {
+    // Use structuredClone if available (Node 17+, browsers) for deep cloning
+    // @ts-ignore
+    if (typeof structuredClone === 'function') {
+      // structuredClone will still fail on some complex objects, so guard in try/catch
+      try {
+        return structuredClone(obj);
+      } catch (_e) {
+        // fallback to replacer below
+      }
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  const seen = new WeakSet<any>();
+  function replacer(_key: string, value: any) {
+    if (typeof value === 'function') return undefined;
+    if (value && typeof value === 'object') {
+      if (seen.has(value)) return undefined;
+      seen.add(value);
+    }
+    return value;
+  }
+
+  try {
+    const text = JSON.stringify(obj, replacer);
+    return JSON.parse(text) as T;
+  } catch (e) {
+    // Last resort: shallow copy enumerable properties
+    if (obj && typeof obj === 'object') {
+      const out: any = {};
+      for (const k in obj as any) {
+        const v = (obj as any)[k];
+        if (typeof v === 'function') continue;
+        if (v && typeof v === 'object') continue; // avoid nested circulars
+        out[k] = v;
+      }
+      return out as T;
+    }
+    return obj;
+  }
+}
+
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
   const propname = props.id;
@@ -167,8 +213,7 @@ export function handleSelectDropdownChange(selected, context) {
             const modifiedObjviews = [];
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -191,8 +236,7 @@ export function handleSelectDropdownChange(selected, context) {
             const modifiedObjtypeviews = [];
             modifiedObjtypeviews.push(jsnObjtypeview);
             modifiedObjtypeviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
             });
           }
@@ -215,8 +259,7 @@ export function handleSelectDropdownChange(selected, context) {
         const modifiedObjviews = [];
         modifiedObjviews.push(jsnObjview);
         modifiedObjviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         });
       } else
@@ -226,8 +269,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -236,8 +278,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -257,8 +298,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -267,8 +307,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -288,8 +327,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -298,8 +336,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -315,9 +352,9 @@ export function handleSelectDropdownChange(selected, context) {
       const targetModel = myMetis.findModelByName(modelName);
       myMetis.currentTargetModel = targetModel
       myMetis.currentModel.targetModelRef = targetModel.id
-      let mdata = new jsn.jsnModel(myMetis.currentModel, true);
-      mdata = JSON.parse(JSON.stringify(mdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
+  let mdata = new jsn.jsnModel(myMetis.currentModel, true);
+  mdata = safeClone(mdata);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
       break;
     }
     case "Set Target Metamodel":   
@@ -330,9 +367,9 @@ export function handleSelectDropdownChange(selected, context) {
       }
       myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
-      let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
-      mmdata = JSON.parse(JSON.stringify(mmdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
+  let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
+  mmdata = safeClone(mmdata);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
       break;
     }
     case "Change Relationship type": { 
@@ -399,8 +436,7 @@ export function handleSelectDropdownChange(selected, context) {
             const jsnRel = new jsn.jsnRelationship(inst);
             modifiedRelships.push(jsnRel);
             modifiedRelships?.map(mn => {
-              let data = (mn) && mn
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
             });
             break;
@@ -419,8 +455,7 @@ export function handleSelectDropdownChange(selected, context) {
             const jsnRelType = new jsn.jsnRelationshipType(inst, true);
             modifiedReltypes.push(jsnRelType);
             modifiedReltypes?.map(mn => {
-              let data = (mn) && mn
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
             });
             break;
@@ -463,8 +498,7 @@ export function handleSelectDropdownChange(selected, context) {
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
           modifiedLinkTypeViews.push(jsnTypeView);
           modifiedLinkTypeViews?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -539,8 +573,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnObjtype = new jsn.jsnObjectType(type, true);
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        const data = safeClone(mn);
         myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
       break;
@@ -582,8 +615,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnReltype = new jsn.jsnRelationshipType(type, true);
       modifiedReltypes.push(jsnReltype);
       modifiedReltypes.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        const data = safeClone(mn);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
       break;
@@ -607,12 +639,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!object) object = myMetis.findObject(objview.objectRef);
       if (object) {
         const jsnObj = new jsn.jsnObject(object);
-        let data = JSON.parse(JSON.stringify(jsnObj));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+        let dataObj = safeClone(jsnObj);
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: dataObj })
       }
       const jsnObjview = new jsn.jsnObjectView(objview);
-      let data = JSON.parse(JSON.stringify(jsnObjview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      let dataObjView = safeClone(jsnObjview);
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: dataObjView })
       break;
     }
     case "addPort": {
@@ -666,12 +698,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
       // Dispatch
-      const jsnRelship = new jsn.jsnRelationship(relship);
-      let data = JSON.parse(JSON.stringify(jsnRelship));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      const jsnRelview = new jsn.jsnRelshipView(relview);
-      data = JSON.parse(JSON.stringify(jsnRelview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+  const jsnRelship = new jsn.jsnRelationship(relship);
+  let dataRel = safeClone(jsnRelship);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: dataRel })
+  const jsnRelview = new jsn.jsnRelshipView(relview);
+  let dataRelView = safeClone(jsnRelview);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: dataRelView })
       break;
     }
     case "editObjectview": {
@@ -697,8 +729,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
-      let data = JSON.parse(JSON.stringify(jsnObjview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  let data = safeClone(jsnObjview);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       const modifiedModelviews = new Array();
       
       // const jsnModelview = new jsn.jsnModelView(myModelview);
@@ -728,8 +760,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const modifiedObjviews = new Array();    
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -748,8 +779,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
           modifiedObjTypeviews.push(jsnObjtypeview);
           modifiedObjTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -762,8 +792,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const modifiedObjviews = new Array();    
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -914,8 +943,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const modifiedObjects = new Array();
           modifiedObjects.push(jsnObj);
           modifiedObjects.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
           });
           uit.addPort(port, myDiagram)
@@ -944,8 +972,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const jsnRel = new jsn.jsnRelationship(relship);
         modifiedRelships.push(jsnRel);
         modifiedRelships?.map(mn => {
-          let data = (mn) && mn
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         });
       }
@@ -1098,8 +1125,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
           modifiedObjTypeviews.push(jsnObjtypeview);
           modifiedObjTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -1152,7 +1178,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
-            let data = mn;
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -1174,16 +1200,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
             modifiedRelTypeviews.push(jsnReltypeview);
             modifiedRelTypeviews.map(mn => {
-              let data = mn;
-              myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-            })
+                  const data = safeClone(mn);
+                  myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                })
           }
         }
         relview = uic.updateRelationshipView(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
-          let data = mn;
+          const data = safeClone(mn);
           myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
         myDiagram.clearSelection();

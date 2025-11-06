@@ -6732,6 +6732,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         } catch (_) {}
         if (!items) items = buildPartMenuItems(targetPart);
+        // Ensure a sensible heading is present for object/relationship menus, but
+        // preserve any existing heading (e.g., 'Icon Menu') that may have been set
+        // when building a special-case menu earlier.
+        try {
+          if (!(items as any)?.menuHeading) {
+            const data = targetPart?.data;
+            if (data && data.category === constants.gojs.C_OBJECT) {
+              (items as any).menuHeading = 'Object Menu';
+            } else if (data && data.category === constants.gojs.C_RELATIONSHIP) {
+              (items as any).menuHeading = 'Relationship Menu';
+            } else {
+              const title = (data && (data.name || data.label)) || null;
+              if (title) (items as any).menuHeading = title;
+            }
+          }
+        } catch { /* ignore */ }
+
         if (!items || items.length === 0) return;
         disposeBackgroundMenu();
         const menu = buildBackgroundMenu(items, diagram, tool);

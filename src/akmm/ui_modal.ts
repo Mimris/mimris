@@ -347,6 +347,111 @@ export function handleSelectDropdownChange(selected, context) {
       const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
       break;
     } 
+    case "Select All Relationships of This Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const links = myDiagram.links;
+      for (let it = links.iterator; it?.next();) {
+        const link = it.value;
+        try {
+          if (link.data && link.data.relshiptype && link.data.relshiptype.id === reltype.id) {
+            link.isSelected = true;
+          }
+        } catch (_) {}
+      }
+      break;
+    }
+    case "Hide Views of Relationship Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const modelview = myMetis.currentModelview;
+      if (!modelview) break;
+      const relviews = modelview.relshipviews || [];
+      const modifiedRelshipViews: any[] = [];
+      const linksHided: any[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const relview = relviews[i];
+        if (!relview) continue;
+        if (relview.relshiptype && relview.relshiptype.id === reltype.id) {
+          relview.visible = false;
+          const jsnRelView = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelView);
+          const goLink = myMetis.gojsModel.findLinkByViewId(relview.id);
+          const link = myDiagram.findLinkForKey(goLink?.key);
+          if (link) {
+            link.visible = false;
+            linksHided.push(link);
+          }
+        }
+      }
+      for (let i = 0; i < linksHided.length; i++) {
+        const link = linksHided[i];
+        try { myDiagram.remove(link); } catch (_) {}
+      }
+      modifiedRelshipViews.map(mn => {
+        const data = safeClone(mn);
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      });
+      break;
+    }
+    case "Delete Views of Relationship Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const modelview = myMetis.currentModelview;
+      if (!modelview) break;
+      const relviews = modelview.relshipviews || [];
+      const modifiedRelshipViews: any[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const relview = relviews[i];
+        if (!relview) continue;
+        if (relview.relshiptype && relview.relshiptype.id === reltype.id) {
+          // mark as deleted
+          relview.markedAsDeleted = true;
+          const jsnRelView = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelView);
+        }
+      }
+      modifiedRelshipViews.map(mn => {
+        const data = safeClone(mn);
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      });
+      break;
+    }
+    case "Delete Relationships of This Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      // Remove all links whose relshiptype matches
+      const toRemove: any[] = [];
+      const links = myDiagram.links;
+      for (let it = links.iterator; it?.next();) {
+        const link = it.value;
+        try {
+          if (link.data && link.data.relshiptype && link.data.relshiptype.id === reltype.id) {
+            toRemove.push(link);
+          }
+        } catch (_) {}
+      }
+      if (toRemove.length > 0) {
+        myDiagram.startTransaction('delete-relship-type');
+        for (let i = 0; i < toRemove.length; i++) {
+          try { myDiagram.model.removeLinkData(toRemove[i].data); } catch (_) {}
+        }
+        myDiagram.commitTransaction('delete-relship-type');
+      }
+      break;
+    }
     case "Set Target Model": { 
       const modelName = (selectedOption) && selectedOption;
       const targetModel = myMetis.findModelByName(modelName);

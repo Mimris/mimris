@@ -1079,7 +1079,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     if (!reltype || reltype.name !== typename) // reltype not found, try another way
         reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
     if (!reltype) {
-        alert("Relationship type given does not exist!")
+        alert("Relationship type given does not exist!"+typename+"\nOperation is cancelled.");
         myDiagram.model.removeLinkData(data);
         return;
     }

@@ -6651,25 +6651,87 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         cmTool.showContextMenu(menuCopy, part);
       };
 
-      const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null) => {
+      const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null, graphObj?: go.GraphObject | null) => {
         const targetPart = part ?? (diagram?.selection?.first() as go.Part);
+        // console.log('6656 showPartHtmlMenu', {tool, part, targetPart, graphObj });
         if (!diagram || !(targetPart instanceof go.Part)) return;
-        const items = buildPartMenuItems(targetPart);
-        // Set a heading for object parts specifically; otherwise fall back to the part's name/label when available
+        // If the context menu was invoked on a specific GraphObject (e.g. the object's icon),
+        // allow showing a special, minimal menu. In particular, when right-clicking the
+        // node's icon (a go.Picture), show a small menu containing only 'Change Icon'.
+        let items: HtmlMenuItem[] | null = null;
         try {
-          const data = targetPart?.data;
-          if (data && data.category === constants.gojs.C_OBJECT) {
-            (items as any).menuHeading = 'Object Menu';
-          } else if (data && data.category === constants.gojs.C_RELATIONSHIP) {
-            // Use a fixed heading for relationship context menus
-            (items as any).menuHeading = 'Relationship Menu';
-          } else {
-            const title = (data && (data.name || data.label)) || null;
-            if (title) (items as any).menuHeading = title;
+          // Skip special icon-only handling for groups; only consider icon-menu for node/object parts
+          if (graphObj && !(targetPart instanceof go.Group)) {
+            try {
+              // heuristic: consider it an icon if it's a Picture, has a name containing 'icon',
+              // or exposes a 'source' property (common for pictures). This is intentionally
+              // permissive to match different templates.
+              let isIcon = false;
+              try {
+                const anyObj: any = graphObj as any;
+                if ((go as any).Picture && graphObj instanceof (go as any).Picture) isIcon = true;
+                if (!isIcon && anyObj && typeof anyObj.name === 'string' && anyObj.name.toLowerCase().includes('icon')) isIcon = true;
+                if (!isIcon && anyObj && anyObj.source !== undefined) isIcon = true;
+                // If the clicked object is a Panel (common), try to detect if it contains a Picture named 'ICON' or similar
+                if (!isIcon) {
+                    try {
+                    // include common picture name variants so targetPart.findObject('Picture') will match
+                    const namesToCheck = ['ICON', 'icon', 'Picture', 'picture', 'PICTURE', 'LeftIcon', 'leftIcon', 'ICON_LEFT', 'LEFT_HEADER', 'leftHeader', 'poolLeftHeader', 'leftLabel', 'HEADER_LEFT'];
+                    for (let i = 0; i < namesToCheck.length; i++) {
+                      try {
+                        const cand = (targetPart as any).findObject(namesToCheck[i]);
+                        if (cand) {
+                          // consider it an icon-area click if the clicked graphObj is the candidate or an ancestor/parent panel of it
+                          if (graphObj === cand) { isIcon = true; break; }
+                          // walk up from candidate to see if graphObj is one of its parent panels
+                          let cur: any = cand;
+                          while (cur) {
+                            if (cur === graphObj) { isIcon = true; break; }
+                            cur = cur.panel;
+                          }
+                          if (isIcon) break;
+                        }
+                      } catch (_) {}
+                    }
+                  } catch (_) {}
+                }
+                if (window && (window as any).DEBUG_GOJS_MENUS) console.debug('[showPartHtmlMenu] graphObj detection', { name: anyObj?.name, ctor: anyObj?.constructor?.name, hasSource: anyObj?.source !== undefined, isIcon });
+              } catch (_) {}
+              if (isIcon || (graphObj instanceof (go as any).Picture) || ((graphObj as any).name && (graphObj as any).name.toLowerCase().includes('icon') ) || ((graphObj as any).source !== undefined)) {
+                // build a special icon-only menu
+                const node = targetPart.data;
+                items = [
+                  {
+                    label: 'Change Icon',
+                    action: (diagram) => {
+                      if (!node) return;
+                      if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+                      const ilist = iconList();
+                      const modalContext = {
+                        what: 'selectDropdown',
+                        title: 'Select Icon',
+                        case: 'Change Icon',
+                        iconList: iconList(),
+                        currentNode: node,
+                        myDiagram: diagram
+                      };
+                      myMetis.currentNode = node;
+                      myMetis.myDiagram = diagram;
+                      diagram.handleOpenModal(node, modalContext);
+                    },
+                    enabled: (diagram) => {
+                      const node = targetPart.data;
+                      return !!node && node.category === constants.gojs.C_OBJECT;
+                    }
+                  }
+                ];
+                // Mark this as the icon menu so later heading logic doesn't overwrite it
+                try { (items as any).menuHeading = 'Icon Menu'; } catch (_) {}
+              }
+            } catch (_) {}
           }
-        } catch {
-          // ignore
-        }
+        } catch (_) {}
+        if (!items) items = buildPartMenuItems(targetPart);
         if (!items || items.length === 0) return;
         disposeBackgroundMenu();
         const menu = buildBackgroundMenu(items, diagram, tool);
@@ -6697,7 +6759,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       partContextMenu = new go.HTMLInfo({
         show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
           const part = obj ? obj.part : null;
-          showPartHtmlMenu(diagram, tool, part as go.Part);
+          showPartHtmlMenu(diagram, tool, part as go.Part, obj);
         },
         hide: disposeBackgroundMenu,
       });
@@ -6705,7 +6767,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       linkContextMenu = new go.HTMLInfo({
         show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
           const part = obj ? obj.part : null;
-          showPartHtmlMenu(diagram, tool, part as go.Part);
+          showPartHtmlMenu(diagram, tool, part as go.Part, obj);
         },
         hide: disposeBackgroundMenu,
       });

@@ -5978,6 +5978,213 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           });
           items.push({ separator: true });
+          items.push({
+            label: "Generate Metamodel",
+            action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+            enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+            visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+          });
+          const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
+          if (canConvertObject) {
+            items.push({ separator: true });
+            items.push({
+              label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
+              action: (diagram) => {
+                if (canConvertToGroup(part?.data)) {
+                  handleConvertToGroup(diagram, part);
+                } else if (canConvertToNode(part?.data)) {
+                  handleConvertToNode(diagram, part);
+                }
+              },
+              enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
+            });
+          }
+          items.push({ separator: true });
+          const connectionsMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Add Connected Objects",
+              action: (diagram) => handleAddConnectedObjects(diagram, part),
+            },
+            {
+              label: "Connect to Selected",
+              action: (diagram) => handleConnectToSelected(diagram, part),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 0,
+            },
+            {
+              label: "Hide Connected Relationships",
+              action: (diagram) => handleHideConnectedRelationships(diagram, part),
+            },
+            {
+              label: "Select Connected Objects",
+              action: (diagram) => handleSelectConnectedObjects(diagram, part),
+            },
+          ];
+          items.push({
+            label: "Connections…",
+            action: showSubMenu(connectionsMenuItems),
+            closeOnClick: false,
+          });
+          const selectionMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Add to Selection",
+              action: (_diagram) => uid.addToSelection(part, myDiagram),
+            },
+            {
+              label: "Delete Selection",
+              action: (diagram) => handleDeleteSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Sort Selection",
+              action: (diagram) => handleSortSelection(diagram),
+              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
+            },
+            {
+              label: "Delete Selected Views",
+              action: (diagram) => handleDeleteSelectedViews(diagram),
+              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
+            },
+            {
+              label: "Select All Objects of This Type",
+              action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
+            },
+          ];
+          items.push({
+            label: "Selection…",
+            action: showSubMenu(selectionMenuItems),
+            closeOnClick: false,
+          });
+
+          if (part instanceof go.Group && isGroupNode(part?.data)) {
+            if (isPoolGroup(part)) {
+              items.push({
+                label: "Pool Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            } else if (isLaneGroup(part)) {
+              items.push({
+                label: "Lane Layout",
+                action: (diagram) => applyGroupDropLayout(diagram, part, null),
+              });
+            }
+
+            const groupLayoutMenuItems: HtmlMenuItem[] = [
+              ...globalLayoutOptions.map(option => ({
+                label: option.label,
+                action: (diagram: go.Diagram) => applyGroupLayoutScheme(diagram, part, option.value),
+              })),
+              {
+                separator: true,
+              },
+              {
+                label: "Set Link Routing",
+                action: showSubMenu([
+                  {
+                    label: "Normal",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-routing');
+                      // set diagram default routing
+                      try {
+                        diagram.routing = go.Link.Normal;
+                      } catch (_) { }
+                      // update all existing links' data
+                      diagram.links.each((l) => {
+                        try { diagram.model.setDataProperty(l.data, 'routing', 'Normal'); } catch (_) { }
+                      });
+                      diagram.commitTransaction('set-link-routing');
+                    }
+                  },
+                  {
+                    label: "Orthogonal",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-routing');
+                      try { diagram.routing = go.Link.Orthogonal; } catch (_) { }
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'Orthogonal'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-routing');
+                    }
+                  },
+                  {
+                    label: "Avoids Nodes",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-routing');
+                      try { diagram.routing = go.Link.AvoidsNodes; } catch (_) { }
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'AvoidsNodes'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-routing');
+                    }
+                  }
+                ]),
+                closeOnClick: false,
+                visible: () => !isMetamodellingMode(),
+              },
+              {
+                label: "Set Link Curve",
+                action: showSubMenu([
+                  {
+                    label: "None",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-curve');
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'None'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-curve');
+                    }
+                  },
+                  {
+                    label: "Bezier",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-curve');
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'Bezier'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-curve');
+                    }
+                  },
+                  {
+                    label: "Jump Over",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-curve');
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpOver'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-curve');
+                    }
+                  },
+                  {
+                    label: "Jump Gap",
+                    action: (diagram) => {
+                      if (!diagram) return;
+                      diagram.startTransaction('set-link-curve');
+                      diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpGap'); } catch (_) { } });
+                      diagram.commitTransaction('set-link-curve');
+                    }
+                  }
+                ]),
+                closeOnClick: false,
+                visible: () => !isMetamodellingMode(),
+              },
+              {
+                separator: true,
+              },
+              {
+                label: "Do Layout",
+                action: (diagram) => handleDoLayout(diagram),
+                visible: () => !isMetamodellingMode(),
+              },
+              {
+                label: "Save Layout",
+                action: (diagram) => handleSaveLayout(diagram),
+                visible: () => true,
+              },
+            ];
+
+            items.push({
+              label: "Layout…",
+              action: showSubMenu(groupLayoutMenuItems),
+              closeOnClick: false,
+            });
+
+          }
+          items.push({ separator: true });
 
           items.push({
             label: "Change Object Type",
@@ -6057,121 +6264,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }
           });
-          items.push({ separator: true });
-          const connectionsMenuItems: HtmlMenuItem[] = [
-            {
-              label: "Add Connected Objects",
-              action: (diagram) => handleAddConnectedObjects(diagram, part),
-            },
-            {
-              label: "Connect to Selected",
-              action: (diagram) => handleConnectToSelected(diagram, part),
-              enabled: (diagram) => !!diagram && diagram.selection.count > 0,
-            },
-            {
-              label: "Hide Connected Relationships",
-              action: (diagram) => handleHideConnectedRelationships(diagram, part),
-            },
-            {
-              label: "Select Connected Objects",
-              action: (diagram) => handleSelectConnectedObjects(diagram, part),
-            },
-          ];
-          items.push({
-            label: "Connections…",
-            action: showSubMenu(connectionsMenuItems),
-            closeOnClick: false,
-          });
-          const selectionMenuItems: HtmlMenuItem[] = [
-            {
-              label: "Add to Selection",
-              action: (_diagram) => uid.addToSelection(part, myDiagram),
-            },
-            {
-              label: "Delete Selection",
-              action: (diagram) => handleDeleteSelection(diagram),
-              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
-            },
-            {
-              label: "Sort Selection",
-              action: (diagram) => handleSortSelection(diagram),
-              enabled: (diagram) => !!diagram && diagram.selection.count > 1,
-            },
-            {
-              label: "Delete Selected Views",
-              action: (diagram) => handleDeleteSelectedViews(diagram),
-              enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
-            },
-            {
-              label: "Select All Objects of This Type",
-              action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
-            },
-          ];
-          items.push({
-            label: "Selection…",
-            action: showSubMenu(selectionMenuItems),
-            closeOnClick: false,
-          });
-          if (part instanceof go.Group && isGroupNode(part?.data)) {
-            if (isPoolGroup(part)) {
-              items.push({
-                label: "Pool Layout",
-                action: (diagram) => applyGroupDropLayout(diagram, part, null),
-              });
-            } else if (isLaneGroup(part)) {
-              items.push({
-                label: "Lane Layout",
-                action: (diagram) => applyGroupDropLayout(diagram, part, null),
-              });
-            }
-              // Add group layout actions for groups and container views
-              items.push({
-                label: "Do Layout",
-                action: (diagram) => handleGroupDoLayout(diagram, part),
-              });
 
-              items.push({
-                label: "Set Layout Scheme",
-                action: (diagram) => handleGroupSelectLayout(diagram, part),
-              });
-
-              const groupLayoutMenuItems: HtmlMenuItem[] = [
-                ...globalLayoutOptions.map(option => ({
-                  label: option.label,
-                  action: (diagram: go.Diagram) => applyGroupLayoutScheme(diagram, part, option.value),
-                })),
-              ];
-
-              items.push({
-                label: "Apply Layout Scheme…",
-                action: showSubMenu(groupLayoutMenuItems),
-                closeOnClick: false,
-              });
-
-          }
         }
-        items.push({ separator: true });
-        items.push({
-          label: "Generate Metamodel",
-          action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
-          enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
-          visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
-        });
-        const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
-        if (canConvertObject) {
-          items.push({ separator: true });
-          items.push({
-            label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
-            action: (diagram) => {
-              if (canConvertToGroup(part?.data)) {
-                handleConvertToGroup(diagram, part);
-              } else if (canConvertToNode(part?.data)) {
-                handleConvertToNode(diagram, part);
-              }
-            },
-            enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
-          });
-        }
+
         items.push({ separator: true });
         items.push({
           label: "More… (old menu)",
@@ -6378,6 +6473,91 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           items.push({
             label: "Clear Path",
             action: (diagram) => handleClearRelationshipPath(diagram, linkPart),
+          });
+          // Add Set Link Routing submenu to relationship menu (same options as Layout -> Set Link Routing)
+          items.push({
+            label: "Set Link Routing",
+            action: showSubMenu([
+              {
+                label: "Normal",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-routing');
+                  try {
+                    diagram.routing = go.Link.Normal;
+                  } catch (_) {}
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'Normal'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-routing');
+                }
+              },
+              {
+                label: "Orthogonal",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-routing');
+                  try { diagram.routing = go.Link.Orthogonal; } catch (_) {}
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'Orthogonal'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-routing');
+                }
+              },
+              {
+                label: "Avoids Nodes",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-routing');
+                  try { diagram.routing = go.Link.AvoidsNodes; } catch (_) {}
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'AvoidsNodes'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-routing');
+                }
+              }
+            ]),
+            closeOnClick: false,
+            visible: () => !isMetamodellingMode(),
+          });
+
+          // Add Set Link Curve submenu to relationship menu (same options as Layout -> Set Link Curve)
+          items.push({
+            label: "Set Link Curve",
+            action: showSubMenu([
+              {
+                label: "None",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-curve');
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'None'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-curve');
+                }
+              },
+              {
+                label: "Bezier",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-curve');
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'Bezier'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-curve');
+                }
+              },
+              {
+                label: "Jump Over",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-curve');
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpOver'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-curve');
+                }
+              },
+              {
+                label: "Jump Gap",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  diagram.startTransaction('set-link-curve');
+                  diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'curve', 'JumpGap'); } catch (_) {} });
+                  diagram.commitTransaction('set-link-curve');
+                }
+              }
+            ]),
+            closeOnClick: false,
+            visible: () => !isMetamodellingMode(),
           });
           const typeviewMenuItems: HtmlMenuItem[] = [
             {

@@ -1105,6 +1105,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         // First remember the original locs and scales
         const dragTool = myDiagram.toolManager.draggingTool;
+        dragTool.dragsTree = true;
         const myParts = dragTool.draggedParts;
         const myFromNodes = [];
         for (let it = myParts.iterator; it?.next();) {
@@ -1244,16 +1245,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let fromObjview = relview.fromObjview; 
                     // Handle the relationship from group to its member
                     if (true && fromObjview?.isGroup) {
-                      // Relocate
                       const relship = relview.relship;
-                      const oldFromObj = relship.fromObject;
-                      const newFromObj = parentObjview?.object;
-                      const oldToObj = relship.toObject;
-                      const newToObj = goToNode.object;
-                      if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
-                          relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
-                          relview.relocate(fromObjview, parentObjview);
-                      }
+                      // // Relocate
+                      // const oldFromObj = relship.fromObject;
+                      // const newFromObj = parentObjview?.object;
+                      // const oldToObj = relship.toObject;
+                      // const newToObj = goToNode.object;
+                      // if (parentObjview && oldFromObj?.id !== newFromObj?.id) {
+                      //     relship.relocate(oldFromObj, newFromObj, oldToObj, newToObj);
+                      //     relview.relocate(fromObjview, parentObjview);
+                      // }
                       const reltype = relship.type;
                       if (reltype.name === constants.types.AKM_HAS_MEMBER 
                           || reltype.name === constants.types.AKM_HAS_PART

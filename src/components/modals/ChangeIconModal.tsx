@@ -332,6 +332,7 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                  https://www.svgrepo.com/ , https://freesvgicons.com/, or any other SVG source.<br />
                   Paste SVG Code (use width="50" height="50" for proper sizing):
                 </label>
                 <textarea

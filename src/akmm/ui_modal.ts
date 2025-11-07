@@ -206,14 +206,28 @@ export function handleSelectDropdownChange(selected, context) {
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);
           myDiagram.requestUpdate();
+          
+          // Force the binding to update by clearing the old source
+          const pictureElement = icn?.findObject("Picture");
+          if (pictureElement) {
+            // Manually call the converter to update the source
+            const source = uit.getIconSource(icon);
+            pictureElement.source = source;
+          }
+          
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
             objview.icon = icon;
+            console.log("Setting objview.icon to:", icon);
             const jsnObjview = new jsn.jsnObjectView(objview);
+            console.log("jsnObjview.icon:", jsnObjview.icon);
             const modifiedObjviews = [];
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
+              // Make sure to include the icon field in the data
               const data = safeClone(mn);
+              console.log("Dispatching UPDATE_OBJECTVIEW_PROPERTIES with data:", data);
+              console.log("Data icon field:", data.icon);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }

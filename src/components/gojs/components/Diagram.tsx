@@ -41,6 +41,7 @@ import LoadLocal from '../../../components/LoadLocal'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
+import ChangeIconModal from '../../modals/ChangeIconModal';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -68,6 +69,7 @@ interface DiagramProps {
 interface DiagramState {
   myMetis: akm.cxMetis,
   showModal: boolean;
+  showChangeIconModal: boolean;
   selectedData: any;
   modalContext: any;
   selectedOption: any;
@@ -101,6 +103,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       nodeDataArray: this.props.nodeDataArray,
       linkDataArray: this.props.linkDataArray,
       showModal: false,
+      showChangeIconModal: false,
       selectedData: null,
       modalContext: null,
       selectedOption: null,
@@ -152,6 +155,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SubGraphCollapsed', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
+      
+      // Add listener to force update emoji icons after model is loaded
+      diagram.addDiagramListener('InitialLayoutCompleted', () => {
+        console.log("Diagram InitialLayoutCompleted - forcing icon source update for emoji support");
+        // Import and call the force update function
+        try {
+          const uit = require('../../../akmm/ui_templates');
+          uit.forceUpdateAllIconSources(diagram);
+        } catch (e) {
+          console.error("Failed to force update icon sources:", e);
+        }
+      });
 
       diagram.addModelChangedListener(this.props.onModelChange);
 
@@ -200,11 +215,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleOpenModal(node, modalContext) {
     // Is implemented in "render" at the bottom of this file
+    const isChangeIconModal = modalContext?.case === 'Change Icon';
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: true,
+      showModal: !isChangeIconModal,
+      showChangeIconModal: isChangeIconModal,
       currentActiveTab: '0'
     });
   }
@@ -8795,12 +8812,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </div>
         );
         if (modalContext?.title === 'Select Icon') {
-          let img
-          options = this.state.modalContext.iconList.map(icon => {
-            img = (icon.value.includes('//')) ? icon.value : './../images/' + icon.value
-            return { value: img, label: icon.label }
-          })
-          comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
+          // Use the new tabbed modal for icon selection
+          header = modalContext.title;
+          modalContent = (
+            <ChangeIconModal 
+              isOpen={this.state.showChangeIconModal}
+              onClose={() => this.setState({ showChangeIconModal: false })}
+              onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
+            />
+          );
+          // Don't use the old select dropdown for icons
+          break;
         } else if (modalContext?.title === 'Set Layout Scheme') {
           let layout, img;
           options = this.state.modalContext.layoutList.map(ll => {
@@ -9000,6 +9022,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </div>
           {/* </div> */}
         </Modal>
+        <ChangeIconModal 
+          isOpen={this.state.showChangeIconModal}
+          onClose={() => this.setState({ showChangeIconModal: false })}
+          onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
+        />
         <style jsx>{`        
       `}
         </style>

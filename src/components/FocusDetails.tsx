@@ -94,7 +94,8 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
         dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
       } else {
         const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
-        const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
+        // Include all modified fields in objectview data, not just name
+        const objvData = { id: focusObjectview.id, ...modifiedFields, modifiedDate: new Date().toISOString() };
 
         if (debug) console.log('93 Context :', objData, objvData);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })

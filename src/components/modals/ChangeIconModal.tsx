@@ -172,6 +172,15 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
               Unicode
             </NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: activeTab === 'svg' })}
+              onClick={() => setActiveTab('svg')}
+              style={{ cursor: 'pointer' }}
+            >
+              SVG
+            </NavLink>
+          </NavItem>
         </Nav>
 
         <TabContent activeTab={activeTab} style={{ marginTop: '20px' }}>
@@ -315,6 +324,83 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
                   </button>
                 );
               })}
+            </div>
+          </TabPane>
+
+          {/* SVG Tab */}
+          <TabPane tabId="svg">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                  Paste SVG Code:
+                </label>
+                <textarea
+                  placeholder={`Example:\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">\n  <circle cx="50" cy="50" r="40" fill="blue"/>\n</svg>`}
+                  value={customUrl}
+                  onChange={(e) => setCustomUrl(e.target.value)}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    height: '150px',
+                    width: '100%',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              {customUrl.trim().startsWith('<svg') && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Preview:</div>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: customUrl }}
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      try {
+                        // Convert SVG to base64 data URL
+                        const svg = customUrl.trim();
+                        const encoded = btoa(unescape(encodeURIComponent(svg)));
+                        const dataUrl = `data:image/svg+xml;base64,${encoded}`;
+                        handleSelect(dataUrl);
+                      } catch (e) {
+                        alert('Error processing SVG: ' + e);
+                      }
+                    }}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#27ae60',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Select This SVG
+                  </button>
+                </div>
+              )}
+
+              {customUrl.trim() && !customUrl.trim().startsWith('<svg') && (
+                <div style={{ color: '#e74c3c', fontSize: '14px' }}>
+                  ⚠️ Please enter valid SVG code (starts with &lt;svg)
+                </div>
+              )}
             </div>
           </TabPane>
         </TabContent>

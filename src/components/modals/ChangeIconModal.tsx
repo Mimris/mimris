@@ -356,17 +356,31 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Preview:</div>
                     <div
-                      dangerouslySetInnerHTML={{ __html: customUrl }}
                       style={{
-                        width: '60px',
-                        height: '60px',
+                        width: '50px',
+                        height: '50px',
                         border: '1px solid #ddd',
                         borderRadius: '4px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        overflow: 'hidden',
+                        backgroundColor: '#f9f9f9',
                       }}
-                    />
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{ __html: customUrl }}
+                        style={{
+                          transform: 'scale(0.5)',
+                          transformOrigin: 'center',
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      />
+                    </div>
                   </div>
                   <button
                     onClick={() => {

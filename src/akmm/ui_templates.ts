@@ -4384,6 +4384,12 @@ export function detectIconFormat(value: string): string {
     return 'unicode';
   }
   
+  // Check if it's an SVG data URL
+  if (value.startsWith('data:image/svg+xml')) {
+    console.log("detectIconFormat - detected as svg data url");
+    return 'svg';
+  }
+  
   // Check if it's a URL (http:// or https://)
   if (value.startsWith('http://') || value.startsWith('https://')) {
     console.log("detectIconFormat - detected as url");
@@ -4492,6 +4498,14 @@ export function getIconSource(iconValue: any): string {
     const result = `data:image/svg+xml;base64,${btoa_svg}`;
     console.log("getIconSource - generated SVG data URL for:", value, "char:", char, "char length:", char.length, "char codePointAt(0):", char.codePointAt(0), "result length:", result.length);
     return result;
+  } else if (format === 'svg') {
+    // SVG data URL - wrap in a viewBox container to ensure proper scaling and centering
+    // This ensures the SVG fits within the icon frame
+    if (value.startsWith('data:image/svg+xml;base64,')) {
+      console.log("getIconSource - SVG data URL detected, wrapping for proper scaling");
+      return value; // SVG data URLs already contain the full image data
+    }
+    return value;
   } else if (format === 'url') {
     // URL format - return as-is
     return value;

@@ -385,9 +385,21 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
                   <button
                     onClick={() => {
                       try {
-                        // Convert SVG to base64 data URL
-                        const svg = customUrl.trim();
-                        const encoded = btoa(unescape(encodeURIComponent(svg)));
+                        // Wrap user's SVG in a container SVG to ensure proper scaling
+                        const userSvg = customUrl.trim();
+                        
+                        // Extract content from user's SVG and wrap in a container with fixed viewBox
+                        // This ensures the SVG always fits within the icon frame
+                        const wrappedSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" width="100" height="100">
+  <g transform="translate(50, 50) scale(1) translate(-50, -50)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice">
+      ${userSvg.replace(/<\?xml[^>]*\?>|<!DOCTYPE[^>]*>|<svg[^>]*>/i, '').replace(/<\/svg>/i, '')}
+    </svg>
+  </g>
+</svg>`;
+                        
+                        // Convert wrapped SVG to base64 data URL
+                        const encoded = btoa(unescape(encodeURIComponent(wrappedSvg)));
                         const dataUrl = `data:image/svg+xml;base64,${encoded}`;
                         handleSelect(dataUrl);
                       } catch (e) {

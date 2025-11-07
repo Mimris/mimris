@@ -6767,10 +6767,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     } catch (_) { return false; }
           //   },
           // });
+          items.push({ separator: true });
           items.push({
             label: "Change Relationship Type",
             action: (diagram) => handleChangeRelationshipType(diagram, linkPart),
           });
+          items.push({ separator: true });
           items.push({
             label: "Hide View",
             action: (diagram) => {
@@ -6970,6 +6972,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (_diagram) => canResetRelationshipToTypeview(linkPart),
             },
           ];
+          items.push({ separator: true });
           items.push({
             label: "Typeview…",
             action: showSubMenu(typeviewMenuItems),

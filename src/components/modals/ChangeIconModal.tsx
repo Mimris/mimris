@@ -332,10 +332,10 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                  Paste SVG Code:
+                  Paste SVG Code (use width="50" height="50" for proper sizing):
                 </label>
                 <textarea
-                  placeholder={`Example:\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">\n  <circle cx="50" cy="50" r="40" fill="blue"/>\n</svg>`}
+                  placeholder={`Example:\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">\n  <circle cx="50" cy="50" r="40" fill="blue"/>\n</svg>`}
                   value={customUrl}
                   onChange={(e) => setCustomUrl(e.target.value)}
                   style={{
@@ -385,21 +385,19 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
                   <button
                     onClick={() => {
                       try {
-                        // Wrap user's SVG in a container SVG to ensure proper scaling
-                        const userSvg = customUrl.trim();
+                        // Convert SVG to base64 data URL
+                        let svg = customUrl.trim();
                         
-                        // Extract content from user's SVG and wrap in a container with fixed viewBox
-                        // This ensures the SVG always fits within the icon frame
-                        const wrappedSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" width="100" height="100">
-  <g transform="translate(50, 50) scale(1) translate(-50, -50)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice">
-      ${userSvg.replace(/<\?xml[^>]*\?>|<!DOCTYPE[^>]*>|<svg[^>]*>/i, '').replace(/<\/svg>/i, '')}
-    </svg>
-  </g>
-</svg>`;
+                        // Ensure SVG has width and height attributes for proper scaling
+                        // If user didn't specify them, add default 50x50
+                        if (!svg.match(/\swidth\s*=/i)) {
+                          svg = svg.replace(/<svg\s/i, '<svg width="50" ');
+                        }
+                        if (!svg.match(/\sheight\s*=/i)) {
+                          svg = svg.replace(/<svg\s/i, '<svg height="50" ');
+                        }
                         
-                        // Convert wrapped SVG to base64 data URL
-                        const encoded = btoa(unescape(encodeURIComponent(wrappedSvg)));
+                        const encoded = btoa(unescape(encodeURIComponent(svg)));
                         const dataUrl = `data:image/svg+xml;base64,${encoded}`;
                         handleSelect(dataUrl);
                       } catch (e) {

@@ -40,8 +40,9 @@ import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
-import { iconList } from '../../forms/selectIcons';
+import { iconList, imageLibrary } from '../../forms/selectIcons';
 import ChangeIconModal from '../../modals/ChangeIconModal';
+import ChangeImageModal from '../../modals/ChangeImageModal';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -70,6 +71,7 @@ interface DiagramState {
   myMetis: akm.cxMetis,
   showModal: boolean;
   showChangeIconModal: boolean;
+  showChangeImageModal: boolean;
   selectedData: any;
   modalContext: any;
   selectedOption: any;
@@ -104,6 +106,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       linkDataArray: this.props.linkDataArray,
       showModal: false,
       showChangeIconModal: false,
+      showChangeImageModal: false,
       selectedData: null,
       modalContext: null,
       selectedOption: null,
@@ -216,12 +219,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   public handleOpenModal(node, modalContext) {
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
+    const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: !isChangeIconModal,
+      showModal: !isChangeIconModal && !isSetGroupImageModal,
       showChangeIconModal: isChangeIconModal,
+      showChangeImageModal: isSetGroupImageModal,
       currentActiveTab: '0'
     });
   }
@@ -3772,7 +3777,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
 
           button.onmouseenter = () => {
-            button.style.background = "rgba(0,0,0,0.06)";
+            if (!button.disabled) {
+              button.style.background = "rgba(0,0,0,0.06)";
+            }
             if (!button.disabled && item.closeOnClick === false && item.action) {
               hoverTimer = window.setTimeout(() => {
                 if (activeSubMenuDiv) {
@@ -3784,7 +3791,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           };
           button.onmouseleave = () => {
-            button.style.background = "transparent";
+            if (!button.disabled) {
+              button.style.background = "transparent";
+            }
             if (hoverTimer) {
               clearTimeout(hoverTimer);
               hoverTimer = null;
@@ -3795,7 +3804,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (!enabled) {
             button.disabled = true;
             button.style.cursor = "default";
-            button.style.color = "#bbb";
+            button.style.color = "#888";
+            button.style.background = "#f5f5f5";
+            button.style.fontWeight = "600";
+            button.style.padding = "8px 16px";
+            button.style.pointerEvents = "none";
           }
 
           button.onclick = (ev) => {
@@ -6692,6 +6705,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
         }
 
+        // Add Set Image option for closed groups
+        if (part instanceof go.Group && !part.isSubGraphExpanded) {
+          items.push({ separator: true });
+          items.push({
+            label: "Set Image",
+            action: (diagram) => {
+              const group = part.data;
+              if (!group) return;
+              const imageList = imageLibrary();
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Image",
+                case: "Set Group Image",
+                imageList: imageList,
+                currentGroup: group,
+                myDiagram: diagram
+              };
+              myMetis.currentGroup = group;
+              myMetis.myDiagram = diagram;
+              diagram.handleOpenModal(imageList, modalContext);
+            },
+            enabled: (_diagram) => {
+              return part instanceof go.Group && !part.isSubGraphExpanded;
+            }
+          });
+        }
+
         items.push({ separator: true });
         items.push({
           label: "More… (old menu)",
@@ -7166,6 +7206,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] targetPart:', targetPart?.data?.key);
         if (!diagram || !(targetPart instanceof go.Part)) return;
         const items = buildObjectTypeMenu(targetPart);
+        try { (items as any).menuHeading = 'Object Type'; } catch (_) {}
         if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] items count:', items.length);
         disposeBackgroundMenu();
         const menu = buildBackgroundMenu(items, diagram, tool);
@@ -9158,6 +9199,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           isOpen={this.state.showChangeIconModal}
           onClose={() => this.setState({ showChangeIconModal: false })}
           onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
+        />
+        <ChangeImageModal 
+          isOpen={this.state.showChangeImageModal}
+          onClose={() => this.setState({ showChangeImageModal: false })}
+          onSelect={(image) => this.handleSelectDropdownChange({ value: image })}
+          imageList={this.state.modalContext?.imageList || []}
         />
         <style jsx>{`        
       `}

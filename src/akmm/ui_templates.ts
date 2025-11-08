@@ -343,19 +343,31 @@ function makeImage(kind: string) {
 }
 
 function makeImageImage() {
-    return $(go.Picture,  // the image -------------------------------------
-        new go.Binding("source", "image", findImage),
+    return $(go.Panel, "Auto",
         {
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
-            alignment: go.Spot.Right,
-            imageStretch: go.GraphObject.Uniform,
-            cursor: "move",
+            name: "GROUP_CLOSED_IMAGE",
+            stretch: go.GraphObject.Fill,
+            minSize: new go.Size(200, 100),
+            margin: new go.Margin(0, 0, 0, 0),
         },
-        new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
-        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-    )                                
+        new go.Binding('visible', 'isSubGraphExpanded', function (expanded) { return !expanded; }).ofObject(),
+        $(go.Shape,
+            {
+                fill: null,
+                stroke: null,
+            }
+        ),
+        $(go.Picture,
+            new go.Binding("source", "image", findImage),
+            {
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.UniformToFill,
+                alignment: go.Spot.Center,
+                opacity: 0.95,
+                pickable: false,
+            }
+        )
+    );                               
 }
 
 function makeIconImage() {
@@ -497,7 +509,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                 font: "Bold 28pt Sans-Serif",
                 textAlign: "left",
                 alignment: go.Spot.Left,
-                margin: new go.Margin(0, 0, 0, 10),
+                margin: new go.Margin(0, 0, 0, 2),
                 wrap: go.TextBlock.None,
                 overflow: go.TextBlock.OverflowEllipsis,
                 stretch: go.GraphObject.Horizontal,
@@ -630,7 +642,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     font: "Bold 28pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    margin: new go.Margin(0, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name",
@@ -664,9 +676,11 @@ export function groupTop2(contextMenu: any, notation: string) {
                 {
                     row: 1,
                     stretch: go.GraphObject.Fill,
-                    margin: new go.Margin(2, 10, 5, 10),
+                    margin: new go.Margin(0, 12, 0, 12),
                     alignment: go.Spot.Center,
-                    imageStretch: go.GraphObject.Uniform,
+                    imageStretch: go.GraphObject.UniformToFill,
+                    opacity: 0.95,
+                    pickable: false,
                 },
                 new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ), // End Picture

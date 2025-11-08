@@ -258,7 +258,38 @@ export function handleSelectDropdownChange(selected, context) {
         }
       });
       break;
-    } 
+    }
+    case "Set Group Image": {
+      const image = (selectedOption) && selectedOption;
+      const group = modalContext.currentGroup;
+      if (!group) break;
+      
+      const groupPart = myDiagram.findPartForKey(group.key);
+      if (groupPart) {
+        myDiagram.model.setDataProperty(group, "image", image);
+        myDiagram.requestUpdate();
+      }
+      
+      // Update the objectview if it exists
+      let objview = group.objectview;
+      if (!objview && group.objviewRef) {
+        objview = myMetis.findObjectView(group.objviewRef);
+      }
+      if (objview) {
+        objview = myMetis.findObjectView(objview.id);
+        objview.image = image;
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const modifiedObjviews = [];
+        modifiedObjviews.push(jsnObjview);
+        modifiedObjviews.map(mn => {
+          const data = safeClone(mn);
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        });
+      }
+      
+      if (groupPart) groupPart.isSelected = false;
+      break;
+    }
     case "Set Layout Scheme": {
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
       const metamodelling = myMetis.modelType === 'Metamodelling';

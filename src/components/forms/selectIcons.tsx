@@ -64,6 +64,59 @@ export const iconList2 = () => [
 
 ]
 
+// Scenery Image Library for Group Backgrounds
+export const imageLibrary = () => [
+  // Sea & Water Scenery
+  { value: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&h=300&fit=crop", label: "Sea Waves" },
+  { value: "https://images.unsplash.com/photo-1439405326854-014607f694d7?w=400&h=300&fit=crop", label: "Sunset Beach" },
+  { value: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop", label: "Ocean View" },
+  { value: "https://images.unsplash.com/photo-1502933691298-84fc14542831?w=400&h=300&fit=crop", label: "Beach Coast" },
+  
+  // Mountains Scenery
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Range" },
+  { value: "https://images.unsplash.com/photo-1469022563149-aa64dbd37dae?w=400&h=300&fit=crop", label: "Snowy Mountains" },
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Alpine Peaks" },
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Vista" },
+  
+  // Forest Scenery
+  { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Forest" },
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Dense Forest" },
+  { value: "https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=300&fit=crop", label: "Forest Path" },
+  { value: "https://images.unsplash.com/photo-1469022563149-aa64dbd37dae?w=400&h=300&fit=crop", label: "Autumn Forest" },
+  
+  // City Skylines
+  { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Skyline Night" },
+  { value: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop", label: "Urban Lights" },
+  { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Lights" },
+  { value: "https://images.unsplash.com/photo-1466978146072-6ebb93caf5d7?w=400&h=300&fit=crop", label: "Downtown Cityscape" },
+  
+  // Desert & Dry Landscapes
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Desert Dunes" },
+  { value: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop", label: "Arid Landscape" },
+  
+  // Meadows & Fields
+  { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Meadow" },
+  { value: "https://images.unsplash.com/photo-1525470549635-be4eae1d7e0b?w=400&h=300&fit=crop", label: "Wildflower Field" },
+  { value: "https://images.unsplash.com/photo-1433086720868-dfc752458fe2?w=400&h=300&fit=crop", label: "Wheat Field" },
+  
+  // Lakes & Rivers
+  { value: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400&h=300&fit=crop", label: "Alpine Lake" },
+  { value: "https://images.unsplash.com/photo-1500382017468-7049faf12ce2?w=400&h=300&fit=crop", label: "River Valley" },
+  
+  // Sky & Clouds
+  { value: "https://images.unsplash.com/photo-1495567720989-cebdbdd97913?w=400&h=300&fit=crop", label: "Blue Sky" },
+  { value: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop", label: "Cloudy Sky" },
+  { value: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop", label: "Sunset Sky" },
+  
+  // Waterfall & Water Features
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Waterfall" },
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Cascade" },
+  
+  // Tropical Scenery
+  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Tropical Paradise" },
+  { value: "https://images.unsplash.com/photo-1451337516015-6b6995de9efd?w=400&h=300&fit=crop", label: "Palm Trees" },
+]
+
 export const selectIcons = (curitem: any, p: any, iconvalue: any, register: any, handleChangesicon: any) => {
 
   return (

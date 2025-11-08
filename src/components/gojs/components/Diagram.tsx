@@ -432,6 +432,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let advancedLinkContextMenu: go.Adornment | null = null;
     let partContextMenu: go.HTMLInfo;
     let linkContextMenu: go.HTMLInfo;
+    let typeviewContextMenu: go.HTMLInfo;
 
     // Nodes CONTEXT MENU
     {
@@ -6609,84 +6610,85 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
           items.push({ separator: true });
 
-          items.push({
-            label: "Change Object Type",
-            action: (diagram) => {
-              const node = part.data;
-              if (!node) return;
-              const currentType = node.objecttype;
-              const myMetamodel = myMetis.currentMetamodel;
-              const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
-              node.choices = [];
-              if (objtypes) {
-                for (let i = 0; i < objtypes.length; i++) {
-                  const otype = objtypes[i];
-                  if (!otype) continue;
-                  if (!otype.markedAsDeleted) {
-                    if (otype.name === 'Generic' || otype.name === 'Element') continue;
-                    node.choices.push(otype.name);
-                  }
-                }
-              }
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Object Type",
-                case: "Change Object type",
-                myDiagram: diagram
-              };
-              myMetis.currentNode = node;
-              myMetis.myDiagram = diagram;
-              diagram.handleOpenModal(node.choices, modalContext);
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              return !!node && node.category === constants.gojs.C_OBJECT;
-            }
-          });
-          // Show Typeview - open the object's typeview in read-only mode
-          items.push({
-            label: "Show Typeview",
-            action: (diagram) => {
-              const node = part.data;
-              if (!node) return;
-              uid.editObjectTypeview(node, myMetis, diagram, true);
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              return !!node && node.category === constants.gojs.C_OBJECT;
-            }
-          });
-          items.push({
-            label: "Reset to Typeview",
-            action: (diagram) => {
-              if (!diagram) return;
-              let selection: any = diagram.selection;
-              if (selection.count == 0) {
-                const currentNode = part.data;
-                if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
-                selection = diagram.selection;
-              }
-              selection.each(function (sel: any) {
-                const inst = sel.data;
-                if (inst && inst.category === constants.gojs.C_OBJECT) {
-                  uid.resetToTypeview(inst, myMetis, diagram);
-                }
-              });
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              if (node?.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  const selection = diagram.selection;
-                  if (selection.count == 0) return true;
-                  else return false;
-                }
-              }
-              return false;
-            }
-          });
+          // Moved to right-click Objecttype text
+          // items.push({
+          //   label: "Change Object Type",
+          //   action: (diagram) => {
+          //     const node = part.data;
+          //     if (!node) return;
+          //     const currentType = node.objecttype;
+          //     const myMetamodel = myMetis.currentMetamodel;
+          //     const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
+          //     node.choices = [];
+          //     if (objtypes) {
+          //       for (let i = 0; i < objtypes.length; i++) {
+          //         const otype = objtypes[i];
+          //         if (!otype) continue;
+          //         if (!otype.markedAsDeleted) {
+          //           if (otype.name === 'Generic' || otype.name === 'Element') continue;
+          //           node.choices.push(otype.name);
+          //         }
+          //       }
+          //     }
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Object Type",
+          //       case: "Change Object type",
+          //       myDiagram: diagram
+          //     };
+          //     myMetis.currentNode = node;
+          //     myMetis.myDiagram = diagram;
+          //     diagram.handleOpenModal(node.choices, modalContext);
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     return !!node && node.category === constants.gojs.C_OBJECT;
+          //   }
+          // });
+          // // Show Typeview - open the object's typeview in read-only mode
+          // items.push({
+          //   label: "Show Typeview",
+          //   action: (diagram) => {
+          //     const node = part.data;
+          //     if (!node) return;
+          //     uid.editObjectTypeview(node, myMetis, diagram, true);
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     return !!node && node.category === constants.gojs.C_OBJECT;
+          //   }
+          // });
+          // items.push({
+          //   label: "Reset to Typeview",
+          //   action: (diagram) => {
+          //     if (!diagram) return;
+          //     let selection: any = diagram.selection;
+          //     if (selection.count == 0) {
+          //       const currentNode = part.data;
+          //       if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+          //       selection = diagram.selection;
+          //     }
+          //     selection.each(function (sel: any) {
+          //       const inst = sel.data;
+          //       if (inst && inst.category === constants.gojs.C_OBJECT) {
+          //         uid.resetToTypeview(inst, myMetis, diagram);
+          //       }
+          //     });
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     if (node?.category === constants.gojs.C_OBJECT) {
+          //       if (node.isSelected) {
+          //         return true;
+          //       } else {
+          //         const selection = diagram.selection;
+          //         if (selection.count == 0) return true;
+          //         else return false;
+          //       }
+          //     }
+          //     return false;
+          //   }
+          // });
 
         }
 
@@ -7075,6 +7077,117 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         menuCopy.adornedObject = part;
         cmTool.currentContextMenu = menuCopy;
         cmTool.showContextMenu(menuCopy, part);
+      };
+
+      const buildObjectTypeMenu = (part: go.Part): HtmlMenuItem[] => {
+        const items: HtmlMenuItem[] = [];
+        items.push({
+          label: "Change Object Type",
+          action: (diagram) => {
+            const node = part.data;
+            if (!node) return;
+            const currentType = node.objecttype;
+            const myMetamodel = myMetis.currentMetamodel;
+            const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
+            node.choices = [];
+            if (objtypes) {
+              for (let i = 0; i < objtypes.length; i++) {
+                const otype = objtypes[i];
+                if (!otype) continue;
+                if (!otype.markedAsDeleted) {
+                  if (otype.name === 'Generic' || otype.name === 'Element') continue;
+                  node.choices.push(otype.name);
+                }
+              }
+            }
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Object Type",
+              case: "Change Object type",
+              myDiagram: diagram
+            };
+            myMetis.currentNode = node;
+            myMetis.myDiagram = diagram;
+            diagram.handleOpenModal(node.choices, modalContext);
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            return !!node && node.category === constants.gojs.C_OBJECT;
+          }
+        });
+        items.push({
+          label: "Show Typeview",
+          action: (diagram) => {
+            const node = part.data;
+            if (!node) return;
+            uid.editObjectTypeview(node, myMetis, diagram, true);
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            return !!node && node.category === constants.gojs.C_OBJECT;
+          }
+        });
+        items.push({
+          label: "Reset to Typeview",
+          action: (diagram) => {
+            if (!diagram) return;
+            let selection: any = diagram.selection;
+            if (selection.count == 0) {
+              const currentNode = part.data;
+              if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+              selection = diagram.selection;
+            }
+            selection.each(function (sel: any) {
+              const inst = sel.data;
+              if (inst && inst.category === constants.gojs.C_OBJECT) {
+                uid.resetToTypeview(inst, myMetis, diagram);
+              }
+            });
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            if (node?.category === constants.gojs.C_OBJECT) {
+              if (node.isSelected) {
+                return true;
+              } else {
+                const selection = diagram.selection;
+                if (selection.count == 0) return true;
+                else return false;
+              }
+            }
+            return false;
+          }
+        });
+        return items;
+      };
+
+      const showObjectTypeHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null) => {
+        const targetPart = part ?? (diagram?.selection?.first() as go.Part);
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] targetPart:', targetPart?.data?.key);
+        if (!diagram || !(targetPart instanceof go.Part)) return;
+        const items = buildObjectTypeMenu(targetPart);
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] items count:', items.length);
+        disposeBackgroundMenu();
+        const menu = buildBackgroundMenu(items, diagram, tool);
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] menu created:', menu?.tagName);
+        document.body.appendChild(menu);
+        activeMenuDiv = menu;
+        // ensure outside-click handler exists
+        if (!docPointerDownHandler) {
+          docPointerDownHandler = (ev: PointerEvent) => {
+            try {
+              const tgt = ev.target as Node | null;
+              const insideMain = activeMenuDiv && tgt && activeMenuDiv.contains(tgt as Node);
+              const insideSub = activeSubMenuDiv && tgt && activeSubMenuDiv.contains(tgt as Node);
+              if (!insideMain && !insideSub) {
+                closeAllMenus();
+              }
+            } catch (_) {}
+          };
+          try { document.addEventListener('pointerdown', docPointerDownHandler); } catch (_) {}
+        }
+        // Position the menu using the proper coordinate transformation
+        positionBackgroundMenu(menu, diagram, tool);
       };
 
       const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null, graphObj?: go.GraphObject | null) => {
@@ -7557,6 +7670,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
           const part = obj ? obj.part : null;
           showPartHtmlMenu(diagram, tool, part as go.Part, obj);
+        },
+        hide: disposeBackgroundMenu,
+      });
+
+      typeviewContextMenu = new go.HTMLInfo({
+        show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          if ((window as any).DEBUG_GOJS_MENUS) console.debug('[typeviewContextMenu.show] obj:', obj?.name, 'part:', obj?.part?.data?.key);
+          const part = obj ? obj.part : null;
+          if (part) {
+            showObjectTypeHtmlMenu(diagram, tool, part as go.Part);
+          } else {
+            if ((window as any).DEBUG_GOJS_MENUS) console.debug('[typeviewContextMenu.show] no part found');
+          }
         },
         hide: disposeBackgroundMenu,
       });
@@ -8468,7 +8594,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       // Define node template map
       var nodeTemplateMap = new go.Map<string, go.Part>();
-      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, portContextMenu, myMetis);
+      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, portContextMenu, myMetis, typeviewContextMenu);
       nodeTemplateMap.add("LinkLabel",
         $("Node",
           {

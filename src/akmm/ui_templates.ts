@@ -903,7 +903,7 @@ function addNodeText0(contextMenu: any) {
     )
 }
 
-function addNodeText(contextMenu: any) {
+function addNodeText(contextMenu: any, typeviewContextMenu: any) {
     return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
             contextMenu: contextMenu, 
@@ -947,6 +947,9 @@ function addNodeText(contextMenu: any) {
                 minSize: new go.Size(10, 4),
                 margin: new go.Margin(0, 0, 0, 2),  
                 textAlign: "center",
+                // cursor: "context-menu",
+                name: "typename",
+                contextMenu: typeviewContextMenu
             },
             new go.Binding("text", "typename")
         ),
@@ -1457,7 +1460,7 @@ function addLinkTemplateName(name: string) {
         myDiagram.commitTransaction('addLane');
     }
 // }
-export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
+export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis, typeviewContextMenu: any) {
     const myDiagram = myMetis.myDiagram;
     if (debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
     let nodeTemplate0 =      
@@ -1522,7 +1525,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 desiredSize: new go.Size(136, 60),              
             }    
         ), 
-        addNodeText(contextMenu),       
+        addNodeText(contextMenu, typeviewContextMenu),       
     );
     nodeTemplateMap.add("", nodeTemplate0);
     nodeTemplateMap.add("textOnly", nodeTemplate0);
@@ -2069,7 +2072,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     // comment out icon stop
                     // define the panel where the text will appear
 
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2167,7 +2170,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2261,7 +2264,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )

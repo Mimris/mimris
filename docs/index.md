@@ -23,10 +23,10 @@ _Mimris_ is a modular platform for managing medical imaging repositories, analyt
 
 ## Quick start
 
-1. Review the [installation guide](INSTALLATION.md) for prerequisites and deployment instructions.
+1. Review the [installation guide](_guides/installation.md) for prerequisites and deployment instructions.
 2. Apply the SQL migrations located in the [`migrations/`](../migrations/) directory to set up the schema.
-3. Configure runtime services using the [system architecture reference](SYSTEM-ARCHITECTURE.md).
-4. Explore the API endpoints and data contracts in the [`spec/`](spec/) directory.
+3. Configure runtime services using the [system architecture reference](_guides/system-architecture.md).
+4. Explore the API endpoints and data contracts in the [specifications](_specs/) directory.
 
 > 💡 Looking for a local playground? Check out the `nodemon` and `docker` profiles described in the [Roadmap](ROADMAP.md) to see what is coming next.
 
@@ -48,15 +48,24 @@ Mimris is composed of interoperable services:
 - **Storage Abstraction** – Provides adapters for object stores, file systems, and PACS-compatible endpoints.
 - **Observability Layer** – Captures metrics, traces, and logs for reliability and compliance.
 
-Dive deeper into each subsystem in the [System Architecture overview](SYSTEM-ARCHITECTURE.md).
+Dive deeper into each subsystem in the [System Architecture overview](_guides/system-architecture.md).
+
+## Documentation structure
+
+The documentation is organized into the following sections:
+
+- **[Getting Started](_guides/)** – Installation, quick start, and system architecture
+- **[Specifications](_specs/)** – Technical specifications and data models
+- **[Features](_features/)** – Detailed feature documentation including icon system
+- **[Community](_community/)** – Contributing guidelines, code of conduct, and support
 
 ## Contributing
 
-We welcome community contributions! Get started by reading the [contribution guidelines](CONTRIBUTING.md) and [code of conduct](CODE_OF_CONDUCT.md). When you are ready to propose changes, open an issue and draft a pull request that references the relevant documentation.
+We welcome community contributions! Get started by reading the [contribution guidelines](_community/contributing.md) and [code of conduct](_community/code-of-conduct.md). When you are ready to propose changes, open an issue and draft a pull request that references the relevant documentation.
 
 ## Support & roadmap
 
-- 📬 Need help? Visit the [Support guide](SUPPORT.md) for contact options.
+- 📬 Need help? Visit the [Support guide](_community/support.md) for contact options.
 - 🗺️ Curious about our trajectory? The [Roadmap](ROADMAP.md) details planned milestones and in-progress initiatives.
 - 🧭 Want to understand the bigger picture? Browse the [Additional documentation](Additional-docs.md) for deep dives and context.
 

@@ -1,13 +1,5 @@
 # Documentation Organization - Quick Reference
-
-## Current Issues
-
-❌ **13+ .md files in root folder** - Cluttered
-❌ **Duplicate `/spec/` folders** - `/spec/` and `/docs/spec/` (identical)
-❌ **Inconsistent naming** - ALL_CAPS vs standard
-❌ **Poor organization** - Feature docs scattered
-
----
+This document provides a recommended structure for organizing the Mimris documentation files. The goal is to create a clear, maintainable, and scalable layout that makes it easy for users and contributors to find relevant information.
 
 ## Recommended Structure
 
@@ -178,7 +170,7 @@ Features: Organized by feature ✅ (easy to find)
 
 ## Full Details
 
-See `DOCUMENTATION_ORGANIZATION.md` for:
+See `documentation-organization.md` for:
 - ✅ Complete file-by-file migration plan
 - ✅ Folder structure diagrams
 - ✅ Naming conventions

@@ -74,21 +74,17 @@ export const imageLibrary = () => [
   
   // Mountains Scenery
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Range" },
-  { value: "https://images.unsplash.com/photo-1469022563149-aa64dbd37dae?w=400&h=300&fit=crop", label: "Snowy Mountains" },
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Alpine Peaks" },
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Vista" },
   
   // Forest Scenery
   { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Forest" },
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Dense Forest" },
-  { value: "https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=400&h=300&fit=crop", label: "Forest Path" },
-  { value: "https://images.unsplash.com/photo-1469022563149-aa64dbd37dae?w=400&h=300&fit=crop", label: "Autumn Forest" },
   
   // City Skylines
   { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Skyline Night" },
   { value: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop", label: "Urban Lights" },
   { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Lights" },
-  { value: "https://images.unsplash.com/photo-1466978146072-6ebb93caf5d7?w=400&h=300&fit=crop", label: "Downtown Cityscape" },
   
   // Desert & Dry Landscapes
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Desert Dunes" },
@@ -96,12 +92,9 @@ export const imageLibrary = () => [
   
   // Meadows & Fields
   { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Meadow" },
-  { value: "https://images.unsplash.com/photo-1525470549635-be4eae1d7e0b?w=400&h=300&fit=crop", label: "Wildflower Field" },
-  { value: "https://images.unsplash.com/photo-1433086720868-dfc752458fe2?w=400&h=300&fit=crop", label: "Wheat Field" },
   
   // Lakes & Rivers
   { value: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400&h=300&fit=crop", label: "Alpine Lake" },
-  { value: "https://images.unsplash.com/photo-1500382017468-7049faf12ce2?w=400&h=300&fit=crop", label: "River Valley" },
   
   // Sky & Clouds
   { value: "https://images.unsplash.com/photo-1495567720989-cebdbdd97913?w=400&h=300&fit=crop", label: "Blue Sky" },
@@ -114,7 +107,20 @@ export const imageLibrary = () => [
   
   // Tropical Scenery
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Tropical Paradise" },
-  { value: "https://images.unsplash.com/photo-1451337516015-6b6995de9efd?w=400&h=300&fit=crop", label: "Palm Trees" },
+
+  // Diagram & Modeling Visuals
+  { value: "/images/ProcessModelFantasyWorld.png", label: "Process Diagram" },
+  // { value: "/images/diagram-3.svg", label: "Enterprise Diagram" },
+  // { value: "/images/AKM-World.png", label: "AKM World" },
+  // { value: "/images/Modelling-World.png", label: "Modelling World" },
+  // { value: "/images/Modelling-Universe.png", label: "Modelling Universe" },
+  // { value: "/images/archimate/Archimate%20Capability.png", label: "Archimate Capability" },
+
+  // Online Diagram References (Mermaid CDN)
+  { value: "https://mermaid.ink/img/pako:Sy9KLMhQCHGxVgguSSwq0dW1C0kszja0VgBTQK5LanJmcWZ-XjWMUWutAGMCpWsiU4trQGqNUIX98mtc81IgxhgBBUAcAA==", label: "Process Flow Diagram" },
+  { value: "https://mermaid.ink/img/pako:Sy9KLMhQ8AmyVgguKUosSU2vjIYxFHwSK1OLYnV17ZxKizPzUouLo2EMqJS1AkwAqMixoCAnMzmxJDM_LxqJDVeKJAZUHZKanJGXn5MPtA_BhKkFAA==", label: "Enterprise Architecture Layers" },
+  { value: "https://mermaid.ink/img/pako:Sy9KLMhQCHGxVvDOyy_PSU1JT42GsxQci4tTS2J1de0CivKTU4uLo6F0LJJyoGxQfk5qNIgAikNVAEX9S0uS83NTo6F0rDUA", label: "AKM Knowledge Flow" },
+  { value: "https://mermaid.ink/img/pako:Sy9KLMhQ8AmyVnDOz0tOLSjR1bVzSS3OTM8DMjxzC3JSc1PzShJLMvNBAmGpRZlpmckwrn9BahGYbQ0A", label: "Systems Engineering Lifecycle" },
 ]
 
 export const selectIcons = (curitem: any, p: any, iconvalue: any, register: any, handleChangesicon: any) => {

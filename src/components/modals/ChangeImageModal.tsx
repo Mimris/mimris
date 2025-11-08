@@ -14,6 +14,41 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [customUrl, setCustomUrl] = useState('');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+
+  const tooltipStyles = (isVisible: boolean): React.CSSProperties => ({
+    position: 'absolute',
+    bottom: '-52px',
+    left: '50%',
+    transform: isVisible
+      ? 'translateX(-50%) translateY(0)'
+      : 'translateX(-50%) translateY(8px)',
+    opacity: isVisible ? 1 : 0,
+    pointerEvents: 'none',
+    transition: 'opacity 0.15s ease, transform 0.15s ease',
+    background: 'rgba(0, 0, 0, 0.85)',
+    color: '#fff',
+    padding: '8px 12px',
+    borderRadius: '6px',
+    fontSize: '12px',
+    whiteSpace: 'nowrap',
+    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.25)',
+    zIndex: 10,
+    minWidth: '140px',
+    textAlign: 'center',
+  });
+
+  const tooltipArrowStyles = (isVisible: boolean): React.CSSProperties => ({
+    position: 'absolute',
+    top: '-6px',
+    left: '50%',
+    transform: 'translateX(-50%) rotate(45deg)',
+    width: '12px',
+    height: '12px',
+    background: 'rgba(0, 0, 0, 0.85)',
+    opacity: isVisible ? 1 : 0,
+    transition: 'opacity 0.15s ease',
+  });
 
   const handleSelect = (image: string) => {
     setSelectedImage(image);
@@ -93,18 +128,22 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                       border: selectedImage === image.value ? '2px solid blue' : '1px solid #ccc',
                       backgroundColor: 'white',
                       cursor: 'pointer',
-                      borderRadius: '4px',
+                      borderRadius: '12px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '5px',
+                      position: 'relative',
+                      overflow: 'hidden',
                     }}
                     onClick={() => handleSelect(image.value)}
+                    onMouseEnter={() => setHoveredImage(image.value)}
+                    onMouseLeave={() => setHoveredImage(null)}
                   >
                     <img
                       src={image.value.startsWith('http') ? image.value : `/./../images/${image.value}`}
                       alt={image.label}
-                      style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+                      style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '10px' }}
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
@@ -112,6 +151,11 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                     <span style={{ fontSize: '11px', textAlign: 'center', wordBreak: 'break-word' }}>
                       {image.label}
                     </span>
+                    <div style={tooltipStyles(hoveredImage === image.value)}>
+                      <div style={tooltipArrowStyles(hoveredImage === image.value)} />
+                      <div style={{ fontWeight: 600, marginBottom: '4px' }}>{image.label}</div>
+                      <div style={{ fontSize: '11px', opacity: 0.85 }}>Click to apply to this group</div>
+                    </div>
                   </button>
                 ))}
               </div>

@@ -331,10 +331,63 @@ const ChangeIconModal: React.FC<ChangeIconModalProps> = ({ isOpen, onClose, onSe
           <TabPane tabId="svg">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                  https://www.svgrepo.com/ , https://freesvgicons.com/, or any other SVG source.<br />
-                  Paste SVG Code (use width="50" height="50" for proper sizing):
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '10px', flexWrap: 'wrap' }}>
+                  <label style={{ fontWeight: 'bold', margin: 0, flex: '1 1 100%' }}>
+                    https://www.svgrepo.com/ , https://freesvgicons.com/, or any other SVG source.<br />
+                    Paste SVG Code (use width="50" height="50" for proper sizing):
+                  </label>
+                  <button
+                    onClick={() => window.open('https://www.blobmaker.app/', '_blank')}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#3498db',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title="Open Blob Maker - Free SVG shape generator"
+                  >
+                    🎨 Blob Editor
+                  </button>
+                  <button
+                    onClick={() => window.open('https://editor.method.ac/', '_blank')}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#e74c3c',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title="Open Method Draw - Free SVG editor"
+                  >
+                    ✏️ Method Draw
+                  </button>
+                  <button
+                    onClick={() => window.open('https://www.figma.com/files/recent', '_blank')}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#9b59b6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title="Open Figma - Professional design tool (free account)"
+                  >
+                    🎯 Figma
+                  </button>
+                </div>
                 <textarea
                   placeholder={`Example:\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">\n  <circle cx="50" cy="50" r="40" fill="blue"/>\n</svg>`}
                   value={customUrl}

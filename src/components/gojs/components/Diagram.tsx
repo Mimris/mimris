@@ -6268,7 +6268,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     {
                       label: 'Text color',
                       closeOnClick: false,
-                      render: (container: HTMLElement) => {
+                      render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
                         try {
                           const nodeData = part?.data;
                           const current = (nodeData && (nodeData.textcolor || '')) || '';
@@ -6295,6 +6295,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                               if (nodeData) {
                                 const targetDiagram = diagram || myDiagram;
                                 try {
+                                  // Update the GoJS model first
+                                  try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) {}
+                                  // Then update the objview
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
                                     objview.textcolor = val;
@@ -6341,13 +6344,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                           sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
                           sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
                           sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
+                            console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
                             try {
                               const val = (ev.target as HTMLSelectElement).value;
+                              console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
                               if (val && nodeData && diagram) {
                                 try { sel.value = val; } catch (_) {}
                                 try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) {}
                                 // Synchronously update the GoJS model (same approach as Icon menu)
                                 try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) {}
+                                console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
                                 if ((window as any).DEBUG_GOJS_MENUS) {
                                   try {
                                     const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
@@ -7354,7 +7360,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.strokecolor = val;
+                                            objview.strokecolor2 = val;
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -7464,7 +7470,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.textcolor = val;
+                                            objview.textcolor2 = val;
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }

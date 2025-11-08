@@ -883,10 +883,11 @@ function addNodeText0(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         // $(go.TextBlock, textStyle(), // the typename  --------------------
         //     {
@@ -933,10 +934,11 @@ function addNodeText(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
             {
@@ -946,8 +948,7 @@ function addNodeText(contextMenu: any) {
                 margin: new go.Margin(0, 0, 0, 2),  
                 textAlign: "center",
             },
-            new go.Binding("text", "typename"),
-            new go.Binding("stroke", "textcolor2").makeTwoWay()
+            new go.Binding("text", "typename")
         ),
     )
 }
@@ -1852,7 +1853,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     name: "name"
                 },        
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
+                new go.Binding("stroke", "textcolor")
                 ),
             ),
             ),
@@ -2060,7 +2061,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     // alignment: go.Spot.Center, // Add this line to align the text center
                                 },
                                 // new go.Binding("fill", "fillcolor2"),
-                                new go.Binding("stroke", "strokecolor2", defaultStrokeColor), // Apply converter here
+                                new go.Binding("stroke", "textcolor2", defaultStrokeColor), // Apply converter here - icon text color
                                 new go.Binding("text", "icon", findUnicodeImage)
                             )
                         ),
@@ -4349,7 +4350,7 @@ export function addPortTemplates() {
 
 function defaultStrokeColor(strokecolor2) {
   if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
-  return  (strokecolor2 === "") ? strokecolor2 : "#466"; // Dark bluegreen
+  return  (strokecolor2 === "") ? "#466" : strokecolor2; // Dark bluegreen default, or custom color
 }
 
 // Helper function to detect icon format from string content

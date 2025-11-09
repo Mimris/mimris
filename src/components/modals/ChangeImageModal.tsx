@@ -16,6 +16,14 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
 
+  const resolveImageSrc = (value: string): string => {
+    if (!value) return '';
+    if (value.startsWith('http') || value.startsWith('https')) return value;
+    if (value.startsWith('data:')) return value;
+    if (value.startsWith('/')) return value;
+    return `/images/${value.replace(/^\//, '')}`;
+  };
+
   const tooltipStyles = (isVisible: boolean): React.CSSProperties => ({
     position: 'absolute',
     bottom: '-52px',
@@ -83,7 +91,7 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
 
   return (
     <Modal isOpen={isOpen} toggle={onClose} size="lg">
-      <ModalHeader toggle={onClose}>Select Image for Group</ModalHeader>
+      <ModalHeader toggle={onClose}>Set Image for Container (Group)</ModalHeader>
       <ModalBody>
         <Nav tabs>
           <NavItem>
@@ -120,7 +128,10 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
           <TabPane tabId="library">
             {imageList.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
-                {imageList.map((image) => (
+                {imageList.map((image) => {
+                  const imageSrc = resolveImageSrc(image.value);
+
+                  return (
                   <button
                     key={image.value}
                     style={{
@@ -141,7 +152,7 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                     onMouseLeave={() => setHoveredImage(null)}
                   >
                     <img
-                      src={image.value.startsWith('http') ? image.value : `/./../images/${image.value}`}
+                      src={imageSrc}
                       alt={image.label}
                       style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '10px' }}
                       onError={(e) => {
@@ -157,7 +168,8 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                       <div style={{ fontSize: '11px', opacity: 0.85 }}>Click to apply to this group</div>
                     </div>
                   </button>
-                ))}
+                );
+              })}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>

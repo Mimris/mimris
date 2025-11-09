@@ -229,9 +229,9 @@ function makeGeoIcon() {
     new go.Binding("source", "icon", getIconSource),
     {
             name: "Picture",
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
+            column: 1, 
+            margin: new go.Margin(0, 5, 0, 0),
+            desiredSize: new go.Size(27, 27),
             alignment: go.Spot.Right,
         },
         new go.Binding("visible", "isSubGraphExpanded").ofObject(),
@@ -361,7 +361,7 @@ function makeImageImage() {
             new go.Binding("source", "image", findImage),
             {
                 stretch: go.GraphObject.Fill,
-                imageStretch: go.GraphObject.UniformToFill,
+                imageStretch: go.GraphObject.Fill,
                 alignment: go.Spot.Center,
                 opacity: 0.95,
                 pickable: false,
@@ -458,6 +458,8 @@ export function groupTop1(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+
         ),
         $(go.Panel, "Vertical",  // position header above the subgraph
         {
@@ -520,7 +522,7 @@ export function groupTop1(contextMenu: any, notation: string) {
             new go.Binding("stroke", "textcolor").makeTwoWay(),
             new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
-            makeNotation(notation),
+            makeNotation(notation),  // this is the icon in the header
             ), // End Horizontal Panel
 
             $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
@@ -576,13 +578,15 @@ export function groupTop2(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+
         ),
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
                 // fill: "transparent", 
                 stroke: "transparent",
-                margin: new go.Margin(30, 12, 12, 12),
+                margin: new go.Margin(30, 10, 16, 10),
                 minSize: new go.Size(150, 55),
                 stretch: go.GraphObject.Fill,
             },
@@ -604,12 +608,12 @@ export function groupTop2(contextMenu: any, notation: string) {
                         stretch: go.GraphObject.Horizontal,
                     },
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
-                $("SubGraphExpanderButton",
+                $("SubGraphExpanderButton", // + - buttons 
                     {
                         column: 0, 
-                        margin: new go.Margin(-2, 2, 2, 0), 
+                        margin: new go.Margin(2, 2, 2, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.5,
+                        scale: 1.2,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
@@ -622,7 +626,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    margin: new go.Margin(4, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name"
@@ -639,10 +643,10 @@ export function groupTop2(contextMenu: any, notation: string) {
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 28pt Sans-Serif",
+                    font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 2),
+                    margin: new go.Margin(4, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name",
@@ -661,9 +665,9 @@ export function groupTop2(contextMenu: any, notation: string) {
                     row: 1,
                     stretch: go.GraphObject.Fill,
                     fill: "rgba(128,128,128,0.33)",
-                    stroke: "black",
+                    stroke: "rgba(191, 191, 191, 0.13)",
                     opacity: 0.75,
-                    margin: new go.Margin(1, 4, 1, 4),
+                    margin: new go.Margin(0, 6, 0, 6),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
@@ -676,9 +680,9 @@ export function groupTop2(contextMenu: any, notation: string) {
                 {
                     row: 1,
                     stretch: go.GraphObject.Fill,
-                    margin: new go.Margin(0, 12, 0, 12),
+                    margin: new go.Margin(10, 16, 8, 16),
                     alignment: go.Spot.Center,
-                    imageStretch: go.GraphObject.UniformToFill,
+                    imageStretch: go.GraphObject.Fill,
                     opacity: 0.95,
                     pickable: false,
                 },
@@ -2060,7 +2064,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             $(go.Picture,  // the image -------------------------------------
                                 {
                                     name: "Picture",
-                                    desiredSize: new go.Size(48, 48),
+                                    desiredSize: new go.Size(52, 52),
+                                    stretch: go.GraphObject.Fill,
+                                    imageStretch: go.GraphObject.Fill,
+                                    alignment: go.Spot.Center,
                                 },
                                 new go.Binding("source", "icon", findImage),
                             ),    
@@ -2358,6 +2365,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
               margin: new go.Margin(12,12,12,12),
               alignment: go.Spot.Center,
               cursor: "move",
+              stretch: go.GraphObject.Fill,
+              imageStretch: go.GraphObject.Fill,
           },
           new go.Binding("source", "icon", getIconSource),
           ),                                
@@ -2793,6 +2802,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 5, 5),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon", getIconSource),
         ),
@@ -2805,6 +2816,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 30, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon1", findImage),
         ),
@@ -2817,6 +2830,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 65, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon2", findImage),
         ),
@@ -2829,6 +2844,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 100, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon3", findImage),
         ),
@@ -2894,7 +2911,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
                     new go.Binding("source", "icon", getIconSource),
                 ),    
@@ -2967,7 +2987,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
                     new go.Binding("source", "icon", getIconSource),
                 ),    

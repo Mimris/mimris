@@ -109,18 +109,14 @@ export const imageLibrary = () => [
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Tropical Paradise" },
 
   // Diagram & Modeling Visuals
-  { value: "/images/ProcessModelFantasyWorld.png", label: "Process Diagram" },
-  // { value: "/images/diagram-3.svg", label: "Enterprise Diagram" },
-  // { value: "/images/AKM-World.png", label: "AKM World" },
-  // { value: "/images/Modelling-World.png", label: "Modelling World" },
-  // { value: "/images/Modelling-Universe.png", label: "Modelling Universe" },
-  // { value: "/images/archimate/Archimate%20Capability.png", label: "Archimate Capability" },
+  { value: "/images/ProcessModelFantasyWorld.png", label: "Process Concept" },
+  { value: "/images/ProcessModelFantasyWorld2.png", label: "Process Concept 2" },
+  { value: "/images/ProcessModelFantasyWorld2_landscape.png", label: "Process Concept 2 Landscape" },
+ 
 
-  // Online Diagram References (Mermaid CDN)
-  { value: "https://mermaid.ink/img/pako:Sy9KLMhQCHGxVgguSSwq0dW1C0kszja0VgBTQK5LanJmcWZ-XjWMUWutAGMCpWsiU4trQGqNUIX98mtc81IgxhgBBUAcAA==", label: "Process Flow Diagram" },
-  { value: "https://mermaid.ink/img/pako:Sy9KLMhQ8AmyVgguKUosSU2vjIYxFHwSK1OLYnV17ZxKizPzUouLo2EMqJS1AkwAqMixoCAnMzmxJDM_LxqJDVeKJAZUHZKanJGXn5MPtA_BhKkFAA==", label: "Enterprise Architecture Layers" },
-  { value: "https://mermaid.ink/img/pako:Sy9KLMhQCHGxVvDOyy_PSU1JT42GsxQci4tTS2J1de0CivKTU4uLo6F0LJJyoGxQfk5qNIgAikNVAEX9S0uS83NTo6F0rDUA", label: "AKM Knowledge Flow" },
-  { value: "https://mermaid.ink/img/pako:Sy9KLMhQ8AmyVnDOz0tOLSjR1bVzSS3OTM8DMjxzC3JSc1PzShJLMvNBAmGpRZlpmckwrn9BahGYbQ0A", label: "Systems Engineering Lifecycle" },
+   // Online Diagram References (Mermaid CDN, flowchart syntax for v11+)
+  { value: "https://mermaid.live/edit#pako:eNpNkM9qwzAMh19F6NRB8wI5DNak7aWwwXqLexCxUpvNf3AURkny7rNbynaTPn0_ITRjHzRjjddE0cC5VR7grWtMsqM4Gi9QVa_LkQVc8HxbYLc5BhhNiNH660uxd0WBZj4ViUGM9V9rGTT37LvnBdruRFFCvPzx809YYN_ZD5MX_-cmcU4cuoHqgaqeEjSUsqBECW7RcXJkdT55LiGFYtixwjqXmgeavkWh8mtWp6hJeK-thIS1pIm3SJOEz5vvn_3DaS3lB7gHXH8BFrFcZw", label: "Process Flow Diagram" },
+
 ]
 
 export const selectIcons = (curitem: any, p: any, iconvalue: any, register: any, handleChangesicon: any) => {

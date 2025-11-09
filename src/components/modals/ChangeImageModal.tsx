@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
 import classnames from 'classnames';
+import styles from './ChangeImageModal.module.css';
 
 interface ChangeImageModalProps {
   isOpen: boolean;
@@ -90,8 +91,8 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={onClose} size="lg">
-      <ModalHeader toggle={onClose}>Set Image for Container (Group)</ModalHeader>
+  <Modal isOpen={isOpen} toggle={onClose} className={styles.modal}>
+  <ModalHeader toggle={onClose} className={styles.header}>Set Image for Container (Group)</ModalHeader>
       <ModalBody>
         <Nav tabs>
           <NavItem>
@@ -123,11 +124,18 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
           </NavItem>
         </Nav>
 
-        <TabContent activeTab={activeTab} style={{ marginTop: '20px' }}>
+  <TabContent activeTab={activeTab} style={{ background: 'white', marginTop: '0px', padding: '4px' }}>
           {/* Library Tab */}
           <TabPane tabId="library">
             {imageList.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(74px, 1fr))',
+                  gap: '6px',
+                  justifyItems: 'stretch',
+                }}
+              >
                 {imageList.map((image) => {
                   const imageSrc = resolveImageSrc(image.value);
 
@@ -135,17 +143,18 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                   <button
                     key={image.value}
                     style={{
-                      padding: '10px',
-                      border: selectedImage === image.value ? '2px solid blue' : '1px solid #ccc',
+                      padding: '4px',
+                      border: selectedImage === image.value ? '2px solid #1f6feb' : '1px solid #d0d7de',
                       backgroundColor: 'white',
                       cursor: 'pointer',
-                      borderRadius: '12px',
+                      borderRadius: '6px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '5px',
+                      gap: '4px',
                       position: 'relative',
                       overflow: 'hidden',
+                      width: '100%',
                     }}
                     onClick={() => handleSelect(image.value)}
                     onMouseEnter={() => setHoveredImage(image.value)}
@@ -154,12 +163,12 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
                     <img
                       src={imageSrc}
                       alt={image.label}
-                      style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '10px' }}
+                      style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '6px' }}
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <span style={{ fontSize: '11px', textAlign: 'center', wordBreak: 'break-word' }}>
+                    <span style={{ fontSize: '10px', textAlign: 'center', wordBreak: 'break-word', lineHeight: 1.15 }}>
                       {image.label}
                     </span>
                     <div style={tooltipStyles(hoveredImage === image.value)}>
@@ -292,7 +301,7 @@ const ChangeImageModal: React.FC<ChangeImageModalProps> = ({ isOpen, onClose, on
         </TabContent>
       </ModalBody>
       <ModalFooter>
-        <Button color="secondary" onClick={onClose}>
+        <Button color="secondary" onClick={onClose} size="sm" className={styles.closeButton}>
           Close
         </Button>
       </ModalFooter>

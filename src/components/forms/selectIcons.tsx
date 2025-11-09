@@ -73,22 +73,20 @@ export const imageLibrary = () => [
   { value: "https://images.unsplash.com/photo-1502933691298-84fc14542831?w=400&h=300&fit=crop", label: "Beach Coast" },
   
   // Mountains Scenery
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Range" },
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Alpine Peaks" },
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Mountain Vista" },
+  { value: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&h=300&fit=crop", label: "Mountain Range" },
+  { value: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=400&h=300&fit=crop", label: "Snowy Peaks" },
   
   // Forest Scenery
   { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Forest" },
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Dense Forest" },
   
   // City Skylines
   { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Skyline Night" },
   { value: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop", label: "Urban Lights" },
-  { value: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop", label: "City Lights" },
+  { value: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop", label: "City Lights" },
   
   // Desert & Dry Landscapes
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Desert Dunes" },
-  { value: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop", label: "Arid Landscape" },
+  { value: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop", label: "Desert Dunes" },
+  { value: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=300&fit=crop", label: "Arid Landscape" },
   
   // Meadows & Fields
   { value: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop", label: "Green Meadow" },
@@ -102,8 +100,8 @@ export const imageLibrary = () => [
   { value: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop", label: "Sunset Sky" },
   
   // Waterfall & Water Features
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Waterfall" },
-  { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Cascade" },
+  { value: "https://images.unsplash.com/photo-1509223197845-458d87318791?w=400&h=300&fit=crop", label: "Waterfall" },
+  { value: "https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?w=400&h=300&fit=crop", label: "Cascade" },
   
   // Tropical Scenery
   { value: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop", label: "Tropical Paradise" },

@@ -1721,6 +1721,21 @@ class GoJSApp extends React.Component<{}, AppState> {
         const droppedNodesForLayout: go.Node[] = [];
         const poolNodes: go.Node[] = [];
         const poolKeys: Array<string | number> = [];
+        const affectedPoolKeys = new Set<string | number>();
+        const registerPoolKey = (group: go.Group | null | undefined) => {
+          if (!(group instanceof go.Group)) {
+            return;
+          }
+          const poolKey = getNodeKey(group);
+          if (poolKey === undefined || poolKey === null) {
+            return;
+          }
+          if (!affectedPoolKeys.has(poolKey)) {
+            affectedPoolKeys.add(poolKey);
+          }
+        };
+        let shouldZoomToFitAfterDrop = false;
+        let lanesDroppedIntoPool = false;
         const nodeIterator = e.subject.iterator;
         while (nodeIterator?.next()) {
           const part = nodeIterator.value;
@@ -1728,8 +1743,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             droppedNodesForLayout.push(part);
           }
         }
-
-        if (droppedNodesForLayout.length > 1) {
+  if (droppedNodesForLayout.length) {
           const primaryDiagram = e.diagram || myDiagram;
           const dropPoint =
             primaryDiagram?.lastInput?.documentPoint?.copy() ||
@@ -1772,6 +1786,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   name.includes('pool');
                 if (isPool) {
                   poolNodes.push(node);
+                  shouldZoomToFitAfterDrop = true;
+                  registerPoolKey(node instanceof go.Group ? node : node.containingGroup);
                   continue;
                 }
                 const isLane =
@@ -1781,6 +1797,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   name.includes('lane');
                 if (isLane) {
                   laneNodes.push(node);
+                  lanesDroppedIntoPool = true;
                   continue;
                 }
                 const isContainer =
@@ -1803,6 +1820,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (poolKey !== undefined && poolKey !== null && !uniquePoolKeys.has(poolKey)) {
                     uniquePoolKeys.add(poolKey);
                     poolKeys.push(poolKey);
+                    registerPoolKey(myDiagram.findNodeForKey(poolKey) as go.Group | null);
                   }
                 }
 
@@ -1815,10 +1833,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (existing === null || existing === undefined) {
                       setNodeGroup(myDiagram, laneNode, poolKey);
                     }
-                    centerNodeInGroup(myDiagram, laneNode, poolKey, {
-                      fillParent: true,
-                      padding: 20,
-                    });
+                    ensureInitialGroupSize(
+                      myDiagram,
+                      laneNode,
+                      laneNode?.data,
+                      getSizeOptionsForType('lane')
+                    );
+                    const targetPool = myDiagram.findNodeForKey(poolKey);
+                    registerPoolKey(targetPool as go.Group | null);
+                    lanesDroppedIntoPool = true;
                   }
 
                   const laneKeys: Array<string | number> = [];
@@ -1933,6 +1956,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (foundGroup) {
                 bucket.targetGroup = foundGroup;
                 bucket.groupKey = getNodeKey(foundGroup);
+                      registerPoolKey(foundGroup);
                 const shouldCommit = !myDiagram.isInTransaction;
                 if (shouldCommit) myDiagram.startTransaction('assign-drop-groups-for-point');
                 try {
@@ -1976,8 +2000,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Only apply follow-up group layouts if auto-apply is enabled.
           if (Boolean(((myDiagram?.model as any)?.modelData?.autoApplyDropLayout === true) || ((layoutConfig as any)?.autoApply === true))) {
             groupsForFollowUp.forEach(group => {
-              applyDropLayoutToGroup(myDiagram, group);
-              if (group.containingGroup instanceof go.Group) {
+              if (!isPoolLike(group.data)) {
+                applyDropLayoutToGroup(myDiagram, group);
+              }
+              if (group.containingGroup instanceof go.Group && !isPoolLike(group.containingGroup.data)) {
                 applyDropLayoutToGroup(myDiagram, group.containingGroup);
               }
             });
@@ -2025,6 +2051,272 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           myDiagram.layoutDiagram(true);
         };
+        const isPoolLike = (data: any): boolean => {
+          if (!data) return false;
+          const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+          const templateName = (data.template || data.category || '').toString().toLowerCase();
+          const name = (data.name || '').toString().toLowerCase();
+          const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
+          return [viewkind, templateName, name, typeName].some((val) => val.includes('pool'));
+        };
+        const isLaneLike = (data: any): boolean => {
+          if (!data) return false;
+          const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+          const templateName = (data.template || data.category || '').toString().toLowerCase();
+          const name = (data.name || '').toString().toLowerCase();
+          const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
+          return [viewkind, templateName, name, typeName].some((val) => val.includes('lane'));
+        };
+        const findContainingPool = (part: go.Part | null | undefined): go.Group | null => {
+          let current: go.Group | null = null;
+          if (part instanceof go.Node) {
+            current = part.containingGroup;
+          } else if (part instanceof go.Group) {
+            current = part;
+          }
+          while (current) {
+            if (current.category && current.category.toString().toLowerCase().includes('pool')) {
+              return current;
+            }
+            if (isPoolLike(current.data)) {
+              return current;
+            }
+            current = current.containingGroup;
+          }
+          return null;
+        };
+        const registerPoolFromPart = (part: go.Part | null | undefined) => {
+          const pool = findContainingPool(part);
+          if (pool) {
+            registerPoolKey(pool);
+          }
+        };
+
+        const relayoutPoolGroupAfterLaneChanges = (
+          diagram: go.Diagram | null | undefined,
+          poolGroup: go.Group | null | undefined,
+          laneSpacing = 8
+        ) => {
+          if (!diagram || !(poolGroup instanceof go.Group)) {
+            return;
+          }
+
+          const laneGroups: go.Group[] = [];
+          poolGroup.memberParts.each((member: go.Part) => {
+            if (member instanceof go.Group && isLaneLike(member.data)) {
+              laneGroups.push(member);
+            }
+          });
+
+          if (!laneGroups.length) {
+            return;
+          }
+
+          const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
+            if (!(group instanceof go.Group)) {
+              return 0;
+            }
+            let maxWidth = 0;
+            const candidateNames = [
+              'LEFT_HEADER',
+              'leftHeader',
+              'poolLeftHeader',
+              'leftLabel',
+              'HEADER_LEFT',
+              'poolHeaderLeft',
+              'POOL_LEFT_HEADER',
+              'poolLeftLabel',
+              'leftHeaderPanel',
+            ];
+            for (let i = 0; i < candidateNames.length; i++) {
+              try {
+                const obj = group.findObject(candidateNames[i]);
+                const bounds = obj?.actualBounds;
+                if (bounds && bounds.width) {
+                  maxWidth = Math.max(maxWidth, bounds.width);
+                }
+              } catch (err) {
+                // ignore lookup issues and continue
+              }
+            }
+            const dataWidth = (() => {
+              const d: any = group.data;
+              if (!d) return 0;
+              const candidates = [d.leftHeaderWidth, d.headerWidth, d.poolHeaderWidth];
+              for (let i = 0; i < candidates.length; i++) {
+                const value = candidates[i];
+                if (typeof value === 'number' && !Number.isNaN(value)) {
+                  return value;
+                }
+              }
+              return 0;
+            })();
+            const fallbackReserve = 28;
+            return Math.max(maxWidth, dataWidth, fallbackReserve);
+          };
+
+          const getLaneSortValue = (lane: go.Group): number => {
+            const rawLoc = lane?.data?.loc;
+            if (typeof rawLoc === 'string' && rawLoc.trim().length) {
+              try {
+                const parsed = go.Point.parse(rawLoc);
+                if (parsed) {
+                  return parsed.y;
+                }
+              } catch (err) {
+                // ignore parse errors and continue
+              }
+            }
+            if (lane.location) {
+              return lane.location.y;
+            }
+            const bounds = lane.actualBounds;
+            if (bounds) {
+              return bounds.y;
+            }
+            return 0;
+          };
+
+          laneGroups.sort((a, b) => {
+            const diff = getLaneSortValue(a) - getLaneSortValue(b);
+            if (Math.abs(diff) < 0.5) {
+              const aKey = getNodeKey(a);
+              const bKey = getNodeKey(b);
+              if (aKey !== undefined && aKey !== null && bKey !== undefined && bKey !== null) {
+                return String(aKey).localeCompare(String(bKey));
+              }
+            }
+            return diff;
+          });
+
+          let poolLocation = poolGroup.location?.copy() || null;
+          if (!poolLocation) {
+            const rawPoolLoc = typeof poolGroup?.data?.loc === 'string' ? poolGroup.data.loc : '';
+            if (rawPoolLoc && rawPoolLoc.trim().length) {
+              try {
+                poolLocation = go.Point.parse(rawPoolLoc);
+              } catch (err) {
+                poolLocation = null;
+              }
+            }
+          }
+          if (!poolLocation) {
+            poolLocation = new go.Point(0, 0);
+          }
+
+          const poolBounds = poolGroup.actualBounds?.copy();
+          const poolSize = parseSizeString(poolGroup?.data?.size);
+          const poolResizeObject = poolGroup.resizeObject || poolGroup.placeholder || null;
+          const poolWidthCandidates: number[] = [];
+          if (poolResizeObject?.desiredSize?.width) {
+            poolWidthCandidates.push(poolResizeObject.desiredSize.width);
+          }
+          if (poolSize?.width) {
+            poolWidthCandidates.push(poolSize.width);
+          }
+          if (poolBounds?.width) {
+            poolWidthCandidates.push(poolBounds.width);
+          }
+          const poolWidth = poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : 1400;
+
+          const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
+          const lanePaddingLeft = 8;
+          const lanePaddingRight = 8;
+          const laneWidthAvailable = Math.max(poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight, 1);
+
+          const model = diagram.model;
+          let currentY = poolLocation.y;
+
+          laneGroups.forEach((lane, index) => {
+            const laneSizeData = parseSizeString(lane?.data?.size);
+            const resizeObject = lane.resizeObject || lane.placeholder || lane;
+            const laneBounds = lane.actualBounds?.copy();
+            const laneHeightCandidates: number[] = [];
+            if (resizeObject?.desiredSize?.height) {
+              laneHeightCandidates.push(resizeObject.desiredSize.height);
+            }
+            if (laneSizeData?.height) {
+              laneHeightCandidates.push(laneSizeData.height);
+            }
+            if (laneBounds?.height) {
+              laneHeightCandidates.push(laneBounds.height);
+            }
+            const laneHeight = laneHeightCandidates.length ? Math.max(...laneHeightCandidates) : 260;
+
+            const laneTopLeftX = poolLocation.x + poolLeftReserve + lanePaddingLeft;
+            const laneTopLeft = new go.Point(laneTopLeftX, currentY);
+            let laneLocationPoint = laneTopLeft;
+            try {
+              const spot = lane.locationSpot;
+              if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
+                laneLocationPoint = new go.Point(
+                  laneTopLeftX + laneWidthAvailable / 2,
+                  currentY + laneHeight / 2
+                );
+              }
+            } catch (err) {
+              laneLocationPoint = laneTopLeft;
+            }
+            lane.location = laneLocationPoint;
+            if (lane.data) {
+              const locString = go.Point.stringify(laneLocationPoint);
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(lane.data, 'loc', locString);
+              } else {
+                lane.data.loc = locString;
+              }
+            }
+
+            if (resizeObject) {
+              const newSize = new go.Size(laneWidthAvailable, laneHeight);
+              resizeObject.desiredSize = newSize;
+              if (lane.data) {
+                const sizeString = `${newSize.width} ${newSize.height}`;
+                if (model && typeof model.setDataProperty === 'function') {
+                  model.setDataProperty(lane.data, 'size', sizeString);
+                } else {
+                  lane.data.size = sizeString;
+                }
+              }
+            }
+
+            lane.ensureBounds();
+            currentY += laneHeight;
+            if (index < laneGroups.length - 1) {
+              currentY += laneSpacing;
+            }
+          });
+
+          const totalHeight = currentY - poolLocation.y;
+          if (poolResizeObject instanceof go.GraphObject) {
+            const poolHeightCandidates: number[] = [];
+            if (poolResizeObject.desiredSize?.height) {
+              poolHeightCandidates.push(poolResizeObject.desiredSize.height);
+            }
+            if (poolSize?.height) {
+              poolHeightCandidates.push(poolSize.height);
+            }
+            if (poolBounds?.height) {
+              poolHeightCandidates.push(poolBounds.height);
+            }
+            const desiredHeight = Math.max(
+              totalHeight,
+              poolHeightCandidates.length ? Math.max(...poolHeightCandidates) : totalHeight
+            );
+            poolResizeObject.desiredSize = new go.Size(poolWidth, desiredHeight);
+            if (poolGroup.data) {
+              const sizeString = `${poolWidth} ${desiredHeight}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(poolGroup.data, 'size', sizeString);
+              } else {
+                poolGroup.data.size = sizeString;
+              }
+            }
+          }
+
+          poolGroup.ensureBounds();
+        };
+
         e.subject.each(function (n) {
           const partData = n?.data;
           if (!partData) {
@@ -2033,6 +2325,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (n instanceof go.Link) {
             droppedRelLinks.push(partData);
             return;
+          }
+          if (!shouldZoomToFitAfterDrop && isPoolLike(partData)) {
+            shouldZoomToFitAfterDrop = true;
+          }
+          if (isLaneLike(partData)) {
+            lanesDroppedIntoPool = true;
+            registerPoolFromPart(n);
           }
           const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
           const diagramNode = n instanceof go.Node ? n : node instanceof go.Node ? node : null;
@@ -2513,6 +2812,35 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (dropCopiedParts?.count > 0) {
             dropCopiedParts.clear();
           }
+        }
+        if (lanesDroppedIntoPool && myDiagram && affectedPoolKeys.size > 0) {
+          const shouldStart = !myDiagram.isInTransaction;
+          if (shouldStart) {
+            myDiagram.startTransaction('relayout-pools-after-lane-drop');
+          }
+          try {
+            affectedPoolKeys.forEach((poolKey) => {
+              const poolPart = myDiagram.findNodeForKey(poolKey);
+              if (poolPart instanceof go.Group) {
+                if (poolPart.layout) {
+                  if (typeof poolPart.layout.invalidateLayout === 'function') {
+                    poolPart.layout.invalidateLayout();
+                  } else {
+                    poolPart.layout.isValidLayout = false;
+                  }
+                }
+                relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
+              }
+            });
+          } finally {
+            if (shouldStart && myDiagram.isInTransaction) {
+              myDiagram.commitTransaction('relayout-pools-after-lane-drop');
+            }
+          }
+          myDiagram.layoutDiagram(true);
+        }
+        if (shouldZoomToFitAfterDrop && myDiagram) {
+          myDiagram.commandHandler.zoomToFit();
         }
         break;
       }

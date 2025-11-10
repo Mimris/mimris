@@ -355,6 +355,9 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         $(go.Group, "Auto",
           // for sorting, have the Node.text be the data.name
           new go.Binding("text", "name"),
+          {
+            contextMenu: contextMenu || undefined
+          },
 
           // define the node's outer shape
           $(go.Shape, "RoundedRectangle",

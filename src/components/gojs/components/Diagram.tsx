@@ -4842,21 +4842,90 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const members = groupPart.memberParts;
         const myModelview = myMetis.currentModelview;
         if (!myModelview) return;
-        if (members) {
-          members.each((member) => {
-            if (!(member instanceof go.Node)) return;
-            const memberData: any = member.data;
-            if (!memberData) return;
-            let memberObjview = memberData.objectview;
-            if (!memberObjview) {
-              memberObjview = myModelview.findObjectView(memberData.objviewRef);
+        const persistPartGeometry = (memberPart: go.Part | null | undefined) => {
+          if (!memberPart) return;
+          if (!(memberPart instanceof go.Node) && !(memberPart instanceof go.Group)) return;
+          const memberData: any = memberPart.data;
+          if (!memberData) return;
+          const memberObjview = resolveObjectview(memberData);
+
+          const locationPoint = memberPart.location;
+          if (locationPoint) {
+            const locString = go.Point.stringify(locationPoint);
+            try {
+              targetDiagram.model.setDataProperty(memberData, "loc", locString);
+            } catch (_err) {
+              memberData.loc = locString;
             }
-            const locPoint = member.location;
-            const locString = go.Point.stringify(locPoint);
-            targetDiagram.model.setDataProperty(memberData, "loc", locString);
             if (memberObjview) {
               memberObjview.loc = locString;
             }
+          }
+
+          const candidateSizes: Array<{ width: number; height: number }> = [];
+          const addCandidate = (candidate: any) => {
+            if (!candidate) return;
+            const width = Number(candidate.width);
+            const height = Number(candidate.height);
+            if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+            if (width <= 0 || height <= 0) return;
+            candidateSizes.push({ width, height });
+          };
+
+          const resizeObject: any = (memberPart as any).resizeObject || null;
+          if (resizeObject && resizeObject.desiredSize) {
+            addCandidate(resizeObject.desiredSize);
+          }
+          const desiredSize: any = (memberPart as any).desiredSize || null;
+          if (desiredSize) {
+            addCandidate(desiredSize);
+          }
+          const actualBounds = memberPart.actualBounds || null;
+          if (actualBounds) {
+            addCandidate(actualBounds);
+          }
+          if (!candidateSizes.length && typeof memberData.size === "string") {
+            const parts = memberData.size
+              .trim()
+              .split(/[,\s]+/)
+              .map((token: string) => Number(token))
+              .filter((num: number) => Number.isFinite(num));
+            if (parts.length >= 2) {
+              addCandidate({ width: parts[0], height: parts[1] });
+            }
+          }
+
+          if (candidateSizes.length) {
+            const bestSize = candidateSizes.reduce((largest, current) => {
+              const largestArea = largest.width * largest.height;
+              const currentArea = current.width * current.height;
+              return currentArea > largestArea ? current : largest;
+            });
+            const sizeString = `${bestSize.width} ${bestSize.height}`;
+            try {
+              targetDiagram.model.setDataProperty(memberData, "size", sizeString);
+            } catch (_err) {
+              memberData.size = sizeString;
+            }
+            if (memberObjview) {
+              memberObjview.size = sizeString;
+            }
+          }
+
+          if (memberObjview && typeof (memberObjview as any).setModified === "function") {
+            try {
+              (memberObjview as any).setModified();
+            } catch (_err) {
+              // ignore
+            }
+          }
+        };
+
+        persistPartGeometry(groupPart);
+
+        if (members) {
+          members.each((member) => {
+            persistPartGeometry(member);
           });
         }
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);

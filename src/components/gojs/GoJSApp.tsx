@@ -1104,8 +1104,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         let relshipviews = myModelview.relshipviews;
         myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         // First remember the original locs and scales
-        const dragTool = myDiagram.toolManager.draggingTool;
-        dragTool.dragsTree = true;
+  const dragTool = myDiagram.toolManager.draggingTool;
+  const previousDragsTree = dragTool.dragsTree;
+  dragTool.dragsTree = true;
         const myParts = dragTool.draggedParts;
         const myFromNodes = [];
         for (let it = myParts.iterator; it?.next();) {
@@ -1514,6 +1515,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // myDiagram.toolManager.draggingTool.reset();
           myDiagram.toolManager.currentTool = myDiagram.defaultTool;
         }
+        dragTool.dragsTree = previousDragsTree;
         break;
       }
       case "SelectionDeleting": {
@@ -2061,11 +2063,27 @@ class GoJSApp extends React.Component<{}, AppState> {
         };
         const isLaneLike = (data: any): boolean => {
           if (!data) return false;
+          const explicitFlag = Boolean(data.isLane === true || data.lane === true || data.laneGroup === true);
+          if (explicitFlag) {
+            return true;
+          }
           const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
-          const templateName = (data.template || data.category || '').toString().toLowerCase();
-          const name = (data.name || '').toString().toLowerCase();
+          if (viewkind === 'lane' || viewkind === 'swimlane') {
+            return true;
+          }
+          const templateName = (data.template || '').toString().toLowerCase();
+          if (templateName.includes('lane')) {
+            return true;
+          }
+          const categoryName = (data.category || '').toString().toLowerCase();
+          if (categoryName.includes('lane')) {
+            return true;
+          }
           const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
-          return [viewkind, templateName, name, typeName].some((val) => val.includes('lane'));
+          if (typeName.includes('lane')) {
+            return true;
+          }
+          return false;
         };
         const findContainingPool = (part: go.Part | null | undefined): go.Group | null => {
           let current: go.Group | null = null;
@@ -2095,7 +2113,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const relayoutPoolGroupAfterLaneChanges = (
           diagram: go.Diagram | null | undefined,
           poolGroup: go.Group | null | undefined,
-          laneSpacing = 8
+          laneSpacing = 4
         ) => {
           if (!diagram || !(poolGroup instanceof go.Group)) {
             return;
@@ -2153,6 +2171,56 @@ class GoJSApp extends React.Component<{}, AppState> {
             })();
             const fallbackReserve = 28;
             return Math.max(maxWidth, dataWidth, fallbackReserve);
+          };
+
+          const updateGroupObjectView = (
+            group: go.Group | null | undefined,
+            locationPoint: go.Point | null,
+            sizeValue: go.Size | null
+          ) => {
+            if (!(group instanceof go.Group)) {
+              return;
+            }
+            const modelview = myMetis?.currentModelview;
+            if (!modelview) {
+              return;
+            }
+            const data: any = group.data;
+            if (!data) {
+              return;
+            }
+            let objview = data.objectview;
+            if (!objview && data.objviewRef) {
+              objview = modelview.findObjectView(data.objviewRef);
+            }
+            if (!objview && data.key !== undefined) {
+              objview = modelview.findObjectView(data.key);
+            }
+            if (!objview) {
+              return;
+            }
+            if (locationPoint) {
+              const locString = go.Point.stringify(locationPoint);
+              objview.loc = locString;
+            }
+            if (sizeValue) {
+              const sizeString = `${sizeValue.width} ${sizeValue.height}`;
+              objview.size = sizeString;
+            }
+            const marker = objview as any;
+            if (marker && typeof marker.setModified === 'function') {
+              try {
+                marker.setModified();
+              } catch (err) {
+                // ignore if objectview does not support setModified
+              }
+            }
+            try {
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              uic.addItemToList(modifiedObjectViews, jsnObjview);
+            } catch (err) {
+              // ignore serialization issues
+            }
           };
 
           const getLaneSortValue = (lane: go.Group): number => {
@@ -2217,46 +2285,150 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (poolBounds?.width) {
             poolWidthCandidates.push(poolBounds.width);
           }
-          const poolWidth = poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : 1400;
+          let poolWidth = poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : 1400;
 
           const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
           const lanePaddingLeft = 8;
           const lanePaddingRight = 8;
-          const laneWidthAvailable = Math.max(poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight, 1);
+          const laneTopMargin = 12;
+          const laneBottomMargin = 8;
+          const minLaneWidth = 120;
 
           const model = diagram.model;
-          let currentY = poolLocation.y;
+          const initialLaneWidthAvailable = Math.max(
+            poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight,
+            minLaneWidth
+          );
 
-          laneGroups.forEach((lane, index) => {
+          const laneLayouts: Array<{
+            lane: go.Group;
+            height: number;
+            storedWidth: number;
+            contentWidth: number;
+            hasStoredWidth: boolean;
+            topY: number;
+          }> = [];
+
+          let maxLaneWidthUsed = 0;
+
+          laneGroups.forEach((lane) => {
             const laneSizeData = parseSizeString(lane?.data?.size);
             const resizeObject = lane.resizeObject || lane.placeholder || lane;
             const laneBounds = lane.actualBounds?.copy();
+            const desiredSize = resizeObject?.desiredSize;
+
             const laneHeightCandidates: number[] = [];
-            if (resizeObject?.desiredSize?.height) {
-              laneHeightCandidates.push(resizeObject.desiredSize.height);
+            if (typeof desiredSize?.height === 'number' && Number.isFinite(desiredSize.height) && desiredSize.height > 0) {
+              laneHeightCandidates.push(desiredSize.height);
             }
-            if (laneSizeData?.height) {
+            if (typeof laneSizeData?.height === 'number' && Number.isFinite(laneSizeData.height) && laneSizeData.height > 0) {
               laneHeightCandidates.push(laneSizeData.height);
             }
-            if (laneBounds?.height) {
+            if (typeof laneBounds?.height === 'number' && Number.isFinite(laneBounds.height) && laneBounds.height > 0) {
               laneHeightCandidates.push(laneBounds.height);
             }
             const laneHeight = laneHeightCandidates.length ? Math.max(...laneHeightCandidates) : 260;
 
+            const laneWidthCandidates: number[] = [];
+            if (typeof desiredSize?.width === 'number' && Number.isFinite(desiredSize.width) && desiredSize.width > 0) {
+              laneWidthCandidates.push(desiredSize.width);
+            }
+            if (typeof laneSizeData?.width === 'number' && Number.isFinite(laneSizeData.width) && laneSizeData.width > 0) {
+              laneWidthCandidates.push(laneSizeData.width);
+            }
+            if (typeof laneBounds?.width === 'number' && Number.isFinite(laneBounds.width) && laneBounds.width > 0) {
+              laneWidthCandidates.push(laneBounds.width);
+            }
+
+            let laneMemberContentWidth = 0;
+            if (lane.memberParts) {
+              lane.memberParts.each((member: go.Part) => {
+                if (!(member instanceof go.Node || member instanceof go.Group)) {
+                  return;
+                }
+                const memberBounds = member.actualBounds;
+                if (!memberBounds) {
+                  return;
+                }
+                const memberWidth = memberBounds.width;
+                if (typeof memberWidth !== 'number' || !Number.isFinite(memberWidth) || memberWidth <= 0) {
+                  return;
+                }
+                laneMemberContentWidth = Math.max(laneMemberContentWidth, memberWidth);
+              });
+            }
+
+            const storedWidth = laneWidthCandidates.length ? Math.max(...laneWidthCandidates) : 0;
+            const hasStoredWidth = storedWidth > 0;
+            const contentWidthWithPadding = laneMemberContentWidth > 0
+              ? laneMemberContentWidth + lanePaddingLeft + lanePaddingRight
+              : 0;
+
+            const desiredLaneWidth = Math.max(
+              initialLaneWidthAvailable,
+              contentWidthWithPadding,
+              hasStoredWidth ? storedWidth : 0
+            );
+            maxLaneWidthUsed = Math.max(maxLaneWidthUsed, desiredLaneWidth);
+
+            laneLayouts.push({
+              lane,
+              height: laneHeight,
+              storedWidth: storedWidth,
+              contentWidth: contentWidthWithPadding,
+              hasStoredWidth,
+              topY: 0,
+            });
+          });
+
+          let currentY = poolLocation.y + laneTopMargin;
+          laneLayouts.forEach((layout, index) => {
+            layout.topY = currentY;
+            currentY += layout.height;
+            if (index < laneLayouts.length - 1) {
+              currentY += laneSpacing;
+            }
+          });
+          currentY += laneBottomMargin;
+
+          const totalHeight = currentY - poolLocation.y;
+          const requiredPoolWidth = poolLeftReserve + lanePaddingLeft + Math.max(
+            maxLaneWidthUsed,
+            initialLaneWidthAvailable,
+            minLaneWidth
+          ) + lanePaddingRight;
+          poolWidth = Math.max(poolWidth, requiredPoolWidth);
+          const finalLaneWidthAvailable = Math.max(
+            poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight,
+            minLaneWidth
+          );
+
+          laneLayouts.forEach((layout) => {
+            const lane = layout.lane;
+            const laneHeight = layout.height;
+            let laneWidth = finalLaneWidthAvailable;
+            if (layout.hasStoredWidth && layout.storedWidth > 0) {
+              laneWidth = Math.max(laneWidth, layout.storedWidth);
+            }
+            if (layout.contentWidth > 0) {
+              laneWidth = Math.max(laneWidth, layout.contentWidth);
+            }
+
             const laneTopLeftX = poolLocation.x + poolLeftReserve + lanePaddingLeft;
-            const laneTopLeft = new go.Point(laneTopLeftX, currentY);
+            const laneTopLeft = new go.Point(laneTopLeftX, layout.topY);
             let laneLocationPoint = laneTopLeft;
             try {
               const spot = lane.locationSpot;
               if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
                 laneLocationPoint = new go.Point(
-                  laneTopLeftX + laneWidthAvailable / 2,
-                  currentY + laneHeight / 2
+                  laneTopLeftX + laneWidth / 2,
+                  layout.topY + laneHeight / 2
                 );
               }
             } catch (err) {
               laneLocationPoint = laneTopLeft;
             }
+
             lane.location = laneLocationPoint;
             if (lane.data) {
               const locString = go.Point.stringify(laneLocationPoint);
@@ -2267,27 +2439,29 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
 
+            const newLaneSize = new go.Size(laneWidth, laneHeight);
+            const resizeObject = lane.resizeObject || lane.placeholder || lane;
             if (resizeObject) {
-              const newSize = new go.Size(laneWidthAvailable, laneHeight);
-              resizeObject.desiredSize = newSize;
-              if (lane.data) {
-                const sizeString = `${newSize.width} ${newSize.height}`;
-                if (model && typeof model.setDataProperty === 'function') {
-                  model.setDataProperty(lane.data, 'size', sizeString);
-                } else {
-                  lane.data.size = sizeString;
-                }
+              resizeObject.desiredSize = newLaneSize;
+            }
+            try {
+              lane.desiredSize = newLaneSize;
+            } catch (err) {
+              // ignore if lane does not support desiredSize assignment
+            }
+            if (lane.data) {
+              const sizeString = `${newLaneSize.width} ${newLaneSize.height}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(lane.data, 'size', sizeString);
+              } else {
+                lane.data.size = sizeString;
               }
             }
+            updateGroupObjectView(lane, laneLocationPoint, newLaneSize);
 
             lane.ensureBounds();
-            currentY += laneHeight;
-            if (index < laneGroups.length - 1) {
-              currentY += laneSpacing;
-            }
           });
 
-          const totalHeight = currentY - poolLocation.y;
           if (poolResizeObject instanceof go.GraphObject) {
             const poolHeightCandidates: number[] = [];
             if (poolResizeObject.desiredSize?.height) {
@@ -2303,7 +2477,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               totalHeight,
               poolHeightCandidates.length ? Math.max(...poolHeightCandidates) : totalHeight
             );
-            poolResizeObject.desiredSize = new go.Size(poolWidth, desiredHeight);
+            const newPoolSize = new go.Size(poolWidth, desiredHeight);
+            poolResizeObject.desiredSize = newPoolSize;
+            try {
+              poolGroup.desiredSize = newPoolSize;
+            } catch (err) {
+              // ignore if pool group does not allow desiredSize assignment
+            }
             if (poolGroup.data) {
               const sizeString = `${poolWidth} ${desiredHeight}`;
               if (model && typeof model.setDataProperty === 'function') {
@@ -2312,6 +2492,23 @@ class GoJSApp extends React.Component<{}, AppState> {
                 poolGroup.data.size = sizeString;
               }
             }
+            updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, newPoolSize);
+          } else {
+            const fallbackPoolSize = new go.Size(poolWidth, totalHeight);
+            try {
+              poolGroup.desiredSize = fallbackPoolSize;
+            } catch (err) {
+              // ignore if pool group does not allow desiredSize assignment
+            }
+            if (poolGroup.data) {
+              const sizeString = `${fallbackPoolSize.width} ${fallbackPoolSize.height}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(poolGroup.data, 'size', sizeString);
+              } else {
+                poolGroup.data.size = sizeString;
+              }
+            }
+            updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, fallbackPoolSize);
           }
 
           poolGroup.ensureBounds();

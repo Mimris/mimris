@@ -206,14 +206,28 @@ export function handleSelectDropdownChange(selected, context) {
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);
           myDiagram.requestUpdate();
+          
+          // Force the binding to update by clearing the old source
+          const pictureElement = icn?.findObject("Picture");
+          if (pictureElement) {
+            // Manually call the converter to update the source
+            const source = uit.getIconSource(icon);
+            pictureElement.source = source;
+          }
+          
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
             objview.icon = icon;
+            console.log("Setting objview.icon to:", icon);
             const jsnObjview = new jsn.jsnObjectView(objview);
+            console.log("jsnObjview.icon:", jsnObjview.icon);
             const modifiedObjviews = [];
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
+              // Make sure to include the icon field in the data
               const data = safeClone(mn);
+              console.log("Dispatching UPDATE_OBJECTVIEW_PROPERTIES with data:", data);
+              console.log("Data icon field:", data.icon);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -244,7 +258,38 @@ export function handleSelectDropdownChange(selected, context) {
         }
       });
       break;
-    } 
+    }
+    case "Set Group Image": {
+      const image = (selectedOption) && selectedOption;
+      const group = modalContext.currentGroup;
+      if (!group) break;
+      
+      const groupPart = myDiagram.findPartForKey(group.key);
+      if (groupPart) {
+        myDiagram.model.setDataProperty(group, "image", image);
+        myDiagram.requestUpdate();
+      }
+      
+      // Update the objectview if it exists
+      let objview = group.objectview;
+      if (!objview && group.objviewRef) {
+        objview = myMetis.findObjectView(group.objviewRef);
+      }
+      if (objview) {
+        objview = myMetis.findObjectView(objview.id);
+        objview.image = image;
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const modifiedObjviews = [];
+        modifiedObjviews.push(jsnObjview);
+        modifiedObjviews.map(mn => {
+          const data = safeClone(mn);
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        });
+      }
+      
+      if (groupPart) groupPart.isSelected = false;
+      break;
+    }
     case "Set Layout Scheme": {
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
       const metamodelling = myMetis.modelType === 'Metamodelling';

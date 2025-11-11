@@ -226,16 +226,50 @@ let groupTemplateNames = [];
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
-    new go.Binding("source", "icon", findImage),
+    new go.Binding("source", "icon", getIconSource),
     {
             name: "Picture",
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
+            column: 1, 
+            margin: new go.Margin(0, 5, 0, 0),
+            desiredSize: new go.Size(27, 27),
             alignment: go.Spot.Right,
         },
         new go.Binding("visible", "isSubGraphExpanded").ofObject(),
     )                                
+}
+
+// Helper function to force update all icon sources in the diagram
+// This is needed because GoJS bindings don't always trigger for emoji after reload
+export function forceUpdateAllIconSources(diagram: any): void {
+  if (!diagram || !diagram.nodes) return;
+  
+  console.log("forceUpdateAllIconSources: Starting to update all icon sources in diagram");
+  let updated = 0;
+  
+  for (let it = diagram.nodes; it?.next();) {
+    const node = it.value;
+    if (!node || !node.data) continue;
+    
+    const icon = node.data.icon;
+    if (!icon) continue;
+    
+    // Find the Picture element named "Picture"
+    const pictureElement = node.findObject("Picture");
+    if (pictureElement && pictureElement.source !== undefined) {
+      try {
+        const newSource = getIconSource(icon);
+        if (pictureElement.source !== newSource) {
+          pictureElement.source = newSource;
+          console.log("forceUpdateAllIconSources: Updated icon for", node.data.name || node.key, "with value", icon);
+          updated++;
+        }
+      } catch (e) {
+        console.error("forceUpdateAllIconSources: Failed to update icon for", node.data.name || node.key, e);
+      }
+    }
+  }
+  
+  console.log("forceUpdateAllIconSources: Complete. Updated", updated, "icons");
 }
 
 function makeGeometry() {
@@ -309,24 +343,36 @@ function makeImage(kind: string) {
 }
 
 function makeImageImage() {
-    return $(go.Picture,  // the image -------------------------------------
-        new go.Binding("source", "image", findImage),
+    return $(go.Panel, "Auto",
         {
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
-            alignment: go.Spot.Right,
-            imageStretch: go.GraphObject.Uniform,
-            cursor: "move",
+            name: "GROUP_CLOSED_IMAGE",
+            stretch: go.GraphObject.Fill,
+            minSize: new go.Size(200, 100),
+            margin: new go.Margin(0, 0, 0, 0),
         },
-        new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
-        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-    )                                
+        new go.Binding('visible', 'isSubGraphExpanded', function (expanded) { return !expanded; }).ofObject(),
+        $(go.Shape,
+            {
+                fill: null,
+                stroke: null,
+            }
+        ),
+        $(go.Picture,
+            new go.Binding("source", "image", findImage),
+            {
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
+                alignment: go.Spot.Center,
+                opacity: 0.95,
+                pickable: false,
+            }
+        )
+    );                               
 }
 
 function makeIconImage() {
     return $(go.Picture,  // the image -------------------------------------
-        new go.Binding("source", "icon", findImage),
+        new go.Binding("source", "icon", getIconSource),
         {
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -412,6 +458,8 @@ export function groupTop1(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+
         ),
         $(go.Panel, "Vertical",  // position header above the subgraph
         {
@@ -463,7 +511,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                 font: "Bold 28pt Sans-Serif",
                 textAlign: "left",
                 alignment: go.Spot.Left,
-                margin: new go.Margin(0, 0, 0, 10),
+                margin: new go.Margin(0, 0, 0, 2),
                 wrap: go.TextBlock.None,
                 overflow: go.TextBlock.OverflowEllipsis,
                 stretch: go.GraphObject.Horizontal,
@@ -474,7 +522,7 @@ export function groupTop1(contextMenu: any, notation: string) {
             new go.Binding("stroke", "textcolor").makeTwoWay(),
             new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
-            makeNotation(notation),
+            makeNotation(notation),  // this is the icon in the header
             ), // End Horizontal Panel
 
             $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
@@ -530,13 +578,15 @@ export function groupTop2(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+
         ),
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
                 // fill: "transparent", 
                 stroke: "transparent",
-                margin: new go.Margin(30, 12, 12, 12),
+                margin: new go.Margin(30, 10, 16, 10),
                 minSize: new go.Size(150, 55),
                 stretch: go.GraphObject.Fill,
             },
@@ -558,12 +608,12 @@ export function groupTop2(contextMenu: any, notation: string) {
                         stretch: go.GraphObject.Horizontal,
                     },
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
-                $("SubGraphExpanderButton",
+                $("SubGraphExpanderButton", // + - buttons 
                     {
                         column: 0, 
-                        margin: new go.Margin(-2, 2, 2, 0), 
+                        margin: new go.Margin(2, 2, 2, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.5,
+                        scale: 1.2,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
@@ -576,7 +626,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    margin: new go.Margin(4, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name"
@@ -593,10 +643,10 @@ export function groupTop2(contextMenu: any, notation: string) {
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 28pt Sans-Serif",
+                    font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    margin: new go.Margin(4, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name",
@@ -615,9 +665,9 @@ export function groupTop2(contextMenu: any, notation: string) {
                     row: 1,
                     stretch: go.GraphObject.Fill,
                     fill: "rgba(128,128,128,0.33)",
-                    stroke: "black",
+                    stroke: "rgba(191, 191, 191, 0.13)",
                     opacity: 0.75,
-                    margin: new go.Margin(1, 4, 1, 4),
+                    margin: new go.Margin(0, 6, 0, 6),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
@@ -630,9 +680,11 @@ export function groupTop2(contextMenu: any, notation: string) {
                 {
                     row: 1,
                     stretch: go.GraphObject.Fill,
-                    margin: new go.Margin(2, 10, 5, 10),
+                    margin: new go.Margin(10, 16, 8, 16),
                     alignment: go.Spot.Center,
-                    imageStretch: go.GraphObject.Uniform,
+                    imageStretch: go.GraphObject.Fill,
+                    opacity: 0.95,
+                    pickable: false,
                 },
                 new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ), // End Picture
@@ -849,10 +901,11 @@ function addNodeText0(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         // $(go.TextBlock, textStyle(), // the typename  --------------------
         //     {
@@ -868,7 +921,7 @@ function addNodeText0(contextMenu: any) {
     )
 }
 
-function addNodeText(contextMenu: any) {
+function addNodeText(contextMenu: any, typeviewContextMenu: any) {
     return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
             contextMenu: contextMenu, 
@@ -899,10 +952,11 @@ function addNodeText(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
             {
@@ -911,9 +965,11 @@ function addNodeText(contextMenu: any) {
                 minSize: new go.Size(10, 4),
                 margin: new go.Margin(0, 0, 0, 2),  
                 textAlign: "center",
+                // cursor: "context-menu",
+                name: "typename",
+                contextMenu: typeviewContextMenu
             },
-            new go.Binding("text", "typename"),
-            new go.Binding("stroke", "textcolor2").makeTwoWay()
+            new go.Binding("text", "typename")
         ),
     )
 }
@@ -1422,7 +1478,7 @@ function addLinkTemplateName(name: string) {
         myDiagram.commitTransaction('addLane');
     }
 // }
-export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
+export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis, typeviewContextMenu: any) {
     const myDiagram = myMetis.myDiagram;
     if (debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
     let nodeTemplate0 =      
@@ -1487,7 +1543,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 desiredSize: new go.Size(136, 60),              
             }    
         ), 
-        addNodeText(contextMenu),       
+        addNodeText(contextMenu, typeviewContextMenu),       
     );
     nodeTemplateMap.add("", nodeTemplate0);
     nodeTemplateMap.add("textOnly", nodeTemplate0);
@@ -1818,7 +1874,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     name: "name"
                 },        
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
+                new go.Binding("stroke", "textcolor")
                 ),
             ),
             ),
@@ -2008,7 +2064,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             $(go.Picture,  // the image -------------------------------------
                                 {
                                     name: "Picture",
-                                    desiredSize: new go.Size(48, 48),
+                                    desiredSize: new go.Size(52, 52),
+                                    stretch: go.GraphObject.Fill,
+                                    imageStretch: go.GraphObject.Fill,
+                                    alignment: go.Spot.Center,
                                 },
                                 new go.Binding("source", "icon", findImage),
                             ),    
@@ -2026,7 +2085,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     // alignment: go.Spot.Center, // Add this line to align the text center
                                 },
                                 // new go.Binding("fill", "fillcolor2"),
-                                new go.Binding("stroke", "strokecolor2", defaultStrokeColor), // Apply converter here
+                                new go.Binding("stroke", "textcolor2", defaultStrokeColor), // Apply converter here - icon text color
                                 new go.Binding("text", "icon", findUnicodeImage)
                             )
                         ),
@@ -2034,7 +2093,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     // comment out icon stop
                     // define the panel where the text will appear
 
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2132,7 +2191,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2226,7 +2285,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2306,8 +2365,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
               margin: new go.Margin(12,12,12,12),
               alignment: go.Spot.Center,
               cursor: "move",
+              stretch: go.GraphObject.Fill,
+              imageStretch: go.GraphObject.Fill,
           },
-          new go.Binding("source", "icon", findImage),
+          new go.Binding("source", "icon", getIconSource),
           ),                                
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
@@ -2741,8 +2802,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 5, 5),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
-            new go.Binding("source", "icon", findImage),
+            new go.Binding("source", "icon", getIconSource),
         ),
 
         $(go.Picture,
@@ -2753,6 +2816,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 30, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon1", findImage),
         ),
@@ -2765,6 +2830,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 65, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon2", findImage),
         ),
@@ -2777,6 +2844,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 alignment: new go.Spot(0, 0, 100, 65),
                 margin: 50, //new go.Margin(5, 5, 5, 5),
                 cursor: "move",
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon3", findImage),
         ),
@@ -2842,9 +2911,12 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
-                    new go.Binding("source", "icon", findImage),
+                    new go.Binding("source", "icon", getIconSource),
                 ),    
             ),
             // end Spot Panel
@@ -2915,9 +2987,12 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
-                    new go.Binding("source", "icon", findImage),
+                    new go.Binding("source", "icon", getIconSource),
                 ),    
                 $(go.Shape,  // Plus line
                     { 
@@ -4315,7 +4390,173 @@ export function addPortTemplates() {
 
 function defaultStrokeColor(strokecolor2) {
   if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
-  return  (strokecolor2 === "") ? strokecolor2 : "#466"; // Dark bluegreen
+  return  (strokecolor2 === "") ? "#466" : strokecolor2; // Dark bluegreen default, or custom color
+}
+
+// Helper function to detect icon format from string content
+// Returns: 'unicode' | 'url' | 'shape' | 'library' | 'unknown'
+export function detectIconFormat(value: string): string {
+  if (!value) return 'unknown';
+  
+  // Debug: log the value and its properties
+  console.log("detectIconFormat - checking value:", JSON.stringify(value), "length:", value.length, "charCodes:", Array.from(value).map(c => c.charCodeAt(0)), "first 2 chars:", value.substring(0, 2), "first char code:", value.charCodeAt(0));
+  
+  // Check FIRST if it's a Unicode escape sequence: \uXXXX (4 digits) or \UXXXXXXXX (8 digits for emoji)
+  // Must check this BEFORE checking for backslash in shapes!
+  const is4DigitUnicode = value.startsWith('\\u') && value.length === 6;
+  const is8DigitUnicode = value.startsWith('\\U') && value.length === 10;
+  
+  console.log("detectIconFormat - is4DigitUnicode:", is4DigitUnicode, "is8DigitUnicode:", is8DigitUnicode, "startsWith check u:", value.startsWith('\\u'), "startsWith check U:", value.startsWith('\\U'));
+  
+  if (is4DigitUnicode || is8DigitUnicode) {
+    console.log("detectIconFormat - detected as unicode escape sequence");
+    return 'unicode';
+  }
+  
+  // Check if it's a Unicode character (single character with charCode > 127)
+  if (value.length === 1 && value.charCodeAt(0) > 127) {
+    console.log("detectIconFormat - detected as single unicode char");
+    return 'unicode';
+  }
+  
+  // Check if it's an emoji (length > 1 due to surrogate pair or multi-byte)
+  if (value.length > 1 && value.charCodeAt(0) > 127) {
+    console.log("detectIconFormat - detected as multi-byte unicode");
+    return 'unicode';
+  }
+  
+  // Check if it's an SVG data URL
+  if (value.startsWith('data:image/svg+xml')) {
+    console.log("detectIconFormat - detected as svg data url");
+    return 'svg';
+  }
+  
+  // Check if it's a URL (http:// or https://)
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    console.log("detectIconFormat - detected as url");
+    return 'url';
+  }
+  
+  // Check if it's a GoJS figure/shape (contains / or \ suggesting a path or figure name)
+  // But NOT if it's a Unicode escape sequence (already checked above)
+  if (value.includes('/') || (value.includes('\\') && !value.match(/^\\[uU]/))) {
+    console.log("detectIconFormat - detected as shape");
+    return 'shape';
+  }
+  
+  // Otherwise it's likely a library icon name or file name
+  console.log("detectIconFormat - detected as library");
+  return 'library';
+}
+
+// Function to render icon from unified icon field with format detection
+export function getIconSource(iconValue: any): string {
+  // Handle both cases: if called from binding with string value, or with object
+  let value = iconValue;
+  
+  // If it's an object with an icon property, extract the icon value
+  if (iconValue && typeof iconValue === 'object' && iconValue.icon) {
+    value = iconValue.icon;
+  }
+  
+  if (!value) {
+    return "";
+  }
+  
+  const format = detectIconFormat(value);
+  console.log("getIconSource called with value:", value, "format:", format);
+  
+  if (format === 'unicode') {
+    // Convert escape sequence to character if needed
+    // \uXXXX (4 digits) → regular Unicode characters (e.g., \u2605 → ★)
+    // \UXXXXXXXX (8 digits) → emoji (e.g., \U0001f600 → 😀)
+    let char = value;
+    
+    if (typeof value === 'string') {
+      if (value.startsWith('\\u') && value.length === 6) {
+        // Standard Unicode: \uXXXX (4 hex digits)
+        const codePoint = parseInt(value.slice(2), 16);
+        try {
+          char = String.fromCodePoint(codePoint);
+        } catch (e) {
+          console.error("Failed to convert code point:", value);
+          char = value;
+        }
+      } else if (value.startsWith('\\U') && value.length === 10) {
+        // Extended Unicode/Emoji: \UXXXXXXXX (8 hex digits)
+        const codePoint = parseInt(value.slice(2), 16);
+        try {
+          char = String.fromCodePoint(codePoint);
+        } catch (e) {
+          console.error("Failed to convert emoji code point:", value);
+          char = value;
+        }
+      } else {
+        // Maybe it's already the character itself
+        char = value;
+      }
+    }
+    
+    // Render Unicode character as SVG with proper encoding
+    // Use a larger font and better positioning for Unicode symbols
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+      <defs>
+        <style type="text/css">
+          text { font-size: 20px; font-family: Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; fill: black; }
+        </style>
+      </defs>
+      <text x="12.5" y="12.5">${char}</text>
+    </svg>`;
+    
+    // Use base64 encoding for better Unicode support
+    // This helper function properly encodes UTF-8 to base64
+    const utf8_btoa = (str: string) => {
+      try {
+        // Use TextEncoder to properly handle UTF-8 encoding including emoji
+        const encoder = new TextEncoder();
+        const uint8array = encoder.encode(str);
+        let binaryString = '';
+        for (let i = 0; i < uint8array.byteLength; i++) {
+          binaryString += String.fromCharCode(uint8array[i]);
+        }
+        return btoa(binaryString);
+      } catch (e) {
+        console.warn("TextEncoder failed, trying fallback for value:", value);
+        try {
+          return btoa(unescape(encodeURIComponent(str)));
+        } catch (e2) {
+          console.warn("All encoding methods failed for:", value, e2);
+          return "";
+        }
+      }
+    };
+    
+    const btoa_svg = utf8_btoa(svg);
+    if (!btoa_svg) {
+      console.error("Failed to encode SVG for icon:", value);
+      return "";
+    }
+    const result = `data:image/svg+xml;base64,${btoa_svg}`;
+    console.log("getIconSource - generated SVG data URL for:", value, "char:", char, "char length:", char.length, "char codePointAt(0):", char.codePointAt(0), "result length:", result.length);
+    return result;
+  } else if (format === 'svg') {
+    // SVG data URL - wrap in a viewBox container to ensure proper scaling and centering
+    // This ensures the SVG fits within the icon frame
+    if (value.startsWith('data:image/svg+xml;base64,')) {
+      console.log("getIconSource - SVG data URL detected, wrapping for proper scaling");
+      return value; // SVG data URLs already contain the full image data
+    }
+    return value;
+  } else if (format === 'url') {
+    // URL format - return as-is
+    return value;
+  } else if (format === 'shape') {
+    // Shape/path format - return as-is
+    return value;
+  } else {
+    // Library icon name - use existing findImage logic
+    return findImage(value);
+  }
 }
 
 // Function to identify images related to an image id

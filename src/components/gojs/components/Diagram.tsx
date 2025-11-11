@@ -40,7 +40,9 @@ import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
-import { iconList } from '../../forms/selectIcons';
+import { iconList, imageLibrary } from '../../forms/selectIcons';
+import ChangeIconModal from '../../modals/ChangeIconModal';
+import ChangeImageModal from '../../modals/ChangeImageModal';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -68,6 +70,8 @@ interface DiagramProps {
 interface DiagramState {
   myMetis: akm.cxMetis,
   showModal: boolean;
+  showChangeIconModal: boolean;
+  showChangeImageModal: boolean;
   selectedData: any;
   modalContext: any;
   selectedOption: any;
@@ -101,6 +105,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       nodeDataArray: this.props.nodeDataArray,
       linkDataArray: this.props.linkDataArray,
       showModal: false,
+      showChangeIconModal: false,
+      showChangeImageModal: false,
       selectedData: null,
       modalContext: null,
       selectedOption: null,
@@ -152,6 +158,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SubGraphCollapsed', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
+      
+      // Add listener to force update emoji icons after model is loaded
+      diagram.addDiagramListener('InitialLayoutCompleted', () => {
+        console.log("Diagram InitialLayoutCompleted - forcing icon source update for emoji support");
+        // Import and call the force update function
+        try {
+          const uit = require('../../../akmm/ui_templates');
+          uit.forceUpdateAllIconSources(diagram);
+        } catch (e) {
+          console.error("Failed to force update icon sources:", e);
+        }
+      });
 
       diagram.addModelChangedListener(this.props.onModelChange);
 
@@ -200,11 +218,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleOpenModal(node, modalContext) {
     // Is implemented in "render" at the bottom of this file
+    const isChangeIconModal = modalContext?.case === 'Change Icon';
+    const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: true,
+      showModal: !isChangeIconModal && !isSetGroupImageModal,
+      showChangeIconModal: isChangeIconModal,
+      showChangeImageModal: isSetGroupImageModal,
       currentActiveTab: '0'
     });
   }
@@ -415,6 +437,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let advancedLinkContextMenu: go.Adornment | null = null;
     let partContextMenu: go.HTMLInfo;
     let linkContextMenu: go.HTMLInfo;
+    let typeviewContextMenu: go.HTMLInfo;
 
     // Nodes CONTEXT MENU
     {
@@ -3579,6 +3602,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let lastAnchorElement: HTMLElement | null = null;
   let pendingBackgroundDispose = false;
   let docPointerDownHandler: ((e: PointerEvent) => void) | null = null;
+  let suppressMenuDispose = false; // Transient flag to prevent menu disposal while select/input is handling events
 
       const disposeSubMenu = () => {
         if (activeSubMenuDiv && activeSubMenuDiv.parentElement) {
@@ -3715,7 +3739,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           const button = document.createElement("button");
           button.type = "button";
           button.className = HTML_MENU_ITEM_CLASS;
-          button.textContent = item.label ?? "";
+          // If the item provides a custom render function, let it populate the button
+          if (typeof (item as any).render === 'function') {
+            try { (item as any).render(button, diagram, tool, item); } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('menu item render failed', e); }
+          } else {
+            button.textContent = item.label ?? "";
+          }
           button.style.display = "block";
           button.style.width = "100%";
           // leave extra right padding so a submenu arrow can be shown without overlapping text
@@ -3748,7 +3777,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
 
           button.onmouseenter = () => {
-            button.style.background = "rgba(0,0,0,0.06)";
+            if (!button.disabled) {
+              button.style.background = "rgba(0,0,0,0.06)";
+            }
             if (!button.disabled && item.closeOnClick === false && item.action) {
               hoverTimer = window.setTimeout(() => {
                 if (activeSubMenuDiv) {
@@ -3760,7 +3791,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           };
           button.onmouseleave = () => {
-            button.style.background = "transparent";
+            if (!button.disabled) {
+              button.style.background = "transparent";
+            }
             if (hoverTimer) {
               clearTimeout(hoverTimer);
               hoverTimer = null;
@@ -3771,7 +3804,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (!enabled) {
             button.disabled = true;
             button.style.cursor = "default";
-            button.style.color = "#bbb";
+            button.style.color = "#888";
+            button.style.background = "#f5f5f5";
+            button.style.fontWeight = "600";
+            button.style.padding = "8px 16px";
+            button.style.pointerEvents = "none";
           }
 
           button.onclick = (ev) => {
@@ -3817,6 +3854,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!docPointerDownHandler) {
           docPointerDownHandler = (ev: PointerEvent) => {
             try {
+              // Skip disposal if a select/input is being interacted with (transient suppression)
+              if (suppressMenuDispose) {
+                return;
+              }
               const tgt = ev.target as Node | null;
               const insideMain = activeMenuDiv && tgt && activeMenuDiv.contains(tgt as Node);
               const insideSub = activeSubMenuDiv && tgt && activeSubMenuDiv.contains(tgt as Node);
@@ -3849,23 +3890,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           };
           try { document.addEventListener('pointerdown', docPointerDownHandler); } catch (_) {}
         }
+        // Always update anchor when explicitly provided (the source button being clicked)
         if (anchor) {
           lastAnchorElement = anchor;
         }
         const targetAnchor = anchor || lastAnchorElement;
-        // try a few fallbacks to get an anchor rect to place the submenu next to the parent menu/button
+        
+        // IMPORTANT: Always use targetAnchor directly for positioning, not fallbacks to parent menu
+        // The targetAnchor should be the button that was clicked to open this submenu
         let anchorRect: DOMRect | null = null;
         // Prefer the actual menu-item button (or its closest ancestor button) as the anchor
         const findAnchorButton = (el?: HTMLElement | null) => {
           try {
             if (!el) return null;
             // If the element is a button already, use it
-            if (el.tagName && el.tagName.toLowerCase() === 'button') return el;
-            // Walk up to find a button ancestor (the menu item)
+            if (el.tagName && el.tagName.toLowerCase() === 'button') {
+              // Make sure this button is a menu item, not the entire menu container
+              if (el.classList.contains(HTML_MENU_ITEM_CLASS)) {
+                return el;
+              }
+              // If it's a button but not a menu item button, still return it (better than nothing)
+              return el;
+            }
+            // Walk up to find a button ancestor (the menu item), but limit search
             let parent: HTMLElement | null = el.parentElement;
             let depth = 0;
-            while (parent && depth < 6) {
-              if (parent.tagName && parent.tagName.toLowerCase() === 'button') return parent;
+            while (parent && depth < 3) {  // Reduced depth to avoid finding parent menu
+              if (parent.tagName && parent.tagName.toLowerCase() === 'button' && parent.classList.contains(HTML_MENU_ITEM_CLASS)) {
+                return parent;
+              }
               parent = parent.parentElement;
               depth++;
             }
@@ -3892,39 +3945,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         } catch (e) {
           anchorRect = null;
         }
+        
+        // If we couldn't get anchorRect from candidateButton, try the activeMenuDiv or other fallbacks
         if ((!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) && activeMenuDiv) {
           try { anchorRect = activeMenuDiv.getBoundingClientRect() as DOMRect; } catch (_) { anchorRect = null; }
-        }
-        // final fallback: place next to the mouse-down point (if available)
-        if ((!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) && tool && (tool as any).mouseDownPoint) {
-          const p = (tool as any).mouseDownPoint;
-          anchorRect = { left: p.x, right: p.x, top: p.y, bottom: p.y, width: 0, height: 0 } as DOMRect;
         }
 
         // perform positioning in the next animation frame so layout measurements are reliable
         window.requestAnimationFrame(() => {
           try {
-            console.debug('[renderSubMenu:rAF] anchorRect before fallback:', anchorRect);
-            console.debug('[renderSubMenu:rAF] lastAnchorElement:', lastAnchorElement && (lastAnchorElement as HTMLElement).outerHTML?.slice ? (lastAnchorElement as HTMLElement).outerHTML.slice(0, 240) : lastAnchorElement);
+            console.debug('[renderSubMenu:rAF] anchorRect computed:', anchorRect);
+            console.debug('[renderSubMenu:rAF] candidateButton:', candidateButton && (candidateButton as HTMLElement).outerHTML?.slice ? (candidateButton as HTMLElement).outerHTML.slice(0, 240) : candidateButton);
           } catch (_) {}
-          // if anchorRect is still invalid, try to use the anchor's parent element or the active menu as last resort
-          if (!anchorRect && targetAnchor && (targetAnchor as HTMLElement).parentElement) {
+          
+          // If we still don't have an anchorRect, we cannot position the submenu properly
+          // This should rarely happen if buttons are being passed correctly as the source parameter
+          if (!anchorRect) {
             try {
-              const candidateButton = findAnchorButton((targetAnchor as HTMLElement).parentElement) || (targetAnchor as HTMLElement).parentElement;
-              if (candidateButton) anchorRect = candidateButton.getBoundingClientRect() as DOMRect;
-            } catch (_) { anchorRect = null; }
-          }
-          if (!anchorRect && activeMenuDiv) {
-            try {
-              // Try to locate the actual hovered menu item inside the active menu (works when the anchor was not passed correctly)
-              const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
-              if (hovered && hovered.getBoundingClientRect) {
-                anchorRect = hovered.getBoundingClientRect() as DOMRect;
-              } else {
-                // fallback to the active menu rect
-                anchorRect = activeMenuDiv.getBoundingClientRect() as DOMRect;
-              }
-            } catch (_) { anchorRect = null; }
+              if ((window as any).DEBUG_GOJS_MENUS) console.debug('[renderSubMenu:rAF] WARNING: No valid anchorRect available for positioning submenu');
+            } catch (_) {}
+            // Try last resort: find hovered item in the active menu
+            if (activeMenuDiv) {
+              try {
+                const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
+                if (hovered && hovered.getBoundingClientRect) {
+                  anchorRect = hovered.getBoundingClientRect() as DOMRect;
+                }
+              } catch (_) { }
+            }
           }
 
           try {
@@ -3945,36 +3993,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const menuRect = menu.getBoundingClientRect();
             const viewportLeft = window.pageXOffset + 4;
             const viewportRight = window.pageXOffset + window.innerWidth - 4;
+            
+            // If anchorRect appears to be the entire menu (width >= 190), try to find the hovered item instead
+            if (anchorRect.width >= 190 && activeMenuDiv) {
+              try {
+                const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
+                if (hovered && hovered.getBoundingClientRect) {
+                  const hoveredRect = hovered.getBoundingClientRect();
+                  if (hoveredRect.width > 0 && hoveredRect.height > 0) {
+                    anchorRect = hoveredRect as DOMRect;
+                  }
+                }
+              } catch (_) { }
+            }
+            
             // place submenu to the right of the anchor button
             let left = anchorRect.right + window.pageXOffset + 6;
             // align top of submenu with the top of the anchor button
             let top = anchorRect.top + window.pageYOffset;
-
-            // If anchorRect appears to equal the active menu rect (a known issue in some layouts),
-            // try to compute the top from the candidateButton.offsetTop relative to the active menu.
-            try {
-              if (activeMenuDiv) {
-                const activeRect = activeMenuDiv.getBoundingClientRect();
-                // Heuristic: if anchorRect matches the active menu rect, use offsetTop
-                if (activeRect && Math.abs(activeRect.top - anchorRect.top) < 1 && Math.abs(activeRect.left - anchorRect.left) < 1) {
-                  if (candidateButton && candidateButton instanceof HTMLElement && activeMenuDiv.contains(candidateButton)) {
-                    const buttonOffsetTop = candidateButton.offsetTop || 0;
-                    const buttonOffsetLeft = candidateButton.offsetLeft || 0;
-                    // Put submenu to the right of the button inside the active menu
-                    top = activeRect.top + buttonOffsetTop + window.pageYOffset;
-                    left = activeRect.left + buttonOffsetLeft + (candidateButton.offsetWidth || 0) + window.pageXOffset + 6;
-                  } else {
-                    // fallback: try hovered item inside the active menu
-                    const hovered = activeMenuDiv.querySelector(`.${HTML_MENU_ITEM_CLASS}:hover`) as HTMLElement | null;
-                    if (hovered) {
-                      const hr = hovered.getBoundingClientRect();
-                      top = hr.top + window.pageYOffset;
-                      left = hr.right + window.pageXOffset + 6;
-                    }
-                  }
-                }
-              }
-            } catch (_) {}
 
             // if there's not enough space on the right, open to the left of the anchor
             if (left + menuRect.width > viewportRight) {
@@ -4806,21 +4842,90 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const members = groupPart.memberParts;
         const myModelview = myMetis.currentModelview;
         if (!myModelview) return;
-        if (members) {
-          members.each((member) => {
-            if (!(member instanceof go.Node)) return;
-            const memberData: any = member.data;
-            if (!memberData) return;
-            let memberObjview = memberData.objectview;
-            if (!memberObjview) {
-              memberObjview = myModelview.findObjectView(memberData.objviewRef);
+        const persistPartGeometry = (memberPart: go.Part | null | undefined) => {
+          if (!memberPart) return;
+          if (!(memberPart instanceof go.Node) && !(memberPart instanceof go.Group)) return;
+          const memberData: any = memberPart.data;
+          if (!memberData) return;
+          const memberObjview = resolveObjectview(memberData);
+
+          const locationPoint = memberPart.location;
+          if (locationPoint) {
+            const locString = go.Point.stringify(locationPoint);
+            try {
+              targetDiagram.model.setDataProperty(memberData, "loc", locString);
+            } catch (_err) {
+              memberData.loc = locString;
             }
-            const locPoint = member.location;
-            const locString = go.Point.stringify(locPoint);
-            targetDiagram.model.setDataProperty(memberData, "loc", locString);
             if (memberObjview) {
               memberObjview.loc = locString;
             }
+          }
+
+          const candidateSizes: Array<{ width: number; height: number }> = [];
+          const addCandidate = (candidate: any) => {
+            if (!candidate) return;
+            const width = Number(candidate.width);
+            const height = Number(candidate.height);
+            if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+            if (width <= 0 || height <= 0) return;
+            candidateSizes.push({ width, height });
+          };
+
+          const resizeObject: any = (memberPart as any).resizeObject || null;
+          if (resizeObject && resizeObject.desiredSize) {
+            addCandidate(resizeObject.desiredSize);
+          }
+          const desiredSize: any = (memberPart as any).desiredSize || null;
+          if (desiredSize) {
+            addCandidate(desiredSize);
+          }
+          const actualBounds = memberPart.actualBounds || null;
+          if (actualBounds) {
+            addCandidate(actualBounds);
+          }
+          if (!candidateSizes.length && typeof memberData.size === "string") {
+            const parts = memberData.size
+              .trim()
+              .split(/[,\s]+/)
+              .map((token: string) => Number(token))
+              .filter((num: number) => Number.isFinite(num));
+            if (parts.length >= 2) {
+              addCandidate({ width: parts[0], height: parts[1] });
+            }
+          }
+
+          if (candidateSizes.length) {
+            const bestSize = candidateSizes.reduce((largest, current) => {
+              const largestArea = largest.width * largest.height;
+              const currentArea = current.width * current.height;
+              return currentArea > largestArea ? current : largest;
+            });
+            const sizeString = `${bestSize.width} ${bestSize.height}`;
+            try {
+              targetDiagram.model.setDataProperty(memberData, "size", sizeString);
+            } catch (_err) {
+              memberData.size = sizeString;
+            }
+            if (memberObjview) {
+              memberObjview.size = sizeString;
+            }
+          }
+
+          if (memberObjview && typeof (memberObjview as any).setModified === "function") {
+            try {
+              (memberObjview as any).setModified();
+            } catch (_err) {
+              // ignore
+            }
+          }
+        };
+
+        persistPartGeometry(groupPart);
+
+        if (members) {
+          members.each((member) => {
+            persistPartGeometry(member);
           });
         }
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
@@ -5904,80 +6009,481 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const isObject = data.category === constants.gojs.C_OBJECT;
         if (isObject) {
           items.push({ separator: true });
+          // Group common object actions into an "Object…" submenu
           items.push({
-            label: "Edit Object",
-            action: () => handleEditObject(part),
-          });
-          items.push({
-            label: "Delete Object",
-              action: (diagram) => handleDeletePart(diagram, part),
+            label: "Object…",
+            action: showSubMenu([
+              {
+                label: "Edit Object",
+                action: () => handleEditObject(part),
+              },
+              {
+                label: "Delete Object",
+                action: (diagram) => handleDeletePart(diagram, part),
                 enabled: (diagram) => canDeleteSinglePart(diagram, part),
-              });
-          items.push({
-            label: "Delete Selection",
-              action: (diagram) => handleDeleteSelection(diagram),
+              },
+              {
+                label: "Delete Selection",
+                action: (diagram) => handleDeleteSelection(diagram),
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+              }
+            ]),
+            closeOnClick: false,
           });
+          // Group object-view related actions into an "Objectview…" submenu
           items.push({ separator: true });
           items.push({
-            label: "Edit Object View",
-            action: () => handleEditObjectview(part),
-          });
-          items.push({
-            label: "Delete Object View",
-              action: (diagram) => {
-                if (!diagram) return;
-                const restore = exclusiveSelectPart(diagram, part);
-                if (!diagram.commandHandler.canDeleteSelection()) {
-                  restore();
-                  return;
-                }
-                if (!confirm('Do you really want to delete this object view?')) {
-                  restore();
-                  return;
-                }
-                myMetis.deleteViewsOnly = true;
-                myMetis.currentNode = part.data;
-                diagram.commandHandler.deleteSelection();
-                restore();
+            label: "Objectview…",
+            action: showSubMenu([
+              {
+                label: "Edit Object View",
+                action: (diagram) => handleEditObjectview(part),
               },
+              {
+                label: "Delete Object View",
+                action: (diagram) => {
+                  if (!diagram) return;
+                  const restore = exclusiveSelectPart(diagram, part);
+                  if (!diagram.commandHandler.canDeleteSelection()) {
+                    restore();
+                    return;
+                  }
+                  if (!confirm('Do you really want to delete this object view?')) {
+                    restore();
+                    return;
+                  }
+                  myMetis.deleteViewsOnly = true;
+                  myMetis.currentNode = part.data;
+                  diagram.commandHandler.deleteSelection();
+                  restore();
+                },
                 enabled: (diagram) => canDeleteSinglePart(diagram, part),
-          });
-          items.push({
-            label: "Delete Selected Views",
-              action: (diagram) => {
-                if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
-                if (!confirm('Do you really want to delete the current selection?')) return;
-                myMetis.deleteViewsOnly = true;
-                diagram.commandHandler.deleteSelection();
               },
+              {
+                label: "Delete Selected Views",
+                action: (diagram) => {
+                  if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+                  if (!confirm('Do you really want to delete the current selection?')) return;
+                  myMetis.deleteViewsOnly = true;
+                  diagram.commandHandler.deleteSelection();
+                },
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+                },
+                // Add separator before Change Icon
+                { separator: true },
+                {
+                label: "Change Icon",
+                action: (diagram) => {
+                  const node = part.data;
+                  if (!node) return;
+                  if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+                  const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Icon",
+                    case: "Change Icon",
+                    iconList: iconList(),
+                    currentNode: node,
+                    myDiagram: diagram
+                  };
+                  myMetis.currentNode = node;
+                  myMetis.myDiagram = diagram;
+                  diagram.handleOpenModal(node, modalContext);
+                },
+                enabled: (diagram) => {
+                  const node = part.data;
+                  return !!node && node.category === constants.gojs.C_OBJECT;
+                }
+              }
+              ,
+              {
+                label: 'Set Objectview Colors',
+                action: (() => {
+                  const objColorItems: HtmlMenuItem[] = [
+                    {
+                      label: 'Fill color',
+                      closeOnClick: false,
+                      render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                        try {
+                          const nodeData = part?.data;
+                          const current = (nodeData && (nodeData.fillcolor || '')) || '';
+                          const wrap = document.createElement('div');
+                          wrap.style.display = 'flex';
+                          wrap.style.alignItems = 'center';
+                          wrap.style.gap = '8px';
+                          const lbl = document.createElement('span');
+                          lbl.textContent = 'Fill';
+                          lbl.style.minWidth = '56px';
+
+                          const inp = document.createElement('input');
+                          inp.type = 'color';
+                          try {
+                            const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                            inp.value = initial;
+                            inp.defaultValue = initial;
+                            try { inp.setAttribute('value', initial); } catch (_) {}
+                          } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) {} }
+                          inp.style.cursor = 'pointer';
+                          inp.onclick = (ev) => { ev.stopPropagation(); };
+                          inp.oninput = (ev) => {
+                            try {
+                              const val = (ev.target as HTMLInputElement).value;
+                              if (nodeData) {
+                                const targetDiagram = diagram || myDiagram;
+                                try {
+                                  const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                  if (objview) {
+                                    objview.fillcolor = val;
+                                    const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                    const data = JSON.parse(JSON.stringify(jsnObjview));
+                                    targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                  }
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview fillcolor failed', e); }
+                                try { inp.value = val; } catch (_) {}
+                                (diagram || myDiagram)?.requestUpdate?.();
+                              }
+                            } catch (_) {}
+                          };
+
+                          const presets = [
+                            { label: 'Black', value: '#000000' },
+                            { label: 'White', value: '#ffffff' },
+                            { label: 'Red', value: '#ff0000' },
+                            { label: 'Green', value: '#00ff00' },
+                            { label: 'Blue', value: '#0000ff' },
+                            { label: 'Yellow', value: '#ffff00' },
+                            { label: 'Orange', value: '#ffa500' },
+                            { label: 'Purple', value: '#800080' },
+                            { label: 'Gray', value: '#808080' },
+                            { label: 'Brown', value: '#8b4513' },
+                            { label: 'Pink', value: '#ffc0cb' },
+                            { label: 'Cyan', value: '#00ffff' }
+                          ];
+                          const sel = document.createElement('select');
+                          sel.style.cursor = 'pointer';
+                          sel.style.padding = '2px 6px';
+                          sel.style.fontSize = '12px';
+                          sel.style.minWidth = '84px';
+                          const emptyOpt = document.createElement('option');
+                          emptyOpt.value = '';
+                          emptyOpt.text = 'Select Color';
+                          sel.appendChild(emptyOpt);
+                          for (const p of presets) {
+                            const o = document.createElement('option');
+                            o.value = p.value;
+                            o.text = p.label;
+                            sel.appendChild(o);
+                          }
+                          sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
+                            console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                            try {
+                              const val = (ev.target as HTMLSelectElement).value;
+                              console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                              if (val && nodeData && diagram) {
+                                try { sel.value = val; } catch (_) {}
+                                try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) {}
+                                // Synchronously update the GoJS model (same approach as Icon menu)
+                                try { diagram.model.setDataProperty(nodeData, 'fillcolor', val); } catch (_) {}
+                                console.debug('[OBJVIEW FILL SEL.ONCHANGE] model updated');
+                                if ((window as any).DEBUG_GOJS_MENUS) {
+                                  try {
+                                    const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                    console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                  } catch (_) {}
+                                }
+                                // update the color input UI immediately
+                                try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) {} } catch (_) {}
+                                try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) {}
+                                try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                                diagram.requestUpdate();
+
+                                // persist asynchronously to avoid racing with menu disposal
+                                try {
+                                  setTimeout(() => {
+                                    try {
+                                      const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                      if (objview) {
+                                        objview.fillcolor = val;
+                                        const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                        const data = JSON.parse(JSON.stringify(jsnObjview));
+                                        try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
+                                      }
+                                    } catch (_) {}
+                                  }, 0);
+                                } catch (_) {}
+                              }
+                            } catch (_) {}
+                          };
+
+                          wrap.appendChild(lbl);
+                          wrap.appendChild(sel);
+                          wrap.appendChild(inp);
+                          container.textContent = '';
+                          container.appendChild(wrap);
+                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview fillcolor failed', e); }
+                      }
+                    },
+                    {
+                      label: 'Stroke color',
+                      closeOnClick: false,
+                      render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                        try {
+                          const nodeData = part?.data;
+                          const current = (nodeData && (nodeData.strokecolor || '')) || '';
+                          const wrap = document.createElement('div');
+                          wrap.style.display = 'flex';
+                          wrap.style.alignItems = 'center';
+                          wrap.style.gap = '8px';
+                          const lbl = document.createElement('span');
+                          lbl.textContent = 'Stroke';
+                          lbl.style.minWidth = '56px';
+                          const inp = document.createElement('input');
+                          inp.type = 'color';
+                          try {
+                            const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                            inp.value = initial;
+                            inp.defaultValue = initial;
+                            try { inp.setAttribute('value', initial); } catch (_) {}
+                          } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) {} }
+                          inp.style.cursor = 'pointer';
+                          inp.onclick = (ev) => { ev.stopPropagation(); };
+                          inp.oninput = (ev) => {
+                            try {
+                              const val = (ev.target as HTMLInputElement).value;
+                              if (nodeData) {
+                                const targetDiagram = diagram || myDiagram;
+                                try {
+                                  const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                  if (objview) {
+                                    objview.strokecolor = val;
+                                    const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                    const data = JSON.parse(JSON.stringify(jsnObjview));
+                                    targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                  }
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview strokecolor failed', e); }
+                                try { inp.value = val; } catch (_) {}
+                                (diagram || myDiagram)?.requestUpdate?.();
+                              }
+                            } catch (_) {}
+                          };
+
+                          const presets = [
+                            { label: 'Black', value: '#000000' },
+                            { label: 'White', value: '#ffffff' },
+                            { label: 'Red', value: '#ff0000' },
+                            { label: 'Green', value: '#00ff00' },
+                            { label: 'Blue', value: '#0000ff' },
+                            { label: 'Yellow', value: '#ffff00' },
+                            { label: 'Orange', value: '#ffa500' },
+                            { label: 'Purple', value: '#800080' },
+                            { label: 'Gray', value: '#808080' },
+                            { label: 'Brown', value: '#8b4513' },
+                            { label: 'Pink', value: '#ffc0cb' },
+                            { label: 'Cyan', value: '#00ffff' }
+                          ];
+                          const sel = document.createElement('select');
+                          sel.style.cursor = 'pointer';
+                          sel.style.padding = '2px 6px';
+                          sel.style.fontSize = '12px';
+                          sel.style.minWidth = '84px';
+                          const emptyOpt = document.createElement('option');
+                          emptyOpt.value = '';
+                          emptyOpt.text = 'Select Color';
+                          sel.appendChild(emptyOpt);
+                          for (const p of presets) {
+                            const o = document.createElement('option');
+                            o.value = p.value;
+                            o.text = p.label;
+                            sel.appendChild(o);
+                          }
+                          sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
+                            console.debug('[OBJVIEW STROKE SEL.ONCHANGE] fired', ev);
+                            try {
+                              const val = (ev.target as HTMLSelectElement).value;
+                              console.debug('[OBJVIEW STROKE SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                              if (val && nodeData && diagram) {
+                                try { sel.value = val; } catch (_) {}
+                                try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) {}
+                                // Synchronously update the GoJS model (same approach as Icon menu)
+                                try { diagram.model.setDataProperty(nodeData, 'strokecolor', val); } catch (_) {}
+                                console.debug('[OBJVIEW STROKE SEL.ONCHANGE] model updated');
+                                if ((window as any).DEBUG_GOJS_MENUS) {
+                                  try {
+                                    const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                    console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                  } catch (_) {}
+                                }
+                                // update the color input UI immediately
+                                try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) {} } catch (_) {}
+                                try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) {}
+                                try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                                diagram.requestUpdate();
+
+                                // persist asynchronously to avoid racing with menu disposal
+                                try {
+                                  setTimeout(() => {
+                                    try {
+                                      const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                      if (objview) {
+                                        objview.strokecolor = val;
+                                        const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                        const data = JSON.parse(JSON.stringify(jsnObjview));
+                                        try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
+                                      }
+                                    } catch (_) {}
+                                  }, 0);
+                                } catch (_) {}
+                              }
+                            } catch (_) {}
+                          };
+
+                          wrap.appendChild(lbl);
+                          wrap.appendChild(sel);
+                          wrap.appendChild(inp);
+                          container.textContent = '';
+                          container.appendChild(wrap);
+                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview strokecolor failed', e); }
+                      }
+                    },
+                    {
+                      label: 'Text color',
+                      closeOnClick: false,
+                      render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                        try {
+                          const nodeData = part?.data;
+                          const current = (nodeData && (nodeData.textcolor || '')) || '';
+                          const wrap = document.createElement('div');
+                          wrap.style.display = 'flex';
+                          wrap.style.alignItems = 'center';
+                          wrap.style.gap = '8px';
+                          const lbl = document.createElement('span');
+                          lbl.textContent = 'Text';
+                          lbl.style.minWidth = '56px';
+                          const inp = document.createElement('input');
+                          inp.type = 'color';
+                          try {
+                            const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                            inp.value = initial;
+                            inp.defaultValue = initial;
+                            try { inp.setAttribute('value', initial); } catch (_) {}
+                          } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) {} }
+                          inp.style.cursor = 'pointer';
+                          inp.onclick = (ev) => { ev.stopPropagation(); };
+                          inp.oninput = (ev) => {
+                            try {
+                              const val = (ev.target as HTMLInputElement).value;
+                              if (nodeData) {
+                                const targetDiagram = diagram || myDiagram;
+                                try {
+                                  // Update the GoJS model first
+                                  try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) {}
+                                  // Then update the objview
+                                  const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                  if (objview) {
+                                    objview.textcolor = val;
+                                    const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                    const data = JSON.parse(JSON.stringify(jsnObjview));
+                                    targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                  }
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview textcolor failed', e); }
+                                try { inp.value = val; } catch (_) {}
+                                (diagram || myDiagram)?.requestUpdate?.();
+                              }
+                            } catch (_) {}
+                          };
+
+                          const presets = [
+                            { label: 'Black', value: '#000000' },
+                            { label: 'White', value: '#ffffff' },
+                            { label: 'Red', value: '#ff0000' },
+                            { label: 'Green', value: '#00ff00' },
+                            { label: 'Blue', value: '#0000ff' },
+                            { label: 'Yellow', value: '#ffff00' },
+                            { label: 'Orange', value: '#ffa500' },
+                            { label: 'Purple', value: '#800080' },
+                            { label: 'Gray', value: '#808080' },
+                            { label: 'Brown', value: '#8b4513' },
+                            { label: 'Pink', value: '#ffc0cb' },
+                            { label: 'Cyan', value: '#00ffff' }
+                          ];
+                          const sel = document.createElement('select');
+                          sel.style.cursor = 'pointer';
+                          sel.style.padding = '2px 6px';
+                          sel.style.fontSize = '12px';
+                          sel.style.minWidth = '84px';
+                          const emptyOpt = document.createElement('option');
+                          emptyOpt.value = '';
+                          emptyOpt.text = 'Select Color';
+                          sel.appendChild(emptyOpt);
+                          for (const p of presets) {
+                            const o = document.createElement('option');
+                            o.value = p.value;
+                            o.text = p.label;
+                            sel.appendChild(o);
+                          }
+                          sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                          sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
+                            console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
+                            try {
+                              const val = (ev.target as HTMLSelectElement).value;
+                              console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                              if (val && nodeData && diagram) {
+                                try { sel.value = val; } catch (_) {}
+                                try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) {}
+                                // Synchronously update the GoJS model (same approach as Icon menu)
+                                try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) {}
+                                console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
+                                if ((window as any).DEBUG_GOJS_MENUS) {
+                                  try {
+                                    const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                    console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                  } catch (_) {}
+                                }
+                                // update the color input UI immediately
+                                try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) {} } catch (_) {}
+                                try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) {}
+                                try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                                diagram.requestUpdate();
+
+                                // persist asynchronously to avoid racing with menu disposal
+                                try {
+                                  setTimeout(() => {
+                                    try {
+                                      const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                      if (objview) {
+                                        objview.textcolor = val;
+                                        const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                        const data = JSON.parse(JSON.stringify(jsnObjview));
+                                        try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
+                                      }
+                                    } catch (_) {}
+                                  }, 0);
+                                } catch (_) {}
+                              }
+                            } catch (_) {}
+                          };
+
+                          wrap.appendChild(lbl);
+                          wrap.appendChild(sel);
+                          wrap.appendChild(inp);
+                          container.textContent = '';
+                          container.appendChild(wrap);
+                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview textcolor failed', e); }
+                      }
+                    }
+                  ];
+                  try { (objColorItems as any).menuHeading = 'Set Objectview Colors'; } catch (_) {}
+                  return showSubMenu(objColorItems);
+                })(),
+                closeOnClick: false
+              }
+            ]),
+            closeOnClick: false,
           });
-          items.push({
-            label: "Change Icon",
-            action: (diagram) => {
-              const node = part.data;
-              if (!node) return;
-              if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
-              const ilist = iconList();
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Icon",
-                case: "Change Icon",
-                iconList: iconList(),
-                currentNode: node,
-                myDiagram: diagram
-              };
-              myMetis.currentNode = node;
-              myMetis.myDiagram = diagram;
-              diagram.handleOpenModal(node, modalContext);
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              return !!node && node.category === constants.gojs.C_OBJECT;
-            }
-          });
-          items.push({ separator: true });
           items.push({
             label: "Generate Metamodel",
             action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
@@ -6186,85 +6692,113 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
           items.push({ separator: true });
 
+          // Moved to right-click Objecttype text
+          // items.push({
+          //   label: "Change Object Type",
+          //   action: (diagram) => {
+          //     const node = part.data;
+          //     if (!node) return;
+          //     const currentType = node.objecttype;
+          //     const myMetamodel = myMetis.currentMetamodel;
+          //     const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
+          //     node.choices = [];
+          //     if (objtypes) {
+          //       for (let i = 0; i < objtypes.length; i++) {
+          //         const otype = objtypes[i];
+          //         if (!otype) continue;
+          //         if (!otype.markedAsDeleted) {
+          //           if (otype.name === 'Generic' || otype.name === 'Element') continue;
+          //           node.choices.push(otype.name);
+          //         }
+          //       }
+          //     }
+          //     const modalContext = {
+          //       what: "selectDropdown",
+          //       title: "Select Object Type",
+          //       case: "Change Object type",
+          //       myDiagram: diagram
+          //     };
+          //     myMetis.currentNode = node;
+          //     myMetis.myDiagram = diagram;
+          //     diagram.handleOpenModal(node.choices, modalContext);
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     return !!node && node.category === constants.gojs.C_OBJECT;
+          //   }
+          // });
+          // // Show Typeview - open the object's typeview in read-only mode
+          // items.push({
+          //   label: "Show Typeview",
+          //   action: (diagram) => {
+          //     const node = part.data;
+          //     if (!node) return;
+          //     uid.editObjectTypeview(node, myMetis, diagram, true);
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     return !!node && node.category === constants.gojs.C_OBJECT;
+          //   }
+          // });
+          // items.push({
+          //   label: "Reset to Typeview",
+          //   action: (diagram) => {
+          //     if (!diagram) return;
+          //     let selection: any = diagram.selection;
+          //     if (selection.count == 0) {
+          //       const currentNode = part.data;
+          //       if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+          //       selection = diagram.selection;
+          //     }
+          //     selection.each(function (sel: any) {
+          //       const inst = sel.data;
+          //       if (inst && inst.category === constants.gojs.C_OBJECT) {
+          //         uid.resetToTypeview(inst, myMetis, diagram);
+          //       }
+          //     });
+          //   },
+          //   enabled: (diagram) => {
+          //     const node = part.data;
+          //     if (node?.category === constants.gojs.C_OBJECT) {
+          //       if (node.isSelected) {
+          //         return true;
+          //       } else {
+          //         const selection = diagram.selection;
+          //         if (selection.count == 0) return true;
+          //         else return false;
+          //       }
+          //     }
+          //     return false;
+          //   }
+          // });
+
+        }
+
+        // Add Set Image option for closed groups
+        if (part instanceof go.Group && !part.isSubGraphExpanded) {
+          items.push({ separator: true });
           items.push({
-            label: "Change Object Type",
+            label: "Set Image",
             action: (diagram) => {
-              const node = part.data;
-              if (!node) return;
-              const currentType = node.objecttype;
-              const myMetamodel = myMetis.currentMetamodel;
-              const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
-              node.choices = [];
-              if (objtypes) {
-                for (let i = 0; i < objtypes.length; i++) {
-                  const otype = objtypes[i];
-                  if (!otype) continue;
-                  if (!otype.markedAsDeleted) {
-                    if (otype.name === 'Generic' || otype.name === 'Element') continue;
-                    node.choices.push(otype.name);
-                  }
-                }
-              }
+              const group = part.data;
+              if (!group) return;
+              const imageList = imageLibrary();
               const modalContext = {
                 what: "selectDropdown",
-                title: "Select Object Type",
-                case: "Change Object type",
+                title: "Select Image",
+                case: "Set Group Image",
+                imageList: imageList,
+                currentGroup: group,
                 myDiagram: diagram
               };
-              myMetis.currentNode = node;
+              myMetis.currentGroup = group;
               myMetis.myDiagram = diagram;
-              diagram.handleOpenModal(node.choices, modalContext);
+              diagram.handleOpenModal(imageList, modalContext);
             },
-            enabled: (diagram) => {
-              const node = part.data;
-              return !!node && node.category === constants.gojs.C_OBJECT;
+            enabled: (_diagram) => {
+              return part instanceof go.Group && !part.isSubGraphExpanded;
             }
           });
-          // Show Typeview - open the object's typeview in read-only mode
-          items.push({
-            label: "Show Typeview",
-            action: (diagram) => {
-              const node = part.data;
-              if (!node) return;
-              uid.editObjectTypeview(node, myMetis, diagram, true);
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              return !!node && node.category === constants.gojs.C_OBJECT;
-            }
-          });
-          items.push({
-            label: "Reset to Typeview",
-            action: (diagram) => {
-              if (!diagram) return;
-              let selection: any = diagram.selection;
-              if (selection.count == 0) {
-                const currentNode = part.data;
-                if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
-                selection = diagram.selection;
-              }
-              selection.each(function (sel: any) {
-                const inst = sel.data;
-                if (inst && inst.category === constants.gojs.C_OBJECT) {
-                  uid.resetToTypeview(inst, myMetis, diagram);
-                }
-              });
-            },
-            enabled: (diagram) => {
-              const node = part.data;
-              if (node?.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  const selection = diagram.selection;
-                  if (selection.count == 0) return true;
-                  else return false;
-                }
-              }
-              return false;
-            }
-          });
-
         }
 
         items.push({ separator: true });
@@ -6367,10 +6901,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     } catch (_) { return false; }
           //   },
           // });
+          items.push({ separator: true });
           items.push({
             label: "Change Relationship Type",
             action: (diagram) => handleChangeRelationshipType(diagram, linkPart),
           });
+          items.push({ separator: true });
           items.push({
             label: "Hide View",
             action: (diagram) => {
@@ -6570,6 +7106,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (_diagram) => canResetRelationshipToTypeview(linkPart),
             },
           ];
+          items.push({ separator: true });
           items.push({
             label: "Typeview…",
             action: showSubMenu(typeviewMenuItems),
@@ -6651,6 +7188,118 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         cmTool.showContextMenu(menuCopy, part);
       };
 
+      const buildObjectTypeMenu = (part: go.Part): HtmlMenuItem[] => {
+        const items: HtmlMenuItem[] = [];
+        items.push({
+          label: "Change Object Type",
+          action: (diagram) => {
+            const node = part.data;
+            if (!node) return;
+            const currentType = node.objecttype;
+            const myMetamodel = myMetis.currentMetamodel;
+            const objtypes = myMetamodel && myMetamodel.getObjectTypes ? myMetamodel.getObjectTypes() : [];
+            node.choices = [];
+            if (objtypes) {
+              for (let i = 0; i < objtypes.length; i++) {
+                const otype = objtypes[i];
+                if (!otype) continue;
+                if (!otype.markedAsDeleted) {
+                  if (otype.name === 'Generic' || otype.name === 'Element') continue;
+                  node.choices.push(otype.name);
+                }
+              }
+            }
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Object Type",
+              case: "Change Object type",
+              myDiagram: diagram
+            };
+            myMetis.currentNode = node;
+            myMetis.myDiagram = diagram;
+            diagram.handleOpenModal(node.choices, modalContext);
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            return !!node && node.category === constants.gojs.C_OBJECT;
+          }
+        });
+        items.push({
+          label: "Show Typeview",
+          action: (diagram) => {
+            const node = part.data;
+            if (!node) return;
+            uid.editObjectTypeview(node, myMetis, diagram, true);
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            return !!node && node.category === constants.gojs.C_OBJECT;
+          }
+        });
+        items.push({
+          label: "Reset to Typeview",
+          action: (diagram) => {
+            if (!diagram) return;
+            let selection: any = diagram.selection;
+            if (selection.count == 0) {
+              const currentNode = part.data;
+              if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+              selection = diagram.selection;
+            }
+            selection.each(function (sel: any) {
+              const inst = sel.data;
+              if (inst && inst.category === constants.gojs.C_OBJECT) {
+                uid.resetToTypeview(inst, myMetis, diagram);
+              }
+            });
+          },
+          enabled: (diagram) => {
+            const node = part.data;
+            if (node?.category === constants.gojs.C_OBJECT) {
+              if (node.isSelected) {
+                return true;
+              } else {
+                const selection = diagram.selection;
+                if (selection.count == 0) return true;
+                else return false;
+              }
+            }
+            return false;
+          }
+        });
+        return items;
+      };
+
+      const showObjectTypeHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null) => {
+        const targetPart = part ?? (diagram?.selection?.first() as go.Part);
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] targetPart:', targetPart?.data?.key);
+        if (!diagram || !(targetPart instanceof go.Part)) return;
+        const items = buildObjectTypeMenu(targetPart);
+        try { (items as any).menuHeading = 'Object Type'; } catch (_) {}
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] items count:', items.length);
+        disposeBackgroundMenu();
+        const menu = buildBackgroundMenu(items, diagram, tool);
+        if ((window as any).DEBUG_GOJS_MENUS) console.debug('[showObjectTypeHtmlMenu] menu created:', menu?.tagName);
+        document.body.appendChild(menu);
+        activeMenuDiv = menu;
+        // ensure outside-click handler exists
+        if (!docPointerDownHandler) {
+          docPointerDownHandler = (ev: PointerEvent) => {
+            try {
+              const tgt = ev.target as Node | null;
+              const insideMain = activeMenuDiv && tgt && activeMenuDiv.contains(tgt as Node);
+              const insideSub = activeSubMenuDiv && tgt && activeSubMenuDiv.contains(tgt as Node);
+              if (!insideMain && !insideSub) {
+                closeAllMenus();
+              }
+            } catch (_) {}
+          };
+          try { document.addEventListener('pointerdown', docPointerDownHandler); } catch (_) {}
+        }
+        // Position the menu using the proper coordinate transformation
+        positionBackgroundMenu(menu, diagram, tool);
+      };
+
       const showPartHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool, part: go.Part | null, graphObj?: go.GraphObject | null) => {
         const targetPart = part ?? (diagram?.selection?.first() as go.Part);
         // console.log('6656 showPartHtmlMenu', {tool, part, targetPart, graphObj });
@@ -6701,6 +7350,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // build a special icon-only menu
                 const node = targetPart.data;
                 items = [
+
                   {
                     label: 'Change Icon',
                     action: (diagram) => {
@@ -6723,7 +7373,352 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       const node = targetPart.data;
                       return !!node && node.category === constants.gojs.C_OBJECT;
                     }
-                  }
+                  },
+                  {
+                    label: 'Set Icon Colors',
+                    action: (() => {
+                      const colorItems: HtmlMenuItem[] = [
+                        {
+                          // Fill color (fillcolor2) with preset dropdown
+                          label: 'Fill color',
+                          closeOnClick: false,
+                          render: (container: HTMLElement) => {
+                            try {
+                              const nodeData = targetPart?.data;
+                              const current = (nodeData && (nodeData.fillcolor2)) || '';
+                              const wrap = document.createElement('div');
+                              wrap.style.display = 'flex';
+                              wrap.style.alignItems = 'center';
+                              wrap.style.gap = '8px';
+                              const lbl = document.createElement('span');
+                              lbl.textContent = 'Fill';
+                              lbl.style.minWidth = '56px';
+
+                              const inp = document.createElement('input');
+                              inp.type = 'color';
+                              try {
+                                const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                inp.value = initial;
+                                inp.defaultValue = initial;
+                                try { inp.setAttribute('value', initial); } catch (_) { }
+                              } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                              inp.style.cursor = 'pointer';
+                              inp.onclick = (ev) => { ev.stopPropagation(); };
+                              inp.oninput = (ev) => {
+                                try {
+                                  const val = (ev.target as HTMLInputElement).value;
+                                  if (nodeData && diagram) {
+                                    diagram.model.setDataProperty(nodeData, 'fillcolor2', val);
+                                    diagram.requestUpdate();
+                                  }
+                                } catch (_) { }
+                              };
+
+                              // Preset dropdown
+                              const presets = [
+                                { label: 'Black', value: '#000000' },
+                                { label: 'White', value: '#ffffff' },
+                                { label: 'Red', value: '#ff0000' },
+                                { label: 'Green', value: '#00ff00' },
+                                { label: 'Blue', value: '#0000ff' },
+                                { label: 'Yellow', value: '#ffff00' },
+                                { label: 'Orange', value: '#ffa500' },
+                                { label: 'Purple', value: '#800080' },
+                                { label: 'Gray', value: '#808080' },
+                                { label: 'Brown', value: '#8b4513' },
+                                { label: 'Pink', value: '#ffc0cb' },
+                                { label: 'Cyan', value: '#00ffff' }
+                              ];
+                              const sel = document.createElement('select');
+                              sel.style.cursor = 'pointer';
+                              sel.style.padding = '2px 6px';
+                              sel.style.fontSize = '12px';
+                              sel.style.minWidth = '84px';
+                              const emptyOpt = document.createElement('option');
+                              emptyOpt.value = '';
+                              emptyOpt.text = 'Select Color';
+                              sel.appendChild(emptyOpt);
+                              for (const p of presets) {
+                                const o = document.createElement('option');
+                                o.value = p.value;
+                                o.text = p.label;
+                                sel.appendChild(o);
+                              }
+                              sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onchange = (ev) => {
+                                ev.stopPropagation && ev.stopPropagation();
+                                try {
+                                  const val = (ev.target as HTMLSelectElement).value;
+                                  if (val && nodeData && diagram) {
+                                    try { sel.value = val; } catch (_) { }
+                                    try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                    // Synchronously update the GoJS model (same approach as Icon menu)
+                                    try { diagram.model.setDataProperty(nodeData, 'fillcolor2', val); } catch (_) { }
+                                    if ((window as any).DEBUG_GOJS_MENUS) {
+                                      try {
+                                        const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                        console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                      } catch (_) { }
+                                    }
+                                    // update the color input UI immediately
+                                    try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                    try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                    try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                    diagram.requestUpdate();
+
+                                    // persist asynchronously to avoid racing with menu disposal
+                                    try {
+                                      setTimeout(() => {
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.fillcolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                          }
+                                        } catch (_) { }
+                                      }, 0);
+                                    } catch (_) { }
+                                  }
+                                } catch (_) { }
+                              };
+
+                              wrap.appendChild(lbl);
+                              wrap.appendChild(sel);
+                              wrap.appendChild(inp);
+                              container.textContent = '';
+                              container.appendChild(wrap);
+                            } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render fillcolor failed', e); }
+                          }
+                        },
+                        {
+                          // Stroke color (strokecolor2) with preset dropdown
+                          label: 'Stroke color',
+                          closeOnClick: false,
+                          render: (container: HTMLElement) => {
+                            try {
+                              const nodeData = targetPart?.data;
+                              const current = (nodeData && (nodeData.strokecolor2 || nodeData.strokecolor)) || '';
+                              const wrap = document.createElement('div');
+                              wrap.style.display = 'flex';
+                              wrap.style.alignItems = 'center';
+                              wrap.style.gap = '8px';
+                              const lbl = document.createElement('span');
+                              lbl.textContent = 'Stroke';
+                              lbl.style.minWidth = '56px';
+                              const inp = document.createElement('input');
+                              inp.type = 'color';
+                              try {
+                                const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                inp.value = initial;
+                                inp.defaultValue = initial;
+                                try { inp.setAttribute('value', initial); } catch (_) { }
+                              } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                              inp.style.cursor = 'pointer';
+                              inp.onclick = (ev) => { ev.stopPropagation(); };
+                              inp.oninput = (ev) => {
+                                try {
+                                  const val = (ev.target as HTMLInputElement).value;
+                                  if (nodeData && diagram) {
+                                    diagram.model.setDataProperty(nodeData, 'strokecolor2', val);
+                                    diagram.requestUpdate();
+                                  }
+                                } catch (_) { }
+                              };
+
+                              // reuse presets
+                              const presets = [
+                                { label: 'Black', value: '#000000' },
+                                { label: 'White', value: '#ffffff' },
+                                { label: 'Red', value: '#ff0000' },
+                                { label: 'Green', value: '#00ff00' },
+                                { label: 'Blue', value: '#0000ff' },
+                                { label: 'Yellow', value: '#ffff00' },
+                                { label: 'Orange', value: '#ffa500' },
+                                { label: 'Purple', value: '#800080' },
+                                { label: 'Gray', value: '#808080' },
+                                { label: 'Brown', value: '#8b4513' },
+                                { label: 'Pink', value: '#ffc0cb' },
+                                { label: 'Cyan', value: '#00ffff' }
+                              ];
+                              const sel = document.createElement('select');
+                              sel.style.cursor = 'pointer';
+                              sel.style.padding = '2px 6px';
+                              sel.style.fontSize = '12px';
+                              sel.style.minWidth = '84px';
+                              const emptyOpt = document.createElement('option');
+                              emptyOpt.value = '';
+                              emptyOpt.text = 'Select Color';
+                              sel.appendChild(emptyOpt);
+                              for (const p of presets) {
+                                const o = document.createElement('option');
+                                o.value = p.value;
+                                o.text = p.label;
+                                sel.appendChild(o);
+                              }
+                              sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onchange = (ev) => {
+                                ev.stopPropagation && ev.stopPropagation();
+                                try {
+                                  const val = (ev.target as HTMLSelectElement).value;
+                                  if (val && nodeData && diagram) {
+                                    try { sel.value = val; } catch (_) { }
+                                    try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                    try { diagram.model.setDataProperty(nodeData, 'strokecolor2', val); } catch (_) { }
+                                    if ((window as any).DEBUG_GOJS_MENUS) {
+                                      try {
+                                        const fd2 = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                        console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd2 && fd2.data ? fd2.data : nodeData });
+                                      } catch (_) { }
+                                    }
+                                    try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                    try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                    try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                    diagram.requestUpdate();
+                                    try {
+                                      setTimeout(() => {
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.strokecolor2 = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                          }
+                                        } catch (_) { }
+                                      }, 0);
+                                    } catch (_) { }
+                                  }
+                                } catch (_) { }
+                              };
+
+                              wrap.appendChild(lbl);
+                              wrap.appendChild(sel);
+                              wrap.appendChild(inp);
+                              container.textContent = '';
+                              container.appendChild(wrap);
+                            } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render strokecolor failed', e); }
+                          }
+                        },
+                        {
+                          // Text color (textcolor2) with preset dropdown
+                          label: 'Text color',
+                          closeOnClick: false,
+                          render: (container: HTMLElement) => {
+                            try {
+                              const nodeData = targetPart?.data;
+                              const current = (nodeData && (nodeData.textcolor2 || nodeData.textcolor)) || '';
+                              const wrap = document.createElement('div');
+                              wrap.style.display = 'flex';
+                              wrap.style.alignItems = 'center';
+                              wrap.style.gap = '8px';
+                              const lbl = document.createElement('span');
+                              lbl.textContent = 'Text';
+                              lbl.style.minWidth = '56px';
+                              const inp = document.createElement('input');
+                              inp.type = 'color';
+                              try {
+                                const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                inp.value = initial;
+                                inp.defaultValue = initial;
+                                try { inp.setAttribute('value', initial); } catch (_) { }
+                              } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                              inp.style.cursor = 'pointer';
+                              inp.onclick = (ev) => { ev.stopPropagation(); };
+                              inp.oninput = (ev) => {
+                                try {
+                                  const val = (ev.target as HTMLInputElement).value;
+                                  if (nodeData && diagram) {
+                                    diagram.model.setDataProperty(nodeData, 'textcolor2', val);
+                                    diagram.requestUpdate();
+                                  }
+                                } catch (_) { }
+                              };
+
+                              // reuse presets
+                              const presets = [
+                                { label: 'Black', value: '#000000' },
+                                { label: 'White', value: '#ffffff' },
+                                { label: 'Red', value: '#ff0000' },
+                                { label: 'Green', value: '#00ff00' },
+                                { label: 'Blue', value: '#0000ff' },
+                                { label: 'Yellow', value: '#ffff00' },
+                                { label: 'Orange', value: '#ffa500' },
+                                { label: 'Purple', value: '#800080' },
+                                { label: 'Gray', value: '#808080' },
+                                { label: 'Brown', value: '#8b4513' },
+                                { label: 'Pink', value: '#ffc0cb' },
+                                { label: 'Cyan', value: '#00ffff' }
+                              ];
+                              const sel = document.createElement('select');
+                              sel.style.cursor = 'pointer';
+                              sel.style.padding = '2px 6px';
+                              sel.style.fontSize = '12px';
+                              sel.style.minWidth = '84px';
+                              const emptyOpt = document.createElement('option');
+                              emptyOpt.value = '';
+                              emptyOpt.text = 'Select Color';
+                              sel.appendChild(emptyOpt);
+                              for (const p of presets) {
+                                const o = document.createElement('option');
+                                o.value = p.value;
+                                o.text = p.label;
+                                sel.appendChild(o);
+                              }
+                              sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                              sel.onchange = (ev) => {
+                                ev.stopPropagation && ev.stopPropagation();
+                                try {
+                                  const val = (ev.target as HTMLSelectElement).value;
+                                  if (val && nodeData && diagram) {
+                                    try { sel.value = val; } catch (_) { }
+                                    try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                    try { diagram.model.setDataProperty(nodeData, 'textcolor2', val); } catch (_) { }
+                                    if ((window as any).DEBUG_GOJS_MENUS) {
+                                      try {
+                                        const fd3 = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                        console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd3 && fd3.data ? fd3.data : nodeData });
+                                      } catch (_) { }
+                                    }
+                                    try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                    try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                    try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                    diagram.requestUpdate();
+                                    try {
+                                      setTimeout(() => {
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.textcolor2 = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                          }
+                                        } catch (_) { }
+                                      }, 0);
+                                    } catch (_) { }
+                                  }
+                                } catch (_) { }
+                              };
+
+                              wrap.appendChild(lbl);
+                              wrap.appendChild(sel);
+                              wrap.appendChild(inp);
+                              container.textContent = '';
+                              container.appendChild(wrap);
+                            } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render textcolor failed', e); }
+                          }
+                        }
+                      ];
+                      try { (colorItems as any).menuHeading = 'Set Icon Colors'; } catch (_) { }
+                      return showSubMenu(colorItems);
+                    })(),
+                    closeOnClick: false
+                  },
                 ];
                 // Mark this as the icon menu so later heading logic doesn't overwrite it
                 try { (items as any).menuHeading = 'Icon Menu'; } catch (_) {}
@@ -6785,6 +7780,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
           const part = obj ? obj.part : null;
           showPartHtmlMenu(diagram, tool, part as go.Part, obj);
+        },
+        hide: disposeBackgroundMenu,
+      });
+
+      typeviewContextMenu = new go.HTMLInfo({
+        show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          if ((window as any).DEBUG_GOJS_MENUS) console.debug('[typeviewContextMenu.show] obj:', obj?.name, 'part:', obj?.part?.data?.key);
+          const part = obj ? obj.part : null;
+          if (part) {
+            showObjectTypeHtmlMenu(diagram, tool, part as go.Part);
+          } else {
+            if ((window as any).DEBUG_GOJS_MENUS) console.debug('[typeviewContextMenu.show] no part found');
+          }
         },
         hide: disposeBackgroundMenu,
       });
@@ -7696,7 +8704,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       // Define node template map
       var nodeTemplateMap = new go.Map<string, go.Part>();
-      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, portContextMenu, myMetis);
+      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, portContextMenu, myMetis, typeviewContextMenu);
       nodeTemplateMap.add("LinkLabel",
         $("Node",
           {
@@ -8046,12 +9054,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </div>
         );
         if (modalContext?.title === 'Select Icon') {
-          let img
-          options = this.state.modalContext.iconList.map(icon => {
-            img = (icon.value.includes('//')) ? icon.value : './../images/' + icon.value
-            return { value: img, label: icon.label }
-          })
-          comps = { Option: CustomSelectOption, SingleValue: CustomSelectValue }
+          // Use the new tabbed modal for icon selection
+          header = modalContext.title;
+          modalContent = (
+            <ChangeIconModal 
+              isOpen={this.state.showChangeIconModal}
+              onClose={() => this.setState({ showChangeIconModal: false })}
+              onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
+            />
+          );
+          // Don't use the old select dropdown for icons
+          break;
         } else if (modalContext?.title === 'Set Layout Scheme') {
           let layout, img;
           options = this.state.modalContext.layoutList.map(ll => {
@@ -8251,6 +9264,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </div>
           {/* </div> */}
         </Modal>
+        <ChangeIconModal 
+          isOpen={this.state.showChangeIconModal}
+          onClose={() => this.setState({ showChangeIconModal: false })}
+          onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
+        />
+        <ChangeImageModal 
+          isOpen={this.state.showChangeImageModal}
+          onClose={() => this.setState({ showChangeImageModal: false })}
+          onSelect={(image) => this.handleSelectDropdownChange({ value: image })}
+          imageList={this.state.modalContext?.imageList || []}
+        />
         <style jsx>{`        
       `}
         </style>

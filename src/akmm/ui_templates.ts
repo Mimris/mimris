@@ -4588,10 +4588,37 @@ export function findImage(image: string) {
 }
 
 export function findUnicodeImage(image: string) {
-    if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+    if (!image) return "";
+
+    if (detectIconFormat(image) !== "unicode") return "";
+
+    let char = "";
+
+    try {
+        if (image.startsWith("\\u") && image.length === 6) {
+            char = String.fromCodePoint(parseInt(image.slice(2), 16));
+        } else if (image.startsWith("\\U") && image.length === 10) {
+            char = String.fromCodePoint(parseInt(image.slice(2), 16));
+        } else {
+            const glyphs = Array.from(image);
+            char = glyphs.length > 0 ? glyphs[0] : "";
+        }
+    } catch (err) {
+        console.warn("findUnicodeImage failed to parse", image, err);
+        return "";
     }
-    return ""; 
+
+    if (!char) return "";
+
+    const codePoint = char.codePointAt(0);
+    if (typeof codePoint !== "number") return "";
+
+    const inBmpPrivateUse = codePoint >= 0xe000 && codePoint <= 0xf8ff;
+    const inSupplementaryPrivateUse =
+        (codePoint >= 0xf0000 && codePoint <= 0xffffd) ||
+        (codePoint >= 0x100000 && codePoint <= 0x10fffd);
+
+    return inBmpPrivateUse || inSupplementaryPrivateUse ? char : "";
 }
 
 // Function to specify default text style

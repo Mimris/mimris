@@ -463,21 +463,48 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       }
     }
 
-    function findUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } 
-      return "";
-    }
-    function findGroupUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } else if (image === '') {
-       const groupImage = '\\uf07c'
-        return String.fromCharCode(parseInt(groupImage.slice(2), 16)).toLowerCase();
-      } else {
-        return image;
+    function decodePrivateUseGlyph(icon: string): string {
+      if (!icon) return "";
+
+      let glyph = "";
+      try {
+        if (icon.startsWith("\\u") && icon.length === 6) {
+          glyph = String.fromCodePoint(parseInt(icon.slice(2), 16));
+        } else if (icon.startsWith("\\U") && icon.length === 10) {
+          glyph = String.fromCodePoint(parseInt(icon.slice(2), 16));
+        } else {
+          const chars = Array.from(icon);
+          glyph = chars.length > 0 ? chars[0] : "";
+        }
+      } catch (err) {
+        console.warn("decodePrivateUseGlyph failed", icon, err);
+        return "";
       }
+
+      if (!glyph) return "";
+
+      const codePoint = glyph.codePointAt(0);
+      if (typeof codePoint !== "number") return "";
+
+      const inBmpPrivateUse = codePoint >= 0xe000 && codePoint <= 0xf8ff;
+      const inSupplementaryPrivateUse =
+        (codePoint >= 0xf0000 && codePoint <= 0xffffd) ||
+        (codePoint >= 0x100000 && codePoint <= 0x10fffd);
+
+      return inBmpPrivateUse || inSupplementaryPrivateUse ? glyph : "";
+    }
+
+    function findUnicodeImage(image: string) {
+      return decodePrivateUseGlyph(image);
+    }
+
+    function findGroupUnicodeImage(image: string) {
+      const glyph = decodePrivateUseGlyph(image);
+      if (glyph) return glyph;
+      if (image === '') {
+        return decodePrivateUseGlyph('\\uf07c');
+      }
+      return "";
     }
 
     // Function to specify default text style

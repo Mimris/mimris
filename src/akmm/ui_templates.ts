@@ -4497,16 +4497,32 @@ export function getIconSource(iconValue: any): string {
       }
     }
     
-    // Render Unicode character as SVG with proper encoding
-    // Use a larger font and better positioning for Unicode symbols
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
-      <defs>
-        <style type="text/css">
-          text { font-size: 20px; font-family: Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; fill: black; }
-        </style>
-      </defs>
-      <text x="12.5" y="12.5">${char}</text>
-    </svg>`;
+        const escapeForXml = (input: string) =>
+            input
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+        const glyph = Array.from(char)[0] ?? '';
+        const escapedGlyph = escapeForXml(glyph);
+
+        // Render Unicode character as SVG with better centering inside the icon frame
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+            <defs>
+                <style type="text/css">
+                    text {
+                        font-size: 24px;
+                        font-family: 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','EmojiOne Color','Noto Emoji','Segoe UI Symbol','Helvetica','Arial',sans-serif;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                        fill: currentColor;
+                    }
+                </style>
+            </defs>
+            <text x="50%" y="50%" dominant-baseline="central" alignment-baseline="central">${escapedGlyph}</text>
+        </svg>`;
     
     // Use base64 encoding for better Unicode support
     // This helper function properly encodes UTF-8 to base64

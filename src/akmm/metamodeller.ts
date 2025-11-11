@@ -4922,7 +4922,7 @@ export class cxMetaModel extends cxMetaObject {
             if (reltype.name === constants.types.AKM_IS)
                 continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
-                // reltypes.push(reltype);
+                reltypes.push(reltype);
                 continue;
             }
             const fromObjType = reltype.getFromObjType();

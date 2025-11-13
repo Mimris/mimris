@@ -40,9 +40,11 @@ const Page1 = (props: any) => {
   function dispatchLocalStore(locStore: any) {
     // filter out null models and metamodels
     let metis = locStore.phData.metis
+
     const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
     const models = locStore.phData.metis.models.filter((m: any) => m)
     metis = { ...metis, models, metamodels }
+
     const phData = { ...locStore.phData, metis }
     const focusModel = models.find(m => m.id === focus.focusModel?.id) || models[0]
     const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]

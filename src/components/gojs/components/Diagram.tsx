@@ -6069,32 +6069,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 },
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
                 },
-                // Add separator before Change Icon
                 { separator: true },
-                {
-                label: "Change Icon",
-                action: (diagram) => {
-                  const node = part.data;
-                  if (!node) return;
-                  if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
-                  const modalContext = {
-                    what: "selectDropdown",
-                    title: "Select Icon",
-                    case: "Change Icon",
-                    iconList: iconList(),
-                    currentNode: node,
-                    myDiagram: diagram
-                  };
-                  myMetis.currentNode = node;
-                  myMetis.myDiagram = diagram;
-                  diagram.handleOpenModal(node, modalContext);
-                },
-                enabled: (diagram) => {
-                  const node = part.data;
-                  return !!node && node.category === constants.gojs.C_OBJECT;
-                }
-              }
-              ,
+              //   {  // this is movet to right-click Icon
+              //   label: "Change Icon",
+              //   action: (diagram) => {
+              //     const node = part.data;
+              //     if (!node) return;
+              //     if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+              //     const modalContext = {
+              //       what: "selectDropdown",
+              //       title: "Select Icon",
+              //       case: "Change Icon",
+              //       iconList: iconList(),
+              //       currentNode: node,
+              //       myDiagram: diagram
+              //     };
+              //     myMetis.currentNode = node;
+              //     myMetis.myDiagram = diagram;
+              //     diagram.handleOpenModal(node, modalContext);
+              //   },
+              //   enabled: (diagram) => {
+              //     const node = part.data;
+              //     return !!node && node.category === constants.gojs.C_OBJECT;
+              //   }
+              // }
+              // ,
               {
                 label: 'Set Objectview Colors',
                 action: (() => {
@@ -7718,6 +7717,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       return showSubMenu(colorItems);
                     })(),
                     closeOnClick: false
+                  },
+                  {
+                    label: 'Object menu…',
+                    action: (() => {
+                      const objectMenuItems = targetPart ? buildNodeMenuItems(targetPart) : [];
+                      if (!objectMenuItems || objectMenuItems.length === 0) {
+                        return () => {};
+                      }
+                      try { (objectMenuItems as any).menuHeading = 'Object Menu'; } catch (_) { }
+                      return showSubMenu(objectMenuItems);
+                    })(),
+                    closeOnClick: false,
                   },
                 ];
                 // Mark this as the icon menu so later heading logic doesn't overwrite it

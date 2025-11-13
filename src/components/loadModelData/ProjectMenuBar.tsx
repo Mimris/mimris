@@ -23,6 +23,7 @@ export const ProjectMenuBar = (props: any) => {
     const router = useRouter(); // Initialize router
     if (!props.phData) return null;
     const project = props.phData.metis;
+    const domain = props.phData.domain;
     const source = props.phSource;
     // const refresh = props.toggleRefresh;
     // const toggleRefresh = props.setRefresh;

@@ -298,7 +298,14 @@ function reducer(state = InitialState, action) {
       const retval_LOAD_TOSTORE_PHDATA =
       {
         ...state,
-        phData: action.data
+        phData: {
+          ...state.phData,
+          ...action.data,
+          metis: {
+            ...state.phData.metis,
+            ...action.data.metis
+          } 
+        }
       }
       if (debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
       return retval_LOAD_TOSTORE_PHDATA;

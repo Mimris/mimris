@@ -355,6 +355,9 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         $(go.Group, "Auto",
           // for sorting, have the Node.text be the data.name
           new go.Binding("text", "name"),
+          {
+            contextMenu: contextMenu || undefined
+          },
 
           // define the node's outer shape
           $(go.Shape, "RoundedRectangle",
@@ -404,7 +407,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     textAlign: "center",
                     stroke: "#666",
                     margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
-                    font: "18px 'FontAwesome'",
+                    font: "bold 18px 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe UI Emoji','Apple Color Emoji','Segoe UI Symbol','Noto Color Emoji','Helvetica','Arial',sans-serif",
                     editable: false,
                     isMultiline: false,
                     alignment: go.Spot.Center, // Center alignment

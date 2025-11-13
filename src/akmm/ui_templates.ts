@@ -235,6 +235,7 @@ function makeGeoIcon() {
             alignment: go.Spot.Right,
         },
         new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "icon", shouldShowIconPicture),
     )                                
 }
 
@@ -382,6 +383,7 @@ function makeIconImage() {
             cursor: "move",
         },
         new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+        new go.Binding("visible", "icon", shouldShowIconPicture),
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
     )                                
 }
@@ -1910,7 +1912,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     desiredSize: new go.Size(48, 48),
                     row: 2, column: 0, columnSpan: 6,
                 },
-                new go.Binding("source", "icon", findImage),
+                new go.Binding("source", "icon", getIconSource),
+                new go.Binding("visible", "icon", shouldShowIconPicture),
             ),      
             $(go.TextBlock, textStyle(), // the typename  --------------------
                 {
@@ -2069,7 +2072,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     imageStretch: go.GraphObject.Fill,
                                     alignment: go.Spot.Center,
                                 },
-                                new go.Binding("source", "icon", findImage),
+                                new go.Binding("source", "icon", getIconSource),
+                                new go.Binding("visible", "icon", shouldShowIconPicture),
                             ),    
                             $(go.TextBlock, textStyle(), // the unicode symbol \uf015 is the plus sign
                                 {
@@ -2079,14 +2083,15 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                     // stroke: {(strokecolor2 !== '') ? strokecolor2 : "black"},
                                     // margin: new go.Margin(20, 12, 12, 12), 
                                     desiredSize: new go.Size(48, 36),
-                                    font: "38px 'FontAwesome'",
+                                    font: "bold 38px 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe UI Emoji','Apple Color Emoji','Segoe UI Symbol','Noto Color Emoji','Helvetica','Arial',sans-serif",
                                     editable: false,
                                     isMultiline: false,
                                     // alignment: go.Spot.Center, // Add this line to align the text center
                                 },
                                 // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "textcolor2", defaultStrokeColor), // Apply converter here - icon text color
-                                new go.Binding("text", "icon", findUnicodeImage)
+                                new go.Binding("text", "icon", findUnicodeImage),
+                                new go.Binding("visible", "icon", shouldShowUnicodeFallback)
                             )
                         ),
                     ),
@@ -2369,6 +2374,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
               imageStretch: go.GraphObject.Fill,
           },
           new go.Binding("source", "icon", getIconSource),
+          new go.Binding("visible", "icon", shouldShowIconPicture),
           ),                                
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
@@ -2806,6 +2812,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 imageStretch: go.GraphObject.Fill,
             },
             new go.Binding("source", "icon", getIconSource),
+            new go.Binding("visible", "icon", shouldShowIconPicture),
         ),
 
         $(go.Picture,
@@ -2917,6 +2924,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         alignment: go.Spot.Center,
                     },
                     new go.Binding("source", "icon", getIconSource),
+                    new go.Binding("visible", "icon", shouldShowIconPicture),
                 ),    
             ),
             // end Spot Panel
@@ -2993,6 +3001,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         alignment: go.Spot.Center,
                     },
                     new go.Binding("source", "icon", getIconSource),
+                    new go.Binding("visible", "icon", shouldShowIconPicture),
                 ),    
                 $(go.Shape,  // Plus line
                     { 
@@ -4389,63 +4398,86 @@ export function addPortTemplates() {
 }
 
 function defaultStrokeColor(strokecolor2) {
-  if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
-  return  (strokecolor2 === "") ? "#466" : strokecolor2; // Dark bluegreen default, or custom color
+    if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
+    return  (strokecolor2 === "") ? "#466" : strokecolor2; // Dark bluegreen default, or custom color
+}
+
+function decodeUnicodeGlyph(value: string): string {
+    if (!value) return "";
+
+    const normalized = value.trim();
+    const lowerMatch = normalized.match(/^\\u(?:\{([0-9a-fA-F]{1,6})\}|([0-9a-fA-F]{4,6}))$/);
+    const upperMatch = normalized.match(/^\\U(?:\{([0-9a-fA-F]{1,8})\}|([0-9a-fA-F]{6,8}))$/);
+
+    if (lowerMatch || upperMatch) {
+        let hex = (lowerMatch && (lowerMatch[1] || lowerMatch[2])) || (upperMatch && (upperMatch[1] || upperMatch[2])) || "";
+        if (!hex) return "";
+
+        if (hex.length === 5 && /^ff/i.test(hex)) {
+            const adjusted = hex.slice(1);
+            if (debug) console.log("decodeUnicodeGlyph - normalizing legacy FontAwesome code from", hex, "to", adjusted);
+            hex = adjusted;
+        }
+
+        const codePoint = parseInt(hex, 16);
+        if (Number.isNaN(codePoint)) return "";
+
+        try {
+            return String.fromCodePoint(codePoint);
+        } catch (err) {
+            console.warn("decodeUnicodeGlyph failed", value, err);
+            return "";
+        }
+    }
+
+    const glyphs = Array.from(normalized);
+    return glyphs.length > 0 ? glyphs[0] : "";
 }
 
 // Helper function to detect icon format from string content
 // Returns: 'unicode' | 'url' | 'shape' | 'library' | 'unknown'
 export function detectIconFormat(value: string): string {
   if (!value) return 'unknown';
-  
-  // Debug: log the value and its properties
-  console.log("detectIconFormat - checking value:", JSON.stringify(value), "length:", value.length, "charCodes:", Array.from(value).map(c => c.charCodeAt(0)), "first 2 chars:", value.substring(0, 2), "first char code:", value.charCodeAt(0));
-  
-  // Check FIRST if it's a Unicode escape sequence: \uXXXX (4 digits) or \UXXXXXXXX (8 digits for emoji)
-  // Must check this BEFORE checking for backslash in shapes!
-  const is4DigitUnicode = value.startsWith('\\u') && value.length === 6;
-  const is8DigitUnicode = value.startsWith('\\U') && value.length === 10;
-  
-  console.log("detectIconFormat - is4DigitUnicode:", is4DigitUnicode, "is8DigitUnicode:", is8DigitUnicode, "startsWith check u:", value.startsWith('\\u'), "startsWith check U:", value.startsWith('\\U'));
-  
-  if (is4DigitUnicode || is8DigitUnicode) {
-    console.log("detectIconFormat - detected as unicode escape sequence");
-    return 'unicode';
-  }
-  
-  // Check if it's a Unicode character (single character with charCode > 127)
-  if (value.length === 1 && value.charCodeAt(0) > 127) {
-    console.log("detectIconFormat - detected as single unicode char");
-    return 'unicode';
-  }
-  
-  // Check if it's an emoji (length > 1 due to surrogate pair or multi-byte)
-  if (value.length > 1 && value.charCodeAt(0) > 127) {
-    console.log("detectIconFormat - detected as multi-byte unicode");
-    return 'unicode';
-  }
-  
+
+    const unicodeEscapeMatch = value.match(/^\\u(?:\{[0-9a-fA-F]{1,6}\}|[0-9a-fA-F]{4,6})$/);
+    const unicodeEmojiMatch = value.match(/^\\U(?:\{[0-9a-fA-F]{1,8}\}|[0-9a-fA-F]{6,8})$/);
+
+    if (unicodeEscapeMatch || unicodeEmojiMatch) {
+        if (debug) console.log("detectIconFormat - detected as unicode escape sequence", value);
+        return 'unicode';
+    }
+
+    if (Array.from(value).length === 1 && value.charCodeAt(0) > 127) {
+        if (debug) console.log("detectIconFormat - detected as single unicode char", value);
+        return 'unicode';
+    }
+
+    if (Array.from(value).length > 1 && value.charCodeAt(0) > 127) {
+        if (debug) console.log("detectIconFormat - detected as multi-byte unicode", value);
+        return 'unicode';
+    }
+
   // Check if it's an SVG data URL
   if (value.startsWith('data:image/svg+xml')) {
-    console.log("detectIconFormat - detected as svg data url");
+        if (debug) console.log("detectIconFormat - detected as svg data url");
     return 'svg';
   }
   
   // Check if it's a URL (http:// or https://)
   if (value.startsWith('http://') || value.startsWith('https://')) {
-    console.log("detectIconFormat - detected as url");
+        if (debug) console.log("detectIconFormat - detected as url");
     return 'url';
   }
   
   // Check if it's a GoJS figure/shape (contains / or \ suggesting a path or figure name)
   // But NOT if it's a Unicode escape sequence (already checked above)
   if (value.includes('/') || (value.includes('\\') && !value.match(/^\\[uU]/))) {
-    console.log("detectIconFormat - detected as shape");
+        if (debug) console.log("detectIconFormat - detected as shape");
     return 'shape';
   }
   
   // Otherwise it's likely a library icon name or file name
-  console.log("detectIconFormat - detected as library");
+    if (debug) console.log("detectIconFormat - detected as library", value);
   return 'library';
 }
 
@@ -4463,56 +4495,48 @@ export function getIconSource(iconValue: any): string {
     return "";
   }
   
-  const format = detectIconFormat(value);
-  console.log("getIconSource called with value:", value, "format:", format);
+    const format = detectIconFormat(value);
+    if (debug) console.log("getIconSource called with value:", value, "format:", format);
   
   if (format === 'unicode') {
-    // Convert escape sequence to character if needed
-    // \uXXXX (4 digits) → regular Unicode characters (e.g., \u2605 → ★)
-    // \UXXXXXXXX (8 digits) → emoji (e.g., \U0001f600 → 😀)
-    let char = value;
-    
-    if (typeof value === 'string') {
-      if (value.startsWith('\\u') && value.length === 6) {
-        // Standard Unicode: \uXXXX (4 hex digits)
-        const codePoint = parseInt(value.slice(2), 16);
-        try {
-          char = String.fromCodePoint(codePoint);
-        } catch (e) {
-          console.error("Failed to convert code point:", value);
-          char = value;
+        const glyph = decodeUnicodeGlyph(typeof value === 'string' ? value : String(value));
+        if (!glyph) {
+            if (debug) console.warn("getIconSource - unable to decode unicode glyph for", value);
+            return "";
         }
-      } else if (value.startsWith('\\U') && value.length === 10) {
-        // Extended Unicode/Emoji: \UXXXXXXXX (8 hex digits)
-        const codePoint = parseInt(value.slice(2), 16);
-        try {
-          char = String.fromCodePoint(codePoint);
-        } catch (e) {
-          console.error("Failed to convert emoji code point:", value);
-          char = value;
-        }
-      } else {
-        // Maybe it's already the character itself
-        char = value;
-      }
-    }
-    
-    // Render Unicode character as SVG with proper encoding
-    // Use a larger font and better positioning for Unicode symbols
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
-      <defs>
-        <style type="text/css">
-          text { font-size: 20px; font-family: Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; fill: black; }
-        </style>
-      </defs>
-      <text x="12.5" y="12.5">${char}</text>
-    </svg>`;
+
+        const escapeForXml = (input: string) =>
+            input
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+        const escapedGlyph = escapeForXml(glyph);
+
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <defs>
+                                <style type="text/css">
+                                        text {
+                                                font-size: 24px;
+                                                font-family: 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe MDL2 Assets','Material Icons','Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','EmojiOne Color','Noto Emoji','Segoe UI Symbol','Helvetica','Arial',sans-serif;
+                                                font-weight: 900;
+                                                font-style: normal;
+                                                text-anchor: middle;
+                                                dominant-baseline: central;
+                                                fill: currentColor;
+                                        }
+                                </style>
+                        </defs>
+                        <text x="50%" y="50%" dominant-baseline="central" alignment-baseline="central">${escapedGlyph}</text>
+                </svg>`;
     
     // Use base64 encoding for better Unicode support
     // This helper function properly encodes UTF-8 to base64
     const utf8_btoa = (str: string) => {
       try {
-        // Use TextEncoder to properly handle UTF-8 encoding including emoji
+    // Use TextEncoder to properly handle UTF-8 encoding including emoji
         const encoder = new TextEncoder();
         const uint8array = encoder.encode(str);
         let binaryString = '';
@@ -4522,12 +4546,12 @@ export function getIconSource(iconValue: any): string {
         return btoa(binaryString);
       } catch (e) {
         console.warn("TextEncoder failed, trying fallback for value:", value);
-        try {
-          return btoa(unescape(encodeURIComponent(str)));
-        } catch (e2) {
-          console.warn("All encoding methods failed for:", value, e2);
-          return "";
-        }
+                try {
+                    return btoa(unescape(encodeURIComponent(str)));
+                } catch (e2) {
+                    console.warn("All encoding methods failed for:", value, e2);
+                    return "";
+                }
       }
     };
     
@@ -4537,13 +4561,13 @@ export function getIconSource(iconValue: any): string {
       return "";
     }
     const result = `data:image/svg+xml;base64,${btoa_svg}`;
-    console.log("getIconSource - generated SVG data URL for:", value, "char:", char, "char length:", char.length, "char codePointAt(0):", char.codePointAt(0), "result length:", result.length);
+        if (debug) console.log("getIconSource - generated SVG data URL for:", value, "glyph:", glyph, "codePoint:", glyph.codePointAt(0), "result length:", result.length);
     return result;
   } else if (format === 'svg') {
     // SVG data URL - wrap in a viewBox container to ensure proper scaling and centering
     // This ensures the SVG fits within the icon frame
     if (value.startsWith('data:image/svg+xml;base64,')) {
-      console.log("getIconSource - SVG data URL detected, wrapping for proper scaling");
+            if (debug) console.log("getIconSource - SVG data URL detected, wrapping for proper scaling");
       return value; // SVG data URLs already contain the full image data
     }
     return value;
@@ -4587,11 +4611,33 @@ export function findImage(image: string) {
     }
 }
 
+export function shouldShowIconPicture(icon: string) {
+    if (!icon) return false;
+    return detectIconFormat(icon) !== "unicode";
+}
+
+export function shouldShowUnicodeFallback(icon: string) {
+    if (!icon) return false;
+    return detectIconFormat(icon) === "unicode";
+}
+
 export function findUnicodeImage(image: string) {
-    if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+    if (!image) return "";
+
+    if (detectIconFormat(image) !== "unicode") return "";
+
+    let char = "";
+
+    try {
+        char = decodeUnicodeGlyph(image);
+    } catch (err) {
+        console.warn("findUnicodeImage failed to parse", image, err);
+        return "";
     }
-    return ""; 
+
+    if (!char) return "";
+
+    return char;
 }
 
 // Function to specify default text style

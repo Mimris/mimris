@@ -18,6 +18,32 @@ Functions:
 // ----------------------------------------------------------------------------------
 
 const debug = false;
+
+function deriveTypeviewIcon(objview: akm.cxObjectView): string {
+    if (!objview) return "";
+
+    const tryIcon = (candidate: any): string => {
+        if (!candidate) return "";
+        if (typeof candidate === "string") return candidate;
+        if (typeof candidate === "object" && typeof candidate.icon === "string") return candidate.icon;
+        if (typeof candidate === "object" && typeof candidate.getIcon === "function") {
+            const value = candidate.getIcon();
+            return typeof value === "string" ? value : "";
+        }
+        return "";
+    };
+
+    const direct = tryIcon(objview.typeview);
+    if (direct) return direct;
+
+    const fromObjectType = tryIcon(objview.object?.type?.typeview);
+    if (fromObjectType) return fromObjectType;
+
+    const fromType = tryIcon(objview.object?.type);
+    if (fromType) return fromType;
+
+    return "";
+}
 export class goModel {
     key: string;
     name: string;
@@ -502,6 +528,15 @@ export class goObjectNode extends goNode {
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
             this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
+            if (!this.icon || this.icon === "") {
+                const typeviewIcon = deriveTypeviewIcon(objview);
+                if (typeviewIcon) {
+                    this.icon = typeviewIcon;
+                    if (!objview.icon) {
+                        objview.icon = typeviewIcon;
+                    }
+                }
+            }
             this.iconpath       = objview.iconpath ? objview.iconpath : "";
             this.icon1           = objview.icon1 ? objview.icon1 : "";
             this.icon2           = objview.icon2 ? objview.icon2 : "";

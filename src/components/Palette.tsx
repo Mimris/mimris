@@ -87,6 +87,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id);
     // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
     const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
+    setSelMetamodelName(mmodel?.name);
     if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, props.phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
@@ -223,7 +224,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
         onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
-          Change Metamodel
+          {(selMetamodelName) ? selMetamodelName : "Change Metamodel"}
         </option>
         {metamodelList?.map((t, i) => (
           <option key={i} value={i}>

@@ -6070,30 +6070,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
                 },
                 { separator: true },
-              //   {  // this is movet to right-click Icon
-              //   label: "Change Icon",
-              //   action: (diagram) => {
-              //     const node = part.data;
-              //     if (!node) return;
-              //     if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
-              //     const modalContext = {
-              //       what: "selectDropdown",
-              //       title: "Select Icon",
-              //       case: "Change Icon",
-              //       iconList: iconList(),
-              //       currentNode: node,
-              //       myDiagram: diagram
-              //     };
-              //     myMetis.currentNode = node;
-              //     myMetis.myDiagram = diagram;
-              //     diagram.handleOpenModal(node, modalContext);
-              //   },
-              //   enabled: (diagram) => {
-              //     const node = part.data;
-              //     return !!node && node.category === constants.gojs.C_OBJECT;
-              //   }
-              // }
-              // ,
+                {  
+                label: "Change Icon",
+                action: (diagram) => {
+                  const node = part.data;
+                  if (!node) return;
+                  if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+                  const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Icon",
+                    case: "Change Icon",
+                    iconList: iconList(),
+                    currentNode: node,
+                    myDiagram: diagram
+                  };
+                  myMetis.currentNode = node;
+                  myMetis.myDiagram = diagram;
+                  diagram.handleOpenModal(node, modalContext);
+                },
+                enabled: (diagram) => {
+                  const node = part.data;
+                  return !!node && node.category === constants.gojs.C_OBJECT;
+                }
+              }
+              ,
               {
                 label: 'Set Objectview Colors',
                 action: (() => {
@@ -6488,6 +6488,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
             enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
             visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+          });
+          items.push({
+            label: "Reset to Typeview",
+            action: (diagram) => {
+              if (!diagram) return;
+              let selection: any = diagram.selection;
+              if (selection.count == 0) {
+                const currentNode = part.data;
+                if (currentNode) diagram.select && diagram.select(diagram.findPartForKey(currentNode.key));
+                selection = diagram.selection;
+              }
+              selection.each(function (sel: any) {
+                const inst = sel.data;
+                if (inst && inst.category === constants.gojs.C_OBJECT) {
+                  uid.resetToTypeview(inst, myMetis, diagram);
+                }
+              });
+            },
+            enabled: (diagram) => {
+              const node = part.data;
+              if (node?.category === constants.gojs.C_OBJECT) {
+                if (node.isSelected) {
+                  return true;
+                } else {
+                  const selection = diagram.selection;
+                  if (selection.count == 0) return true;
+                  else return false;
+                }
+              }
+              return false;
+            }
           });
           const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
           if (canConvertObject) {

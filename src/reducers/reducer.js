@@ -863,7 +863,7 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_OBJECT_PROPERTIES
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (!debug) console.log('859 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
+      if (debug) console.log('859 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
       const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
       let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview?.id); // current objectview index
       const curObjectviewsLength = curModelview?.objectviews?.length

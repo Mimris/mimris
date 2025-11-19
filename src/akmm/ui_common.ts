@@ -1093,13 +1093,13 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        relname = typename;
         // if (askForRelshipName) {
         //     relname = prompt("Enter relationship name:", typename);
         //     relship.name = relname;
         // }
-        // if (relname = "flowsTo") {
-        //     relship.name = "..."
-        // }
+
+        relship.name = relname;
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);
         myModel.addRelationship(relship);
@@ -1141,10 +1141,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const goToNode = context.goToNode;
     const toObjview = context.toObjview;
     const reltype = context.reltype;
-    const relname = context.relname;
+    let relname = context.relname;
     const reltypeview = reltype.typeview;
     let data = context.data;
     const relTypename = reltype.name; // context.relTypename;
+    if (relname === "flowsTo" || relname === "isFollowedBy") {
+        relname = " ";
+    }
     const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
@@ -1164,7 +1167,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // create a link data between the actual nodes
     let linkdata = {
         key:    relview?.id,
-        name:   rel.name,
+        name:   relname,
         category: constants.gojs.C_RELATIONSHIP,
         from:   gjsFromKey, 
         to:     gjsToKey,
@@ -3083,8 +3086,12 @@ function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
             const metamodel = metamodels[j];
             const rtype = metamodel.findRelationshipType(reltype.id);
             if (rtype) {
-                found = true;
-                break;
+                let fromObjtypeRef = rtype.fromobjtypeRef;
+                let toObjtypeRef = rtype.toobjtypeRef;
+                if (fromObjtypeRef && toObjtypeRef) {
+                    found = true;
+                    break;
+                }
             }
         }
         if (!found) {

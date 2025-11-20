@@ -2840,95 +2840,123 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
-          // makeButton("----------",
-          //   function (e: any, obj: any) {
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Select all objects of type",
-          //   function (e: any, obj: any) {
-          //     const myModel = myMetis.currentModel;
-          //     const myModelview = myMetis.currentModelview;
-          //     const myGoModel = myMetis.gojsModel;
-          //     const typename = prompt("Enter object type name", "");
-          //     const objects = myModel.getObjectsByTypename(typename, false);
-          //     let firstTime = true;
-          //     for (let i = 0; i < objects.length; i++) {
-          //       const o = objects[i];
-          //       if (o) {
-          //         const oviews = o.objectviews;
-          //         if (oviews) {
-          //           for (let j = 0; j < oviews.length; j++) {
-          //             const ov = oviews[j];
-          //             if (ov) {
-          //               const node = myGoModel.findNodeByViewId(ov?.id);
-          //               const gjsNode = myDiagram.findNodeForKey(node?.key)
-          //               if (gjsNode) {
-          //                 if (firstTime) {
-          //                   myDiagram.select(gjsNode);
-          //                   firstTime = false;
-          //                 } else {
-          //                   gjsNode.isSelected = true;
-          //                 }
-          //               }
-          //             }
-          //           }
-          //         }
-          //       }
-          //     }
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Select by Object Name",
-          //   function (e: any, obj: any) {
-          //     const value = prompt('Enter name ', "");
-          //     const name = new RegExp(value, "i");
-          //     const results = myDiagram.findNodesByExample(
-          //       { name: value });
-          //     const it = results.iterator;
-          //     while (it.next()) {
-          //       const node = it.value;
-          //       const gjsNode = myDiagram.findNodeForKey(node?.key);
-          //       if (gjsNode) gjsNode.isSelected = true;
-          //     }
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Add Missing Relationship Views",
-          //   function (e: any, obj: any) {
-          //     const modelview = myMetis.currentModelview;
-          //     const links = uic.addMissingRelationshipViews(modelview, myMetis);
-          //     for (let i = 0; i < links.length; i++) {
-          //       const link = links[i];
-          //       myDiagram.model.addLinkData(link);
-          //     }
-          //     return;
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Unhide Hidden Relationship Views",
-          //   function (e: any, obj: any) {
-          //     const modelview = myMetis.currentModelview;
-          //     uic.unhideHiddenRelationshipViews(modelview, myMetis);
-          //     return;
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Select all objects of type",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myGoModel = myMetis.gojsModel;
+              const typename = prompt("Enter object type name", "");
+              const objects = myModel.getObjectsByTypename(typename, false);
+              let firstTime = true;
+              for (let i = 0; i < objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j = 0; j < oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        if (gjsNode) {
+                          if (firstTime) {
+                            myDiagram.select(gjsNode);
+                            firstTime = false;
+                          } else {
+                            gjsNode.isSelected = true;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Select by Object Name",
+            function (e: any, obj: any) {
+              const value = prompt('Enter name ', "");
+              const name = new RegExp(value, "i");
+              const results = myDiagram.findNodesByExample(
+                { name: value });
+              const it = results.iterator;
+              while (it.next()) {
+                const node = it.value;
+                const gjsNode = myDiagram.findNodeForKey(node?.key);
+                if (gjsNode) gjsNode.isSelected = true;
+              }
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Add Missing Relationship Views",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              const links = uic.addMissingRelationshipViews(modelview, myMetis);
+              for (let i = 0; i < links.length; i++) {
+                const link = links[i];
+                myDiagram.model.addLinkData(link);
+              }
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Unhide Hidden Relationship Views",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              uic.unhideHiddenRelationshipViews(modelview, myMetis);
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
+          makeButton("Toggle Show Relationship Names",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              let show = modelview.showRelshipNames;
+              if (show === true)
+                show = false;
+              else
+                show = true;
+              if (show)
+                modelview.showRelshipNames = true;
+              else
+                modelview.showRelshipNames = false;
+
+              const jsnModelview = new jsn.jsnModelView(modelview, true);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) {
               uid.deleteInvisibleObjects(myMetis, myDiagram);

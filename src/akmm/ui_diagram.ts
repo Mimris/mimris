@@ -2874,6 +2874,12 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
                             relview[prop] = gjsLink[prop];
                             ldata[prop]    = gjsLink[prop];
                             goLink[prop]   = gjsLink[prop];
+                            if (ldata.name === 'flowsTo' || ldata.name === 'isFolloweedBy') {
+                                // special handling of these links
+                                gjsLink[prop] = " ";
+                                goLink[prop] = " ";
+                                relview[prop] = " ";
+                            }
                             myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
                         }
                     }

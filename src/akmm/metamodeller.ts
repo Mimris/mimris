@@ -766,22 +766,14 @@ export class cxMetis {
             });
         }
 
-        let relshiptypes: any[] = item.relshiptypes;
-        if (relshiptypes && relshiptypes.length) {
-            relshiptypes.forEach(reltype => {
-                if (debug) console.log('371 reltype', reltype);
-                if (reltype) {
-                    this.importRelshipType(reltype, metamodel);
-                }
-            });
-        }
         let relshiptypes0: any[] = item.relshiptypes0;
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
                 let reltype = this.findRelationshipType(reltype0?.id);
                 if (reltype) {
                     if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                        && reltype.name !== constants.types.AKM_IS) {
+                        // && reltype.name !== constants.types.AKM_IS
+                    ) {
                         if (!reltype) {
                             this.addRelationshipType(reltype0);
                         }
@@ -790,6 +782,16 @@ export class cxMetis {
                 }
             });
         }
+        let relshiptypes: any[] = item.relshiptypes0;
+        if (relshiptypes && relshiptypes.length) {
+            relshiptypes.forEach(reltype => {
+                if (debug) console.log('371 reltype', reltype);
+                if (reltype) {
+                    this.importRelshipType(reltype, metamodel);
+                }
+            });
+        }
+
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -1372,6 +1374,9 @@ export class cxMetis {
                                 }
                             }
                         }
+                    } // isFollowedBy
+                    if (relview.name === "isFollowedBy" || relview.name === "follows") {
+                        relview.name = " ";
                     }
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relview.template = item.template;
@@ -4866,9 +4871,15 @@ export class cxMetaModel extends cxMetaObject {
             reltype = rtypes[i];
             if (reltype.isDeleted())
                 continue;
+<<<<<<< HEAD
             if (reltype.name === constants.types.AKM_IS)
                 continue;
             if (reltype.name === constants.types.AKM_CONTAINS) {
+=======
+            // if (reltype.name === constants.types.AKM_IS)
+            //     continue;
+            if (reltype.name === constants.types.AKM_REFERS_TO) {
+>>>>>>> alpha33
                 reltypes.push(reltype);
                 continue;
             }

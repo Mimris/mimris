@@ -63,7 +63,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
     }
     inheritedTypenames = [...new Set(objtypenames)];
-    if (!debug) console.log('47 objecttypes', inheritedTypenames);
+    if (debug) console.log('47 objecttypes', inheritedTypenames);
 
     const reltypenames = [];
     const reltypes = mmodel?.relshiptypes;
@@ -86,7 +86,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       }
     }
     inheritedRelTypenames = [...new Set(reltypenames)];
-    if (!debug) console.log('63 reltypes', reltypes,  inheritedRelTypenames);
+    if (debug) console.log('63 reltypes', reltypes,  inheritedRelTypenames);
   }
   
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);

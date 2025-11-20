@@ -9357,6 +9357,17 @@ export class cxModelView extends cxMetaObject {
         if (!relshipviews) return null;
         let i = 0;
         let rv = null;
+        var isViewDeleted = function (view) {
+            if (!view)
+                return false;
+            if (typeof view.isDeleted === 'function')
+                return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted'))
+                return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted'))
+                return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < relshipviews.length) {
             rv = relshipviews[i];
             if (rv && !rv?.isDeleted()) {

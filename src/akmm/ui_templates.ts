@@ -4585,7 +4585,7 @@ export function getIconSource(iconValue: any): string {
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
-    if (debug) console.log("3238 findImage: ", image);
+    if (debug) console.log("458 findImage: ", image);
     if (image == "")
          return "";
     if (image?.includes('//')) { // this is an http:// or https:// image
@@ -4607,7 +4607,7 @@ export function findImage(image: string) {
         if (debug) console.log('3273 Diagram', image, img)
         return img
     } else {
-        return "";
+        return image;
     }
 }
 

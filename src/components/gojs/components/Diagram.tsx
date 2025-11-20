@@ -4738,7 +4738,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
         const nodeModelData = nodeData.data ?? nodeData;
         try {
-          (targetDiagram.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
+          const newTemplate = template ?? (nodeData.template || "textAndIcon");
+          if (typeof newTemplate === "string" && newTemplate.length > 0) {
+            diagram.model.setCategoryForNodeData(nodeModelData, newTemplate);
+            nodeData.template = newTemplate;
+          }
+          // (targetDiagram?.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
         } catch (_err) {
           // Ignore if category update fails
         }
@@ -8935,7 +8940,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     function maybeChangeLinkCategory(e: any) {
       let link = e.subject;
       let linktolink = (link.fromNode?.isLinkLabel || link.toNode?.isLinkLabel);
-      e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
+      const newTemplate = template ?? (link.data.template);
+      if (typeof newTemplate === "string" && newTemplate.length > 0) {
+        diagram.model.setCategoryForLinkData(link.data, newTemplate);
+        link.data.template = newTemplate;
+      }
+      // e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
     }
 
     function makeButton(text: string, action: any, visiblePredicate: any) {

@@ -484,10 +484,17 @@ function setNodeGroup(diagram, node, groupKey) {
     return;
   }
   const normalizedKey = groupKey === undefined ? null : groupKey;
-  const currentKey = getGroupKeyFromData(node.data);
-  if (currentKey === normalizedKey) {
+  const nodeKey = getNodeKey(node);
+  if (
+    nodeKey !== undefined &&
+    nodeKey !== null &&
+    normalizedKey !== null &&
+    normalizedKey !== undefined &&
+    nodeKey === normalizedKey
+  ) {
     return;
   }
+  const currentKey = getGroupKeyFromData(node.data);
   const model = diagram.model;
   if (model && typeof model.setGroupKeyForNodeData === 'function') {
     model.setGroupKeyForNodeData(node.data, normalizedKey);

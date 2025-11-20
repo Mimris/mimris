@@ -2989,6 +2989,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true;
             }),
+          makeButton("Toggle Show Relationship Names",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              let show = modelview.showRelshipNames;
+              if (show === true)
+                show = false;
+              else
+                show = true;
+              if (show)
+                modelview.showRelshipNames = true;
+              else
+                modelview.showRelshipNames = false;
+
+              const jsnModelview = new jsn.jsnModelView(modelview, true);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+              return;
+            },
+            function (o: any) {
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) {
               uid.deleteInvisibleObjects(myMetis, myDiagram);

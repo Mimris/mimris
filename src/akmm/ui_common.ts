@@ -1200,6 +1200,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);
     modifiedRelships.push(jsnRelship);
+    relview.name = relname;
     const jsnRelview = new jsn.jsnRelshipView(relview);
     modifiedRelshipViews.push(jsnRelview);
     // Dispatch

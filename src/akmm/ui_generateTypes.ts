@@ -1826,13 +1826,6 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 // if (!toObjview) continue;
                 // let toObj = toObjview?.object as akm.cxObject;
                 // toObj = myModel.findObjectByName(toObj.name);
-<<<<<<< HEAD
-                if (rel.name === constants.types.AKM_CONTAINS) {
-
-                }
-=======
-                // if (rel.name === constants.types.AKM_CONTAINS)
->>>>>>> alpha33
                 if (rel.name === constants.types.AKM_IS) {
                     for (let j = 0; j < objecttypes.length; j++) {
                         const otype1 = objecttypes[j];

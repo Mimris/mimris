@@ -4871,15 +4871,11 @@ export class cxMetaModel extends cxMetaObject {
             reltype = rtypes[i];
             if (reltype.isDeleted())
                 continue;
-<<<<<<< HEAD
             if (reltype.name === constants.types.AKM_IS)
                 continue;
-            if (reltype.name === constants.types.AKM_CONTAINS) {
-=======
-            // if (reltype.name === constants.types.AKM_IS)
-            //     continue;
+            if (reltype.name === constants.types.AKM_CONTAINS)
+                continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
->>>>>>> alpha33
                 reltypes.push(reltype);
                 continue;
             }

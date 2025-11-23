@@ -793,7 +793,7 @@ export class cxMetis {
                 }
             });
         }
-        let relshiptypes: any[] = item.relshiptypes0;
+        let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);

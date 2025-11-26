@@ -48,6 +48,7 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../../../styles/styles.css"
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
+import { i } from '../../utils/SvgLetters';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -6036,7 +6037,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             closeOnClick: false,
           });
           // Group object-view related actions into an "Objectview…" submenu
-          items.push({ separator: true });
           items.push({
             label: "Objectview…",
             action: showSubMenu([
@@ -6073,9 +6073,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   diagram.commandHandler.deleteSelection();
                 },
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
-                },
-                { separator: true },
-                {  
+              },
+              { separator: true },
+              {  
                 label: "Change Icon",
                 action: (diagram) => {
                   const node = part.data;
@@ -6160,7 +6160,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                            { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6181,6 +6182,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                           sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
                           sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
                             console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                            const val = (ev.target as HTMLSelectElement).value;
+                            if (val === 'rgba(0,0,0,0)') {
+                              // Set GoJS property to transparent
+                              diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                              // Set input to a valid color (e.g., #000000)
+                              inp.value = '#000000';
+                              inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                            } else {
+                              diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                              inp.value = val;
+                              inp.style.background = '';
+                            }
+                            const part = diagram.findPartForKey(nodeData.key);
+                            if (part) part.updateTargetBindings();
+                            diagram.requestUpdate();
                             try {
                               const val = (ev.target as HTMLSelectElement).value;
                               console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
@@ -6200,10 +6216,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) {} } catch (_) {}
                                 try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) {}
                                 try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                                diagram.updateAllBindings(); // <-- Add this line
                                 diagram.requestUpdate();
-
                                 // persist asynchronously to avoid racing with menu disposal
                                 try {
+
                                   setTimeout(() => {
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
@@ -6284,7 +6301,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                            { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6411,7 +6429,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                                                       { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6488,6 +6507,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ]),
             closeOnClick: false,
           });
+          items.push({ separator: true });
           items.push({
             label: "Generate Metamodel",
             action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
@@ -6527,7 +6547,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
           if (canConvertObject) {
-            items.push({ separator: true });
             items.push({
               label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
               action: (diagram) => {
@@ -6540,6 +6559,416 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
             });
           }
+         items.push( 
+          {
+            label: 'Set Objectview Colors',
+              action: (() => {
+                const objColorItems: HtmlMenuItem[] = [
+                  {
+                    label: 'Fill color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.fillcolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Fill';
+                        lbl.style.minWidth = '56px';
+
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.fillcolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview fillcolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                          const val = (ev.target as HTMLSelectElement).value;
+                          if (val === 'rgba(0,0,0,0)') {
+                            // Set GoJS property to transparent
+                            diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                            // Set input to a valid color (e.g., #000000)
+                            inp.value = '#000000';
+                            inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                          } else {
+                            diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                            inp.value = val;
+                            inp.style.background = '';
+                          }
+                          const part = diagram.findPartForKey(nodeData.key);
+                          if (part) part.updateTargetBindings();
+                          diagram.requestUpdate();
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'fillcolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW FILL SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.updateAllBindings(); // <-- Add this line
+                              diagram.requestUpdate();
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.fillcolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview fillcolor failed', e); }
+                    }
+                  },
+                  {
+                    label: 'Stroke color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.strokecolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Stroke';
+                        lbl.style.minWidth = '56px';
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.strokecolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview strokecolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW STROKE SEL.ONCHANGE] fired', ev);
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW STROKE SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'strokecolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW STROKE SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.requestUpdate();
+
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.strokecolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview strokecolor failed', e); }
+                    }
+                  },
+                  {
+                    label: 'Text color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.textcolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Text';
+                        lbl.style.minWidth = '56px';
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                // Update the GoJS model first
+                                try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                // Then update the objview
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.textcolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview textcolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.requestUpdate();
+
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.textcolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview textcolor failed', e); }
+                    }
+                  }
+                ];
+                try { (objColorItems as any).menuHeading = 'Set Objectview Colors'; } catch (_) { }
+                return showSubMenu(objColorItems);
+              })(),
+                closeOnClick: false
+          }
+          );
           items.push({ separator: true });
           const connectionsMenuItems: HtmlMenuItem[] = [
             {
@@ -7385,7 +7814,503 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // build a special icon-only menu
                 const node = targetPart.data;
                 items = [
+                  {
+                      label: "Copy",
+                      action: (diagram) => handlePartCopy(diagram, part),
+                  },
+                  {
+                    label: "Object…",
+                    action: showSubMenu([
+                      {
+                        label: "Edit Object",
+                        action: () => handleEditObject(part),
+                      },
+                      {
+                        label: "Delete Object",
+                        action: (diagram) => handleDeletePart(diagram, part),
+                        enabled: (diagram) => canDeleteSinglePart(diagram, part),
+                      },
+                      {
+                        label: "Delete Selection",
+                        action: (diagram) => handleDeleteSelection(diagram),
+                        enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+                      }
+                    ]),
+                    closeOnClick: false,
+                  },
+                  {
+                    label: "Objectview…",
+                    action: showSubMenu([
+                      {
+                        label: "Edit Object View",
+                        action: (diagram) => handleEditObjectview(part),
+                      },
+                      {
+                        label: "Delete Object View",
+                        action: (diagram) => {
+                          if (!diagram) return;
+                          const restore = exclusiveSelectPart(diagram, part);
+                          if (!diagram.commandHandler.canDeleteSelection()) {
+                            restore();
+                            return;
+                          }
+                          if (!confirm('Do you really want to delete this object view?')) {
+                            restore();
+                            return;
+                          }
+                          myMetis.deleteViewsOnly = true;
+                          myMetis.currentNode = part.data;
+                          diagram.commandHandler.deleteSelection();
+                          restore();
+                        },
+                        enabled: (diagram) => canDeleteSinglePart(diagram, part),
+                      },
+                      {
+                        label: "Delete Selected Views",
+                        action: (diagram) => {
+                          if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+                          if (!confirm('Do you really want to delete the current selection?')) return;
+                          myMetis.deleteViewsOnly = true;
+                          diagram.commandHandler.deleteSelection();
+                        },
+                        enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+                      },
+                      { separator: true },
+                      {
+                        label: "Change Icon",
+                        action: (diagram) => {
+                          const node = part.data;
+                          if (!node) return;
+                          if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+                          const modalContext = {
+                            what: "selectDropdown",
+                            title: "Select Icon",
+                            case: "Change Icon",
+                            iconList: iconList(),
+                            currentNode: node,
+                            myDiagram: diagram
+                          };
+                          myMetis.currentNode = node;
+                          myMetis.myDiagram = diagram;
+                          diagram.handleOpenModal(node, modalContext);
+                        },
+                        enabled: (diagram) => {
+                          const node = part.data;
+                          return !!node && node.category === constants.gojs.C_OBJECT;
+                        }
+                      }
+                      ,
+                      {
+                        label: 'Set Objectview Colors',
+                        action: (() => {
+                          const objColorItems: HtmlMenuItem[] = [
+                            {
+                              label: 'Fill color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.fillcolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Fill';
+                                  lbl.style.minWidth = '56px';
 
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.fillcolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview fillcolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                                    const val = (ev.target as HTMLSelectElement).value;
+                                    if (val === 'rgba(0,0,0,0)') {
+                                      // Set GoJS property to transparent
+                                      diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                                      // Set input to a valid color (e.g., #000000)
+                                      inp.value = '#000000';
+                                      inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                                    } else {
+                                      diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                                      inp.value = val;
+                                      inp.style.background = '';
+                                    }
+                                    const part = diagram.findPartForKey(nodeData.key);
+                                    if (part) part.updateTargetBindings();
+                                    diagram.requestUpdate();
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'fillcolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW FILL SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.updateAllBindings(); // <-- Add this line
+                                        diagram.requestUpdate();
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.fillcolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview fillcolor failed', e); }
+                              }
+                            },
+                            {
+                              label: 'Stroke color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.strokecolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Stroke';
+                                  lbl.style.minWidth = '56px';
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.strokecolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview strokecolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW STROKE SEL.ONCHANGE] fired', ev);
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW STROKE SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'strokecolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW STROKE SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.requestUpdate();
+
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.strokecolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview strokecolor failed', e); }
+                              }
+                            },
+                            {
+                              label: 'Text color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.textcolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Text';
+                                  lbl.style.minWidth = '56px';
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          // Update the GoJS model first
+                                          try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                          // Then update the objview
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.textcolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview textcolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.requestUpdate();
+
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.textcolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview textcolor failed', e); }
+                              }
+                            }
+                          ];
+                          try { (objColorItems as any).menuHeading = 'Set Objectview Colors'; } catch (_) { }
+                          return showSubMenu(objColorItems);
+                        })(),
+                        closeOnClick: false
+                      }
+                    ]),
+                    closeOnClick: false,
+                  },
                   {
                     label: 'Change Icon',
                     action: (diagram) => {
@@ -7462,7 +8387,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7576,7 +8502,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                                           { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7686,7 +8613,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                                           { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7753,18 +8681,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       return showSubMenu(colorItems);
                     })(),
                     closeOnClick: false
-                  },
-                  {
-                    label: 'Object menu…',
-                    action: (() => {
-                      const objectMenuItems = targetPart ? buildNodeMenuItems(targetPart) : [];
-                      if (!objectMenuItems || objectMenuItems.length === 0) {
-                        return () => {};
-                      }
-                      try { (objectMenuItems as any).menuHeading = 'Object Menu'; } catch (_) { }
-                      return showSubMenu(objectMenuItems);
-                    })(),
-                    closeOnClick: false,
                   },
                 ];
                 // Mark this as the icon menu so later heading logic doesn't overwrite it

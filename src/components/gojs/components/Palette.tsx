@@ -9,6 +9,7 @@ import * as React from 'react';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as uid from '../../../akmm/ui_diagram';
+import * as uit from '../../../akmm/ui_templates';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
@@ -261,29 +262,62 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 alignment: go.Spot.Center,
                 cursor: "grabbing",
               },
-              // Picture Element
+              $(go.Shape,
+                {
+                  desiredSize: new go.Size(30, 30),
+                  margin: new go.Margin(0, 0, 0, 0),
+                  fill: "transparent",
+                  stroke: "black",
+                  strokeWidth: 2,
+                },
+                new go.Binding("figure", "", (data) => {
+                  const figures = uit.getFigureNames();
+                  if (data.icon && figures.includes(data.icon)) return data.icon;
+                  if ((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure)) return data.figure;
+                  return "transparent";
+                }),
+                new go.Binding("visible", "", (data) => {
+                  const figures = uit.getFigureNames();
+                  // Only show if icon is empty or a valid figure name, or figure is present
+                  return (!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
+                }),
+              ),
+              // Show image only if icon is a valid image URL
               $(go.Picture,
                 {
                   name: "Picture",
                   desiredSize: new go.Size(30, 30),
-                  margin: new go.Margin(0, 0, 0, 0), // Reduced left margin
+                  margin: new go.Margin(0, 0, 0, 0),
                 },
-                new go.Binding("source", "icon", findImage)
+                new go.Binding("source", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'url'
+                    ? uit.getIconSource(icon)
+                    : null;
+                }),
+                new go.Binding("visible", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'url';
+                }),
               ),
-              // TextBlock for Unicode Icon
+              // Show unicode only if icon is a valid unicode
               $(go.TextBlock, textStyle(),
                 {
                   background: "transparent",
                   desiredSize: new go.Size(30, 30),
                   textAlign: "center",
                   stroke: "#466",
-                  margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
+                  margin: new go.Margin(0, 0, 0, 0),
                   font: "24px 'FontAwesome'",
                   editable: false,
                   isMultiline: false,
-                  alignment: go.Spot.Center, // Center alignment
+                  alignment: go.Spot.Center,
                 },
-                new go.Binding("text", "icon", findUnicodeImage)
+                new go.Binding("text", "icon", findUnicodeImage),
+                new go.Binding("visible", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode';
+                }),
               ),
             ),
 
@@ -459,7 +493,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         if (debug) console.log('3273 Diagram', image, img)
         return img
       } else {
-        return "";
+        return image;
       }
     }
 
@@ -494,13 +528,13 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ? 'diagram-component-target'
         : 'diagram-component-palette'
 
-
+    console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
     //   height: '36vh', // Set the desired height here
     //   width: '100%', // Set the desired width here
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
-    if (debug) console.log('296 Palette nodeDataArray', this.props.nodeDataArray);
+    if (!debug) console.log('296 Palette nodeDataArray', this.props.nodeDataArray);
     // if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     // https://github.com/NorthwoodsSoftware/gojs-react-basic/blob/master/src/components/DiagramWrapper.tsx

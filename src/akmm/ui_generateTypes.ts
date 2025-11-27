@@ -1059,6 +1059,9 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             let objviews = new Array();
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
+                if (objectview?.object?.type?.name === constants.types.AKM_METAMODEL) {
+                    objviews.push(objectview);
+                 }
                 if (objectview?.object?.type?.name === constants.types.AKM_ENTITY_TYPE) {
                     objviews.push(objectview);
                     noOfEntityTypes++;

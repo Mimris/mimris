@@ -1460,13 +1460,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
         const currentRelship = myMetis.findRelationship(data.relship.id);
         if (currentRelship) {
             let name = data.name;
-            const nameIsChanged = (name !== currentRelship.type.name);
-            if (debug) console.log('1665 data, nameIsChanged, name, currentRelship', data, nameIsChanged, name, currentRelship);
             currentRelship.setType(reltype);
-            // if (!nameIsChanged) {
-            //     name = reltype.name;
-            //     currentRelship.setName(name);
-            // }
+            currentRelship.setName(name);
             currentRelship.setModified();
             const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
             if (currentRelshipView) {

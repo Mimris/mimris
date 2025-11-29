@@ -169,7 +169,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             // "undoManager.isEnabled": true,  // enable undo & redo
             // "toolManager.hoverDelay": 10,  // how quickly tooltips are shown
            
-            maxSelectionCount: 16,
+            maxSelectionCount: 160,
             layout: $(go.GridLayout,
               {
                 // sorting: go.GridLayout.Ascending,

@@ -1264,14 +1264,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                       //     relview.relocate(fromObjview, parentObjview);
                       // }
                       const reltype = relship.type;
-                      if (reltype.name === constants.types.AKM_HAS_MEMBER 
-                          || reltype.name === constants.types.AKM_HAS_PART
-                          || reltype.name === constants.types.AKM_CONTAINS) {
+                      if (
+                        reltype && (
+                          reltype.name === constants.types.AKM_HAS_MEMBER ||
+                          reltype.name === constants.types.AKM_HAS_PART ||
+                          reltype.name === constants.types.AKM_CONTAINS
+                        )
+                      ) {
                         relview.markedAsDeleted = true;
-                        const lnk = myDiagram.findLinkForKey(relview.id);
-                        if (lnk) {
-                            myDiagram.remove(lnk);
-                        }                        
                       }
                       inoutRelviews.push(relview);
                       // Prepare dispatch

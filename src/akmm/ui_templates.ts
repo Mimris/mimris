@@ -345,19 +345,14 @@ function makeImage(kind: string) {
 
 function makeImageImage() {
     return $(go.Panel, "Auto",
-        {
-            name: "GROUP_CLOSED_IMAGE",
-            stretch: go.GraphObject.Fill,
-            minSize: new go.Size(200, 100),
-            margin: new go.Margin(0, 0, 0, 0),
-        },
-        new go.Binding('visible', 'isSubGraphExpanded', function (expanded) { return !expanded; }).ofObject(),
-        $(go.Shape,
-            {
-                fill: null,
-                stroke: null,
-            }
-        ),
+        // {
+        //     name: "GROUP_CLOSED_IMAGE",
+        //     stretch: go.GraphObject.Fill,
+        //     minSize: new go.Size(200, 100),
+        //     margin: new go.Margin(0, 0, 0, 0),
+        //     cursor: "move",
+        // },
+        // new go.Binding('visible', 'isSubGraphExpanded', function (expanded) { return !expanded; }).ofObject(),
         $(go.Picture,
             new go.Binding("source", "image", findImage),
             {
@@ -365,7 +360,18 @@ function makeImageImage() {
                 imageStretch: go.GraphObject.Fill,
                 alignment: go.Spot.Center,
                 opacity: 0.95,
-                pickable: false,
+                pickable: true,
+                cursor: "move",
+            },
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
+        ),
+        $(go.Shape,  // invisible hit area to allow dragging even without an image
+            {
+                fill: "transparent",
+                stroke: null,
+                cursor: "move",
+                stretch: go.GraphObject.Fill,
+                pickable: true,
             }
         )
     );                               
@@ -447,6 +453,7 @@ export function groupTop1(contextMenu: any, notation: string) {
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
+            cursor: "move",  // allow dragging when open or closed
             desiredSize: new go.Size(160, 65)
         },
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
@@ -517,7 +524,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 18pt Sans-Serif",
+                    font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
                     alignmentFocus: go.Spot.Left,
@@ -554,10 +561,11 @@ export function groupTop1(contextMenu: any, notation: string) {
         ),
         $(go.TextBlock, textStyle(), // typename always visible, anchored bottom-left
             {
-                alignment: new go.Spot(0, 1, 8, -8),
-                alignmentFocus: new go.Spot(0, 1, 8, -8),
+                alignment: new go.Spot(0, 1, 8, -2),
+                alignmentFocus: new go.Spot(0, 1, 0, -2),
                 isMultiline: false,
                 editable: false,
+                font: "Bold 8pt Sans-Serif",
                 maxLines: 1,
                 overflow: go.TextBlock.OverflowEllipsis,
                 textAlign: "left",
@@ -578,6 +586,7 @@ export function groupTop2(contextMenu: any, notation: string) {
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
+            cursor: "move",  // allow dragging when open or closed
         },
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
@@ -694,14 +703,27 @@ export function groupTop2(contextMenu: any, notation: string) {
                 {
                     row: 1,
                     stretch: go.GraphObject.Fill,
-                    margin: new go.Margin(10, 16, 8, 16),
+                    margin: new go.Margin(0),
                     alignment: go.Spot.Center,
                     imageStretch: go.GraphObject.Fill,
                     opacity: 0.95,
-                    pickable: false,
+                    pickable: true,
+                    cursor: "move",
                 },
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
                 new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ), // End Picture
+            $(go.Shape,  // invisible hit area to keep the closed state draggable even without an image
+                {
+                    row: 1,
+                    stretch: go.GraphObject.Fill,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "move",
+                    pickable: true,
+                },
+                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+            ),
 
             $(go.Panel, "Spot",
                 {
@@ -710,8 +732,8 @@ export function groupTop2(contextMenu: any, notation: string) {
                 },
                 $(go.TextBlock, textStyle(), // typename anchored bottom-left
                     {
-                        alignment: new go.Spot(0, 1, 8, -8),
-                        alignmentFocus: new go.Spot(0, 1, 8, -8),
+                        alignment: new go.Spot(0, 1, 8, -2),
+                        alignmentFocus: new go.Spot(0, 1, 8, -2),
                         isMultiline: false,
                         editable: false,
                         maxLines: 1,
@@ -736,6 +758,7 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
+            cursor: "move",  // allow dragging when open or closed
         },
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
@@ -4359,7 +4382,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             { 
                 padding: 12, 
                 alignment: go.Spot.TopLeft, 
-                alignmentFocus: go.Spot.TopLeft 
+                alignmentFocus: go.Spot.TopLeft,
+                cursor: "move",  // allow grabbing the lane body to move it
             }),
             $(go.Panel, 'Horizontal', 
             { 
@@ -4439,7 +4463,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding('text').makeTwoWay()
             )
         ),
-        $(go.Placeholder, { column: 1 })
+        $(go.Placeholder, { column: 1, cursor: "move" })
         )
         // end poolGroupTemplate
         )

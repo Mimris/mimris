@@ -9364,9 +9364,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objecttypeviews) return null;
         let i = 0;
         let obj = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objecttypeviews.length) {
             obj = this.objecttypeviews[i];
-            if (!obj?.isDeleted()) {
+            if (!isViewDeleted(obj)) {
                 if (obj.id === id)
                     return obj;
             }
@@ -9391,7 +9398,7 @@ export class cxModelView extends cxMetaObject {
         };
         while (i < relshipviews.length) {
             rv = relshipviews[i];
-            if (rv && !rv?.isDeleted()) {
+            if (!isViewDeleted(rv)) {
                 if (rv.id === id)
                     return rv;
             }

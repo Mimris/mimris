@@ -289,15 +289,15 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   desiredSize: new go.Size(30, 30),
                   margin: new go.Margin(0, 0, 0, 0),
                 },
+                // Allow both remote and local image paths (not just full URLs)
                 new go.Binding("source", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'url'
-                    ? uit.getIconSource(icon)
-                    : null;
+                  if (!icon || figures.includes(icon)) return "";
+                  return findImage(icon);
                 }),
                 new go.Binding("visible", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'url';
+                  return icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon);
                 }),
               ),
               // Show unicode only if icon is a valid unicode

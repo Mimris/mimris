@@ -446,8 +446,10 @@ export function groupTop1(contextMenu: any, notation: string) {
             row: 1, 
             column: 1, 
             name: "BODY",
-            stretch: go.GraphObject.Fill
+            stretch: go.GraphObject.Fill,
+            desiredSize: new go.Size(160, 65)
         },
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
                 cursor: "alias",
@@ -460,24 +462,29 @@ export function groupTop1(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
-            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
 
         ),
         $(go.Panel, "Vertical",  // position header above the subgraph
         {
-            name: "HEADER", 
-            defaultAlignment: go.Spot.TopLeft, 
+            name: "HEADER",
+            defaultAlignment: go.Spot.TopLeft,
+            stretch: go.GraphObject.Fill,
+            alignment: go.Spot.TopLeft,
         },
         $(go.Panel, "Table",  // the header
             {
+                alignment: go.Spot.TopLeft,
                 contextMenu: contextMenu , 
                 cursor: "move",
                 stretch: go.GraphObject.Horizontal,
             },
+            $(go.RowColumnDefinition, { column: 0, width: 20 }),
+            $(go.RowColumnDefinition, { column: 1, sizing: go.RowColumnDefinition.ProportionalExtra }),
             $("SubGraphExpanderButton",
                 {
                     column: 0, 
-                    margin: new go.Margin(-2, 2, 2, 0),
+                    margin: new go.Margin(0, 0, 0, 0),
                     alignment: go.Spot.Left,
                     scale: 1.2,
                 },
@@ -492,7 +499,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                     font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10), 
+                    margin: new go.Margin(0, 0, 0, 8), 
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     stretch: go.GraphObject.Horizontal,
@@ -504,25 +511,26 @@ export function groupTop1(contextMenu: any, notation: string) {
                 new go.Binding("visible", "isSubGraphExpanded").ofObject(),
             ),
             $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
-            {
-                row: 0, 
-                column: 1, 
-                isMultiline: false,  // don't allow newlines in text
-                maxLines: 1,
-                editable: true,  // allow in-place editing by user
-                font: "Bold 28pt Sans-Serif",
-                textAlign: "left",
-                alignment: go.Spot.Left,
-                margin: new go.Margin(0, 0, 0, 2),
-                wrap: go.TextBlock.None,
-                overflow: go.TextBlock.OverflowEllipsis,
-                stretch: go.GraphObject.Horizontal,
-                name: "name"
-            },        
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay(),
-            new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                {
+                    row: 0, 
+                    column: 1, 
+                    isMultiline: false,  // don't allow newlines in text
+                    maxLines: 1,
+                    editable: true,  // allow in-place editing by user
+                    font: "Bold 18pt Sans-Serif",
+                    textAlign: "left",
+                    alignment: go.Spot.Left,
+                    alignmentFocus: go.Spot.Left,
+                    margin: new go.Margin(0, 0, 0, 8),
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    stretch: go.GraphObject.None,
+                    name: "name"
+                },        
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("text", "name").makeTwoWay(),
+                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
             makeNotation(notation),  // this is the icon in the header
             ), // End Horizontal Panel
@@ -536,26 +544,29 @@ export function groupTop1(contextMenu: any, notation: string) {
                     margin: new go.Margin(0, 10, 10, 10),
                     cursor: "move",
                     stroke: "transparent",
+                    stretch: go.GraphObject.Fill,
                 },
                 new go.Binding("fill", "fillcolor2"),
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
                 new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
             ) ,     
             makeImage("Image"),
-            $(go.TextBlock, textStyle(), // the typename  --------------------
+        ),
+        $(go.TextBlock, textStyle(), // typename always visible, anchored bottom-left
             {
-                row: 2,
-                stretch: go.GraphObject.Fill,
+                alignment: new go.Spot(0, 1, 8, -8),
+                alignmentFocus: new go.Spot(0, 1, 8, -8),
                 isMultiline: false,
                 editable: false,
-                minSize: new go.Size(10, 4),
-                margin: new go.Margin(0, 0, 0, 2), 
+                maxLines: 1,
+                overflow: go.TextBlock.OverflowEllipsis,
                 textAlign: "left",
-                cursor: "move", 
+                cursor: "move",
+                stroke: "black"
             },
-            new go.Binding("text", "typename")
-            ),  
-        ),
+            new go.Binding("text", "typename"),
+            new go.Binding("stroke", "textcolor"),
+        ), 
     )
 }
 
@@ -571,22 +582,23 @@ export function groupTop2(contextMenu: any, notation: string) {
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
                 cursor: "alias",
-                fill: "white", 
+                fill: "white",
                 shadowVisible: true,
                 minSize: new go.Size(160, 65),
-                portId: "", 
+                portId: "",
                 fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
                 toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
-            // new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),  // why is this not includes, its in groupTop3
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
 
         ),
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
                 // fill: "transparent", 
+
                 stroke: "transparent",
                 margin: new go.Margin(30, 10, 16, 10),
                 minSize: new go.Size(150, 55),
@@ -691,19 +703,27 @@ export function groupTop2(contextMenu: any, notation: string) {
                 new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ), // End Picture
 
-            $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
-            $(go.TextBlock, textStyle(), // the typename  --------------------
+            $(go.Panel, "Spot",
                 {
-                    row: 2, 
-                    stretch: go.GraphObject.Horizontal,
-                    isMultiline: false,
-                    editable: false,
-                    minSize: new go.Size(10, 2),
-                    margin: new go.Margin(0, 0, 0, 0), 
-                    cursor: "move", 
+                    row: 2,
+                    stretch: go.GraphObject.Fill,
                 },
-                new go.Binding("text", "typename"),
-            ), // End TextBlock
+                $(go.TextBlock, textStyle(), // typename anchored bottom-left
+                    {
+                        alignment: new go.Spot(0, 1, 8, -8),
+                        alignmentFocus: new go.Spot(0, 1, 8, -8),
+                        isMultiline: false,
+                        editable: false,
+                        maxLines: 1,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        textAlign: "left",
+                        cursor: "move",
+                        stroke: "black",
+                    },
+                    new go.Binding("text", "typename"),
+                    new go.Binding("stroke", "textcolor")
+                )
+            ), // End Typename
         ),
     );
 }
@@ -3694,8 +3714,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                resizeObjectName: "BODY",  // align resize handles to the outer body
+                selectionObjectName: "BODY",  // select the outer shape for adornments
                 selectionAdorned: true,
                 contextMenu: contextMenu,
             },
@@ -3731,6 +3751,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('groupWithPorts');      
         groupTemplateMap.add("groupWithIconAndPorts", groupWithPorts1);
         addGroupTemplateName('groupWithIconAndPorts');      
+        groupTemplateMap.get("groupWithPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithPorts");
+        groupTemplateMap.get("groupWithIconAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithIconAndPorts");
         
         const groupWithPorts2 =
         $(go.Group, "Spot",
@@ -3772,7 +3794,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             addBottomPorts(portContextMenu),
         )
         groupTemplateMap.add("groupWithGeoAndPorts", groupWithPorts2);
-        addGroupTemplateName('groupWithGeoAndPorts');      
+        addGroupTemplateName('groupWithGeoAndPorts');    
+        groupTemplateMap.get("groupWithGeoAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithGeoAndPorts");  
         
         const groupWithPorts3 =
         $(go.Group, "Spot",
@@ -3814,7 +3837,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             addBottomPorts(portContextMenu),
         )
         groupTemplateMap.add("groupWithFigAndPorts", groupWithPorts3);
-        addGroupTemplateName('groupWithFigAndPorts');      
+        addGroupTemplateName('groupWithFigAndPorts');    
+        groupTemplateMap.get("groupWithFigAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithFigAndPorts");  
     }
 
     if (true) { // groupWithoutPorts
@@ -3889,6 +3913,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );
         groupTemplateMap.add("groupGeoNoPorts", groupWithoutPorts2);
         addGroupTemplateName('groupGeoNoPorts');        
+        groupTemplateMap.get("groupGeoNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupGeoNoPorts");
 
         const groupWithoutPorts3 =
         $(go.Group, "Spot",
@@ -3924,6 +3949,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 
         groupTemplateMap.add("groupFigNoPorts", groupWithoutPorts3);
         addGroupTemplateName('groupFigNoPorts');        
+        groupTemplateMap.get("groupFigNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupFigNoPorts");
     }
 
     function groupStyle() {  // common settings for both Lane and Pool Groups

@@ -3612,8 +3612,13 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         msg += "\tRelationship type has been set to '" + defRelTypename + "'\n";
                     }
                 }
-                if (!typeRef) {
+                if (!typeRef && rel.type?.id) {
                     typeRef = rel.type.id;
+                }
+                // If we still have no typeRef at this point, bail out on this rel to avoid crashing
+                if (!typeRef) {
+                    msg += "\tRelationship '" + rel.name + "' is missing type information and will be skipped\n";
+                    continue;
                 }
                 let reltype = metamodel.findRelationshipType(typeRef);
                 if (debug) console.log('2304 fromType and toType', typeRef, typeName, fromType, toType, reltype);

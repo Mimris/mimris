@@ -5534,14 +5534,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const nodeData: any = part.data;
         if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
 
-        let noLevels: string | number = '9';
+        let noLevels: number = 1;
         let reltypes = 'All';
         let reldir = 'All';
         const useDefaults = confirm('Use default parameters?');
         if (!useDefaults) {
           const levelInput = prompt('Enter number of sublevels to follow', String(noLevels));
-          if (levelInput !== null && levelInput.trim().length > 0) {
-            noLevels = levelInput;
+          const parsedLevel = levelInput !== null ? Math.max(1, Math.floor(Number(levelInput) || 0)) : noLevels;
+          if (parsedLevel) {
+            noLevels = parsedLevel;
           }
           const reltypeInput = prompt('Enter relationship type to follow', reltypes);
           if (reltypeInput !== null && reltypeInput.trim().length > 0) {
@@ -5554,9 +5555,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         const params = {
-          noLevels,
+          noLevels: Math.max(1, Math.floor(noLevels || 1)),
           reltypes: reltypes === 'All' ? '' : reltypes,
-          reldir
+          reldir: (reldir || 'All')
         };
 
         const selection = diagram.selection.count > 0 ? diagram.selection : (() => {

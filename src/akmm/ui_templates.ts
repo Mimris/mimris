@@ -857,113 +857,164 @@ export function groupTop2(contextMenu: any, notation: string) {
 }
 
 export function groupTop3(contextMenu: any, notation: string, textscale: number) {
-    // Without ports
-    return $(go.Panel, "Auto",
+    // Without ports - wrapped in Spot panel for edge overlays
+    const edgeWidth = 15; // Width of the linkable edge area
+    return $(go.Panel, "Spot",
         {
             row: 1, 
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
-            cursor: "move",  // allow dragging when open or closed
         },
-        $(go.Shape, "RoundedRectangle", // surrounds everything
-            {
-                cursor: "alias",
-                fill: "white", 
-                shadowVisible: true,
-                minSize: new go.Size(160, 65),
-                portId: "", 
-                fromLinkable: true, 
-                fromLinkableSelfNode: false, 
-                fromLinkableDuplicates: true,
-                toLinkable: true, 
-                toLinkableSelfNode: false, 
-                toLinkableDuplicates: true,
-            },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-        ),
-        $(go.Shape, "RoundedRectangle", // Inner shape for moving
-            {
-                cursor: "move",
-                fill: "transparent", 
-                stroke: "transparent",
-                margin: new go.Margin(30, 12, 12, 12),
-                minSize: new go.Size(150, 55),
-                stretch: go.GraphObject.Fill,
-            },
-        ),
-        $(go.Panel, "Table",  // position header above the subgraph
-            {
-                stretch: go.GraphObject.Fill,
-                defaultAlignment: go.Spot.TopLeft
-            },            
-            $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-            $(go.Panel, "Table",  // the header
+        // Main content in Auto panel
+        $(go.Panel, "Auto",
+            { stretch: go.GraphObject.Fill },
+            $(go.Shape, "RoundedRectangle", // visible border
+                {
+                    fill: "white", 
+                    shadowVisible: true,
+                    minSize: new go.Size(160, 65),
+                    strokeWidth: 2,
+                    // Small visual padding
+                    spot1: new go.Spot(0, 0, 2, 2),
+                    spot2: new go.Spot(1, 1, -2, -2),
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            ),
+            $(go.Panel, "Table",  // position header above the subgraph
+                {
+                    stretch: go.GraphObject.Fill,
+                    defaultAlignment: go.Spot.TopLeft,
+                    cursor: "move",
+                },            
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.Panel, "Table",  // the header
+                        {
+                            row: 0,
+                            contextMenu: contextMenu, 
+                            cursor: "move",
+                            stretch: go.GraphObject.Horizontal,
+                        },
+                    $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
+                    $("SubGraphExpanderButton",
+                        {
+                            column: 0, 
+                            angle: 270,
+                            margin: new go.Margin(10, 2, 2, 2), 
+                            alignment: go.Spot.Center,
+                            scale: 1.5,
+                        },
+                    ),  
+                    $(go.TextBlock, textStyle(),  // the name - open container
                     {
-                        row: 0,
-                        contextMenu: contextMenu , 
-                        cursor: "move",
-                        stretch: go.GraphObject.Horizontal,
-                    },
-                $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
-                $("SubGraphExpanderButton",
-                    {
+                        row: 1, 
                         column: 0, 
                         angle: 270,
-                        margin: new go.Margin(10, 2, 2, 2), 
-                        alignment: go.Spot.Center,
-                        scale: 1.5,
-                    },
-                ),  
-                $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
-                {
-                    row: 1, 
-                    column: 0, 
-                    angle: 270,
-                    scale: textscale,
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(5, 0, 0, 10),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name"
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
-                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
-                ),
-                $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
-                {
-                    row: 0, 
-                    column: 1, 
-                    scale: textscale * 1.5,
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 100, 0, 0),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name",
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
-                new go.Binding('visible', 'isSubGraphExpanded', 
-                    function (e) { return !e; }).ofObject(),
-                ),
-                makeNotation(notation),
-            ), // End Panel
-            $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+                        scale: textscale,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(5, 0, 0, 10),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name"
+                    },        
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                    ),
+                    $(go.TextBlock, textStyle(),  // the name - closed container
+                    {
+                        row: 0, 
+                        column: 1, 
+                        scale: textscale * 1.5,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(0, 100, 0, 0),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },        
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
+                    new go.Binding('visible', 'isSubGraphExpanded', 
+                        function (e) { return !e; }).ofObject(),
+                    ),
+                    makeNotation(notation),
+                ), // End header Table Panel
+                $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+            ), // End outer Table panel
+        ), // End inner Auto panel
+        // TOP edge overlay - wide linkable area
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Top,
+                alignmentFocus: go.Spot.Top,
+                height: edgeWidth,
+                stretch: go.GraphObject.Horizontal,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // BOTTOM edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Bottom,
+                alignmentFocus: go.Spot.Bottom,
+                height: edgeWidth,
+                stretch: go.GraphObject.Horizontal,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // LEFT edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Left,
+                alignmentFocus: go.Spot.Left,
+                width: edgeWidth,
+                stretch: go.GraphObject.Vertical,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // RIGHT edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Right,
+                alignmentFocus: go.Spot.Right,
+                width: edgeWidth,
+                stretch: go.GraphObject.Vertical,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
         ),
     );
 }

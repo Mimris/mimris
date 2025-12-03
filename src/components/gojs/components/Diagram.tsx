@@ -343,7 +343,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // "draggingTool.dragsLink": true,
             "draggingTool.dragsTree": false,
             "draggingTool.isGridSnapEnabled": true,
-            "linkingTool.portGravity": 0,  // no snapping while drawing new links
+            "linkingTool.portGravity": 50,  // distance from port edge that still snaps to it (bigger = easier linking)
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
               "category": "Relationship",
@@ -6013,7 +6013,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
         }
         const data: any = part.data || {};
-        const isObject = data.category === constants.gojs.C_OBJECT;
+        const isObject =
+          data.category === constants.gojs.C_OBJECT ||
+          !!data.object ||
+          !!data.objectview ||
+          data.isGroup === true ||
+          (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container');
         if (isObject) {
           items.push({ separator: true });
           // Group common object actions into an "Object…" submenu
@@ -8697,7 +8702,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         try {
           if (!(items as any)?.menuHeading) {
             const data = targetPart?.data;
-            if (data && data.category === constants.gojs.C_OBJECT) {
+            const hasObject =
+              data &&
+              (data.category === constants.gojs.C_OBJECT ||
+                data.object ||
+                data.objectview ||
+                data.isGroup === true ||
+                (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container'));
+            if (hasObject) {
               (items as any).menuHeading = 'Object Menu';
             } else if (data && data.category === constants.gojs.C_RELATIONSHIP) {
               (items as any).menuHeading = 'Relationship Menu';

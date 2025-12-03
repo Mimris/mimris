@@ -661,32 +661,37 @@ export class goObjectNode extends goNode {
         }
     }
     getParentNode(model: goModel): goNode {
+        if (!model) return null;
         const groupId = this.group;
-        if (groupId !== "" && groupId !== undefined) {
-            const nodes = model.nodes;
-            for (let i = 0; i < nodes?.length; i++) {
-                const node = nodes[i] as goObjectNode;
-                if (node.key === groupId) {
-                    return node;
+        if (!groupId || groupId === "" || groupId === undefined) return null;
+        // Avoid self-references that can cause recursive lookups
+        if (groupId === this.key) return null;
+        const nodes = model.nodes;
+        if (!nodes || !nodes.length) return null;
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            if (!node || !node.key) continue;
+            if (node.key === groupId) {
+                // Extra guard: break group cycles
+                if (node.group === this.key) {
+                    return null;
                 }
+                return node;
             }
         }
         return null;
     }
     getTopNode(model: goModel): goNode {
-        const node = this.getParentNode(model);
-        if (node) {
-            if (node.key === this.key) {
-                return this;
-            } else {
-                const topNode = node.getTopNode(model);
-                if (topNode) {
-                    return topNode;
-                } else
-                    return this;
-            }
+        let current: goObjectNode = this;
+        const visited = new Set<string>();
+        while (true) {
+            const next = current.getParentNode(model) as goObjectNode | null;
+            if (!next) return current;
+            if (visited.has(next.key)) return current; // break cycles
+            visited.add(next.key);
+            if (next.key === current.key) return current;
+            current = next;
         }
-        return this;
     }
     getMyScale(model: goModel): number {
         let scale = this.scale;

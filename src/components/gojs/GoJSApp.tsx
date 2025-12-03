@@ -468,6 +468,40 @@ function ensureInitialGroupSize(diagram, node, data, options) {
   }
 }
 
+function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart: go.Part | null, parentPart: go.Part | null) {
+  if (!diagram || !childData || !parentPart) return;
+  const parentSize =
+    parseSizeString(parentPart.data?.size) || {
+      width: parentPart.actualBounds?.width || 0,
+      height: parentPart.actualBounds?.height || 0,
+    };
+  if (!parentSize.width || !parentSize.height) return;
+
+  const width = Math.max(1, parentSize.width / 2);
+  const height = Math.max(1, parentSize.height / 2);
+  const sizeString = `${width} ${height}`;
+
+  if (typeof diagram.model?.setDataProperty === 'function') {
+    if (childData.size !== sizeString) diagram.model.setDataProperty(childData, 'size', sizeString);
+    diagram.model.setDataProperty(childData, 'desiredSize', sizeString);
+  } else {
+    childData.size = sizeString;
+    childData.desiredSize = sizeString;
+  }
+  if (childData.objectview) {
+    childData.objectview.size = sizeString;
+  }
+  if (childPart instanceof go.Part) {
+    const resizeObj = childPart.resizeObject || childPart.reshapeObject || childPart;
+    if (resizeObj) {
+      resizeObj.desiredSize = new go.Size(width, height);
+    } else {
+      childPart.desiredSize = new go.Size(width, height);
+    }
+    childPart.ensureBounds();
+  }
+}
+
 function ensureNodeIsGroup(diagram, node) {
   if (!diagram || !node || !node.data) {
     return;
@@ -1165,6 +1199,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.group = groupKey;
             goNode.scale = goNode.getMyScale(myGoModel);
           }
+          // Avoid self- or cyclic grouping
+          if (groupKey && groupKey === n.data.key) {
+            groupKey = "";
+            goNode.group = "";
+          }
           const myToNode = {
             "n": n,
             "gjsData": n.data,
@@ -1181,7 +1220,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": n.data.typeview,
           }
           myToNodes.push(myToNode);
-          myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+          myDiagram.model.setDataProperty(n.data, 'group', groupKey || "");
         }
         // Walk through the from nodes and find the corresponding to nodes
         for (let i = 0; i < myFromNodes.length; i++) {
@@ -2753,6 +2792,30 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             myModelview.setFocusObjectview(objview);
           }
+          const syncDroppedPartRefs = (data: any) => {
+            if (!data || !object || !objview) return;
+            const setProp = (prop: string, value: any) => {
+              try {
+                myDiagram?.model?.setDataProperty?.(data, prop, value);
+              } catch (_) {
+                try { data[prop] = value; } catch (_) { /* ignore */ }
+              }
+            };
+            setProp('object', object);
+            setProp('objectview', objview);
+            setProp('objRef', object.id);
+            setProp('objviewRef', objview.id);
+            setProp('objecttype', type);
+            setProp('typeview', typeview);
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              setProp('category', data.template || constants.gojs.C_NODETEMPLATE);
+            }
+          };
+
+          syncDroppedPartRefs(partData);
+          if (diagramNode?.data && diagramNode.data !== partData) {
+            syncDroppedPartRefs(diagramNode.data);
+          }
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
@@ -2861,6 +2924,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             gjsNode.scale = part.scale
             if (node?.data) {
               myDiagram.model.setDataProperty(node.data, "scale", part.scale);
+            }
+            // Resize nested groups to half the parent size for better fit
+            const parentPart = myDiagram.findNodeForKey(parentgroup.key) as go.Part;
+            const childPart = myDiagram.findNodeForKey(part.key) as go.Part;
+            if (part.isGroup || childPart?.data?.isGroup) {
+              resizeGroupToHalfParent(myDiagram, part, childPart, parentPart);
+              if (goNode) goNode.size = part.size;
+              if (objview) objview.size = part.size;
             }
             // Check if the node has a relationship (hasPart) FROM a group
             const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
@@ -3422,6 +3493,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.goModel = myGoModel;
         if (debug) console.log('1498 link', link.data, link.data.from, link.data.to);
         let gjsFromNode, gjsToNode;
+        const isObjectNode = (n: any) =>
+          !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
         for (let it = myDiagram.nodes; it?.next();) {
           const n = it.value;
           if (n.data?.key === gjsData.from) {
@@ -3449,6 +3522,27 @@ class GoJSApp extends React.Component<{}, AppState> {
           context.toObjView = toObjView;
           uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
         }
+        // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
+        const ensureNodeRefs = (gjsNode: any, objview: any) => {
+          if (!gjsNode) return;
+          const setProp = (prop: string, val: any) => {
+            if (val === undefined || val === null) return;
+            try {
+              gjsNode[prop] = val;
+            } catch (_) { /* ignore */ }
+          };
+          if (objview) {
+            setProp('objectview', objview);
+            setProp('objviewRef', objview.id);
+            if (!objview.object && gjsNode.object) {
+              objview.object = gjsNode.object;
+            }
+            setProp('object', objview.object || gjsNode.object);
+            setProp('objRef', objview.object?.id);
+          }
+        };
+        ensureNodeRefs(gjsFromNode, context.fromObjView);
+        ensureNodeRefs(gjsToNode, context.toObjView);
         // Handle relationship types
         if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
           gjsData.category = constants.gojs.C_RELSHIPTYPE;
@@ -3482,7 +3576,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myDiagram.requestUpdate();
         }
         // Handle relationships
-        if (gjsFromNode?.category === constants.gojs.C_OBJECT) {
+        if (isObjectNode(gjsFromNode)) {
           // gjsData.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
           if (gjsFromNode && gjsToNode)

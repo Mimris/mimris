@@ -493,7 +493,49 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     }
     if (!objectview) {
         console.warn('[ui_diagram.editObject] objectview not found for node', { nodeKey: objviewRef, node: gjsNode });
-        return; // can't proceed without an object view
+        // Try constructing from node data so the form can still open
+        const currentModelview = myMetis.currentModelview;
+        const currentModel = myMetis.currentModel || currentModelview?.model;
+        const objRef =
+            gjsNode.objRef ||
+            gjsNode.object?.id ||
+            gjsNode.objref ||
+            gjsNode.objview?.object?.id ||
+            utils.createGuid();
+        let object: akm.cxObject =
+            gjsNode.object ||
+            (objRef ? myMetis.findObject(objRef) : null);
+        const objecttype =
+            gjsNode.objecttype ||
+            (gjsNode.objtypeRef ? myMetis.findObjectType(gjsNode.objtypeRef) : null);
+        const objName =
+            gjsNode.name ||
+            gjsNode.object?.name ||
+            gjsNode.title ||
+            'Object';
+        const objDescr =
+            gjsNode.description ||
+            gjsNode.object?.description ||
+            '';
+        if (!object && objecttype) {
+            object = new akm.cxObject(objRef, objName, objecttype, objDescr);
+            object.parentModelRef = currentModel?.id || currentModelview?.parentModelRef || "";
+            myMetis.addObject(object);
+            currentModel?.addObject?.(object);
+        }
+        if (object) {
+            objectview = new akm.cxObjectView(objviewRef, objName, object, objDescr, currentModelview);
+            objectview.viewkind = gjsNode.viewkind || objecttype?.viewkind;
+            objectview.template = gjsNode.template || gjsNode.category;
+            objectview.isGroup = !!gjsNode.isGroup;
+            object.addObjectView(objectview);
+            currentModelview?.addObjectView?.(objectview);
+            myMetis.addObjectView(objectview);
+            gjsNode.object = object;
+            gjsNode.objectview = objectview;
+        } else {
+            return; // can't proceed without an object view
+        }
     }
     let object: akm.cxObject = null;
     if (objectview && objectview.objectRef) {
@@ -654,7 +696,54 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     if (!object) object = myModel.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
     objecttype = myMetis.findObjectType(objecttype?.id);
-    let goNode = myGoModel.findNode(key);
+    let goNode = myGoModel.findNode(key) || myGoModel.findNodeByViewId?.(key);
+    // If object or objectview are missing (common right after drop), rebuild them from node data
+    if (!objectview || !object) {
+        const objtype =
+            objecttype ||
+            gjsNode.objecttype ||
+            (gjsNode.objtypeRef ? myMetis.findObjectType(gjsNode.objtypeRef) : null);
+        const objRef =
+            gjsNode.objRef ||
+            gjsNode.object?.id ||
+            gjsNode.objref ||
+            objectview?.objectRef ||
+            utils.createGuid();
+        const objName =
+            gjsNode.name ||
+            gjsNode.object?.name ||
+            gjsNode.title ||
+            'Object';
+        const objDescr =
+            gjsNode.description ||
+            gjsNode.object?.description ||
+            '';
+        if (!object && objtype) {
+            object = new akm.cxObject(objRef, objName, objtype, objDescr);
+            object.parentModelRef = myModel?.id || myModelview?.parentModelRef || "";
+            myMetis.addObject(object);
+            myModel?.addObject?.(object);
+        }
+        if (object && !objectview) {
+            objectview = new akm.cxObjectView(key, objName, object, objDescr, myModelview);
+            objectview.viewkind = gjsNode.viewkind || objtype?.viewkind;
+            objectview.template = gjsNode.template || gjsNode.category;
+            objectview.isGroup = !!gjsNode.isGroup;
+            object.addObjectView(objectview);
+            myModelview?.addObjectView?.(objectview);
+            myMetis.addObjectView(objectview);
+            gjsNode.object = object;
+            gjsNode.objectview = objectview;
+        }
+        // ensure goNode carries refs for forms
+        if (goNode) {
+            goNode.object = object;
+            goNode.objectview = objectview;
+            goNode.objRef = object?.id;
+            goNode.objviewRef = objectview?.id;
+            goNode.objecttype = objtype || goNode.objecttype;
+        }
+    }
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);

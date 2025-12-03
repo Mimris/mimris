@@ -2319,22 +2319,32 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
+            // Primary strict containment check (all corners inside)
             if (
-                (nx > gx) // Check upper left corner of node
+                (nx > gx) // upper left x
                 &&
-                (nx + nw * nodeScale <= gx + gw * grpScale) // Check upper right corner of node
+                (nx + nw * nodeScale <= gx + gw * grpScale) // upper right x
                 &&
-                (ny > gy) // Check lower left corner of node
+                (ny > gy) // upper left y
                 &&
-                (ny + nh * nodeScale <= gy + gh * grpScale) // Check lower right corner of node
+                (ny + nh * nodeScale <= gy + gh * grpScale) // lower right y
             ) {
-                let grp = {
+                groups.push({
                     "name": node.name,
                     "groupId": node.key,
                     "group": node,
                     "size": gw * grpScale * gh * grpScale,
-                };
-                groups.push(grp);
+                });
+                continue;
+            }
+            // Fallback: consider inside if upper-left corner is inside parent bounds
+            if (nx > gx && nx < gx + gw * grpScale && ny > gy && ny < gy + gh * grpScale) {
+                groups.push({
+                    "name": node.name,
+                    "groupId": node.key,
+                    "group": node,
+                    "size": gw * grpScale * gh * grpScale,
+                });
             }
         }
     }
@@ -2351,9 +2361,27 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         if (group) {
             return group;
         }
-    } else {
-        return null;
     }
+    // Fallback: if no fit found (e.g., oversized dropped group), try center-point inclusion
+    if ((!groups || groups.length === 0) && nod?.isGroup) {
+        const cx = nx + nw / 2;
+        const cy = ny + nh / 2;
+        for (let i = 0; i < nodes?.length; i++) {
+            const node = nodes[i] as gjs.goObjectNode;
+            if (!node?.isGroup || node.key === nod?.key) continue;
+            const grpLoc = node.loc?.split(" ");
+            const grpSize = node.size?.split(" ");
+            if (!grpLoc) continue;
+            const gx = parseInt(grpLoc[0]);
+            const gy = parseInt(grpLoc[1]);
+            const gw = parseInt(grpSize[0]);
+            const gh = parseInt(grpSize[1]);
+            if (cx > gx && cx < gx + gw && cy > gy && cy < gy + gh) {
+                return model.findNode(node.key);
+            }
+        }
+    }
+    return null;
 }
 
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {

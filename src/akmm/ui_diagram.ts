@@ -2344,6 +2344,9 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     const modifiedObjectViews: akm.cxObjectView[] = [];
     const modifiedRelshipViews: akm.cxRelationshipView[] = [];
 
+    type QueueItem = { view: akm.cxObjectView, depthLeft: number };
+    const queue: QueueItem[] = [];
+
     const processViewOnce = (curView: akm.cxObjectView, depthLeft: number, visited: Set<string>) => {
         if (!curView || depthLeft < 1 || visited.has(curView.id)) return;
         visited.add(curView.id);
@@ -2475,8 +2478,7 @@ function addConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectV
     if (maxDepth === 1) {
         processViewOnce(objview, 1, visited);
     } else {
-        type QueueItem = { view: akm.cxObjectView, depthLeft: number };
-        const queue: QueueItem[] = [{ view: objview, depthLeft: maxDepth }];
+        queue.push({ view: objview, depthLeft: maxDepth });
         while (queue.length > 0) {
             const current = queue.shift() as QueueItem;
             if (!current) continue;

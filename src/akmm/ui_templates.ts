@@ -233,7 +233,10 @@ function makeGeoIcon() {
             margin: new go.Margin(0, 5, 0, 0),
             desiredSize: new go.Size(27, 27),
             alignment: go.Spot.Right,
+            // allow icon background color via fillcolor2
+            background: "transparent",
         },
+        new go.Binding("background", "fillcolor2"),
         new go.Binding("visible", "isSubGraphExpanded").ofObject(),
         new go.Binding("visible", "icon", shouldShowIconPicture),
     )                                
@@ -4862,6 +4865,8 @@ export function makeIconGlyph(
                 ...pictureOverrides,
             },
             new go.Binding("source", "icon", getIconSource),
+            // allow icon background color via fillcolor2
+            new go.Binding("background", "fillcolor2"),
             new go.Binding("visible", "icon", shouldShowIconPicture),
         ),
         $(go.TextBlock, textStyle(),

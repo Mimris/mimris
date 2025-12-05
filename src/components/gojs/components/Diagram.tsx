@@ -234,6 +234,91 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
+    const modalContext = this.state.modalContext;
+    
+    // Handle Change Icon directly here for immediate update
+    if (modalContext?.case === 'Change Icon') {
+      const currentNode = modalContext.currentNode || myMetis?.currentNode;
+      const myDiagram = modalContext.myDiagram || myMetis?.myDiagram;
+      const myModelview = myMetis?.currentModelview;
+      
+      if (!currentNode || !myDiagram) {
+        console.warn('Change Icon: missing currentNode or myDiagram');
+        return;
+      }
+      
+      // Get the new icon value
+      let newIcon = selected;
+      if (typeof selected === 'object') {
+        newIcon = selected?.value || selected?.label || selected?.icon;
+      }
+      
+      if (!newIcon) {
+        console.warn('Change Icon: no icon selected');
+        return;
+      }
+      
+      console.log('Change Icon: setting icon to', newIcon, 'for node key', currentNode.key);
+      
+      // Find the objectview
+      let objview = null;
+      if (currentNode.key) {
+        objview = myModelview?.findObjectView(currentNode.key);
+      }
+      if (!objview && currentNode.objectview?.id) {
+        objview = myMetis?.findObjectView(currentNode.objectview.id);
+      }
+      if (!objview && currentNode.objviewRef) {
+        objview = myMetis?.findObjectView(currentNode.objviewRef);
+      }
+      if (!objview) {
+        objview = currentNode.objectview;
+      }
+      
+      // Start diagram transaction
+      myDiagram.startTransaction('change-icon');
+      
+      // Update the node data in the GoJS model
+      myDiagram.model.setDataProperty(currentNode, 'icon', newIcon);
+      
+      // Update the embedded objectview if present
+      if (currentNode.objectview) {
+        currentNode.objectview.icon = newIcon;
+      }
+      
+      // Update the actual objectview object
+      if (objview) {
+        objview.icon = newIcon;
+        if (typeof objview.setModified === 'function') {
+          objview.setModified();
+        }
+      }
+      
+      myDiagram.commitTransaction('change-icon');
+      
+      // Dispatch to Redux to persist the change
+      if (objview) {
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        let data = JSON.parse(JSON.stringify(jsnObjview));
+        const dispatchFn = myDiagram.dispatch || myMetis?.dispatch || this.props.dispatch;
+        if (dispatchFn) {
+          dispatchFn({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+          console.log('Change Icon: Dispatched UPDATE_OBJECTVIEW_PROPERTIES');
+        }
+      }
+      
+      // Request diagram update
+      myDiagram.requestUpdate();
+      return;
+    }
+    
+    // Handle Set Icon Colors directly here
+    if (modalContext?.case === 'Set Icon Colors') {
+      // This case is handled inline in the menu action, not through modal
+      return;
+    }
+    
+    // For all other cases, delegate to uim.handleSelectDropdownChange
     const context = {
       "myMetis": myMetis,
       "myMetamodel": myMetis.currentMetamodel,
@@ -241,11 +326,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myModelview": myMetis.currentModelview,
       "myGoModel": myMetis.gojsModel,
       "myDiagram": myMetis.myDiagram,
-      "modalContext": this.state.modalContext
+      "modalContext": modalContext
     }
-    // Handle the links
     uim.handleSelectDropdownChange(selected, context);
-    // Handle the relationships
   }
 
   public handleCloseModal(e) {
@@ -3802,6 +3885,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           };
 
           const enabled = item.enabled ? item.enabled(diagram) : true;
+          console.log('3805 Menu item:', item.label, 'enabled:', enabled);
           if (!enabled) {
             button.disabled = true;
             button.style.cursor = "default";
@@ -6537,19 +6621,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 }
               });
             },
-            enabled: (diagram) => {
-              const node = part.data;
-              if (node?.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  const selection = diagram.selection;
-                  if (selection.count == 0) return true;
-                  else return false;
-                }
-              }
-              return false;
-            }
+            enabled: (diagram) => true,
+            //   {
+            //   const node = part.data;
+            //   if (node?.category === constants.gojs.C_OBJECT) {
+            //     if (node.isSelected) {
+            //       return true;
+            //     } else {
+            //       const selection = diagram.selection;
+            //       if (selection.count == 0) return true;
+            //       else return false;
+            //     }
+            //   }
+            //   return false;
+            // }
           });
           const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
           if (canConvertObject) {
@@ -8335,10 +8420,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       myMetis.myDiagram = diagram;
                       diagram.handleOpenModal(node, modalContext);
                     },
-                    enabled: (diagram) => {
-                      const node = targetPart.data;
-                      return !!node && node.category === constants.gojs.C_OBJECT;
-                    }
+                    enabled: (diagram) => true
                   },
                   {
                     label: 'Set Icon Colors',
@@ -8433,16 +8515,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
                                     try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
                                     diagram.requestUpdate();
-
                                     // persist asynchronously to avoid racing with menu disposal
                                     try {
                                       setTimeout(() => {
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.fillcolor = val;
+                                            objview.fillcolor2 = val;
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            if ((window as any).DEBUG_GOJS_MENUS) console.log('8446 Updating object view properties with data:', data);
                                             try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
                                           }
                                         } catch (_) { }

@@ -528,13 +528,13 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ? 'diagram-component-target'
         : 'diagram-component-palette'
 
-    console.log('Figure names:', uit.getFigureNames());
+    if (debug) console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
     //   height: '36vh', // Set the desired height here
     //   width: '100%', // Set the desired width here
     // };
     // console.log('261 Palette diagramStyle', this.props.diagramStyle);
-    if (!debug) console.log('296 Palette nodeDataArray', this.props.nodeDataArray);
+    if (debug) console.log('296 Palette nodeDataArray', this.props.nodeDataArray);
     // if (debug) console.log('297 Palette linkDataArray', this.props.linkDataArray);
 
     // https://github.com/NorthwoodsSoftware/gojs-react-basic/blob/master/src/components/DiagramWrapper.tsx

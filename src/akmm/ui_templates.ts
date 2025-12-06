@@ -113,7 +113,7 @@ export function getMinSize(): go.Size {
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
-        return go.Link.Normal;ƒ
+        return go.Link.Normal;
     case 'Orthogonal':
         return go.Link.Orthogonal;
     case 'AvoidsNodes':

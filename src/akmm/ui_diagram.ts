@@ -734,6 +734,12 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
             myMetis.addObjectView(objectview);
             gjsNode.object = object;
             gjsNode.objectview = objectview;
+            // keep type references so modal inspectors can resolve properties
+            if (objtype) {
+                objectview.objtypeRef = objtype.id;
+                gjsNode.objtypeRef = objtype.id;
+                gjsNode.objecttype = objtype;
+            }
         }
         // ensure goNode carries refs for forms
         if (goNode) {
@@ -742,6 +748,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
             goNode.objRef = object?.id;
             goNode.objviewRef = objectview?.id;
             goNode.objecttype = objtype || goNode.objecttype;
+            if (objtype) goNode.objtypeRef = objtype.id;
         }
     }
     myMetis.currentNode = goNode;

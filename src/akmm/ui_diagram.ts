@@ -2596,7 +2596,7 @@ function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis)
 }
 
 export function setGroupLayoutParameters(groupLayout: string): go.Layout {
-if (false) {
+if (true) {
     let layout = null;
     switch (groupLayout) {
         case 'TreeLayout':
@@ -2625,7 +2625,7 @@ if (false) {
                 isFixedAngle: false,
                 isFixedNodeMass: false,
                 isInitial: true,
-                isOngoing: fal
+                isOngoing: false,
             });
             break;
         case 'CircularLayout':
@@ -2646,14 +2646,14 @@ if (false) {
                 nodeSpacing: 10,
             });
             break;
-        case 'GridLayout':
-            layout = new go.GridLayout({
-                isOngoing: false,
-                wrappingColumn: 1,
-                spacing: new go.Size(0, 0),
-                alignment: go.GridLayout.Position,
-            });           
-            break;
+        // case 'GridLayout':
+        //     layout = new go.GridLayout({
+        //         isOngoing: false,
+        //         wrappingColumn: 1,
+        //         spacing: new go.Size(0, 0),
+        //         alignment: go.GridLayout.Position,
+        //     });           
+        //     break;
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
@@ -2725,7 +2725,7 @@ if (false) {
 }
 
 export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any) {
-if (false) {
+if (true) {
     const lay = setGroupLayoutParameters(myGroup.groupLayout); 
     lay.doLayout(myGroup);
     const jsnGroup = new jsn.jsnObjectView(myGroup);

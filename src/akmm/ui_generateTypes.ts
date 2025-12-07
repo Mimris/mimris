@@ -158,6 +158,7 @@ function isSystemRelationshipType(reltype: akm.cxRelationshipType, includeMetamo
             case constants.types.AKM_HAS_VIEWFORMAT:
             case constants.types.AKM_HAS_VALUE:
             case constants.types.AKM_ANNOTATES:
+            case constants.types.AKM_CONTAINS:
             // case constants.types.AKM_HAS_MEMBER:
             // case constants.types.AKM_HAS_PART:
                 return true;
@@ -1431,7 +1432,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
         targetMetamodel = myMetis.findMetamodel(targetMetamodel.id);
         targetMetamodel.properties = myMetamodel.properties;
         const entType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-        targetMetamodel.addObjectType(entType);
+        if (entType) targetMetamodel.addObjectType(entType);
     }
     myModel.targetMetamodelRef = targetMetamodel.id;
     targetMetamodel.generatedFromModelRef = myModel.id;
@@ -1536,6 +1537,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
+    let metaObject;
     const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_MM);
     let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
     let containsTypeView = containsType?.typeview;
@@ -1566,7 +1568,6 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     }
     // Adding system types completed
 
-    let metaObject;
     {   // Add metamodel contents
         for (let i = 0; i <= objects?.length; i++) {
             let obj = objects[i];
@@ -1611,36 +1612,40 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 break;
             }
         }
-        if (objects) {
-            let objtypeviews = new Array();
-            if (debug) console.log('1270 objects', objects);
-            for (let i = 0; i < objects.length; i++) {
-                let obj = objects[i];
-                if (!obj /*|| obj.markedAsDeleted*/)
+    }
+    // const typenames = new Array();
+    {
+    if (objects) {
+        let objtypeviews = new Array();
+        if (debug) console.log('1270 objects', objects);
+        for (let i = 0; i < objects.length; i++) {
+            let obj = objects[i];
+            if (!obj /*|| obj.markedAsDeleted*/)
+                continue;
+            switch (obj.type?.name) {
+                case 'Datatype':
+                case 'Value':
+                case 'FieldType':
+                case 'InputPattern':
+                case 'ViewFormat':
+                case 'MethodType':
+                case 'Method':
+                case 'Label':
+                    // case 'Collection':
                     continue;
-                switch (obj.type?.name) {
-                    case 'Datatype':
-                    case 'Value':
-                    case 'FieldType':
-                    case 'InputPattern':
-                    case 'ViewFormat':
-                    case 'MethodType':
-                    case 'Method':
-                    case 'Label':
-                        // case 'Collection':
+                default:
+                    // obj = myMetis.findObject(obj.id);
+                    if (obj.isOfType('Property'))
                         continue;
-                    default:
-                        // obj = myMetis.findObject(obj.id);
-                        if (obj.isOfType('Property'))
-                            continue;
-                }
-                const typenames = new Array();
-                if (obj.name === obj.type?.name)
-                    typenames.push(obj.type.name);
-                typenames.push(metaObject);
-                for (let i = 0; i < typenames.length; i++) {
-                    if (typenames[i] === constants.types.AKM_ENTITY_TYPE) {
-                        const objtype = myMetis.findObjectTypeByName(typenames[i]);
+            }
+            // const typenames = new Array();
+            if (obj.name === obj.type?.name)
+                typenames.push(obj.type.name);
+            typenames.push(metaObject);
+            for (let i = 0; i < typenames.length; i++) {
+                if (typenames[i] === constants.types.AKM_ENTITY_TYPE) {
+                    const objtype = myMetis.findObjectTypeByName(typenames[i]);
+                    if (objtype) {
                         if (firstTime) {
                             objtype.properties = [];
                             firstTime = false;
@@ -1649,66 +1654,67 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                         if (objtype && objtype.name !== constants.types.AKM_ENTITY_TYPE)
                             targetMetamodel.addObjectType0ByName(objtype);
                     }
-                    const type = myMetamodel.findObjectTypeByName(typenames[i]);
-                    if (type && obj && obj.type) {
-                        if (type.markedAsDeleted)
-                            continue;
-                        // Check if obj inherits one of the specified types - otherwise do not generate type
-                        let objtype: akm.cxObjectType;
-                        if (
-                            (obj.type.name === metaObject)
-                        ) {
-                            objtype = generateObjectType(obj, myObjectview, context);
-                            if (objtype) targetMetamodel.addObjectTypeByName(objtype);
-                            if (objtype /* && objtype.name !== constants.types.AKM_ENTITY_TYPE */) {
-                                targetMetamodel.addObjectType0ByName(objtype);
-                                // Check if there already is an Is relationship type between the object type and EntityType
-                                const reltypes = targetMetamodel.relshiptypes;
-                                let found = false;
-                                for (let i = 0; i < reltypes.length; i++) {
-                                    const reltype = reltypes[i];
-                                    if (reltype.name === constants.types.AKM_IS) {
-                                        if (reltype.fromObjtype?.name === objtype.name && reltype.toObjtype?.name === constants.types.AKM_ENTITY_TYPE) {
-                                            found = true;
-                                            break;
-                                        }
+                }
+                const type = myMetamodel.findObjectTypeByName(typenames[i]);
+                if (type && obj && obj.type) {
+                    if (type.markedAsDeleted)
+                        continue;
+                    // Check if obj inherits one of the specified types - otherwise do not generate type
+                    let objtype: akm.cxObjectType;
+                    if (
+                        (obj.type.name === metaObject)
+                    ) {
+                        objtype = generateObjectType(obj, myObjectview, context);
+                        if (objtype) targetMetamodel.addObjectTypeByName(objtype);
+                        if (objtype /* && objtype.name !== constants.types.AKM_ENTITY_TYPE */) {
+                            targetMetamodel.addObjectType0ByName(objtype);
+                            // Check if there already is an Is relationship type between the object type and EntityType
+                            const reltypes = targetMetamodel.relshiptypes;
+                            let found = false;
+                            for (let i = 0; i < reltypes.length; i++) {
+                                const reltype = reltypes[i];
+                                if (reltype.name === constants.types.AKM_IS) {
+                                    if (reltype.fromObjtype?.name === objtype.name && reltype.toObjtype?.name === constants.types.AKM_ENTITY_TYPE) {
+                                        found = true;
+                                        break;
                                     }
                                 }
-                                if (!found) {
-                                    // Create an Is relationship between the new object type and EntityType
-                                    const uid = utils.createGuid();
-                                    const toObjtype = targetMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
-                                    const reltype = new akm.cxRelationshipType(uid, constants.types.AKM_IS, objtype, toObjtype);
-                                    myMetis.addRelationshipType(reltype);
-                                    targetMetamodel.addRelationshipType(reltype);
-                                }
-                                // Handle typeviews
-                                let typeview = objtype.typeview;
-                                // First get all objectviews of obj in the actual model
-                                let objviews = myModelview.findObjectViewsByObject(obj);
-                                for (let i=0; i<objviews?.length; i++) {
-                                    const oview = objviews[i];
-                                    if (oview) {
-                                        let newName = oview.name;
-                                        newName = utils.camelize(newName);
-                                        oview.name = utils.capitalizeFirstLetter(newName);
-                                        if (oview.name === objtype.name) {
-                                            typeview.applyObjectViewParameters(oview);
-                                            oview.template = typeview.template;
-                                            objtypeviews.push(typeview);
-                                            break;
-                                        }
+                            }
+                            if (!found) {
+                                // Create an Is relationship between the new object type and EntityType
+                                const uid = utils.createGuid();
+                                const toObjtype = targetMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+                                const reltype = new akm.cxRelationshipType(uid, constants.types.AKM_IS, objtype, toObjtype);
+                                myMetis.addRelationshipType(reltype);
+                                targetMetamodel.addRelationshipType(reltype);
+                            }
+                            // Handle typeviews
+                            let typeview = objtype.typeview;
+                            // First get all objectviews of obj in the actual model
+                            let objviews = myModelview.findObjectViewsByObject(obj);
+                            for (let i=0; i<objviews?.length; i++) {
+                                const oview = objviews[i];
+                                if (oview) {
+                                    let newName = oview.name;
+                                    newName = utils.camelize(newName);
+                                    oview.name = utils.capitalizeFirstLetter(newName);
+                                    if (oview.name === objtype.name) {
+                                        typeview.applyObjectViewParameters(oview);
+                                        oview.template = typeview.template;
+                                        objtypeviews.push(typeview);
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
-                    // Then get all typeviews for the object type in the target metamodel
-                    objtypeviews = utils.removeArrayDuplicates(objtypeviews);
-                    targetMetamodel.objecttypeviews = objtypeviews;
                 }
+                // Then get all typeviews for the object type in the target metamodel
+                objtypeviews = utils.removeArrayDuplicates(objtypeviews);
+                targetMetamodel.objecttypeviews = objtypeviews;
             }
         }
+    }
     }
     // Add or generate relationship types
     { // First handle objects of type "RelshipType"

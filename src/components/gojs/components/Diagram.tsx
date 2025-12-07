@@ -392,6 +392,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       setLayout(myDiagram, myModelview?.layout);
     }
 
+    uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
+
+
     // Tooltip functions
     function nodeInfo(d: any) {  // Tooltip info for a node data object
       return uid.nodeInfo(d, myMetis);
@@ -1587,7 +1590,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let node = obj.part.data;
               const key = node.key;
               const objview = myMetis.findObjectView(key);
-              if (!objview?.isGroup)
+              if (objview?.isGroup)
                 return true;
               else
                 return false;

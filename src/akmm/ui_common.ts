@@ -550,6 +550,7 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
             toObj[prop] = fromObj[prop];
     }
 }
+
 export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
     try {
     toObjview["isGroup"]      = fromObjview["isGroup"];
@@ -954,6 +955,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
                         reltypes.push(rtype);
                     }
+                    if (fromType.name === constants.types.AKM_CONTAINER /* && toType.name === constants.types.AKM_ENTITY_TYPE*/) {
+                        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+                        reltypes.push(rtype);
+                    }
                 } else {
                     const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
                     for (let i = 0; i < rtypes.length; i++) {
@@ -1127,6 +1132,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
 export function createRelationshipView(rel: akm.cxRelationship, context: any): akm.cxRelationshipView {
     let modifiedRelships = new Array();
     let modifiedRelshipViews = new Array();
+    let modifiedObjectViews = new Array();
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
@@ -1152,10 +1158,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
-    if (context.reltype?.name === constants.types.AKM_HAS_MEMBER) {
+    if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
             relview.strokecolor = '#dddddd50';
             relview.textcolor = '#dddddd50';
+            toObjview.group = fromObjview.id;
+            const jsnObjview = new jsn.jsnObjectView(toObjview);
+            modifiedObjectViews.push(jsnObjview);
         }
     }
     fromObjview.addOutputRelview(relview);
@@ -1214,6 +1223,11 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
+    // modifiedObjectViews.map(mn => {
+    //     let data = (mn) && mn
+    //     data = JSON.parse(JSON.stringify(data));
+    //     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    // })
     return relview;
 }
 
@@ -4789,8 +4803,8 @@ function calculateRecursiveMemberLayout(member: cxObjectView): { x: number; y: n
  *
  * @param member - The cxObjectView to update.
  */
-export function updateRecursiveMemberLayout(member: cxObjectView): void {
-    const layout = calculateRecursiveMemberLayout(member);
+export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
+    const layout = (member);
     member.loc = `${layout.x} ${layout.y}`;
     
     if (layout.width !== undefined && layout.height !== undefined) {
@@ -4798,4 +4812,62 @@ export function updateRecursiveMemberLayout(member: cxObjectView): void {
     }
     
     console.log(`Updated recursive layout for ${member.id}: loc=${member.loc}, size=${member.size}`);
+}
+
+export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
+    // Go through all object views and check if they are groups
+    const relviews = new Array<akm.cxRelationshipView>();
+    const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+    // Get all relviews of type contains
+    for (let i = 0; i < modelview.relshipviews?.length; i++) {
+        const relview = modelview.relshipviews[i];
+        const relship = relview.relship;
+        const reltypeName = reltype?.name;
+        if (relship && reltype && relship.type && relship.type.name === reltype.name) {
+            relviews.push(relview);
+        }
+    }
+    // For each hasMember relview, get the member object view  
+    const objviews = new Array<akm.cxObjectView>();
+    for (let i = 0; i < relviews?.length; i++) {
+        const relview = relviews[i];
+        const fromObjview = relview.fromObjview; // Group
+        const toObjview = relview.toObjview;     // Member
+        if (fromObjview && toObjview) {
+            toObjview.group = fromObjview.id;
+            objviews.push(toObjview);
+        }
+    }
+    for (let i = 0; i < objviews?.length; i++) {
+        const member = objviews[i];
+        const jsnObjview = new jsn.jsnObjectView(member);
+        let data = jsnObjview;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    }
+}
+
+export function isContainedInGroup(myGoModel, goNode): gjs.goObjectNode | false {
+    // Check if the goNode is contained in a group, i.e. 
+    // there is a contains relationship from a group to this node
+    const objview = goNode.objectview;
+    if (!objview) return false;
+    const modelview = myGoModel.modelView;
+    if (!modelview) return false;
+    const relviews = modelview.relshipviews;
+    for (let i = 0; i < relviews?.length; i++) {
+        const relview = relviews[i];
+        const relship = relview.relship;
+        if (relship) {
+            const reltype = relship.type;
+            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
+                const fromObjview = relview.fromObjview; // Group
+                const toObjview = relview.toObjview;
+                if (toObjview && toObjview.id === objview.id) {
+                    return fromObjview;
+                }
+            }
+        }
+    }
+    return null;
 }

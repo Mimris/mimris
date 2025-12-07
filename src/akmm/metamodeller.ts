@@ -2821,7 +2821,8 @@ export class cxMetis {
                         // }
                     }
                 }
-                if (reltype.relshipkind === constants.relkinds.GEN) continue;
+                if (reltype.relshipkind === constants.relkinds.GEN) 
+                    continue;
                 if (reltype.isAllowedFromType(fromType, includeGen)) {
                     if (reltype.isAllowedToType(toType, includeGen)) {
                         reltypes.push(reltype);
@@ -4906,6 +4907,12 @@ export class cxMetaModel extends cxMetaObject {
                     } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
                     }
+                // } else if (fromObjType.name === constants.types.AKM_CONTAINER) {
+                //     if (toObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                //         if (reltype.name === constants.types.AKM_CONTAINS) {
+                //             reltypes.push(reltype);
+                //         }
+                //     }
                 } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
@@ -9448,6 +9455,25 @@ export class cxModelView extends cxMetaObject {
         }
         return null;
     }
+
+    findObjectViewsByGroup(group: cxObjectView): cxObjectView[] | null {
+        const objviews = new Array();
+        let oviews = this.objectviews;
+        if (!oviews)
+            return null;
+        for (let i = 0; i < oviews.length; i++) {
+            const ov = oviews[i];
+            if (ov.isDeleted())
+                continue;
+            if (ov && group) {
+                if (ov.group === group.id) {
+                    objviews.push(ov);
+                }
+            }
+        }
+        return objviews;
+    }
+
     getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {
         const relviews = new Array();
         if (fromView && toView) {

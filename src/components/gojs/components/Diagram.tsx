@@ -8,7 +8,10 @@ import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
+import { Input } from '../../ui/input';
+import { Button as UiButton } from '../../ui/button';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 import { METHODS } from 'http';
@@ -78,6 +81,20 @@ interface DiagramState {
   selectedOption: any;
   currentActiveTab: any;
   // onExportSvgReady: any;
+  selectConnectedDialogOpen?: boolean;
+  selectConnectedLevels?: string;
+  selectConnectedReltypes?: string;
+  selectConnectedReldir?: string;
+  pendingSelectContext?: { part: go.Part; diagram: go.Diagram } | null;
+  selectConnectedRelOptions?: string[];
+  selectConnectedRelChoice?: string | string[];
+  addConnectedDialogOpen?: boolean;
+  addConnectedLevels?: string;
+  addConnectedReltypes?: string;
+  addConnectedReldir?: string;
+  pendingAddContext?: { part: go.Part; diagram: go.Diagram } | null;
+  addConnectedRelOptions?: string[];
+  addConnectedRelChoice?: string | string[];
 }
 
 
@@ -113,7 +130,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       currentActiveTab: null,
       diagramStyle: props.diagramStyle,
-      onExportSvgReady: props.onExportSvgReady
+      onExportSvgReady: props.onExportSvgReady,
+      selectConnectedDialogOpen: false,
+      selectConnectedLevels: '1',
+      selectConnectedReltypes: 'All',
+      selectConnectedReldir: 'All',
+      pendingSelectContext: null,
+      selectConnectedRelOptions: ['All'],
+      selectConnectedRelChoice: ['All'],
+      addConnectedDialogOpen: false,
+      addConnectedLevels: '1',
+      addConnectedReltypes: 'All',
+      addConnectedReldir: 'All',
+      pendingAddContext: null,
+      addConnectedRelOptions: ['All'],
+      addConnectedRelChoice: ['All']
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -352,6 +383,297 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
+
+  private buildReltypeOptions = (part: go.Part): string[] => {
+    try {
+      if (!part || !part.data) return ['All'];
+      const key = (part.data as any).key;
+      const myMetis = this.myMetis;
+      let modelview = myMetis?.currentModelview;
+      if (!modelview) return ['All'];
+      modelview = myMetis.findModelView(modelview.id);
+      const objview = myMetis.findObjectView(key);
+      if (!objview) return ['All'];
+
+      // Gather relationship types touching this object, with direction markers at the end
+      const relviews = modelview.relshipviews || [];
+      const names: string[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const rv = relviews[i];
+        if (!rv || rv.markedAsDeleted) continue;
+        const rel = rv.relship;
+        if (!rel || rel.markedAsDeleted) continue;
+        const nm = rel?.type?.name || rel?.name;
+        if (!nm) continue;
+        const fromId = rv?.fromObjview?.id;
+        const toId = rv?.toObjview?.id;
+        const otherNameFrom = rv?.toObjview?.name || rv?.toObjview?.object?.name || rv?.relship?.toObject?.name || '';
+        const otherNameTo = rv?.fromObjview?.name || rv?.fromObjview?.object?.name || rv?.relship?.fromObject?.name || '';
+        if (fromId === objview.id) names.push(`${nm} > ${otherNameFrom}`.trim());
+        if (toId === objview.id) names.push(`${nm} < ${otherNameTo}`.trim());
+      }
+      const list = names.sort();
+      return ['All', ...list];
+    } catch {
+      return ['All'];
+    }
+  };
+
+  private openSelectConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+    const options = this.buildReltypeOptions(part);
+    this.setState({
+      selectConnectedDialogOpen: true,
+      pendingSelectContext: { diagram, part },
+      selectConnectedLevels: this.state.selectConnectedLevels || '1',
+      selectConnectedReltypes: '',
+      selectConnectedRelChoice: [options?.[0] || 'All'],
+      selectConnectedRelOptions: options || ['All'],
+      selectConnectedReldir: this.state.selectConnectedReldir || 'All',
+    });
+  };
+
+  private handleSelectConnectedRelChoiceChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.includes('All') || opts.length === 0) {
+      this.setState({ selectConnectedRelChoice: ['All'] });
+    } else {
+      this.setState({ selectConnectedRelChoice: opts });
+    }
+  };
+
+  private handleSelectConnectedLevelsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedLevels: event.target.value });
+  };
+
+  private handleSelectConnectedReltypesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedReltypes: event.target.value });
+  };
+
+  private handleSelectConnectedReldirChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedReldir: event.target.value });
+  };
+
+  private handleSelectConnectedCancel = () => {
+    this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null });
+  };
+
+  private handleSelectConnectedConfirm = () => {
+    const { pendingSelectContext } = this.state;
+    const levelsParsed = parseInt(this.state.selectConnectedLevels || '1', 10);
+    const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
+    const reltypes = (this.state.selectConnectedReltypes || '').trim();
+    const reldir = (this.state.selectConnectedReldir || 'All').trim();
+
+    this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null }, () => {
+      if (pendingSelectContext) {
+        const normalize = (val: string) => (val || '')
+          // drop direction marker and anything after it (including other-end name)
+          .replace(/\s*[<>].*$/, '')
+          .trim();
+        const reltypesInput = (this.state.selectConnectedReltypes || '')
+          .split(',')
+          .map(normalize)
+          .filter(v => v.length > 0);
+        const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
+          ? this.state.selectConnectedRelChoice
+          : [this.state.selectConnectedRelChoice || 'All'])
+          .map(normalize)
+          .filter(v => v.length > 0);
+        const reltypesFinal = reltypesInput.length > 0
+          ? reltypesInput.join(',')
+          : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
+
+        this.runSelectConnectedFromContext(pendingSelectContext, {
+          levels,
+          reltypes: reltypesFinal,
+          reldir,
+        });
+      }
+    });
+  };
+
+  private runSelectConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; reldir: string }
+  ) => {
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const myMetis = this.myMetis;
+    let modelview = myMetis?.currentModelview;
+    if (!modelview) return;
+    modelview = myMetis.findModelView(modelview.id);
+    const goModel = myMetis.gojsModel;
+    const objview = myMetis.findObjectView(nodeData.key);
+    if (!objview) return;
+
+    const levels = Math.max(1, Math.floor(Number(params.levels) || 1));
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const dir = (params.reldir || 'All').toLowerCase();
+    const viewCollection = new akm.cxCollectionOfViews(modelview, [], []);
+
+    if (dir === 'all') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    } else if (dir === 'out' || dir === 'in') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
+    } else {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    }
+
+    const mySelection = new go.Set<go.Part | go.Link>();
+    const objviews = viewCollection.objectviews || [];
+    const relviews = viewCollection.relshipviews || [];
+
+    for (let i = 0; i < objviews.length; i++) {
+      const ov = objviews[i];
+      if (!ov || ov.id === nodeData.key) continue;
+      const goNode = goModel.findNodeByViewId(ov.id);
+      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      if (gjsNode) mySelection.add(gjsNode);
+    }
+
+    for (let i = 0; i < relviews.length; i++) {
+      const rv = relviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    // Always include relationships directly connected to the source node (first step)
+    const rootObjview = objview;
+    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      return fromId === rootObjview?.id || toId === rootObjview?.id;
+    });
+    for (let i = 0; i < firstHopRelviews.length; i++) {
+      const rv = firstHopRelviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    // Keep the current object selected alongside the traversal results
+    const rootPart = diagram.findPartForKey(nodeData.key) || diagram.findNodeForKey(nodeData.key);
+    if (rootPart) mySelection.add(rootPart as any);
+
+    if (mySelection.count > 0) {
+      diagram.selectCollection(mySelection);
+    } else {
+      diagram.clearSelection();
+    }
+  };
+
+  private openAddConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+    const options = this.buildReltypeOptions(part);
+    this.setState({
+      addConnectedDialogOpen: true,
+      pendingAddContext: { diagram, part },
+      addConnectedLevels: this.state.addConnectedLevels || '1',
+      addConnectedReltypes: '',
+      addConnectedRelChoice: [options?.[0] || 'All'],
+      addConnectedRelOptions: options || ['All'],
+      addConnectedReldir: this.state.addConnectedReldir || 'All',
+    });
+  };
+
+  private handleAddConnectedRelChoiceChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.includes('All') || opts.length === 0) {
+      this.setState({ addConnectedRelChoice: ['All'] });
+    } else {
+      this.setState({ addConnectedRelChoice: opts });
+    }
+  };
+
+  private handleAddConnectedLevelsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ addConnectedLevels: event.target.value });
+  };
+
+  private handleAddConnectedReltypesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ addConnectedReltypes: event.target.value });
+  };
+
+  private handleAddConnectedReldirChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ addConnectedReldir: event.target.value });
+  };
+
+  private handleAddConnectedCancel = () => {
+    this.setState({ addConnectedDialogOpen: false, pendingAddContext: null });
+  };
+
+  private handleAddConnectedConfirm = () => {
+    const { pendingAddContext } = this.state;
+    const levelsParsed = parseInt(this.state.addConnectedLevels || '1', 10);
+    const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
+    const reltypes = (this.state.addConnectedReltypes || '').trim();
+    const reldir = (this.state.addConnectedReldir || 'All').trim();
+
+    this.setState({ addConnectedDialogOpen: false, pendingAddContext: null }, () => {
+      if (pendingAddContext) {
+        const normalize = (val: string) => (val || '')
+          // drop direction marker and anything after it (including other-end name)
+          .replace(/\s*[<>].*$/, '')
+          .trim();
+        const reltypesInput = (this.state.addConnectedReltypes || '')
+          .split(',')
+          .map(normalize)
+          .filter(v => v.length > 0);
+        const selectedReltypes = (Array.isArray(this.state.addConnectedRelChoice)
+          ? this.state.addConnectedRelChoice
+          : [this.state.addConnectedRelChoice || 'All'])
+          .map(normalize)
+          .filter(v => v.length > 0);
+        const reltypesFinal = reltypesInput.length > 0
+          ? reltypesInput.join(',')
+          : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
+        this.runAddConnectedFromContext(pendingAddContext, {
+          levels,
+          reltypes: reltypesFinal,
+          reldir,
+        });
+      }
+    });
+  };
+
+  private runAddConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; reldir: string }
+  ) => {
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const reldir = (params.reldir || 'All').trim();
+    const noLevels = Math.max(1, Math.floor(Number(params.levels) || 1));
+
+    const selection = diagram.selection.count > 0 ? diagram.selection : (() => {
+      const nodePart = diagram.findPartForKey(nodeData.key) || part;
+      if (nodePart) {
+        diagram.select(nodePart);
+        return diagram.selection;
+      }
+      return diagram.selection;
+    })();
+
+    for (let it = selection.iterator; it?.next();) {
+      const sel = it.value;
+      const selData = sel?.data;
+      if (selData && selData.category === constants.gojs.C_OBJECT) {
+        uid.addConnectedObjects(selData, { noLevels, reltypes, reldir }, this.myMetis, diagram);
+      }
+    }
+  };
 
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
@@ -5614,52 +5936,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       };
 
       const handleAddConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
-        if (!diagram || !part) return;
-        const nodeData: any = part.data;
-        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
-
-        let noLevels: number = 1;
-        let reltypes = 'All';
-        let reldir = 'All';
-        const useDefaults = confirm('Use default parameters?');
-        if (!useDefaults) {
-          const levelInput = prompt('Enter number of sublevels to follow', String(noLevels));
-          const parsedLevel = levelInput !== null ? Math.max(1, Math.floor(Number(levelInput) || 0)) : noLevels;
-          if (parsedLevel) {
-            noLevels = parsedLevel;
-          }
-          const reltypeInput = prompt('Enter relationship type to follow', reltypes);
-          if (reltypeInput !== null && reltypeInput.trim().length > 0) {
-            reltypes = reltypeInput;
-          }
-          const reldirInput = prompt('Enter relationship direction to follow (in | out | All)', reldir);
-          if (reldirInput !== null && reldirInput.trim().length > 0) {
-            reldir = reldirInput;
-          }
-        }
-
-        const params = {
-          noLevels: Math.max(1, Math.floor(noLevels || 1)),
-          reltypes: reltypes === 'All' ? '' : reltypes,
-          reldir: (reldir || 'All')
-        };
-
-        const selection = diagram.selection.count > 0 ? diagram.selection : (() => {
-          const nodePart = diagram.findPartForKey(nodeData.key);
-          if (nodePart) {
-            diagram.select(nodePart);
-            return diagram.selection;
-          }
-          return diagram.selection;
-        })();
-
-        for (let it = selection.iterator; it?.next();) {
-          const sel = it.value;
-          const selData = sel?.data;
-          if (selData && selData.category === constants.gojs.C_OBJECT) {
-            uid.addConnectedObjects(selData, params, myMetis, diagram);
-          }
-        }
+        this.openAddConnectedDialog(diagram, part);
       };
 
       const handleHideConnectedRelationships = (diagram: go.Diagram, part: go.Part) => {
@@ -5672,10 +5949,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       };
 
       const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
-        if (!diagram || !part) return;
-        const nodeData: any = part.data;
-        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
-        uid.selectConnectedObjects(nodeData, myMetis, diagram);
+        this.openSelectConnectedDialog(diagram, part);
       };
 
       const handleSelectAllObjectsOfSameType = (diagram: go.Diagram, part: go.Part) => {
@@ -10338,6 +10612,159 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onSelect={(image) => this.handleSelectDropdownChange({ value: image })}
           imageList={this.state.modalContext?.imageList || []}
         />
+        <Dialog open={this.state.selectConnectedDialogOpen} onOpenChange={(open) => !open && this.handleSelectConnectedCancel()}>
+            <DialogContent style={{ padding: '10px 12px' }}>
+            <DialogHeader>
+              <DialogTitle>Select Connected Objects</DialogTitle>
+              <DialogDescription>Choose traversal depth, relationship types, and direction.</DialogDescription>
+            </DialogHeader>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Relationship to follow</label>
+              <select
+                multiple
+                value={(this.state.selectConnectedRelChoice as any) || ['All']}
+                onChange={this.handleSelectConnectedRelChoiceChange as any}
+                className="text-xs"
+                style={{ padding: '6px 8px', minHeight: 48, lineHeight: 1.1, maxHeight: 220, overflowY: 'auto' }}
+              >
+                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Steps to traverse</label>
+              <select
+                value={this.state.selectConnectedLevels || '1'}
+                onChange={this.handleSelectConnectedLevelsChange as any}
+                className="h-8 text-xs"
+                style={{ padding: '4px 8px', minHeight: 28, lineHeight: 1.1 }}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Relationship types to traverse</label>
+              <Input
+                value={this.state.selectConnectedReltypes || ''}
+                onChange={this.handleSelectConnectedReltypesChange as any}
+                placeholder="All"
+                className="h-8 text-xs"
+                list="select-connected-reltypes"
+              />
+              <datalist id="select-connected-reltypes">
+                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt} />
+                ))}
+              </datalist>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Direction</label>
+              <select
+                value={this.state.selectConnectedReldir || 'All'}
+                onChange={this.handleSelectConnectedReldirChange as any}
+                className="h-8 text-xs"
+                style={{ padding: '4px 8px', minHeight: 28, lineHeight: 1.1 }}
+              >
+                {['All', 'out', 'in'].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, padding: '8px 4px 4px', gap: 12 }}>
+              <UiButton
+                variant="outline"
+                className="h-7 px-2 text-xs"
+                style={{ minHeight: 26, backgroundColor: '#f3f4f6', marginRight: 6 }}
+                onClick={this.handleSelectConnectedCancel}
+              >
+                Cancel
+              </UiButton>
+              <UiButton
+                variant="default"
+                className="h-7 px-3 text-xs"
+                style={{ minHeight: 26, backgroundColor: '#1f2937', color: '#fff', marginLeft: 2 }}
+                onClick={this.handleSelectConnectedConfirm}
+              >
+                Select
+              </UiButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={this.state.addConnectedDialogOpen} onOpenChange={(open) => !open && this.handleAddConnectedCancel()}>
+          <DialogContent style={{ padding: '10px 12px' }}>
+            <DialogHeader>
+              <DialogTitle>Add Connected Objects</DialogTitle>
+              <DialogDescription style={{ marginBottom: 4 }}>Generate connected nodes with the chosen traversal settings.</DialogDescription>
+            </DialogHeader>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Relationship to follow</label>
+              <select
+                multiple
+                value={(this.state.addConnectedRelChoice as any) || ['All']}
+                onChange={this.handleAddConnectedRelChoiceChange as any}
+                className="text-xs"
+                style={{ padding: '6px 8px', minHeight: 48, lineHeight: 1.1, maxHeight: 220, overflowY: 'auto' }}
+              >
+                {(this.state.addConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Levels to add</label>
+              <select
+                value={this.state.addConnectedLevels || '1'}
+                onChange={this.handleAddConnectedLevelsChange as any}
+                className="h-8 text-xs"
+                style={{ padding: '4px 8px', minHeight: 28, lineHeight: 1.1 }}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Relationship types to traverse</label>
+              <Input
+                value={this.state.addConnectedReltypes || ''}
+                onChange={this.handleAddConnectedReltypesChange as any}
+                placeholder="All"
+                className="h-8 text-xs"
+                list="add-connected-reltypes"
+              />
+              <datalist id="add-connected-reltypes">
+                {(this.state.addConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt} />
+                ))}
+              </datalist>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Direction</label>
+              <select
+                value={this.state.addConnectedReldir || 'All'}
+                onChange={this.handleAddConnectedReldirChange as any}
+                className="h-8 text-xs"
+                style={{ padding: '4px 8px', minHeight: 28, lineHeight: 1.1 }}
+              >
+                {['All', 'out', 'in'].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter style={{ display: 'flex', gap: 12,  marginTop: 12}}>
+              <div style={{ flex: 1 }}></div>
+                <UiButton
+                  variant="outline"
+                  className="h-7 mt-2 mx-1 px-2 text-xs"
+                  style={{ minHeight: 26, backgroundColor: '#f3f4f6', marginRight: 6 }}
+                  onClick={this.handleAddConnectedCancel}
+                >
+                  Cancel
+                </UiButton>
+                <UiButton
+                  variant="small"
+                  className="h-7 mx-1 px-3 text-xs"
+                  style={{ minHeight: 26, backgroundColor: '#374151', color: '#fff', marginLeft: 2 }}
+                  onClick={this.handleAddConnectedConfirm}
+                >
+                  Add
+                </UiButton>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <style jsx>{`        
       `}
         </style>

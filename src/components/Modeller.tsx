@@ -60,6 +60,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
     const [objColumns, setObjColumns] = useState(1);
+    const [resetPaletteFilterToken, setResetPaletteFilterToken] = useState(0);
     let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -503,28 +504,37 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const SelectOTypes = (
         <>
-            <select
-                className="select-field mx-1 text-secondary"
-                style={{ width: "98%" }}
-                // value={uniqueTypes[selectedOption]}
-                onChange={(e) => handleSelectOTypes(e.target.value)}
-            >
-                <option value="In this modelview" key="01">
-                    Filter/Sort
-                </option>
-                <option value="In this modelview" key="02">
-                    Objects in this Modelview *
-                </option>
-                <option value="Sorted alphabetical" key="03">
-                    All Sorted Alphabetical *
-                </option>
-                <option value="Sorted by type" key="04">
-                    All Sorted by Type *
-                </option>
-                {uniqueTypes.map((t: any, index) => (
-                    <option key={index} value={t}>{t}</option>
-                ))}
-            </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 }}>
+                <select
+                    className="select-field mx-1 text-secondary"
+                    style={{ width: "98%" }}
+                    // value={uniqueTypes[selectedOption]}
+                    onChange={(e) => handleSelectOTypes(e.target.value)}
+                >
+                    <option value="In this modelview" key="01">
+                        Filter/Sort
+                    </option>
+                    <option value="In this modelview" key="02">
+                        Objects in this Modelview *
+                    </option>
+                    <option value="Sorted alphabetical" key="03">
+                        All Sorted Alphabetical *
+                    </option>
+                    <option value="Sorted by type" key="04">
+                        All Sorted by Type *
+                    </option>
+                    {uniqueTypes.map((t: any, index) => (
+                        <option key={index} value={t}>{t}</option>
+                    ))}
+                </select>
+                <button
+                    className="btn btn-sm"
+                    style={{ whiteSpace: 'nowrap', paddingLeft: 6, paddingRight: 6, backgroundColor: '#e5e7eb', color: '#111827', border: '1px solid #d1d5db' }}
+                    onClick={() => { setSelectedOption('Sorted alphabetical'); setResetPaletteFilterToken((t) => t + 1); }}
+                >
+                    Clear
+                </button>
+            </div>
         </>
     );
 
@@ -568,6 +578,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
                     noOfCols={isExpanded ? 4 : 1}
+                    resetPaletteFilterToken={resetPaletteFilterToken}
                 />
             </div>
         </>

@@ -2733,6 +2733,12 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
     const maxDepth = Math.max(1, Math.floor(Number(noLevels) || 1));
     if (!objview || maxDepth < 1) return;
 
+    const reltypeNames = (reltypes || '')
+        .split(',')
+        .map(rt => rt.trim().toLowerCase())
+        .filter(rt => rt.length > 0);
+    const allowAllReltypes = reltypeNames.length === 0;
+
     const directions = (reldir?.toLowerCase() === 'all' || !reldir)
         ? ['out', 'in']
         : [reldir.toLowerCase()];
@@ -2758,16 +2764,6 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
             curView.viewkind = constants.viewkinds.CONT;
         }
 
-        let reltype;
-        if (reltypes) {
-            const reltypename = reltypes.split(',')[0];
-            try {
-                reltype = myMetamodel.findRelationshipTypeByName(reltypename);
-            } catch {
-                reltype = myMetis.findRelationshipTypeByName(reltypename);
-            }
-        }
-
         directions.forEach(dir => {
             const useinp = (dir === 'in');
             const rels: akm.cxRelationship[] = useinp ? object.inputrels : object.outputrels;
@@ -2776,7 +2772,8 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
                 let rel = rels[i];
                 if (!rel || rel.markedAsDeleted) continue;
                 rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                if (reltype && rel?.type?.id !== reltype?.id) continue;
+                const relName = (rel?.type?.name || rel?.name || '').toLowerCase();
+                if (!allowAllReltypes && !reltypeNames.includes(relName)) continue;
 
                 let toObj: akm.cxObject = useinp ? rel.fromObject as akm.cxObject : rel.toObject as akm.cxObject;
                 toObj = myMetis.findObject(toObj.id);

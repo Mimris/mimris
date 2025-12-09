@@ -1580,8 +1580,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // )
 
                 } else {
-                  if (objview?.groupLayout)
-                    uid.doGroupLayout(objview, myDiagram);
+                  if (objview?.groupLayout !== "ManualLayout")
+                    uid.doGroupLayout(objview, myDiagram, myMetis);
                 }
               }
               myDiagram.requestUpdate();

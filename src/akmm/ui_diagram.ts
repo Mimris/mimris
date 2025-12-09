@@ -2596,8 +2596,8 @@ function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis)
 }
 
 export function setGroupLayoutParameters(groupLayout: string): go.Layout {
-if (true) {
-    let layout = null;
+    let layout: go.Layout = null;
+    
     switch (groupLayout) {
         case 'TreeLayout':
             layout = new go.TreeLayout({ 
@@ -2606,54 +2606,40 @@ if (true) {
                 angle: 0,
                 layerSpacing: 100,
                 nodeSpacing: 50,
+                setsPortSpot: false,
+                setsChildPortSpot: false,
+                alternateSetsPortSpot: false,
+                alternateSetsChildPortSpot: false,
                 sorting: go.TreeLayout.SortingAscending,
+                alternateSorting: go.TreeLayout.SortingDescending,
                 arrangement: go.TreeLayout.ArrangementFixedRoots,        
-                alignment: go.TreeLayout.AlignmentStart, // AlignmentStart, CenterChildren;
+                alignment: go.TreeLayout.AlignmentStart,
             });
             break;
+            
         case 'ForceDirectedLayout':
             layout = new go.ForceDirectedLayout({
                 isOngoing: false,
                 defaultSpringLength: 30,
-                defaultElectricalCharge: 100,
-                defaultGravitationalMass: 100,
                 defaultSpringStiffness: 0.05,
                 defaultElectricalCharge: 100,
                 defaultGravitationalMass: 100,
-                defaultSpringLength: 30,
-                defaultSpringStiffness: 0.05,
-                isFixedAngle: false,
-                isFixedNodeMass: false,
-                isInitial: true,
-                isOngoing: false,
             });
             break;
+            
         case 'CircularLayout':
             layout = new go.CircularLayout({
                 isOngoing: false,
-                radius: 100,
+                radius: NaN,
                 spacing: 10,
-                arrangement: go.CircularLayout.ArrangementFixedRoots,
-                sorting: go.CircularLayout.SortingAscending,
-                startAngle: 0,
+                startAngle: 1.0,
                 sweepAngle: 360,
-                direction: go.CircularLayout.DirectionClockwise,
-                nodeDiameterFormula: go.CircularLayout.Circular,
-                spacingFormula: go.CircularLayout.Circular,
-                arrangementSpacing: new go.Size(0, 0),
-                arrangementOrigin: new go.Point(0, 0),
-                nodeDiameter: 100,
-                nodeSpacing: 10,
+                arrangement: go.CircularLayout.ConstantSpacing,
+                // sorting: go.CircularLayout.Ascending,
+                direction: go.CircularLayout.Clockwise,
             });
             break;
-        // case 'GridLayout':
-        //     layout = new go.GridLayout({
-        //         isOngoing: false,
-        //         wrappingColumn: 1,
-        //         spacing: new go.Size(0, 0),
-        //         alignment: go.GridLayout.Position,
-        //     });           
-        //     break;
+            
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
@@ -2661,51 +2647,28 @@ if (true) {
                 layerSpacing: 100,
                 columnSpacing: 50,
                 setsPortSpots: false,
-                isRealtime: false,
                 cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
                 initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
                 aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
                 packOption: go.LayeredDigraphLayout.PackStraighten,
                 layeringOption: go.LayeredDigraphLayout.LayerOptimalLinkLength,
-                compactionOption: go.LayeredDigraphLayout.CompactionNone,
-                layoutStyle: go.LayeredDigraphLayout.StyleLayered,
-                isOngoing: false,
-                direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
-                setsPortSpots: false,
-                isRealtime: false,
-                cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
-                initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
-                aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
-                packOption: go.LayeredDigraphLayout.PackStraighten,
-                layeringOption: go.LayeredDigraphLayout.LayerOptimalLinkLength,
-                compactionOption: go.LayeredDigraphLayout.CompactionNone,
-                layoutStyle: go.LayeredDigraphLayout.StyleLayered,
             });
             break;
-        case 'ParallelLayout':
-            layout = new go.ParallelLayout({
-                isOngoing: false,
-                direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
-                setsPortSpots: false,
-                isRealtime: false,
-                cycleRemoveOption: go.ParallelLayout.CycleDepthFirst,
-                initializeOption: go.ParallelLayout.InitDepthFirstOut,
-                aggressiveOption: go.ParallelLayout.AggressiveLess,
-                packOption: go.ParallelLayout.PackMedian,
-                layeringOption: go.ParallelLayout.LayerOptimalLinkLength,
-                compactionOption: go.ParallelLayout.CompactionNone,
-                layoutStyle: go.ParallelLayout.StyleLayered,                
-            });
-            break;
+            
+        // case 'ParallelLayout':
+        //     layout = new go.ParallelLayout({
+        //         isOngoing: false,
+        //         angle: 0,
+        //         layerSpacing: 100,
+        //         nodeSpacing: 50,
+        //     });
+        //     break;
+            
         case 'GridLayout':
             layout = new go.GridLayout({ 
                 isOngoing: false,
                 wrappingColumn: 1,
-                spacing: new go.Size(0, 0),
+                spacing: new go.Size(35, 35),
                 alignment: go.GridLayout.Position,
                 comparer: function(a, b) {
                     const ax = a.location.x;
@@ -2719,20 +2682,81 @@ if (true) {
                     return 0;
                 }
             });
+            break;
+            
+        default:
+            // Default to GridLayout if unknown layout type
+            layout = new go.GridLayout({ 
+                isOngoing: false,
+                wrappingColumn: 1,
+                spacing: new go.Size(35, 35),
+            });
+            break;
     }
+    
     return layout;
-}
-}
+}  
 
-export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any) {
-if (true) {
-    const lay = setGroupLayoutParameters(myGroup.groupLayout); 
-    lay.doLayout(myGroup);
+export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis: akm.cxMetis) {
+    const lay = setGroupLayoutParameters(myGroup.groupLayout);
+    
+    // Find the GoJS group node
+    const groupNode = myDiagram.findNodeForKey(myGroup.id);
+    if (!groupNode) {
+        console.error('Group node not found');
+        return;
+    }
+    
+    myDiagram.startTransaction('doGroupLayout');
+    
+    // Configure layout with proper spacing
+    if (lay instanceof go.CircularLayout) {
+        lay.spacing = 20;  // Space between nodes
+        lay.radius = NaN;  // Auto-calculate radius
+    } else if (lay instanceof go.GridLayout) {
+        lay.spacing = new go.Size(20, 20);
+    } else if (lay instanceof go.TreeLayout) {
+        lay.nodeSpacing = 20;
+        lay.layerSpacing = 50;
+    }
+    
+    // Assign the layout to the group itself
+    groupNode.layout = lay;
+    
+    // Invalidate the layout to force recalculation
+    groupNode.invalidateLayout();
+    
+    // Let the diagram update
+    myDiagram.layoutDiagram(true);
+    
+    // Update all member objectview locations
+    const modifiedObjectViews = [];
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            const node = part as go.Node;
+            const objview = myMetis.findObjectView(node.data.key);
+            if (objview) {
+                const loc = node.location.x + " " + node.location.y;
+                objview.loc = loc;
+                myDiagram.model.setDataProperty(node.data, "loc", loc);
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);
+            }
+        }
+    });
+    
+    // Dispatch all objectview updates
+    modifiedObjectViews.forEach(ov => {
+        let data = JSON.parse(JSON.stringify(ov));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    });
+    
+    myDiagram.commitTransaction('doGroupLayout');
+    
+    // Update the group objectview
     const jsnGroup = new jsn.jsnObjectView(myGroup);
-    let data = jsnGroup;
-    data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-}
+    let data = JSON.parse(JSON.stringify(jsnGroup));
+    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
 }
 
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {

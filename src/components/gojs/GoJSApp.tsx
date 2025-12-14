@@ -7,6 +7,7 @@ import * as go from 'gojs';
 import * as React from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { SelectedConnectedObjectsDialog } from './SelectedConnectedObjectsDialog';
 import { read } from 'fs';
 
 import { DiagramWrapper } from './components/Diagram';
@@ -468,6 +469,40 @@ function ensureInitialGroupSize(diagram, node, data, options) {
   }
 }
 
+function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart: go.Part | null, parentPart: go.Part | null) {
+  if (!diagram || !childData || !parentPart) return;
+  const parentSize =
+    parseSizeString(parentPart.data?.size) || {
+      width: parentPart.actualBounds?.width || 0,
+      height: parentPart.actualBounds?.height || 0,
+    };
+  if (!parentSize.width || !parentSize.height) return;
+
+  const width = Math.max(1, parentSize.width / 2);
+  const height = Math.max(1, parentSize.height / 2);
+  const sizeString = `${width} ${height}`;
+
+  if (typeof diagram.model?.setDataProperty === 'function') {
+    if (childData.size !== sizeString) diagram.model.setDataProperty(childData, 'size', sizeString);
+    diagram.model.setDataProperty(childData, 'desiredSize', sizeString);
+  } else {
+    childData.size = sizeString;
+    childData.desiredSize = sizeString;
+  }
+  if (childData.objectview) {
+    childData.objectview.size = sizeString;
+  }
+  if (childPart instanceof go.Part) {
+    const resizeObj = childPart.resizeObject || childPart.reshapeObject || childPart;
+    if (resizeObj) {
+      resizeObj.desiredSize = new go.Size(width, height);
+    } else {
+      childPart.desiredSize = new go.Size(width, height);
+    }
+    childPart.ensureBounds();
+  }
+}
+
 function ensureNodeIsGroup(diagram, node) {
   if (!diagram || !node || !node.data) {
     return;
@@ -484,10 +519,17 @@ function setNodeGroup(diagram, node, groupKey) {
     return;
   }
   const normalizedKey = groupKey === undefined ? null : groupKey;
-  const currentKey = getGroupKeyFromData(node.data);
-  if (currentKey === normalizedKey) {
+  const nodeKey = getNodeKey(node);
+  if (
+    nodeKey !== undefined &&
+    nodeKey !== null &&
+    normalizedKey !== null &&
+    normalizedKey !== undefined &&
+    nodeKey === normalizedKey
+  ) {
     return;
   }
+  const currentKey = getGroupKeyFromData(node.data);
   const model = diagram.model;
   if (model && typeof model.setGroupKeyForNodeData === 'function') {
     model.setGroupKeyForNodeData(node.data, normalizedKey);
@@ -520,6 +562,9 @@ interface AppState {
   selectedOption: any;
   diagramStyle: any;
   onExportSvgReady: any;
+  showConnectedObjectsDialog: boolean;
+  connectedObjectsDialogMode: string;
+  connectedObjectsContext: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -546,13 +591,180 @@ class GoJSApp extends React.Component<{}, AppState> {
       modalContext: null,
       selectedOption: null,
       diagramStyle: this.props.diagramStyle,
-      onExportSvgReady: this.props.onExportSvgReady
+      onExportSvgReady: this.props.onExportSvgReady,
+      showConnectedObjectsDialog: false,
+      connectedObjectsDialogMode: '', // 'add' or 'select'
+      connectedObjectsContext: null,
     };
-    if (debug) console.log('76 this.state: ', this.state.myMetis, this.state.nodeDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
-    this.handleSelectDropdownChange = this.handleSelectDropdownChange.bind(this);
+    this.handleModelChange = this.handleModelChange.bind(this);
+    // ...existing code...
+  }
+
+  openConnectedObjectsDialog = (mode = 'select', context: any = null) => {
+    this.setState({
+      showConnectedObjectsDialog: true,
+      connectedObjectsDialogMode: mode,
+      connectedObjectsContext: context,
+    });
+  }
+
+  closeConnectedObjectsDialog = () => {
+    this.setState({ showConnectedObjectsDialog: false, connectedObjectsDialogMode: '', connectedObjectsContext: null });
+  }
+
+  handleConnectedObjectsDialogApply = (params) => {
+    const ctx = this.state.connectedObjectsContext;
+    if (!ctx || !ctx.diagram || !ctx.part) {
+      this.closeConnectedObjectsDialog();
+      return;
+    }
+
+    if (params?.mode === 'follow') {
+      const rel = (params?.relationshipToFollow || '').trim();
+      if (rel) {
+        this.runSelectConnectedFromContext(ctx, {
+          levels: 1,
+          reltypes: rel,
+          reldir: 'All',
+        });
+      }
+      this.closeConnectedObjectsDialog();
+      return;
+    }
+
+    // Traverse options
+    const levels = Math.max(1, Math.floor(Number(params?.steps) || 1));
+    const reltypes = (params?.selectedTypes && params.selectedTypes.length)
+      ? params.selectedTypes.join(',')
+      : '';
+    const reldir = params?.direction || 'All';
+    this.runSelectConnectedFromContext(ctx, {
+      levels,
+      reltypes,
+      reldir,
+    });
+    this.closeConnectedObjectsDialog();
+  }
+
+  renderConnectedObjectsDialog = () => {
+    // Prefer context-provided rel options; fallback to metamodel
+    const relOptionsFromContext = this.state.connectedObjectsContext?.relOptions;
+    const relationshipTypes = (relOptionsFromContext && relOptionsFromContext.length
+      ? relOptionsFromContext
+      : (this.state.myMetis?.currentMetamodel?.relationshiptypes || []).map(rt => rt.name)
+    );
+    return (
+      <SelectedConnectedObjectsDialog
+        isOpen={this.state.showConnectedObjectsDialog}
+        toggle={this.closeConnectedObjectsDialog}
+        onApply={this.handleConnectedObjectsDialogApply}
+        relationshipTypes={relationshipTypes}
+      />
+    );
+  }
+
+  // ...existing code...
+  private runSelectConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; reldir: string }
+  ) => {
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const myMetis = this.state.myMetis;
+    let modelview = myMetis?.currentModelview;
+    if (!modelview) return;
+    modelview = myMetis.findModelView(modelview.id);
+    const goModel = myMetis.gojsModel;
+    const objview = myMetis.findObjectView(nodeData.key);
+    if (!objview) return;
+
+    const levels = Math.max(1, Math.floor(Number(params.levels) || 1));
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const dir = (params.reldir || 'All').toLowerCase();
+    const viewCollection = new akm.cxCollectionOfViews(modelview as any);
+
+    if (dir === 'all') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    } else if (dir === 'out' || dir === 'in') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
+    } else {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    }
+
+    const mySelection = new go.Set<go.Part | go.Link>();
+    const objviews = viewCollection.objectviews || [];
+    const relviews = viewCollection.relshipviews || [];
+
+    for (let i = 0; i < objviews.length; i++) {
+      const ov = objviews[i];
+      if (!ov || ov.id === nodeData.key) continue;
+      const goNode = goModel.findNodeByViewId(ov.id);
+      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      if (gjsNode) mySelection.add(gjsNode);
+    }
+
+    for (let i = 0; i < relviews.length; i++) {
+      const rv = relviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    const allowedReltypes = (params.reltypes || '')
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
+    const allowAll = allowedReltypes.length === 0;
+    const matchesReltype = (rv: any) => {
+      if (allowAll) return true;
+      const rel = rv?.relship || rv?.relationship;
+      const tname = rel?.type?.name;
+      const tid = rel?.type?.id;
+      return allowedReltypes.includes(tname) || allowedReltypes.includes(tid);
+    };
+
+    const rootObjview = objview;
+    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      const touchesRoot = fromId === rootObjview?.id || toId === rootObjview?.id;
+      return touchesRoot && matchesReltype(rv);
+    });
+    for (let i = 0; i < firstHopRelviews.length; i++) {
+      const rv = firstHopRelviews[i];
+      if (!rv) continue;
+      // Add the link
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+
+      // Add the counterpart node(s)
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      const otherIds = [fromId, toId].filter(id => id && id !== rootObjview?.id);
+      for (let j = 0; j < otherIds.length; j++) {
+        const oid = otherIds[j];
+        const goNode = goModel.findNodeByViewId(oid);
+        const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+        if (gjsNode) mySelection.add(gjsNode);
+      }
+    }
+
+    const rootPart = diagram.findPartForKey(nodeData.key) || diagram.findNodeForKey(nodeData.key);
+    if (rootPart) mySelection.add(rootPart as any);
+
+    if (mySelection.count > 0) {
+      diagram.selectCollection(mySelection);
+    } else {
+      diagram.clearSelection();
+    }
   }
 
   public componentDidUpdate() {
@@ -1158,6 +1370,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.group = groupKey;
             goNode.scale = goNode.getMyScale(myGoModel);
           }
+          // Avoid self- or cyclic grouping
+          if (groupKey && groupKey === n.data.key) {
+            groupKey = "";
+            goNode.group = "";
+          }
           const myToNode = {
             "n": n,
             "gjsData": n.data,
@@ -1174,7 +1391,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": n.data.typeview,
           }
           myToNodes.push(myToNode);
-          myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+          myDiagram.model.setDataProperty(n.data, 'group', groupKey || "");
         }
         // Walk through the from nodes and find the corresponding to nodes
         for (let i = 0; i < myFromNodes.length; i++) {
@@ -1257,14 +1474,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                       //     relview.relocate(fromObjview, parentObjview);
                       // }
                       const reltype = relship.type;
-                      if (reltype.name === constants.types.AKM_HAS_MEMBER 
-                          || reltype.name === constants.types.AKM_HAS_PART
-                          || reltype.name === constants.types.AKM_CONTAINS) {
+                      if (
+                        reltype && (
+                          reltype.name === constants.types.AKM_HAS_MEMBER ||
+                          reltype.name === constants.types.AKM_HAS_PART ||
+                          reltype.name === constants.types.AKM_CONTAINS
+                        )
+                      ) {
                         relview.markedAsDeleted = true;
-                        const lnk = myDiagram.findLinkForKey(relview.id);
-                        if (lnk) {
-                            myDiagram.remove(lnk);
-                        }                        
                       }
                       inoutRelviews.push(relview);
                       // Prepare dispatch
@@ -2746,6 +2963,30 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             myModelview.setFocusObjectview(objview);
           }
+          const syncDroppedPartRefs = (data: any) => {
+            if (!data || !object || !objview) return;
+            const setProp = (prop: string, value: any) => {
+              try {
+                myDiagram?.model?.setDataProperty?.(data, prop, value);
+              } catch (_) {
+                try { data[prop] = value; } catch (_) { /* ignore */ }
+              }
+            };
+            setProp('object', object);
+            setProp('objectview', objview);
+            setProp('objRef', object.id);
+            setProp('objviewRef', objview.id);
+            setProp('objecttype', type);
+            setProp('typeview', typeview);
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              setProp('category', data.template || constants.gojs.C_NODETEMPLATE);
+            }
+          };
+
+          syncDroppedPartRefs(partData);
+          if (diagramNode?.data && diagramNode.data !== partData) {
+            syncDroppedPartRefs(diagramNode.data);
+          }
           let fillcolor = "";
           let strokecolor = "";
           let textcolor = "";
@@ -2855,32 +3096,43 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node?.data) {
               myDiagram.model.setDataProperty(node.data, "scale", part.scale);
             }
+            // Resize nested groups to half the parent size for better fit
+            const parentPart = myDiagram.findNodeForKey(parentgroup.key) as go.Part;
+            const childPart = myDiagram.findNodeForKey(part.key) as go.Part;
+            if (part.isGroup || childPart?.data?.isGroup) {
+              resizeGroupToHalfParent(myDiagram, part, childPart, parentPart);
+              if (goNode) goNode.size = part.size;
+              if (objview) objview.size = part.size;
+            }
             // Check if the node has a relationship (hasPart) FROM a group
             const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             const parenttype = parentgroup.objecttype;
             const parentObj = parentgroup.object;
             const childtype = type;
             const childObj = object;
-            const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
-            if (!myHasPartRelship) {
-              // Create the relationship
-              const relId = utils.createGuid();
-              const relName = constants.types.AKM_CONTAINS;
-              const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
-              hasPartRelship.parentModelRef = myModel.id;
-              myModel.addRelationship(hasPartRelship);
-              parentObj.addOutputrel(hasPartRelship);
-              childObj.addInputrel(hasPartRelship);
-              myMetis.addRelationship(hasPartRelship);
-              const hasPartRelview = new akm.cxRelationshipView(utils.createGuid(), relName, hasPartRelship, "");
-              const typeview = hasPartRelship?.type?.typeview
-              hasPartRelview.typeview = typeview;
-              myModelview.addRelationshipView(hasPartRelview);
-              myMetis.addRelationshipView(hasPartRelview);
-              // Prepare dispatch
-              const jsnRel = new jsn.jsnRelationship(hasPartRelship);
-              modifiedRelships.push(jsnRel);
-             }
+            // Only create relationship if both parent and child objects exist
+            if (parentObj && childObj && myHasPartReltype) {
+              const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
+              if (!myHasPartRelship) {
+                // Create the relationship
+                const relId = utils.createGuid();
+                const relName = constants.types.AKM_CONTAINS;
+                const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
+                hasPartRelship.parentModelRef = myModel.id;
+                myModel.addRelationship(hasPartRelship);
+                parentObj.addOutputrel(hasPartRelship);
+                childObj.addInputrel(hasPartRelship);
+                myMetis.addRelationship(hasPartRelship);
+                const hasPartRelview = new akm.cxRelationshipView(utils.createGuid(), relName, hasPartRelship, "");
+                const typeview = hasPartRelship?.type?.typeview
+                hasPartRelview.typeview = typeview;
+                myModelview.addRelationshipView(hasPartRelview);
+                myMetis.addRelationshipView(hasPartRelview);
+                // Prepare dispatch
+                const jsnRel = new jsn.jsnRelationship(hasPartRelship);
+                modifiedRelships.push(jsnRel);
+              }
+            }
           }
           // if (goNode) {
           //   goNode.object = null;
@@ -3378,14 +3630,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = nodes.iterator; it?.next();) {
             const node = it.value;
             const objectview = node.data.objectview;
-            if (objectview) {
-              objectview.loc = node.data.loc;
-              const jsnObjview = new jsn.jsnObjectView(objectview);
-              modifiedObjectViews.push(jsnObjview);
-              myModelview.addObjectView(objectview);
-            } else {
-              const typeview = node.data.typeview;
+            if (!objectview) {
+              // Optionally log or handle nodes without objectview
+              // console.warn('Node missing objectview:', node.data);
+              continue;
             }
+            objectview.loc = node.data.loc;
+            const jsnObjview = new jsn.jsnObjectView(objectview);
+            modifiedObjectViews.push(jsnObjview);
+            myModelview.addObjectView(objectview);
           }
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
@@ -3415,6 +3668,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.goModel = myGoModel;
         if (debug) console.log('1498 link', link.data, link.data.from, link.data.to);
         let gjsFromNode, gjsToNode;
+        const isObjectNode = (n: any) =>
+          !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
         for (let it = myDiagram.nodes; it?.next();) {
           const n = it.value;
           if (n.data?.key === gjsData.from) {
@@ -3442,6 +3697,27 @@ class GoJSApp extends React.Component<{}, AppState> {
           context.toObjView = toObjView;
           uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
         }
+        // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
+        const ensureNodeRefs = (gjsNode: any, objview: any) => {
+          if (!gjsNode) return;
+          const setProp = (prop: string, val: any) => {
+            if (val === undefined || val === null) return;
+            try {
+              gjsNode[prop] = val;
+            } catch (_) { /* ignore */ }
+          };
+          if (objview) {
+            setProp('objectview', objview);
+            setProp('objviewRef', objview.id);
+            if (!objview.object && gjsNode.object) {
+              objview.object = gjsNode.object;
+            }
+            setProp('object', objview.object || gjsNode.object);
+            setProp('objRef', objview.object?.id);
+          }
+        };
+        ensureNodeRefs(gjsFromNode, context.fromObjView);
+        ensureNodeRefs(gjsToNode, context.toObjView);
         // Handle relationship types
         if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
           gjsData.category = constants.gojs.C_RELSHIPTYPE;
@@ -3475,7 +3751,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myDiagram.requestUpdate();
         }
         // Handle relationships
-        if (gjsFromNode?.category === constants.gojs.C_OBJECT) {
+        if (isObjectNode(gjsFromNode)) {
           // gjsData.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
           if (gjsFromNode && gjsToNode)
@@ -3739,7 +4015,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch={this.state.dispatch}
           diagramStyle={this.state.diagramStyle}
           onExportSvgReady={this.state.onExportSvgReady}
+          onOpenSelectConnectedObjects={(payload) => this.openConnectedObjectsDialog('select', payload)}
         />
+        {this.renderConnectedObjectsDialog()}
 
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">

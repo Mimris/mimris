@@ -29,10 +29,6 @@ import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
 import { ReadModelFromFile } from './utils/ReadModelFromFile';
 import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
-// import { SaveModelToLocState } from "./utils/SaveModelToLocState";
-// import { SaveAkmmUser } from "./utils/SaveAkmmUser";
-// import ReportModule from "./ReportModule";
-// import ProjectDetailsModal from "./modals/ProjectDetailsModal";
 import useLocalStorage from '../hooks/use-local-storage'
 import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
@@ -123,15 +119,6 @@ const Modelling = (props: any) => {
   let myMetis = new akm.cxMetis();
   GenGojsModel(props, myMetis)
 
-  // const myMetis = useMemo(() => {
-  //   const metisInstance = new akm.cxMetis();
-  //   if (curmod?.objects) {
-  //     GenGojsModel(props, metisInstance);
-  //   }
-  //   return metisInstance;
-  // }, [metis]);  // Only execute when objects or relationships change
-  
-
   useEffect(() => {
     if (!debug) console.log('136 Modelling', mmToggle )
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
@@ -183,8 +170,6 @@ const Modelling = (props: any) => {
 
   useEffect(() => {
     if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-    // if (props.phFocus.focusProj.name ===('')) handleShowProjectModal(true)
-    // if (props.phSource.includes('-Template')) handleShowProjectModal(false)
   }, [props.phSource]) // Show project modal when the phSource is a template project
 
   useEffect(() => {
@@ -232,26 +217,10 @@ const Modelling = (props: any) => {
     let phFocus = props.phFocus;
     let phData = props.phData
     let phUser = props.phUser
+
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
-    // function handleSaveAllToFileDate() {
-    //   const projectname = props.phData.metis.name
-    //   SaveAllToFileDate({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
-    // }
-    // const handleGetNewProject = () => {
-    //   alert('Deprecated: Use the "New" button in Project-bar at top-left')
-    // }
-    // const handleSaveAllToFile = () => {
-    //   let projectname = props.phSource
-    //   if (props.phFocus.focusProj.name === '' || undefined) {
-    //     projectname = props.phFocus.focusProj.name
-    //     const data = `${projectname}_PR`
-    //     if ((debug)) console.log('275 handleSaveAllToFile', data)
-    //     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-    //   }
-    //   if (debug) console.log('278 handleSaveAllToFile', projectname, props.phData, props.phFocus, props.phSource, props.phUser)
-    //   SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: projectname, phUser: props.phUser }, projectname, '_PR')
-    // }
+
     const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
     
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
@@ -640,8 +609,6 @@ const Modelling = (props: any) => {
       </>
 
 
-    // return (models.length > 0) && (
-    // return (mount && (gojsmodelobjects?.length > 0)) && (
     if (!curmod || !curmod.modelviews) {
       return <div>Loading model data...</div>;
       }
@@ -680,6 +647,5 @@ const Modelling = (props: any) => {
 
 export default Modelling;
 // export default Page(connect(state => state)(page));
-
 
 

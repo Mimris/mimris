@@ -1018,7 +1018,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let required = false;
         let defValue = "";
         let values = [];
-        let val = selObj[k];
+        let val:string = selObj[k];
         if (!val) val = "";
         // Handle attributes not to be included in modal
         {
@@ -1041,9 +1041,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'editObjectview':
               if (k === 'grabIsAllowed') {
-                val = selObj[k];
-                break;
+                val = instview[k];
               }
+              if (k === 'groupLayout') {
+                val = instview[k];
+                console.log('1047 groupLayout val', val, instview);
+              }
+              break;             
             case 'editRelshipview':
               // val = selObj[k]; // instview[k];
               break;
@@ -1139,6 +1143,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue = 'None';
               fieldType = 'radio';
             break;
+            case 'groupLayout':
+              values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
             case 'template':
             case 'template2':
               if (selObj.isGroup) {

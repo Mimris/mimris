@@ -2702,7 +2702,7 @@ export function isPropIncluded(k: string, type: akm.cxType, includeInherited: bo
     if (k === 'fs_collection') retVal = false;
     if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
-    if (k === 'groupLayout') retVal = false;
+    if (k === 'groupLayout') retVal = true;
     // if (k === 'id') retVal = false;
     if (k === 'inputrels') retVal = false;
     if (k === 'isExpanded') retVal = false;

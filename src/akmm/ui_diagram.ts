@@ -2599,6 +2599,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
     let layout: go.Layout = null;
     
     switch (groupLayout) {
+        case 'Tree':
         case 'TreeLayout':
             layout = new go.TreeLayout({ 
                 isOngoing: false,
@@ -2617,6 +2618,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             });
             break;
             
+        case 'ForceDirected':
         case 'ForceDirectedLayout':
             layout = new go.ForceDirectedLayout({
                 isOngoing: false,
@@ -2627,6 +2629,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             });
             break;
             
+        case 'Circular':
         case 'CircularLayout':
             layout = new go.CircularLayout({
                 isOngoing: false,
@@ -2640,6 +2643,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             });
             break;
             
+        case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
@@ -2664,6 +2668,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
         //     });
         //     break;
             
+        case 'Grid':
         case 'GridLayout':
             layout = new go.GridLayout({ 
                 isOngoing: false,
@@ -2699,7 +2704,8 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
 
 export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis: akm.cxMetis) {
     const lay = setGroupLayoutParameters(myGroup.groupLayout);
-    
+    const myModelview = myMetis.currentModelview;
+
     // Find the GoJS group node
     const groupNode = myDiagram.findNodeForKey(myGroup.id);
     if (!groupNode) {
@@ -2709,54 +2715,193 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     
     myDiagram.startTransaction('doGroupLayout');
     
-    // Configure layout with proper spacing
-    if (lay instanceof go.CircularLayout) {
-        lay.spacing = 20;  // Space between nodes
-        lay.radius = NaN;  // Auto-calculate radius
-    } else if (lay instanceof go.GridLayout) {
-        lay.spacing = new go.Size(20, 20);
-    } else if (lay instanceof go.TreeLayout) {
-        lay.nodeSpacing = 20;
-        lay.layerSpacing = 50;
+    // For LayeredDigraphLayout, find and anchor the first/root node
+    let firstNode: go.Node = null;
+    let originalPos: go.Point = null;
+    
+    if (lay instanceof go.LayeredDigraphLayout) {
+        let minY = Infinity;
+        
+        // Find the topmost node
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                if (node.location.y < minY) {
+                    minY = node.location.y;
+                    firstNode = node;
+                }
+            }
+        });
+        
+        // Store the original position of the first node
+        originalPos = firstNode ? firstNode.location.copy() : null;
     }
     
-    // Assign the layout to the group itself
+    // Assign the layout to the group
     groupNode.layout = lay;
-    
-    // Invalidate the layout to force recalculation
     groupNode.invalidateLayout();
-    
-    // Let the diagram update
     myDiagram.layoutDiagram(true);
     
-    // Update all member objectview locations
+    // Calculate offset for LayeredDigraphLayout
+    if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos) {
+        const newPos = firstNode.location;
+        const offsetX = originalPos.x - newPos.x;
+        const offsetY = originalPos.y - newPos.y;
+        
+        // Move all nodes by the offset
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                node.location = new go.Point(
+                    node.location.x + offsetX,
+                    node.location.y + offsetY
+                );
+            }
+        });
+    }
+    
+    // **FIX: Update diagram again to get accurate bounds**
+    myDiagram.updateAllTargetBindings();
+
+    // Ensure nodes are within group bounds
+    const padding = 15;
+    const placeholder = groupNode.findObject("PLACEHOLDER");
+    const groupBounds = placeholder ? placeholder.actualBounds : groupNode.actualBounds;
+    
+    // Calculate the bounds of all member nodes
+    let memberBounds = new go.Rect();
+    let firstMember = true;
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            const node = part as go.Node;
+            if (firstMember) {
+                memberBounds = node.actualBounds.copy();
+                firstMember = false;
+            } else {
+                memberBounds.unionRect(node.actualBounds);
+            }
+        }
+    });
+    
+    // Calculate adjustments needed to fit within group
+    let adjustX = 0;
+    let adjustY = 0;
+    
+    const availableWidth = groupBounds.width - (2 * padding);
+    const availableHeight = groupBounds.height - (2 * padding);
+    
+    if (memberBounds.width > availableWidth) {
+        console.warn('Member nodes are wider than group - consider resizing group');
+    }
+    
+    // Adjust X position
+    if (memberBounds.left < groupBounds.left + padding) {
+        adjustX = (groupBounds.left + padding) - memberBounds.left;
+    } else if (memberBounds.right > groupBounds.right - padding) {
+        adjustX = (groupBounds.right - padding) - memberBounds.right;
+    }
+    
+    if (memberBounds.top < groupBounds.top + padding) {
+        adjustY = (groupBounds.top + padding) - memberBounds.top;
+    } else if (memberBounds.bottom > groupBounds.bottom - padding) {
+        adjustY = (groupBounds.bottom - padding) - memberBounds.bottom;
+    }
+    
+    // Apply adjustments if needed
+    if (adjustX !== 0 || adjustY !== 0) {
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                const newLoc = new go.Point(
+                    node.location.x + adjustX,
+                    node.location.y + adjustY
+                );
+                node.location = newLoc;
+                myDiagram.model.setDataProperty(node.data, "loc", 
+                    newLoc.x + " " + newLoc.y);
+            }
+        });
+    }
+    
+    // **FIX: Collect member node keys for filtering links**
+    const memberNodeKeys = new Set<string>();
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            memberNodeKeys.add(part.data.key);
+        }
+    });
+    
+    // Update all member objectviews
     const modifiedObjectViews = [];
     groupNode.memberParts.each((part: go.Part) => {
         if (part instanceof go.Node) {
             const node = part as go.Node;
-            const objview = myMetis.findObjectView(node.data.key);
+            const objview = myModelview.findObjectView(node.data.key);
             if (objview) {
                 const loc = node.location.x + " " + node.location.y;
                 objview.loc = loc;
-                myDiagram.model.setDataProperty(node.data, "loc", loc);
                 const jsnObjview = new jsn.jsnObjectView(objview);
                 modifiedObjectViews.push(jsnObjview);
             }
         }
     });
     
-    // Dispatch all objectview updates
+    // Dispatch objectview updates
     modifiedObjectViews.forEach(ov => {
         let data = JSON.parse(JSON.stringify(ov));
         myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
     });
     
-    myDiagram.commitTransaction('doGroupLayout');
+    // **FIX: Update only links that connect to group members - use relviewRef**
+    const modifiedRelationshipViews = [];
+    myDiagram.links.each((link: go.Link) => {
+        const fromKey = link.data.from;
+        const toKey = link.data.to;
+        
+        // Only update links where at least one end connects to a group member
+        if (memberNodeKeys.has(fromKey) || memberNodeKeys.has(toKey)) {
+            // **KEY FIX: Use relviewRef instead of key**
+            const relviewRef = link.data.relviewRef;
+            if (!relviewRef) {
+                console.warn('Link has no relviewRef:', link.data);
+                return;
+            }
+            
+            const relview = myModelview.findRelationshipView(relviewRef);
+            if (relview) {
+                // Get the link's route points
+                const points = link.points;
+                const pointsArray = [];
+                points.each((pt: go.Point) => {
+                    pointsArray.push(pt.x + " " + pt.y);
+                });
+                
+                // Store the path as a string
+                const newPath = pointsArray.join(" ");
+                relview.path = newPath;
+                
+                // Update the model
+                myDiagram.model.setDataProperty(link.data, "path", newPath);
+                relview.points = points;
+                const jsnRelView = new jsn.jsnRelshipView(relview);
+                modifiedRelationshipViews.push(jsnRelView);
+            } else {
+                console.warn('RelationshipView not found for relviewRef:', relviewRef);
+            }
+        }
+    });
     
-    // Update the group objectview
+    // **FIX: Dispatch relationshipview updates**
+    modifiedRelationshipViews.forEach(rv => {
+        let data = JSON.parse(JSON.stringify(rv));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
+      
     const jsnGroup = new jsn.jsnObjectView(myGroup);
     let data = JSON.parse(JSON.stringify(jsnGroup));
     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    
+    myDiagram.commitTransaction('doGroupLayout');
 }
 
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {

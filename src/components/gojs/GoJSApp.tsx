@@ -1001,31 +1001,30 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         { // links
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          const rview = myModelview.findRelationshipView(link.data.key);
-          if (!rview) continue;
-          const relviews = myModelview.relshipviews;
-          for (let i = 0; i < relviews?.length; i++) {
-            const relview = relviews[i];
-            if (relview.id === rview.id) {
-              const points = [];
-              for (let it = link.points.iterator; it?.next();) {
-                const point = it.value;
-                points.push(point.x)
-                points.push(point.y)
+          const links = myDiagram.links;
+          for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const rview = myModelview.findRelationshipView(link.data.key);
+            if (!rview) continue;
+            const relviews = myModelview.relshipviews;
+            for (let i = 0; i < relviews?.length; i++) {
+              const relview = relviews[i];
+              if (relview.id === rview.id) {
+                const points = [];
+                for (let it = link.points.iterator; it?.next();) {
+                  const point = it.value;
+                  points.push(point.x)
+                  points.push(point.y)
+                }
+                relview.points = points;
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                if (jsnRelview) {
+                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                }
+                myModelview.addRelationshipView(relview);
               }
-              relview.points = points;
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              if (jsnRelview) {
-                uic.addItemToList(modifiedRelshipViews, jsnRelview);
-              }
-              myModelview.addRelationshipView(relview);
             }
           }
-        }
-        uid.clearPath(links, myMetis, myDiagram);
         }
         // Dispatch modelview
         const modifiedModelviews = new Array();
@@ -1217,6 +1216,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          // Handle relationship views marked as deleted in the modelview
           const relshipviews = myModelview.relshipviews;
           for (let i=0; i<relshipviews.length; i++) {
             const relview = relshipviews[i];

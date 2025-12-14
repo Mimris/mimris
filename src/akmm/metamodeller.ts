@@ -6556,6 +6556,7 @@ export class cxObjtypeviewData {
     figure: string;
     figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
     iconpath: string;
     icon1: string;
@@ -6581,6 +6582,7 @@ export class cxObjtypeviewData {
         this.figure = "";
         this.figure2 = "";
         this.geometry = "";
+        this.groupLayout = "";
         this.icon = "";
         this.iconpath = "";
         this.icon1 = "";
@@ -6611,6 +6613,7 @@ export class cxObjectTypeView extends cxMetaObject {
     figure: string;
     figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
     iconpath: string;
     icon1: string;
@@ -6637,7 +6640,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = "";
         this.figure2 = "";
         this.geometry = "";
-        this.arrowscale = 1.0;
+        this.groupLayout = "";
         this.memberscale = 1.0;
         this.fillcolor = "white";
         this.fillcolor2 = "white";

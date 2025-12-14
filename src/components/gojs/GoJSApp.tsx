@@ -7,6 +7,7 @@ import * as go from 'gojs';
 import * as React from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { SelectedConnectedObjectsDialog } from './SelectedConnectedObjectsDialog';
 import { read } from 'fs';
 
 import { DiagramWrapper } from './components/Diagram';
@@ -561,6 +562,9 @@ interface AppState {
   selectedOption: any;
   diagramStyle: any;
   onExportSvgReady: any;
+  showConnectedObjectsDialog: boolean;
+  connectedObjectsDialogMode: string;
+  connectedObjectsContext: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -587,13 +591,180 @@ class GoJSApp extends React.Component<{}, AppState> {
       modalContext: null,
       selectedOption: null,
       diagramStyle: this.props.diagramStyle,
-      onExportSvgReady: this.props.onExportSvgReady
+      onExportSvgReady: this.props.onExportSvgReady,
+      showConnectedObjectsDialog: false,
+      connectedObjectsDialogMode: '', // 'add' or 'select'
+      connectedObjectsContext: null,
     };
-    if (debug) console.log('76 this.state: ', this.state.myMetis, this.state.nodeDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
-    this.handleSelectDropdownChange = this.handleSelectDropdownChange.bind(this);
+    this.handleModelChange = this.handleModelChange.bind(this);
+    // ...existing code...
+  }
+
+  openConnectedObjectsDialog = (mode = 'select', context: any = null) => {
+    this.setState({
+      showConnectedObjectsDialog: true,
+      connectedObjectsDialogMode: mode,
+      connectedObjectsContext: context,
+    });
+  }
+
+  closeConnectedObjectsDialog = () => {
+    this.setState({ showConnectedObjectsDialog: false, connectedObjectsDialogMode: '', connectedObjectsContext: null });
+  }
+
+  handleConnectedObjectsDialogApply = (params) => {
+    const ctx = this.state.connectedObjectsContext;
+    if (!ctx || !ctx.diagram || !ctx.part) {
+      this.closeConnectedObjectsDialog();
+      return;
+    }
+
+    if (params?.mode === 'follow') {
+      const rel = (params?.relationshipToFollow || '').trim();
+      if (rel) {
+        this.runSelectConnectedFromContext(ctx, {
+          levels: 1,
+          reltypes: rel,
+          reldir: 'All',
+        });
+      }
+      this.closeConnectedObjectsDialog();
+      return;
+    }
+
+    // Traverse options
+    const levels = Math.max(1, Math.floor(Number(params?.steps) || 1));
+    const reltypes = (params?.selectedTypes && params.selectedTypes.length)
+      ? params.selectedTypes.join(',')
+      : '';
+    const reldir = params?.direction || 'All';
+    this.runSelectConnectedFromContext(ctx, {
+      levels,
+      reltypes,
+      reldir,
+    });
+    this.closeConnectedObjectsDialog();
+  }
+
+  renderConnectedObjectsDialog = () => {
+    // Prefer context-provided rel options; fallback to metamodel
+    const relOptionsFromContext = this.state.connectedObjectsContext?.relOptions;
+    const relationshipTypes = (relOptionsFromContext && relOptionsFromContext.length
+      ? relOptionsFromContext
+      : (this.state.myMetis?.currentMetamodel?.relationshiptypes || []).map(rt => rt.name)
+    );
+    return (
+      <SelectedConnectedObjectsDialog
+        isOpen={this.state.showConnectedObjectsDialog}
+        toggle={this.closeConnectedObjectsDialog}
+        onApply={this.handleConnectedObjectsDialogApply}
+        relationshipTypes={relationshipTypes}
+      />
+    );
+  }
+
+  // ...existing code...
+  private runSelectConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; reldir: string }
+  ) => {
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const myMetis = this.state.myMetis;
+    let modelview = myMetis?.currentModelview;
+    if (!modelview) return;
+    modelview = myMetis.findModelView(modelview.id);
+    const goModel = myMetis.gojsModel;
+    const objview = myMetis.findObjectView(nodeData.key);
+    if (!objview) return;
+
+    const levels = Math.max(1, Math.floor(Number(params.levels) || 1));
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const dir = (params.reldir || 'All').toLowerCase();
+    const viewCollection = new akm.cxCollectionOfViews(modelview as any);
+
+    if (dir === 'all') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    } else if (dir === 'out' || dir === 'in') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
+    } else {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    }
+
+    const mySelection = new go.Set<go.Part | go.Link>();
+    const objviews = viewCollection.objectviews || [];
+    const relviews = viewCollection.relshipviews || [];
+
+    for (let i = 0; i < objviews.length; i++) {
+      const ov = objviews[i];
+      if (!ov || ov.id === nodeData.key) continue;
+      const goNode = goModel.findNodeByViewId(ov.id);
+      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      if (gjsNode) mySelection.add(gjsNode);
+    }
+
+    for (let i = 0; i < relviews.length; i++) {
+      const rv = relviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    const allowedReltypes = (params.reltypes || '')
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
+    const allowAll = allowedReltypes.length === 0;
+    const matchesReltype = (rv: any) => {
+      if (allowAll) return true;
+      const rel = rv?.relship || rv?.relationship;
+      const tname = rel?.type?.name;
+      const tid = rel?.type?.id;
+      return allowedReltypes.includes(tname) || allowedReltypes.includes(tid);
+    };
+
+    const rootObjview = objview;
+    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      const touchesRoot = fromId === rootObjview?.id || toId === rootObjview?.id;
+      return touchesRoot && matchesReltype(rv);
+    });
+    for (let i = 0; i < firstHopRelviews.length; i++) {
+      const rv = firstHopRelviews[i];
+      if (!rv) continue;
+      // Add the link
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+
+      // Add the counterpart node(s)
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      const otherIds = [fromId, toId].filter(id => id && id !== rootObjview?.id);
+      for (let j = 0; j < otherIds.length; j++) {
+        const oid = otherIds[j];
+        const goNode = goModel.findNodeByViewId(oid);
+        const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+        if (gjsNode) mySelection.add(gjsNode);
+      }
+    }
+
+    const rootPart = diagram.findPartForKey(nodeData.key) || diagram.findNodeForKey(nodeData.key);
+    if (rootPart) mySelection.add(rootPart as any);
+
+    if (mySelection.count > 0) {
+      diagram.selectCollection(mySelection);
+    } else {
+      diagram.clearSelection();
+    }
   }
 
   public componentDidUpdate() {
@@ -3459,14 +3630,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let it = nodes.iterator; it?.next();) {
             const node = it.value;
             const objectview = node.data.objectview;
-            if (objectview) {
-              objectview.loc = node.data.loc;
-              const jsnObjview = new jsn.jsnObjectView(objectview);
-              modifiedObjectViews.push(jsnObjview);
-              myModelview.addObjectView(objectview);
-            } else {
-              const typeview = node.data.typeview;
+            if (!objectview) {
+              // Optionally log or handle nodes without objectview
+              // console.warn('Node missing objectview:', node.data);
+              continue;
             }
+            objectview.loc = node.data.loc;
+            const jsnObjview = new jsn.jsnObjectView(objectview);
+            modifiedObjectViews.push(jsnObjview);
+            myModelview.addObjectView(objectview);
           }
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
@@ -3843,7 +4015,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch={this.state.dispatch}
           diagramStyle={this.state.diagramStyle}
           onExportSvgReady={this.state.onExportSvgReady}
+          onOpenSelectConnectedObjects={(payload) => this.openConnectedObjectsDialog('select', payload)}
         />
+        {this.renderConnectedObjectsDialog()}
 
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">

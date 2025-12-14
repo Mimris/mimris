@@ -139,22 +139,102 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // console.log('68 myPalette', this);      
     // define myPalette
     if (true) {
-      const contextMenu = this.props.onNodeContextMenu
-        ? $('ContextMenu',
-          $('ContextMenuButton',
-            $(go.TextBlock, 'Select Connected Objects'),
-            {
-              click: (e: go.InputEvent, button: go.GraphObject) => {
-                const part = button?.part as go.Adornment;
-                const node = part?.adornedPart as go.Node;
-                if (node && this.props.onNodeContextMenu) {
-                  this.props.onNodeContextMenu(node.data, e.diagram);
-                }
+      let contextMenu: go.HTMLInfo | null = null;
+      if (this.props.onNodeContextMenu) {
+        const HTML_MENU_CLASS = 'gojs-html-context-menu';
+        const HTML_MENU_ITEM_CLASS = 'gojs-html-context-menu__item';
+        let activeMenu: HTMLDivElement | null = null;
+        let docListener: ((ev: PointerEvent) => void) | null = null;
+
+        const disposeMenu = () => {
+          if (docListener) {
+            try { document.removeEventListener('pointerdown', docListener); } catch (_) { }
+          }
+          docListener = null;
+          if (activeMenu?.parentElement) {
+            try { activeMenu.parentElement.removeChild(activeMenu); } catch (_) { }
+          }
+          activeMenu = null;
+        };
+
+        const positionMenu = (menu: HTMLDivElement, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          const diagramDiv = diagram?.div;
+          const viewPoint = diagram?.lastInput?.viewPoint;
+          if (!diagramDiv || !viewPoint) return;
+          const rect = diagramDiv.getBoundingClientRect();
+          let left = rect.left + window.pageXOffset + viewPoint.x;
+          let top = rect.top + window.pageYOffset + viewPoint.y;
+          const menuRect = menu.getBoundingClientRect();
+          const maxLeft = window.pageXOffset + window.innerWidth - menuRect.width - 8;
+          const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
+          left = Math.max(window.pageXOffset + 4, Math.min(left, maxLeft));
+          top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
+          menu.style.left = `${left}px`;
+          menu.style.top = `${top}px`;
+        };
+
+        const buildMenu = (label: string, handler: () => void) => {
+          const menu = document.createElement('div');
+          menu.className = HTML_MENU_CLASS;
+          menu.style.position = 'absolute';
+          menu.style.minWidth = '200px';
+          menu.style.background = '#ffffff';
+          menu.style.border = '1px solid rgba(0,0,0,0.15)';
+          menu.style.boxShadow = '0 6px 12px rgba(0,0,0,0.18)';
+          menu.style.borderRadius = '6px';
+          menu.style.padding = '0 0';
+          menu.style.zIndex = '9999';
+          menu.addEventListener('contextmenu', (ev) => ev.preventDefault());
+          menu.addEventListener('mousedown', (ev) => ev.stopPropagation());
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = HTML_MENU_ITEM_CLASS;
+          btn.textContent = label;
+          btn.style.display = 'block';
+          btn.style.width = '100%';
+          btn.style.padding = '6px 16px';
+          btn.style.textAlign = 'left';
+          btn.style.background = 'transparent';
+          btn.style.border = 'none';
+          btn.style.cursor = 'pointer';
+          btn.style.fontSize = '13px';
+          btn.style.color = '#333';
+          btn.onmouseenter = () => { btn.style.background = '#f5f5f5'; };
+          btn.onmouseleave = () => { btn.style.background = 'transparent'; };
+          btn.onclick = (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            handler();
+            disposeMenu();
+          };
+          menu.appendChild(btn);
+          return menu;
+        };
+
+        contextMenu = new go.HTMLInfo({
+          show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+            disposeMenu();
+            const part = obj?.part as go.Part;
+            const node = part?.data;
+            if (!diagram || !node) return;
+            const menu = buildMenu('Select Connected Objects', () => {
+              this.props.onNodeContextMenu?.(node, diagram);
+            });
+            activeMenu = menu;
+            document.body.appendChild(menu);
+            positionMenu(menu, diagram, tool);
+            docListener = (ev: PointerEvent) => {
+              const tgt = ev.target as Node | null;
+              if (menu && tgt && !menu.contains(tgt)) {
+                disposeMenu();
               }
-            }
-          )
-        )
-        : null;
+            };
+            try { document.addEventListener('pointerdown', docListener); } catch (_) { }
+          },
+          hide: disposeMenu,
+        });
+      }
       const arrowConverter = (value: string) => {
         if (!value || value === 'None' || value === ' ') return '';
         return value;

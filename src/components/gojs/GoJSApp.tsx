@@ -865,11 +865,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }                
               } else {
                 // goToNode is NOT member of a group
-                const grpView = uic.isContainedInGroup(myGoModel, goToNode);
+                let grpView = uic.isContainedInGroup(myGoModel, goToNode);
                 if (grpView) {
                   goToNode.group = grpView.id;
                 } else {
-                  goToNode.group = "";
+                  const fromObj = uic.isContainedInGroup1(myGoModel, goToNode);
+                  if (fromObj) {
+                    grpView = myModelview.findObjectViewByName(fromObj.name);
+                    goToNode.group = grpView?.id;
+                  } else {
+                    goToNode.group = "";
+                  }
                 }
                 const gjsPart = myToNode.gjsData;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
@@ -957,6 +963,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       link.from = link.fromNode?.key;
                       link.toNode = uid.getNodeByViewId(movedObjview.id, myDiagram);
                       link.to = link.toNode?.key;
+                      if (!link.to) link.to = movedObjview.id;
                       link.points = []; 
                       myGoModel.addLink(link);
                       myDiagram.model.addLinkData(link);   

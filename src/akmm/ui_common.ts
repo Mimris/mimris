@@ -4871,3 +4871,26 @@ export function isContainedInGroup(myGoModel, goNode): gjs.goObjectNode | false 
     }
     return null;
 }
+
+export function isContainedInGroup1(goModel, goNode): akm.cxObject | false {
+    // Check if the goNode is contained in a group, i.e. 
+    // there is a contains relationship from a group to this node
+    const myModel: akm.cxModel = goModel.model;
+    const object = myModel.findObject(goNode.objRef);
+    if (!object) return false;
+    const relships = myModel.relships;
+    for (let i = 0; i < relships?.length; i++) {
+        const relship = relships[i];
+       if (relship) {
+            const reltype = relship.type;
+            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
+                const fromObject = relship.fromObject; // Group
+                const toObject = relship.toObject;
+                if (toObject && toObject.id === object.id) {
+                    return fromObject;
+                }
+            }
+        }
+    }
+    return null;
+}

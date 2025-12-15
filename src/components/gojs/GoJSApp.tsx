@@ -641,8 +641,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-
-
         // First remember the original locs and scales
         const dragTool = myDiagram.toolManager.draggingTool;
         const myParts = dragTool.draggedParts;
@@ -984,6 +982,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                       relview.points = [];
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       modifiedRelshipViews.push(jsnRelview);
+                      const link = myDiagram.findLinkForKey(relview?.id);
+                      link.points = []; 
+                      myGoModel.addLink(link);
+                      myDiagram.model.addLinkData(link);   
+                      uid.clearPath(myDiagram.links, myMetis, myDiagram);
                     }
                   }
                 }

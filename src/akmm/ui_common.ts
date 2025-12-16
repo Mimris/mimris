@@ -2327,22 +2327,32 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
+            // Primary strict containment check (all corners inside)
             if (
-                (nx > gx) // Check upper left corner of node
+                (nx > gx) // upper left x
                 &&
-                (nx + nw * nodeScale <= gx + gw * grpScale) // Check upper right corner of node
+                (nx + nw * nodeScale <= gx + gw * grpScale) // upper right x
                 &&
-                (ny > gy) // Check lower left corner of node
+                (ny > gy) // upper left y
                 &&
-                (ny + nh * nodeScale <= gy + gh * grpScale) // Check lower right corner of node
+                (ny + nh * nodeScale <= gy + gh * grpScale) // lower right y
             ) {
-                let grp = {
+                groups.push({
                     "name": node.name,
                     "groupId": node.key,
                     "group": node,
                     "size": gw * grpScale * gh * grpScale,
-                };
-                groups.push(grp);
+                });
+                continue;
+            }
+            // Fallback: consider inside if upper-left corner is inside parent bounds
+            if (nx > gx && nx < gx + gw * grpScale && ny > gy && ny < gy + gh * grpScale) {
+                groups.push({
+                    "name": node.name,
+                    "groupId": node.key,
+                    "group": node,
+                    "size": gw * grpScale * gh * grpScale,
+                });
             }
         }
     }
@@ -2359,9 +2369,27 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         if (group) {
             return group;
         }
-    } else {
-        return null;
     }
+    // Fallback: if no fit found (e.g., oversized dropped group), try center-point inclusion
+    if ((!groups || groups.length === 0) && nod?.isGroup) {
+        const cx = nx + nw / 2;
+        const cy = ny + nh / 2;
+        for (let i = 0; i < nodes?.length; i++) {
+            const node = nodes[i] as gjs.goObjectNode;
+            if (!node?.isGroup || node.key === nod?.key) continue;
+            const grpLoc = node.loc?.split(" ");
+            const grpSize = node.size?.split(" ");
+            if (!grpLoc) continue;
+            const gx = parseInt(grpLoc[0]);
+            const gy = parseInt(grpLoc[1]);
+            const gw = parseInt(grpSize[0]);
+            const gh = parseInt(grpSize[1]);
+            if (cx > gx && cx < gx + gw && cy > gy && cy < gy + gh) {
+                return model.findNode(node.key);
+            }
+        }
+    }
+    return null;
 }
 
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
@@ -3624,8 +3652,13 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         msg += "\tRelationship type has been set to '" + defRelTypename + "'\n";
                     }
                 }
-                if (!typeRef) {
+                if (!typeRef && rel.type?.id) {
                     typeRef = rel.type.id;
+                }
+                // If we still have no typeRef at this point, bail out on this rel to avoid crashing
+                if (!typeRef) {
+                    msg += "\tRelationship '" + rel.name + "' is missing type information and will be skipped\n";
+                    continue;
                 }
                 let reltype = metamodel.findRelationshipType(typeRef);
                 if (debug) console.log('2304 fromType and toType', typeRef, typeName, fromType, toType, reltype);
@@ -4814,85 +4847,4 @@ export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
     }
     
     console.log(`Updated recursive layout for ${member.id}: loc=${member.loc}, size=${member.size}`);
-}
-
-export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
-    // Go through all object views and check if they are groups
-    const relviews = new Array<akm.cxRelationshipView>();
-    const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-    // Get all relviews of type contains
-    for (let i = 0; i < modelview.relshipviews?.length; i++) {
-        const relview = modelview.relshipviews[i];
-        const relship = relview.relship;
-        const reltypeName = reltype?.name;
-        if (relship && reltype && relship.type && relship.type.name === reltype.name) {
-            relviews.push(relview);
-        }
-    }
-    // For each hasMember relview, get the member object view  
-    const objviews = new Array<akm.cxObjectView>();
-    for (let i = 0; i < relviews?.length; i++) {
-        const relview = relviews[i];
-        const fromObjview = relview.fromObjview; // Group
-        const toObjview = relview.toObjview;     // Member
-        if (fromObjview && toObjview) {
-            toObjview.group = fromObjview.id;
-            objviews.push(toObjview);
-        }
-    }
-    for (let i = 0; i < objviews?.length; i++) {
-        const member = objviews[i];
-        const jsnObjview = new jsn.jsnObjectView(member);
-        let data = jsnObjview;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    }
-}
-
-export function isContainedInGroup(myGoModel, goNode): gjs.goObjectNode | false {
-    // Check if the goNode is contained in a group, i.e. 
-    // there is a contains relationship from a group to this node
-    const objview = goNode.objectview;
-    if (!objview) return false;
-    const modelview = myGoModel.modelView;
-    if (!modelview) return false;
-    const relviews = modelview.relshipviews;
-    for (let i = 0; i < relviews?.length; i++) {
-        const relview = relviews[i];
-        const relship = relview.relship;
-        if (relship) {
-            const reltype = relship.type;
-            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
-                const fromObjview = relview.fromObjview; // Group
-                const toObjview = relview.toObjview;
-                if (toObjview && toObjview.id === objview.id) {
-                    return fromObjview;
-                }
-            }
-        }
-    }
-    return null;
-}
-
-export function isContainedInGroup1(goModel, goNode): akm.cxObject | false {
-    // Check if the goNode is contained in a group, i.e. 
-    // there is a contains relationship from a group to this node
-    const myModel: akm.cxModel = goModel.model;
-    const object = myModel.findObject(goNode.objRef);
-    if (!object) return false;
-    const relships = myModel.relships;
-    for (let i = 0; i < relships?.length; i++) {
-        const relship = relships[i];
-       if (relship) {
-            const reltype = relship.type;
-            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
-                const fromObject = relship.fromObject; // Group
-                const toObject = relship.toObject;
-                if (toObject && toObject.id === object.id) {
-                    return fromObject;
-                }
-            }
-        }
-    }
-    return null;
 }

@@ -103,6 +103,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
+    // If category is missing/non-object but we have object refs, treat as object to show form fields
+    if (category !== constants.gojs.C_OBJECT && category !== constants.gojs.C_RELATIONSHIP) {
+      if (selObj?.object || selObj?.objectview || selObj?.isGroup || selObj?.viewkind === 'Container') {
+        category = constants.gojs.C_OBJECT;
+      }
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
@@ -126,10 +132,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let typedescription = "";
     switch (category) {
       case constants.gojs.C_OBJECT:
-        inst1 = myObject;
+        inst1 = myObject || (selObj?.object as akm.cxObject);
         if (inst1)
           inst = inst1;
-        type = myObjectType;
+        type = myObjectType || (inst1?.type as akm.cxObjectType);
         break;
       case constants.gojs.C_RELATIONSHIP:
         let relship = myRelationship;
@@ -140,7 +146,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type1 = type;
         break;
     }
-    if (inst.parentModelRef !== myModel.id) {
+    if (inst && myModel && inst.parentModelRef && inst.parentModelRef !== myModel.id) {
       // readOnly = true;
     }
     // Set chosenType

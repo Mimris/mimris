@@ -8,7 +8,10 @@ import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
+import { Input } from '../../ui/input';
+import { Button as UiButton } from '../../ui/button';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 import { METHODS } from 'http';
@@ -48,6 +51,7 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../../../styles/styles.css"
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
+import { i } from '../../utils/SvgLetters';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -65,6 +69,7 @@ interface DiagramProps {
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
   onExportSvgReady: any;
+  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: string[]; reltypeOptions?: string[] }) => void;
 }
 
 interface DiagramState {
@@ -77,6 +82,25 @@ interface DiagramState {
   selectedOption: any;
   currentActiveTab: any;
   // onExportSvgReady: any;
+  selectConnectedDialogOpen?: boolean;
+  selectConnectedLevels?: string;
+  selectConnectedReltypes?: string;
+  selectConnectedReldir?: string;
+  selectConnectedReltypeOptions?: string[];
+  selectConnectedIncludeAllRels?: boolean;
+  pendingSelectContext?: { part: go.Part; diagram: go.Diagram } | null;
+  selectConnectedIncludeAllRels?: boolean;
+  selectConnectedRelOptions?: string[];
+  selectConnectedRelChoice?: string | string[];
+  addConnectedDialogOpen?: boolean;
+  addConnectedLevels?: string;
+  addConnectedReltypes?: string;
+  addConnectedReldir?: string;
+  addConnectedReltypeOptions?: string[];
+  addConnectedIncludeAllRels?: boolean;
+  pendingAddContext?: { part: go.Part; diagram: go.Diagram } | null;
+  addConnectedRelOptions?: string[];
+  addConnectedRelChoice?: string | string[];
 }
 
 
@@ -112,7 +136,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       currentActiveTab: null,
       diagramStyle: props.diagramStyle,
-      onExportSvgReady: props.onExportSvgReady
+      onExportSvgReady: props.onExportSvgReady,
+      selectConnectedDialogOpen: false,
+      selectConnectedLevels: '3',
+      selectConnectedReltypes: 'All',
+      selectConnectedReldir: 'All',
+      selectConnectedReltypeOptions: ['All'],
+      selectConnectedIncludeAllRels: false,
+      pendingSelectContext: null,
+      selectConnectedRelOptions: ['All'],
+      selectConnectedRelChoice: ['All'],
+      addConnectedDialogOpen: false,
+      addConnectedLevels: '3',
+      addConnectedReltypes: 'All',
+      addConnectedReldir: 'All',
+      addConnectedReltypeOptions: ['All'],
+      addConnectedIncludeAllRels: false,
+      pendingAddContext: null,
+      addConnectedRelOptions: ['All'],
+      addConnectedRelChoice: ['All']
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -233,6 +275,91 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
+    const modalContext = this.state.modalContext;
+    
+    // Handle Change Icon directly here for immediate update
+    if (modalContext?.case === 'Change Icon') {
+      const currentNode = modalContext.currentNode || myMetis?.currentNode;
+      const myDiagram = modalContext.myDiagram || myMetis?.myDiagram;
+      const myModelview = myMetis?.currentModelview;
+      
+      if (!currentNode || !myDiagram) {
+        console.warn('Change Icon: missing currentNode or myDiagram');
+        return;
+      }
+      
+      // Get the new icon value
+      let newIcon = selected;
+      if (typeof selected === 'object') {
+        newIcon = selected?.value || selected?.label || selected?.icon;
+      }
+      
+      if (!newIcon) {
+        console.warn('Change Icon: no icon selected');
+        return;
+      }
+      
+      console.log('Change Icon: setting icon to', newIcon, 'for node key', currentNode.key);
+      
+      // Find the objectview
+      let objview = null;
+      if (currentNode.key) {
+        objview = myModelview?.findObjectView(currentNode.key);
+      }
+      if (!objview && currentNode.objectview?.id) {
+        objview = myMetis?.findObjectView(currentNode.objectview.id);
+      }
+      if (!objview && currentNode.objviewRef) {
+        objview = myMetis?.findObjectView(currentNode.objviewRef);
+      }
+      if (!objview) {
+        objview = currentNode.objectview;
+      }
+      
+      // Start diagram transaction
+      myDiagram.startTransaction('change-icon');
+      
+      // Update the node data in the GoJS model
+      myDiagram.model.setDataProperty(currentNode, 'icon', newIcon);
+      
+      // Update the embedded objectview if present
+      if (currentNode.objectview) {
+        currentNode.objectview.icon = newIcon;
+      }
+      
+      // Update the actual objectview object
+      if (objview) {
+        objview.icon = newIcon;
+        if (typeof objview.setModified === 'function') {
+          objview.setModified();
+        }
+      }
+      
+      myDiagram.commitTransaction('change-icon');
+      
+      // Dispatch to Redux to persist the change
+      if (objview) {
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        let data = JSON.parse(JSON.stringify(jsnObjview));
+        const dispatchFn = myDiagram.dispatch || myMetis?.dispatch || this.props.dispatch;
+        if (dispatchFn) {
+          dispatchFn({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+          console.log('Change Icon: Dispatched UPDATE_OBJECTVIEW_PROPERTIES');
+        }
+      }
+      
+      // Request diagram update
+      myDiagram.requestUpdate();
+      return;
+    }
+    
+    // Handle Set Icon Colors directly here
+    if (modalContext?.case === 'Set Icon Colors') {
+      // This case is handled inline in the menu action, not through modal
+      return;
+    }
+    
+    // For all other cases, delegate to uim.handleSelectDropdownChange
     const context = {
       "myMetis": myMetis,
       "myMetamodel": myMetis.currentMetamodel,
@@ -240,11 +367,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myModelview": myMetis.currentModelview,
       "myGoModel": myMetis.gojsModel,
       "myDiagram": myMetis.myDiagram,
-      "modalContext": this.state.modalContext
+      "modalContext": modalContext
     }
-    // Handle the links
     uim.handleSelectDropdownChange(selected, context);
-    // Handle the relationships
   }
 
   public handleCloseModal(e) {
@@ -268,6 +393,440 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
+  
+  private normalizeReldir = (val?: string): string => {
+    const v = (val || '').trim().toLowerCase();
+    if (v === 'in' || v === 'out') return v;
+    if (v === 'all') return 'All';
+    return 'All';
+  }
+
+  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+    try {
+      if (!part || !part.data) return ['All'];
+      const key = (part.data as any).key;
+      const myMetis = this.myMetis;
+      let modelview = myMetis?.currentModelview;
+      if (!modelview) return ['All'];
+      modelview = myMetis.findModelView(modelview.id);
+      const objview = myMetis.findObjectView(key);
+      if (!objview) return ['All'];
+
+      const names: string[] = [];
+
+      // Gather relationship types touching this object from the current modelview
+      const relviews = modelview.relshipviews || [];
+      for (let i = 0; i < relviews.length; i++) {
+        const rv = relviews[i];
+        if (!rv || rv.markedAsDeleted) continue;
+        const rel = rv.relship;
+        if (!rel || rel.markedAsDeleted) continue;
+        const nm = rel?.type?.name || rel?.name;
+        if (!nm) continue;
+        const fromId = rv?.fromObjview?.id;
+        const toId = rv?.toObjview?.id;
+        const otherNameFrom = rv?.toObjview?.name || rv?.toObjview?.object?.name || rv?.relship?.toObject?.name || '';
+        const otherNameTo = rv?.fromObjview?.name || rv?.fromObjview?.object?.name || rv?.relship?.fromObject?.name || '';
+        if (fromId === objview.id) names.push(`${nm} > ${otherNameFrom}`.trim());
+        if (toId === objview.id) names.push(`${nm} < ${otherNameTo}`.trim());
+      }
+
+      // Optionally include relationships not currently represented in this modelview
+      if (includeAllRels) {
+        let object = objview.object || myMetis.findObject(objview.objectRef);
+        if (object) object = myMetis.currentModel?.findObject(object.id) || object;
+        if (object) {
+          const directions: Array<'out' | 'in'> = ['out', 'in'];
+          for (let d = 0; d < directions.length; d++) {
+            const useinp = directions[d] === 'in';
+            const rels: any[] = useinp ? object.inputrels : object.outputrels;
+            if (!rels) continue;
+            for (let i = 0; i < rels.length; i++) {
+              let rel = rels[i];
+              if (!rel || rel.markedAsDeleted) continue;
+              rel = myMetis.findRelationship(rel.id) || rel;
+              const nm = rel?.type?.name || rel?.name;
+              if (!nm) continue;
+              const otherObj = useinp ? rel.fromObject : rel.toObject;
+              const otherName = otherObj?.name || '';
+              names.push(`${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
+            }
+          }
+        }
+      }
+
+      const list = Array.from(new Set(names)).sort();
+      return ['All', ...list];
+    } catch {
+      return ['All'];
+    }
+  };
+
+  private buildModelReltypeOptions = (): string[] => {
+    try {
+      const myMetis = this.myMetis;
+      // Include relationship types present in the current model, not just visible in the modelview
+      const modelReltypes: string[] = [];
+      const modelRels = myMetis?.currentModel?.relships || [];
+      for (let i = 0; i < modelRels.length; i++) {
+        const rel = modelRels[i];
+        if (!rel || rel.markedAsDeleted) continue;
+        const nm = rel?.type?.name || rel?.name;
+        if (nm) modelReltypes.push(nm.trim());
+      }
+      let modelview = myMetis?.currentModelview;
+      if (!modelview) return ['All'];
+      modelview = myMetis.findModelView(modelview.id);
+      const relviews = modelview?.relshipviews || [];
+      const names: string[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const rv = relviews[i];
+        if (!rv || rv.markedAsDeleted) continue;
+        const rel = rv.relship;
+        if (!rel || rel.markedAsDeleted) continue;
+        const nm = rel?.type?.name || rel?.name;
+        if (!nm) continue;
+        names.push(nm.trim());
+      }
+      const uniq = Array.from(new Set([...names, ...modelReltypes])).sort();
+      return ['All', ...uniq];
+    } catch {
+      return ['All'];
+    }
+  };
+
+  private openSelectConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+    const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
+    const options = this.buildReltypeOptions(part, includeAllRels);
+    const reltypeOptions = this.buildModelReltypeOptions();
+    this.setState({
+      selectConnectedDialogOpen: true,
+      pendingSelectContext: { diagram, part },
+      selectConnectedLevels: this.state.selectConnectedLevels || '1',
+      selectConnectedReltypes: 'All',
+      selectConnectedRelChoice: [options?.[0] || 'All'],
+      selectConnectedRelOptions: options || ['All'],
+      selectConnectedReltypeOptions: reltypeOptions || ['All'],
+      selectConnectedReldir: this.normalizeReldir(this.state.selectConnectedReldir) || 'All',
+      selectConnectedIncludeAllRels: includeAllRels,
+    });
+  };
+
+  private handleSelectConnectedRelChoiceChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.includes('All') || opts.length === 0) {
+      this.setState({ selectConnectedRelChoice: ['All'] });
+    } else {
+      this.setState({ selectConnectedRelChoice: opts });
+    }
+  };
+
+  private handleSelectConnectedLevelsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedLevels: event.target.value });
+  };
+
+  private handleSelectConnectedReltypesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.length === 0 || opts.includes('All')) {
+      this.setState({ selectConnectedReltypes: 'All' });
+    } else {
+      const uniq = Array.from(new Set(opts.filter(o => o !== 'All')));
+      this.setState({ selectConnectedReltypes: uniq.join(',') || 'All' });
+    }
+  };
+
+  private handleSelectConnectedReldirChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedReldir: event.target.value });
+  };
+
+  private handleSelectConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const includeAllRels = event.target.checked;
+    const part = this.state.pendingSelectContext?.part;
+    const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || ['All']);
+    this.setState({
+      selectConnectedIncludeAllRels: includeAllRels,
+      selectConnectedRelOptions: options,
+      selectConnectedRelChoice: [options?.[0] || 'All'],
+    });
+  };
+
+  private handleSelectConnectedCancel = () => {
+    this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null });
+  };
+
+  private handleSelectConnectedConfirm = () => {
+    const { pendingSelectContext } = this.state;
+    const levelsParsed = parseInt(this.state.selectConnectedLevels || '1', 10);
+    const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
+    const reldir = (this.state.selectConnectedReldir || 'All').trim();
+
+    this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null }, () => {
+      if (pendingSelectContext) {
+        const normalize = (val: string) => (val || '').trim();
+        let reltypesFinal = '';
+        if (levels === 1) {
+          // For level 1, only use the selected relationship(s) as strict tokens
+          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
+            ? this.state.selectConnectedRelChoice
+            : [this.state.selectConnectedRelChoice || ''])
+            .map(normalize)
+            .filter(v => v.length > 0 && v !== 'All');
+          if (selectedReltypes.length === 0) {
+            // Do not proceed if nothing is selected or 'All' is selected
+            alert('Please select a specific relationship to add.');
+            return;
+          }
+          reltypesFinal = selectedReltypes.join(',');
+        } else {
+          // For deeper levels, allow broader filter
+          const reltypesInput = (this.state.selectConnectedReltypes || '') === 'All'
+            ? []
+            : (this.state.selectConnectedReltypes || '')
+              .split(',')
+              .map(normalize)
+              .filter(v => v.length > 0);
+          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
+            ? this.state.selectConnectedRelChoice
+            : [this.state.selectConnectedRelChoice || 'All'])
+            .map(normalize)
+            .filter(v => v.length > 0);
+          reltypesFinal = reltypesInput.length > 0
+            ? reltypesInput.join(',')
+            : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
+        }
+        this.runSelectConnectedFromContext(pendingSelectContext, {
+          levels,
+          reltypes: reltypesFinal,
+          reldir,
+        });
+      }
+    });
+  };
+
+  private runSelectConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; reldir: string }
+  ) => {
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const myMetis = this.myMetis;
+    let modelview = myMetis?.currentModelview;
+    if (!modelview) return;
+    modelview = myMetis.findModelView(modelview.id);
+    const goModel = myMetis.gojsModel;
+    const objview = myMetis.findObjectView(nodeData.key);
+    if (!objview) return;
+
+    const levels = Math.max(1, Math.floor(Number(params.levels) || 1));
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const dir = (params.reldir || 'All').toLowerCase();
+    const viewCollection = new akm.cxCollectionOfViews(modelview, [], []);
+
+    if (dir === 'all') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    } else if (dir === 'out' || dir === 'in') {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
+    } else {
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
+      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
+    }
+
+    const mySelection = new go.Set<go.Part | go.Link>();
+    const objviews = viewCollection.objectviews || [];
+    const relviews = viewCollection.relshipviews || [];
+
+    for (let i = 0; i < objviews.length; i++) {
+      const ov = objviews[i];
+      if (!ov || ov.id === nodeData.key) continue;
+      const goNode = goModel.findNodeByViewId(ov.id);
+      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      if (gjsNode) mySelection.add(gjsNode);
+    }
+
+    for (let i = 0; i < relviews.length; i++) {
+      const rv = relviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    // Always include relationships directly connected to the source node (first step)
+    const rootObjview = objview;
+    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
+      const fromId = rv?.fromObjview?.id;
+      const toId = rv?.toObjview?.id;
+      return fromId === rootObjview?.id || toId === rootObjview?.id;
+    });
+    for (let i = 0; i < firstHopRelviews.length; i++) {
+      const rv = firstHopRelviews[i];
+      if (!rv) continue;
+      const goLink = goModel.findLinkByViewId(rv.id);
+      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      if (gjsLink) mySelection.add(gjsLink);
+    }
+
+    // Keep the current object selected alongside the traversal results
+    const rootPart = diagram.findPartForKey(nodeData.key) || diagram.findNodeForKey(nodeData.key);
+    if (rootPart) mySelection.add(rootPart as any);
+
+    if (mySelection.count > 0) {
+      diagram.selectCollection(mySelection);
+    } else {
+      diagram.clearSelection();
+    }
+  };
+
+  private openAddConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+    const includeAllRels = this.state.addConnectedIncludeAllRels || false;
+    const options = this.buildReltypeOptions(part, includeAllRels);
+    const reltypeOptions = this.buildModelReltypeOptions();
+    // Determine if all reltype options are not in modelview (i.e., only external relationships)
+    const onlyExternalRels = includeAllRels && options.length > 1 && options.every(opt => !reltypeOptions.includes(opt) && opt !== 'All');
+    this.setState({
+      addConnectedDialogOpen: true,
+      pendingAddContext: { diagram, part },
+      addConnectedLevels: onlyExternalRels ? '1' : (this.state.addConnectedLevels || '1'),
+      addConnectedReltypes: 'All',
+      addConnectedRelChoice: [options?.[0] || 'All'],
+      addConnectedRelOptions: options || ['All'],
+      addConnectedReltypeOptions: reltypeOptions || ['All'],
+      addConnectedReldir: this.normalizeReldir(this.state.addConnectedReldir) || 'All',
+      addConnectedIncludeAllRels: includeAllRels,
+      addConnectedDialogFieldsDisabled: onlyExternalRels,
+    });
+  };
+
+  private handleAddConnectedRelChoiceChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.includes('All') || opts.length === 0) {
+      this.setState({ addConnectedRelChoice: ['All'] });
+    } else {
+      this.setState({ addConnectedRelChoice: opts });
+    }
+  };
+
+  private handleAddConnectedLevelsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ addConnectedLevels: event.target.value });
+  };
+
+  private handleAddConnectedReltypesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const opts = Array.from((event.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+    if (opts.length === 0 || opts.includes('All')) {
+      this.setState({ addConnectedReltypes: 'All' });
+    } else {
+      const uniq = Array.from(new Set(opts.filter(o => o !== 'All')));
+      this.setState({ addConnectedReltypes: uniq.join(',') || 'All' });
+    }
+  };
+
+  private handleAddConnectedReldirChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ addConnectedReldir: event.target.value });
+  };
+
+  private handleAddConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    
+    const includeAllRels = event.target.checked;
+    const part = this.state.pendingAddContext?.part;
+    const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.addConnectedRelOptions || ['All']);
+    this.setState({
+      addConnectedIncludeAllRels: includeAllRels,
+      addConnectedRelOptions: options,
+      addConnectedRelChoice: [options?.[0] || 'All'],
+    });
+  };
+
+  private handleAddConnectedCancel = () => {
+    this.setState({ addConnectedDialogOpen: false, pendingAddContext: null });
+  };
+
+  private handleAddConnectedConfirm = () => {
+    const { pendingAddContext } = this.state;
+    // Correction: If 'Include relationships not in this modelview' is selected, and one or more of these relationships are chosen, and levels is 1, skip the rest of the choices and restrict traversal to one level
+    const includeAllRels = !!this.state.addConnectedIncludeAllRels;
+    let levelsParsed = parseInt(this.state.addConnectedLevels || '1', 10);
+    let levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
+    const reltypeOptions = this.buildModelReltypeOptions();
+    const selectedReltypes = Array.isArray(this.state.addConnectedRelChoice)
+      ? this.state.addConnectedRelChoice
+      : [this.state.addConnectedRelChoice || 'All'];
+    // Check if any selected relationship is not in modelview
+    const hasExternalRelSelected = includeAllRels && selectedReltypes.some(opt => !reltypeOptions.includes(opt) && opt !== 'All');
+    if (hasExternalRelSelected && levels === 1) {
+      // Skip the rest of the choices and restrict traversal to one level
+      levels = 1;
+    }
+    const reldir = this.normalizeReldir(this.state.addConnectedReldir);
+
+    this.setState({ addConnectedDialogOpen: false, pendingAddContext: null }, () => {
+      if (pendingAddContext) {
+        const normalize = (val: string) => (val || '').trim();
+        // Broader relationship type filter for deeper levels (if multi-level)
+        const subsequentReltypesInput = (this.state.addConnectedReltypes || '') === 'All'
+          ? []
+          : (this.state.addConnectedReltypes || '')
+            .split(',')
+            .map(normalize)
+            .filter(v => v.length > 0);
+        // Selected relationships for first step only
+        const selectedReltypes = (Array.isArray(this.state.addConnectedRelChoice)
+          ? this.state.addConnectedRelChoice
+          : [this.state.addConnectedRelChoice || 'All'])
+          .map(normalize)
+          .filter(v => v.length > 0);
+        const firstStepReltypes = selectedReltypes.length === 0 ? '' : selectedReltypes.join(',');
+        const subsequentReltypes = subsequentReltypesInput.join(',') || '';
+        this.runAddConnectedFromContext(pendingAddContext, {
+          levels,
+          reltypes: firstStepReltypes,
+          subsequentReltypes,
+          reldir,
+          includeAllRels,
+        });
+      }
+    });
+  };
+
+  private runAddConnectedFromContext = (
+    ctx: { diagram: go.Diagram; part: go.Part },
+    params: { levels: number; reltypes: string; subsequentReltypes: string; reldir: string; includeAllRels?: boolean }
+  ) => {
+    // Correction: If only external relationships are selected and levels is 1, skip the rest
+    if (params.levels === 1) return;
+    const diagram = ctx?.diagram;
+    const part = ctx?.part;
+    if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
+
+    const nodeData: any = part.data;
+    const reltypes = params.reltypes === 'All' ? '' : (params.reltypes || '').trim();
+    const subsequentReltypes = params.subsequentReltypes || '';
+    const reldir = this.normalizeReldir(params.reldir);
+    const includeAllRels = !!params.includeAllRels;
+    const noLevels = Math.max(1, Math.floor(Number(params.levels) || 1));
+
+    const selection = diagram.selection.count > 0 ? diagram.selection : (() => {
+      const nodePart = diagram.findPartForKey(nodeData.key) || part;
+      if (nodePart) {
+        diagram.select(nodePart);
+        return diagram.selection;
+      }
+      return diagram.selection;
+    })();
+
+    for (let it = selection.iterator; it?.next();) {
+      const sel = it.value;
+      const selData = sel?.data;
+      if (selData && selData.category === constants.gojs.C_OBJECT) {
+        uid.addConnectedObjects(selData, { noLevels, reltypes, subsequentReltypes, reldir, includeAllRels }, this.myMetis, diagram);
+      }
+    }
+  };
 
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
@@ -342,7 +901,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // "draggingTool.dragsLink": true,
             "draggingTool.dragsTree": false,
             "draggingTool.isGridSnapEnabled": true,
-            "linkingTool.portGravity": 0,  // no snapping while drawing new links
+            "linkingTool.portGravity": 50,  // distance from port edge that still snaps to it (bigger = easier linking)
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
               "category": "Relationship",
@@ -3831,6 +4390,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           };
 
           const enabled = item.enabled ? item.enabled(diagram) : true;
+          console.log('3805 Menu item:', item.label, 'enabled:', enabled);
           if (!enabled) {
             button.disabled = true;
             button.style.cursor = "default";
@@ -4768,7 +5328,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
         const nodeModelData = nodeData.data ?? nodeData;
         try {
-          (targetDiagram.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
+          const newTemplate = template ?? (nodeData.template || "textAndIcon");
+          if (typeof newTemplate === "string" && newTemplate.length > 0) {
+            diagram.model.setCategoryForNodeData(nodeModelData, newTemplate);
+            nodeData.template = newTemplate;
+          }
+          // (targetDiagram?.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
         } catch (_err) {
           // Ignore if category update fails
         }
@@ -4982,6 +5547,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
 
 
+      // ...existing code...
+      // In the Add Connected dialog, gray out fields if addConnectedDialogFieldsDisabled is true
+      // Example (pseudo-code, adapt to your actual dialog rendering):
+      // <input disabled={this.state.addConnectedDialogFieldsDisabled} ... />
+      // <select disabled={this.state.addConnectedDialogFieldsDisabled} ... />
       // ...existing code...
       function applyGroupDropLayout(
         diagram: go.Diagram | null | undefined,
@@ -5554,51 +6124,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       };
 
       const handleAddConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
-        if (!diagram || !part) return;
-        const nodeData: any = part.data;
-        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
-
-        let noLevels: string | number = '9';
-        let reltypes = 'All';
-        let reldir = 'All';
-        const useDefaults = confirm('Use default parameters?');
-        if (!useDefaults) {
-          const levelInput = prompt('Enter number of sublevels to follow', String(noLevels));
-          if (levelInput !== null && levelInput.trim().length > 0) {
-            noLevels = levelInput;
-          }
-          const reltypeInput = prompt('Enter relationship type to follow', reltypes);
-          if (reltypeInput !== null && reltypeInput.trim().length > 0) {
-            reltypes = reltypeInput;
-          }
-          const reldirInput = prompt('Enter relationship direction to follow (in | out | All)', reldir);
-          if (reldirInput !== null && reldirInput.trim().length > 0) {
-            reldir = reldirInput;
-          }
-        }
-
-        const params = {
-          noLevels,
-          reltypes: reltypes === 'All' ? '' : reltypes,
-          reldir
-        };
-
-        const selection = diagram.selection.count > 0 ? diagram.selection : (() => {
-          const nodePart = diagram.findPartForKey(nodeData.key);
-          if (nodePart) {
-            diagram.select(nodePart);
-            return diagram.selection;
-          }
-          return diagram.selection;
-        })();
-
-        for (let it = selection.iterator; it?.next();) {
-          const sel = it.value;
-          const selData = sel?.data;
-          if (selData && selData.category === constants.gojs.C_OBJECT) {
-            uid.addConnectedObjects(selData, params, myMetis, diagram);
-          }
-        }
+        this.openAddConnectedDialog(diagram, part);
       };
 
       const handleHideConnectedRelationships = (diagram: go.Diagram, part: go.Part) => {
@@ -5611,10 +6137,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       };
 
       const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
-        if (!diagram || !part) return;
-        const nodeData: any = part.data;
-        if (!nodeData || nodeData.category !== constants.gojs.C_OBJECT) return;
-        uid.selectConnectedObjects(nodeData, myMetis, diagram);
+        if (this.props.onOpenSelectConnectedObjects) {
+          const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
+          const relOptions = this.buildReltypeOptions(part, includeAllRels);
+          const reltypeOptions = this.buildModelReltypeOptions();
+          this.props.onOpenSelectConnectedObjects({ diagram, part, relOptions, reltypeOptions });
+          return;
+        }
+        this.openSelectConnectedDialog(diagram, part);
       };
 
       const handleSelectAllObjectsOfSameType = (diagram: go.Diagram, part: go.Part) => {
@@ -6036,7 +6566,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
         }
         const data: any = part.data || {};
-        const isObject = data.category === constants.gojs.C_OBJECT;
+        const isObject =
+          data.category === constants.gojs.C_OBJECT ||
+          !!data.object ||
+          !!data.objectview ||
+          data.isGroup === true ||
+          (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container');
         if (isObject) {
           items.push({ separator: true });
           // Group common object actions into an "Object…" submenu
@@ -6061,7 +6596,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             closeOnClick: false,
           });
           // Group object-view related actions into an "Objectview…" submenu
-          items.push({ separator: true });
           items.push({
             label: "Objectview…",
             action: showSubMenu([
@@ -6098,9 +6632,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   diagram.commandHandler.deleteSelection();
                 },
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
-                },
-                { separator: true },
-                {  
+              },
+              { separator: true },
+              {  
                 label: "Change Icon",
                 action: (diagram) => {
                   const node = part.data;
@@ -6185,7 +6719,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                            { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6206,6 +6741,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                           sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
                           sel.onchange = (ev) => { ev.stopPropagation && ev.stopPropagation();
                             console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                            const val = (ev.target as HTMLSelectElement).value;
+                            if (val === 'rgba(0,0,0,0)') {
+                              // Set GoJS property to transparent
+                              diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                              // Set input to a valid color (e.g., #000000)
+                              inp.value = '#000000';
+                              inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                            } else {
+                              diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                              inp.value = val;
+                              inp.style.background = '';
+                            }
+                            const part = diagram.findPartForKey(nodeData.key);
+                            if (part) part.updateTargetBindings();
+                            diagram.requestUpdate();
                             try {
                               const val = (ev.target as HTMLSelectElement).value;
                               console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
@@ -6225,10 +6775,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) {} } catch (_) {}
                                 try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) {}
                                 try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                                diagram.updateAllBindings(); // <-- Add this line
                                 diagram.requestUpdate();
-
                                 // persist asynchronously to avoid racing with menu disposal
                                 try {
+
                                   setTimeout(() => {
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
@@ -6309,7 +6860,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                            { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6436,7 +6988,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Gray', value: '#808080' },
                             { label: 'Brown', value: '#8b4513' },
                             { label: 'Pink', value: '#ffc0cb' },
-                            { label: 'Cyan', value: '#00ffff' }
+                            { label: 'Cyan', value: '#00ffff' },
+                                                       { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
@@ -6513,6 +7066,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ]),
             closeOnClick: false,
           });
+          items.push({ separator: true });
           items.push({
             label: "Generate Metamodel",
             action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
@@ -6536,23 +7090,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 }
               });
             },
-            enabled: (diagram) => {
-              const node = part.data;
-              if (node?.category === constants.gojs.C_OBJECT) {
-                if (node.isSelected) {
-                  return true;
-                } else {
-                  const selection = diagram.selection;
-                  if (selection.count == 0) return true;
-                  else return false;
-                }
-              }
-              return false;
-            }
+            enabled: (diagram) => true,
+            //   {
+            //   const node = part.data;
+            //   if (node?.category === constants.gojs.C_OBJECT) {
+            //     if (node.isSelected) {
+            //       return true;
+            //     } else {
+            //       const selection = diagram.selection;
+            //       if (selection.count == 0) return true;
+            //       else return false;
+            //     }
+            //   }
+            //   return false;
+            // }
           });
           const canConvertObject = canConvertToGroup(part?.data) || canConvertToNode(part?.data);
           if (canConvertObject) {
-            items.push({ separator: true });
             items.push({
               label: canConvertToGroup(part?.data) ? "Convert to Group" : "Convert to Node",
               action: (diagram) => {
@@ -6565,6 +7119,416 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (_diagram) => canConvertToGroup(part?.data) || canConvertToNode(part?.data),
             });
           }
+         items.push( 
+          {
+            label: 'Set Objectview Colors',
+              action: (() => {
+                const objColorItems: HtmlMenuItem[] = [
+                  {
+                    label: 'Fill color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.fillcolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Fill';
+                        lbl.style.minWidth = '56px';
+
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.fillcolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview fillcolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                          const val = (ev.target as HTMLSelectElement).value;
+                          if (val === 'rgba(0,0,0,0)') {
+                            // Set GoJS property to transparent
+                            diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                            // Set input to a valid color (e.g., #000000)
+                            inp.value = '#000000';
+                            inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                          } else {
+                            diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                            inp.value = val;
+                            inp.style.background = '';
+                          }
+                          const part = diagram.findPartForKey(nodeData.key);
+                          if (part) part.updateTargetBindings();
+                          diagram.requestUpdate();
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'fillcolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW FILL SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.updateAllBindings(); // <-- Add this line
+                              diagram.requestUpdate();
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.fillcolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview fillcolor failed', e); }
+                    }
+                  },
+                  {
+                    label: 'Stroke color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.strokecolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Stroke';
+                        lbl.style.minWidth = '56px';
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.strokecolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview strokecolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW STROKE SEL.ONCHANGE] fired', ev);
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW STROKE SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'strokecolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW STROKE SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.requestUpdate();
+
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.strokecolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview strokecolor failed', e); }
+                    }
+                  },
+                  {
+                    label: 'Text color',
+                    closeOnClick: false,
+                    render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                      try {
+                        const nodeData = part?.data;
+                        const current = (nodeData && (nodeData.textcolor || '')) || '';
+                        const wrap = document.createElement('div');
+                        wrap.style.display = 'flex';
+                        wrap.style.alignItems = 'center';
+                        wrap.style.gap = '8px';
+                        const lbl = document.createElement('span');
+                        lbl.textContent = 'Text';
+                        lbl.style.minWidth = '56px';
+                        const inp = document.createElement('input');
+                        inp.type = 'color';
+                        try {
+                          const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                          inp.value = initial;
+                          inp.defaultValue = initial;
+                          try { inp.setAttribute('value', initial); } catch (_) { }
+                        } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                        inp.style.cursor = 'pointer';
+                        inp.onclick = (ev) => { ev.stopPropagation(); };
+                        inp.oninput = (ev) => {
+                          try {
+                            const val = (ev.target as HTMLInputElement).value;
+                            if (nodeData) {
+                              const targetDiagram = diagram || myDiagram;
+                              try {
+                                // Update the GoJS model first
+                                try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                // Then update the objview
+                                const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                if (objview) {
+                                  objview.textcolor = val;
+                                  const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                  const data = JSON.parse(JSON.stringify(jsnObjview));
+                                  targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                }
+                              } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview textcolor failed', e); }
+                              try { inp.value = val; } catch (_) { }
+                              (diagram || myDiagram)?.requestUpdate?.();
+                            }
+                          } catch (_) { }
+                        };
+
+                        const presets = [
+                          { label: 'Black', value: '#000000' },
+                          { label: 'White', value: '#ffffff' },
+                          { label: 'Red', value: '#ff0000' },
+                          { label: 'Green', value: '#00ff00' },
+                          { label: 'Blue', value: '#0000ff' },
+                          { label: 'Yellow', value: '#ffff00' },
+                          { label: 'Orange', value: '#ffa500' },
+                          { label: 'Purple', value: '#800080' },
+                          { label: 'Gray', value: '#808080' },
+                          { label: 'Brown', value: '#8b4513' },
+                          { label: 'Pink', value: '#ffc0cb' },
+                          { label: 'Cyan', value: '#00ffff' },
+                          { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                        ];
+                        const sel = document.createElement('select');
+                        sel.style.cursor = 'pointer';
+                        sel.style.padding = '2px 6px';
+                        sel.style.fontSize = '12px';
+                        sel.style.minWidth = '84px';
+                        const emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.text = 'Select Color';
+                        sel.appendChild(emptyOpt);
+                        for (const p of presets) {
+                          const o = document.createElement('option');
+                          o.value = p.value;
+                          o.text = p.label;
+                          sel.appendChild(o);
+                        }
+                        sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                        sel.onchange = (ev) => {
+                          ev.stopPropagation && ev.stopPropagation();
+                          console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
+                          try {
+                            const val = (ev.target as HTMLSelectElement).value;
+                            console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                            if (val && nodeData && diagram) {
+                              try { sel.value = val; } catch (_) { }
+                              try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                              // Synchronously update the GoJS model (same approach as Icon menu)
+                              try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                              console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
+                              if ((window as any).DEBUG_GOJS_MENUS) {
+                                try {
+                                  const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                  console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                } catch (_) { }
+                              }
+                              // update the color input UI immediately
+                              try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                              try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                              try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                              diagram.requestUpdate();
+
+                              // persist asynchronously to avoid racing with menu disposal
+                              try {
+                                setTimeout(() => {
+                                  try {
+                                    const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                    if (objview) {
+                                      objview.textcolor = val;
+                                      const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                      const data = JSON.parse(JSON.stringify(jsnObjview));
+                                      try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                    }
+                                  } catch (_) { }
+                                }, 0);
+                              } catch (_) { }
+                            }
+                          } catch (_) { }
+                        };
+
+                        wrap.appendChild(lbl);
+                        wrap.appendChild(sel);
+                        wrap.appendChild(inp);
+                        container.textContent = '';
+                        container.appendChild(wrap);
+                      } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview textcolor failed', e); }
+                    }
+                  }
+                ];
+                try { (objColorItems as any).menuHeading = 'Set Objectview Colors'; } catch (_) { }
+                return showSubMenu(objColorItems);
+              })(),
+                closeOnClick: false
+          }
+          );
           items.push({ separator: true });
           const connectionsMenuItems: HtmlMenuItem[] = [
             {
@@ -7410,7 +8374,503 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // build a special icon-only menu
                 const node = targetPart.data;
                 items = [
+                  {
+                      label: "Copy",
+                      action: (diagram) => handlePartCopy(diagram, part),
+                  },
+                  {
+                    label: "Object…",
+                    action: showSubMenu([
+                      {
+                        label: "Edit Object",
+                        action: () => handleEditObject(part),
+                      },
+                      {
+                        label: "Delete Object",
+                        action: (diagram) => handleDeletePart(diagram, part),
+                        enabled: (diagram) => canDeleteSinglePart(diagram, part),
+                      },
+                      {
+                        label: "Delete Selection",
+                        action: (diagram) => handleDeleteSelection(diagram),
+                        enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+                      }
+                    ]),
+                    closeOnClick: false,
+                  },
+                  {
+                    label: "Objectview…",
+                    action: showSubMenu([
+                      {
+                        label: "Edit Object View",
+                        action: (diagram) => handleEditObjectview(part),
+                      },
+                      {
+                        label: "Delete Object View",
+                        action: (diagram) => {
+                          if (!diagram) return;
+                          const restore = exclusiveSelectPart(diagram, part);
+                          if (!diagram.commandHandler.canDeleteSelection()) {
+                            restore();
+                            return;
+                          }
+                          if (!confirm('Do you really want to delete this object view?')) {
+                            restore();
+                            return;
+                          }
+                          myMetis.deleteViewsOnly = true;
+                          myMetis.currentNode = part.data;
+                          diagram.commandHandler.deleteSelection();
+                          restore();
+                        },
+                        enabled: (diagram) => canDeleteSinglePart(diagram, part),
+                      },
+                      {
+                        label: "Delete Selected Views",
+                        action: (diagram) => {
+                          if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
+                          if (!confirm('Do you really want to delete the current selection?')) return;
+                          myMetis.deleteViewsOnly = true;
+                          diagram.commandHandler.deleteSelection();
+                        },
+                        enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
+                      },
+                      { separator: true },
+                      {
+                        label: "Change Icon",
+                        action: (diagram) => {
+                          const node = part.data;
+                          if (!node) return;
+                          if (node) diagram.select && diagram.select(diagram.findPartForKey(node.key));
+                          const modalContext = {
+                            what: "selectDropdown",
+                            title: "Select Icon",
+                            case: "Change Icon",
+                            iconList: iconList(),
+                            currentNode: node,
+                            myDiagram: diagram
+                          };
+                          myMetis.currentNode = node;
+                          myMetis.myDiagram = diagram;
+                          diagram.handleOpenModal(node, modalContext);
+                        },
+                        enabled: (diagram) => {
+                          const node = part.data;
+                          return !!node && node.category === constants.gojs.C_OBJECT;
+                        }
+                      }
+                      ,
+                      {
+                        label: 'Set Objectview Colors',
+                        action: (() => {
+                          const objColorItems: HtmlMenuItem[] = [
+                            {
+                              label: 'Fill color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.fillcolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Fill';
+                                  lbl.style.minWidth = '56px';
 
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.fillcolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview fillcolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW FILL SEL.ONCHANGE] fired', ev);
+                                    const val = (ev.target as HTMLSelectElement).value;
+                                    if (val === 'rgba(0,0,0,0)') {
+                                      // Set GoJS property to transparent
+                                      diagram.model.setDataProperty(nodeData, 'fillcolor', 'rgba(0,0,0,0)');
+                                      // Set input to a valid color (e.g., #000000)
+                                      inp.value = '#000000';
+                                      inp.style.background = 'repeating-linear-gradient(45deg,#ccc,#ccc 5px,#fff 5px,#fff 10px)';
+                                    } else {
+                                      diagram.model.setDataProperty(nodeData, 'fillcolor', val);
+                                      inp.value = val;
+                                      inp.style.background = '';
+                                    }
+                                    const part = diagram.findPartForKey(nodeData.key);
+                                    if (part) part.updateTargetBindings();
+                                    diagram.requestUpdate();
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW FILL SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'fillcolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW FILL SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview fill] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.updateAllBindings(); // <-- Add this line
+                                        diagram.requestUpdate();
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.fillcolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview fillcolor failed', e); }
+                              }
+                            },
+                            {
+                              label: 'Stroke color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.strokecolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Stroke';
+                                  lbl.style.minWidth = '56px';
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.strokecolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview strokecolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW STROKE SEL.ONCHANGE] fired', ev);
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW STROKE SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'strokecolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW STROKE SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview stroke] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.requestUpdate();
+
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.strokecolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview strokecolor failed', e); }
+                              }
+                            },
+                            {
+                              label: 'Text color',
+                              closeOnClick: false,
+                              render: (container: HTMLElement, diagram: go.Diagram, tool: any, item: any) => {
+                                try {
+                                  const nodeData = part?.data;
+                                  const current = (nodeData && (nodeData.textcolor || '')) || '';
+                                  const wrap = document.createElement('div');
+                                  wrap.style.display = 'flex';
+                                  wrap.style.alignItems = 'center';
+                                  wrap.style.gap = '8px';
+                                  const lbl = document.createElement('span');
+                                  lbl.textContent = 'Text';
+                                  lbl.style.minWidth = '56px';
+                                  const inp = document.createElement('input');
+                                  inp.type = 'color';
+                                  try {
+                                    const initial = (current && go.Brush.isValidColor && go.Brush.isValidColor(current)) ? current : '#d3d3d3';
+                                    inp.value = initial;
+                                    inp.defaultValue = initial;
+                                    try { inp.setAttribute('value', initial); } catch (_) { }
+                                  } catch (_) { inp.value = '#d3d3d3'; inp.defaultValue = '#d3d3d3'; try { inp.setAttribute('value', '#d3d3d3'); } catch (_) { } }
+                                  inp.style.cursor = 'pointer';
+                                  inp.onclick = (ev) => { ev.stopPropagation(); };
+                                  inp.oninput = (ev) => {
+                                    try {
+                                      const val = (ev.target as HTMLInputElement).value;
+                                      if (nodeData) {
+                                        const targetDiagram = diagram || myDiagram;
+                                        try {
+                                          // Update the GoJS model first
+                                          try { targetDiagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                          // Then update the objview
+                                          const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                          if (objview) {
+                                            objview.textcolor = val;
+                                            const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                            const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+                                          }
+                                        } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('update objectview textcolor failed', e); }
+                                        try { inp.value = val; } catch (_) { }
+                                        (diagram || myDiagram)?.requestUpdate?.();
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  const presets = [
+                                    { label: 'Black', value: '#000000' },
+                                    { label: 'White', value: '#ffffff' },
+                                    { label: 'Red', value: '#ff0000' },
+                                    { label: 'Green', value: '#00ff00' },
+                                    { label: 'Blue', value: '#0000ff' },
+                                    { label: 'Yellow', value: '#ffff00' },
+                                    { label: 'Orange', value: '#ffa500' },
+                                    { label: 'Purple', value: '#800080' },
+                                    { label: 'Gray', value: '#808080' },
+                                    { label: 'Brown', value: '#8b4513' },
+                                    { label: 'Pink', value: '#ffc0cb' },
+                                    { label: 'Cyan', value: '#00ffff' },
+                                    { label: 'Transparent', value: 'rgba(0,0,0,0)' }
+                                  ];
+                                  const sel = document.createElement('select');
+                                  sel.style.cursor = 'pointer';
+                                  sel.style.padding = '2px 6px';
+                                  sel.style.fontSize = '12px';
+                                  sel.style.minWidth = '84px';
+                                  const emptyOpt = document.createElement('option');
+                                  emptyOpt.value = '';
+                                  emptyOpt.text = 'Select Color';
+                                  sel.appendChild(emptyOpt);
+                                  for (const p of presets) {
+                                    const o = document.createElement('option');
+                                    o.value = p.value;
+                                    o.text = p.label;
+                                    sel.appendChild(o);
+                                  }
+                                  sel.onpointerdown = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onclick = (ev) => { ev.stopPropagation && ev.stopPropagation(); };
+                                  sel.onchange = (ev) => {
+                                    ev.stopPropagation && ev.stopPropagation();
+                                    console.debug('[OBJVIEW TEXT SEL.ONCHANGE] fired', ev);
+                                    try {
+                                      const val = (ev.target as HTMLSelectElement).value;
+                                      console.debug('[OBJVIEW TEXT SEL.ONCHANGE] val:', val, 'nodeData:', nodeData?.key);
+                                      if (val && nodeData && diagram) {
+                                        try { sel.value = val; } catch (_) { }
+                                        try { sel.selectedIndex = Array.from(sel.options).findIndex(o => o.value === val); } catch (_) { }
+                                        // Synchronously update the GoJS model (same approach as Icon menu)
+                                        try { diagram.model.setDataProperty(nodeData, 'textcolor', val); } catch (_) { }
+                                        console.debug('[OBJVIEW TEXT SEL.ONCHANGE] model updated');
+                                        if ((window as any).DEBUG_GOJS_MENUS) {
+                                          try {
+                                            const fd = (diagram && typeof (diagram as any).findNodeForKey === 'function') ? (diagram as any).findNodeForKey(nodeData?.key) : null;
+                                            console.debug('[objview text] sel.onchange', { val, nodeKey: nodeData?.key, foundNodeData: fd && fd.data ? fd.data : nodeData });
+                                          } catch (_) { }
+                                        }
+                                        // update the color input UI immediately
+                                        try { inp.value = val; inp.defaultValue = val; try { inp.setAttribute('value', val); } catch (_) { } } catch (_) { }
+                                        try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
+                                        try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
+                                        diagram.requestUpdate();
+
+                                        // persist asynchronously to avoid racing with menu disposal
+                                        try {
+                                          setTimeout(() => {
+                                            try {
+                                              const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
+                                              if (objview) {
+                                                objview.textcolor = val;
+                                                const jsnObjview = new jsn.jsnObjectView(objview, true);
+                                                const data = JSON.parse(JSON.stringify(jsnObjview));
+                                                try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
+                                              }
+                                            } catch (_) { }
+                                          }, 0);
+                                        } catch (_) { }
+                                      }
+                                    } catch (_) { }
+                                  };
+
+                                  wrap.appendChild(lbl);
+                                  wrap.appendChild(sel);
+                                  wrap.appendChild(inp);
+                                  container.textContent = '';
+                                  container.appendChild(wrap);
+                                } catch (e) { if ((window as any).DEBUG_GOJS_MENUS) console.debug('render objectview textcolor failed', e); }
+                              }
+                            }
+                          ];
+                          try { (objColorItems as any).menuHeading = 'Set Objectview Colors'; } catch (_) { }
+                          return showSubMenu(objColorItems);
+                        })(),
+                        closeOnClick: false
+                      }
+                    ]),
+                    closeOnClick: false,
+                  },
                   {
                     label: 'Change Icon',
                     action: (diagram) => {
@@ -7429,10 +8889,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       myMetis.myDiagram = diagram;
                       diagram.handleOpenModal(node, modalContext);
                     },
-                    enabled: (diagram) => {
-                      const node = targetPart.data;
-                      return !!node && node.category === constants.gojs.C_OBJECT;
-                    }
+                    enabled: (diagram) => true
                   },
                   {
                     label: 'Set Icon Colors',
@@ -7487,7 +8944,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7526,16 +8984,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try { inp.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { }
                                     try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) { }
                                     diagram.requestUpdate();
-
                                     // persist asynchronously to avoid racing with menu disposal
                                     try {
                                       setTimeout(() => {
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.fillcolor = val;
+                                            objview.fillcolor2 = val;
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
+                                            if ((window as any).DEBUG_GOJS_MENUS) console.log('8446 Updating object view properties with data:', data);
                                             try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
                                           }
                                         } catch (_) { }
@@ -7601,7 +9059,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                                           { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7711,7 +9170,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 { label: 'Gray', value: '#808080' },
                                 { label: 'Brown', value: '#8b4513' },
                                 { label: 'Pink', value: '#ffc0cb' },
-                                { label: 'Cyan', value: '#00ffff' }
+                                { label: 'Cyan', value: '#00ffff' },
+                                                           { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                               ];
                               const sel = document.createElement('select');
                               sel.style.cursor = 'pointer';
@@ -7779,18 +9239,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     })(),
                     closeOnClick: false
                   },
-                  {
-                    label: 'Object menu…',
-                    action: (() => {
-                      const objectMenuItems = targetPart ? buildNodeMenuItems(targetPart) : [];
-                      if (!objectMenuItems || objectMenuItems.length === 0) {
-                        return () => {};
-                      }
-                      try { (objectMenuItems as any).menuHeading = 'Object Menu'; } catch (_) { }
-                      return showSubMenu(objectMenuItems);
-                    })(),
-                    closeOnClick: false,
-                  },
                 ];
                 // Mark this as the icon menu so later heading logic doesn't overwrite it
                 try { (items as any).menuHeading = 'Icon Menu'; } catch (_) {}
@@ -7805,7 +9253,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         try {
           if (!(items as any)?.menuHeading) {
             const data = targetPart?.data;
-            if (data && data.category === constants.gojs.C_OBJECT) {
+            const hasObject =
+              data &&
+              (data.category === constants.gojs.C_OBJECT ||
+                data.object ||
+                data.objectview ||
+                data.isGroup === true ||
+                (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container'));
+            if (hasObject) {
               (items as any).menuHeading = 'Object Menu';
             } else if (data && data.category === constants.gojs.C_RELATIONSHIP) {
               (items as any).menuHeading = 'Relationship Menu';
@@ -8965,7 +10420,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     function maybeChangeLinkCategory(e: any) {
       let link = e.subject;
       let linktolink = (link.fromNode?.isLinkLabel || link.toNode?.isLinkLabel);
-      e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
+      const newTemplate = template ?? (link.data.template);
+      if (typeof newTemplate === "string" && newTemplate.length > 0) {
+        diagram.model.setCategoryForLinkData(link.data, newTemplate);
+        link.data.template = newTemplate;
+      }
+      // e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
     }
 
     function makeButton(text: string, action: any, visiblePredicate: any) {
@@ -9347,6 +10807,182 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onSelect={(image) => this.handleSelectDropdownChange({ value: image })}
           imageList={this.state.modalContext?.imageList || []}
         />
+        <Dialog open={this.state.selectConnectedDialogOpen} onOpenChange={(open) => !open && this.handleSelectConnectedCancel()}>
+          <DialogContent className="px-3 py-2">
+            <DialogHeader>
+              <DialogTitle>Select Connected Objects</DialogTitle>
+              <DialogDescription className="mb-0">Choose traversal depth, relationship types, and direction.</DialogDescription>
+            </DialogHeader>
+            <div className="d-flex flex-column gap-2 small">
+              <label className="small fw-semibold text-secondary">Relationship to follow</label>
+              <select
+                multiple
+                value={(this.state.selectConnectedRelChoice as any) || ['All']}
+                onChange={this.handleSelectConnectedRelChoiceChange as any}
+                className="form-select form-select-sm py-1 px-2"
+                style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
+              >
+                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <div className="form-check mt-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="select-include-all-rels"
+                  checked={!!this.state.selectConnectedIncludeAllRels}
+                  onChange={this.handleSelectConnectedIncludeAllRelsChange}
+                />
+                <label className="form-check-label small" htmlFor="select-include-all-rels">
+                  Include relationships not in this modelview
+                </label>
+              </div>
+              <label className="small fw-semibold text-secondary">Steps to traverse</label>
+              <select
+                value={this.state.selectConnectedLevels || '1'}
+                onChange={this.handleSelectConnectedLevelsChange as any}
+                className="form-select form-select-sm py-1 px-2"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <label className="small fw-semibold text-secondary">Relationship types to traverse</label>
+              <select
+                multiple
+                value={((this.state.selectConnectedReltypes || 'All') === 'All'
+                  ? ['All']
+                  : (this.state.selectConnectedReltypes || '')
+                    .split(',')
+                    .map(v => v.trim())
+                    .filter(v => v.length > 0)) as any}
+                onChange={this.handleSelectConnectedReltypesChange as any}
+                className="form-select form-select-sm py-1 px-2"
+                style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
+              >
+                {(this.state.selectConnectedReltypeOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <label className="small fw-semibold text-secondary">Direction</label>
+              <select
+                value={this.state.selectConnectedReldir || 'All'}
+                onChange={this.handleSelectConnectedReldirChange as any}
+                className="form-select form-select-sm py-1 px-2"
+              >
+                {['All', 'out', 'in'].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter className="d-flex justify-content-end mt-3 px-1 pb-1 pt-2 gap-3">
+              <UiButton
+                variant="outline"
+                className="btn btn-sm btn-light px-2 text-muted"
+                onClick={this.handleSelectConnectedCancel}
+              >
+                Cancel
+              </UiButton>
+              <UiButton
+                variant="default"
+                className="btn btn-sm btn-dark px-3 text-white"
+                onClick={this.handleSelectConnectedConfirm}
+              >
+                Select
+              </UiButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={this.state.addConnectedDialogOpen} onOpenChange={(open) => !open && this.handleAddConnectedCancel()}>
+          <DialogContent className="px-3 py-2">
+            <DialogHeader>
+              <DialogTitle>Add Connected Objects</DialogTitle>
+              <DialogDescription className="mb-1">Generate connected nodes with the chosen traversal settings.</DialogDescription>
+            </DialogHeader>
+            <div className="d-flex flex-column gap-2 small">
+              <label className="small fw-semibold text-secondary">Relationship to follow</label>
+              <select
+                multiple
+                value={(this.state.addConnectedRelChoice as any) || ['All']}
+                onChange={this.handleAddConnectedRelChoiceChange as any}
+                className="form-select form-select-sm py-1 px-2"
+                style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
+              >
+                {(this.state.addConnectedRelOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <div className="form-check mt-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="add-include-all-rels"
+                  checked={!!this.state.addConnectedIncludeAllRels}
+                  onChange={this.handleAddConnectedIncludeAllRelsChange}
+                />
+                <label className="form-check-label small" htmlFor="add-include-all-rels">
+                  Include relationships not in this modelview
+                </label>
+              </div>
+              <label className="small fw-semibold text-secondary">Levels to add</label>
+              <select
+                value={this.state.addConnectedLevels || '1'}
+                onChange={this.handleAddConnectedLevelsChange as any}
+                className="form-select form-select-sm py-1 px-2"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <label className="small fw-semibold text-secondary">Relationship types to traverse</label>
+              <select
+                multiple
+                value={((this.state.addConnectedReltypes || 'All') === 'All'
+                  ? ['All']
+                  : (this.state.addConnectedReltypes || '')
+                    .split(',')
+                    .map(v => v.trim())
+                    .filter(v => v.length > 0)) as any}
+                onChange={this.handleAddConnectedReltypesChange as any}
+                className="form-select form-select-sm py-1 px-2"
+                style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
+              >
+                {(this.state.addConnectedReltypeOptions || ['All']).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+              <label className="small fw-semibold text-secondary">Direction</label>
+              <select
+                value={this.state.addConnectedReldir || 'All'}
+                onChange={this.handleAddConnectedReldirChange as any}
+                className="form-select form-select-sm py-1 px-2"
+              >
+                {['All', 'out', 'in'].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter className="d-flex gap-3 mt-1">
+              <div className="flex-grow-1" />
+              <UiButton
+                variant="outline"
+                className="btn btn-sm btn-light px-2 text-muted"
+still f             onClick={this.handleAddConnectedCancel}
+              >
+                Cancel
+              </UiButton>
+              <UiButton
+                variant="small"
+                className="btn btn-sm btn-secondary px-3 text-white"
+                onClick={this.handleAddConnectedConfirm}
+              >
+                Add
+              </UiButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <style jsx>{`        
       `}
         </style>

@@ -9,6 +9,7 @@ import * as React from 'react';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as uid from '../../../akmm/ui_diagram';
+import * as uit from '../../../akmm/ui_templates';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
@@ -138,22 +139,102 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // console.log('68 myPalette', this);      
     // define myPalette
     if (true) {
-      const contextMenu = this.props.onNodeContextMenu
-        ? $('ContextMenu',
-          $('ContextMenuButton',
-            $(go.TextBlock, 'Select Connected Objects'),
-            {
-              click: (e: go.InputEvent, button: go.GraphObject) => {
-                const part = button?.part as go.Adornment;
-                const node = part?.adornedPart as go.Node;
-                if (node && this.props.onNodeContextMenu) {
-                  this.props.onNodeContextMenu(node.data, e.diagram);
-                }
+      let contextMenu: go.HTMLInfo | null = null;
+      if (this.props.onNodeContextMenu) {
+        const HTML_MENU_CLASS = 'gojs-html-context-menu';
+        const HTML_MENU_ITEM_CLASS = 'gojs-html-context-menu__item';
+        let activeMenu: HTMLDivElement | null = null;
+        let docListener: ((ev: PointerEvent) => void) | null = null;
+
+        const disposeMenu = () => {
+          if (docListener) {
+            try { document.removeEventListener('pointerdown', docListener); } catch (_) { }
+          }
+          docListener = null;
+          if (activeMenu?.parentElement) {
+            try { activeMenu.parentElement.removeChild(activeMenu); } catch (_) { }
+          }
+          activeMenu = null;
+        };
+
+        const positionMenu = (menu: HTMLDivElement, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          const diagramDiv = diagram?.div;
+          const viewPoint = diagram?.lastInput?.viewPoint;
+          if (!diagramDiv || !viewPoint) return;
+          const rect = diagramDiv.getBoundingClientRect();
+          let left = rect.left + window.pageXOffset + viewPoint.x;
+          let top = rect.top + window.pageYOffset + viewPoint.y;
+          const menuRect = menu.getBoundingClientRect();
+          const maxLeft = window.pageXOffset + window.innerWidth - menuRect.width - 8;
+          const maxTop = window.pageYOffset + window.innerHeight - menuRect.height - 8;
+          left = Math.max(window.pageXOffset + 4, Math.min(left, maxLeft));
+          top = Math.max(window.pageYOffset + 4, Math.min(top, maxTop));
+          menu.style.left = `${left}px`;
+          menu.style.top = `${top}px`;
+        };
+
+        const buildMenu = (label: string, handler: () => void) => {
+          const menu = document.createElement('div');
+          menu.className = HTML_MENU_CLASS;
+          menu.style.position = 'absolute';
+          menu.style.minWidth = '200px';
+          menu.style.background = '#ffffff';
+          menu.style.border = '1px solid rgba(0,0,0,0.15)';
+          menu.style.boxShadow = '0 6px 12px rgba(0,0,0,0.18)';
+          menu.style.borderRadius = '6px';
+          menu.style.padding = '0 0';
+          menu.style.zIndex = '9999';
+          menu.addEventListener('contextmenu', (ev) => ev.preventDefault());
+          menu.addEventListener('mousedown', (ev) => ev.stopPropagation());
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = HTML_MENU_ITEM_CLASS;
+          btn.textContent = label;
+          btn.style.display = 'block';
+          btn.style.width = '100%';
+          btn.style.padding = '6px 16px';
+          btn.style.textAlign = 'left';
+          btn.style.background = 'transparent';
+          btn.style.border = 'none';
+          btn.style.cursor = 'pointer';
+          btn.style.fontSize = '13px';
+          btn.style.color = '#333';
+          btn.onmouseenter = () => { btn.style.background = '#f5f5f5'; };
+          btn.onmouseleave = () => { btn.style.background = 'transparent'; };
+          btn.onclick = (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            handler();
+            disposeMenu();
+          };
+          menu.appendChild(btn);
+          return menu;
+        };
+
+        contextMenu = new go.HTMLInfo({
+          show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+            disposeMenu();
+            const part = obj?.part as go.Part;
+            const node = part?.data;
+            if (!diagram || !node) return;
+            const menu = buildMenu('Select Connected Objects', () => {
+              this.props.onNodeContextMenu?.(node, diagram);
+            });
+            activeMenu = menu;
+            document.body.appendChild(menu);
+            positionMenu(menu, diagram, tool);
+            docListener = (ev: PointerEvent) => {
+              const tgt = ev.target as Node | null;
+              if (menu && tgt && !menu.contains(tgt)) {
+                disposeMenu();
               }
-            }
-          )
-        )
-        : null;
+            };
+            try { document.addEventListener('pointerdown', docListener); } catch (_) { }
+          },
+          hide: disposeMenu,
+        });
+      }
       const arrowConverter = (value: string) => {
         if (!value || value === 'None' || value === ' ') return '';
         return value;
@@ -168,7 +249,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             // "undoManager.isEnabled": true,  // enable undo & redo
             // "toolManager.hoverDelay": 10,  // how quickly tooltips are shown
            
-            maxSelectionCount: 16,
+            maxSelectionCount: 160,
             layout: $(go.GridLayout,
               {
                 // sorting: go.GridLayout.Ascending,
@@ -261,29 +342,62 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 alignment: go.Spot.Center,
                 cursor: "grabbing",
               },
-              // Picture Element
+              $(go.Shape,
+                {
+                  desiredSize: new go.Size(30, 30),
+                  margin: new go.Margin(0, 0, 0, 0),
+                  fill: "transparent",
+                  stroke: "black",
+                  strokeWidth: 2,
+                },
+                new go.Binding("figure", "", (data) => {
+                  const figures = uit.getFigureNames();
+                  if (data.icon && figures.includes(data.icon)) return data.icon;
+                  if ((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure)) return data.figure;
+                  return "transparent";
+                }),
+                new go.Binding("visible", "", (data) => {
+                  const figures = uit.getFigureNames();
+                  // Only show if icon is empty or a valid figure name, or figure is present
+                  return (!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
+                }),
+              ),
+              // Show image only if icon is a valid image URL
               $(go.Picture,
                 {
                   name: "Picture",
                   desiredSize: new go.Size(30, 30),
-                  margin: new go.Margin(0, 0, 0, 0), // Reduced left margin
+                  margin: new go.Margin(0, 0, 0, 0),
                 },
-                new go.Binding("source", "icon", findImage)
+                // Allow both remote and local image paths (not just full URLs)
+                new go.Binding("source", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  if (!icon || figures.includes(icon)) return "";
+                  return findImage(icon);
+                }),
+                new go.Binding("visible", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  return icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon);
+                }),
               ),
-              // TextBlock for Unicode Icon
+              // Show unicode only if icon is a valid unicode
               $(go.TextBlock, textStyle(),
                 {
                   background: "transparent",
                   desiredSize: new go.Size(30, 30),
                   textAlign: "center",
                   stroke: "#466",
-                  margin: new go.Margin(0, 0, 0, 0), // Adjusted margins
+                  margin: new go.Margin(0, 0, 0, 0),
                   font: "24px 'FontAwesome'",
                   editable: false,
                   isMultiline: false,
-                  alignment: go.Spot.Center, // Center alignment
+                  alignment: go.Spot.Center,
                 },
-                new go.Binding("text", "icon", findUnicodeImage)
+                new go.Binding("text", "icon", findUnicodeImage),
+                new go.Binding("visible", "icon", (icon) => {
+                  const figures = uit.getFigureNames();
+                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode';
+                }),
               ),
             ),
 
@@ -459,7 +573,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         if (debug) console.log('3273 Diagram', image, img)
         return img
       } else {
-        return "";
+        return image;
       }
     }
 
@@ -494,7 +608,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ? 'diagram-component-target'
         : 'diagram-component-palette'
 
-
+    if (debug) console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
     //   height: '36vh', // Set the desired height here
     //   width: '100%', // Set the desired width here

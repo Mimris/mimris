@@ -11,6 +11,9 @@ import { SelectionInspector } from './components/SelectionInspector';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as jsn from '../../akmm/ui_json';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
 // import './GoJSApp.css';
 
@@ -24,6 +27,8 @@ const debug = false;
 interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
+  fullNodeDataArray?: Array<go.ObjectData>;
+  fullLinkDataArray?: Array<go.ObjectData>;
   modelData: go.ObjectData;
   selectedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
@@ -34,6 +39,9 @@ interface AppState {
   dispatch: any;
   diagramStyle: any;
   noOfCols?: number;
+  selectConnectedPromptOpen?: boolean;
+  selectConnectedSteps?: string;
+  pendingSelectContext?: { nodeData: go.ObjectData; diagram: go.Diagram } | null;
 }
 
 class GoJSPaletteApp extends React.Component<{}, AppState> {
@@ -41,6 +49,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
   private suppressSelectionChange = false;
+  private lastResetToken?: number;
 
   constructor(props: object) {
     super(props);
@@ -48,6 +57,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
+      fullNodeDataArray: this.props?.nodeDataArray,
+      fullLinkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: false
       },
@@ -60,6 +71,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       diagramStyle: this.props.diagramStyle,
       noOfCols: this.props.noOfCols ? this.props.noOfCols : 1,
+      selectConnectedPromptOpen: false,
+      selectConnectedSteps: '1',
+      pendingSelectContext: null,
 
     };
     if (debug) console.log('55 myMetis', this.state.myMetis);
@@ -72,7 +86,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   }
 
-  public componentDidUpdate(prevProps: DiagramProps) {
+  public componentDidUpdate(prevProps: any) {
     const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
     if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
       this.setState({ noOfCols: nextCols, skipsDiagramUpdate: false });
@@ -89,11 +103,20 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         nodeDataArray: nextNodes,
         linkDataArray: nextLinks,
         selectedData: null,
-        skipsDiagramUpdate: false
+        skipsDiagramUpdate: false,
+        fullNodeDataArray: nextNodes,
+        fullLinkDataArray: nextLinks
       }, () => {
         if (nodesChanged) this.refreshNodeIndex(nextNodes);
         if (linksChanged) this.refreshLinkIndex(nextLinks);
       });
+    }
+
+    const resetToken = (this.props as any)?.resetPaletteFilterToken;
+    const prevResetToken = (prevProps as any)?.resetPaletteFilterToken;
+    if (resetToken !== undefined && resetToken !== prevResetToken) {
+      this.handleResetPaletteFilter();
+      this.lastResetToken = resetToken;
     }
   }
 
@@ -208,34 +231,108 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     if (!diagram || !nodeData) {
       return;
     }
+    this.setState({
+      selectConnectedPromptOpen: true,
+      selectConnectedSteps: '1',
+      pendingSelectContext: { nodeData, diagram },
+    });
+  };
+
+  private handleSelectConnectedStepsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    this.setState({ selectConnectedSteps: event.target.value });
+  };
+
+  private handleSelectConnectedCancel = () => {
+    this.setState({ selectConnectedPromptOpen: false, pendingSelectContext: null });
+  };
+
+  private handleSelectConnectedConfirm = () => {
+    const { pendingSelectContext } = this.state;
+    const parsed = parseInt(this.state.selectConnectedSteps || '1', 10);
+    const steps = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    this.setState({ selectConnectedPromptOpen: false, pendingSelectContext: null }, () => {
+      if (pendingSelectContext) {
+        this.runSelectConnectedTraversal(pendingSelectContext.nodeData, pendingSelectContext.diagram, steps);
+      }
+    });
+  };
+
+  private handleResetPaletteFilter = () => {
+    const nodes = this.state.fullNodeDataArray || [];
+    const links = this.state.fullLinkDataArray || [];
+    this.setState({
+      nodeDataArray: nodes,
+      linkDataArray: links,
+      skipsDiagramUpdate: false
+    }, () => {
+      this.refreshNodeIndex(this.state.nodeDataArray);
+      this.refreshLinkIndex(this.state.linkDataArray);
+    });
+  };
+
+  private handleSelectConnectedConfirmAndFilter = () => {
+    const { pendingSelectContext } = this.state;
+    const parsed = parseInt(this.state.selectConnectedSteps || '1', 10);
+    const steps = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    this.setState({ selectConnectedPromptOpen: false, pendingSelectContext: null }, () => {
+      if (pendingSelectContext) {
+        const visited = this.runSelectConnectedTraversal(pendingSelectContext.nodeData, pendingSelectContext.diagram, steps);
+        if (visited) {
+          this.filterPaletteToKeys(visited);
+        }
+      }
+    });
+  };
+
+  private filterPaletteToKeys = (keys: Set<go.Key>) => {
+    if (!keys || keys.size === 0) return;
+    const sourceNodes = this.state.fullNodeDataArray || this.state.nodeDataArray || [];
+    const sourceLinks = this.state.fullLinkDataArray || this.state.linkDataArray || [];
+    const filteredNodes = sourceNodes.filter((nd: go.ObjectData) => keys.has(nd?.key));
+    const filteredLinks = sourceLinks.filter((ld: go.ObjectData) => keys.has(ld?.from as go.Key) && keys.has(ld?.to as go.Key));
+    this.setState({
+      nodeDataArray: filteredNodes,
+      linkDataArray: filteredLinks,
+      skipsDiagramUpdate: false
+    }, () => {
+      this.refreshNodeIndex(this.state.nodeDataArray);
+      this.refreshLinkIndex(this.state.linkDataArray);
+    });
+  };
+
+  private runSelectConnectedTraversal = (nodeData: go.ObjectData, diagram: go.Diagram, maxSteps: number) => {
+    if (!diagram || !nodeData) return null;
     const targetKey = nodeData.key as go.Key;
-    if (targetKey === undefined || targetKey === null) {
-      return;
-    }
+    if (targetKey === undefined || targetKey === null) return null;
+
     const links = this.state.linkDataArray || [];
     const visited = new Set<go.Key>();
-    const queue: go.Key[] = [];
+    const queue: Array<{ key: go.Key; depth: number }> = [];
 
     visited.add(targetKey);
-    queue.push(targetKey);
+    queue.push({ key: targetKey, depth: 0 });
 
     while (queue.length > 0) {
-      const currentKey = queue.shift();
-      if (currentKey === undefined || currentKey === null) {
-        continue;
-      }
+      const current = queue.shift();
+      if (!current) continue;
+      if (current.depth >= maxSteps) continue;
+
       links.forEach((link: go.ObjectData) => {
         const from = link.from as go.Key;
         const to = link.to as go.Key;
-        if (from === undefined || from === null || to === undefined || to === null) {
-          return;
-        }
-        if (from === currentKey && !visited.has(to)) {
-          visited.add(to);
-          queue.push(to);
-        } else if (to === currentKey && !visited.has(from)) {
-          visited.add(from);
-          queue.push(from);
+        if (from === undefined || from === null || to === undefined || to === null) return;
+
+        const maybeEnqueue = (nextKey: go.Key) => {
+          if (!visited.has(nextKey)) {
+            visited.add(nextKey);
+            queue.push({ key: nextKey, depth: current.depth + 1 });
+          }
+        };
+
+        if (from === current.key) {
+          maybeEnqueue(to);
+        } else if (to === current.key) {
+          maybeEnqueue(from);
         }
       });
     }
@@ -255,6 +352,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
     const focusNode = diagram.findNodeForKey(targetKey);
     this.applyFocusForNode(diagram, focusNode);
+    return visited;
   };
 
   /**
@@ -449,6 +547,57 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     if (debug) console.log('295 this.state', this.state.nodeDataArray, this.state.linkDataArray);
     return (
       <div>
+        <Dialog open={this.state.selectConnectedPromptOpen} onOpenChange={(open) => !open && this.handleSelectConnectedCancel()}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Select Connected Objects</DialogTitle>
+              <DialogDescription>Choose how many steps to traverse from the clicked palette item.</DialogDescription>
+            </DialogHeader>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12, marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', lineHeight: 1.1 }}>Steps to traverse</label>
+              <select
+              value={this.state.selectConnectedSteps || '1'}
+              onChange={this.handleSelectConnectedStepsChange as any}
+              className="palette-select h-8 text-xs"
+              title="Steps to traverse"
+              style={{ padding: '4px 8px', minHeight: 26, lineHeight: 1.1 }}
+              >
+              {[1,2,3,4,5,6,7,8,9].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+              </select>
+            </div>
+            <DialogFooter
+              style={{
+              display: 'flex',
+              gap: 16, // Increased gap for more space between buttons
+              justifyContent: 'flex-end',
+              marginTop: 10,
+              padding: '8px 6px'
+              }}
+            >
+              <Button variant="outline" className="h-8 px-3 text-xs" style={{ fontSize: 12 }} onClick={this.handleSelectConnectedCancel}>
+              Cancel
+              </Button>
+              <Button
+              variant="default"
+              className="h-8 px-3 mx-1 text-xs"
+              style={{ fontSize: 12, color: '#ffffff', backgroundColor: '#4b5563', border: '1px solid #374151' }}
+              onClick={this.handleSelectConnectedConfirm}
+              >
+              Select
+              </Button>
+              <Button
+              variant="default"
+              className="h-8 px-3 text-xs"
+              style={{ fontSize: 12, color: '#ffffff', backgroundColor: '#1f2937', border: '1px solid #111827' }}
+              onClick={this.handleSelectConnectedConfirmAndFilter}
+              >
+              Select & Filter
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <PaletteWrapper
           divClassName={this.props?.divClassName || 'diagram-component-palette'}
           nodeDataArray={this.state.nodeDataArray}

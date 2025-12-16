@@ -985,7 +985,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const link = myDiagram.findLinkForKey(relview?.id);
                       link.points = []; 
                       myGoModel.addLink(link);
-                      myDiagram.model.addLinkData(link);   
+                      // myDiagram.model.addLinkData(link);   
                       uid.clearPath(myDiagram.links, myMetis, myDiagram);
                     }
                   }

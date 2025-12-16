@@ -419,6 +419,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       setLayout(myDiagram, myModelview?.layout);
     }
 
+    uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
+
+
     // Tooltip functions
     function nodeInfo(d: any) {  // Tooltip info for a node data object
       return uid.nodeInfo(d, myMetis);
@@ -1478,47 +1481,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //         const mySelection = myDiagram.selection;
           //         uid.doTreeLayout(mySelection, myModelview, myDiagram, true);
 
-          //       //   myDiagram.selection.each(function (sel) {
-          //       //     const link = sel.data;
-          //       //     if (link.category === constants.gojs.C_RELATIONSHIP) {
-          //       //       const fromLink = link.from;
-          //       //       const toLink = link.to;
-          //       //       let relview: akm.cxRelationshipView = link.relshipview;
-          //       //       relview = myModelview.findRelationshipView(relview?.id);
-          //       //       if (relview) {
-          //       //         const fromObjview = relview.fromObjview;
-          //       //         const toObjview = relview.toObjview;
-          //       //         link.points = [];
-          //       //         link.from = fromLink;
-          //       //         link.to = toLink;
-          //       //         myDiagram.model.setDataProperty(link, "points", link.points);
-          //       //         relview.points = [];
-          //       //         relview.fromObjview = fromObjview;
-          //       //         relview.toObjview = toObjview;
-          //       //         // const jsnRelView = new jsn.jsnRelshipView(relview);
-          //       //         // modifiedRelshipViews.push(jsnRelView);
-          //       //       }
-          //       //     }
-          //       //   }
-          //       // )
+                //   myDiagram.selection.each(function (sel) {
+                //     const link = sel.data;
+                //     if (link.category === constants.gojs.C_RELATIONSHIP) {
+                //       const fromLink = link.from;
+                //       const toLink = link.to;
+                //       let relview: akm.cxRelationshipView = link.relshipview;
+                //       relview = myModelview.findRelationshipView(relview?.id);
+                //       if (relview) {
+                //         const fromObjview = relview.fromObjview;
+                //         const toObjview = relview.toObjview;
+                //         link.points = [];
+                //         link.from = fromLink;
+                //         link.to = toLink;
+                //         myDiagram.model.setDataProperty(link, "points", link.points);
+                //         relview.points = [];
+                //         relview.fromObjview = fromObjview;
+                //         relview.toObjview = toObjview;
+                //         // const jsnRelView = new jsn.jsnRelshipView(relview);
+                //         // modifiedRelshipViews.push(jsnRelView);
+                //       }
+                //     }
+                //   }
+                // )
 
-          //       } else {
-          //         if (objview?.groupLayout)
-          //           uid.doGroupLayout(objview, myDiagram, obj?.part as go.Group);
-          //       }
-          //     }
-          //     myDiagram.requestUpdate();
-          //   },
-          //   function (obj: any) {
-          //     let node = obj.part.data;
-          //     const key = node.key;
-          //     const objview = myMetis.findObjectView(key);
-          //     // show for non-group nodes
-          //     if (!objview?.isGroup) return true;
-          //     // also show for Container views (treat as group that supports layout)
-          //     if (objview?.viewkind === 'Container') return true;
-          //     return false;
-          //   }),
+                } else {
+                  if (objview?.groupLayout !== "ManualLayout")
+                    uid.doGroupLayout(objview, myDiagram, myMetis);
+                }
+              }
+              myDiagram.requestUpdate();
+            },
+            function (obj: any) {
+              let node = obj.part.data;
+              const key = node.key;
+              const objview = myMetis.findObjectView(key);
+              if (objview?.isGroup)
+                return true;
+              else
+                return false;
+            }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
               const context = {

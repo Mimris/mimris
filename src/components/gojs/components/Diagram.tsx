@@ -2028,7 +2028,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (objview?.viewkind === 'Container') return true;
               }
               return false;
-            }),
+            }
+          ),
           // makeButton("Do Layout",
           //   function (e: any, obj: any) {
           //     let layout = ""
@@ -2064,22 +2065,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 //   }
                 // )
 
-                } else {
-                  if (objview?.groupLayout !== "ManualLayout")
-                    uid.doGroupLayout(objview, myDiagram, myMetis);
-                }
-              }
-              myDiagram.requestUpdate();
-            },
-            function (obj: any) {
-              let node = obj.part.data;
-              const key = node.key;
-              const objview = myMetis.findObjectView(key);
-              if (objview?.isGroup)
-                return true;
-              else
-                return false;
-            }),
+            //     } else {
+            //       if (objview?.groupLayout !== "ManualLayout")
+            //         uid.doGroupLayout(objview, myDiagram, myMetis);
+            //     }
+            //   }
+            //   myDiagram.requestUpdate();
+            // },
+            // function (obj: any) {
+            //   let node = obj.part.data;
+            //   const key = node.key;
+            //   const objview = myMetis.findObjectView(key);
+            //   if (objview?.isGroup)
+            //     return true;
+            //   else
+            //     return false;
+            // }),
           makeButton("Generate Target Object Type",
             function (e: any, obj: any) {
               const context = {

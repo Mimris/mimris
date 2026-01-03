@@ -2595,194 +2595,315 @@ function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis)
     return models;
 }
 
-export function setGroupLayoutParameters(groupLayout: string): go.Layout | null {
-    const normalized = (groupLayout || '').replace(/Layout$/, '');
-    switch (normalized) {
+export function setGroupLayoutParameters(groupLayout: string): go.Layout {
+    let layout: go.Layout = null;
+    
+    switch (groupLayout) {
         case 'Tree':
-            return new go.TreeLayout({
+        case 'TreeLayout':
+            layout = new go.TreeLayout({ 
                 isOngoing: false,
                 treeStyle: go.TreeLayout.StyleRootOnly,
                 angle: 0,
                 layerSpacing: 100,
                 nodeSpacing: 50,
+                setsPortSpot: false,
+                setsChildPortSpot: false,
+                alternateSetsPortSpot: false,
+                alternateSetsChildPortSpot: false,
                 sorting: go.TreeLayout.SortingAscending,
-                arrangement: go.TreeLayout.ArrangementFixedRoots,
+                alternateSorting: go.TreeLayout.SortingDescending,
+                arrangement: go.TreeLayout.ArrangementFixedRoots,        
                 alignment: go.TreeLayout.AlignmentStart,
             });
+            break;
+            
         case 'ForceDirected':
-            return new go.ForceDirectedLayout({
+        case 'ForceDirectedLayout':
+            layout = new go.ForceDirectedLayout({
                 isOngoing: false,
                 defaultSpringLength: 30,
                 defaultSpringStiffness: 0.05,
                 defaultElectricalCharge: 100,
                 defaultGravitationalMass: 100,
-                isFixedAngle: false,
-                isFixedNodeMass: false,
-                isInitial: true,
             });
+            break;
+            
         case 'Circular':
-            return new go.CircularLayout({
+        case 'CircularLayout':
+            layout = new go.CircularLayout({
                 isOngoing: false,
-                radius: 120,
+                radius: NaN,
                 spacing: 10,
-                startAngle: 0,
+                startAngle: 1.0,
                 sweepAngle: 360,
+                arrangement: go.CircularLayout.ConstantSpacing,
+                // sorting: go.CircularLayout.Ascending,
+                direction: go.CircularLayout.Clockwise,
             });
-        case 'Grid':
-            return new go.GridLayout({
-                isOngoing: false,
-                wrappingColumn: Infinity,
-                spacing: new go.Size(40, 40),
-                alignment: go.GridLayout.Position,
-            });
+            break;
+            
         case 'LayeredDigraph':
-            return new go.LayeredDigraphLayout({
+        case 'LayeredDigraphLayout':
+            layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
                 direction: 0,
                 layerSpacing: 80,
                 columnSpacing: 40,
                 setsPortSpots: false,
+                cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
+                initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
+                aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
+                packOption: go.LayeredDigraphLayout.PackStraighten,
+                layeringOption: go.LayeredDigraphLayout.LayerOptimalLinkLength,
             });
-        case 'Parallel':
-            return new go.LayeredDigraphLayout({
+            break;
+            
+        // case 'ParallelLayout':
+        //     layout = new go.ParallelLayout({
+        //         isOngoing: false,
+        //         angle: 0,
+        //         layerSpacing: 100,
+        //         nodeSpacing: 50,
+        //     });
+        //     break;
+            
+        case 'Grid':
+        case 'GridLayout':
+            layout = new go.GridLayout({ 
                 isOngoing: false,
-                direction: 0,
-                layerSpacing: 80,
-                columnSpacing: 40,
-                setsPortSpots: false,
+                wrappingColumn: 1,
+                spacing: new go.Size(35, 35),
+                alignment: go.GridLayout.Position,
+                comparer: function(a, b) {
+                    const ax = a.location.x;
+                    const bx = b.location.x;
+                    const ay = a.location.y;
+                    const by = b.location.y;
+                    if (ax < bx) return -1;
+                    if (ax > bx) return 1;
+                    if (ay < by) return -1;
+                    if (ay > by) return 1;
+                    return 0;
+                }
             });
+            break;
+            
         default:
-            return null;
+            // Default to GridLayout if unknown layout type
+            layout = new go.GridLayout({ 
+                isOngoing: false,
+                wrappingColumn: 1,
+                spacing: new go.Size(35, 35),
+            });
+            break;
     }
+    
+    return layout;
+}  
+
+export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis: akm.cxMetis) {
+    const lay = setGroupLayoutParameters(myGroup.groupLayout);
+    const myModelview = myMetis.currentModelview;
+
+    // Find the GoJS group node
+    const groupNode = myDiagram.findNodeForKey(myGroup.id);
+    if (!groupNode) {
+        console.error('Group node not found');
+        return;
+    }
+    
+    myDiagram.startTransaction('doGroupLayout');
+    
+    // For LayeredDigraphLayout, find and anchor the first/root node
+    let firstNode: go.Node = null;
+    let originalPos: go.Point = null;
+    
+    if (lay instanceof go.LayeredDigraphLayout) {
+        let minY = Infinity;
+        
+        // Find the topmost node
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                if (node.location.y < minY) {
+                    minY = node.location.y;
+                    firstNode = node;
+                }
+            }
+        });
+        
+        // Store the original position of the first node
+        originalPos = firstNode ? firstNode.location.copy() : null;
+    }
+    
+    // Assign the layout to the group
+    groupNode.layout = lay;
+    groupNode.invalidateLayout();
+    myDiagram.layoutDiagram(true);
+    
+    // Calculate offset for LayeredDigraphLayout
+    if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos) {
+        const newPos = firstNode.location;
+        const offsetX = originalPos.x - newPos.x;
+        const offsetY = originalPos.y - newPos.y;
+        
+        // Move all nodes by the offset
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                node.location = new go.Point(
+                    node.location.x + offsetX,
+                    node.location.y + offsetY
+                );
+            }
+        });
+    }
+    
+    // **FIX: Update diagram again to get accurate bounds**
+    myDiagram.updateAllTargetBindings();
+
+    // Ensure nodes are within group bounds
+    const padding = 15;
+    const placeholder = groupNode.findObject("PLACEHOLDER");
+    const groupBounds = placeholder ? placeholder.actualBounds : groupNode.actualBounds;
+    
+    // Calculate the bounds of all member nodes
+    let memberBounds = new go.Rect();
+    let firstMember = true;
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            const node = part as go.Node;
+            if (firstMember) {
+                memberBounds = node.actualBounds.copy();
+                firstMember = false;
+            } else {
+                memberBounds.unionRect(node.actualBounds);
+            }
+        }
+    });
+    
+    // Calculate adjustments needed to fit within group
+    let adjustX = 0;
+    let adjustY = 0;
+    
+    const availableWidth = groupBounds.width - (2 * padding);
+    const availableHeight = groupBounds.height - (2 * padding);
+    
+    if (memberBounds.width > availableWidth) {
+        console.warn('Member nodes are wider than group - consider resizing group');
+    }
+    
+    // Adjust X position
+    if (memberBounds.left < groupBounds.left + padding) {
+        adjustX = (groupBounds.left + padding) - memberBounds.left;
+    } else if (memberBounds.right > groupBounds.right - padding) {
+        adjustX = (groupBounds.right - padding) - memberBounds.right;
+    }
+    
+    if (memberBounds.top < groupBounds.top + padding) {
+        adjustY = (groupBounds.top + padding) - memberBounds.top;
+    } else if (memberBounds.bottom > groupBounds.bottom - padding) {
+        adjustY = (groupBounds.bottom - padding) - memberBounds.bottom;
+    }
+    
+    // Apply adjustments if needed
+    if (adjustX !== 0 || adjustY !== 0) {
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                const newLoc = new go.Point(
+                    node.location.x + adjustX,
+                    node.location.y + adjustY
+                );
+                node.location = newLoc;
+                myDiagram.model.setDataProperty(node.data, "loc", 
+                    newLoc.x + " " + newLoc.y);
+            }
+        });
+    }
+    
+    // **FIX: Collect member node keys for filtering links**
+    const memberNodeKeys = new Set<string>();
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            memberNodeKeys.add(part.data.key);
+        }
+    });
+    
+    // Update all member objectviews
+    const modifiedObjectViews = [];
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            const node = part as go.Node;
+            const objview = myModelview.findObjectView(node.data.key);
+            if (objview) {
+                const loc = node.location.x + " " + node.location.y;
+                objview.loc = loc;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);
+            }
+        }
+    });
+    
+    // Dispatch objectview updates
+    modifiedObjectViews.forEach(ov => {
+        let data = JSON.parse(JSON.stringify(ov));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    });
+    
+    // **FIX: Update only links that connect to group members - use relviewRef**
+    const modifiedRelationshipViews = [];
+    myDiagram.links.each((link: go.Link) => {
+        const fromKey = link.data.from;
+        const toKey = link.data.to;
+        
+        // Only update links where at least one end connects to a group member
+        if (memberNodeKeys.has(fromKey) || memberNodeKeys.has(toKey)) {
+            // **KEY FIX: Use relviewRef instead of key**
+            const relviewRef = link.data.relviewRef;
+            if (!relviewRef) {
+                console.warn('Link has no relviewRef:', link.data);
+                return;
+            }
+            
+            const relview = myModelview.findRelationshipView(relviewRef);
+            if (relview) {
+                // Get the link's route points
+                const points = link.points;
+                const pointsArray = [];
+                points.each((pt: go.Point) => {
+                    pointsArray.push(pt.x + " " + pt.y);
+                });
+                
+                // Store the path as a string
+                const newPath = pointsArray.join(" ");
+                relview.path = newPath;
+                
+                // Update the model
+                myDiagram.model.setDataProperty(link.data, "path", newPath);
+                relview.points = points;
+                const jsnRelView = new jsn.jsnRelshipView(relview);
+                modifiedRelationshipViews.push(jsnRelView);
+            } else {
+                console.warn('RelationshipView not found for relviewRef:', relviewRef);
+            }
+        }
+    });
+    
+    // **FIX: Dispatch relationshipview updates**
+    modifiedRelationshipViews.forEach(rv => {
+        let data = JSON.parse(JSON.stringify(rv));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
+      
+    const jsnGroup = new jsn.jsnObjectView(myGroup);
+    let data = JSON.parse(JSON.stringify(jsnGroup));
+    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    
+    myDiagram.commitTransaction('doGroupLayout');
 }
 
-export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, groupNode?: go.Group) {
-  if (!myGroup) return;
-  const targetGroup = groupNode ?? myDiagram.findNodeForKey(myGroup.id);
-  if (!targetGroup || !(targetGroup instanceof go.Group)) return;
-
-  const layoutType = myGroup.groupLayout || myGroup?.typeview?.groupLayout || 'ManualLayout';
-  const layout = setGroupLayoutParameters(layoutType);
-  if (!layout) return;
-
-  myDiagram.startTransaction('GroupLayout');
-  try {
-    targetGroup.layout = layout;
-    targetGroup.layout.doLayout(targetGroup);
-    normalizeGroupMemberPositions(targetGroup, myGroup, myDiagram);
-  } finally {
-    myDiagram.commitTransaction('GroupLayout');
-  }
-
-  const jsnGroup = new jsn.jsnObjectView(myGroup);
-  let data = jsnGroup;
-  data = JSON.parse(JSON.stringify(data));
-  myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-}
-
-function normalizeGroupMemberPositions(group: go.Group, myGroup: akm.cxObjectView, diagram: go.Diagram) {
-  const horizontalPadding = 30;
-  const topPadding = horizontalPadding + 50;
-  const groupLoc = group?.location?.copy() || new go.Point(0, 0);
-  const modelview = myGroup?.modelview;
-  const members: Array<{
-    node: go.Node;
-    data: any;
-    bounds: go.Rect | null;
-    location: go.Point;
-    objview: akm.cxObjectView | null;
-    baseScale: number;
-  }> = [];
-
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-
-  group.memberParts.each((part) => {
-    if (!(part instanceof go.Node)) return;
-    const node = part as go.Node;
-    const bounds = node.actualBounds?.copy();
-    const loc = node.location.copy();
-    if (bounds) {
-      if (bounds.left < minX) minX = bounds.left;
-      if (bounds.top < minY) minY = bounds.top;
-      if (bounds.right > maxX) maxX = bounds.right;
-      if (bounds.bottom > maxY) maxY = bounds.bottom;
-    }
-    const data: any = node.data;
-    let objview: akm.cxObjectView | null = null;
-    if (data?.objectview) {
-      objview = data.objectview;
-    } else if (modelview && data?.objviewRef) {
-      objview = modelview.findObjectView(data.objviewRef);
-    }
-    const baseScale = data?.originalScale ?? data?.scale ?? 1;
-    members.push({ node, data, bounds, location: loc, objview, baseScale });
-  });
-
-  if (members.length === 0) return;
-  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return;
-
-  const groupDataSize = (() => {
-    const raw = group?.data?.size;
-    if (typeof raw === "string" && raw.length > 0) {
-      const parsed = go.Size.parse(raw);
-      if (parsed.width > 0 && parsed.height > 0) return parsed;
-    }
-    const bounds = group.actualBounds?.copy();
-    if (bounds) return new go.Size(bounds.width, bounds.height);
-    return new go.Size(maxX - minX + horizontalPadding * 2, maxY - minY + topPadding + horizontalPadding);
-  })();
-
-  const availableWidth = Math.max(10, groupDataSize.width - horizontalPadding * 2);
-  const availableHeight = Math.max(10, groupDataSize.height - topPadding - horizontalPadding);
-  const contentWidth = Math.max(1, maxX - minX);
-  const contentHeight = Math.max(1, maxY - minY);
-  const scaleX = availableWidth / contentWidth;
-  const scaleY = availableHeight / contentHeight;
-  const scaleFactor = Math.min(1, scaleX, scaleY);
-
-  const targetLeft = groupLoc.x + horizontalPadding;
-  const targetTop = groupLoc.y + topPadding;
-
-  members.forEach((info) => {
-    const bounds = info.bounds || new go.Rect(info.location.x, info.location.y, 0, 0);
-    const relativeX = bounds.left - minX;
-    const relativeY = bounds.top - minY;
-    const newX = targetLeft + relativeX * scaleFactor;
-    const newY = targetTop + relativeY * scaleFactor;
-    const newPoint = new go.Point(newX, newY);
-    info.node.location = newPoint;
-
-    const data = info.data;
-    if (data) {
-      const locString = go.Point.stringify(newPoint);
-      diagram.model.setDataProperty(data, "loc", locString);
-      if (data.originalScale === undefined) {
-        diagram.model.setDataProperty(data, "originalScale", info.baseScale);
-      }
-      const newScale = info.baseScale * scaleFactor;
-      info.node.scale = newScale;
-      diagram.model.setDataProperty(data, "scale", newScale);
-      if (info.objview) {
-        info.objview.loc = locString;
-        info.objview.setScale?.(newScale);
-        info.objview.scale = newScale;
-      }
-    }
-  });
-
-  const appliedScale = scaleFactor;
-  (group as any).memberscale = appliedScale;
-  if (group.data) {
-    diagram.model.setDataProperty(group.data, "memberscale", appliedScale);
-  }
-  if (myGroup) {
-    myGroup.setMemberscale?.(appliedScale);
-    myGroup.memberscale = appliedScale;
-  }
-}
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
     if (visited.has(node)) {
         return;

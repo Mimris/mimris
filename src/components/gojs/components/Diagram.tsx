@@ -978,7 +978,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       setLayout(myDiagram, myModelview?.layout);
     }
 
-    uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
+    if (typeof uic.handleContainedObjectViews === "function") {
+      uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
+    }
 
 
     // Tooltip functions

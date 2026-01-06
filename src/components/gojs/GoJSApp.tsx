@@ -714,7 +714,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": goNode.typeview,
           }
           myToNodes.push(myToNode);
-          myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+          if (groupKey && (n.data.group !== groupKey)) {
+            try {
+              myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+            } catch (error) {
+            }
+          }
         }
         // Walk through the from nodes and find the corresponding to nodes
         for (let i = 0; i < myFromNodes.length; i++) {
@@ -775,10 +780,29 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Check if the moved node (goToNode) has a relationship from a group
                 // If so, relocate the node to its new parent group (from myObjectview to parentObjview)
                 let inoutRelviews = new Array();
-                let inputRelviews = myObjectview?.inputrelviews;
+                let inputRelviews = myObjectview?.inputrelviews; // Possibly a member relship
                 if (inputRelviews?.length > 0) {
                   myObjectview.purgeInputRelviews();
                   inputRelviews = myObjectview.inputrelviews;
+                } else {
+
+                  // Create the relationship
+                  const parentObj = parentObjview?.object;
+                  const childObj = goToNode.object;
+                  const relId = utils.createGuid();
+                  const relName = constants.types.AKM_CONTAINS;
+                  const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+                  const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
+                  hasPartRelship.parentModelRef = myModel.id;
+                  myModel.addRelationship(hasPartRelship);
+                  parentObj.addOutputrel(hasPartRelship);
+                  childObj.addInputrel(hasPartRelship);
+                  myMetis.addRelationship(hasPartRelship);
+                  // Prepare dispatch
+                  const jsnRel = new jsn.jsnRelationship(hasPartRelship);
+                  modifiedRelships.push(jsnRel);
+
+
                 }
                 for (let i = 0; i < inputRelviews?.length; i++) {
                   const relview = inputRelviews[i];
@@ -1449,7 +1473,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node?.data) {
               myDiagram.model.setDataProperty(node.data, "scale", part.scale);
             }
-            // Check if the node has a relationship (contains) FROM a group
+            // Check if the node has a relationship (contains) FROM a group, if not create it
             const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             const parenttype = parentgroup.objecttype;
             const parentObj = parentgroup.object;

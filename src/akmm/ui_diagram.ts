@@ -2643,6 +2643,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             });
             break;
             
+        case 'LaneLayout':
         case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({

@@ -1144,7 +1144,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'radio';
             break;
             case 'groupLayout':
-              values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected'];
+              // values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
+              values = ['None', 'Circular','Grid', 'Tree', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
               defValue = 'None';
               fieldType = 'radio';
               break;

@@ -6671,7 +6671,10 @@ export class cxObjectTypeView extends cxMetaObject {
             let prop: any;
             let data: any = this.data;
             for (prop in data) {
-                if (objview[prop] == undefined || objview[prop] === "") continue;
+                if (prop !== 'groupLayout') {
+                    if (objview[prop] == undefined || objview[prop] === "") 
+                        continue;
+                }
                 data[prop] = objview[prop];
             }
             if (debug) console.log('5580 data', data,);
@@ -6823,6 +6826,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.data.fillcolor2)
             return this.data.fillcolor2;
         return "white";
+    }
+    getGroupLayout(): string {
+        if (this.groupLayout)
+            return this.groupLayout;
+        else if (this.data.groupLayout)
+            return this.data.groupLayout;
+        return "";
+    }
+    setGroupLayout(layout: string) {
+        this.data.groupLayout = layout;
+        this.groupLayout = layout;
     }
     setTextcolor(color: string) {
         this.data.textcolor = color;
@@ -8932,15 +8946,17 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if (this.fromObject && oldFromObj && newFromObj) {
-            oldFromObj.removeOutputrel(this);
-            this.fromObject = newFromObj;
-            newFromObj.addOutputrel(this);
-        }
-        if (this.toObject && oldToObj && newToObj) {
-            oldToObj.removeInputrel(this);
-            this.toObject = newToObj;
-            newToObj.addInputrel(this);
+        if ((newFromObj.id !== newToObj.id)  && (oldFromObj.id !== oldToObj.id)) {
+            if (this.fromObject && oldFromObj && newFromObj) {
+                oldFromObj.removeOutputrel(this);
+                this.fromObject = newFromObj;
+                newFromObj.addOutputrel(this);
+            }
+            if (this.toObject && oldToObj && newToObj) {
+                oldToObj.removeInputrel(this);
+                this.toObject = newToObj;
+                newToObj.addInputrel(this);
+            }
         }
     }
     getRelationshipViews(): cxRelationshipView[] | null {

@@ -379,6 +379,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
 
         if (debug) console.log("End: After Reload:");
+        uic.purgeDuplicatedRelshipViews(myModelview);
         const links = myDiagram.links;
         if (links.count > 0) {
           const modelview = myMetis.currentModelview;
@@ -824,6 +825,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const lnk = myDiagram.findLinkForKey(relview.id);
                       if (reltype.name === constants.types.AKM_CONTAINS) {
                         relview.markedAsDeleted = true;
+                        relview.visible = false;
                         if (lnk) {
                             myDiagram.remove(lnk);
                         }

@@ -3084,6 +3084,40 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
+export function purgeDuplicatedRelships(model: akm.cxModel): akm.cxRelship[] {
+    const relships = model.relships;
+    const duplicatedRels = new Array();
+    for (let i = 0; i < relships?.length; i++) {
+        const rel1 = relships[i];
+        for (let j = i + 1; j < relships?.length; j++) {
+            const rel2 = relships[j];
+            if (rel2.name === rel2.id) {
+                duplicatedRels.push(rel2);
+                continue;
+            }
+            if (rel1.fromobjectRef === rel2.fromobjectRef &&
+                rel1.toobjectRef === rel2.toobjectRef &&
+                rel1.typeRef === rel2.typeRef) {
+                if (!duplicatedRels.includes(rel2)) {
+                    duplicatedRels.push(rel2);
+                }
+            }
+        }
+    }
+    for (let i = 0; i < duplicatedRels?.length; i++) {
+        const rel = duplicatedRels[i];
+        rel.markedAsDeleted = true;
+    }
+    const len = model.relships?.length;
+    for (let i = len - 1; i >= 0; i--) {
+        const rel = relships[i];
+        if (rel.markedAsDeleted) {
+            relships.splice(i, 1);
+        }
+    }
+    return relships;
+}
+
 function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
     // Go through all reltypes and check if they are used
     // If not, mark them as deleted

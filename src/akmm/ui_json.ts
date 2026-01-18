@@ -892,6 +892,7 @@ export class jsnObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    groupLayout:     string;
     grabIsAllowed:   boolean;
     template:        string;
     template2:       string;
@@ -922,6 +923,7 @@ export class jsnObjectTypeView {
         this.figure          = objtypeview.getFigure();
         this.figure2         = objtypeview.getFigure2();
         this.geometry        = objtypeview.getGeometry();
+        this.groupLayout     = objtypeview.getGroupLayout();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();

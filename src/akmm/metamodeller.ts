@@ -8946,7 +8946,7 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if ((newFromObj.id !== newToObj.id)  && (oldFromObj.id !== oldToObj.id)) {
+        if ((newFromObj?.id !== newToObj?.id)  && (oldFromObj?.id !== oldToObj?.id)) {
             if (this.fromObject && oldFromObj && newFromObj) {
                 oldFromObj.removeOutputrel(this);
                 this.fromObject = newFromObj;
@@ -9147,7 +9147,7 @@ export class cxModelView extends cxMetaObject {
         this.focusObjectview = null;
         this.scale = 1.0;
         this.memberscale = constants.params.MEMBERSCALE;
-        this.layout = "ForceDirected";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9166,7 +9166,7 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.layout = "Tree";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9731,15 +9731,15 @@ export class cxObjectView extends cxMetaObject {
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
-        this.fillcolor = "";
-        this.fillcolor1 = "";
-        this.fillcolor2 = "";
-        this.strokecolor = "";
-        this.strokecolor1 = "";
-        this.strokecolor2 = "";
+        this.fillcolor = "white";
+        this.fillcolor1 = "white";
+        this.fillcolor2 = "white";
+        this.strokecolor = "black";
+        this.strokecolor1 = "black";
+        this.strokecolor2 = "black";
         this.strokewidth = 1.0;
-        this.textcolor = "";
-        this.textcolor2 = "";
+        this.textcolor = "black";
+        this.textcolor2 = "black";
         this.icon = "";
         this.iconpath = "";
         this.icon1 = "";
@@ -10147,7 +10147,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrowColor: string;
     routing: string;
     corner: number;
-    curve: number;
+    curve: string;
     points: any;
     visible: boolean;
     readonly: boolean;
@@ -10171,10 +10171,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
-        this.fromArrowColor = "";
-        this.toArrowColor = "";
+        this.fromArrowColor = "white";
+        this.toArrowColor = "black";
         this.routing = "";
-        this.curve = 0;
+        this.curve = "None";
         this.corner = 0;
         this.points = [];
         this.visible = true;

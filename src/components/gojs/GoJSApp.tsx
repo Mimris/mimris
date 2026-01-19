@@ -420,6 +420,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview = myMetis.findRelationshipView(data.key);
               if (relview) {
                 relview.markedAsDeleted = data.markedAsDeleted;
+                relview.visible = !relview.markedAsDeleted
                 if (relview.visible === false) {
                   linksToRemove.push(link);
                 } else {
@@ -427,8 +428,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (points?.length == 0 || points?.length == 4) {
                     link.points = [];
                     relview.points = [];
-                    const jsnRelview = new jsn.jsnRelshipView(relview);
-                    modifiedRelshipViews.push(jsnRelview);
                   }
                 }
               }
@@ -1062,6 +1061,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        // Dispatch relshipviews
+        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
+        const relviews = myModelview.relshipviews;
+        for (let i = 0; i < relviews?.length; i++) {
+          const relview = relviews[i];
+          relview.visible = !relview.markedAsDeleted
+          const jsnRelview = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelview);
+        }
         // Dispatch modelview
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
@@ -1482,7 +1490,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const childtype = type;
             const childObj = object;
             const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
-            if (!myHasPartRelship) {
+            if (!myHasPartRelship & parentObj && childObj) {
               // Create the relationship
               const relId = utils.createGuid();
               const relName = constants.types.AKM_CONTAINS;

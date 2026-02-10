@@ -1006,6 +1006,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
             cursor: "pointer",
             contextMenu: portContextMenu, 
         },  // some space between ports
+        new go.Binding("portId", "id"),
         $(go.Shape,
             {
                 name: "SHAPE",
@@ -1015,7 +1016,6 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 geometryString: geostring, 
                 desiredSize: portSize,
             },
-            new go.Binding("portId", "id"),
             new go.Binding("fill", "color"),
         ),
         $(go.TextBlock,
@@ -4725,4 +4725,3 @@ InputOutputGroupLayout.prototype.doLayout = function(coll) {
         if (icon !== null) icon.desiredSize = new go.Size(iconAreaWidth + leftwidth / 2 + rightwidth / 2, Math.max(leftheight, rightheight) + 10);
     }
 };
-

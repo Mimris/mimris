@@ -867,8 +867,8 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let toObject = toObjview.object;
     if (!toObject)
         toObject = myMetis.findObject(toObjview.objectRef);
-    const fromPort = "";
-    const toPort = "";
+    const fromPort = context?.gjsData?.fromPort || "";
+    const toPort = context?.gjsData?.toPort || "";
     let reltype, fromType, toType;
     let fromTypeRef = fromObject?.typeRef;
     if (fromTypeRef) {
@@ -1165,11 +1165,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (relname === "flowsTo" || relname === "isFollowedBy") {
         relname = " ";
     }
-    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "", fromPortId, toPortId);
+    const resolvedFromPort = fromPortId || data?.fromPort || data?.fromPortId || "";
+    const resolvedToPort = toPortId || data?.toPort || data?.toPortId || "";
+    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "", resolvedFromPort, resolvedToPort);
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
-    relview.fromPortid = fromPortId;
-    relview.toPortid = toPortId;
+    relview.fromPortid = resolvedFromPort;
+    relview.toPortid = resolvedToPort;
     rel.addRelationshipView(relview);
     if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
@@ -1187,14 +1189,14 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myMetis.addRelationshipView(relview);
     myGoModel.addLink(goRelshipLink);
     // create a link data between the actual nodes
-    const from = relview.fromPortid ? relview.fromPortid : relview.fromObjview.id;
-    const to = relview.toPortid ? relview.toPortid : relview.toObjview.id;
     let linkdata = {
         key:    relview?.id,
         name:   relname,
         category: constants.gojs.C_RELATIONSHIP,
-        from:   fromPortId ? fromPortId : gjsFromKey, 
-        to:     toPortId ? toPortId : gjsToKey,
+        from:   gjsFromKey,
+        to:     gjsToKey,
+        fromPort: resolvedFromPort,
+        toPort: resolvedToPort,
         relshipRef: rel?.id,
         relviewRef: relview?.id,
         reltypeRef: reltype?.id,

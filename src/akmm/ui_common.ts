@@ -955,6 +955,13 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
                         reltypes.push(rtype);
                     }
+                    if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_CONTAINER) {
+                        // reltypes = [];
+                        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
+                        reltypes.push(rtype);
+                        rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
+                        reltypes.push(rtype);
+                    }
                     if (fromType.name === constants.types.AKM_CONTAINER /* && toType.name === constants.types.AKM_ENTITY_TYPE*/) {
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
                         reltypes.push(rtype);
@@ -1097,7 +1104,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             }
         }
     } else {
-        relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "", portFrom, portTo);
         relname = typename;
         // if (askForRelshipName) {
         //     relname = prompt("Enter relationship name:", typename);
@@ -1118,6 +1125,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             myGoModel: myGoModel,
             fromObjview: fromObjview,
             toObjview: toObjview,
+            fromPortKey: portFrom,
+            toPortKey: portTo,
             gjsFromKey: gjsFromKey,
             gjsToKey: gjsToKey,
             reltype: reltype,
@@ -1146,6 +1155,8 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const fromObj = fromObjview.object;
     const goToNode = context.goToNode;
     const toObjview = context.toObjview;
+    const fromPortId = context.fromPortKey;
+    const toPortId = context.toPortKey;
     const reltype = context.reltype;
     let relname = context.relname;
     const reltypeview = reltype.typeview;
@@ -1154,9 +1165,11 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (relname === "flowsTo" || relname === "isFollowedBy") {
         relname = " ";
     }
-    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
+    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "", fromPortId, toPortId);
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
+    relview.fromPortid = fromPortId;
+    relview.toPortid = toPortId;
     rel.addRelationshipView(relview);
     if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
@@ -1174,12 +1187,14 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     myMetis.addRelationshipView(relview);
     myGoModel.addLink(goRelshipLink);
     // create a link data between the actual nodes
+    const from = relview.fromPortid ? relview.fromPortid : relview.fromObjview.id;
+    const to = relview.toPortid ? relview.toPortid : relview.toObjview.id;
     let linkdata = {
         key:    relview?.id,
         name:   relname,
         category: constants.gojs.C_RELATIONSHIP,
-        from:   gjsFromKey, 
-        to:     gjsToKey,
+        from:   fromPortId ? fromPortId : gjsFromKey, 
+        to:     toPortId ? toPortId : gjsToKey,
         relshipRef: rel?.id,
         relviewRef: relview?.id,
         reltypeRef: reltype?.id,

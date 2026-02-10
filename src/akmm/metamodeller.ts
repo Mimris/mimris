@@ -7008,7 +7008,9 @@ export class cxReltypeviewData {
     arrowscale: number;
     textscale: number;
     dash: string;
+    from: string;
     fromArrow: string;
+    to: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
@@ -8858,7 +8860,8 @@ export class cxRelationship extends cxInstance {
     nameTo: string;
     fromPortid: string;
     toPortid: string;
-    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
+    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, 
+                name: string, description: string, fromPortId: string = "", toPortId: string = "") {
         super(id, name, type, description);
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipviews = null;
@@ -8869,8 +8872,8 @@ export class cxRelationship extends cxInstance {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
-        this.fromPortid = "";
-        this.toPortid = "";
+        this.fromPortid = fromPortId;
+        this.toPortid = toPortId;
         if (!this.typeName) this.typeName = name;
         if (this.type) {
             this.cardinality = this.getCardinality();
@@ -9652,6 +9655,7 @@ export class cxObjectView extends cxMetaObject {
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
+    ports: cxPort[] | null;
 
     groupLayout: string;
     grabIsAllowed: boolean;
@@ -9746,6 +9750,7 @@ export class cxObjectView extends cxMetaObject {
         this.icon2 = "";
         this.icon3 = "";
         this.image = "";
+        this.ports = null;
         }
     }
     // Methods
@@ -10121,6 +10126,78 @@ export class cxObjectView extends cxMetaObject {
             if (k === 'viewkind') continue;
             this[k] = "";
         }
+    }
+    addPort(port: cxPort) {
+        let ports;
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
+        const len = ports.length;
+        for (let i = 0; i < len; i++) {
+            const p = ports[i];
+            if (p.id === port.id) {
+                // Port is already in list
+                return;
+            }
+            ports.push(port);
+        }
+    }
+    getPorts(): cxPort[] {
+        return this.ports;
+    }
+    getLeftPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRightPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getTopPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getBottomPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRelsConnectedToPort(portId: string): cxRelationship[] {
+        const rels = new Array();
+        const inputrels = this.inputrels;
+        for (let i = 0; i < inputrels?.length; i++) {
+            const rel = inputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        const outputrels = this.outputrels;
+        for (let i = 0; i < outputrels?.length; i++) {
+            const rel = outputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        return rels;
     }
 }
 

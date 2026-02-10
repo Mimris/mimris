@@ -474,7 +474,7 @@ export function groupTop1(contextMenu: any, notation: string) {
             new go.Binding("stroke", "textcolor").makeTwoWay(),
             new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ),
-            makeNotation(notation),
+            // makeNotation(notation),
             ), // End Horizontal Panel
 
             $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
@@ -863,7 +863,7 @@ function addNodeText(contextMenu: any) {
                 isMultiline: false,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
                 row: 0, column: 0, columnSpan: 6,
-                font: "bold 10pt Segoe UI,sans-serif",
+                font: "10pt Segoe UI,sans-serif",
                 // background: "lightgray",
                 minSize: new go.Size(120, 36), 
                 textAlign: "center",
@@ -901,6 +901,9 @@ function addLeftPorts(portContextMenu: any) {
                 column: 0,
                 itemTemplate: makeItemTemplate('left', true, portContextMenu),
                 alignment: go.Spot.Left, 
+                fromLinkable: true, 
+                toLinkable: true, 
+                cursor: "pointer",
             },
     );  // end leftPorts Panel
 }
@@ -910,9 +913,12 @@ function addTopPorts(portContextMenu: any) {
             new go.Binding("itemArray", "topPorts"),
             {
                 row: 0, 
-                column: 1,
+                column: 0,
                 itemTemplate: makeItemTemplate('top', true, portContextMenu),
                 alignment: go.Spot.Top, 
+                fromLinkable: true, 
+                toLinkable: true,
+                cursor: "pointer",
             }
     );  // end topPorts Panel
 }
@@ -925,6 +931,9 @@ function addRightPorts(portContextMenu: any) {
                     column: 2,
                     itemTemplate: makeItemTemplate('right', true, portContextMenu),
                     alignment: go.Spot.Right, 
+                    fromLinkable: true,
+                    toLinkable: true,
+                    cursor: "pointer",
                 }
             );  // end rightPorts Panel
 }
@@ -934,9 +943,12 @@ function addBottomPorts(portContextMenu: any) {
             new go.Binding("itemArray", "bottomPorts"),
             {
                 row: 0, 
-                column: 1,
+                column: 0,
                 itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
                 alignment: go.Spot.Bottom, 
+                fromLinkable: true,
+                toLinkable: true,
+                cursor: "pointer",
             }
         );  // end bottomPorts Panel
 }
@@ -946,7 +958,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let leftside = side === 'left';
     let topside = side === 'top';
     let bottomside = side === 'bottom';
-     let fromlinkable = rightside || isGroup;
+    let fromlinkable = rightside || isGroup;
     let tolinkable = leftside || topside || bottomside || isGroup;
     let geostring1 = "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z";
     geostring1.normalize();
@@ -961,7 +973,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let font = isGroup ? font2 : font1;
     let size1 = new go.Size(30, 15);
     let size2 = new go.Size(40, 20);
-    let size = isGroup ? size2 : size1;
+    let portSize = isGroup ? size2 : size1;
     let fromSpot, toSpot, textangle = 0, textalign;
     if (topside) {
         toSpot = go.Spot.Top;
@@ -986,6 +998,12 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     return $(go.Panel, "Spot",
         { 
             margin: new go.Margin(1, 1),
+            toLinkable: true, // tolinkable,
+            fromLinkable: true, // fromlinkable,
+            toSpot: toSpot,
+            fromSpot: fromSpot,
+            portId: "",
+            cursor: "pointer",
             contextMenu: portContextMenu, 
         },  // some space between ports
         $(go.Shape,
@@ -995,13 +1013,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 stroke: "gray",
                 strokeWidth: 1,
                 geometryString: geostring, 
-                toSpot: toSpot,
-                portId: "",
-                toLinkable: tolinkable,
-                fromSpot: fromSpot,
-                fromLinkable: fromlinkable,
-                cursor: "alias",
-                desiredSize: size,
+                desiredSize: portSize,
             },
             new go.Binding("portId", "id"),
             new go.Binding("fill", "color"),
@@ -2365,7 +2377,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         cursor: "move",
                         margin: 10, 
                         textAlign: "center", 
-                        font: "bold 14px Segoe UI,sans-serif", 
+                        font: "14px Segoe UI,sans-serif", 
                         stroke: "#484848", 
                         editable: true, 
                         isMultiline: true,  // don't allow newlines in text
@@ -3192,7 +3204,51 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         ),
     );
     addNodeTemplateName('MessageNode');
-    /*
+
+    const portSize = new go.Size(8, 8);
+
+    nodeTemplateMap.add("TestNode",
+    new go.Node("Auto")
+        .add(
+        new go.Shape("Rectangle", { fill: "lightgray", desiredSize: new go.Size(300, 200) }),
+        new go.Panel("Table")
+            .addColumnDefinition(0, { alignment: go.Spot.Left })
+            .addColumnDefinition(2, { alignment: go.Spot.Right })
+            .add(
+            new go.TextBlock(  // the node title
+                { column: 0, row: 0, columnSpan: 3, alignment: go.Spot.Center,
+                font: "bold 10pt sans-serif", margin: new go.Margin(4, 2) })
+                .bind("text", "name"),
+            new go.Panel("Horizontal",
+                { column: 0, row: 1 })
+                .add(
+                new go.Shape( // the "A" port
+                    { width: 10, height: 10, portId: "A", toSpot: go.Spot.Left,
+                    toLinkable: true, toMaxLinks: 1 }),  // allow user-drawn links to here
+                new go.TextBlock( "A")  // "A" port label
+                ),
+            new go.Panel("Horizontal",
+                { column: 0, row: 2 })
+                .add(
+                new go.Shape( // the "B" port
+                    { width: 10, height: 10, portId: "B", toSpot: go.Spot.Left,
+                    toLinkable: true, toMaxLinks: 1 }),  // allow user-drawn links to here
+                new go.TextBlock( "B")  // "B" port label
+                ),
+            new go.Panel("Horizontal",
+                { column: 2, row: 3, rowSpan: 2 })
+                .add(
+                new go.TextBlock( "Out"),  // "Out" port label
+                new go.Shape( // the "Out" port
+                    { width: 10, height: 10, portId: "Out", fromSpot: go.Spot.Right,
+                    fromLinkable: true, cursor: "pointer" })  // allow user-drawn links from here
+                )
+            )
+        )
+    );
+    addNodeTemplateName('TestNode');
+
+     /*
     nodeTemplateMap.add("DataObjectNode",
         $(go.Node, 'Vertical',
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3446,6 +3502,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 corner: 10,
                 adjusting: go.Link.Stretch,
                 reshapable: true, 
+                resegmentable: true,
                 relinkableFrom: true, 
                 relinkableTo: true, 
                 // isLayoutPositioned: false,  
@@ -3604,6 +3661,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
   }
 
 export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis): any {
+    const portSize = new go.Size(8, 8);
     const groupTemplate1 =
     $(go.Group, "Spot",
         {
@@ -3650,12 +3708,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
                 contextMenu: contextMenu,
+                locationObjectName: 'BODY',
+                locationSpot: go.Spot.Center,
+                selectionObjectName: 'BODY',
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
+            // new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            // new go.Binding("layout", "groupLayout").makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),

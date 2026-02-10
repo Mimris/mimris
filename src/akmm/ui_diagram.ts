@@ -2962,9 +2962,9 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
         relview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, gjsLink, "");
     }
     for (let it = myDiagram.links; it?.next();) {
-        const l = it.value;
-        const ldata = l.data;
-        if (ldata.key === goLink.key) {
+        const link = it.value;
+        const ldata = link.data;
+        if (ldata?.key === goLink.key) {
             for (let prop in goLink) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
@@ -2974,7 +2974,7 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
                             relview[prop] = gjsLink[prop];
                             ldata[prop]    = gjsLink[prop];
                             goLink[prop]   = gjsLink[prop];
-                            if (ldata.name === 'flowsTo' || ldata.name === 'isFolloweedBy') {
+                            if (ldata.name === 'flowsTo' || ldata.name === 'isFollowedBy') {
                                 // special handling of these links
                                 gjsLink[prop] = " ";
                                 goLink[prop] = " ";
@@ -2986,8 +2986,15 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
                 }
             }
         }
+        const points = [];
+        for (let it = link.points.iterator; it?.next();) {
+            const point = it.value;
+            points.push(point.x)
+            points.push(point.y)
+            myDiagram.model.addLinkData(ldata);
+        }
+        relview.points = points;
     }
-    // myDiagram.model.addLinkData(data);
     myDiagram.commitTransaction('updateLink');
     return relview;
 }

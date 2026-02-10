@@ -1999,16 +1999,17 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "LinkRelinked": {
-        const modifiedRelships = [];
-        const modifiedRelshipViews = [];
         const gjsLink = e.subject;
         const key = gjsLink.key;
         const gjsLinkData = gjsLink.data;
+        const myGoModel = myMetis.gojsModel;
         const goLink = myGoModel.findLink(key);        
-        let goFromNode = gjsLinkData.fromNode;
-        let goToNode = gjsLinkData.toNode;
-        // goFromNode = myGoModel.findNode(fromNode);
-        // goToNode = myGoModel.findNode(toNode);
+        let fromNode = gjsLinkData.from; // gjsLinkData.fromNode;
+        let fromPort = gjsLinkData.fromPort;
+        let toNode = gjsLinkData.to; // gjsLinkData.toNode;
+        let toPort = gjsLinkData.toPort;
+        let goFromNode = myGoModel.findNode(fromNode);
+        let goToNode = myGoModel.findNode(toNode);
         const relshipRef = goLink.relshipRef;
         const relship = myModel.findRelationship(relshipRef);
         let fromObject = goFromNode.object;
@@ -2028,34 +2029,51 @@ class GoJSApp extends React.Component<{}, AppState> {
         let toObjview = goToNode.toObjview;
         if (!toObjview) toObjview = myModelview.findObjectView(goToNode.objviewRef);
         relview.toObjview = toObjview;
-        // Prepare for dispatch
+        relview.toPortid = toPort;
+        relview.fromPortid = fromPort;
+        let points = [];
+        for (let it = gjsLinkData.points.iterator; it?.next();) {
+          const point = it.value;
+          if (debug) console.log('1603 point', point.x, point.y);
+          points.push(point.x)
+          points.push(point.y)
+        }
+        relview.points = gjsLinkData.points;
+
+        // Update link data
+        // myDiagram.model.addLinkData(gjsLinkData);
+        uid.updateLinkAndView(gjsLinkData, goLink, relview, myDiagram);
+
+    // Prepare for dispatch
         const jsnRelship = new jsn.jsnRelationship(relship);
         modifiedRelships.push(jsnRelship);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelshipViews.push(jsnRelview);
         // Dispatch
-        modifiedRelships.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-        })
-        modifiedRelshipViews.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })
+        // modifiedRelships.map(mn => {
+        //     let data = (mn) && mn
+        //     data = JSON.parse(JSON.stringify(data));
+        //     myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        // })
+        // modifiedRelshipViews.map(mn => {
+        //     let data = (mn) && mn
+        //     data = JSON.parse(JSON.stringify(data));
+        //     myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        // })
         break;
       }
       case "LinkReshaped": {
         let link = e.subject;
         link = myDiagram.findLinkForKey(link.key);
+        const goLink = myGoModel.findLink(key);        
         const data = link?.data;
         if (debug) console.log('1596 link, data', link, data);
         let relview = data?.relshipview;
         relview = myModelview.findRelationshipView(data?.key);
         if (relview) {
           const points = [];
-          for (let it = link.data.points.iterator; it?.next();) {
+          myDiagram.model.setDataProperty(data, "points", []);
+          for (let it = data.points.iterator; it?.next();) {
             const point = it.value;
             if (debug) console.log('1603 point', point.x, point.y);
             points.push(point.x)
@@ -2065,6 +2083,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           const jsnRelview = new jsn.jsnRelshipView(relview);
           if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
           modifiedRelshipViews.push(jsnRelview);
+
+          uid.updateLinkAndView(data, goLink, relview, myDiagram);
         }
         break;
       }

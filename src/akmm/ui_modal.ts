@@ -890,7 +890,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           objId = object.id;
         else
           objId = node.objRef;
-        object = myMetis.findObject(objId)
+        object = myMetis.findObject(objId);
+        let objview = node.objectview;
+        let objviewId;
+        if (objview)
+          objviewId = objview.id;
+        else
+          objviewId = node.objviewRef;
+        objview = myMetis.findObjectView(objId);
         const side = selectedValue;
         let name = '';
         switch(side) {

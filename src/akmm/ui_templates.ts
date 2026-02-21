@@ -960,7 +960,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let bottomside = side === 'bottom';
     let fromlinkable = rightside || isGroup;
     let tolinkable = leftside || topside || bottomside || isGroup;
-    let geostring1 = "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z";
+    let geostring1 = "F1 m 0,0 l 5,0 1,8 -1,8 -5,0 1,-8 -1,-8 z";
     geostring1.normalize();
     let geostring2 =   "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
     geostring2.normalize();
@@ -1006,7 +1006,9 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
             cursor: "pointer",
             contextMenu: portContextMenu, 
         },  // some space between ports
-        new go.Binding("portId", "id"),
+        new go.Binding("portId", "", function(d) { 
+            return d?.id || d?.portId || ""; 
+        }),
         $(go.Shape,
             {
                 name: "SHAPE",
@@ -3744,6 +3746,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('groupWithPorts');      
         groupTemplateMap.add("groupWithIconAndPorts", groupWithPorts1);
         addGroupTemplateName('groupWithIconAndPorts');      
+        groupTemplateMap.add("IDEF0", groupWithPorts1);
+        addGroupTemplateName('IDEF0');      
         
         const groupWithPorts2 =
         $(go.Group, "Spot",

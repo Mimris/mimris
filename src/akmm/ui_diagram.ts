@@ -501,6 +501,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
             objecttype: objecttype,
             objecttypeview: objecttypeview,
             supertypes: supertypes,
+            allowPorts:  objecttype.allowPorts,
             includeInherited: false,
             includeConnected: false,
             relship:     null,

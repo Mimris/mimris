@@ -1106,11 +1106,6 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     } else {
         relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "", portFrom, portTo);
         relname = typename;
-        // if (askForRelshipName) {
-        //     relname = prompt("Enter relationship name:", typename);
-        //     relship.name = relname;
-        // }
-
         relship.name = relname;
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);
@@ -1240,11 +1235,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
-    // modifiedObjectViews.map(mn => {
-    //     let data = (mn) && mn
-    //     data = JSON.parse(JSON.stringify(data));
-    //     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    // })
     return relview;
 }
 

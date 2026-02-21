@@ -248,7 +248,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (category === constants.gojs.C_OBJECT) {
         if (chosenType) {
           try {
-          properties = chosenType.getProperties(false);
+          properties = chosenType.getProperties(true);
           // pointerProps = chosenType.getPointerProperties(false);
           } catch {
             // Do nothing

@@ -1182,6 +1182,14 @@ export class cxMetis {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
                 obj.generatedTypeId = item.generatedTypeId;
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 if (model) {
                     model.addObject(obj);
                 }
@@ -3153,6 +3161,45 @@ export class cxMetis {
         }
         return node;
     }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
+        }
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -3619,6 +3666,7 @@ export class cxMetaModel extends cxMetaObject {
     geometries: cxGeometry[] | null;
     containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
+    porttypes: cxPortType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypes: cxRelationshipType[] | null;
@@ -7935,6 +7983,45 @@ export class cxModel extends cxMetaObject {
             }
         }
     }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
+        }
+    }
 }
 
 export class cxInstance extends cxMetaObject {
@@ -9839,8 +9926,12 @@ export class cxObjectView extends cxMetaObject {
             const relview0 = this.inputrelviews[0];
             if (relview0 && !relview0.markedAsDeleted)
                 relviews.push(relview0);
+            const fromObjview0 = relview0.fromObjview;
+            const toObjview0 = relview0.toObjview;
             for (let i = 1; i < this.inputrelviews.length; i++) {
                 const relview = this.inputrelviews[i];
+                if (relview.fromObjview.id === fromObjview0.id && relview.toObjview.id === toObjview0.id)
+                    continue;
                 if (!relview.markedAsDeleted) {
                     relviews.push(relview);
                 }

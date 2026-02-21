@@ -989,15 +989,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("Add Port",
             function (e: any, obj: any) {
-              const node = obj.part.data;
+              const gjsNode = obj.part.data;
               const choices = ['left', 'right', 'top', 'bottom'];
+              // const choices = ['Input', 'Output', 'Control', 'Mechanism'];
               let defText = "";
               if (choices.length > 0) defText = choices[0];
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Side",
                 case: "Add Port",
-                node: node,
+                node: gjsNode,
                 myDiagram: myDiagram
               }
               myMetis.myDiagram = myDiagram;
@@ -1006,7 +1007,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               if (myMetis.modelType == 'Modelling') {
+
+                const gjsNode = obj.part.data;
+                let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
+                let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
+                const objtypeRef = gjsNode.objtypeRef;
+                let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
+
                 const node = o.part.data;
+
                 switch (node.template) {
                   case 'Container1':
                   case 'nodeWithPorts':
@@ -1020,7 +1029,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("Export Task Model",
-            function (e: any, obj: any) {
+            function (e: any, o: any) {
               const node = o.part.data;
               uid.exportTaskModel(node, myMetis, myDiagram);
             },

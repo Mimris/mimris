@@ -884,30 +884,33 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Add Port') {
         const selectedValue = modalContext.selected?.value;
         const node = modalContext.node;
-        let objId;
-        let object = node.object;
-        if (object)
-          objId = object.id;
-        else
-          objId = node.objRef;
-        object = myMetis.findObject(objId);
+        let objId = node.objRef;
+        let object = myMetis.findObject(objId);
+        // if (object)
+        //   objId = object.id;
+        // else
+        //   objId = node.objRef;
+        // object = myMetis.findObject(objId);
         let objview = node.objectview;
         let objviewId;
         if (objview)
           objviewId = objview.id;
         else
           objviewId = node.objviewRef;
-        objview = myMetis.findObjectView(objId);
+        objview = myMetis.findObjectView(objviewId);
         const side = selectedValue;
         let name = '';
         switch(side) {
           case 'top':
+          case 'Control':
             name = 'C';
             break;
           case 'bottom':
+          case 'Mechanism':
             name = 'M';
             break;
           case 'left':
+          case 'Input':
             name = 'I';
             break;
           case 'right':

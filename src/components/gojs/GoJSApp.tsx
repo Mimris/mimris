@@ -1402,6 +1402,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
               objview.isGroup = partData.isGroup;
               objview.objectRef = object.id;
+              objview.groupLayout = partData.groupLayout;
               object.addObjectView(objview);
               myModelview.addObjectView(objview);
               myMetis.addObjectView(objview);

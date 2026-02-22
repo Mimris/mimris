@@ -688,12 +688,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
       objview.figure2 = selObj.figure2;
+      objview.groupLayout = selObj.groupLayout;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
       goNode.figure2 = selObj.figure2;
+      goNode.groupLayout = selObj.groupLayout;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);

@@ -352,6 +352,7 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
             objtypeview.viewkind = viewkind;
+            objtypeview.groupLayout = objview.groupLayout;
             objtype.setModified();
             myTargetMetamodel.addObjectTypeView(objtypeview);
             myMetis.addObjectTypeView(objtypeview);

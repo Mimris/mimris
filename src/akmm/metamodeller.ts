@@ -1029,6 +1029,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGroupLayout(item.groupLayout);
             objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);

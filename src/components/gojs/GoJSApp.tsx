@@ -892,8 +892,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     goToNode.group = "";
                   }
                 }
-                const gjsPart = myToNode.gjsData;
-                myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
                 let movedObj = goToNode.object;
                 if (!movedObj) {
                   movedObj = myModel.findObject(goToNode.objRef);
@@ -902,14 +900,18 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (!movedObjview) {
                   movedObjview = myModelview.findObjectView(goToNode.objviewRef);
                 }
+                const gjsPart = myToNode.gjsData;
                 myToNode.group = goToNode.group; // ""
-                myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
+                try {
+                  myDiagram.model.setDataProperty(gjsPart, "group", myToNode.group);
+                  myObjectview.group = myToNode.group;
+                } catch (error) {
+                }
                 let scale = Number(goToNode.scale); // Not part of group
                 if (!scale || scale === 0) scale = 1.0;
                 gjsPart.scale = scale;
                 myObjectview.scale = gjsPart.scale;
                 myDiagram.model.setDataProperty(myToNode.n, "scale", gjsPart.scale);
-                myObjectview.group = goToNode.group;
                 // Check if the node has a relationship FROM a group
                 let inputRelviews = movedObjview?.inputrelviews;
                 if (inputRelviews?.length > 0) {

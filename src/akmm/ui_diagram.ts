@@ -2648,7 +2648,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
         case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
-                isOngoing: false,
+                // arrangementOrigin: new go.Point(0, 160), // leave 60px for title                isOngoing: false,
                 direction: 0,
                 layerSpacing: 100,
                 columnSpacing: 50,
@@ -2716,7 +2716,6 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     }
     
     myDiagram.startTransaction('doGroupLayout');
-    
     // For LayeredDigraphLayout, find and anchor the first/root node
     let firstNode: go.Node = null;
     let originalPos: go.Point = null;
@@ -2736,30 +2735,29 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         });
         
         // Store the original position of the first node
-        originalPos = firstNode ? firstNode.location.copy() : null;
+        originalPos = (firstNode !== null) ? firstNode.location.copy() : null;
     }
     
     // Assign the layout to the group
     groupNode.layout = lay;
     groupNode.invalidateLayout();
     myDiagram.layoutDiagram(true);
-    
     // Calculate offset for LayeredDigraphLayout
-    if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos) {
+    if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos !== null) {
         const newPos = firstNode.location;
         const offsetX = originalPos.x - newPos.x;
         const offsetY = originalPos.y - newPos.y;
         
         // Move all nodes by the offset
-        groupNode.memberParts.each((part: go.Part) => {
-            if (part instanceof go.Node) {
-                const node = part as go.Node;
-                node.location = new go.Point(
-                    node.location.x + offsetX,
-                    node.location.y + offsetY
-                );
-            }
-        });
+        // groupNode.memberParts.each((part: go.Part) => {
+        //     if (part instanceof go.Node) {
+        //         const node = part as go.Node;
+        //         node.location = new go.Point(
+        //             node.location.x + offsetX,
+        //             node.location.y + offsetY
+        //         );
+        //     }
+        // });
     }
     
     // **FIX: Update diagram again to get accurate bounds**

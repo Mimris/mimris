@@ -3641,12 +3641,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
+            padding: new go.Margin(0, 0, 0, 60), // top padding for title
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-new go.Binding("location", "loc", go.Point.parse)
-  .makeTwoWay(pt => `${pt.x} ${pt.y}`),
+        new go.Binding("location", "loc", go.Point.parse)
+            .makeTwoWay(pt => `${pt.x} ${pt.y}`),
           new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         // the lane header consisting of a Shape and a TextBlock
         new go.Binding("layout", "groupLayout").makeTwoWay(),

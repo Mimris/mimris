@@ -787,21 +787,24 @@ class GoJSApp extends React.Component<{}, AppState> {
                   inputRelviews = myObjectview.inputrelviews;
                 } else {
 
-                  // Create the relationship
                   const parentObj = parentObjview?.object;
                   const childObj = goToNode.object;
-                  const relId = utils.createGuid();
-                  const relName = constants.types.AKM_CONTAINS;
                   const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-                  const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
-                  hasPartRelship.parentModelRef = myModel.id;
-                  myModel.addRelationship(hasPartRelship);
-                  parentObj?.addOutputrel(hasPartRelship);
-                  childObj?.addInputrel(hasPartRelship);
-                  myMetis.addRelationship(hasPartRelship);
-                  // Prepare dispatch
-                  const jsnRel = new jsn.jsnRelationship(hasPartRelship);
-                  modifiedRelships.push(jsnRel);
+                  const existingRel = parentObj ? myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null) : null;
+                  if (!existingRel) {
+                    // Create only if it does not already exist.
+                    const relId = utils.createGuid();
+                    const relName = constants.types.AKM_CONTAINS;
+                    const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
+                    hasPartRelship.parentModelRef = myModel.id;
+                    myModel.addRelationship(hasPartRelship);
+                    parentObj?.addOutputrel(hasPartRelship);
+                    childObj?.addInputrel(hasPartRelship);
+                    myMetis.addRelationship(hasPartRelship);
+                    // Prepare dispatch
+                    const jsnRel = new jsn.jsnRelationship(hasPartRelship);
+                    modifiedRelships.push(jsnRel);
+                  }
                 }
                 for (let i = 0; i < inputRelviews?.length; i++) {
                   const relview = inputRelviews[i];
@@ -930,7 +933,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                     myModel.purgeInputRelships(myModel);
                     const fromGroup = fromObjview.object;
                     const fromGroupView = fromObjview;
-                    const relviews = myModelview.findRelationshipViewsByRel2(relship, fromObjview, movedObjview, false);
+                    // Reuse any existing relview for this relationship+target in the current modelview.
+                    let relviews = myModelview.findRelationshipViewsByRel2(relship, fromObjview, movedObjview, true);
+                    if (!relviews || relviews.length === 0) {
+                      const allRelviews = myModelview.findRelationshipViewsByRel(relship, true) || [];
+                      relviews = allRelviews.filter((rv: any) =>
+                        rv?.toObjview?.id === movedObjview?.id && rv?.fromObjview?.isGroup
+                      );
+                    }
                     let relview: akm.cxRelationshipView;
                     if (relviews?.length > 0) {
                       relview = relviews[0];
@@ -966,7 +976,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myModelview.addRelationshipView(relview);
                     }
                     const lnk = myDiagram.findLinkForKey(relview?.id);
-                    if (!lnk && relview) {                    
+                    // Regression guard: never create a second diagram link for the same
+                    // relationship id while moving members in/out of groups.
+                    let existingRelLink: go.Link | null = null;
+                    if (relship?.id) {
+                      myDiagram.links.each((ll: go.Link) => {
+                        if (existingRelLink) return;
+                        if (ll?.data?.relshipRef === relship.id) existingRelLink = ll;
+                      });
+                    }
+                    if (!lnk && !existingRelLink && relview) {                    
                       // Create a new gojs link
                       myDiagram.startTransaction('AddLink');
                       const link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
@@ -981,7 +1000,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.addLinkData(link);   
                       uid.clearPath(myDiagram.links, myMetis, myDiagram);
                       myDiagram.commitTransaction('AddLink');
-                    } else if (lnk) {
+                    } else if (lnk || existingRelLink) {
                       uid.clearPath(myDiagram.links, myMetis, myDiagram);
                     }
                   } else {

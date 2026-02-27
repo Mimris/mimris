@@ -1968,12 +1968,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let relview = link.data.relshipview;
                 if (relview) {
                   relview = myModelview.findRelationshipView(relview.id);
-                  relview.visible = false;
-                  const jsnRelView = new jsn.jsnRelshipView(relview);
-                  modifiedRelshipViews.push(jsnRelView);
-                  link.visible = false;
-                  linksHided.push(link);
+                  if (relview) {
+                    relview.visible = false;
+                    const jsnRelView = new jsn.jsnRelshipView(relview);
+                    modifiedRelshipViews.push(jsnRelView);
+                    link.visible = false;
+                    linksHided.push(link);
                 }
+              }
               });
               for (let i=0; i<linksHided.length; i++) {
                 const link = linksHided[i];

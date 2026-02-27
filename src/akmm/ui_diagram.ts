@@ -18,6 +18,7 @@ import * as gjs from './ui_gojs';
 import * as constants from './constants';
 
 const $ = go.GraphObject.make;
+const POOL_LANE_GAP = 2;
 
 const uidTemplates = {
     "default":          uit.textAndIconTemplate,
@@ -2648,7 +2649,8 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
         case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
-                // arrangementOrigin: new go.Point(0, 160), // leave 60px for title                isOngoing: false,
+                isOngoing: false,
+                isInitial: false,
                 direction: 0,
                 layerSpacing: 100,
                 columnSpacing: 50,
@@ -2714,8 +2716,100 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         console.error('Group node not found');
         return;
     }
+
+    const isLaneGroup =
+        groupNode?.category === 'Lane' ||
+        groupNode?.category === 'Lane_w_handles' ||
+        groupNode?.data?.category === 'Lane' ||
+        groupNode?.data?.template === 'Lane' ||
+        groupNode?.data?.template === 'Lane_w_handles' ||
+        ((groupNode?.containingGroup instanceof go.Group) &&
+            (myGroup?.groupLayout === 'LaneLayout' || myGroup?.groupLayout === 'LayeredDigraph' || myGroup?.groupLayout === 'LayeredDigraphLayout'));
+    const isPoolGroup =
+        groupNode?.category === 'Pool' ||
+        groupNode?.data?.category === 'Pool' ||
+        groupNode?.data?.template === 'Pool' ||
+        myGroup?.groupLayout === 'PoolLayout';
     
     myDiagram.startTransaction('doGroupLayout');
+    if (isPoolGroup) {
+        // Pool "Do Layout" should only arrange lane groups, not lane contents.
+        const poolLaneLayout = new go.GridLayout({
+            isOngoing: false,
+            wrappingColumn: 1,
+            wrappingWidth: Infinity,
+            spacing: new go.Size(0, 2),
+            alignment: go.GridLayout.Position,
+            // Stack lanes using visible lane body bounds (not full group/link bounds),
+            // so spacing matches what users actually see.
+            boundsComputation: function (part: go.Part, _layout: go.Layout, rect: go.Rect) {
+                if (part instanceof go.Group && part.resizeObject) {
+                    rect.set(part.resizeObject.getDocumentBounds());
+                    return rect;
+                }
+                part.getDocumentBounds(rect);
+                return rect;
+            },
+            comparer: function (a: go.Part, b: go.Part) {
+                const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
+                const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
+                if (!isNaN(ai) && !isNaN(bi) && ai !== bi) return ai - bi;
+                return a.location.y - b.location.y;
+            }
+        });
+        groupNode.layout = poolLaneLayout;
+        groupNode.layout.isValidLayout = false;
+        groupNode.layout.doLayout(groupNode.memberParts);
+
+        // Enforce deterministic visible gap between lane bodies.
+        const lanes: go.Group[] = [];
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Group) lanes.push(part);
+        });
+        lanes.sort((a, b) => {
+            const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
+            const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
+            if (!isNaN(ai) && !isNaN(bi) && ai !== bi) return ai - bi;
+            return a.actualBounds.y - b.actualBounds.y;
+        });
+        if (lanes.length > 0) {
+            const x = lanes[0].actualBounds.x;
+            let y = lanes[0].actualBounds.y;
+            lanes.forEach((lane) => {
+                lane.moveTo(x, y);
+                y += lane.actualBounds.height + POOL_LANE_GAP;
+            });
+        }
+
+        const modifiedLaneViews = [];
+        groupNode.memberParts.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            const laneView = myModelview.findObjectView(part.data?.key);
+            if (!laneView) return;
+            laneView.loc = `${part.location.x} ${part.location.y}`;
+            if (part.data?.size) laneView.size = part.data.size;
+            const jsnLaneView = new jsn.jsnObjectView(laneView);
+            modifiedLaneViews.push(jsnLaneView);
+        });
+        modifiedLaneViews.forEach((ov) => {
+            const data = JSON.parse(JSON.stringify(ov));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+        });
+
+        const jsnGroupPool = new jsn.jsnObjectView(myGroup);
+        const poolData = JSON.parse(JSON.stringify(jsnGroupPool));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: poolData });
+        myDiagram.commitTransaction('doGroupLayout');
+        return;
+    }
+
+    if (isLaneGroup) {
+        const body = groupNode.findObject("BODY");
+        const bounds = body ? body.actualBounds : groupNode.actualBounds;
+        const leftInset = 48;
+        const topInset = 18;
+        (lay as any).arrangementOrigin = new go.Point(bounds.x + leftInset, bounds.y + topInset);
+    }
     // For LayeredDigraphLayout, find and anchor the first/root node
     let firstNode: go.Node = null;
     let originalPos: go.Point = null;
@@ -2740,8 +2834,18 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     
     // Assign the layout to the group
     groupNode.layout = lay;
+    if (isLaneGroup && groupNode.layout instanceof go.LayeredDigraphLayout) {
+        groupNode.layout.isOngoing = false;
+        groupNode.layout.isInitial = false;
+    }
     groupNode.invalidateLayout();
-    myDiagram.layoutDiagram(true);
+    if (isLaneGroup && groupNode.layout !== null) {
+        // Keep lane "Do Layout" scoped to the selected lane only.
+        groupNode.layout.isValidLayout = false;
+        groupNode.layout.doLayout(groupNode.memberParts);
+    } else {
+        myDiagram.layoutDiagram(true);
+    }
     // Calculate offset for LayeredDigraphLayout
     if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos !== null) {
         const newPos = firstNode.location;
@@ -2765,8 +2869,12 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
 
     // Ensure nodes are within group bounds
     const padding = 15;
+    const laneLeftInset = 48;
+    const laneTopInset = 18;
     const placeholder = groupNode.findObject("PLACEHOLDER");
     const groupBounds = placeholder ? placeholder.actualBounds : groupNode.actualBounds;
+    const targetLeft = isLaneGroup ? groupNode.actualBounds.left + laneLeftInset : groupBounds.left + padding;
+    const targetTop = isLaneGroup ? groupNode.actualBounds.top + laneTopInset : groupBounds.top + padding;
     
     // Calculate the bounds of all member nodes
     let memberBounds = new go.Rect();
@@ -2795,14 +2903,14 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     }
     
     // Adjust X position
-    if (memberBounds.left < groupBounds.left + padding) {
-        adjustX = (groupBounds.left + padding) - memberBounds.left;
+    if (memberBounds.left < targetLeft) {
+        adjustX = targetLeft - memberBounds.left;
     } else if (memberBounds.right > groupBounds.right - padding) {
         adjustX = (groupBounds.right - padding) - memberBounds.right;
     }
     
-    if (memberBounds.top < groupBounds.top + padding) {
-        adjustY = (groupBounds.top + padding) - memberBounds.top;
+    if (memberBounds.top < targetTop) {
+        adjustY = targetTop - memberBounds.top;
     } else if (memberBounds.bottom > groupBounds.bottom - padding) {
         adjustY = (groupBounds.bottom - padding) - memberBounds.bottom;
     }
@@ -2882,7 +2990,8 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                 
                 // Update the model
                 myDiagram.model.setDataProperty(link.data, "path", newPath);
-                relview.points = points;
+                // Keep relview points JSON-serializable (avoid GoJS List circular refs).
+                relview.points = pointsArray;
                 const jsnRelView = new jsn.jsnRelshipView(relview);
                 modifiedRelationshipViews.push(jsnRelView);
             } else {

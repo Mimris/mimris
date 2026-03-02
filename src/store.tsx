@@ -1,5 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { Store } from 'redux';
+import { applyMiddleware, createStore, Store } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';
 import { Context, createWrapper } from 'next-redux-wrapper';
 import reducer from './reducers/reducer';
@@ -12,16 +11,15 @@ export interface SagaStore extends Store {
 export const makeStore = (context: Context) => {
     const sagaMiddleware = createSagaMiddleware();
 
-    const store = configureStore({
-        reducer,
-        middleware: (getDefaultMiddleware) =>
-            getDefaultMiddleware({
-                thunk: false,
-                serializableCheck: false,
-                immutableCheck: false,
-            }).concat(sagaMiddleware),
-        devTools: process.env.NODE_ENV !== 'production',
-    });
+    const bindMiddleware = (middleware: any) => {
+        if (process.env.NODE_ENV !== 'production') {
+            const { composeWithDevTools } = require('@redux-devtools/extension');
+            return composeWithDevTools(applyMiddleware(...middleware));
+        }
+        return applyMiddleware(...middleware);
+    };
+
+    const store = createStore(reducer, bindMiddleware([sagaMiddleware]));
 
     (store as SagaStore).sagaTask = sagaMiddleware.run(rootSaga);
 

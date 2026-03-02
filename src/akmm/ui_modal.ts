@@ -531,10 +531,10 @@ export function handleSelectDropdownChange(selected, context) {
           const relshipRef = link.relshipRef;
           let relship = myModel.findRelationship(relshipRef);
           if (!relship) relship = myMetis.findRelationship(relshipRef);
-          let fromNode = link.fromNode;
-          let toNode   = link.toNode;
-          let fromType = fromNode?.objecttype;
-          let toType   = toNode?.objecttype;
+          const fromObject = relship.fromObject;
+          const toObject   =  relship.toObject;
+          let fromType = fromObject.type;;
+          let toType   = toObject.type;
           fromType = myMetis.findObjectType(fromType?.id);
           toType   = myMetis.findObjectType(toType?.id);
           const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
@@ -545,6 +545,9 @@ export function handleSelectDropdownChange(selected, context) {
             case 'Aggregation':
               relship.cardinalityFrom = reltype.cardinalityFrom;
               relship.cardinalityTo = reltype.cardinalityTo;
+            default:
+              if (reltype) myDiagram.model.setDataProperty(link, 'name', reltype.name);
+              break;
           }
           const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
           uid.resetToTypeview(link, myMetis, myDiagram);

@@ -782,7 +782,7 @@ export class cxMetis {
                 }
             });
         }
-        let relshiptypes: any[] = item.relshiptypes0;
+        let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);
@@ -2810,7 +2810,8 @@ export class cxMetis {
                         // }
                     }
                 }
-                if (reltype.relshipkind === constants.relkinds.GEN) continue;
+                if (reltype.relshipkind === constants.relkinds.GEN) 
+                    continue;
                 if (reltype.isAllowedFromType(fromType, includeGen)) {
                     if (reltype.isAllowedToType(toType, includeGen)) {
                         reltypes.push(reltype);
@@ -4897,6 +4898,12 @@ export class cxMetaModel extends cxMetaObject {
                     } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
                     }
+                // } else if (fromObjType.name === constants.types.AKM_CONTAINER) {
+                //     if (toObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                //         if (reltype.name === constants.types.AKM_CONTAINS) {
+                //             reltypes.push(reltype);
+                //         }
+                //     }
                 } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
@@ -6540,6 +6547,7 @@ export class cxObjtypeviewData {
     figure: string;
     figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
     iconpath: string;
     icon1: string;
@@ -6565,6 +6573,7 @@ export class cxObjtypeviewData {
         this.figure = "";
         this.figure2 = "";
         this.geometry = "";
+        this.groupLayout = "";
         this.icon = "";
         this.iconpath = "";
         this.icon1 = "";
@@ -6595,6 +6604,7 @@ export class cxObjectTypeView extends cxMetaObject {
     figure: string;
     figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
     iconpath: string;
     icon1: string;
@@ -6621,7 +6631,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = "";
         this.figure2 = "";
         this.geometry = "";
-        this.arrowscale = 1.0;
+        this.groupLayout = "";
         this.memberscale = 1.0;
         this.fillcolor = "white";
         this.fillcolor2 = "white";
@@ -9478,6 +9488,25 @@ export class cxModelView extends cxMetaObject {
         }
         return null;
     }
+
+    findObjectViewsByGroup(group: cxObjectView): cxObjectView[] | null {
+        const objviews = new Array();
+        let oviews = this.objectviews;
+        if (!oviews)
+            return null;
+        for (let i = 0; i < oviews.length; i++) {
+            const ov = oviews[i];
+            if (ov.isDeleted())
+                continue;
+            if (ov && group) {
+                if (ov.group === group.id) {
+                    objviews.push(ov);
+                }
+            }
+        }
+        return objviews;
+    }
+
     getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {
         const relviews = new Array();
         if (fromView && toView) {

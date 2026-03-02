@@ -550,6 +550,7 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
             toObj[prop] = fromObj[prop];
     }
 }
+
 export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
     try {
     toObjview["isGroup"]      = fromObjview["isGroup"];
@@ -954,8 +955,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
                         reltypes.push(rtype);
                     }
-                    if (fromType.name === constants.types.AKM_CONTAINER && toType.name === constants.types.AKM_ENTITY_TYPE) {
-                        // reltypes = [];
+                    if (fromType.name === constants.types.AKM_CONTAINER /* && toType.name === constants.types.AKM_ENTITY_TYPE*/) {
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
                         reltypes.push(rtype);
                     }
@@ -1134,6 +1134,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
 export function createRelationshipView(rel: akm.cxRelationship, context: any): akm.cxRelationshipView {
     let modifiedRelships = new Array();
     let modifiedRelshipViews = new Array();
+    let modifiedObjectViews = new Array();
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
@@ -1159,10 +1160,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
     rel.addRelationshipView(relview);
-    if (context.reltype?.name === constants.types.AKM_HAS_MEMBER) {
+    if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
             relview.strokecolor = '#dddddd50';
             relview.textcolor = '#dddddd50';
+            toObjview.group = fromObjview.id;
+            const jsnObjview = new jsn.jsnObjectView(toObjview);
+            modifiedObjectViews.push(jsnObjview);
         }
     }
     fromObjview.addOutputRelview(relview);
@@ -1221,6 +1225,11 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
+    // modifiedObjectViews.map(mn => {
+    //     let data = (mn) && mn
+    //     data = JSON.parse(JSON.stringify(data));
+    //     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    // })
     return relview;
 }
 
@@ -1467,13 +1476,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
         const currentRelship = myMetis.findRelationship(data.relship.id);
         if (currentRelship) {
             let name = data.name;
-            const nameIsChanged = (name !== currentRelship.type.name);
-            if (debug) console.log('1665 data, nameIsChanged, name, currentRelship', data, nameIsChanged, name, currentRelship);
             currentRelship.setType(reltype);
-            // if (!nameIsChanged) {
-            //     name = reltype.name;
-            //     currentRelship.setName(name);
-            // }
+            currentRelship.setName(name);
             currentRelship.setModified();
             const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
             if (currentRelshipView) {
@@ -2728,7 +2732,7 @@ export function isPropIncluded(k: string, type: akm.cxType, includeInherited: bo
     if (k === 'fs_collection') retVal = false;
     if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
-    if (k === 'groupLayout') retVal = false;
+    if (k === 'groupLayout') retVal = true;
     // if (k === 'id') retVal = false;
     if (k === 'inputrels') retVal = false;
     if (k === 'isExpanded') retVal = false;
@@ -4834,8 +4838,8 @@ function calculateRecursiveMemberLayout(member: cxObjectView): { x: number; y: n
  *
  * @param member - The cxObjectView to update.
  */
-export function updateRecursiveMemberLayout(member: cxObjectView): void {
-    const layout = calculateRecursiveMemberLayout(member);
+export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
+    const layout = (member);
     member.loc = `${layout.x} ${layout.y}`;
     
     if (layout.width !== undefined && layout.height !== undefined) {

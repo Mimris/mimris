@@ -702,7 +702,12 @@ export class goObjectNode extends goNode {
             scale = pnode.memberscale;
             if (!scale || scale == 'undefined')
                 scale = pnode.typeview.memberscale;
-            scale *= pnode.getMyScale(model);
+            const prevscale = scale;   
+            try {
+                scale *= pnode.getMyScale(model);
+            } catch (error) {
+                return prevscale;
+            }
         } else 
             scale = 1;
         return scale;

@@ -4,6 +4,7 @@ const debug = false;
 import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
+import * as jsn from './ui_json';
 import context from '../pages/context';
 import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
 
@@ -761,6 +762,169 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                 makeNotation(notation),
             ), // End Panel
             $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+        ),
+    );
+}
+
+const SWIM_HEADER_WIDTH = 34;
+
+export function laneTop(contextMenu: any, notation: string, textscale: number) {
+    return $(go.Panel, "Table",
+        {
+            stretch: go.GraphObject.Fill,
+            defaultAlignment: go.Spot.TopLeft,
+        },
+        $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
+        $(go.Panel, "Spot",
+            {
+                name: "LANE_HEADER_STRIP",
+                row: 0,
+                column: 0,
+                stretch: go.GraphObject.Fill,
+                margin: new go.Margin(-1, 0, 0, 0),
+                contextMenu: contextMenu,
+                cursor: "move",
+            },
+            $(go.Shape, "Rectangle", {
+                fill: "#f3f3f3",
+                stroke: "#8a8a8a",
+                stretch: go.GraphObject.Fill,
+            }),
+            $(go.Panel, "Horizontal",
+                {
+                    angle: 270,
+                    alignment: go.Spot.Center,
+                },
+                $(go.TextBlock, textStyle(),
+                    {
+                        scale: textscale,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        margin: new go.Margin(0, 0, 0, 0),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                ),
+                $("SubGraphExpanderButton",
+                    {
+                        margin: new go.Margin(0, 0, 0, 4),
+                        scale: 1.1,
+                    },
+                ),
+            ),
+            makeNotation(notation),
+        ),
+        $(go.Panel, "Auto",
+            {
+                name: "BODY",
+                row: 0,
+                column: 1,
+                stretch: go.GraphObject.Fill,
+            },
+            $(go.Shape, "Rectangle",
+                {
+                    name: "LANE_BODY_SHAPE",
+                    cursor: "move",
+                    fill: "white",
+                    minSize: new go.Size(160, 65),
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("stroke", "strokecolor"),
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            ),
+            $(go.Placeholder, { padding: new go.Margin(12, 12, 12, 12), alignment: go.Spot.TopLeft }),
+        ),
+    );
+}
+
+export function poolTop(contextMenu: any, notation: string, textscale: number) {
+    return $(go.Panel, "Auto",
+        $(go.Shape, "Rectangle",
+            {
+                name: "POOL_SHAPE",
+                cursor: "alias",
+                fill: "white",
+                minSize: new go.Size(200, 100),
+            },
+            new go.Binding("fill", "fillcolor"),
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        ),
+        $(go.Panel, "Table",
+            {
+                stretch: go.GraphObject.Fill,
+                defaultColumnSeparatorStroke: "#8a8a8a",
+            },
+            $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
+            $(go.Panel, "Spot",
+                {
+                    name: "POOL_HEADER_STRIP",
+                    row: 0,
+                    column: 0,
+                    stretch: go.GraphObject.Fill,
+                    contextMenu: contextMenu,
+                    cursor: "move",
+                },
+                $(go.Shape, "Rectangle", {
+                    fill: "#f3f3f3",
+                    stroke: "#8a8a8a",
+                    stretch: go.GraphObject.Fill,
+                }),
+                $(go.TextBlock, textStyle(),
+                    {
+                        angle: 270,
+                        scale: textscale,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        alignment: go.Spot.Center,
+                        margin: new go.Margin(0, 0, 0, 0),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                ),
+                $(go.TextBlock, textStyle(),
+                    {
+                        angle: 270,
+                        scale: textscale,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        alignment: go.Spot.Center,
+                        margin: new go.Margin(0, 0, 0, 0),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded", function (e) { return !e; }).ofObject(),
+                ),
+                makeNotation(notation),
+            ),
+            $(go.Placeholder,
+                {
+                    name: "POOL_CONTENT_ANCHOR",
+                    row: 0,
+                    column: 1,
+                    padding: new go.Margin(2, 2, 2, 2),
+                    alignment: go.Spot.TopLeft,
+                },
+            ),
         ),
     );
 }
@@ -3627,7 +3791,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             )
         },
-        groupTop3(contextMenu, 'Icon', 1),
+        laneTop(contextMenu, 'Icon', 1),
         );   
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
@@ -3641,7 +3805,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
-            padding: new go.Margin(0, 0, 0, 60), // top padding for title
+            padding: new go.Margin(0, 0, 0, 0),
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
@@ -3664,7 +3828,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             )
         },
-        groupTop3(contextMenu, 'Icon', 1),
+        laneTop(contextMenu, 'Icon', 1),
         );   
         groupTemplateMap.add("Lane_w_handles", laneTemplate2);
         addGroupTemplateName('Lane_w_handles');
@@ -3678,6 +3842,53 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 minSize: getMinSize(),
                 contextMenu: contextMenu,
                 selectionAdorned: true,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    const diagram = e.diagram;
+                    const dragged = diagram.selection;
+                    let hasLane = false;
+                    let valid = true;
+                    dragged.each((part: go.Part) => {
+                        if (!(part instanceof go.Group)) {
+                            valid = false;
+                            return;
+                        }
+                        const isLane =
+                            part.data?.category === "Lane" ||
+                            part.data?.category === "Lane_w_handles" ||
+                            part.data?.template === "Lane" ||
+                            part.data?.template === "Lane_w_handles";
+                        if (!isLane) {
+                            valid = false;
+                            return;
+                        }
+                        hasLane = true;
+                    });
+                    if (!valid || !hasLane) {
+                        diagram.currentTool.doCancel();
+                        return;
+                    }
+                    const ok = grp.addMembers(dragged, true);
+                    if (!ok) {
+                        diagram.currentTool.doCancel();
+                        return;
+                    }
+                    const modelview = myMetis.currentModelview;
+                    dragged.each((part: go.Part) => {
+                        if (!(part instanceof go.Group)) return;
+                        const laneOv = modelview?.findObjectView(part.data?.key);
+                        if (!laneOv) return;
+                        laneOv.group = grp.data?.key;
+                        laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
+                        if (part.data?.size) laneOv.size = part.data.size;
+                        const jsnLaneOv = new jsn.jsnObjectView(laneOv);
+                        const data = JSON.parse(JSON.stringify(jsnLaneOv));
+                        diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+                    });
+                    const poolOv = modelview?.findObjectView(grp.data?.key);
+                    if (poolOv?.isGroup) {
+                        uid.doGroupLayout(poolOv, diagram, myMetis);
+                    }
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3697,7 +3908,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop3(contextMenu, 'Icon', 1.2),
+            poolTop(contextMenu, 'Icon', 1.2),
         );
         groupTemplateMap.add("Pool", poolTemplate);
         addGroupTemplateName('Pool');

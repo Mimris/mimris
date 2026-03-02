@@ -314,6 +314,27 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('267 this', this);
     if (debug) console.log('268 event name', name);
 
+    const relayoutPoolByKey = (poolKey: string) => {
+      if (!poolKey) return;
+      let poolObjview = myMetis.findObjectView(poolKey);
+      if (!poolObjview) poolObjview = myModelview.findObjectView(poolKey);
+      if (!poolObjview) {
+        const poolNode = myDiagram.findNodeForKey(poolKey);
+        poolObjview = poolNode?.data?.objectview || null;
+      }
+      if (poolObjview?.isGroup) uid.doGroupLayout(poolObjview, myDiagram, myMetis);
+    };
+    const relayoutPoolsByKeys = (keys: Set<string>) => {
+      if (keys.size === 0) return;
+      if ((myDiagram as any).__isPoolRelayoutInProgress) return;
+      (myDiagram as any).__isPoolRelayoutInProgress = true;
+      try {
+        keys.forEach((poolKey) => relayoutPoolByKey(poolKey));
+      } finally {
+        (myDiagram as any).__isPoolRelayoutInProgress = false;
+      }
+    };
+
     switch (name) {
       case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
@@ -681,6 +702,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
           if (n instanceof go.Link) continue;
+          // Group moves are persisted in a dedicated block later; keep this path
+          // scoped to regular nodes to avoid accidental group membership rewrites.
+          if (n instanceof go.Group) continue;
           const loc = n.data.loc;
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
@@ -960,7 +984,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                         gjsToNode.data.group = goToNode.group; 
                         myDiagram.model.setDataProperty(gjsToNode, "group", gjsToNode.group);
                       }
-                    } else {
+                    } else if (movedObjview) {
                       // The relview does not exist - create it
                       relview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship);
                       fromObjview.addOutputRelview(relview);
@@ -1042,6 +1066,86 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        // Persist manual moves for groups (lanes/pools); the object-only block above
+        // does not capture group objectviews.
+        for (let it = selection.iterator; it?.next();) {
+          const sel = it.value;
+          if (!(sel instanceof go.Group)) continue;
+          const data = sel.data;
+          const objview = myModelview.findObjectView(data?.key) || data?.objectview;
+          if (!objview) continue;
+          const isLaneGroup =
+            data?.category === "Lane" ||
+            data?.category === "Lane_w_handles" ||
+            data?.template === "Lane" ||
+            data?.template === "Lane_w_handles";
+          const previousGroup = objview.group || "";
+          const newLoc = `${sel.location.x} ${sel.location.y}`;
+          objview.loc = newLoc;
+          if (data) {
+            myDiagram.model.setDataProperty(data, "loc", newLoc);
+          }
+          if (data?.size) objview.size = data.size;
+          let persistedGroup = objview.group;
+          if (isLaneGroup) {
+            const modelGroup = (data?.group || "") as string;
+            if (sel.containingGroup instanceof go.Group) {
+              persistedGroup = sel.containingGroup.key;
+            } else if (modelGroup) {
+              persistedGroup = modelGroup;
+            } else {
+              persistedGroup = "";
+            }
+
+            // Explicit detach rule: if move started in a pool and the drop point is outside
+            // that pool shape, keep the lane top-level even if GoJS still reports old grouping.
+            const sourcePoolKey = previousGroup || modelGroup;
+            const dropPoint = myDiagram.lastInput?.documentPoint as go.Point | undefined;
+            if (sourcePoolKey && dropPoint) {
+              const sourcePool = myDiagram.findNodeForKey(sourcePoolKey) as go.Group | null;
+              if (sourcePool instanceof go.Group) {
+                const poolShape = sourcePool.findObject("POOL_SHAPE") as go.GraphObject | null;
+                const poolBounds = poolShape
+                  ? poolShape.getDocumentBounds()
+                  : sourcePool.actualBounds.copy();
+                poolBounds.inflate(-2, -2);
+                if (!poolBounds.containsPoint(dropPoint)) {
+                  persistedGroup = "";
+                }
+              }
+            }
+          } else if (sel.containingGroup instanceof go.Group) {
+            persistedGroup = sel.containingGroup.key;
+          } else if (data?.group) {
+            persistedGroup = data.group;
+          }
+          if (persistedGroup !== undefined) {
+            if (isLaneGroup && persistedGroup === "" && sel.containingGroup instanceof go.Group) {
+              // Force detach from pool membership before persisting;
+              // otherwise subsequent pool relayout can pull the lane back in.
+              const topLevelSet = new go.Set<go.Part>();
+              topLevelSet.add(sel);
+              myDiagram.commandHandler.addTopLevelParts(topLevelSet, true);
+            }
+            objview.group = persistedGroup;
+            if (data) {
+              if (isLaneGroup) {
+                myDiagram.model.setGroupKeyForNodeData(data, persistedGroup || undefined);
+              } else {
+                myDiagram.model.setDataProperty(data, "group", persistedGroup || "");
+              }
+              (data as any).__previousGroup = previousGroup;
+            }
+          }
+          const gnode = myGoModel.findNodeByViewId(objview.id);
+          if (gnode) {
+            gnode.loc = objview.loc;
+            if (objview.size) gnode.size = objview.size;
+            if (isLaneGroup && persistedGroup !== undefined) gnode.group = persistedGroup;
+          }
+          const jsnObjview = new jsn.jsnObjectView(objview);
+          uic.addItemToList(modifiedObjectViews, jsnObjview);
+        }
         { // links
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
@@ -1109,6 +1213,56 @@ class GoJSApp extends React.Component<{}, AppState> {
         const dropCopiedParts = dropDragTool?.copiedParts;
         if (dropCopiedParts?.count > 0) {
           dropCopiedParts.clear();
+        }
+
+        // Auto-relayout affected pools after lane moves.
+        if (!(myDiagram as any).__isPoolRelayoutFromMove) {
+          const poolsToRelayout = new Set<string>();
+          const movedSelection = e.subject;
+          for (let it = movedSelection?.iterator; it?.next();) {
+            const part = it.value;
+            if (!(part instanceof go.Group)) continue;
+            const pdata = part.data;
+            const isPool = pdata?.category === 'Pool' || pdata?.template === 'Pool';
+            const isLane =
+              pdata?.category === 'Lane' ||
+              pdata?.category === 'Lane_w_handles' ||
+              pdata?.template === 'Lane' ||
+              pdata?.template === 'Lane_w_handles';
+            if (isPool && pdata?.key) poolsToRelayout.add(pdata.key);
+            if (isLane && pdata?.group) poolsToRelayout.add(pdata.group);
+            if (isLane && pdata?.__previousGroup) poolsToRelayout.add(pdata.__previousGroup);
+            if (isLane && pdata) delete (pdata as any).__previousGroup;
+          }
+          if (poolsToRelayout.size > 0) {
+            (myDiagram as any).__isPoolRelayoutFromMove = true;
+            relayoutPoolsByKeys(poolsToRelayout);
+            (myDiagram as any).__isPoolRelayoutFromMove = false;
+
+            // Replace stale pre-relayout objectview updates with current post-relayout values.
+            const refreshedKeys = new Set<string>();
+            poolsToRelayout.forEach((poolKey) => {
+              refreshedKeys.add(poolKey);
+              const poolNode = myDiagram.findNodeForKey(poolKey);
+              if (poolNode instanceof go.Group) {
+                poolNode.memberParts.each((part: go.Part) => {
+                  if (part instanceof go.Group && part.data?.key) refreshedKeys.add(part.data.key);
+                });
+              }
+            });
+            modifiedObjectViews = modifiedObjectViews.filter((ov: any) => !refreshedKeys.has(ov?.id));
+            refreshedKeys.forEach((key) => {
+              const ov = myMetis.findObjectView(key) || myModelview.findObjectView(key);
+              if (!ov) return;
+              const node = myDiagram.findNodeForKey(key);
+              if (node && node.data) {
+                ov.loc = node.data.loc ? String(node.data.loc) : `${node.location.x} ${node.location.y}`;
+                if (node.data.size) ov.size = node.data.size;
+              }
+              const jsnObjview = new jsn.jsnObjectView(ov);
+              uic.addItemToList(modifiedObjectViews, jsnObjview);
+            });
+          }
         }
         break;
       }
@@ -1627,6 +1781,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "PartResized": {
+        const affectedPoolKeys = new Set<string>();
         let selection = e.diagram.selection
         for (let it = selection.iterator; it?.next();) {
           let n = it.value;
@@ -1640,6 +1795,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             let myNode = myGoModel.findNodeByViewId(n.data.key);
             myNode.size = objview.size;
             myNode.key = objview.id;
+            const category = n.data?.category || n.data?.template;
+            if (category === 'Lane' || category === 'Lane_w_handles') {
+              if (n.data?.group) affectedPoolKeys.add(n.data.group);
+            } else if (category === 'Pool') {
+              affectedPoolKeys.add(n.data.key);
+            }
             const jsnObjview = new jsn.jsnObjectView(objview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
             let children = n.memberParts;
@@ -1658,6 +1819,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        relayoutPoolsByKeys(affectedPoolKeys);
         break;
       }
       case 'ClipboardChanged': {
@@ -2092,6 +2254,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case "SubGraphCollapsed":
       case "SubGraphExpanded": {
+        const affectedPoolKeys = new Set<string>();
         e.subject.each(function (n) {
           const data = n.data;
           const objview = data?.objectview;
@@ -2100,7 +2263,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             const jsnObjview = new jsn.jsnObjectView(objview);
             modifiedObjectViews.push(jsnObjview);
           }
+          const category = data?.category || data?.template;
+          if (category === 'Lane' || category === 'Lane_w_handles') {
+            if (data?.group) affectedPoolKeys.add(data.group);
+          } else if (category === 'Pool') {
+            if (data?.key) affectedPoolKeys.add(data.key);
+          }
         });
+        relayoutPoolsByKeys(affectedPoolKeys);
         break;
       }
       case "BackgroundSingleClicked": {

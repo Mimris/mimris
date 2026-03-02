@@ -7841,6 +7841,7 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findRelationship1(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType, fromPort: cxPort, toPort: cxPort): cxRelationship | null {
+        if (!fromObj || !toObj || !reltype) return null;
         const relships = this.relships;
         if (relships) {
             const len = utils.objExists(relships) ? relships.length : 0;

@@ -1,8 +1,0 @@
-<svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="160" height="40" rx="8" fill="#0A2540"/>
-  <text x="20" y="25" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="18" fill="#FFFFFF" letter-spacing="2">
-    MIMRIS
-  </text>
-  <circle cx="130" cy="20" r="10" stroke="#19C1D8" stroke-width="2" fill="none"/>
-  <circle cx="130" cy="20" r="4" fill="#19C1D8"/>
-</svg>

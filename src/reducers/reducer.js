@@ -1,5 +1,7 @@
 const debug = false;
 
+import { createSlice } from '@reduxjs/toolkit';
+
 import {
   FAILURE,
   LOAD_DATA,
@@ -176,7 +178,7 @@ let focusProj
 let focusRole
 let focusCollection
 
-function reducer(state = InitialState, action) {
+const baseReducer = (state = InitialState, action) => {
 
   const { phData, domain, phFocus, phUser } = state;
   const { type, payload } = action;
@@ -1833,8 +1835,23 @@ function reducer(state = InitialState, action) {
     default:
       return state
   }
+<<<<<<< ours
 }
 
 
 
 export default reducer
+=======
+};
+
+const phSlice = createSlice({
+  name: 'ph',
+  initialState: InitialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addDefaultCase((state, action) => baseReducer(state, action));
+  },
+});
+
+export default phSlice.reducer;
+>>>>>>> theirs

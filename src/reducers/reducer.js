@@ -1835,13 +1835,6 @@ const baseReducer = (state = InitialState, action) => {
     default:
       return state
   }
-<<<<<<< ours
-}
-
-
-
-export default reducer
-=======
 };
 
 const phSlice = createSlice({
@@ -1854,4 +1847,3 @@ const phSlice = createSlice({
 });
 
 export default phSlice.reducer;
->>>>>>> theirs

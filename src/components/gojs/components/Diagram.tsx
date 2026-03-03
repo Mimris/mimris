@@ -5884,6 +5884,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Define template maps
     {
+      // Keep nodes inside their lane/group unless Shift is held while dragging.
+      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
+        const grp = part.containingGroup;
+        if (!grp) return pt;
+        if (part.diagram?.lastInput?.shift) return pt;
+        const back =
+          grp.findObject("LANE_BODY_SHAPE") ||
+          grp.findObject("BODY") ||
+          grp.resizeObject;
+        if (!back) return pt;
+        const r = back.getDocumentBounds();
+        const b = part.actualBounds;
+        const loc = part.location;
+        const x = Math.max(r.x + 2, Math.min(pt.x, r.right - b.width - 2)) + (loc.x - b.x);
+        const y = Math.max(r.y + 2, Math.min(pt.y, r.bottom - b.height - 2)) + (loc.y - b.y);
+        return new go.Point(x, y);
+      };
+
       // Define link template map
       var linkTemplateMap = new go.Map<string, go.Link>();
       uit.addLinkTemplates(linkTemplateMap, linkContextMenu, myMetis);
@@ -5916,6 +5934,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
             })
         ));
+
+      for (let it = nodeTemplateMap.iterator; it.next();) {
+        const key = String(it.key || "");
+        const part = it.value;
+        if (!(part instanceof go.Node)) continue;
+        if (key === "LinkLabel") continue;
+        part.dragComputation = stayInGroup;
+      }
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;

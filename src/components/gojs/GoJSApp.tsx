@@ -948,7 +948,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 for (let i = 0; i < inputRelships?.length; i++) {
                   const relship = inputRelships[i];
                   const fromObj = relship.fromObject;
-                  if (!fromObj.objectviews) 
+                  if (!fromObj?.objectviews) 
                     continue;
                   const fromObjviews = myModelview.findObjectViewsByObject(fromObj) as akm.cxObjectView;
                   const fromObjview = fromObjviews[0];

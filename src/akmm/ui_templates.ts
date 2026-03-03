@@ -3771,6 +3771,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
+            locationObjectName: "BODY",
+            computesBoundsAfterDrag: true,
+            computesBoundsIncludingLinks: false,
+            computesBoundsIncludingLocation: true,
+            handlesDragDropForMembers: true,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
@@ -3806,6 +3811,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             minSize: getMinSize(),
             selectionAdorned: true,
             padding: new go.Margin(0, 0, 0, 0),
+            locationObjectName: "BODY",
+            computesBoundsAfterDrag: true,
+            computesBoundsIncludingLinks: false,
+            computesBoundsIncludingLocation: true,
+            handlesDragDropForMembers: true,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
@@ -3845,6 +3855,17 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 mouseDrop: function (e: go.InputEvent, grp: go.Group) {
                     const diagram = e.diagram;
                     const dragged = diagram.selection;
+                    const dropPoint = diagram.lastInput?.documentPoint as go.Point | undefined;
+                    const poolShape = grp.findObject("POOL_SHAPE") as go.GraphObject | null;
+                    if (dropPoint && poolShape) {
+                        const visualBounds = poolShape.getDocumentBounds().copy();
+                        visualBounds.inflate(-2, -2);
+                        // Only accept lane drop when pointer is inside the visible pool body.
+                        if (!visualBounds.containsPoint(dropPoint)) {
+                            diagram.commandHandler.addTopLevelParts(dragged, true);
+                            return;
+                        }
+                    }
                     let hasLane = false;
                     let valid = true;
                     dragged.each((part: go.Part) => {

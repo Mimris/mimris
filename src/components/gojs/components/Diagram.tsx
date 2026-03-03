@@ -4734,6 +4734,114 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.clearPath(selectedLinks, myMetis, diagram);
       };
 
+      const handleHideRelationshipView = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const selectedLinks: go.Link[] = [];
+        diagram.selection.each((sel) => {
+          if (!(sel instanceof go.Link)) return;
+          const selData: any = sel.data;
+          if (selData?.category === constants.gojs.C_RELATIONSHIP) {
+            selectedLinks.push(sel);
+          }
+        });
+        if (selectedLinks.length === 0) {
+          selectedLinks.push(part);
+        }
+
+        const linksToHide: go.Link[] = [];
+        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        selectedLinks.forEach((link) => {
+          const linkData: any = link.data;
+          if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+          let relview = myMetis.findRelationshipView(linkData?.relviewRef) || linkData?.relshipview;
+          if (!relview) return;
+          relview.visible = false;
+          const jsnRelView = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelView);
+          link.visible = false;
+          linksToHide.push(link);
+        });
+
+        linksToHide.forEach((link) => {
+          diagram.remove(link);
+        });
+        modifiedRelshipViews.forEach((mn) => {
+          let data: any = mn;
+          data = JSON.parse(JSON.stringify(data));
+          diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        });
+      };
+
+      const handleSelectAllViewsOfRelationship = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return;
+        const relship = data.relship || myMetis.findRelationship(data?.relshipRef);
+        const relshipId = relship?.id;
+        if (!relshipId) return;
+
+        let first = true;
+        diagram.links.each((link) => {
+          const linkData: any = link.data;
+          if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+          const otherRelship = linkData.relship || myMetis.findRelationship(linkData?.relshipRef);
+          if (otherRelship?.id === relshipId) {
+            if (first) {
+              diagram.select(link);
+              first = false;
+            } else {
+              link.isSelected = true;
+            }
+          }
+        });
+      };
+
+      const canSelectAllViewsOfRelationship = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return false;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return false;
+        const relship = data.relship || myMetis.findRelationship(data?.relshipRef);
+        const relshipId = relship?.id;
+        if (!relshipId) return false;
+
+        let count = 0;
+        diagram.links.each((link) => {
+          const linkData: any = link.data;
+          if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+          const otherRelship = linkData.relship || myMetis.findRelationship(linkData?.relshipRef);
+          if (otherRelship?.id === relshipId) {
+            count++;
+          }
+        });
+        return count > 1;
+      };
+
+      const handleSwapRelationshipDirection = (diagram: go.Diagram, part: go.Link) => {
+        if (!diagram || !(part instanceof go.Link)) return;
+        const selectedLinks: go.Link[] = [];
+        diagram.selection.each((sel) => {
+          if (!(sel instanceof go.Link)) return;
+          const selData: any = sel.data;
+          if (selData?.category === constants.gojs.C_RELATIONSHIP) {
+            selectedLinks.push(sel);
+          }
+        });
+        if (selectedLinks.length === 0) {
+          selectedLinks.push(part);
+        }
+        uid.swapDirection(selectedLinks, myMetis, diagram);
+      };
+
+      const canSwapRelationshipDirection = (part: go.Link) => {
+        if (!(part instanceof go.Link)) return false;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return false;
+        const modelview = myMetis.currentModelview;
+        const metamodel = myMetis.currentMetamodel;
+        if (!modelview || !metamodel) return false;
+        return uid.swapDirectionIsAllowed(data, modelview, metamodel);
+      };
+
       const handleChangeRelationshipType = (diagram: go.Diagram, part: go.Link) => {
         if (!diagram || !(part instanceof go.Link)) return;
         const data: any = part.data;
@@ -5119,6 +5227,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Clear Path",
             action: (diagram) => handleClearRelationshipPath(diagram, linkPart),
           });
+          items.push({
+            label: "Hide View",
+            action: (diagram) => handleHideRelationshipView(diagram, linkPart),
+          });
+          items.push({
+            label: "Swap Direction",
+            action: (diagram) => handleSwapRelationshipDirection(diagram, linkPart),
+            enabled: () => canSwapRelationshipDirection(linkPart),
+          });
           const typeviewMenuItems: HtmlMenuItem[] = [
             {
               label: "Show Typeview",
@@ -5162,6 +5279,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             {
               label: "Select All Between These Objects",
               action: (diagram) => handleSelectAllRelationshipsBetweenObjects(diagram, linkPart),
+            },
+            {
+              label: "Select All Views of This Relationship",
+              action: (diagram) => handleSelectAllViewsOfRelationship(diagram, linkPart),
+              enabled: (diagram) => canSelectAllViewsOfRelationship(diagram, linkPart),
             },
           ];
           items.push({

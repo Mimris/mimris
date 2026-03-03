@@ -222,6 +222,227 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Handle the relationships
   }
 
+  public handleAddPortsFieldChange = (field: string, value: any) => {
+    this.setState((prevState: any) => {
+      const modalContext = prevState.modalContext ? { ...prevState.modalContext } : null;
+      if (!modalContext) return null;
+      const addPorts = { ...(modalContext.addPorts || {}) };
+      addPorts[field] = value;
+      modalContext.addPorts = addPorts;
+      return { modalContext };
+    });
+  }
+
+  public handleAddPortsEntryChange = (entryKey: string, field: string, value: any) => {
+    this.setState((prevState: any) => {
+      const modalContext = prevState.modalContext ? { ...prevState.modalContext } : null;
+      if (!modalContext) return null;
+      const addPorts = { ...(modalContext.addPorts || {}) };
+      const entries = Array.isArray(addPorts.entries) ? [...addPorts.entries] : [];
+      const nextEntries = entries.map((entry: any) => {
+        if (entry?.key !== entryKey) return entry;
+        return { ...entry, [field]: value };
+      });
+      addPorts.entries = nextEntries;
+      modalContext.addPorts = addPorts;
+      return { modalContext };
+    });
+  }
+
+  public handleAddPortsSubmit = () => {
+    const modalContext: any = this.state.modalContext;
+    if (!modalContext) return;
+    // Close immediately on Add click; process add logic after closing.
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
+    const myDiagram = modalContext.myDiagram || this.myMetis.myDiagram;
+    const node = modalContext.node;
+    if (!myDiagram || !node) {
+      alert("Add Ports failed: missing diagram or node context.");
+      return;
+    }
+
+    const addPorts = modalContext.addPorts || {};
+
+    const nodeKey = modalContext.nodeKey || node?.key || modalContext.objviewRef || node?.objviewRef;
+    const liveNodeData = nodeKey ? (myDiagram.findNodeForKey(nodeKey) as any)?.data : null;
+    const nodeData = liveNodeData || node || {};
+
+    let object = null as any;
+    const currentModel: any = this.myMetis.currentModel;
+    const currentModelview: any = this.myMetis.currentModelview;
+    const isObjectInstance = (candidate: any) =>
+      candidate && typeof candidate.addPort === 'function' && typeof candidate.getPort === 'function';
+    const findObjectByRef = (ref: any) => {
+      if (!ref) return null;
+      let found = this.myMetis.findObject(ref);
+      if (found) return found;
+      found = currentModel?.findObject ? currentModel.findObject(ref) : null;
+      if (found) return found;
+      const modelObjects = currentModel?.objects || [];
+      for (let i = 0; i < modelObjects.length; i++) {
+        const obj = modelObjects[i];
+        if (obj?.id === ref) return obj;
+      }
+      return null;
+    };
+    const findObjectviewByRef = (ref: any) => {
+      if (!ref) return null;
+      let ov = this.myMetis.findObjectView(ref);
+      if (ov) return ov;
+      ov = currentModelview?.findObjectView ? currentModelview.findObjectView(ref) : null;
+      return ov;
+    };
+
+    // Prefer explicit objectRef captured when opening modal.
+    if (!object && modalContext.objectRef) {
+      object = findObjectByRef(modalContext.objectRef);
+    }
+    // Prefer a live object instance when available.
+    if (isObjectInstance(nodeData?.object)) {
+      object = nodeData.object;
+    }
+    // Try by object id/ref.
+    if (!object && nodeData?.object?.id) {
+      object = findObjectByRef(nodeData.object.id);
+    }
+    if (!object && nodeData?.objRef) {
+      object = findObjectByRef(nodeData.objRef);
+    }
+    // Try through objectview links.
+    if (!object && isObjectInstance(nodeData?.objectview?.object)) {
+      object = nodeData.objectview.object;
+    }
+    if (!object && nodeData?.objectview?.objectRef) {
+      object = findObjectByRef(nodeData.objectview.objectRef);
+    }
+    if (!object) {
+      const objviewRef = modalContext.objviewRef || nodeData?.objviewRef || nodeData?.key || nodeKey;
+      const objectview = findObjectviewByRef(objviewRef);
+      if (isObjectInstance(objectview?.object)) {
+        object = objectview.object;
+      } else {
+        object = objectview ? findObjectByRef(objectview.objectRef) : null;
+      }
+    }
+    // Fallback through selected node in diagram.
+    if (!object) {
+      const selectedNode = myDiagram.selection?.first?.() as any;
+      const selectedData = selectedNode?.data;
+      if (isObjectInstance(selectedData?.object)) {
+        object = selectedData.object;
+      } else if (selectedData?.objRef) {
+        object = findObjectByRef(selectedData.objRef);
+      }
+    }
+    // Fallback through live go-model node (first-add after drag can be ahead of metis lookup paths).
+    if (!object) {
+      const goModel: any = myDiagram.myGoModel || this.myMetis.gojsModel;
+      const byView = goModel?.findNodeByViewId?.(modalContext.objviewRef || nodeData?.objviewRef || nodeKey);
+      const byKey = (!byView && goModel?.findNode) ? goModel.findNode(nodeKey) : null;
+      const goNode = byView || byKey;
+      if (isObjectInstance(goNode?.object)) {
+        object = goNode.object;
+      } else if (goNode?.objRef) {
+        object = findObjectByRef(goNode.objRef);
+      } else if (goNode?.objectview?.objectRef) {
+        object = findObjectByRef(goNode.objectview.objectRef);
+      }
+    }
+    if (!object) {
+      const debugRefs = [
+        `nodeKey=${String(nodeKey)}`,
+        `objectRef=${String(modalContext.objectRef)}`,
+        `objviewRef=${String(modalContext.objviewRef)}`,
+        `node.objRef=${String(nodeData?.objRef)}`,
+        `node.objviewRef=${String(nodeData?.objviewRef)}`,
+      ].join(", ");
+      alert(`Add Ports failed: could not resolve target object. (${debugRefs})`);
+      return;
+    }
+
+    const defaultEntries = [
+      { key: 'input', label: 'Input', side: 'left', prefix: 'I', count: 0, startIndex: 1 },
+      { key: 'control', label: 'Control', side: 'top', prefix: 'C', count: 0, startIndex: 1 },
+      { key: 'output', label: 'Output', side: 'right', prefix: 'O', count: 0, startIndex: 1 },
+      { key: 'mechanism', label: 'Mechanism', side: 'bottom', prefix: 'M', count: 0, startIndex: 1 },
+    ];
+    const entries = Array.isArray(addPorts.entries) && addPorts.entries.length > 0
+      ? addPorts.entries
+      : defaultEntries;
+
+    let addedCount = 0;
+    let skipped = 0;
+    let shouldClose = false;
+    try {
+      const addedPorts: any[] = [];
+      entries.forEach((entry: any) => {
+        const side = entry?.side;
+        const prefix = String(entry?.prefix ?? '').trim();
+        const parsedCount = parseInt(String(entry?.count ?? 0), 10);
+        const count = Number.isNaN(parsedCount) ? 0 : Math.max(0, parsedCount);
+        const parsedStartIndex = parseInt(String(entry?.startIndex ?? 1), 10);
+        const startIndex = Number.isNaN(parsedStartIndex) ? 1 : Math.max(0, parsedStartIndex);
+        if (!side || count <= 0 || prefix.length === 0) return;
+
+        for (let i = 0; i < count; i++) {
+          const index = startIndex + i;
+          const name = count === 1 ? prefix : `${prefix}${index}`;
+          const existing = object.getPort(side, name);
+          if (existing) {
+            skipped++;
+            continue;
+          }
+          const port = object.addPort(side, name);
+          if (port) {
+            addedPorts.push(port);
+          } else {
+            skipped++;
+          }
+        }
+      });
+
+      if (addedPorts.length > 0) {
+        const jsnObj = new jsn.jsnObject(object);
+        let data: any = jsnObj;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+        const targetKey = nodeData?.key || nodeData?.objviewRef || nodeKey;
+        const targetNode = targetKey ? myDiagram.findNodeForKey(targetKey) : null;
+        if (targetNode?.data) {
+          const sideKeys = ['leftPorts', 'topPorts', 'rightPorts', 'bottomPorts'];
+          sideKeys.forEach((sideKey) => {
+            const sideName = sideKey.replace('Ports', '');
+            const sourcePorts = object?.[`get${sideName.charAt(0).toUpperCase()}${sideName.slice(1)}Ports`]?.() || [];
+            const normalized = sourcePorts.map((p: any) => ({
+              id: p?.id || p?.portId,
+              portId: p?.id || p?.portId,
+              name: p?.name || '',
+              color: p?.color || 'white',
+              side: p?.side || sideName,
+            }));
+            myDiagram.model.setDataProperty(targetNode.data, sideKey, normalized);
+          });
+        } else {
+          // Fallback if node lookup fails: keep legacy insertion behavior.
+          addedPorts.forEach((port) => {
+            uit.addPort(port, myDiagram);
+          });
+        }
+        myDiagram.requestUpdate();
+      }
+
+      addedCount = addedPorts.length;
+      shouldClose = true;
+    } catch (error) {
+      console.error("Add Ports failed", error);
+      alert("Add Ports failed due to an unexpected error.");
+    }
+
+    if (shouldClose) {
+      alert(`Added ${addedCount} port(s), skipped ${skipped}.`);
+    }
+  }
+
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
     const myContext = modalContext.myContext;
@@ -4470,6 +4691,221 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.editObjectview(data, myMetis, myDiagram);
       };
 
+      const handleChangeIcon = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part) return;
+        const data: any = part.data;
+        if (!data || data.category !== constants.gojs.C_OBJECT) return;
+        const nodePart = diagram.findPartForKey(data.key);
+        if (nodePart) {
+          diagram.select(nodePart);
+        }
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Select Icon",
+          case: "Change Icon",
+          iconList: iconList(),
+          currentNode: data,
+          myDiagram: diagram,
+        };
+        myMetis.currentNode = data;
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(data, modalContext);
+      };
+
+      const canAddPortToNode = (part: go.Part) => {
+        if (myMetis.modelType !== 'Modelling') return false;
+        const data: any = part?.data;
+        const template = data?.template;
+        switch (template) {
+          case 'Container1':
+          case 'nodeWithPorts':
+          case 'groupWithPorts':
+          case 'groupWithIconAndPorts':
+          case 'groupWithGeoAndPorts':
+          case 'groupWithFigAndPorts':
+            return true;
+          default:
+            return false;
+        }
+      };
+
+  const handleAddPort = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part || !canAddPortToNode(part)) return;
+        const nodeData: any = part.data;
+        if (!nodeData) return;
+        const nodeKey = nodeData?.key;
+        const objviewRef = nodeData?.objviewRef || nodeKey;
+        const objview = myMetis.findObjectView(objviewRef);
+        const objectRef = nodeData?.objRef || objview?.objectRef || objview?.object?.id || nodeData?.object?.id;
+        const modalContext = {
+          what: "addPorts",
+          title: "Add Ports",
+          case: "Add Ports",
+          node: {
+            key: nodeKey,
+            objviewRef: objviewRef,
+            objRef: objectRef,
+          },
+          nodeKey: nodeKey,
+          objviewRef: objviewRef,
+          objectRef: objectRef,
+          myDiagram: diagram,
+          addPorts: {
+            entries: [
+              { key: 'input', label: 'Input', side: 'left', prefix: 'I', count: 1, startIndex: 1 },
+              { key: 'control', label: 'Control', side: 'top', prefix: 'C', count: 1, startIndex: 1 },
+              { key: 'output', label: 'Output', side: 'right', prefix: 'O', count: 1, startIndex: 1 },
+              { key: 'mechanism', label: 'Mechanism', side: 'bottom', prefix: 'M', count: 1, startIndex: 1 },
+            ],
+          },
+        };
+        myMetis.myDiagram = diagram;
+        diagram.handleOpenModal(nodeData, modalContext);
+      };
+
+      const isContainerObjectNode = (part: go.Part) => {
+        const data: any = part?.data;
+        if (!data || data.category !== constants.gojs.C_OBJECT) return false;
+        const objview = data.objectview || myMetis.currentModelview?.findObjectView(data.key);
+        return objview?.viewkind === 'Container';
+      };
+
+      const canOpenGroup = (part: go.Part) => {
+        if (!isContainerObjectNode(part)) return false;
+        const data: any = part?.data;
+        const objview = data?.objectview || myMetis.currentModelview?.findObjectView(data?.key);
+        return objview?.isExpanded === false;
+      };
+
+      const handleOpenGroup = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram || !part || !canOpenGroup(part)) return;
+        const data: any = part.data;
+        const objview = data.objectview || myMetis.currentModelview?.findObjectView(data.key);
+        if (!objview || objview?.isExpanded) return;
+        const nodePart = diagram.findNodeForKey(data.key) as any;
+        if (nodePart) {
+          nodePart.isSubGraphExpanded = true;
+        }
+        data.isExpanded = true;
+        objview.isExpanded = true;
+        const jsnObjview = new jsn.jsnObjectView(objview, true);
+        let payload: any = jsnObjview;
+        payload = JSON.parse(JSON.stringify(payload));
+        diagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+      };
+
+      const collectNodesForArrangement = (diagram: go.Diagram, part: go.Part) => {
+        const selectedNodes: go.Node[] = [];
+        const selectedLinks: go.Link[] = [];
+        diagram.selection.each((sel) => {
+          if (sel instanceof go.Node) {
+            selectedNodes.push(sel);
+          } else if (sel instanceof go.Link) {
+            selectedLinks.push(sel);
+          }
+        });
+        if (part instanceof go.Node && !selectedNodes.includes(part)) {
+          selectedNodes.push(part);
+        }
+        return { selectedNodes, selectedLinks };
+      };
+
+      const canArrangeSelectedNodes = (diagram: go.Diagram, part: go.Part) => {
+        if (!diagram) return false;
+        const { selectedNodes } = collectNodesForArrangement(diagram, part);
+        return selectedNodes.length > 1;
+      };
+
+      const handleArrangeSelectedNodes = (diagram: go.Diagram, part: go.Part, direction: 'vertical' | 'horizontal') => {
+        if (!diagram || !canArrangeSelectedNodes(diagram, part)) return;
+        const { selectedNodes, selectedLinks } = collectNodesForArrangement(diagram, part);
+        const anchorNode: any = selectedNodes[0];
+        uid.alignNodes(anchorNode?.data, selectedNodes, direction, myMetis);
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, diagram);
+        }
+      };
+
+      const handleSpreadSelectedNodes = (diagram: go.Diagram, part: go.Part, direction: 'vertical' | 'horizontal') => {
+        if (!diagram || !canArrangeSelectedNodes(diagram, part)) return;
+        const { selectedNodes, selectedLinks } = collectNodesForArrangement(diagram, part);
+        const anchorNode: any = selectedNodes[0];
+        uid.spreadEven(anchorNode?.data, selectedNodes, direction, myMetis);
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, diagram);
+        }
+      };
+
+      const resolvePortContext = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
+        if (!diagram || !portObj) return null;
+        const nodePart = portObj.part as go.Node;
+        const nodeData: any = nodePart?.data;
+        const portData: any = (portObj as any)?.data;
+        if (!nodeData || !portData) return null;
+        const objectRef = nodeData?.object;
+        const object = objectRef ? myMetis.findObject(objectRef.id) : null;
+        if (!object) return null;
+        return { nodePart, nodeData, portData, portObj, object };
+      };
+
+      const handleChangePortName = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
+        const ctx = resolvePortContext(diagram, portObj);
+        if (!ctx) return;
+        const { object, portData } = ctx;
+        let portName = portData.name;
+        const side = portData.side;
+        const port = object.getPort(side, portName);
+        portName = prompt('Enter port name', portName);
+        if (!portName || !portName.trim()) return;
+        if (port) port.name = portName;
+        uit.changePortName(portObj, portName, diagram);
+        const jsnObj = new jsn.jsnObject(object);
+        let data: any = jsnObj;
+        data = JSON.parse(JSON.stringify(data));
+        diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+      };
+
+      const handleChangePortColor = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
+        const ctx = resolvePortContext(diagram, portObj);
+        if (!ctx) return;
+        const { object, portData } = ctx;
+        let portColor = portData.color;
+        const side = portData.side;
+        const port = object.getPort(side, portData.name);
+        portColor = prompt('Enter port color', portColor);
+        if (!portColor || !portColor.trim()) portColor = "transparent";
+        if (port) port.color = portColor;
+        uit.changePortColor(portObj, portColor, diagram);
+        const jsnObj = new jsn.jsnObject(object);
+        let data: any = jsnObj;
+        data = JSON.parse(JSON.stringify(data));
+        diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+      };
+
+      const handleRemovePort = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
+        const ctx = resolvePortContext(diagram, portObj);
+        if (!ctx) return;
+        const { object, portData } = ctx;
+        const rels = object.getRelsConnectedToPort(portData.id) || [];
+        rels.forEach((rel: any) => {
+          if (!rel) return;
+          const relview = rel.relshipview;
+          if (relview) relview.markedAsDeleted = true;
+          rel.markedAsDeleted = true;
+          const jsnRel = new jsn.jsnRelationship(rel);
+          let relData: any = jsnRel;
+          relData = JSON.parse(JSON.stringify(relData));
+          diagram.dispatch?.({ type: 'UPDATE_RELSHIP_PROPERTIES', data: relData });
+        });
+        object.deletePort(portData.side, portData.name);
+        const jsnObj = new jsn.jsnObject(object);
+        let objData: any = jsnObj;
+        objData = JSON.parse(JSON.stringify(objData));
+        diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data: objData });
+        uit.removePort(portObj, diagram);
+        diagram.requestUpdate();
+      };
+
       const handleSortSelection = (diagram: go.Diagram) => {
         if (!diagram) return;
         uid.sortSelection(diagram);
@@ -5127,6 +5563,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Edit Object View",
             action: () => handleEditObjectview(part),
           });
+          items.push({
+            label: "Change Icon",
+            action: (diagram) => handleChangeIcon(diagram, part),
+          });
+          items.push({
+            label: "Add Ports",
+            action: (diagram) => handleAddPort(diagram, part),
+            enabled: () => canAddPortToNode(part),
+          });
+          items.push({
+            label: "Open Group",
+            action: (diagram) => handleOpenGroup(diagram, part),
+            enabled: () => canOpenGroup(part),
+          });
           const connectionsMenuItems: HtmlMenuItem[] = [
             {
               label: "Connect to Selected",
@@ -5179,6 +5629,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           items.push({
             label: "Selection…",
             action: showSubMenu(selectionMenuItems),
+            closeOnClick: false,
+          });
+          const arrangeMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Align Vertical",
+              action: (diagram) => handleArrangeSelectedNodes(diagram, part, 'vertical'),
+              enabled: (diagram) => canArrangeSelectedNodes(diagram, part),
+            },
+            {
+              label: "Align Horizontal",
+              action: (diagram) => handleArrangeSelectedNodes(diagram, part, 'horizontal'),
+              enabled: (diagram) => canArrangeSelectedNodes(diagram, part),
+            },
+            {
+              label: "Spread Even Vertical",
+              action: (diagram) => handleSpreadSelectedNodes(diagram, part, 'vertical'),
+              enabled: (diagram) => canArrangeSelectedNodes(diagram, part),
+            },
+            {
+              label: "Spread Even Horizontal",
+              action: (diagram) => handleSpreadSelectedNodes(diagram, part, 'horizontal'),
+              enabled: (diagram) => canArrangeSelectedNodes(diagram, part),
+            },
+          ];
+          items.push({
+            label: "Arrange…",
+            action: showSubMenu(arrangeMenuItems),
             closeOnClick: false,
           });
         }
@@ -5377,6 +5854,44 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           showPartHtmlMenu(diagram, tool, part as go.Part);
         },
         hide: disposeBackgroundMenu,
+      });
+
+      let activePortGraphObject: go.GraphObject | null = null;
+
+      const buildPortMenuItems = () => {
+        const items: HtmlMenuItem[] = [
+          {
+            label: "Change port name",
+            action: (diagram) => handleChangePortName(diagram, activePortGraphObject),
+          },
+          {
+            label: "Change port color",
+            action: (diagram) => handleChangePortColor(diagram, activePortGraphObject),
+          },
+          {
+            label: "Remove port",
+            action: (diagram) => handleRemovePort(diagram, activePortGraphObject),
+          },
+        ];
+        return items;
+      };
+
+      const showPortHtmlMenu = (diagram: go.Diagram, tool: go.ContextMenuTool) => {
+        if (!diagram || !activePortGraphObject) return;
+        const items = buildPortMenuItems();
+        if (!items.length) return;
+        renderBackgroundMenu(items, diagram, tool);
+      };
+
+      portContextMenu = new go.HTMLInfo({
+        show: (obj: go.GraphObject | null, diagram: go.Diagram, tool: go.ContextMenuTool) => {
+          activePortGraphObject = obj;
+          showPortHtmlMenu(diagram, tool);
+        },
+        hide: () => {
+          activePortGraphObject = null;
+          disposeBackgroundMenu();
+        },
       });
 
       const handleCopySelected = (diagram: go.Diagram) => {
@@ -5657,6 +6172,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
       };
 
+      const handleSetLinkRouting = (diagram: go.Diagram) => {
+        const targetDiagram = diagram || myDiagram;
+        const routingList = [
+          { value: "Normal", label: "Normal" },
+          { value: "Orthogonal", label: "Orthogonal" },
+          { value: "AvoidsNodes", label: "Avoids Nodes" },
+        ];
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Set Routing Scheme",
+          case: "Set Routing Scheme",
+          routingList,
+          myDiagram: targetDiagram,
+        };
+        myMetis.myDiagram = targetDiagram;
+        targetDiagram.handleOpenModal(targetDiagram, modalContext);
+      };
+
+      const handleSetLinkCurve = (diagram: go.Diagram) => {
+        const targetDiagram = diagram || myDiagram;
+        const curveList = [
+          { value: "None", label: "None" },
+          { value: "Bezier", label: "Bezier" },
+          { value: "JumpOver", label: "Jump Over" },
+          { value: "JumpGap", label: "Jump Gap" },
+        ];
+        const modalContext = {
+          what: "selectDropdown",
+          title: "Set Link Curve",
+          case: "Set Link Curve",
+          curveList,
+          myDiagram: targetDiagram,
+        };
+        myMetis.myDiagram = targetDiagram;
+        targetDiagram.handleOpenModal(targetDiagram, modalContext);
+      };
+
       const showSubMenu = (items: HtmlMenuItem[]) => (diagram: go.Diagram, tool: go.ContextMenuTool, source?: HTMLElement) => {
         const submenuItems: HtmlMenuItem[] = [
           ...items,
@@ -5810,6 +6362,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           label: "Set Layout Scheme",
           action: (diagram) => handleSetLayoutScheme(diagram),
           visible: () => !isMetamodellingMode(),
+        },
+        {
+          label: "Set Link Routing",
+          action: (diagram) => handleSetLinkRouting(diagram),
+          visible: () => true,
+        },
+        {
+          label: "Set Link Curve",
+          action: (diagram) => handleSetLinkCurve(diagram),
+          visible: () => true,
         },
         {
           label: "Do Layout",
@@ -6425,6 +6987,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           */}
 
         break;
+      case 'addPorts': {
+        header = modalContext.title;
+        const addPorts = modalContext.addPorts || {};
+        const entries = Array.isArray(addPorts.entries) ? addPorts.entries : [];
+        modalContent =
+          <div className="modal-prop" style={{ display: 'block', width: '100%' }}>
+            {entries.map((entry: any) => (
+              <div key={entry.key} className="mb-2 d-flex align-items-end">
+                <div style={{ flex: '0 0 34%' }}>
+                  <label className="form-label mb-1">Type</label>
+                  <input className="form-control" type="text" value={entry.label} readOnly />
+                </div>
+                <div className="px-1" style={{ flex: '0 0 22%' }}>
+                  <label className="form-label mb-1">Prefix</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    value={entry.prefix ?? ''}
+                    onChange={(e) => this.handleAddPortsEntryChange(entry.key, 'prefix', e.target.value)}
+                  />
+                </div>
+                <div className="px-1" style={{ flex: '0 0 22%' }}>
+                  <label className="form-label mb-1">Count</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min={0}
+                    value={entry.count ?? 0}
+                    onChange={(e) => this.handleAddPortsEntryChange(entry.key, 'count', e.target.value)}
+                  />
+                </div>
+                <div className="px-1" style={{ flex: '0 0 22%' }}>
+                  <label className="form-label mb-1">Start Index</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min={0}
+                    value={entry.startIndex ?? 1}
+                    onChange={(e) => this.handleAddPortsEntryChange(entry.key, 'startIndex', e.target.value)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>;
+        break;
+      }
       case 'editObjectType':
       case 'editObject':
       case 'editObjectview':
@@ -6560,7 +7168,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               {/* </div> */}
             </ModalBody>
             <ModalFooter className="modal-footer">
-              <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+              {modalContext?.what === 'addPorts' ? (
+                <>
+                  <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }}>Cancel</Button>
+                  <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleAddPortsSubmit() }}>Add</Button>
+                </>
+              ) : (
+                <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+              )}
             </ModalFooter>
           </div>
           {/* </div> */}

@@ -655,6 +655,33 @@ export function groupTop2(contextMenu: any, notation: string) {
     );
 }
 
+function groupPortResizeAdornment() {
+    const makeHandle = (alignment: go.Spot, cursor: string, name: string) =>
+        $(go.Shape, "Rectangle",
+            {
+                alignment,
+                alignmentFocus: alignment.opposite(),
+                desiredSize: new go.Size(7, 7),
+                fill: "lightblue",
+                stroke: "dodgerblue",
+                cursor,
+                name,
+            }
+        );
+    // Padding moves only the resize handles outward to include port overhang.
+    return $(go.Adornment, "Spot",
+        $(go.Placeholder),
+        makeHandle(go.Spot.TopLeft, "nw-resize", "NW"),
+        makeHandle(go.Spot.Top, "n-resize", "N"),
+        makeHandle(go.Spot.TopRight, "ne-resize", "NE"),
+        makeHandle(go.Spot.Left, "w-resize", "W"),
+        makeHandle(go.Spot.Right, "e-resize", "E"),
+        makeHandle(go.Spot.BottomLeft, "sw-resize", "SW"),
+        makeHandle(go.Spot.Bottom, "s-resize", "S"),
+        makeHandle(go.Spot.BottomRight, "se-resize", "SE"),
+    );
+}
+
 export function groupTop3(contextMenu: any, notation: string, textscale: number) {
     // Without ports
     return $(go.Panel, "Auto",
@@ -1057,14 +1084,14 @@ function addNodeText(contextMenu: any) {
     )
 }
 
-function addLeftPorts(portContextMenu: any) {
+function addLeftPorts(portContextMenu: any, offsetX: number = 0, offsetY: number = 0) {
     return $(go.Panel, "Vertical", 
             new go.Binding("itemArray", "leftPorts"),
             {
                 row: 1, 
                 column: 0,
                 itemTemplate: makeItemTemplate('left', true, portContextMenu),
-                alignment: go.Spot.Left, 
+                alignment: new go.Spot(0, 0.5, offsetX, offsetY), 
                 fromLinkable: true, 
                 toLinkable: true, 
                 cursor: "pointer",
@@ -1072,14 +1099,14 @@ function addLeftPorts(portContextMenu: any) {
     );  // end leftPorts Panel
 }
 
-function addTopPorts(portContextMenu: any) {
+function addTopPorts(portContextMenu: any, offsetX: number = 0, offsetY: number = 0) {
     return $(go.Panel, "Horizontal",
             new go.Binding("itemArray", "topPorts"),
             {
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('top', true, portContextMenu),
-                alignment: go.Spot.Top, 
+                alignment: new go.Spot(0.5, 0, offsetX, offsetY), 
                 fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
@@ -1087,14 +1114,14 @@ function addTopPorts(portContextMenu: any) {
     );  // end topPorts Panel
 }
     
-function addRightPorts(portContextMenu: any) {
+function addRightPorts(portContextMenu: any, offsetX: number = 0, offsetY: number = 0) {
     return $(go.Panel, "Vertical", 
             new go.Binding("itemArray", "rightPorts"),
                 {
                     row: 1, 
                     column: 2,
                     itemTemplate: makeItemTemplate('right', true, portContextMenu),
-                    alignment: go.Spot.Right, 
+                    alignment: new go.Spot(1, 0.5, offsetX, offsetY), 
                     fromLinkable: true,
                     toLinkable: true,
                     cursor: "pointer",
@@ -1102,15 +1129,15 @@ function addRightPorts(portContextMenu: any) {
             );  // end rightPorts Panel
 }
 
-function addBottomPorts(portContextMenu: any) {
+function addBottomPorts(portContextMenu: any, offsetX: number = 0, offsetY: number = 0) {
     return $(go.Panel, "Horizontal",
             new go.Binding("itemArray", "bottomPorts"),
             {
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
-                alignment: go.Spot.Bottom, 
-                fromLinkable: true,
+                alignment: new go.Spot(0.5, 1, offsetX, offsetY), 
+                fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
             }
@@ -1244,17 +1271,21 @@ export function addPort(port, myDiagram) {
     if (debug) console.log('304 sel', sel);
     sel.each(node => {
         if (debug) console.log('306 node, portId: ', node, portId);
-        const arr = node.data[side + "Ports"];
+        let arr = node.data[side + "Ports"];
         if (debug) console.log('315 arr: ', arr);
+        // Ensure the side array exists so new ports render immediately without reload.
+        if (!arr) {
+            myDiagram.model.setDataProperty(node.data, side + "Ports", []);
+            arr = node.data[side + "Ports"];
+        }
         if (arr) {
-            // create a new port data object
             const newportdata = {
+                id: portId,
                 portId: portId,
                 name: name,
                 color: color
             };
             if (debug) console.log('323 newportdata: ', newportdata);
-            // and add it to the Array of port data
             myDiagram.model.insertArrayItem(arr, -1, newportdata);
         }
     });
@@ -3505,19 +3536,21 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     groupTemplateMap.get("Container1").resizeAdornmentTemplate = addResizeAdornment("Container1");
 
     if (true) { // groupWithPorts
+        const PORT_OUT_X = 22;
+        const PORT_OUT_Y = 12;
         const groupWithPorts1 =
         $(go.Group, "Spot",
             {
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                resizeObjectName: "GROUP",
+                selectionObjectName: "GROUP",
+                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'BODY',
                 locationSpot: go.Spot.Center,
-                selectionObjectName: 'BODY',
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             // new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3542,10 +3575,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTop1(contextMenu, 'Icon'),
             // And now the ports
-            addLeftPorts(portContextMenu),
-            addTopPorts(portContextMenu),
-            addRightPorts(portContextMenu),
-            addBottomPorts(portContextMenu),
+            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
+            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithPorts", groupWithPorts1);
         addGroupTemplateName('groupWithPorts');      
@@ -3560,8 +3593,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                resizeObjectName: "GROUP",
+                selectionObjectName: "GROUP",
+                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
             },
@@ -3588,10 +3622,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTop1(contextMenu, 'Geometry'),
             // And now the ports
-            addLeftPorts(portContextMenu),
-            addTopPorts(portContextMenu),
-            addRightPorts(portContextMenu),
-            addBottomPorts(portContextMenu),
+            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
+            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithGeoAndPorts", groupWithPorts2);
         addGroupTemplateName('groupWithGeoAndPorts');      
@@ -3602,8 +3636,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                resizeObjectName: "GROUP",
+                selectionObjectName: "GROUP",
+                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
             },
@@ -3630,10 +3665,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             groupTop1(contextMenu, 'Figure'),
             // And now the ports
-            addLeftPorts(portContextMenu),
-            addTopPorts(portContextMenu),
-            addRightPorts(portContextMenu),
-            addBottomPorts(portContextMenu),
+            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
+            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithFigAndPorts", groupWithPorts3);
         addGroupTemplateName('groupWithFigAndPorts');      

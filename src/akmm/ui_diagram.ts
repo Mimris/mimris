@@ -18,11 +18,38 @@ import * as gjs from './ui_gojs';
 import * as constants from './constants';
 
 const $ = go.GraphObject.make;
-const POOL_LANE_GAP = 2;
+// Option 1: lanes touch; separators are the lane borders themselves.
+const POOL_LANE_GAP = 0;
 const POOL_HEADER_WIDTH = 34;
+// Additional padding on top of the Placeholder padding in the Pool template.
+// Set to 0 so lanes align tightly with the pool header separator.
 const POOL_LANE_SIDE_PADDING = 0;
+// Must match the Pool template's internal Table margin in `poolTop(...)`.
+const POOL_TEMPLATE_MARGIN = 0;
 const LANE_LAYOUT_LEFT_INSET = 48;
 const LANE_LAYOUT_TOP_INSET = 18;
+
+function asMargin(padding: any): go.Margin {
+    if (padding instanceof go.Margin) return padding;
+    if (typeof padding === "number") return new go.Margin(padding, padding, padding, padding);
+    // Fallback (unknown/undefined) -> no padding.
+    return new go.Margin(0, 0, 0, 0);
+}
+
+function snapCoord(n: number): number {
+    // Reduce stroke anti-aliasing artifacts by keeping borders on whole pixels.
+    return Math.round(n);
+}
+
+function snapSize(n: number): number {
+    // Sizes benefit from ceilling so content never pokes outside the outer stroke.
+    return Math.ceil(n);
+}
+
+function snapSizeEven(n: number): number {
+    // Pool uses locationSpot Center by default; keeping sizes even avoids half-pixel borders.
+    return Math.ceil(n / 2) * 2;
+}
 const GROUP_LAYOUT_PADDING = 15;
 
 const uidTemplates = {
@@ -2764,9 +2791,17 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             // Stack lanes using visible lane body bounds (not full group/link bounds),
             // so spacing matches what users actually see.
             boundsComputation: function (part: go.Part, _layout: go.Layout, rect: go.Rect) {
-                if (part instanceof go.Group && part.resizeObject) {
-                    rect.set(part.resizeObject.getDocumentBounds());
-                    return rect;
+                if (part instanceof go.Group) {
+                    // Keep pool stacking aligned with the same full-lane object used for selection/resize.
+                    const laneMain = part.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+                    if (laneMain) {
+                        rect.set(laneMain.getDocumentBounds());
+                        return rect;
+                    }
+                    if (part.resizeObject) {
+                        rect.set(part.resizeObject.getDocumentBounds());
+                        return rect;
+                    }
                 }
                 part.getDocumentBounds(rect);
                 return rect;
@@ -2807,30 +2842,34 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             return 0;
         });
         if (lanes.length > 0) {
-            // Align lane stack to the pool content area, not the outer group bounds.
-            const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR");
-            const x = poolContentAnchor
-                ? (poolContentAnchor.actualBounds.x + POOL_LANE_SIDE_PADDING)
-                : (groupNode.actualBounds.x + POOL_HEADER_WIDTH + POOL_LANE_SIDE_PADDING);
-            const poolTop = groupNode.actualBounds.y;
-            const contentTopPad = poolContentAnchor
-                ? Math.max(0, poolContentAnchor.actualBounds.y - poolTop)
-                : POOL_LANE_SIDE_PADDING;
+            // Align lane stack to the Pool template's content cell (column 1). This guarantees
+            // the lane header strip starts exactly where the pool header separator ends.
+            const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
+            const anchorPad = poolContentAnchor ? asMargin((poolContentAnchor as any).padding) : new go.Margin(0, 0, 0, 0);
+            const xRaw = poolContentAnchor
+                ? (poolContentAnchor.actualBounds.x + anchorPad.left + POOL_LANE_SIDE_PADDING)
+                : (groupNode.actualBounds.x + POOL_HEADER_WIDTH + POOL_TEMPLATE_MARGIN + POOL_LANE_SIDE_PADDING);
+            const y0Raw = poolContentAnchor
+                ? (poolContentAnchor.actualBounds.y + anchorPad.top + POOL_LANE_SIDE_PADDING)
+                : (groupNode.actualBounds.y + POOL_TEMPLATE_MARGIN + POOL_LANE_SIDE_PADDING);
+            const x = snapCoord(xRaw);
+            const y0 = snapCoord(y0Raw);
             let maxLaneBodyWidth = 0;
             lanes.forEach((lane) => {
                 const laneBody = lane.findObject("LANE_BODY_SHAPE");
                 const w = laneBody ? laneBody.actualBounds.width : lane.actualBounds.width;
                 if (!isNaN(w)) maxLaneBodyWidth = Math.max(maxLaneBodyWidth, w);
             });
-            const laneBodyWidth = Math.max(20, maxLaneBodyWidth);
-            let y = poolTop + contentTopPad;
+            const laneBodyWidth = snapSize(Math.max(20, maxLaneBodyWidth));
+            let y = y0;
             let stackHeight = 0;
+            let maxLaneWidth = 0;
             lanes.forEach((lane, idx) => {
                 const laneBody = lane.findObject("LANE_BODY_SHAPE");
                 if (laneBody && !isNaN(laneBodyWidth)) {
                     laneBody.width = laneBodyWidth;
                 }
-                lane.moveTo(x, y);
+                lane.moveTo(x, snapCoord(y));
                 const locStr = `${lane.location.x} ${lane.location.y}`;
                 myDiagram.model.setDataProperty(lane.data, "loc", locStr);
                 if (!isNaN(laneBodyWidth)) {
@@ -2849,18 +2888,35 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                     myDiagram.model.setDataProperty(lane.data, "laneIndex", idx);
                 }
                 const laneHeight = lane.actualBounds.height;
+                const laneWidth = lane.actualBounds.width;
+                if (!isNaN(laneWidth)) maxLaneWidth = Math.max(maxLaneWidth, laneWidth);
                 stackHeight += laneHeight;
                 if (idx < lanes.length - 1) stackHeight += POOL_LANE_GAP;
                 y += lane.actualBounds.height + POOL_LANE_GAP;
             });
 
             const poolShape = groupNode.findObject("POOL_SHAPE");
-            if (poolShape && !isNaN(laneBodyWidth)) {
-                const nextPoolWidth = POOL_HEADER_WIDTH + laneBodyWidth + (2 * POOL_LANE_SIDE_PADDING);
-                const nextPoolHeight = Math.max(
-                    80,
-                    contentTopPad + stackHeight + contentTopPad
+            if (poolShape && !isNaN(maxLaneWidth)) {
+                const poolStroke = Number((poolShape as any).strokeWidth) || 0;
+                // Pool desiredSize needs to include the Pool template's internal Table margin.
+                // Without this, lanes can end up flush with the pool border, making the
+                // left/right/top/bottom strokes look different due to overdraw/antialiasing.
+                const nextPoolWidth = snapSizeEven(
+                    (2 * POOL_TEMPLATE_MARGIN) +
+                    POOL_HEADER_WIDTH +
+                    anchorPad.left + anchorPad.right +
+                    (2 * POOL_LANE_SIDE_PADDING) +
+                    maxLaneWidth +
+                    poolStroke
                 );
+                const nextPoolHeight = snapSizeEven(Math.max(
+                    80,
+                    (2 * POOL_TEMPLATE_MARGIN) +
+                    anchorPad.top + anchorPad.bottom +
+                    (2 * POOL_LANE_SIDE_PADDING) +
+                    stackHeight +
+                    poolStroke
+                ));
                 const currentPoolSize = groupNode.data?.size
                     ? go.Size.parse(String(groupNode.data.size))
                     : new go.Size(groupNode.actualBounds.width, groupNode.actualBounds.height);

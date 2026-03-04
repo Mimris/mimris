@@ -767,6 +767,7 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
 }
 
 const SWIM_HEADER_WIDTH = 34;
+const LANE_HEADER_STRIP_WIDTH = 36;
 // Dark enough to be clearly visible even when the diagram background is white.
 const SWIM_BORDER_FALLBACK = "#000000";
 const SWIM_LANE_EDGE_WIDTH = 2;
@@ -843,16 +844,18 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
             {
                 stretch: go.GraphObject.Fill,
                 defaultAlignment: go.Spot.TopLeft,
-                defaultColumnSeparatorStroke: SWIM_BORDER_FALLBACK,
+                // Keep lane header/body split identical to pool: explicit separator line.
+                defaultColumnSeparatorStroke: "transparent",
                 margin: new go.Margin(0),
             },
-            $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
+            $(go.RowColumnDefinition, { column: 0, width: LANE_HEADER_STRIP_WIDTH, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Spot",
                 {
                     name: "LANE_HEADER_STRIP",
                     row: 0,
                     column: 0,
-                    stretch: go.GraphObject.Fill,
+                    width: LANE_HEADER_STRIP_WIDTH,
+                    stretch: go.GraphObject.Vertical,
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
@@ -861,6 +864,17 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                     stroke: "transparent",
                     stretch: go.GraphObject.Fill,
                 }),
+                // Separator between lane header strip and lane body.
+                $(go.Shape, "LineV",
+                    {
+                        alignment: go.Spot.Right,
+                        stretch: go.GraphObject.Vertical,
+                        strokeWidth: 2,
+                        strokeCap: "square",
+                        pickable: false,
+                    },
+                    new go.Binding("stroke", "strokecolor", swimStroke),
+                ),
                 $(go.Panel, "Horizontal",
                     { angle: 270, alignment: go.Spot.Center },
                     $(go.TextBlock, textStyle(),
@@ -947,19 +961,10 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 },
                 $(go.Shape, "Rectangle", {
                     fill: "#f3f3f3",
-                    stroke: "transparent",
+                    strokeWidth: 2,
                     stretch: go.GraphObject.Fill,
-                }),
-                // Separator between pool header strip and pool content.
-                $(go.Shape, "LineV",
-                    {
-                        alignment: go.Spot.Right,
-                        stretch: go.GraphObject.Vertical,
-                        strokeWidth: 2,
-                        strokeCap: "square",
-                        pickable: false,
-                    },
-                    new go.Binding("stroke", "strokecolor", swimStroke),
+                },
+                new go.Binding("stroke", "strokecolor", swimStroke),
                 ),
                 $(go.TextBlock, textStyle(),
                     {
@@ -1001,16 +1006,22 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 ),
                 makeNotation(notation),
             ),
-            $(go.Placeholder,
+            $(go.Panel, "Spot",
                 {
-                    name: "POOL_CONTENT_ANCHOR",
+                    name: "POOL_CONTENT_PANEL",
                     row: 0,
                     column: 1,
                     stretch: go.GraphObject.Fill,
-                    // No extra inset; lane headers should align directly with the pool header separator.
-                    padding: new go.Margin(0, 0, 0, 0),
-                    alignment: go.Spot.TopLeft,
                 },
+                $(go.Placeholder,
+                    {
+                        name: "POOL_CONTENT_ANCHOR",
+                        stretch: go.GraphObject.Fill,
+                        // No extra inset; lane headers should align directly with the pool header separator.
+                        padding: new go.Margin(0, 0, 0, 0),
+                        alignment: go.Spot.TopLeft,
+                    },
+                ),
             ),
         ),
     );
@@ -3953,17 +3964,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 mouseDrop: function (e: go.InputEvent, grp: go.Group) {
                     const diagram = e.diagram;
                     const dragged = diagram.selection;
-                    const dropPoint = diagram.lastInput?.documentPoint as go.Point | undefined;
-                    const poolShape = grp.findObject("POOL_SHAPE") as go.GraphObject | null;
-                    if (dropPoint && poolShape) {
-                        const visualBounds = poolShape.getDocumentBounds().copy();
-                        visualBounds.inflate(-2, -2);
-                        // Only accept lane drop when pointer is inside the visible pool body.
-                        if (!visualBounds.containsPoint(dropPoint)) {
-                            diagram.commandHandler.addTopLevelParts(dragged, true);
-                            return;
-                        }
-                    }
                     let hasLane = false;
                     let valid = true;
                     dragged.each((part: go.Part) => {

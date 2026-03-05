@@ -568,21 +568,23 @@ export function groupTop2(contextMenu: any, notation: string) {
                 stretch: go.GraphObject.Fill,
                 defaultAlignment: go.Spot.TopLeft
             },            
-            $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+            $(go.RowColumnDefinition, { row: 0, height: 20, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
                     {
                         row: 0,
+                        background: "transparent",
                         contextMenu: contextMenu , 
                         cursor: "move",
+                        margin: new go.Margin(3, 0, 0, 0),
                         stretch: go.GraphObject.Horizontal,
                     },
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
                 $("SubGraphExpanderButton",
                     {
                         column: 0, 
-                        margin: new go.Margin(0, 2, 2, 0), 
+                        margin: new go.Margin(1, 1, 1, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.2,
+                        scale: 1.0,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
@@ -592,10 +594,10 @@ export function groupTop2(contextMenu: any, notation: string) {
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
+                    font: "10pt Segoe UI,sans-serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
+                    margin: new go.Margin(2, 0, 0, 2),
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     name: "name"
@@ -603,30 +605,28 @@ export function groupTop2(contextMenu: any, notation: string) {
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("stroke", "textcolor").makeTwoWay(),
-                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
                 ),
-                $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
-                {
-                    row: 0, 
-                    column: 1, 
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name",
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay(),
-                new go.Binding('visible', 'isSubGraphExpanded', 
-                    function (e) { return !e; }).ofObject(),
-                ),
-                makeNotation(notation),
+                // $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+                // {
+                //     row: 0, 
+                //     column: 1, 
+                //     isMultiline: false,  // don't allow newlines in text
+                //     maxLines: 1,
+                //     editable: true,  // allow in-place editing by user
+                //     font: "Bold 10pt Segoe UI,sans-serif",
+                //     textAlign: "left",
+                //     alignment: go.Spot.Left,
+                //     margin: new go.Margin(0, 0, 0, 2),
+                //     wrap: go.TextBlock.None,
+                //     overflow: go.TextBlock.OverflowEllipsis,
+                //     name: "name",
+                //     // visible: false,
+                // },        
+                // new go.Binding("fill", "fillcolor"),
+                // new go.Binding("text", "name").makeTwoWay(),
+                // new go.Binding("stroke", "textcolor").makeTwoWay(),
+                // ),
+                // makeNotation(notation),
             ), // End Panel
             $(go.Shape,  // using a Shape instead of a Placeholder 
                 //This is open container - showing the content
@@ -634,17 +634,18 @@ export function groupTop2(contextMenu: any, notation: string) {
                     row: 1,
                     stretch: go.GraphObject.Fill,
                     fill: "rgba(128,128,128,0.33)",
-                    stroke: "black",
+                    stroke: "rgba(120,120,120,0.55)",
+                    strokeWidth: 1.2,
                     opacity: 0.75,
-                    margin: new go.Margin(0, 2, 0, 2),
+                    margin: new go.Margin(2, 2, 3, 4),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
                 new go.Binding("desiredSize", "size", function (s) {
                     const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
                     return new go.Size(
-                        Math.max(80, parsed.width - 10),
-                        Math.max(40, parsed.height - 58)
+                        Math.max(80, parsed.width - 16),
+                        Math.max(40, parsed.height - 28)
                     );
                 }),
                 // Keep open/closed visuals consistent; only the expander symbol changes.
@@ -665,19 +666,21 @@ export function groupTop2(contextMenu: any, notation: string) {
                 new go.Binding("visible", "", function () { return false; }).ofObject(),
             ), // End Picture
 
-            $(go.RowColumnDefinition, { row: 2, height: 28, sizing: go.RowColumnDefinition.None }),
-            $(go.TextBlock, textStyle(), // the typename  --------------------
-                {
-                    row: 2, 
-                    stretch: go.GraphObject.Horizontal,
-                    isMultiline: false,
-                    editable: false,
-                    minSize: new go.Size(10, 14),
-                    margin: new go.Margin(1, 0, 6, 2), 
-                    cursor: "move", 
-                },
-                new go.Binding("text", "typename"),
-            ), // End TextBlock
+            $(go.RowColumnDefinition, { row: 2, height: 6, sizing: go.RowColumnDefinition.None }),
+            // $(go.TextBlock, textStyle(), // the typename  --------------------
+            //     {
+            //         row: 2, 
+            //         stretch: go.GraphObject.Horizontal,
+            //         isMultiline: false,
+            //         editable: false,
+            //         font: "10pt Segoe UI,sans-serif",
+            //         minSize: new go.Size(10, 4),
+            //         margin: new go.Margin(0, 0, 1, 1), 
+            //         visible: false,
+            //         cursor: "move", 
+            //     },
+            //     new go.Binding("text", "typename"),
+            // ), // End TextBlock
         ),
     );
 }
@@ -709,17 +712,26 @@ function groupPortResizeAdornment() {
     );
 }
 
-function groupWithPortsBottomRightPadding(offsetX: number, offsetY: number) {
-    return $(go.Shape, "Rectangle",
-        {
-            fill: "transparent",
-            stroke: "transparent",
-            width: 1,
-            height: 1,
-            alignment: new go.Spot(1, 1, offsetX, offsetY),
-            alignmentFocus: go.Spot.TopLeft,
-            pickable: false,
-        },
+function groupWithPortsSelectionPadding(offsetX: number, offsetY: number) {
+    const pad = (alignment: go.Spot, x: number, y: number) =>
+        $(go.Shape, "Rectangle",
+            {
+                fill: "transparent",
+                stroke: "transparent",
+                width: 1,
+                height: 1,
+                alignment: new go.Spot(alignment.x, alignment.y, x, y),
+                pickable: false,
+            },
+        );
+    return $(go.Panel, "Spot",
+        { pickable: false },
+        // Reserve ICOM space on all sides so selection bounds remain stable
+        // even before ports are added.
+        pad(go.Spot.Left, -offsetX, 0),
+        pad(go.Spot.Top, 0, -offsetY),
+        pad(go.Spot.Right, offsetX, 0),
+        pad(go.Spot.Bottom, 0, offsetY),
     );
 }
 
@@ -1299,12 +1311,15 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let geostring4 = "F1 m 0,0 l 5,0 0,3 5,-7 -5,-7 0,3 -5,0 0,5 z";
     geostring4.normalize();
     let font1 = "10pt serif";
-    let font2 = "12pt FontAwesome";
+    let font2 = "9pt Segoe UI,sans-serif";
     let font = isGroup ? font2 : font1;
     let size1 = new go.Size(30, 15);
-    let size2 = new go.Size(40, 20);
+    let size2 = new go.Size(34, 18);
     let portSize = isGroup ? size2 : size1;
-    let fromSpot, toSpot, textangle = 0, textalign;
+    let fromSpot, toSpot, textangle = 0;
+    let textAlignment = go.Spot.Center;
+    let textBlockAlign: "left" | "center" | "right" = "center";
+    let textMargin = new go.Margin(0);
     if (topside) {
         toSpot = go.Spot.Top;
         fromSpot = go.Spot.Bottom;
@@ -1318,9 +1333,17 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     } else if (leftside) {
         toSpot = go.Spot.Left;
         fromSpot = go.Spot.Right;
+        // Anchor at process-side edge so text grows outward from the border.
+        textAlignment = new go.Spot(1, 0.5, -3, 0);
+        textBlockAlign = "right";
+        textMargin = new go.Margin(0, 2, 0, 0);
     } else if (rightside) {
         toSpot = go.Spot.Left;
         fromSpot = go.Spot.Right;
+        // Anchor at process-side edge so text grows outward from the border.
+        textAlignment = new go.Spot(0, 0.5, 3, 0);
+        textBlockAlign = "left";
+        textMargin = new go.Margin(0, 0, 0, 2);
     }
     let geostring = geostring1;
     if (topside) geostring = geostring2;
@@ -1354,6 +1377,9 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
             {
                 font: font,
                 angle: textangle,
+                alignment: textAlignment,
+                textAlign: textBlockAlign,
+                margin: textMargin,
             },
             new go.Binding("text", "name"),
             new go.Binding('scale', 'textscale').makeTwoWay(),
@@ -3712,7 +3738,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTop2(contextMenu, 'Icon'),
-            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
+            groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
@@ -3761,7 +3787,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTop2(contextMenu, 'Geometry'),
-            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
+            groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
@@ -3806,7 +3832,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             },
             groupTop2(contextMenu, 'Figure'),
-            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
+            groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),

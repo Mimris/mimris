@@ -249,6 +249,67 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     });
   }
 
+  public handleEditPortNameFieldChange = (value: string) => {
+    this.setState((prevState: any) => {
+      const modalContext = prevState.modalContext ? { ...prevState.modalContext } : null;
+      if (!modalContext) return null;
+      const editPortName = { ...(modalContext.editPortName || {}) };
+      editPortName.value = value;
+      modalContext.editPortName = editPortName;
+      return { modalContext };
+    });
+  }
+
+  public handleEditPortNameSubmit = () => {
+    const modalContext: any = this.state.modalContext;
+    if (!modalContext) return;
+    const myDiagram = modalContext.myDiagram || this.myMetis.myDiagram;
+    if (!myDiagram) return;
+
+    const editPortName = modalContext.editPortName || {};
+    const rawName = editPortName.value;
+    const nextName = (rawName ?? '').toString().trim();
+    if (!nextName) {
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
+
+    const nodeKey = modalContext.nodeKey;
+    const nodePart = nodeKey ? (myDiagram.findNodeForKey(nodeKey) as go.Node) : null;
+    const nodeData: any = nodePart?.data || modalContext.nodeData;
+    const objectRef = modalContext.objectRef || nodeData?.objRef || nodeData?.object?.id;
+    const object = objectRef ? this.myMetis.findObject(objectRef) : null;
+    if (!object) {
+      alert("Change Port Name failed: could not resolve target object.");
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
+
+    const side = modalContext.side;
+    const currentName = modalContext.portName;
+    const port = object.getPort(side, currentName);
+    if (!port) {
+      alert("Change Port Name failed: could not resolve target port.");
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
+
+    port.name = nextName;
+
+    const portGraphObject = modalContext.portObj;
+    if (portGraphObject) {
+      uit.changePortName(portGraphObject, nextName, myDiagram);
+    }
+
+    const jsnObj = new jsn.jsnObject(object);
+    let data: any = jsnObj;
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+    myDiagram.requestUpdate();
+
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
+  }
+
   public handleAddPortsSubmit = () => {
     const modalContext: any = this.state.modalContext;
     if (!modalContext) return;
@@ -445,19 +506,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    const myContext = modalContext.myContext;
-    let myDiagram = modalContext.myDiagram;
-    if (!myDiagram) myDiagram = myContext.myDiagram;
-    // const data = modalContext.data;
+    if (!modalContext) {
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
     if (e === 'x') {
       const links = modalContext.links;
+      const myContext = modalContext.myContext;
+      let myDiagram = modalContext.myDiagram;
+      if (!myDiagram) myDiagram = myContext?.myDiagram;
       for (let i = 0; i < links?.length; i++) {
         const link = links[i];
-        myDiagram.model.removeLinkData(link);
+        myDiagram?.model?.removeLinkData(link);
       }
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
     }
+    const myContext = modalContext.myContext;
     const props = this.props;
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
@@ -4840,29 +4905,44 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!diagram || !portObj) return null;
         const nodePart = portObj.part as go.Node;
         const nodeData: any = nodePart?.data;
-        const portData: any = (portObj as any)?.data;
-        if (!nodeData || !portData) return null;
-        const objectRef = nodeData?.object;
-        const object = objectRef ? myMetis.findObject(objectRef.id) : null;
+        if (!nodeData) return null;
+
+        // Context clicks may arrive on a child shape/text; walk up to find the item data.
+        let probe: any = portObj as any;
+        let portData: any = probe?.data;
+        while ((!portData || !portData.id) && probe?.panel) {
+          probe = probe.panel;
+          portData = probe?.data || portData;
+        }
+        if (!portData || !portData.id) return null;
+
+        const objectId = nodeData?.objRef || nodeData?.object?.id;
+        const object = objectId ? myMetis.findObject(objectId) : null;
         if (!object) return null;
-        return { nodePart, nodeData, portData, portObj, object };
+        return { nodePart, nodeData, portData, portObj: probe || portObj, object };
       };
 
       const handleChangePortName = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
         const ctx = resolvePortContext(diagram, portObj);
         if (!ctx) return;
-        const { object, portData } = ctx;
-        let portName = portData.name;
-        const side = portData.side;
-        const port = object.getPort(side, portName);
-        portName = prompt('Enter port name', portName);
-        if (!portName || !portName.trim()) return;
-        if (port) port.name = portName;
-        uit.changePortName(portObj, portName, diagram);
-        const jsnObj = new jsn.jsnObject(object);
-        let data: any = jsnObj;
-        data = JSON.parse(JSON.stringify(data));
-        diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+        const { nodeData, object, portData } = ctx;
+        const nodeKey = nodeData?.key;
+        const modalContext = {
+          what: "editPortName",
+          title: "Change Port Name",
+          case: "Change Port Name",
+          myDiagram: diagram,
+          nodeKey: nodeKey,
+          nodeData: nodeData,
+          objectRef: nodeData?.objRef || object?.id,
+          portObj: ctx.portObj || portObj,
+          side: portData.side,
+          portName: portData.name,
+          editPortName: {
+            value: portData.name ?? '',
+          },
+        };
+        diagram.handleOpenModal(nodeData, modalContext);
       };
 
       const handleChangePortColor = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
@@ -6586,6 +6666,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return new go.Point(x, y);
       };
 
+      const getGroupBodyBounds = (grp: go.Group) => {
+        const back =
+          grp.findObject("SHAPE") ||
+          grp.findObject("LANE_BODY_SHAPE") ||
+          grp.findObject("BODY") ||
+          grp.resizeObject;
+        if (!back) return null;
+        return back.getDocumentBounds();
+      };
+
       // Define link template map
       var linkTemplateMap = new go.Map<string, go.Link>();
       uit.addLinkTemplates(linkTemplateMap, linkContextMenu, myMetis);
@@ -6626,6 +6716,44 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (key === "LinkLabel") continue;
         part.dragComputation = stayInGroup;
       }
+
+      // Shift + drop outside group body detaches the node from that group.
+      myDiagram.addDiagramListener("SelectionMoved", (e: go.DiagramEvent) => {
+        const diagram = e.diagram;
+        if (!diagram?.lastInput?.shift) return;
+        const toDetach: Array<{ node: go.Node; groupBounds: go.Rect }> = [];
+        diagram.selection.each((part: go.Part) => {
+          if (!(part instanceof go.Node)) return;
+          const grp = part.containingGroup;
+          if (!grp) return;
+          const groupBounds = getGroupBodyBounds(grp);
+          if (!groupBounds) return;
+          const center = part.actualBounds.center;
+          const dropPoint = diagram.lastInput.documentPoint;
+          const droppedOutside = !groupBounds.containsPoint(center) || !groupBounds.containsPoint(dropPoint);
+          if (droppedOutside) {
+            toDetach.push({ node: part, groupBounds });
+          }
+        });
+        if (toDetach.length === 0) return;
+        diagram.model.startTransaction("detach from group");
+        const detachedObjviews: any[] = [];
+        toDetach.forEach(({ node }) => {
+          diagram.model.setGroupKeyForNodeData(node.data, null);
+          diagram.model.setDataProperty(node.data, "group", "");
+          const data: any = node.data;
+          const objview = data?.objectview || myMetis.currentModelview?.findObjectView(data?.key);
+          if (objview) {
+            objview.group = "";
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            detachedObjviews.push(JSON.parse(JSON.stringify(jsnObjview)));
+          }
+        });
+        diagram.model.commitTransaction("detach from group");
+        detachedObjviews.forEach((data) => {
+          diagram.dispatch?.({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+        });
+      });
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;
@@ -7059,6 +7187,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           </div>;
         break;
       }
+      case 'editPortName': {
+        header = modalContext.title;
+        const editPortName = modalContext.editPortName || {};
+        modalContent =
+          <div className="modal-prop" style={{ display: 'block', width: '100%' }}>
+            <div>
+              <label className="form-label mb-1">Port Name</label>
+              <input
+                className="form-control"
+                type="text"
+                value={editPortName.value ?? ''}
+                onChange={(e) => this.handleEditPortNameFieldChange(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </div>;
+        break;
+      }
       case 'editObjectType':
       case 'editObject':
       case 'editObjectview':
@@ -7198,6 +7344,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <>
                   <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }}>Cancel</Button>
                   <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleAddPortsSubmit() }}>Add</Button>
+                </>
+              ) : modalContext?.what === 'editPortName' ? (
+                <>
+                  <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }}>Cancel</Button>
+                  <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleEditPortNameSubmit() }}>Save</Button>
                 </>
               ) : (
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>

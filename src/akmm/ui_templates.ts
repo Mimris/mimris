@@ -399,13 +399,16 @@ export function groupTop1(contextMenu: any, notation: string) {
             row: 1, 
             column: 1, 
             name: "BODY",
-            stretch: go.GraphObject.Fill
+            stretch: go.GraphObject.Fill,
+            isPanelMain: true,
         },
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
+                name: "SHAPE",
                 cursor: "alias",
                 fill: "white", 
                 shadowVisible: true,
+                desiredSize: new go.Size(220, 120),
                 minSize: new go.Size(160, 65),
                 portId: "", 
                 fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
@@ -413,6 +416,19 @@ export function groupTop1(contextMenu: any, notation: string) {
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        ),
+        // Dedicated symmetric geometry for selection/resize bounds.
+        $(go.Shape, "Rectangle",
+            {
+                name: "SELECTION_BOX",
+                isPanelMain: true,
+                fill: "transparent",
+                stroke: "transparent",
+                stretch: go.GraphObject.Fill,
+                minSize: getMinSize(),
+            },
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         ),
         $(go.Panel, "Vertical",  // position header above the subgraph
         {
@@ -518,31 +534,33 @@ export function groupTop2(contextMenu: any, notation: string) {
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
+            isPanelMain: true,
         },
         $(go.Shape, "RoundedRectangle", // surrounds everything
             {
+                name: "SHAPE",
                 cursor: "alias",
                 fill: "white", 
                 shadowVisible: true,
-                minSize: new go.Size(160, 65),
+                minSize: new go.Size(200, 100),
                 portId: "", 
                 fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
                 toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         ),
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
-                // fill: "transparent", 
+                fill: "transparent",
                 stroke: "transparent",
                 margin: new go.Margin(30, 12, 12, 12),
                 minSize: new go.Size(150, 55),
                 stretch: go.GraphObject.Fill,
+                pickable: false,
             },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
         ),
 
         $(go.Panel, "Table",  // position header above the subgraph
@@ -562,9 +580,9 @@ export function groupTop2(contextMenu: any, notation: string) {
                 $("SubGraphExpanderButton",
                     {
                         column: 0, 
-                        margin: new go.Margin(-2, 2, 2, 0), 
+                        margin: new go.Margin(0, 2, 2, 0), 
                         alignment: go.Spot.Left,
-                        scale: 1.5,
+                        scale: 1.2,
                     },
                 ),  
                 $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
@@ -594,7 +612,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                     isMultiline: false,  // don't allow newlines in text
                     maxLines: 1,
                     editable: true,  // allow in-place editing by user
-                    font: "Bold 28pt Sans-Serif",
+                    font: "Bold 14pt Sans-Serif",
                     textAlign: "left",
                     alignment: go.Spot.Left,
                     margin: new go.Margin(0, 0, 0, 10),
@@ -618,11 +636,19 @@ export function groupTop2(contextMenu: any, notation: string) {
                     fill: "rgba(128,128,128,0.33)",
                     stroke: "black",
                     opacity: 0.75,
-                    margin: new go.Margin(1, 4, 1, 4),
+                    margin: new go.Margin(0, 2, 0, 2),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
-                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                new go.Binding("desiredSize", "size", function (s) {
+                    const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
+                    return new go.Size(
+                        Math.max(80, parsed.width - 10),
+                        Math.max(40, parsed.height - 58)
+                    );
+                }),
+                // Keep open/closed visuals consistent; only the expander symbol changes.
+                new go.Binding("visible", "", function () { return true; }).ofObject(),
             ), // End Shape
 
             $(go.Picture,  // the image -------------------------------------
@@ -635,18 +661,19 @@ export function groupTop2(contextMenu: any, notation: string) {
                     alignment: go.Spot.Center,
                     imageStretch: go.GraphObject.Uniform,
                 },
-                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                // Hide picture-based collapsed mode to avoid blank/shifted closed appearance.
+                new go.Binding("visible", "", function () { return false; }).ofObject(),
             ), // End Picture
 
-            $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+            $(go.RowColumnDefinition, { row: 2, height: 28, sizing: go.RowColumnDefinition.None }),
             $(go.TextBlock, textStyle(), // the typename  --------------------
                 {
                     row: 2, 
                     stretch: go.GraphObject.Horizontal,
                     isMultiline: false,
                     editable: false,
-                    minSize: new go.Size(10, 2),
-                    margin: new go.Margin(0, 0, 0, 0), 
+                    minSize: new go.Size(10, 14),
+                    margin: new go.Margin(1, 0, 6, 2), 
                     cursor: "move", 
                 },
                 new go.Binding("text", "typename"),
@@ -679,6 +706,20 @@ function groupPortResizeAdornment() {
         makeHandle(go.Spot.BottomLeft, "sw-resize", "SW"),
         makeHandle(go.Spot.Bottom, "s-resize", "S"),
         makeHandle(go.Spot.BottomRight, "se-resize", "SE"),
+    );
+}
+
+function groupWithPortsBottomRightPadding(offsetX: number, offsetY: number) {
+    return $(go.Shape, "Rectangle",
+        {
+            fill: "transparent",
+            stroke: "transparent",
+            width: 1,
+            height: 1,
+            alignment: new go.Spot(1, 1, offsetX, offsetY),
+            alignmentFocus: go.Spot.TopLeft,
+            pickable: false,
+        },
     );
 }
 
@@ -794,78 +835,158 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
 }
 
 const SWIM_HEADER_WIDTH = 34;
+const LANE_HEADER_STRIP_WIDTH = 36;
+// Dark enough to be clearly visible even when the diagram background is white.
+const SWIM_BORDER_FALLBACK = "#000000";
+const SWIM_LANE_EDGE_WIDTH = 2;
+
+function parseRgbLike(s: string): { r: number; g: number; b: number } | null {
+    // Supports #rgb, #rrggbb, rgb(...), rgba(...).
+    const t = s.trim().toLowerCase();
+    if (t.startsWith("#")) {
+        const hex = t.slice(1);
+        if (hex.length === 3) {
+            const r = parseInt(hex[0] + hex[0], 16);
+            const g = parseInt(hex[1] + hex[1], 16);
+            const b = parseInt(hex[2] + hex[2], 16);
+            if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+            return { r, g, b };
+        }
+        if (hex.length === 6) {
+            const r = parseInt(hex.slice(0, 2), 16);
+            const g = parseInt(hex.slice(2, 4), 16);
+            const b = parseInt(hex.slice(4, 6), 16);
+            if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+            return { r, g, b };
+        }
+        return null;
+    }
+    const m = t.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)(?:\s*,\s*([0-9.]+))?\s*\)$/);
+    if (m) {
+        const r = Math.max(0, Math.min(255, Number(m[1])));
+        const g = Math.max(0, Math.min(255, Number(m[2])));
+        const b = Math.max(0, Math.min(255, Number(m[3])));
+        if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+        return { r, g, b };
+    }
+    return null;
+}
+
+function relLuminance(rgb: { r: number; g: number; b: number }): number {
+    // Relative luminance per WCAG (sRGB).
+    const toLin = (c: number) => {
+        const v = c / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    const r = toLin(rgb.r);
+    const g = toLin(rgb.g);
+    const b = toLin(rgb.b);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function swimStroke(c: any): string {
+    const s = (c == null) ? "" : String(c).trim();
+    if (s === "") return SWIM_BORDER_FALLBACK;
+    // If the provided stroke is very light, clamp to a visible default.
+    // This avoids "missing" borders on white backgrounds when data has light stroke colors.
+    const rgb = parseRgbLike(s);
+    if (rgb && relLuminance(rgb) > 0.72) return SWIM_BORDER_FALLBACK;
+    return s;
+}
 
 export function laneTop(contextMenu: any, notation: string, textscale: number) {
-    return $(go.Panel, "Table",
-        {
-            stretch: go.GraphObject.Fill,
-            defaultAlignment: go.Spot.TopLeft,
-        },
-        $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
-        $(go.Panel, "Spot",
+    return $(go.Panel, "Auto",
+        { name: "LANE_MAIN", stretch: go.GraphObject.Fill },
+        $(go.Shape, "Rectangle",
             {
-                name: "LANE_HEADER_STRIP",
-                row: 0,
-                column: 0,
+                name: "LANE_MAIN_SHAPE",
+                fill: "transparent",
+                strokeWidth: SWIM_LANE_EDGE_WIDTH,
+                strokeCap: "square",
+                strokeJoin: "miter",
                 stretch: go.GraphObject.Fill,
-                margin: new go.Margin(-1, 0, 0, 0),
-                contextMenu: contextMenu,
-                cursor: "move",
             },
-            $(go.Shape, "Rectangle", {
-                fill: "#f3f3f3",
-                stroke: "#8a8a8a",
+            new go.Binding("stroke", "strokecolor", swimStroke),
+        ),
+        $(go.Panel, "Table",
+            {
                 stretch: go.GraphObject.Fill,
-            }),
-            $(go.Panel, "Horizontal",
+                defaultAlignment: go.Spot.TopLeft,
+                // Keep lane header/body split identical to pool: explicit separator line.
+                defaultColumnSeparatorStroke: "transparent",
+                margin: new go.Margin(0),
+            },
+            $(go.RowColumnDefinition, { column: 0, width: LANE_HEADER_STRIP_WIDTH, sizing: go.RowColumnDefinition.None }),
+            $(go.Panel, "Spot",
                 {
-                    angle: 270,
-                    alignment: go.Spot.Center,
+                    name: "LANE_HEADER_STRIP",
+                    row: 0,
+                    column: 0,
+                    width: LANE_HEADER_STRIP_WIDTH,
+                    stretch: go.GraphObject.Vertical,
+                    contextMenu: contextMenu,
+                    cursor: "move",
                 },
-                $(go.TextBlock, textStyle(),
+                $(go.Shape, "Rectangle", {
+                    fill: "#f3f3f3",
+                    stroke: "transparent",
+                    stretch: go.GraphObject.Fill,
+                }),
+                // Separator between lane header strip and lane body.
+                $(go.Shape, "LineV",
                     {
-                        scale: textscale,
-                        isMultiline: false,
-                        maxLines: 1,
-                        editable: true,
-                        font: "Bold 14pt Sans-Serif",
-                        margin: new go.Margin(0, 0, 0, 0),
-                        wrap: go.TextBlock.None,
-                        overflow: go.TextBlock.OverflowEllipsis,
-                        name: "name",
+                        alignment: go.Spot.Right,
+                        stretch: go.GraphObject.Vertical,
+                        strokeWidth: 2,
+                        strokeCap: "square",
+                        pickable: false,
+                    },
+                    new go.Binding("stroke", "strokecolor", swimStroke),
+                ),
+                $(go.Panel, "Horizontal",
+                    { angle: 270, alignment: go.Spot.Center },
+                    $(go.TextBlock, textStyle(),
+                        {
+                            scale: textscale,
+                            isMultiline: false,
+                            maxLines: 1,
+                            editable: true,
+                            font: "Bold 14pt Sans-Serif",
+                            margin: new go.Margin(0, 0, 0, 0),
+                            wrap: go.TextBlock.None,
+                            overflow: go.TextBlock.OverflowEllipsis,
+                            name: "name",
+                        },
+                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("text", "name").makeTwoWay(),
+                        new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                    ),
+                    $("SubGraphExpanderButton", { margin: new go.Margin(0, 0, 0, 4), scale: 1.1 }),
+                ),
+                makeNotation(notation),
+            ),
+            // Body is a Spot so we can draw a stable border overlay that matches selection/handles.
+            $(go.Panel, "Spot",
+                {
+                    name: "BODY",
+                    row: 0,
+                    column: 1,
+                    stretch: go.GraphObject.Fill,
+                },
+                $(go.Shape, "Rectangle",
+                    {
+                        name: "LANE_BODY_SHAPE",
+                        cursor: "move",
+                        fill: "white",
+                        stroke: "transparent",
+                        minSize: new go.Size(160, 65),
+                        stretch: go.GraphObject.Fill,
                     },
                     new go.Binding("fill", "fillcolor"),
-                    new go.Binding("text", "name").makeTwoWay(),
-                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                    new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
                 ),
-                $("SubGraphExpanderButton",
-                    {
-                        margin: new go.Margin(0, 0, 0, 4),
-                        scale: 1.1,
-                    },
-                ),
+                $(go.Placeholder, { padding: new go.Margin(12, 12, 12, 12), alignment: go.Spot.TopLeft }),
             ),
-            makeNotation(notation),
-        ),
-        $(go.Panel, "Auto",
-            {
-                name: "BODY",
-                row: 0,
-                column: 1,
-                stretch: go.GraphObject.Fill,
-            },
-            $(go.Shape, "Rectangle",
-                {
-                    name: "LANE_BODY_SHAPE",
-                    cursor: "move",
-                    fill: "white",
-                    minSize: new go.Size(160, 65),
-                },
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("stroke", "strokecolor"),
-                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            ),
-            $(go.Placeholder, { padding: new go.Margin(12, 12, 12, 12), alignment: go.Spot.TopLeft }),
         ),
     );
 }
@@ -877,16 +998,23 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 name: "POOL_SHAPE",
                 cursor: "alias",
                 fill: "white",
+                strokeWidth: 2,
+                strokeCap: "square",
+                strokeJoin: "miter",
                 minSize: new go.Size(200, 100),
             },
             new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
+            // Ensure pool borders are always visible even when `strokecolor` is unset/empty.
+            new go.Binding("stroke", "strokecolor", swimStroke),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         ),
         $(go.Panel, "Table",
             {
                 stretch: go.GraphObject.Fill,
-                defaultColumnSeparatorStroke: "#8a8a8a",
+                // Keep pool header + lanes flush to the pool border (no gap).
+                margin: new go.Margin(0),
+                // Draw our own separator line so it doesn't affect column sizing/bounds (removes visible gap).
+                defaultColumnSeparatorStroke: "transparent",
             },
             $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Spot",
@@ -894,15 +1022,18 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     name: "POOL_HEADER_STRIP",
                     row: 0,
                     column: 0,
-                    stretch: go.GraphObject.Fill,
+                    width: SWIM_HEADER_WIDTH,
+                    stretch: go.GraphObject.Vertical,
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
                 $(go.Shape, "Rectangle", {
                     fill: "#f3f3f3",
-                    stroke: "#8a8a8a",
+                    strokeWidth: 2,
                     stretch: go.GraphObject.Fill,
-                }),
+                },
+                new go.Binding("stroke", "strokecolor", swimStroke),
+                ),
                 $(go.TextBlock, textStyle(),
                     {
                         angle: 270,
@@ -943,14 +1074,22 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 ),
                 makeNotation(notation),
             ),
-            $(go.Placeholder,
+            $(go.Panel, "Spot",
                 {
-                    name: "POOL_CONTENT_ANCHOR",
+                    name: "POOL_CONTENT_PANEL",
                     row: 0,
                     column: 1,
-                    padding: new go.Margin(2, 2, 2, 2),
-                    alignment: go.Spot.TopLeft,
+                    stretch: go.GraphObject.Fill,
                 },
+                $(go.Placeholder,
+                    {
+                        name: "POOL_CONTENT_ANCHOR",
+                        stretch: go.GraphObject.Fill,
+                        // No extra inset; lane headers should align directly with the pool header separator.
+                        padding: new go.Margin(0, 0, 0, 0),
+                        alignment: go.Spot.TopLeft,
+                    },
+                ),
             ),
         ),
     );
@@ -2623,7 +2762,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             { contextMenu: contextMenu },    
             {
-                selectionObjectName: "SHAPE",
+                selectionObjectName: "GROUP",
                 resizable: true, resizeObjectName: "SHAPE"
             },
             $(go.Shape,  
@@ -2833,7 +2972,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             {
-                selectionObjectName: "SHAPE",
+                selectionObjectName: "GROUP",
                 // resizable: true, resizeObjectName: "SHAPE",
                 resizeObjectName: "SHAPE",
                 contextMenu: contextMenu
@@ -2910,7 +3049,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             {
-                selectionObjectName: "SHAPE",
+                selectionObjectName: "GROUP",
                 // resizable: true, 
                 resizeObjectName: "SHAPE",
                 contextMenu: contextMenu ,    
@@ -3544,12 +3683,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "GROUP",
+                resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
-                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
-                locationObjectName: 'BODY',
+                locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
@@ -3573,7 +3711,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop1(contextMenu, 'Icon'),
+            groupTop2(contextMenu, 'Icon'),
+            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
@@ -3593,11 +3732,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "GROUP",
+                resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
-                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
+                locationObjectName: 'SHAPE',
+                locationSpot: go.Spot.Center,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3620,7 +3760,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop1(contextMenu, 'Geometry'),
+            groupTop2(contextMenu, 'Geometry'),
+            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
@@ -3636,11 +3777,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 name: "GROUP",
                 resizable: true, 
                 minSize: getMinSize(),
-                resizeObjectName: "GROUP",
+                resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
-                resizeAdornmentTemplate: groupPortResizeAdornment(),
                 selectionAdorned: true,
                 contextMenu: contextMenu,
+                locationObjectName: 'SHAPE',
+                locationSpot: go.Spot.Center,
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3663,7 +3805,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop1(contextMenu, 'Figure'),
+            groupTop2(contextMenu, 'Figure'),
+            groupWithPortsBottomRightPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
@@ -3802,15 +3945,26 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Horizontal", groupStyle(),
         {
             name: "GROUP",
-            selectionObjectName: "GROUP",  // selecting a lane causes the body of the lane to be highlit, not the label
+            // Keep selection outline + resize handles aligned with the full lane (header + body).
+            selectionObjectName: "LANE_MAIN_SHAPE",
+            resizeObjectName: "LANE_MAIN_SHAPE",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
+            // Make "loc" represent the top-left of the whole lane (header + body),
+            // so pool layout can align lane headers flush to the pool header separator.
+            locationObjectName: "LANE_MAIN",
+            locationSpot: go.Spot.TopLeft,
+            computesBoundsAfterDrag: true,
+            computesBoundsIncludingLinks: false,
+            computesBoundsIncludingLocation: true,
+            handlesDragDropForMembers: true,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        // NOTE: `data.size` is the lane BODY size and is bound on `LANE_BODY_SHAPE`.
+        // Binding it to the whole Group causes the Group's bounds/selection/drag math to disagree with visuals.
         // the lane header consisting of a Shape and a TextBlock
         new go.Binding("layout", "groupLayout").makeTwoWay(),
         { // Tooltip
@@ -3836,18 +3990,27 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Horizontal", groupStyle(),
         {
             name: "GROUP",
-            selectionObjectName: "GROUP",  // selecting a lane causes the body of the lane to be highlit, not the label
+            // Keep selection outline + resize handles aligned with the full lane (header + body).
+            selectionObjectName: "LANE_MAIN_SHAPE",
+            resizeObjectName: "LANE_MAIN_SHAPE",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
             padding: new go.Margin(0, 0, 0, 0),
+            locationObjectName: "LANE_MAIN",
+            locationSpot: go.Spot.TopLeft,
+            computesBoundsAfterDrag: true,
+            computesBoundsIncludingLinks: false,
+            computesBoundsIncludingLocation: true,
+            handlesDragDropForMembers: true,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("location", "loc", go.Point.parse)
             .makeTwoWay(pt => `${pt.x} ${pt.y}`),
-          new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        // NOTE: `data.size` is the lane BODY size and is bound on `LANE_BODY_SHAPE`.
+        // Binding it to the whole Group causes the Group's bounds/selection/drag math to disagree with visuals.
         // the lane header consisting of a Shape and a TextBlock
         new go.Binding("layout", "groupLayout").makeTwoWay(),
         { // Tooltip
@@ -3877,6 +4040,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 minSize: getMinSize(),
                 contextMenu: contextMenu,
                 selectionAdorned: true,
+                locationSpot: go.Spot.TopLeft,
                 mouseDrop: function (e: go.InputEvent, grp: go.Group) {
                     const diagram = e.diagram;
                     const dragged = diagram.selection;

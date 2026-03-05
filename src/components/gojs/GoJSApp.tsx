@@ -948,7 +948,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 for (let i = 0; i < inputRelships?.length; i++) {
                   const relship = inputRelships[i];
                   const fromObj = relship.fromObject;
-                  if (!fromObj.objectviews) 
+                  if (!fromObj?.objectviews) 
                     continue;
                   const fromObjviews = myModelview.findObjectViewsByObject(fromObj) as akm.cxObjectView;
                   const fromObjview = fromObjviews[0];
@@ -1088,31 +1088,36 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data?.size) objview.size = data.size;
           let persistedGroup = objview.group;
           if (isLaneGroup) {
-            const modelGroup = (data?.group || "") as string;
-            if (sel.containingGroup instanceof go.Group) {
-              persistedGroup = sel.containingGroup.key;
-            } else if (modelGroup) {
-              persistedGroup = modelGroup;
-            } else {
-              persistedGroup = "";
-            }
+            // Resolve lane membership from the actual drop position.
+            // This avoids stale containingGroup values when dragging in/out of pools.
+            const dropPoint = (myDiagram.lastInput?.documentPoint as go.Point | undefined)
+              || sel.actualBounds.center;
+            let targetPool: go.Group | null = null;
+            const topGroups = myDiagram.findTopLevelGroups();
+            topGroups.each((g: go.Group) => {
+              if (targetPool) return;
+              const gdata = g?.data;
+              const isPool =
+                gdata?.category === "Pool" ||
+                gdata?.template === "Pool" ||
+                g?.category === "Pool";
+              if (!isPool) return;
+              const poolShape = g.findObject("POOL_SHAPE") as go.GraphObject | null;
+              const poolBounds = poolShape ? poolShape.getDocumentBounds() : g.actualBounds;
+              if (poolBounds.containsPoint(dropPoint)) targetPool = g;
+            });
 
-            // Explicit detach rule: if move started in a pool and the drop point is outside
-            // that pool shape, keep the lane top-level even if GoJS still reports old grouping.
-            const sourcePoolKey = previousGroup || modelGroup;
-            const dropPoint = myDiagram.lastInput?.documentPoint as go.Point | undefined;
-            if (sourcePoolKey && dropPoint) {
-              const sourcePool = myDiagram.findNodeForKey(sourcePoolKey) as go.Group | null;
-              if (sourcePool instanceof go.Group) {
-                const poolShape = sourcePool.findObject("POOL_SHAPE") as go.GraphObject | null;
-                const poolBounds = poolShape
-                  ? poolShape.getDocumentBounds()
-                  : sourcePool.actualBounds.copy();
-                poolBounds.inflate(-2, -2);
-                if (!poolBounds.containsPoint(dropPoint)) {
-                  persistedGroup = "";
-                }
-              }
+            persistedGroup = targetPool ? String(targetPool.key) : "";
+
+            // Force membership to match resolved target.
+            if (!targetPool && sel.containingGroup instanceof go.Group) {
+              const topLevelSet = new go.Set<go.Part>();
+              topLevelSet.add(sel);
+              myDiagram.commandHandler.addTopLevelParts(topLevelSet, true);
+            } else if (targetPool && sel.containingGroup !== targetPool) {
+              const memberSet = new go.Set<go.Part>();
+              memberSet.add(sel);
+              targetPool.addMembers(memberSet, true);
             }
           } else if (sel.containingGroup instanceof go.Group) {
             persistedGroup = sel.containingGroup.key;
@@ -1588,7 +1593,29 @@ class GoJSApp extends React.Component<{}, AppState> {
           let strokecolor = "";
           let textcolor = "";
           let part = partData;
-          part.scale = Number(n.scale);
+          const templateName = String(part.template || "");
+          const isContainerLike =
+            part.isGroup === true ||
+            part.viewkind === constants.viewkinds.CONT ||
+            type?.viewkind === constants.viewkinds.CONT ||
+            templateName.startsWith("group");
+          if (isContainerLike) {
+            part.isGroup = true;
+            part.viewkind = constants.viewkinds.CONT;
+            // Ensure fresh container-like drops render with the same group template/state.
+            if (!templateName.startsWith("group")) {
+              part.template = "groupWithPorts";
+            }
+            part.isExpanded = true;
+            part.isSubGraphExpanded = true;
+            part.scale = 1;
+            if ((!part.name || String(part.name).trim() === "") && (part.typename || type?.name)) {
+              part.name = String(part.typename || type?.name);
+            }
+          }
+          if (!isContainerLike) {
+            part.scale = Number(n.scale);
+          }
           if (part.size === "" || !part.size) {
             if (part.isGroup) {
               part.size = "200 100";
@@ -1626,6 +1653,15 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else {
             objview.loc = part.loc;
             objview.size = part.size;
+          }
+          if (part.isGroup) {
+            objview.isGroup = true;
+            objview.viewkind = constants.viewkinds.CONT;
+            if (!objview.template || !String(objview.template).startsWith("group")) {
+              objview.template = String(part.template || "groupWithPorts");
+            }
+            objview.isExpanded = true;
+            objview.scale = 1;
           }
           let goNode = myGoModel.findNodeByViewId(objview.id);
           if (!goNode) {
@@ -1709,6 +1745,19 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
           }
           node?.updateTargetBindings();
+          if (part.isGroup) {
+            const droppedPart = (myDiagram.findPartForKey(part.key) || n) as go.Part;
+            const droppedGroup = droppedPart instanceof go.Group ? droppedPart : null;
+            if (droppedGroup) {
+              droppedGroup.isSubGraphExpanded = true;
+            }
+            const d = droppedPart?.data || n?.data;
+            if (d) {
+              myDiagram.model.setDataProperty(d, "isExpanded", true);
+              myDiagram.model.setDataProperty(d, "isSubGraphExpanded", true);
+              myDiagram.model.setDataProperty(d, "scale", 1);
+            }
+          }
         })
         // Dispatch modelview
         const modifiedModelviews = new Array();
@@ -1782,24 +1831,42 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       case "PartResized": {
         const affectedPoolKeys = new Set<string>();
-        let selection = e.diagram.selection
+        const resizedPoolKeys = new Set<string>();
+        const resizedParts = new go.Set<go.Part>();
+        const subjectPart = (e.subject as any)?.part || e.subject;
+        if (subjectPart instanceof go.Part) {
+          resizedParts.add(subjectPart);
+        }
+        const selection = e.diagram.selection;
         for (let it = selection.iterator; it?.next();) {
+          const p = it.value;
+          if (p instanceof go.Part) resizedParts.add(p);
+        }
+        for (let it = resizedParts.iterator; it?.next();) {
           let n = it.value;
           if (n.data.isGroup) {
             let objview: akm.cxObjectView;
             objview = myModelview.findObjectView(n.data.key);
             if (!objview) 
               continue;
+            const category = n.data?.category || n.data?.template;
+            if (category === 'Lane' || category === 'Lane_w_handles') {
+              const laneBody = n.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+              if (laneBody) {
+                const bodySize = `${laneBody.actualBounds.width} ${laneBody.actualBounds.height}`;
+                myDiagram.model.setDataProperty(n.data, "size", bodySize);
+              }
+            }
             objview.loc = n.data.loc;
             objview.size = n.data.size;
             let myNode = myGoModel.findNodeByViewId(n.data.key);
             myNode.size = objview.size;
             myNode.key = objview.id;
-            const category = n.data?.category || n.data?.template;
             if (category === 'Lane' || category === 'Lane_w_handles') {
               if (n.data?.group) affectedPoolKeys.add(n.data.group);
             } else if (category === 'Pool') {
               affectedPoolKeys.add(n.data.key);
+              resizedPoolKeys.add(n.data.key);
             }
             const jsnObjview = new jsn.jsnObjectView(objview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
@@ -1819,7 +1886,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        if (resizedPoolKeys.size > 0) {
+          (myDiagram as any).__preserveResizedPoolWidths = resizedPoolKeys;
+        }
         relayoutPoolsByKeys(affectedPoolKeys);
+        if (resizedPoolKeys.size > 0) {
+          delete (myDiagram as any).__preserveResizedPoolWidths;
+        }
         break;
       }
       case 'ClipboardChanged': {

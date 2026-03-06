@@ -867,8 +867,8 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let toObject = toObjview.object;
     if (!toObject)
         toObject = myMetis.findObject(toObjview.objectRef);
-    const fromPort = "";
-    const toPort = "";
+    const fromPort = context?.gjsData?.fromPort || "";
+    const toPort = context?.gjsData?.toPort || "";
     let reltype, fromType, toType;
     let fromTypeRef = fromObject?.typeRef;
     if (fromTypeRef) {
@@ -949,6 +949,13 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                         }
                     }            
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
+                        // reltypes = [];
+                        let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
+                        reltypes.push(rtype);
+                        rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
+                        reltypes.push(rtype);
+                    }
+                    if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_CONTAINER) {
                         // reltypes = [];
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
                         reltypes.push(rtype);
@@ -1099,13 +1106,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             }
         }
     } else {
-        relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
+        relship = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "", portFrom, portTo);
         relname = typename;
-        // if (askForRelshipName) {
-        //     relname = prompt("Enter relationship name:", typename);
-        //     relship.name = relname;
-        // }
-
         relship.name = relname;
         objFrom.addOutputrel(relship);
         objTo.addInputrel(relship);
@@ -1120,6 +1122,8 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
             myGoModel: myGoModel,
             fromObjview: fromObjview,
             toObjview: toObjview,
+            fromPortKey: portFrom,
+            toPortKey: portTo,
             gjsFromKey: gjsFromKey,
             gjsToKey: gjsToKey,
             reltype: reltype,
@@ -1148,6 +1152,8 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const fromObj = fromObjview.object;
     const goToNode = context.goToNode;
     const toObjview = context.toObjview;
+    const fromPortId = context.fromPortKey;
+    const toPortId = context.toPortKey;
     const reltype = context.reltype;
     let relname = context.relname;
     const reltypeview = reltype.typeview;
@@ -1156,9 +1162,13 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     if (relname === "flowsTo" || relname === "isFollowedBy") {
         relname = " ";
     }
-    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "");
+    const resolvedFromPort = fromPortId || data?.fromPort || data?.fromPortId || "";
+    const resolvedToPort = toPortId || data?.toPort || data?.toPortId || "";
+    const relview = new akm.cxRelationshipView(utils.createGuid(), relname, rel, "", resolvedFromPort, resolvedToPort);
     relview.fromObjview = fromObjview;
     relview.toObjview = toObjview;
+    relview.fromPortid = resolvedFromPort;
+    relview.toPortid = resolvedToPort;
     rel.addRelationshipView(relview);
     if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
@@ -1180,8 +1190,10 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         key:    relview?.id,
         name:   relname,
         category: constants.gojs.C_RELATIONSHIP,
-        from:   gjsFromKey, 
+        from:   gjsFromKey,
         to:     gjsToKey,
+        fromPort: resolvedFromPort,
+        toPort: resolvedToPort,
         relshipRef: rel?.id,
         relviewRef: relview?.id,
         reltypeRef: reltype?.id,
@@ -1225,11 +1237,6 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
-    // modifiedObjectViews.map(mn => {
-    //     let data = (mn) && mn
-    //     data = JSON.parse(JSON.stringify(data));
-    //     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    // })
     return relview;
 }
 
@@ -3114,6 +3121,40 @@ export function purgeModelDeletions(metis: akm.cxMetis, diagram: any) {
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }
 
+export function purgeDuplicatedRelships(model: akm.cxModel): akm.cxRelship[] {
+    const relships = model.relships;
+    const duplicatedRels = new Array();
+    for (let i = 0; i < relships?.length; i++) {
+        const rel1 = relships[i];
+        for (let j = i + 1; j < relships?.length; j++) {
+            const rel2 = relships[j];
+            if (rel2.name === rel2.id) {
+                duplicatedRels.push(rel2);
+                continue;
+            }
+            if (rel1.fromobjectRef === rel2.fromobjectRef &&
+                rel1.toobjectRef === rel2.toobjectRef &&
+                rel1.typeRef === rel2.typeRef) {
+                if (!duplicatedRels.includes(rel2)) {
+                    duplicatedRels.push(rel2);
+                }
+            }
+        }
+    }
+    for (let i = 0; i < duplicatedRels?.length; i++) {
+        const rel = duplicatedRels[i];
+        rel.markedAsDeleted = true;
+    }
+    const len = model.relships?.length;
+    for (let i = len - 1; i >= 0; i--) {
+        const rel = relships[i];
+        if (rel.markedAsDeleted) {
+            relships.splice(i, 1);
+        }
+    }
+    return relships;
+}
+
 function purgeUnusedRelshiptypes(myMetis: akm.cxMetis) {
     // Go through all reltypes and check if they are used
     // If not, mark them as deleted
@@ -4847,4 +4888,85 @@ export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
     }
     
     console.log(`Updated recursive layout for ${member.id}: loc=${member.loc}, size=${member.size}`);
+}
+
+export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
+    // Go through all object views and check if they are groups
+    const relviews = new Array<akm.cxRelationshipView>();
+    const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+    // Get all relviews of type contains
+    for (let i = 0; i < modelview.relshipviews?.length; i++) {
+        const relview = modelview.relshipviews[i];
+        const relship = relview.relship;
+        const reltypeName = reltype?.name;
+        if (relship && reltype && relship.type && relship.type.name === reltype.name) {
+            relviews.push(relview);
+        }
+    }
+    // For each hasMember relview, get the member object view  
+    const objviews = new Array<akm.cxObjectView>();
+    for (let i = 0; i < relviews?.length; i++) {
+        const relview = relviews[i];
+        const fromObjview = relview.fromObjview; // Group
+        const toObjview = relview.toObjview;     // Member
+        if (fromObjview && toObjview) {
+            toObjview.group = fromObjview.id;
+            objviews.push(toObjview);
+        }
+    }
+    for (let i = 0; i < objviews?.length; i++) {
+        const member = objviews[i];
+        const jsnObjview = new jsn.jsnObjectView(member);
+        let data = jsnObjview;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    }
+}
+
+export function isContainedInGroup(myGoModel, goNode): gjs.goObjectNode | false {
+    // Check if the goNode is contained in a group, i.e. 
+    // there is a contains relationship from a group to this node
+    const objview = goNode.objectview;
+    if (!objview) return false;
+    const modelview = myGoModel.modelView;
+    if (!modelview) return false;
+    const relviews = modelview.relshipviews;
+    for (let i = 0; i < relviews?.length; i++) {
+        const relview = relviews[i];
+        const relship = relview.relship;
+        if (relship) {
+            const reltype = relship.type;
+            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
+                const fromObjview = relview.fromObjview; // Group
+                const toObjview = relview.toObjview;
+                if (toObjview && toObjview.id === objview.id) {
+                    return fromObjview;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+export function isContainedInGroup1(goModel, goNode): akm.cxObject | false {
+    // Check if the goNode is contained in a group, i.e. 
+    // there is a contains relationship from a group to this node
+    const myModel: akm.cxModel = goModel.model;
+    const object = myModel.findObject(goNode.objRef);
+    if (!object) return false;
+    const relships = myModel.relships;
+    for (let i = 0; i < relships?.length; i++) {
+        const relship = relships[i];
+       if (relship) {
+            const reltype = relship.type;
+            if (reltype && reltype.name === constants.types.AKM_CONTAINS) {
+                const fromObject = relship.fromObject; // Group
+                const toObject = relship.toObject;
+                if (toObject && toObject.id === object.id) {
+                    return fromObject;
+                }
+            }
+        }
+    }
+    return null;
 }

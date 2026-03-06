@@ -917,8 +917,7 @@ export class goLink extends goMetaObject {
     markedAsDeleted: boolean;
     constructor(key: string, model?: goModel) {
         super(key);
-        // Guard against undefined model to avoid runtime failures during incomplete initialization
-        this.parentModelRef = model?.key || "";  // goModel
+        this.parentModelRef = model?.key;  // goModel
         // this.parentModel = model;  // goModel
         this.markedAsDeleted = false;
     }

@@ -892,6 +892,7 @@ export class jsnObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    groupLayout:     string;
     grabIsAllowed:   boolean;
     template:        string;
     template2:       string;
@@ -922,6 +923,7 @@ export class jsnObjectTypeView {
         this.figure          = objtypeview.getFigure();
         this.figure2         = objtypeview.getFigure2();
         this.geometry        = objtypeview.getGeometry();
+        this.groupLayout     = objtypeview.getGroupLayout();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -2176,6 +2178,14 @@ export class jsnImportMetis {
             if (objtype) {
                 let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
                 obj.setType(objtype);
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new akm.cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 jsnMetis.addObject(obj);
                 model.addObject(obj);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);
@@ -2195,7 +2205,16 @@ export class jsnImportMetis {
             const fromObj = jsnMetis.findObject(item.fromObjectRef);
             const toObj = jsnMetis.findObject(item.toObjectRef);
             if (reltype && fromObj && toObj) {
-                const rel = new akm.cxRelationship(item.id, item.name, reltype, fromObj, toObj, item.description);
+                const rel = new akm.cxRelationship(
+                    item.id,
+                    reltype,
+                    fromObj,
+                    toObj,
+                    item.name,
+                    item.description,
+                    item.fromPortid || "",
+                    item.toPortid || ""
+                );
                 rel.setType(reltype);
                 jsnMetis.addRelationship(rel);
                 model.addRelationship(rel);
@@ -2247,6 +2266,8 @@ export class jsnImportMetis {
                 const toobjview: any = modelview.findObjectView(item.toObjview.id);
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
+                if (item.fromPortid) relview.fromPortid = item.fromPortid;
+                if (item.toPortid) relview.toPortid = item.toPortid;
                 // relview.setData(item.data);
                 if (item.typeview.id) {
                     const reltypeview = jsnMetis.findRelationshipTypeView(item.typeview.id);

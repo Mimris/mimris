@@ -1018,6 +1018,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGroupLayout(item.groupLayout);
             objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
@@ -1171,6 +1172,14 @@ export class cxMetis {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
                 obj.generatedTypeId = item.generatedTypeId;
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 if (model) {
                     model.addObject(obj);
                 }
@@ -3142,6 +3151,45 @@ export class cxMetis {
         }
         return node;
     }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
+        }
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -3608,6 +3656,7 @@ export class cxMetaModel extends cxMetaObject {
     geometries: cxGeometry[] | null;
     containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
+    porttypes: cxPortType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypes: cxRelationshipType[] | null;
@@ -6662,7 +6711,10 @@ export class cxObjectTypeView extends cxMetaObject {
             let prop: any;
             let data: any = this.data;
             for (prop in data) {
-                if (objview[prop] == undefined || objview[prop] === "") continue;
+                if (prop !== 'groupLayout') {
+                    if (objview[prop] == undefined || objview[prop] === "") 
+                        continue;
+                }
                 data[prop] = objview[prop];
             }
             if (debug) console.log('5580 data', data,);
@@ -6814,6 +6866,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.data.fillcolor2)
             return this.data.fillcolor2;
         return "white";
+    }
+    getGroupLayout(): string {
+        if (this.groupLayout)
+            return this.groupLayout;
+        else if (this.data.groupLayout)
+            return this.data.groupLayout;
+        return "";
+    }
+    setGroupLayout(layout: string) {
+        this.data.groupLayout = layout;
+        this.groupLayout = layout;
     }
     setTextcolor(color: string) {
         this.data.textcolor = color;
@@ -6985,7 +7048,9 @@ export class cxReltypeviewData {
     arrowscale: number;
     textscale: number;
     dash: string;
+    from: string;
     fromArrow: string;
+    to: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
@@ -7767,6 +7832,7 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findRelationship1(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType, fromPort: cxPort, toPort: cxPort): cxRelationship | null {
+        if (!fromObj || !toObj || !reltype) return null;
         const relships = this.relships;
         if (relships) {
             const len = utils.objExists(relships) ? relships.length : 0;
@@ -7908,6 +7974,45 @@ export class cxModel extends cxMetaObject {
                 if (!oview.object)
                     oview.markedAsDeleted = true;
             }
+        }
+    }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
         }
     }
 }
@@ -8835,7 +8940,8 @@ export class cxRelationship extends cxInstance {
     nameTo: string;
     fromPortid: string;
     toPortid: string;
-    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
+    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, 
+                name: string, description: string, fromPortId: string = "", toPortId: string = "") {
         super(id, name, type, description);
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipviews = null;
@@ -8846,8 +8952,8 @@ export class cxRelationship extends cxInstance {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
-        this.fromPortid = "";
-        this.toPortid = "";
+        this.fromPortid = fromPortId;
+        this.toPortid = toPortId;
         if (!this.typeName) this.typeName = name;
         if (this.type) {
             this.cardinality = this.getCardinality();
@@ -8923,15 +9029,17 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if (this.fromObject && oldFromObj && newFromObj) {
-            oldFromObj.removeOutputrel(this);
-            this.fromObject = newFromObj;
-            newFromObj.addOutputrel(this);
-        }
-        if (this.toObject && oldToObj && newToObj) {
-            oldToObj.removeInputrel(this);
-            this.toObject = newToObj;
-            newToObj.addInputrel(this);
+        if ((newFromObj?.id !== newToObj?.id)  && (oldFromObj?.id !== oldToObj?.id)) {
+            if (this.fromObject && oldFromObj && newFromObj) {
+                oldFromObj.removeOutputrel(this);
+                this.fromObject = newFromObj;
+                newFromObj.addOutputrel(this);
+            }
+            if (this.toObject && oldToObj && newToObj) {
+                oldToObj.removeInputrel(this);
+                this.toObject = newToObj;
+                newToObj.addInputrel(this);
+            }
         }
     }
     getRelationshipViews(): cxRelationshipView[] | null {
@@ -9122,7 +9230,7 @@ export class cxModelView extends cxMetaObject {
         this.focusObjectview = null;
         this.scale = 1.0;
         this.memberscale = constants.params.MEMBERSCALE;
-        this.layout = "ForceDirected";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9141,7 +9249,7 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.layout = "Tree";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9666,6 +9774,7 @@ export class cxObjectView extends cxMetaObject {
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
+    ports: cxPort[] | null;
 
     groupLayout: string;
     grabIsAllowed: boolean;
@@ -9753,21 +9862,22 @@ export class cxObjectView extends cxMetaObject {
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
-        this.fillcolor = "";
-        this.fillcolor1 = "";
-        this.fillcolor2 = "";
-        this.strokecolor = "";
-        this.strokecolor1 = "";
-        this.strokecolor2 = "";
+        this.fillcolor = "white";
+        this.fillcolor1 = "white";
+        this.fillcolor2 = "white";
+        this.strokecolor = "black";
+        this.strokecolor1 = "black";
+        this.strokecolor2 = "black";
         this.strokewidth = 1.0;
-        this.textcolor = "";
-        this.textcolor2 = "";
+        this.textcolor = "black";
+        this.textcolor2 = "black";
         this.icon = "";
         this.iconpath = "";
         this.icon1 = "";
         this.icon2 = "";
         this.icon3 = "";
         this.image = "";
+        this.ports = null;
         }
     }
     // Methods
@@ -9856,8 +9966,12 @@ export class cxObjectView extends cxMetaObject {
             const relview0 = this.inputrelviews[0];
             if (relview0 && !relview0.markedAsDeleted)
                 relviews.push(relview0);
+            const fromObjview0 = relview0.fromObjview;
+            const toObjview0 = relview0.toObjview;
             for (let i = 1; i < this.inputrelviews.length; i++) {
                 const relview = this.inputrelviews[i];
+                if (relview.fromObjview.id === fromObjview0.id && relview.toObjview.id === toObjview0.id)
+                    continue;
                 if (!relview.markedAsDeleted) {
                     relviews.push(relview);
                 }
@@ -10144,6 +10258,78 @@ export class cxObjectView extends cxMetaObject {
             this[k] = "";
         }
     }
+    addPort(port: cxPort) {
+        let ports;
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
+        const len = ports.length;
+        for (let i = 0; i < len; i++) {
+            const p = ports[i];
+            if (p.id === port.id) {
+                // Port is already in list
+                return;
+            }
+            ports.push(port);
+        }
+    }
+    getPorts(): cxPort[] {
+        return this.ports;
+    }
+    getLeftPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRightPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getTopPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getBottomPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRelsConnectedToPort(portId: string): cxRelationship[] {
+        const rels = new Array();
+        const inputrels = this.inputrels;
+        for (let i = 0; i < inputrels?.length; i++) {
+            const rel = inputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        const outputrels = this.outputrels;
+        for (let i = 0; i < outputrels?.length; i++) {
+            const rel = outputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        return rels;
+    }
 }
 
 export class cxRelationshipView extends cxMetaObject {
@@ -10169,7 +10355,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrowColor: string;
     routing: string;
     corner: number;
-    curve: number;
+    curve: string;
     points: any;
     visible: boolean;
     readonly: boolean;
@@ -10193,10 +10379,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
-        this.fromArrowColor = "";
-        this.toArrowColor = "";
+        this.fromArrowColor = "white";
+        this.toArrowColor = "black";
         this.routing = "";
-        this.curve = 0;
+        this.curve = "None";
         this.corner = 0;
         this.points = [];
         this.visible = true;

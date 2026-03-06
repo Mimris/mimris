@@ -359,6 +359,7 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
             objtypeview.viewkind = viewkind;
+            objtypeview.groupLayout = objview.groupLayout;
             objtype.setModified();
             myTargetMetamodel.addObjectTypeView(objtypeview);
             myMetis.addObjectTypeView(objtypeview);
@@ -432,7 +433,7 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             if (rel?.type?.name === constants.types.AKM_HAS_PORT) {
                 const port = rel.toObject as akm.cxObject;
                 if (port) {
-                    const portviews = myModelView.findObjectViewsByObj(port);
+                    const portviews = myModelView.findObjectViewsByObject(port);
                     if (portviews?.length > 0) {
                         const portview = portviews[0];
                         if (portview)
@@ -1045,9 +1046,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             const objectviews = srcmodelview.objectviews;
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
-                if (objectview?.object?.type?.name === constants.types.AKM_METAMODEL) {
-                    if (myCurrentObjectview.id === objectview.id) {
-                        metamodelObj = objectview.object;
+                const object = objectview.object;
+                if (object?.type?.name === constants.types.AKM_METAMODEL) {
+                    if (myCurrentObject.id === object.id) {
+                        metamodelObj = object;
                         break;
                     }
                 }
@@ -1064,6 +1066,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             }
             // Then get no of EntityType objects in the srcmodelview
             let noOfEntityTypes = 0;
+            let noOfPortTypes = 0;
             let objviews = new Array();
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
@@ -1073,6 +1076,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 if (objectview?.object?.type?.name === constants.types.AKM_ENTITY_TYPE) {
                     objviews.push(objectview);
                     noOfEntityTypes++;
+                }
+                if (objectview?.object?.type?.name === constants.types.AKM_PORT) {
+                    objviews.push(objectview);
+                    noOfPortTypes++;
                 }
             }
             let objects: akm.cxObject = new Array();
@@ -1110,10 +1117,10 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                             }
                         }
                     }
-                    if (noOfEntityTypes > objects.length) {
-                        if (!confirm("The number of EntityType objects in the metamodel is less than in the modelview. Continue?"))
-                            return false;
-                    }
+                    // if (noOfEntityTypes > objects.length) {
+                    //     if (!confirm("The number of EntityType objects in the metamodel is less than in the modelview. Continue?"))
+                    //         return false;
+                    // }
                 }
                 if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {
                     objects.push(object);
@@ -1326,11 +1333,12 @@ function addSubAndContainRelview(relship: akm.cxRelationship, modelview: akm.cxM
 
 }
 
-function getContainedTypenames(objview: akm.cxObjectView, containsType: cxRelationshipType): string[] | null {
+function getContainedTypenames(objview: akm.cxObjectView, containsType: cxRelationshipType, containsPortType: cxRelationshipType): string[] | null {
     if (!objview || !containsType) {
         return null;
     } else {
         let containedTypes = new Array();
+        let containedPortTypes = new Array();
         let obj: akm.cxObject = objview.object;
         if (obj && obj instanceof akm.cxObject) {
             const relships: akm.cxRelationship[] = obj.getOutputRelshipsByType(containsType);
@@ -1341,6 +1349,9 @@ function getContainedTypenames(objview: akm.cxObjectView, containsType: cxRelati
                 if (toObjtype?.name === constants.types.AKM_ENTITY_TYPE) {
                     const typename = toObj.name;
                     containedTypes.push(typename);
+                } else if (toObjtype?.name === constants.types.AKM_PORT) {
+                    const portname = toObj.name;
+                    containedPortTypes.push(portname);
                 }
             }
         } else {
@@ -1353,6 +1364,9 @@ function getContainedTypenames(objview: akm.cxObjectView, containsType: cxRelati
                 if (toObjtype?.name === constants.types.AKM_ENTITY_TYPE) {
                     const typename = toObj.name;
                     containedTypes.push(typename);
+                } else if (toObjtype?.name === constants.types.AKM_PORT) {
+                    const portname = toObj.name;
+                    containedTypes.push(portname);
                 }
             }
         }
@@ -1429,6 +1443,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     const myObjectview = context.myCurrentObjectview;
     const mmType = myMetamodel.findObjectTypeByName(constants.types.AKM_METAMODEL);
     const entType = myMetamodel.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
+    const portType = myMetamodel.findObjectTypeByName(constants.types.AKM_PORT);
     const modifiedMetamodels = new Array();
     const includeSystemtypes = myModel.includeSystemtypes
     let includeMetamodelling = false;
@@ -1440,6 +1455,8 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
         targetMetamodel.properties = myMetamodel.properties;
         const entType = myMetis.findObjectTypeByName(constants.types.AKM_ENTITY_TYPE);
         if (entType) targetMetamodel.addObjectType(entType);
+        const portType = myMetis.findObjectTypeByName(constants.types.AKM_PORT);
+        if (portType) targetMetamodel.addObjectType(portType);
     }
     myModel.targetMetamodelRef = targetMetamodel.id;
     targetMetamodel.generatedFromModelRef = myModel.id;
@@ -1547,10 +1564,11 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     let metaObject;
     const coreMetamodel = myMetis.findMetamodelByName(constants.core.AKM_CORE_MM);
     let containsType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, entType);
+    let containsPortType= coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_CONTAINS, mmType, portType);
     let containsTypeView = containsType?.typeview;
     let hasSubMetamodelType = coreMetamodel?.findRelationshipTypeByName1(constants.types.AKM_HAS_SUBMETAMODEL, mmType, mmType);
     let hasSubMetamodelView = hasSubMetamodelType?.typeview;
-    let typenames = getContainedTypenames(myObjectview, containsType);
+    let typenames = getContainedTypenames(myObjectview, containsType, containsPortType);
     if (typenames?.length > 0) {
         for (let i = 0; i < typenames?.length; i++) {
             const typename = typenames[i];

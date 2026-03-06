@@ -254,7 +254,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (category === constants.gojs.C_OBJECT) {
         if (chosenType) {
           try {
-          properties = chosenType.getProperties(false);
+          properties = chosenType.getProperties(true);
           // pointerProps = chosenType.getPointerProperties(false);
           } catch {
             // Do nothing
@@ -1150,7 +1150,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'radio';
             break;
             case 'groupLayout':
-              values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected'];
+              // values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
+              values = ['None', 'Circular','Grid', 'Tree', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
               defValue = 'None';
               fieldType = 'radio';
               break;

@@ -853,6 +853,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
+    if (category === constants.gojs.C_OBJECTVIEW) {
+      category = constants.gojs.C_OBJECT;
+    } else if (category === constants.gojs.C_RELSHIPVIEW) {
+      category = constants.gojs.C_RELATIONSHIP;
+    } else if (category === constants.gojs.C_OBJECTTYPEVIEW) {
+      category = constants.gojs.C_OBJECTTYPE;
+    } else if (category === constants.gojs.C_RELSHIPTYPEVIEW) {
+      category = constants.gojs.C_RELSHIPTYPE;
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
@@ -936,20 +945,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editObjectview":
       case "editRelshipview":
       case "editTypeview":
-        if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+        if (category === constants.gojs.C_RELATIONSHIP) {
           item = instview;
           if (what === "editTypeview") {
             item = reltypeview;
           }
-        } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+        } else if (category === constants.gojs.C_RELSHIPTYPE) {
           item = reltypeview?.data;
           item = reltypeview;
-        } else if (selObj.category === constants.gojs.C_OBJECT) {
+        } else if (category === constants.gojs.C_OBJECT) {
           item = instview;
           if (what === "editTypeview") {
             item = objtypeview;
           }
-        } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+        } else if (category === constants.gojs.C_OBJECTTYPE) {
           item = objtypeview?.data;
           item = objtypeview;
         }

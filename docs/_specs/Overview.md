@@ -55,6 +55,22 @@ The User interface is mainly a single-page web-app where the user/modeller can b
     - Help
     - About
 
+### Diagram Grouping Semantics
+
+The modelling canvas supports both visual movement and structural regrouping.
+
+- Plain drag is visual only. It moves the selected part but does not change `group` membership or direct `AKM_CONTAINS` structure.
+- `Shift` + drag is structural. Dropping into another group changes the direct parent, updates `group`, and reassigns the direct `AKM_CONTAINS` relationship to the new parent.
+- `Shift` + drag to background detaches the part from its parent. The part becomes top-level with `group = ""`, and the direct parent `AKM_CONTAINS` relationship is removed.
+- Structural regrouping must never create cycles. A group may not become a child of itself, one of its descendants, or a target that would introduce circular `AKM_CONTAINS`.
+
+Nested group scaling is relative to the direct parent.
+
+- Dropping a normal object into a group scales it from the parent's inherited member scale.
+- Dropping a group into a group scales it from the direct parent group's visible scale.
+- Nested group scaling compounds by level. If the nested-group multiplier is `0.45`, then a child group is `parent * 0.45`, and a grandchild is `child * 0.45`.
+- Palette drops, drag/drop into groups, and structural `Shift` regrouping should follow the same direct-parent scaling rule.
+
 
 ### Development activities
 

@@ -16,6 +16,20 @@ import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
 
 const grabIsAllowed = true;
+const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
+const MIN_NESTED_GROUP_SCALE = 0.35;
+
+function isGroupLikeNode(node: any): boolean {
+    const data: any = node?.data || node || {};
+    const templateName = String(data?.template || data?.category || "");
+    return Boolean(
+        node?.isGroup === true ||
+        data?.isGroup === true ||
+        data?.objectview?.isGroup === true ||
+        node?.objectview?.isGroup === true ||
+        templateName.startsWith("group")
+    );
+}
 
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {
@@ -106,8 +120,13 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                         goNode.group = parentgroup.key;
                         goNode.objectview.group = parentgroup.objectview.id;
                         myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
-                        goNode.scale = goNode.getMyScale(myGoModel);
+                        let nextScale = Number(goNode.getMyScale(myGoModel));
+                        if (isGroupLikeNode(goNode)) {
+                            nextScale = Math.max(MIN_NESTED_GROUP_SCALE, nextScale * NESTED_GROUP_SCALE_MULTIPLIER);
+                        }
+                        goNode.scale = nextScale;
                         gjsData.scale = goNode.scale;
+                        gjsData.scale1 = goNode.scale;
                         // Check if the group is a container or not
                         if (group.objecttype?.id !== containerType?.id && hasMemberType) {
                             // Check if the group already has a hasMember relationship to the node
@@ -1608,6 +1627,53 @@ export function deleteRelationshipView(relshipView: akm.cxRelationshipView, mode
     }
 }
 
+export function ensureContainsRelationshipView(
+    modelview: akm.cxModelView,
+    myMetis: akm.cxMetis,
+    relship: akm.cxRelationship,
+    fromObjview: akm.cxObjectView,
+    toObjview: akm.cxObjectView,
+    visible: boolean
+) {
+    if (!modelview || !relship || !fromObjview || !toObjview) return null;
+    const relviews = modelview.relshipviews || [];
+    let relview = null;
+    for (let i = 0; i < relviews.length; i++) {
+        const rv = relviews[i];
+        if (!rv) continue;
+        const relMatch = rv.relship?.id === relship.id || rv.relshipRef === relship.id;
+        const endpointMatch =
+            rv.fromObjview?.id === fromObjview.id &&
+            rv.toObjview?.id === toObjview.id;
+        if (relMatch || endpointMatch) {
+            relview = rv;
+            break;
+        }
+    }
+    if (!relview) {
+        relview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship);
+        relview.fromObjview = fromObjview;
+        relview.toObjview = toObjview;
+        relview.points = [];
+        if (typeof fromObjview.addOutputRelview === 'function') {
+            fromObjview.addOutputRelview(relview);
+        }
+        if (typeof toObjview.addInputRelview === 'function') {
+            toObjview.addInputRelview(relview);
+        }
+        modelview.addRelationshipView(relview);
+        if (myMetis?.relshipviews && !myMetis.relshipviews.find((rv) => rv?.id === relview.id)) {
+            myMetis.relshipviews.push(relview);
+        }
+    }
+    relview.markedAsDeleted = false;
+    relview.visible = visible;
+    relview.fromObjview = fromObjview;
+    relview.toObjview = toObjview;
+    if (!visible) relview.points = [];
+    return relview;
+}
+
 export function unhideHiddenRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
     const myGoModel = myMetis.gojsModel;
@@ -2306,6 +2372,34 @@ export function onClipboardPasted(selection: any, context: any) {
 // Functions handling nodes and groups
 export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string, nod: gjs.goObjectNode): gjs.goObjectNode | null {
     if (!loc) return;
+    const usesTopLeftLocation = (node: any): boolean => {
+        const category = String(node?.category || node?.data?.category || "");
+        const template = String(node?.template || node?.data?.template || "");
+        return (
+            category === "Pool" ||
+            category === "Lane" ||
+            category === "Lane_w_handles" ||
+            template === "Pool" ||
+            template === "Lane" ||
+            template === "Lane_w_handles"
+        );
+    };
+    const getRectFromLocation = (x: number, y: number, width: number, height: number, topLeft: boolean) => {
+        if (topLeft) {
+            return {
+                left: x,
+                top: y,
+                right: x + width,
+                bottom: y + height,
+            };
+        }
+        return {
+            left: x - width / 2,
+            top: y - height / 2,
+            right: x + width / 2,
+            bottom: y + height / 2,
+        };
+    };
     const nodeLoc = loc?.split(" ");
     const nx = parseInt(nodeLoc[0]);
     const ny = parseInt(nodeLoc[1]);
@@ -2317,6 +2411,20 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
     nodes = uniqueSet;
     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
+    const nodeScale =
+        typeof nod?.getActualScale === 'function'
+            ? Math.max(0.01, Number(nod.getActualScale(model)) || 1)
+            : Math.max(0.01, Number(nod?.scale) || 1);
+    const childWidth = nw * nodeScale;
+    const childHeight = nh * nodeScale;
+    const childRect = getRectFromLocation(nx, ny, childWidth, childHeight, usesTopLeftLocation(nod));
+    const childLeft = childRect.left;
+    const childTop = childRect.top;
+    const childRight = childRect.right;
+    const childBottom = childRect.bottom;
+    const childCenterX = (childLeft + childRight) / 2;
+    const childCenterY = (childTop + childBottom) / 2;
+    const childArea = Math.max(1, childWidth * childHeight);
     // Go through all the groups
     let groups = new Array();
     for (let i = 0; i < nodes?.length; i++) {
@@ -2324,8 +2432,10 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
         if (debug) console.log('798 node', node);
         if (node.key === nod?.key) continue;
         if (node.isGroup) {
-            let nodeScale = 1.0;
-            let grpScale = 1.0;
+            let grpScale =
+                typeof node?.getActualScale === 'function'
+                    ? Math.max(0.01, Number(node.getActualScale(model)) || 1)
+                    : Math.max(0.01, Number(node?.scale) || 1);
             const myGroup = node;
             const grpLoc = myGroup.loc?.split(" ");
             const grpSize = myGroup.size?.split(" ");
@@ -2334,15 +2444,17 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
+            const groupRect = getRectFromLocation(gx, gy, gw * grpScale, gh * grpScale, usesTopLeftLocation(node));
+            const groupLeft = groupRect.left;
+            const groupTop = groupRect.top;
+            const groupRight = groupRect.right;
+            const groupBottom = groupRect.bottom;
             // Primary strict containment check (all corners inside)
             if (
-                (nx > gx) // upper left x
-                &&
-                (nx + nw * nodeScale <= gx + gw * grpScale) // upper right x
-                &&
-                (ny > gy) // upper left y
-                &&
-                (ny + nh * nodeScale <= gy + gh * grpScale) // lower right y
+                (childLeft > groupLeft) // upper left x
+                && (childRight <= groupRight) // upper right x
+                && (childTop > groupTop) // upper left y
+                && (childBottom <= groupBottom) // lower right y
             ) {
                 groups.push({
                     "name": node.name,
@@ -2352,8 +2464,34 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
                 });
                 continue;
             }
-            // Fallback: consider inside if upper-left corner is inside parent bounds
-            if (nx > gx && nx < gx + gw * grpScale && ny > gy && ny < gy + gh * grpScale) {
+            // For dragged groups, use visual containment instead of upper-left anchor.
+            // This matches what the user sees after the final drop scale is applied.
+            if (nod?.isGroup) {
+                const centerInside =
+                    childCenterX > groupLeft &&
+                    childCenterX < groupRight &&
+                    childCenterY > groupTop &&
+                    childCenterY < groupBottom;
+                const overlapLeft = Math.max(childLeft, groupLeft);
+                const overlapTop = Math.max(childTop, groupTop);
+                const overlapRight = Math.min(childRight, groupRight);
+                const overlapBottom = Math.min(childBottom, groupBottom);
+                const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+                const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+                const overlapArea = overlapWidth * overlapHeight;
+                const overlapRatio = overlapArea / childArea;
+                if (centerInside || overlapRatio >= 0.45) {
+                    groups.push({
+                        "name": node.name,
+                        "groupId": node.key,
+                        "group": node,
+                        "size": gw * grpScale * gh * grpScale,
+                    });
+                }
+                continue;
+            }
+            // Non-group members can still use the simpler point-inside fallback.
+            if (childCenterX > groupLeft && childCenterX < groupRight && childCenterY > groupTop && childCenterY < groupBottom) {
                 groups.push({
                     "name": node.name,
                     "groupId": node.key,
@@ -2379,8 +2517,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
     }
     // Fallback: if no fit found (e.g., oversized dropped group), try center-point inclusion
     if ((!groups || groups.length === 0) && nod?.isGroup) {
-        const cx = nx + nw / 2;
-        const cy = ny + nh / 2;
+        const cx = childCenterX;
+        const cy = childCenterY;
         for (let i = 0; i < nodes?.length; i++) {
             const node = nodes[i] as gjs.goObjectNode;
             if (!node?.isGroup || node.key === nod?.key) continue;
@@ -2391,7 +2529,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
-            if (cx > gx && cx < gx + gw && cy > gy && cy < gy + gh) {
+            const groupRect = getRectFromLocation(gx, gy, gw, gh, usesTopLeftLocation(node));
+            if (cx > groupRect.left && cx < groupRect.right && cy > groupRect.top && cy < groupRect.bottom) {
                 return model.findNode(node.key);
             }
         }
@@ -2553,7 +2692,11 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
             node.loc = toloc;
             node.size = data.size;
             try {
-                node.scale = node.getMyScale(goModel);
+                if (node.isGroup) {
+                    node.scale = Number(node.objectview?.scale || node.scale || 1);
+                } else {
+                    node.scale = node.getMyScale(goModel);
+                }
             } catch (e) {
                 if (debug) console.log('1181 e', e);
             }
@@ -4626,7 +4769,11 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
             node.objectview = null;
             node.objtypeRef = node.objecttype?.id;
             node.objecttype = null;
-            node.scale = node.getMyScale(goModel);
+            if (node.isGroup) {
+                node.scale = Number(node.scale || 1);
+            } else {
+                node.scale = node.getMyScale(goModel);
+            }
             node.scale = node.scale;
             if (debug) console.log('3073 node', node);
             goModel.addNode(node);
@@ -4891,35 +5038,40 @@ export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
 }
 
 export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
-    // Go through all object views and check if they are groups
+    // Sync contains relshipview visibility with current visual group membership.
     const relviews = new Array<akm.cxRelationshipView>();
     const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-    // Get all relviews of type contains
     for (let i = 0; i < modelview.relshipviews?.length; i++) {
         const relview = modelview.relshipviews[i];
         const relship = relview.relship;
-        const reltypeName = reltype?.name;
         if (relship && reltype && relship.type && relship.type.name === reltype.name) {
             relviews.push(relview);
         }
     }
-    // For each hasMember relview, get the member object view  
-    const objviews = new Array<akm.cxObjectView>();
+    const modifiedRelviews = new Array<akm.cxRelationshipView>();
     for (let i = 0; i < relviews?.length; i++) {
         const relview = relviews[i];
         const fromObjview = relview.fromObjview; // Group
         const toObjview = relview.toObjview;     // Member
         if (fromObjview && toObjview) {
-            toObjview.group = fromObjview.id;
-            objviews.push(toObjview);
+            const insideGroup = toObjview.group === fromObjview.id;
+            if (relview.visible === !insideGroup && relview.markedAsDeleted === false) {
+                continue;
+            }
+            relview.markedAsDeleted = false;
+            relview.visible = !insideGroup;
+            if (insideGroup) {
+                relview.points = [];
+            }
+            modifiedRelviews.push(relview);
         }
     }
-    for (let i = 0; i < objviews?.length; i++) {
-        const member = objviews[i];
-        const jsnObjview = new jsn.jsnObjectView(member);
-        let data = jsnObjview;
+    for (let i = 0; i < modifiedRelviews?.length; i++) {
+        const relview = modifiedRelviews[i];
+        const jsnRelview = new jsn.jsnRelshipView(relview);
+        let data = jsnRelview;
         data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     }
 }
 

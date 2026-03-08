@@ -5822,6 +5822,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           members.each((member) => {
             persistPartGeometry(member);
           });
+
         }
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
@@ -7360,6 +7361,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Cyan', value: '#00ffff' },
                             { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
+ 
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
                           sel.style.padding = '2px 6px';
@@ -10213,43 +10215,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         part.dragComputation = stayInGroup;
       }
 
-      // Shift + drop outside group body detaches the node from that group.
-      myDiagram.addDiagramListener("SelectionMoved", (e: go.DiagramEvent) => {
-        const diagram = e.diagram;
-        if (!diagram?.lastInput?.shift) return;
-        const toDetach: Array<{ node: go.Node; groupBounds: go.Rect }> = [];
-        diagram.selection.each((part: go.Part) => {
-          if (!(part instanceof go.Node)) return;
-          const grp = part.containingGroup;
-          if (!grp) return;
-          const groupBounds = getGroupBodyBounds(grp);
-          if (!groupBounds) return;
-          const center = part.actualBounds.center;
-          const dropPoint = diagram.lastInput.documentPoint;
-          const droppedOutside = !groupBounds.containsPoint(center) || !groupBounds.containsPoint(dropPoint);
-          if (droppedOutside) {
-            toDetach.push({ node: part, groupBounds });
+      const draggingTool = myDiagram.toolManager.draggingTool;
+      const baseDoActivate = draggingTool.doActivate;
+      draggingTool.doActivate = function () {
+        const diagram = this.diagram;
+        if (diagram?.lastInput?.shift) {
+          const draggedPart =
+            this.currentPart ||
+            diagram.findPartAt(diagram.lastInput.documentPoint, true);
+          if (draggedPart instanceof go.Part && draggedPart.canSelect()) {
+            diagram.clearSelection();
+            draggedPart.isSelected = true;
+            this.currentPart = draggedPart;
           }
-        });
-        if (toDetach.length === 0) return;
-        diagram.model.startTransaction("detach from group");
-        const detachedObjviews: any[] = [];
-        toDetach.forEach(({ node }) => {
-          diagram.model.setGroupKeyForNodeData(node.data, null);
-          diagram.model.setDataProperty(node.data, "group", "");
-          const data: any = node.data;
-          const objview = data?.objectview || myMetis.currentModelview?.findObjectView(data?.key);
-          if (objview) {
-            objview.group = "";
-            const jsnObjview = new jsn.jsnObjectView(objview);
-            detachedObjviews.push(JSON.parse(JSON.stringify(jsnObjview)));
-          }
-        });
-        diagram.model.commitTransaction("detach from group");
-        detachedObjviews.forEach((data) => {
-          diagram.dispatch?.({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
-        });
-      });
+        }
+        return baseDoActivate.call(this);
+      };
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;

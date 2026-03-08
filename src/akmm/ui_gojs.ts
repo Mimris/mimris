@@ -546,6 +546,7 @@ export class goObjectNode extends goNode {
             this.loc            = objview.loc;
             this.size           = objview.size;
             this.scale         = objview.scale;
+            (this as any).scale1 = objview.scale;
             this.memberscale    = objview.memberscale;
             this.grabIsAllowed  = objview.grabIsAllowed;
             this.isExpanded     = objview.isExpanded;
@@ -642,6 +643,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
+                ;(this as any).scale1 = this.objectview.getScale();
                 this.isExpanded = this.objectview.isExpanded;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
@@ -694,35 +696,34 @@ export class goObjectNode extends goNode {
         }
     }
     getMyScale(model: goModel): number {
-        let scale = this.scale;
         if (!this.group)
-            scale = 1;
+            return 1;
         const pnode = this.getParentNode(model);
         if (pnode) {
-            scale = pnode.memberscale;
-            if (!scale || scale == 'undefined')
-                scale = pnode.typeview.memberscale;
-            const prevscale = scale;   
+            let parentScale = 1;
             try {
-                scale *= pnode.getMyScale(model);
+                parentScale = pnode.getActualScale(model);
             } catch (error) {
-                return prevscale;
             }
-        } else 
-            scale = 1;
-        return scale;
+            let memberScale = pnode.memberscale;
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = pnode.typeview?.memberscale;
+            memberScale = Number(memberScale);
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = 1;
+            return Number(parentScale || 1) * memberScale;
+        }
+        return 1;
     }
     getActualScale(model: goModel): number {
-        let scale = this.scale;
+        let scale: any = (this as any).scale1;
+        if (!scale || scale == 'undefined')
+            scale = this.scale;
+        if (!scale || scale == 'undefined')
+            scale = this.objectview?.scale;
         if (!scale || scale == 'undefined')
             scale = 1;
-        const node = this.getParentNode(model);
-        if (debug) console.log('597 node', node);
-        if (node && node.key !== this.key) {
-            let scale1 = node.getActualScale(model);
-            scale *= scale1;
-        }
-        return scale;
+        return Number(scale);
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view

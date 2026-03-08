@@ -518,10 +518,32 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const objviewRef = gjsNode.key;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
-    const objtypeRef = gjsNode.objtypeRef;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    let object: akm.cxObject = null;
+    if (objectview?.objectRef) {
+        object = myMetis.findObject(objectview.objectRef);
+    }
+    if (!object) {
+        object = gjsNode?.object || myMetis.findObject(gjsNode?.objRef);
+    }
+    const objtypeRef =
+        gjsNode?.objtypeRef ||
+        object?.type?.id ||
+        object?.typeRef ||
+        objectview?.object?.type?.id ||
+        objectview?.object?.typeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
-    const objecttypeview = objecttype?.typeview;
+    if (!objecttype) {
+        objecttype =
+            gjsNode?.objecttype ||
+            object?.type ||
+            objectview?.object?.type ||
+            myMetis.findObjectTypeByName(object?.typeName) ||
+            myMetis.findObjectTypeByName(objectview?.object?.typeName);
+    }
+    const objecttypeview = objecttype?.typeview || objectview?.typeview || object?.type?.typeview;
     let supertypes = objecttype?.supertypes;
     const icon = uit.findImage(gjsNode.icon);
 
@@ -535,7 +557,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
             objecttype: objecttype,
             objecttypeview: objecttypeview,
             supertypes: supertypes,
-            allowPorts:  objecttype.allowPorts,
+            allowPorts:  objecttype?.allowPorts ?? false,
             includeInherited: false,
             includeConnected: false,
             relship:     null,
@@ -662,12 +684,23 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
     let objectview = myModelview.findObjectView(key);
-    if (objectview) objectview.viewkind = gjsNode.viewkind;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    if (objectview) objectview.viewkind = gjsNode.viewkind || objectview.viewkind;
     let object = objectview?.object;
-    if (!object) object = myModel.findObject(gjsNode?.objRef);
+    if (!object) object = gjsNode?.object || myModel.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
-    objecttype = myMetis.findObjectType(objecttype?.id);
+    objecttype =
+        myMetis.findObjectType(objecttype?.id || object?.typeRef || objectview?.object?.typeRef) ||
+        gjsNode?.objecttype ||
+        objecttype ||
+        myMetis.findObjectTypeByName(object?.typeName) ||
+        myMetis.findObjectTypeByName(objectview?.object?.typeName);
     let goNode = myGoModel.findNode(key);
+    if (!goNode) {
+        goNode = gjsNode;
+    }
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
@@ -680,7 +713,12 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     if (!objectview)
         objectview = myModelview.findObjectView(goNode?.objviewRef);
     if (!objecttype)
-        objecttype = myMetamodel.findObjectType(goNode?.objtypeRef);
+        objecttype =
+            myMetamodel.findObjectType(goNode?.objtypeRef || goNode?.object?.typeRef) ||
+            goNode?.objecttype ||
+            object?.type ||
+            myMetis.findObjectTypeByName(goNode?.object?.typeName) ||
+            myMetis.findObjectTypeByName(object?.typeName);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -705,7 +743,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       myContext:  myContext,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-    myDiagram.handleOpenModal(gjsNode, modalContext);
+    myDiagram.handleOpenModal(objectview || gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {

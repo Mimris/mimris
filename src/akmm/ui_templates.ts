@@ -669,8 +669,8 @@ export function groupTop2(contextMenu: any, notation: string) {
     // Without ports
     return $(go.Panel, "Auto",
         {
-            row: 1, 
-            column: 1, 
+            row: 1,
+            column: 1,
             name: "BODY",
             stretch: go.GraphObject.Fill,
             isPanelMain: true,
@@ -679,19 +679,22 @@ export function groupTop2(contextMenu: any, notation: string) {
             {
                 name: "SHAPE",
                 cursor: "alias",
-                fill: "white", 
+                fill: "white",
                 shadowVisible: true,
                 minSize: new go.Size(200, 100),
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                portId: "",
+                fromLinkable: true,
+                fromLinkableSelfNode: false,
+                fromLinkableDuplicates: true,
+                toLinkable: true,
+                toLinkableSelfNode: false,
+                toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         ),
-        // RIGHT edge overlay
-        $(go.Shape, "Rectangle",
+        $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
                 cursor: "move",
                 fill: "transparent",
@@ -699,10 +702,113 @@ export function groupTop2(contextMenu: any, notation: string) {
                 margin: new go.Margin(30, 12, 12, 12),
                 minSize: new go.Size(150, 55),
                 stretch: go.GraphObject.Fill,
-                pickable: false,
             },
         ),
-    )
+        $(go.Panel, "Table",  // position header above the subgraph
+            {
+                stretch: go.GraphObject.Fill,
+                defaultAlignment: go.Spot.TopLeft
+            },
+            $(go.RowColumnDefinition, { row: 0, height: 20, sizing: go.RowColumnDefinition.None }),
+            $(go.Panel, "Table",  // the header
+                {
+                    row: 0,
+                    background: "transparent",
+                    contextMenu: contextMenu,
+                    cursor: "move",
+                    margin: new go.Margin(3, 0, 0, 0),
+                    stretch: go.GraphObject.Horizontal,
+                },
+                $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
+                $("SubGraphExpanderButton",
+                    {
+                        column: 0,
+                        margin: new go.Margin(1, 1, 1, 0),
+                        alignment: go.Spot.Left,
+                        scale: 1.0,
+                    },
+                ),
+                $(go.TextBlock, textStyle(),  // the name - open container
+                    {
+                        row: 0,
+                        column: 1,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "10pt Segoe UI,sans-serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(2, 0, 0, 2),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name"
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                ),
+                $(go.TextBlock, textStyle(),  // the name - closed container
+                    {
+                        row: 0,
+                        column: 1,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "10pt Segoe UI,sans-serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(2, 0, 0, 2),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                ),
+            ), // End Panel
+            $(go.RowColumnDefinition, { row: 1, sizing: go.RowColumnDefinition.None }),
+            $(go.Shape, // the shape inside the shape
+                {
+                    row: 1,
+                    fill: "rgba(128,128,128,0.33)",
+                    stroke: "rgba(120,120,120,0.55)",
+                    strokeWidth: 1.2,
+                    opacity: 0.75,
+                    minSize: new go.Size(160, 70),
+                    margin: new go.Margin(2, 2, 3, 4),
+                    cursor: "move",
+                },
+                new go.Binding("fill", "fillcolor2"),
+                new go.Binding("desiredSize", "size", function (s) {
+                    const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
+                    return new go.Size(
+                        Math.max(80, parsed.width - 16),
+                        Math.max(40, parsed.height - 28)
+                    );
+                }),
+                // Keep open/closed visuals consistent; only the expander symbol changes.
+                new go.Binding("visible", "", function () { return true; }).ofObject(),
+            ), // End Shape
+
+            $(go.Picture,  // the image -------------------------------------
+                // This is closed container - showing an image
+                new go.Binding("source", "image", findImage),
+                {
+                    row: 1,
+                    stretch: go.GraphObject.Fill,
+                    margin: new go.Margin(2, 10, 5, 10),
+                    alignment: go.Spot.Center,
+                    imageStretch: go.GraphObject.Uniform,
+                },
+                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+            ), // End Picture
+
+            $(go.RowColumnDefinition, { row: 2, height: 6, sizing: go.RowColumnDefinition.None }),
+        ),
+    );
 }
 
 function groupPortResizeAdornment() {
@@ -3924,9 +4030,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             // new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3973,9 +4083,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -4019,9 +4133,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",
                 selectionObjectName: "GROUP",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -4067,7 +4185,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4105,7 +4227,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4140,7 +4266,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4701,6 +4831,75 @@ function defaultFont(horiz) {  // a Binding conversion function
 return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
 }
 
+const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
+const MIN_NESTED_GROUP_SCALE = 0.05;
+
+function getParentMemberScale(grp: go.Group | null): number {
+    if (!grp) return 1;
+    const data: any = grp.data || {};
+    const raw =
+        data?.memberscale ??
+        data?.objectview?.memberscale ??
+        data?.typeview?.memberscale ??
+        1;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function getStoredGroupScale(grp: go.Group | null): number {
+    if (!grp) return 1;
+    const data: any = grp.data || {};
+    const raw =
+        data?.scale1 ??
+        data?.scale ??
+        data?.objectview?.scale ??
+        grp.scale ??
+        1;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function isGroupLikePart(part: go.Part | null | undefined): boolean {
+    const data: any = part?.data || {};
+    const templateName = String(data?.template || data?.category || "");
+    return Boolean(
+        part instanceof go.Group ||
+        data?.isGroup === true ||
+        data?.objectview?.isGroup === true ||
+        templateName.startsWith("group")
+    );
+}
+
+function applyDroppedGroupScale(diagram: go.Diagram, grp: go.Group | null) {
+    if (!diagram || !grp) return;
+    const parentVisibleScale = getStoredGroupScale(grp);
+    const inheritedScale = parentVisibleScale * getParentMemberScale(grp);
+    diagram.selection.each((part: go.Part) => {
+        if (!(part instanceof go.Node)) return;
+        let nextScale = inheritedScale;
+        if (isGroupLikePart(part)) {
+            nextScale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
+        }
+        part.scale = nextScale;
+        const data: any = part.data || {};
+        data.scale = nextScale;
+        data.scale1 = nextScale;
+        const currentObjectview = data.objectview;
+        const nextObjectview = currentObjectview ? new jsn.jsnObjectView(currentObjectview) : null;
+        if (nextObjectview) {
+            nextObjectview.scale = nextScale;
+            data.objectview = nextObjectview;
+        }
+        try { diagram.model.setDataProperty(data, "scale", nextScale); } catch (_) {}
+        try { diagram.model.setDataProperty(data, "scale1", nextScale); } catch (_) {}
+        if (nextObjectview) {
+            try { diagram.model.setDataProperty(data, "objectview", nextObjectview); } catch (_) {}
+        }
+    });
+    try { diagram.updateAllTargetBindings(); } catch (_) {}
+    try { diagram.requestUpdate(); } catch (_) {}
+}
+
 // Upon a drop onto a Group, we try to add the selection as members of the Group.
 // Upon a drop onto the background, or onto a top-level Node, make selection top-level.
 // If this is OK, we're done; otherwise we cancel the operation to rollback everything.
@@ -4708,7 +4907,13 @@ function finishDrop(e, grp) {
     let ok = (grp !== null
         ? grp.addMembers(grp.diagram.selection, true)
         : e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true));
-    if (!ok) e.diagram.currentTool.doCancel();
+    if (!ok) {
+        e.diagram.currentTool.doCancel();
+        return;
+    }
+    if (grp !== null) {
+        applyDroppedGroupScale(e.diagram, grp);
+    }
 }
 
 // TESTING TESTING TESTING

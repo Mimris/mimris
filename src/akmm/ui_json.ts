@@ -2243,11 +2243,52 @@ export class jsnImportMetis {
                 const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
+                objview.groupLayout = item.groupLayout;
+                objview.isExpanded = item.isExpanded;
+                objview.isSelected = item.isSelected;
+                objview.loc = item.loc;
+                objview.size = item.size;
+                objview.scale = item.scale;
+                objview.memberscale = item.memberscale;
+                objview.arrowscale = item.arrowscale;
+                objview.viewkind = item.viewkind;
+                objview.markedAsDeleted = item.markedAsDeleted;
+                objview.modified = item.modified;
+                objview.template = item.template ?? "";
+                objview.template2 = item.template2 ?? "";
+                objview.figure = item.figure ?? "";
+                objview.figure2 = item.figure2 ?? "";
+                objview.geometry = item.geometry ?? "";
+                objview.fillcolor = item.fillcolor ?? "";
+                objview.fillcolor2 = item.fillcolor2 ?? "";
+                objview.strokecolor = item.strokecolor ?? "";
+                objview.strokecolor2 = item.strokecolor2 ?? "";
+                objview.strokewidth = item.strokewidth;
+                objview.textcolor = item.textcolor ?? "";
+                objview.textcolor2 = item.textcolor2 ?? "";
+                objview.textscale = item.textscale;
+                objview.icon = item.icon ?? "";
+                objview.iconpath = item.iconpath ?? "";
+                objview.icon1 = item.icon1 ?? "";
+                objview.icon2 = item.icon2 ?? "";
+                objview.icon3 = item.icon3 ?? "";
+                objview.image = item.image ?? "";
                 objview.setObject(object);
                 if (item.typeviewRef) {
                     const objtypeview = jsnMetis.findObjectTypeView(item.typeviewRef);
                     if (objtypeview)
                         objview.setTypeView(objtypeview);
+                }
+                // Object views are constructed with white/black runtime defaults.
+                // When no explicit view override was persisted, let build/render fall back
+                // to the typeview colors instead of keeping those constructor defaults.
+                if (objview.typeview) {
+                    if (objview.fillcolor === "white") objview.fillcolor = "";
+                    if (objview.fillcolor2 === "white") objview.fillcolor2 = "";
+                    if (objview.strokecolor === "black") objview.strokecolor = "";
+                    if (objview.strokecolor2 === "black") objview.strokecolor2 = "";
+                    if (objview.textcolor === "black") objview.textcolor = "";
+                    if (objview.textcolor2 === "black") objview.textcolor2 = "";
                 }
                 // metis.addObjectView(objview);
                 object.addObjectView(objview);
@@ -2274,6 +2315,25 @@ export class jsnImportMetis {
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                relview.arrowscale = item.arrowscale;
+                relview.strokecolor = item.strokecolor;
+                relview.strokewidth = item.strokewidth;
+                relview.textcolor = item.textcolor;
+                relview.textscale = item.textscale;
+                relview.dash = item.dash;
+                relview.fromArrow = item.fromArrow;
+                relview.toArrow = item.toArrow;
+                relview.fromArrowColor = item.fromArrowColor;
+                relview.toArrowColor = item.toArrowColor;
+                relview.routing = item.routing;
+                relview.curve = item.curve;
+                relview.corner = item.corner;
+                relview.points = item.points;
+                relview.markedAsDeleted = item.markedAsDeleted;
+                relview.modified = item.modified;
+                relview.visible = item.visible;
                 // metis.addRelationshipView(relview);
                 modelview.addRelationshipView(relview);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);

@@ -334,6 +334,32 @@ class GoJSApp extends React.Component<{}, AppState> {
         (myDiagram as any).__isPoolRelayoutInProgress = false;
       }
     };
+    const resolveContainingGroup = (nodePart: go.Part): gjs.goObjectNode | null => {
+      if (!(nodePart instanceof go.Node) || nodePart instanceof go.Group) return null;
+      const nodeBounds = nodePart.actualBounds;
+      const nodeCenter = nodeBounds.center;
+      const candidates: Array<{ area: number; key: string }> = [];
+      myDiagram.nodes.each((part: go.Node) => {
+        if (!(part instanceof go.Group)) return;
+        if (part === nodePart) return;
+        const pdata = part.data;
+        const isLane =
+          pdata?.category === "Lane" ||
+          pdata?.category === "Lane_w_handles" ||
+          pdata?.template === "Lane" ||
+          pdata?.template === "Lane_w_handles";
+        const laneBody = isLane ? part.findObject("LANE_BODY_SHAPE") : null;
+        const probe = (laneBody || part.findObject("SHAPE") || part.findObject("POOL_SHAPE")) as go.GraphObject | null;
+        const groupBounds = probe ? probe.getDocumentBounds() : part.actualBounds;
+        if (!groupBounds.containsPoint(nodeCenter)) return;
+        const area = Math.max(1, groupBounds.width * groupBounds.height);
+        const key = String(pdata?.key || "");
+        if (key) candidates.push({ area, key });
+      });
+      if (candidates.length === 0) return null;
+      candidates.sort((a, b) => a.area - b.area);
+      return myGoModel.findNode(candidates[0].key) || null;
+    };
 
     switch (name) {
       case "InitialLayoutCompleted": {
@@ -711,7 +737,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           goNode.loc = loc;
           const size = n.actualBounds.width + " " + n.actualBounds.height;
           let groupKey = "";
-          let group = uic.getGroupByLocation(myGoModel, loc, size, goNode); // goNode
+          let group = resolveContainingGroup(n);
           if (group) groupKey = group.key;
           if (!group) {
             group = uic.isContainedInGroup(myGoModel, goNode); // objectview
@@ -1641,7 +1667,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // myDiagram.model.addNodeData(goNode);
           }
           // Check if goNode is member of a group
-          const group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
+          const dropPart = node || myDiagram.findNodeForKey(part.key);
+          const group = dropPart ? resolveContainingGroup(dropPart) : null;
           if (group) {
             const parentgroup = group;
             goNode.group = parentgroup.key;
@@ -1807,9 +1834,20 @@ class GoJSApp extends React.Component<{}, AppState> {
               continue;
             const category = n.data?.category || n.data?.template;
             if (category === 'Lane' || category === 'Lane_w_handles') {
+              const laneMain = n.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+              const laneHeader = n.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
               const laneBody = n.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
-              if (laneBody) {
-                const bodySize = `${laneBody.actualBounds.width} ${laneBody.actualBounds.height}`;
+              if (laneBody || laneMain) {
+                const headerWidth = laneHeader ? laneHeader.actualBounds.width : 36;
+                const sourceWidth = laneBody ? laneBody.actualBounds.width : Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth);
+                const sourceHeight = laneBody ? laneBody.actualBounds.height : (laneMain?.actualBounds.height || 0);
+                const nextBodyWidth = Math.max(20, sourceWidth);
+                const nextBodyHeight = Math.max(20, sourceHeight);
+                if (laneBody) {
+                  (laneBody as any).width = nextBodyWidth;
+                  (laneBody as any).height = nextBodyHeight;
+                }
+                const bodySize = `${nextBodyWidth} ${nextBodyHeight}`;
                 myDiagram.model.setDataProperty(n.data, "size", bodySize);
               }
             }

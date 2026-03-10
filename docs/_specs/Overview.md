@@ -64,18 +64,20 @@ The modelling canvas supports both visual movement and structural regrouping.
 - `Shift` + drag to background detaches the part from its parent. The part becomes top-level with `group = ""`, and the direct parent `AKM_CONTAINS` relationship is removed.
 - Structural regrouping must never create cycles. A group may not become a child of itself, one of its descendants, or a target that would introduce circular `AKM_CONTAINS`.
 
-Nested group scaling is relative to the direct parent.
+Grouping scale is derived from containment only.
 
-- Dropping a normal object into a group scales it from the parent's inherited member scale.
-- Dropping a group into a group scales it from the direct parent group's visible scale.
-- Nested group scaling compounds by level. If the nested-group multiplier is `0.45`, then a child group is `parent * 0.45`, and a grandchild is `child * 0.45`.
-- Palette drops, drag/drop into groups, and structural `Shift` regrouping should follow the same direct-parent scaling rule.
+- Any top-level object or group has visual `scale = 1`.
+- Any object or group inside groups has visual scale equal to the product of all ancestor `memberScale` values.
+- Dragging an object or group back to the background resets its visual scale to `1`.
+- Palette drops, drag/drop into groups, paste into groups, and structural `Shift` regrouping should all follow the same compounded-ancestor `memberScale` rule.
+- Group `size` and group `scale` are separate concerns. Nesting may change a group's size/layout, but visual scale is still derived only from ancestor `memberScale`.
+- Relationship labels should scale with the connected objects so link text stays visually proportional after regrouping.
 
 ### Diagram Handles And Header Controls
 
 - Process groups and container groups use the same 8 resize handles.
 - Resize handles should stay approximately constant on screen while zooming. Their visual size should not balloon with diagram zoom.
-- Expand/collapse buttons should also stay approximately constant on screen while zooming.
+- Expand/collapse buttons use a fixed visual size.
 - Group header controls must remain fully visible and not clip at normal zoom levels.
 
 ### ICOM Rendering
@@ -85,6 +87,7 @@ Nested group scaling is relative to the direct parent.
 - Side ICOMs use a neutral marker close to the process border, with the relationship direction shown by the relationship arrow rather than the ICOM graphic.
 - For left/right ICOMs, the relationship should connect at the outer end of the text, while the neutral marker stays aligned with the same text/relationship center line.
 - For top/bottom ICOMs, the marker should stay close to the process border. Control text is placed above the marker and mechanism text below it.
+- ICOM text backgrounds should remain transparent.
 
 
 ### Development activities

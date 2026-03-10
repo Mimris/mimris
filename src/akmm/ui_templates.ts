@@ -706,7 +706,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                 stretch: go.GraphObject.Fill,
                 defaultAlignment: go.Spot.TopLeft
             },
-            $(go.RowColumnDefinition, { row: 0, height: 20, sizing: go.RowColumnDefinition.None }),
+            $(go.RowColumnDefinition, { row: 0, height: 26, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
                 {
                     row: 0,
@@ -719,7 +719,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                 $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
                 makeZoomInvariantExpanderButton(0.9, {
                     column: 0,
-                    margin: new go.Margin(4, 1, 2, 0),
+                    margin: new go.Margin(7, 1, 0, 0),
                     alignment: go.Spot.Left,
                 }),
                 $(go.TextBlock, textStyle(),  // the name - open container
@@ -732,7 +732,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                         font: "10pt Segoe UI,sans-serif",
                         textAlign: "left",
                         alignment: go.Spot.Left,
-                        margin: new go.Margin(4, 0, 0, 4),
+                        margin: new go.Margin(7, 0, 0, 4),
                         wrap: go.TextBlock.None,
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name"
@@ -752,7 +752,7 @@ export function groupTop2(contextMenu: any, notation: string) {
                         font: "10pt Segoe UI,sans-serif",
                         textAlign: "left",
                         alignment: go.Spot.Left,
-                        margin: new go.Margin(2, 0, 0, 2),
+                        margin: new go.Margin(5, 0, 0, 2),
                         wrap: go.TextBlock.None,
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name",
@@ -1276,22 +1276,66 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
     );
 }
 
-function zoomInvariantScale(baseScale: number) {
-    return new go.Binding("scale", "_viewportScale", (diagramScale) => {
-        return baseScale / (diagramScale || 1);
-    }).ofModel();
-}
-
 function makeZoomInvariantExpanderButton(baseScale: number, props: Record<string, any> = {}) {
+    const {
+        width,
+        height,
+        minSize,
+        desiredSize,
+        alignment,
+        alignmentFocus,
+        margin,
+        row,
+        column,
+        columnSpan,
+        rowSpan,
+        ...buttonProps
+    } = props || {};
+    const slotWidth =
+        typeof width === "number" ? width
+        : desiredSize instanceof go.Size ? desiredSize.width
+        : minSize instanceof go.Size ? minSize.width
+        : 18;
+    const slotHeight =
+        typeof height === "number" ? height
+        : desiredSize instanceof go.Size ? desiredSize.height
+        : minSize instanceof go.Size ? minSize.height
+        : 18;
     const button = $("SubGraphExpanderButton",
         {
             name: "EXPANDER_BUTTON",
-            ...props,
+            alignment: go.Spot.Center,
+            scale: baseScale,
+            ...buttonProps,
         },
-        zoomInvariantScale(baseScale),
     );
-    (button as any).__zoomBaseScale = baseScale;
-    return button;
+    const slotProps: Record<string, any> = {
+        width: slotWidth,
+        height: slotHeight,
+        minSize: new go.Size(slotWidth, slotHeight),
+        stretch: go.GraphObject.None,
+        alignment: alignment || go.Spot.Center,
+        margin: margin || new go.Margin(0),
+    };
+    if (alignmentFocus instanceof go.Spot) {
+        slotProps.alignmentFocus = alignmentFocus;
+    }
+    if (Number.isFinite(row)) {
+        slotProps.row = row;
+    }
+    if (Number.isFinite(column)) {
+        slotProps.column = column;
+    }
+    if (Number.isFinite(columnSpan)) {
+        slotProps.columnSpan = columnSpan;
+    }
+    if (Number.isFinite(rowSpan)) {
+        slotProps.rowSpan = rowSpan;
+    }
+    return $(go.Panel, "Spot",
+        slotProps,
+        button,
+    );
 }
 
 function addResizeAdornment(groupName: string) {
@@ -1670,37 +1714,22 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     name: "SHAPE",
                     fill: DEBUG_ICOM_LAYOUT ? "rgba(255, 165, 0, 0.35)" : "transparent",
                     stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
-                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : 1,
-                    figure: "Rectangle",
-                    geometryString: getIcomGeometry(side, "hybrid"),
-                    desiredSize: getSideMarkerVisualSize(isGroup, "hybrid"),
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
+                    geometryString: getIcomGeometry(side, "idef"),
+                    desiredSize: getSideMarkerVisualSize(isGroup, "idef"),
                     alignment: go.Spot.Center,
                 },
                 new go.Binding("geometryString", "", function(d, obj) {
                     const style = resolveIcomStyle(obj);
-                    obj.figure = style === "idef" ? "Rectangle" : "";
-                    obj.geometryString = style === "idef" ? "" : getIcomGeometry(side, style);
+                    obj.geometryString = getIcomGeometry(side, style);
                     obj.desiredSize = getSideMarkerVisualSize(isGroup, style);
                     if (DEBUG_ICOM_LAYOUT) {
-                        if (style === "idef") {
-                            obj.fill = "orange";
-                            obj.stroke = "orange";
-                            obj.strokeWidth = 1;
-                        } else {
-                            obj.fill = getIcomFill(d, style);
-                            obj.stroke = getIcomStroke(d, style);
-                            obj.strokeWidth = getIcomStrokeWidth(style);
-                        }
-                    } else if (style === "idef") {
-                        obj.fill = getIcomStroke(d, style);
-                        obj.stroke = "transparent";
-                        obj.strokeWidth = 0;
                     } else {
                         obj.fill = getIcomFill(d, style);
-                        obj.stroke = getIcomStroke(d, style);
-                        obj.strokeWidth = getIcomStrokeWidth(style);
                     }
-                    return obj.geometryString || "";
+                    obj.stroke = getIcomStroke(d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
+                    return obj.geometryString;
                 }),
             );
         const markerLane = $(go.Panel, "Spot",
@@ -1721,7 +1750,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     textAlign: "right",
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    background: "rgba(0, 128, 255, 0.18)",
+                    background: "transparent",
                     margin: new go.Margin(0, 0, 0, 2),
                     toLinkable: true,
                     fromLinkable: true,
@@ -1744,7 +1773,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     textAlign: "left",
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    background: "rgba(0, 128, 255, 0.18)",
+                    background: "transparent",
                     margin: new go.Margin(0, 2, 0, 0),
                     toLinkable: true,
                     fromLinkable: true,
@@ -1779,34 +1808,27 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     name: "SHAPE",
                     fill: DEBUG_ICOM_LAYOUT ? "rgba(255, 165, 0, 0.35)" : "transparent",
                     stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
-                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : 1,
-                    figure: "Rectangle",
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
+                    geometryString: getIcomGeometry(side, "idef"),
                     desiredSize: new go.Size(markerThickness, markerLength),
                     alignment: go.Spot.Center,
                 },
                 new go.Binding("desiredSize", "", function(_d, obj) {
                     const style = resolveIcomStyle(obj);
-                    if (DEBUG_ICOM_LAYOUT) {
-                        obj.fill = style === "idef" ? "orange" : getIcomFill(_d, style);
-                        obj.stroke = style === "idef" ? "orange" : getIcomStroke(_d, style);
-                        obj.strokeWidth = style === "idef" ? 1 : getIcomStrokeWidth(style);
-                    } else if (style === "idef") {
-                        obj.fill = getIcomStroke(_d, style);
-                        obj.stroke = "transparent";
-                        obj.strokeWidth = 0;
-                    } else {
+                    if (!DEBUG_ICOM_LAYOUT) {
                         obj.fill = getIcomFill(_d, style);
-                        obj.stroke = getIcomStroke(_d, style);
-                        obj.strokeWidth = getIcomStrokeWidth(style);
+                    } else {
+                        obj.fill = style === "idef" ? "transparent" : getIcomFill(_d, style);
                     }
+                    obj.stroke = getIcomStroke(_d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
                     return style === "idef"
                         ? new go.Size(markerThickness, markerLength)
                         : getIcomPortSize(isGroup, style);
                 }),
                 new go.Binding("geometryString", "", function(d, obj) {
                     const style = resolveIcomStyle(obj);
-                    obj.figure = style === "idef" ? "Rectangle" : "";
-                    return style === "idef" ? "" : getIcomGeometry(side, style);
+                    return getIcomGeometry(side, style);
                 }),
             );
         const markerPanel = $(go.Panel, "Spot",
@@ -1826,7 +1848,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     textAlign: "center",
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    background: "rgba(0, 128, 255, 0.18)",
+                    background: "transparent",
                     margin: new go.Margin(0),
                     toLinkable: true,
                     fromLinkable: true,
@@ -1920,21 +1942,29 @@ const GradientLightGray = $(go.Brush, 'Linear', { 0: 'White', 1: '#DADADA' });
 const EventNodeSize = 42;
 const DataFill = GradientLightGray;
 
+function resolvePortItemData(port: any) {
+    return port?.data || port?.panel?.data || port?.part?.data || null;
+}
+
 // Change name
 export function changePortName(port, name, myDiagram) {
     myDiagram.startTransaction("changePortName");
-    const data = port.data;
+    const data = resolvePortItemData(port);
     if (debug) console.log('394 port, data', port, data);
-    myDiagram.model.setDataProperty(data, "name", name);
+    if (data) {
+        myDiagram.model.setDataProperty(data, "name", name);
+    }
     myDiagram.commitTransaction("changePortName");
 }
   
 // Change the color of the clicked port.
 export function changePortColor(port, color, myDiagram) {
     myDiagram.startTransaction("colorPort");
-    const data = port.data;
+    const data = resolvePortItemData(port);
     if (debug) console.log('403 port, data', port, data);
-    myDiagram.model.setDataProperty(data, "color", color);
+    if (data) {
+        myDiagram.model.setDataProperty(data, "color", color);
+    }
     myDiagram.commitTransaction("colorPort");
 }
   
@@ -5142,9 +5172,6 @@ function defaultFont(horiz) {  // a Binding conversion function
 return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
 }
 
-const NESTED_GROUP_SCALE_MULTIPLIER = 0.65;
-const MIN_NESTED_GROUP_SCALE = 0.05;
-
 function getParentMemberScale(grp: go.Group | null): number {
     if (!grp) return 1;
     const data: any = grp.data || {};
@@ -5157,17 +5184,14 @@ function getParentMemberScale(grp: go.Group | null): number {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
-function getStoredGroupScale(grp: go.Group | null): number {
-    if (!grp) return 1;
-    const data: any = grp.data || {};
-    const raw =
-        data?.scale1 ??
-        data?.scale ??
-        data?.objectview?.scale ??
-        grp.scale ??
-        1;
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+function getAncestorMemberScaleProduct(grp: go.Group | null): number {
+    let current = grp;
+    let product = 1;
+    while (current instanceof go.Group) {
+        product *= getParentMemberScale(current);
+        current = current.containingGroup;
+    }
+    return product;
 }
 
 function isGroupLikePart(part: go.Part | null | undefined): boolean {
@@ -5182,15 +5206,13 @@ function isGroupLikePart(part: go.Part | null | undefined): boolean {
 }
 
 function applyDroppedGroupScale(diagram: go.Diagram, grp: go.Group | null) {
-    if (!diagram || !grp) return;
-    const parentVisibleScale = getStoredGroupScale(grp);
-    const inheritedScale = parentVisibleScale * getParentMemberScale(grp);
+    if (!diagram) return;
+    const inheritedScale = getAncestorMemberScaleProduct(grp);
     diagram.selection.each((part: go.Part) => {
         if (!(part instanceof go.Node)) return;
         const data: any = part.data || {};
         let nextScale = inheritedScale;
-        if (isGroupLikePart(part)) {
-            nextScale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
+        if (grp && isGroupLikePart(part)) {
             const parentSize =
                 grp.data?.size instanceof go.Size
                     ? grp.data.size
@@ -5237,9 +5259,7 @@ function finishDrop(e, grp) {
         e.diagram.currentTool.doCancel();
         return;
     }
-    if (grp !== null) {
-        applyDroppedGroupScale(e.diagram, grp);
-    }
+    applyDroppedGroupScale(e.diagram, grp);
 }
 
 // TESTING TESTING TESTING

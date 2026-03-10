@@ -25,69 +25,107 @@ import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from 
 const debug = false;
 const debugPorts = true;
 const linkToLink = false;
-const NESTED_GROUP_SCALE_MULTIPLIER = 0.65;
-const MIN_NESTED_GROUP_SCALE = 0.05;
 
-function getEffectiveParentMemberScale(
-  parentPart: go.Group | null | undefined,
-  model: any
-): number {
-  if (!(parentPart instanceof go.Group)) return 1.0;
-  const parentData: any = parentPart.data || {};
-  const parentMemberScale = Math.max(
-    0.01,
-    Number(parentData?.memberscale ?? parentData?.objectview?.memberscale ?? parentData?.typeview?.memberscale) || 1.0
-  );
-  let parentVisualScale = Math.max(
-    0.01,
-    Number(
-      parentPart.scale ??
-      parentData?.scale1 ??
-      parentData?.scale ??
-      parentData?.objectview?.scale
-    ) || 1.0
-  );
-  try {
-    const modelNode = model?.findNodeByViewId?.(parentPart.data?.key) || model?.findNode?.(parentPart.data?.key);
-    const modelNodeScale = Number(
-      modelNode?.scale1 ??
-      modelNode?.scale ??
-      modelNode?.objectview?.scale
-    );
-    if (
-      (!Number.isFinite(parentPart.scale) || Number(parentPart.scale) <= 0) &&
-      Number.isFinite(modelNodeScale) &&
-      modelNodeScale > 0
-    ) {
-      parentVisualScale = Math.max(0.01, modelNodeScale);
-    }
-  } catch (_) {
-  }
-  return parentVisualScale * parentMemberScale;
-}
-
-function getLiveParentInheritedScale(parentPart: go.Group | null | undefined): number {
-  if (!(parentPart instanceof go.Group)) return 1.0;
-  const parentData: any = parentPart.data || {};
-  const parentMemberScale = Math.max(
-    0.01,
-    Number(parentData?.memberscale ?? parentData?.objectview?.memberscale ?? parentData?.typeview?.memberscale) || 1.0
-  );
-  const parentScale = Math.max(0.01, Number(parentPart.scale) || 1.0);
-  return parentScale * parentMemberScale;
-}
-
-function getStoredGroupVisibleScale(part: go.Group | null | undefined): number {
+function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
   const data: any = part.data || {};
   const raw =
-    data?.scale1 ??
-    data?.scale ??
-    data?.objectview?.scale ??
-    part.scale ??
+    data?.memberscale ??
+    data?.objectview?.memberscale ??
+    data?.typeview?.memberscale ??
     1.0;
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1.0;
+}
+
+function getAncestorMemberScaleProduct(group: go.Group | null | undefined): number {
+  let current = group instanceof go.Group ? group : null;
+  let product = 1.0;
+  while (current instanceof go.Group) {
+    product *= getGroupMemberScale(current);
+    current = current.containingGroup;
+  }
+  return product;
+}
+
+function getDerivedScaleForGroup(targetGroup: go.Group | null | undefined): number {
+  return getAncestorMemberScaleProduct(targetGroup);
+}
+
+function getRenderedPartScale(part: go.Part | null | undefined): number {
+  if (!(part instanceof go.Part)) return 1.0;
+  const raw = Number(part.scale ?? part.data?.scale1 ?? part.data?.scale ?? 1.0);
+  return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+}
+
+function getRelationshipTextScale(diagram: go.Diagram | null | undefined, relview: any): number {
+  if (!diagram || !relview) return 1.0;
+  const fromId = relview?.fromObjview?.id;
+  const toId = relview?.toObjview?.id;
+  const fromPart = fromId ? (diagram.findNodeForKey(fromId) as go.Part | null) : null;
+  const toPart = toId ? (diagram.findNodeForKey(toId) as go.Part | null) : null;
+  const fromScale = getRenderedPartScale(fromPart);
+  const toScale = getRenderedPartScale(toPart);
+  return (fromScale + toScale) / 2;
+}
+
+function syncRelationshipTextScaleForObjectView(
+  diagram: go.Diagram | null | undefined,
+  objectview: any
+) {
+  if (!diagram || !objectview) return;
+  const relviews = [
+    ...(Array.isArray(objectview.inputrelviews) ? objectview.inputrelviews : []),
+    ...(Array.isArray(objectview.outputrelviews) ? objectview.outputrelviews : []),
+  ];
+  const seen = new Set<string>();
+  for (let i = 0; i < relviews.length; i++) {
+    const relview = relviews[i];
+    if (!relview?.id || seen.has(relview.id)) continue;
+    seen.add(relview.id);
+    const nextScale = getRelationshipTextScale(diagram, relview);
+    relview.textscale = nextScale;
+    const link = diagram.findLinkForKey(relview.id);
+    const linkData: any = link?.data || null;
+    if (linkData && typeof diagram.model?.setDataProperty === 'function') {
+      try { diagram.model.setDataProperty(linkData, "textscale", nextScale); } catch (_) {}
+    } else if (linkData) {
+      linkData.textscale = nextScale;
+    }
+    try { link?.updateTargetBindings(); } catch (_) {}
+  }
+}
+
+function applyDerivedScaleToPart(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  targetGroup: go.Group | null | undefined,
+  objectview?: any,
+  goNode?: any
+) {
+  if (!diagram || !(part instanceof go.Part)) return 1.0;
+  const nextScale = getDerivedScaleForGroup(targetGroup);
+  const data: any = part.data || {};
+  try { part.scale = nextScale; } catch (_) {}
+  data.scale = nextScale;
+  data.scale1 = nextScale;
+  if (typeof diagram.model?.setDataProperty === 'function') {
+    try { diagram.model.setDataProperty(data, "scale", nextScale); } catch (_) {}
+    try { diagram.model.setDataProperty(data, "scale1", nextScale); } catch (_) {}
+  }
+  if (objectview) {
+    objectview.scale = nextScale;
+  } else if (data.objectview) {
+    data.objectview.scale = nextScale;
+  }
+  if (goNode) {
+    goNode.scale = nextScale;
+    if (goNode.objectview) {
+      goNode.objectview.scale = nextScale;
+    }
+  }
+  syncRelationshipTextScaleForObjectView(diagram, objectview || data.objectview);
+  return nextScale;
 }
 
 function isGroupLikeNode(part: any, data?: any): boolean {
@@ -764,7 +802,21 @@ function ensureInitialGroupSize(diagram, node, data, options) {
       node.desiredSize = desired;
     }
     node.ensureBounds();
+    refreshGroupPartRendering(diagram, node, data);
   }
+}
+
+function refreshGroupPartRendering(diagram: go.Diagram | null | undefined, part: go.Part | null | undefined, data?: any) {
+  if (!diagram || !(part instanceof go.Part)) return;
+  const targetData = data || part.data;
+  if (targetData && typeof diagram.model?.updateTargetBindings === 'function') {
+    try { diagram.model.updateTargetBindings(targetData); } catch (_) {}
+  }
+  try { diagram.updateAllTargetBindings("scale"); } catch (_) {}
+  try { part.updateTargetBindings(); } catch (_) {}
+  try { part.ensureBounds(); } catch (_) {}
+  try { part.updateAdornments(); } catch (_) {}
+  try { diagram.requestUpdate(); } catch (_) {}
 }
 
 function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart: go.Part | null, parentPart: go.Part | null) {
@@ -798,6 +850,7 @@ function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart:
       childPart.desiredSize = new go.Size(width, height);
     }
     childPart.ensureBounds();
+    refreshGroupPartRendering(diagram, childPart, childData);
   }
 }
 
@@ -1743,19 +1796,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (!selectionShiftPressed) {
             groupKey = currentGroupKey;
             goNode.group = currentGroupKey;
-            goNode.scale = Number(
-              goNode.scale1 ??
-              goNode.scale ??
-              goNode.objectview?.scale ??
-              n.data?.scale1 ??
-              n.data?.scale ??
-              1.0
-            ) || 1.0;
+            goNode.scale = currentGroupKey
+              ? getDerivedScaleForGroup(myDiagram.findNodeForKey(currentGroupKey) as go.Group | null)
+              : 1.0;
           } else if (!group) {
             goNode.scale = 1.0; 
           } else {
             goNode.group = groupKey;
-            goNode.scale = goNode.getMyScale(myGoModel);
+            goNode.scale = getDerivedScaleForGroup(myDiagram.findNodeForKey(groupKey) as go.Group | null);
           }
           // Avoid self- or cyclic grouping
           if (groupKey && groupKey === n.data.key) {
@@ -1854,9 +1902,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 parentObjview.isExpanded = true;
                 myObjectview.group = goParentGroup.key;
                 myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
-                goToNode.scale = goToNode.getMyScale(myGoModel);
-                gjsPart.scale = Number(goToNode.scale);
-                myObjectview.scale = Number(goToNode.scale);
+                const nextScale = applyDerivedScaleToPart(myDiagram, myToNode.n, diagramGroup, myObjectview, goToNode);
+                gjsPart.scale = Number(nextScale);
                 let loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
                 if (loc) {
                   myToNode.loc = loc;
@@ -1926,13 +1973,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (true && fromObjview?.isGroup) {
                       const relship = relview.relship;
                       const reltype = relship.type;
-                      if (
-                        reltype && (
-                          reltype.name === constants.types.AKM_HAS_MEMBER ||
-                          reltype.name === constants.types.AKM_HAS_PART ||
-                          reltype.name === constants.types.AKM_CONTAINS
-                        )
-                      ) {
+                      const isContainsRel = reltype?.name === constants.types.AKM_CONTAINS;
+                      if (isContainsRel) {
                         relview = uic.ensureContainsRelationshipView(
                           myModelview,
                           myMetis,
@@ -1945,7 +1987,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                         if (link) {
                           link.visible = false;
                         }
-                      }                        
+                      } else {
+                        relview.visible = true;
+                        const link = myDiagram.findLinkForKey(relview?.id);
+                        if (link) {
+                          link.visible = true;
+                        }
+                      }
                       inoutRelviews.push(relview);
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       uic.addItemToList(modifiedRelshipViews, jsnRelview);
@@ -1964,9 +2012,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (relview) {
                     let toObjview = relview.toObjview; 
                     // Handle the relationship from group to its member
-                    if (toObjview?.isGroup) {
+                    const relship = relview.relship;
+                    const isContainsRel = relship?.type?.name === constants.types.AKM_CONTAINS;
+                    if (toObjview?.isGroup && isContainsRel) {
                       // Relocate
-                      const relship = relview.relship;
                       const oldFromObj = relship.fromObject;
                       const newFromObj = parentObjview?.object;
                       const oldToObj = relship.toObject;
@@ -1987,8 +2036,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                     inoutRelviews.push(relview);
                     const lnk = myDiagram.findLinkForKey(relview.id);
                     if (lnk) {
-                      lnk.visible = false;
+                      lnk.visible = !isContainsRel;
                     }
+                    relview.visible = !isContainsRel;
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     uic.addItemToList(modifiedRelshipViews, jsnRelview);
                   }
@@ -2031,8 +2081,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   myObjectview.group = myToNode.group;
                 } catch (error) {
                 }
-                let scale = Number(goToNode.scale); // Not part of group
-                if (!scale || scale === 0) scale = 1.0;
+                const scale = applyDerivedScaleToPart(myDiagram, myToNode.n, null, myObjectview, goToNode);
                 gjsPart.scale = scale;
                 myObjectview.scale = gjsPart.scale;
                 goToNode.objectview = myObjectview;
@@ -2067,7 +2116,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     continue;
                   const fromObjviews = myModelview.findObjectViewsByObject(fromObj) as akm.cxObjectView;
                   const fromObjview = fromObjviews[0];
-                  if (fromObjview?.isGroup) {
+                  const isContainsRel = relship?.type?.name === constants.types.AKM_CONTAINS;
+                  if (fromObjview?.isGroup && isContainsRel) {
                     // YES
                     myModel.purgeInputRelships(myModel);
                     const fromGroup = fromObjview.object;
@@ -2410,32 +2460,17 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (data) {
                 data.isGroup = true;
               }
-              let nextScale = Number(gnode.scale) || 1.0;
+              let nextScale = 1.0;
               if (persistedGroup) {
                 const parentPart = myDiagram.findNodeForKey(persistedGroup) as go.Group | null;
-                const parentVisibleScale = getStoredGroupVisibleScale(parentPart);
-                nextScale = Math.max(
-                  MIN_NESTED_GROUP_SCALE,
-                  parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER
-                );
                 resizeGroupToHalfParent(myDiagram, data, sel, parentPart);
-              } else if (!persistedGroup) {
-                nextScale = Math.max(
-                  MIN_NESTED_GROUP_SCALE,
-                  Number(data?.scale1 ?? data?.scale ?? objview?.scale ?? sel.scale ?? gnode.scale) || 1.0
-                );
+                nextScale = applyDerivedScaleToPart(myDiagram, sel, parentPart, objview, gnode);
+              } else {
+                nextScale = applyDerivedScaleToPart(myDiagram, sel, null, objview, gnode);
               }
-              gnode.scale = nextScale;
               try {
                 sel.scale = nextScale;
               } catch (error) {
-              }
-              objview.scale = nextScale;
-              if (data) {
-                data.scale = nextScale;
-                data.scale1 = nextScale;
-                myDiagram.model.setDataProperty(data, "scale", nextScale);
-                myDiagram.model.setDataProperty(data, "scale1", nextScale);
               }
               try {
                 myDiagram.updateAllTargetBindings();
@@ -3300,24 +3335,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               });
             }
             if (bucket.targetGroup instanceof go.Group) {
-              const parentVisibleScale = getStoredGroupVisibleScale(bucket.targetGroup);
-              const inheritedScale = getEffectiveParentMemberScale(bucket.targetGroup, myGoModel);
               for (let j = 0; j < bucket.nodes.length; j++) {
                 const node = bucket.nodes[j];
                 const nodeData: any = node?.data || {};
                 const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
-                let nextScale = inheritedScale;
                 if (isGroupLikeNode(node, nodeData)) {
-                  nextScale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
                   resizeGroupToHalfParent(myDiagram, nodeData, node, bucket.targetGroup);
                 }
-                node.scale = nextScale;
-                if (nodeData) {
-                  nodeData.scale = nextScale;
-                  nodeData.scale1 = nextScale;
-                  myDiagram.model.setDataProperty(nodeData, "scale", nextScale);
-                  myDiagram.model.setDataProperty(nodeData, "scale1", nextScale);
-                }
+                const nextScale = applyDerivedScaleToPart(myDiagram, node, bucket.targetGroup, currentObjview);
                 if (currentObjview) {
                   const nextObjview = new jsn.jsnObjectView(currentObjview);
                   nextObjview.group = String(bucket.groupKey ?? "");
@@ -3340,13 +3365,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (!(node instanceof go.Group)) continue;
                 const nodeData: any = node?.data || {};
                 const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
-                node.scale = 1.0;
-                if (nodeData) {
-                  nodeData.scale = 1.0;
-                  nodeData.scale1 = 1.0;
-                  myDiagram.model.setDataProperty(nodeData, "scale", 1.0);
-                  myDiagram.model.setDataProperty(nodeData, "scale1", 1.0);
-                }
+                applyDerivedScaleToPart(myDiagram, node, null, currentObjview);
                 if (currentObjview) {
                   const nextObjview = new jsn.jsnObjectView(currentObjview);
                   nextObjview.group = "";
@@ -3389,9 +3408,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else {
               myDiagram.model.setDataProperty(data, 'category', template);
             }
-            myDiagram.model.updateTargetBindings(data);
-            part.updateTargetBindings();
-            part.ensureBounds();
+            refreshGroupPartRendering(myDiagram, part, data);
           } finally {
             myDiagram.commitTransaction('apply-drop-group-template');
           }
@@ -3407,9 +3424,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             data.viewkind = constants.viewkinds.OBJ;
             data.template = data.template || constants.gojs.C_NODETEMPLATE;
             myDiagram.model.setCategoryForNodeData(data, data.template || constants.gojs.C_NODETEMPLATE);
-            myDiagram.model.updateTargetBindings(data);
-            part.updateTargetBindings();
-            part.ensureBounds();
+            refreshGroupPartRendering(myDiagram, part, data);
           } finally {
             myDiagram.commitTransaction('revert-drop-to-node');
           }
@@ -4234,24 +4249,17 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.group = parentgroup.key;
             goNode.objectview.group = parentgroup.objviewRef;
             myDiagram.model.setDataProperty(part, "group", goNode.group);
-            let nextScale = Number(goNode.getMyScale(myGoModel));
+            let nextScale = 1.0;
             if (isGroupLikeNode(goNode, part)) {
               const parentPart = myDiagram.findNodeForKey(parentgroup.key) as go.Group | null;
-              const parentVisibleScale = getStoredGroupVisibleScale(parentPart);
-              nextScale = Math.max(
-                MIN_NESTED_GROUP_SCALE,
-                parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER
-              );
               resizeGroupToHalfParent(myDiagram, part, node, parentPart);
+              nextScale = applyDerivedScaleToPart(myDiagram, node, parentPart, goNode.objectview, goNode);
+            } else {
+              nextScale = applyDerivedScaleToPart(myDiagram, node, myDiagram.findNodeForKey(parentgroup.key) as go.Group | null, goNode.objectview, goNode);
             }
-            goNode.scale = nextScale;
             part.scale = Number(nextScale);
             gjsNode.scale = part.scale
             goNode.objectview.scale = part.scale;
-            if (node?.data) {
-              myDiagram.model.setDataProperty(node.data, "scale", part.scale);
-              myDiagram.model.setDataProperty(node.data, "scale1", part.scale);
-            }
             // Check if the node has a relationship (contains) FROM a group, if not create it
             const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             const parenttype = parentgroup.objecttype;
@@ -4781,14 +4789,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             myGoNode.group = goParentGroup.key; // Make the node a member of the group (container)
             parentObjview.isExpanded = true;
             myObjectview.group = goParentGroup.key;
-            let scale = Number(myGoNode.getMyScale(myGoModel));
+            let scale = 1.0;
             if (isGroupLikeNode(myGoNode, myObjectview)) {
               const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
-              const parentVisibleScale = getStoredGroupVisibleScale(parentPart);
-              scale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
               resizeGroupToHalfParent(myDiagram, myToNode.gjsData, myToNode.n, parentPart);
+              scale = applyDerivedScaleToPart(myDiagram, myToNode.n, parentPart, myObjectview, myGoNode);
+            } else {
+              scale = applyDerivedScaleToPart(myDiagram, myToNode.n, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
             }
-            myGoNode.scale = scale;
             myObjectview.scale = scale;
             myObjectview.loc = myGoNode.loc;
           }

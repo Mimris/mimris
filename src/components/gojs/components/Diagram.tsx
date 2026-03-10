@@ -284,7 +284,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const diagramScale = diagram.scale || 1;
     const modelData: any = diagram.model.modelData || {};
     if (modelData._viewportScale !== diagramScale) {
-      modelData._viewportScale = diagramScale;
+      if (typeof diagram.model.setDataProperty === 'function') {
+        diagram.model.setDataProperty(modelData, '_viewportScale', diagramScale);
+      } else {
+        modelData._viewportScale = diagramScale;
+      }
+      diagram.model.updateTargetBindings(modelData);
       diagram.updateAllTargetBindings("scale");
     }
     diagram.parts.each((part: go.Part) => {

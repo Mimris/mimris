@@ -6588,6 +6588,7 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     // abstract: boolean;
+    icomStyle: string;
     memberscale: number;
     arrowscale: number;
     viewkind: string;
@@ -6614,6 +6615,7 @@ export class cxObjtypeviewData {
     textscale: number;
     constructor() {
         // this.abstract = false;
+        this.icomStyle = "idef";
         this.memberscale = 1.0;
         this.arrowscale = 1.3;
         this.viewkind = constants.viewkinds.OBJ;
@@ -6793,6 +6795,12 @@ export class cxObjectTypeView extends cxMetaObject {
     setTemplate(template: string) {
         this.data.template = template;
         this.template = template;
+    }
+    setIcomStyle(icomStyle: string) {
+        this.data.icomStyle = icomStyle || "idef";
+    }
+    getIcomStyle(): string {
+        return this.data?.icomStyle || "idef";
     }
     getTemplate(): string {
         if (this.data.template)

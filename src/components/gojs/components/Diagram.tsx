@@ -179,6 +179,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
+      if (diagram.model?.modelData) {
+        (diagram.model.modelData as any)._viewportScale = diagram.scale || 1;
+      }
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
@@ -200,6 +203,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SubGraphCollapsed', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
       
       // Add listener to force update emoji icons after model is loaded
       diagram.addDiagramListener('InitialLayoutCompleted', () => {
@@ -249,6 +253,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('SubGraphCollapsed', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
 
       diagram.removeChangedListener(this.props.onModelChange);
 
@@ -271,6 +276,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showChangeImageModal: isSetGroupImageModal,
       currentActiveTab: '0'
     });
+  }
+
+  private refreshResizeAdornments = (e: go.DiagramEvent) => {
+    const diagram = e.diagram;
+    if (!(diagram instanceof go.Diagram)) return;
+    const diagramScale = diagram.scale || 1;
+    const modelData: any = diagram.model.modelData || {};
+    if (modelData._viewportScale !== diagramScale) {
+      modelData._viewportScale = diagramScale;
+      diagram.updateAllTargetBindings("scale");
+    }
+    diagram.parts.each((part: go.Part) => {
+      if (part instanceof go.Node || part instanceof go.Group) {
+        part.updateTargetBindings();
+      }
+    });
+    diagram.selection.each((part: go.Part) => {
+      part.updateAdornments();
+    });
+    diagram.requestUpdate();
   }
 
   public handleSelectDropdownChange = (selected) => {

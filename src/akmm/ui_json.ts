@@ -889,6 +889,7 @@ export class jsnObjectTypeView {
     name:            string;
     description:     string;
     typeRef:         string;
+    icomStyle:       string;
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
@@ -917,6 +918,7 @@ export class jsnObjectTypeView {
         this.name            = objtypeview.name;
         this.description     = "";
         this.typeRef         = objtypeview.typeRef;
+        this.icomStyle       = objtypeview.getIcomStyle();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
         // this.template2       = objtypeview.getTemplate2();

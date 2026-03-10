@@ -71,6 +71,21 @@ Nested group scaling is relative to the direct parent.
 - Nested group scaling compounds by level. If the nested-group multiplier is `0.45`, then a child group is `parent * 0.45`, and a grandchild is `child * 0.45`.
 - Palette drops, drag/drop into groups, and structural `Shift` regrouping should follow the same direct-parent scaling rule.
 
+### Diagram Handles And Header Controls
+
+- Process groups and container groups use the same 8 resize handles.
+- Resize handles should stay approximately constant on screen while zooming. Their visual size should not balloon with diagram zoom.
+- Expand/collapse buttons should also stay approximately constant on screen while zooming.
+- Group header controls must remain fully visible and not clip at normal zoom levels.
+
+### ICOM Rendering
+
+- The default ICOM style is `idef`.
+- ICOM rendering is defined by `icomStyle` on the typeview, with support for metamodel-driven notation choices.
+- Side ICOMs use a neutral marker close to the process border, with the relationship direction shown by the relationship arrow rather than the ICOM graphic.
+- For left/right ICOMs, the relationship should connect at the outer end of the text, while the neutral marker stays aligned with the same text/relationship center line.
+- For top/bottom ICOMs, the marker should stay close to the process border. Control text is placed above the marker and mechanism text below it.
+
 
 ### Development activities
 

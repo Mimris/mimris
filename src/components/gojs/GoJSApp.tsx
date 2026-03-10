@@ -25,7 +25,7 @@ import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from 
 const debug = false;
 const debugPorts = true;
 const linkToLink = false;
-const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
+const NESTED_GROUP_SCALE_MULTIPLIER = 0.65;
 const MIN_NESTED_GROUP_SCALE = 0.05;
 
 function getEffectiveParentMemberScale(
@@ -217,6 +217,99 @@ function isAncestorGroupKey(
     current = current.containingGroup;
   }
   return false;
+}
+
+function clearPartGroupState(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  data?: any
+) {
+  if (!diagram || !(part instanceof go.Part)) return;
+  const nodeData = data || part.data;
+  if (nodeData) {
+    try { diagram.model.setGroupKeyForNodeData(nodeData, undefined); } catch (_) {}
+    try { diagram.model.setDataProperty(nodeData, "group", ""); } catch (_) {}
+    try { nodeData.group = ""; } catch (_) {}
+  }
+  try { part.containingGroup = null; } catch (_) {}
+  try { (part as any).group = ""; } catch (_) {}
+  try { (part as any).data.group = ""; } catch (_) {}
+}
+
+function detachPartToTopLevel(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  data?: any
+) {
+  if (!diagram || !(part instanceof go.Part)) return;
+  const previousContainingGroup = part.containingGroup;
+  clearPartGroupState(diagram, part, data);
+  if (previousContainingGroup instanceof go.Group) {
+    const detachSet = new go.Set<go.Part>();
+    detachSet.add(part);
+    try { previousContainingGroup.removeMembers(detachSet, false); } catch (_) {}
+  }
+  const topLevelSet = new go.Set<go.Part>();
+  topLevelSet.add(part);
+  try { diagram.commandHandler.addTopLevelParts(topLevelSet, false); } catch (_) {}
+  clearPartGroupState(diagram, part, data);
+}
+
+function attachPartToGroup(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  targetGroup: go.Group | null | undefined,
+  data?: any
+): boolean {
+  if (!diagram || !(part instanceof go.Part) || !(targetGroup instanceof go.Group)) return false;
+  if (part.containingGroup !== targetGroup) {
+    detachPartToTopLevel(diagram, part, data);
+  }
+  const memberSet = new go.Set<go.Part>();
+  memberSet.add(part);
+  let added = false;
+  try {
+    added = targetGroup.addMembers(memberSet, false);
+  } catch (_) {
+    added = false;
+  }
+  if (!added) return false;
+  try { part.containingGroup = targetGroup; } catch (_) {}
+  const nodeData = data || part.data;
+  if (nodeData) {
+    try { diagram.model.setGroupKeyForNodeData(nodeData, targetGroup.key); } catch (_) {}
+    try { diagram.model.setDataProperty(nodeData, "group", targetGroup.key); } catch (_) {}
+    try { nodeData.group = targetGroup.key; } catch (_) {}
+  }
+  try { (part as any).group = targetGroup.key; } catch (_) {}
+  try { (part as any).data.group = targetGroup.key; } catch (_) {}
+  return true;
+}
+
+function assertPartGroupConsistency(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  expectedGroupKey?: string | number | null
+) {
+  if (!diagram || !(part instanceof go.Part) || !part.data) return;
+  const actualContainingKey = part.containingGroup?.key ?? "";
+  const actualDataKey = part.data.group ?? "";
+  const normalizedExpected = expectedGroupKey ?? "";
+  if (normalizedExpected === "" && actualContainingKey) {
+    console.warn("Group consistency mismatch: expected top-level but part still has containingGroup", {
+      key: part.data.key,
+      containingGroup: actualContainingKey,
+      dataGroup: actualDataKey
+    });
+  }
+  if (normalizedExpected !== "" && String(actualDataKey ?? "") !== String(normalizedExpected)) {
+    console.warn("Group consistency mismatch: data.group differs from expected target", {
+      key: part.data.key,
+      expectedGroup: normalizedExpected,
+      containingGroup: actualContainingKey,
+      dataGroup: actualDataKey
+    });
+  }
 }
 
 const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype',
@@ -522,6 +615,8 @@ function getSizeOptionsForType(typeName: string | undefined | null) {
       return { minWidth: 1600, minHeight: 900 };
     case 'lane':
       return { minWidth: 1400, minHeight: 260 };
+    case 'process':
+      return { minWidth: 920, minHeight: 560, preferredWidth: 920, preferredHeight: 560 };
     default:
       return undefined;
   }
@@ -621,15 +716,24 @@ function ensureInitialGroupSize(diagram, node, data, options) {
   if (!data) {
     return;
   }
-  const defaults = { minWidth: 800, minHeight: 460 };
+  const defaults = { minWidth: 800, minHeight: 460, preferredWidth: undefined, preferredHeight: undefined };
   const merged = { ...defaults, ...(options || {}) };
   let minWidth = merged.minWidth;
   let minHeight = merged.minHeight;
+  const preferredWidth = typeof merged.preferredWidth === 'number' ? merged.preferredWidth : undefined;
+  const preferredHeight = typeof merged.preferredHeight === 'number' ? merged.preferredHeight : undefined;
   const parsed = parseSizeString(data.size);
   let width = parsed?.width ?? 0;
   let height = parsed?.height ?? 0;
 
-  if (width >= minWidth && height >= minHeight) {
+  if (preferredWidth !== undefined && (width <= 0 || width > preferredWidth)) {
+    width = preferredWidth;
+  }
+  if (preferredHeight !== undefined && (height <= 0 || height > preferredHeight)) {
+    height = preferredHeight;
+  }
+
+  if (width >= minWidth && height >= minHeight && preferredWidth === undefined && preferredHeight === undefined) {
     return;
   }
 
@@ -1572,6 +1676,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   const previousDragsTree = dragTool.dragsTree;
   dragTool.dragsTree = true;
         const myParts = dragTool.draggedParts;
+        dragTool.dragsTree = previousDragsTree;
         const myFromNodes = [];
         for (let it = myParts.iterator; it?.next();) {
           let n = it.value;
@@ -1739,13 +1844,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // goToNode IS member of a group
                 // First handle the object (node)
                 const gjsPart = myToNode.gjsData; // The object (node) to be moved
-                const diagramGroup = myDiagram.findNodeForKey(goParentGroup.key);
+                const diagramGroup = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
                 if (diagramGroup instanceof go.Group) {
-                  const memberSet = new go.Set<go.Part>();
-                  memberSet.add(myToNode.n);
-                  diagramGroup.addMembers(memberSet, true);
+                  attachPartToGroup(myDiagram, myToNode.n, diagramGroup, myToNode.n.data);
                 }
-                myDiagram.model.setGroupKeyForNodeData(myToNode.n.data, goParentGroup.key);
                 myToNode.group = goParentGroup.key;
                 myToNode.gjsData.group = goParentGroup.key;
                 goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
@@ -1906,22 +2008,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // goToNode is NOT visually member of a group.
                 // Structural containment may still exist, but it must not force group membership.
                 if (selectionShiftPressed && myToNode.n?.containingGroup instanceof go.Group) {
-                  const previousContainingGroup = myToNode.n.containingGroup;
-                  if (previousContainingGroup instanceof go.Group) {
-                    const memberSet = new go.Set<go.Part>();
-                    memberSet.add(myToNode.n);
-                    try {
-                      previousContainingGroup.removeMembers(memberSet, false);
-                    } catch (error) {
-                    }
-                  }
-                  try {
-                    myDiagram.model.setGroupKeyForNodeData(myToNode.n.data, undefined);
-                  } catch (error) {
-                  }
-                  const topLevelSet = new go.Set<go.Part>();
-                  topLevelSet.add(myToNode.n);
-                  myDiagram.commandHandler.addTopLevelParts(topLevelSet, false);
+                  detachPartToTopLevel(myDiagram, myToNode.n, myToNode.n.data);
                   const detachedLoc = `${myToNode.n.location.x} ${myToNode.n.location.y}`;
                   myToNode.loc = detachedLoc;
                   myToNode.gjsData.loc = detachedLoc;
@@ -2241,25 +2328,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else if (persistedGroup) {
               const targetGroup = myDiagram.findNodeForKey(persistedGroup) as go.Group | null;
               if (targetGroup instanceof go.Group && !wouldCreateGroupCycle(sel, targetGroup) && sel.containingGroup !== targetGroup) {
-                const memberSet = new go.Set<go.Part>();
-                memberSet.add(sel);
-                if (sel.containingGroup instanceof go.Group) {
-                  const previousContainingGroup = sel.containingGroup;
-                  const detachSet = new go.Set<go.Part>();
-                  detachSet.add(sel);
-                  try {
-                    previousContainingGroup.removeMembers(detachSet, false);
-                  } catch (error) {
-                  }
-                  if (data) {
-                    myDiagram.model.setGroupKeyForNodeData(data, undefined);
-                    myDiagram.model.setDataProperty(data, "group", "");
-                  }
-                  const topLevelSet = new go.Set<go.Part>();
-                  topLevelSet.add(sel);
-                  myDiagram.commandHandler.addTopLevelParts(topLevelSet, false);
-                }
-                const added = targetGroup.addMembers(memberSet, false);
+                const added = attachPartToGroup(myDiagram, sel, targetGroup, data);
                 if (!added) {
                   persistedGroup = "";
                 } else {
@@ -2271,34 +2340,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else if (sel.containingGroup instanceof go.Group) {
               persistedGroup = "";
-              const previousContainingGroup = sel.containingGroup;
-              if (data) {
-                myDiagram.model.setGroupKeyForNodeData(data, undefined);
-                myDiagram.model.setDataProperty(data, "group", "");
-              }
-              if (previousContainingGroup instanceof go.Group) {
-                const memberSet = new go.Set<go.Part>();
-                memberSet.add(sel);
-                try {
-                  previousContainingGroup.removeMembers(memberSet, false);
-                } catch (error) {
-                }
-              }
-              const topLevelSet = new go.Set<go.Part>();
-              topLevelSet.add(sel);
-              myDiagram.commandHandler.addTopLevelParts(topLevelSet, false);
+              detachPartToTopLevel(myDiagram, sel, data);
               const detachedLoc = `${sel.location.x} ${sel.location.y}`;
               objview.loc = detachedLoc;
               if (data) {
                 myDiagram.model.setDataProperty(data, "loc", detachedLoc);
-              }
-              try {
-                sel.data.group = "";
-              } catch (error) {
-              }
-              try {
-                (sel as any).group = "";
-              } catch (error) {
               }
               try {
                 sel.invalidateLayout();
@@ -2345,19 +2391,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (!persistedGroup) {
               objview.group = "";
-              if (data) {
-                data.group = "";
-                myDiagram.model.setGroupKeyForNodeData(data, undefined);
-                myDiagram.model.setDataProperty(data, "group", "");
-              }
-              try {
-                sel.data.group = "";
-              } catch (error) {
-              }
-              try {
-                (sel as any).group = "";
-              } catch (error) {
-              }
+              clearPartGroupState(myDiagram, sel, data);
             }
           }
           const gnode = myGoModel.findNodeByViewId(objview.id);
@@ -2368,10 +2402,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               gnode.group = persistedGroup;
               if (!persistedGroup) {
                 gnode.group = "";
-                try {
-                  sel.data.group = "";
-                } catch (error) {
-                }
+                clearPartGroupState(myDiagram, sel, data);
               }
             }
             if (!isLaneGroup && isGroupLikeNode(sel, data || objview)) {
@@ -2387,6 +2418,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   MIN_NESTED_GROUP_SCALE,
                   parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER
                 );
+                resizeGroupToHalfParent(myDiagram, data, sel, parentPart);
               } else if (!persistedGroup) {
                 nextScale = Math.max(
                   MIN_NESTED_GROUP_SCALE,
@@ -2412,6 +2444,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          assertPartGroupConsistency(myDiagram, sel, persistedGroup);
           if (!isLaneGroup) {
             const movedObj = objview?.object || myModel?.findObject?.(objview?.objectRef);
             const containsType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
@@ -3276,6 +3309,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let nextScale = inheritedScale;
                 if (isGroupLikeNode(node, nodeData)) {
                   nextScale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
+                  resizeGroupToHalfParent(myDiagram, nodeData, node, bucket.targetGroup);
                 }
                 node.scale = nextScale;
                 if (nodeData) {
@@ -4208,6 +4242,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 MIN_NESTED_GROUP_SCALE,
                 parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER
               );
+              resizeGroupToHalfParent(myDiagram, part, node, parentPart);
             }
             goNode.scale = nextScale;
             part.scale = Number(nextScale);
@@ -4751,6 +4786,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
               const parentVisibleScale = getStoredGroupVisibleScale(parentPart);
               scale = Math.max(MIN_NESTED_GROUP_SCALE, parentVisibleScale * NESTED_GROUP_SCALE_MULTIPLIER);
+              resizeGroupToHalfParent(myDiagram, myToNode.gjsData, myToNode.n, parentPart);
             }
             myGoNode.scale = scale;
             myObjectview.scale = scale;

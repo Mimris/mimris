@@ -3907,10 +3907,129 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         ];
     }
 
+    // Shared helpers for Pool/Lane drag-drop behavior.
+    // These must live in the addGroupTemplates scope so both templates can call them.
+    const isLaneGroupPart = (part: go.Part): part is go.Group => {
+        if (!(part instanceof go.Group)) return false;
+        const t = part.data?.template;
+        const c = part.data?.category;
+        return c === "Lane" || c === "Lane_w_handles" || t === "Lane" || t === "Lane_w_handles";
+    };
+
+    const laneStructureBounds = (lane: go.Group): go.Rect => {
+        const main = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+        if (main) return main.getDocumentBounds();
+        return lane.actualBounds;
+    };
+
+    const handlePoolLaneDrop = (
+        e: go.InputEvent,
+        pool: go.Group,
+        opts?: { relativeToLane?: go.Group; dropY?: number }
+    ) => {
+        const diagram = e.diagram;
+        const dragged = diagram.selection;
+        let hasLane = false;
+        let valid = true;
+        dragged.each((part: go.Part) => {
+            if (part === pool) return;
+            if (!isLaneGroupPart(part)) {
+                valid = false;
+                return;
+            }
+            hasLane = true;
+        });
+        if (!valid || !hasLane) {
+            diagram.currentTool.doCancel();
+            return;
+        }
+
+        const ok = pool.addMembers(dragged, true);
+        if (!ok) {
+            diagram.currentTool.doCancel();
+            return;
+        }
+
+        // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
+        // target lane based on the drop Y coordinate. We do this by nudging the dropped lanes' Y
+        // locations just above/below the target lane before triggering PoolLayout.
+        if (opts?.relativeToLane && typeof opts.dropY === "number" && !Number.isNaN(opts.dropY)) {
+            const targetBounds = laneStructureBounds(opts.relativeToLane);
+            const midY = targetBounds.y + (targetBounds.height / 2);
+            const insertBefore = opts.dropY < midY;
+
+            const droppedLanes: go.Group[] = [];
+            dragged.each((part: go.Part) => {
+                if (!isLaneGroupPart(part)) return;
+                droppedLanes.push(part);
+            });
+            droppedLanes.sort((a, b) => laneStructureBounds(a).y - laneStructureBounds(b).y);
+
+            const targetY = targetBounds.y;
+            const n = droppedLanes.length;
+            droppedLanes.forEach((lane, idx) => {
+                const x = lane.location.x;
+                const yOffset = insertBefore
+                    ? (-1 - (n - 1 - idx) * 0.1)
+                    : (1 + idx * 0.1);
+                const y = targetY + yOffset;
+                lane.moveTo(x, y);
+                if (lane.data) {
+                    diagram.model.setDataProperty(lane.data, "loc", `${lane.location.x} ${lane.location.y}`);
+                }
+            });
+        }
+
+        const modelview = myMetis.currentModelview;
+        dragged.each((part: go.Part) => {
+            if (!isLaneGroupPart(part)) return;
+            const laneOv = modelview?.findObjectView(part.data?.key);
+            if (!laneOv) return;
+            laneOv.group = pool.data?.key;
+            laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
+            if (part.data?.size) laneOv.size = part.data.size;
+            const jsnLaneOv = new jsn.jsnObjectView(laneOv);
+            const data = JSON.parse(JSON.stringify(jsnLaneOv));
+            diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+        });
+
+        const poolOv = modelview?.findObjectView(pool.data?.key);
+        if (poolOv?.isGroup) {
+            uid.doGroupLayout(poolOv, diagram, myMetis);
+        }
+    };
+
     if (true) { // laneTemplate
         const handleLaneDrop = (e: go.InputEvent, grp: go.Group) => {
             const diagram = e.diagram;
             const dragged = diagram.selection;
+            // If the user drops Lane groups onto a Lane, treat it as dropping lanes into the parent Pool.
+            // This makes lane management feel natural (drop "on a lane" to insert into that pool).
+            let hasLaneGroup = false;
+            let onlyLaneGroups = true;
+            dragged.each((part: go.Part) => {
+                if (part === grp) return;
+                if (isLaneGroupPart(part)) {
+                    hasLaneGroup = true;
+                    return;
+                }
+                if (part instanceof go.Group) {
+                    onlyLaneGroups = false;
+                    return;
+                }
+                // selection contains non-groups
+                onlyLaneGroups = false;
+            });
+            if (hasLaneGroup && onlyLaneGroups) {
+                const parentPool = grp.containingGroup;
+                if (parentPool && (parentPool.data?.template === "Pool" || parentPool.data?.category === "Pool")) {
+                    handlePoolLaneDrop(e, parentPool, { relativeToLane: grp, dropY: e.documentPoint?.y });
+                    return;
+                }
+                diagram.currentTool.doCancel();
+                return;
+            }
+
             const previousLaneSize = grp.data?.size ? go.Size.parse(String(grp.data.size)) : null;
             let hasNode = false;
             let valid = true;
@@ -4041,6 +4160,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('Lane');
         groupTemplateMap.add("Lane9", laneTemplate);
         addGroupTemplateName('Lane9');
+        // Some older models may still reference "Lane9_legacy" as the template key.
+        // Alias it to the modern swimlane template so selection/resize bounds are consistent.
+        groupTemplateMap.add("Lane9_legacy", laneTemplate);
+        addGroupTemplateName('Lane9_legacy');
         // define a custom resize adornment that has two resize handles if the group is expanded
   
         const laneTemplate2 = 
@@ -4106,51 +4229,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 computesBoundsIncludingLinks: false,
                 computesBoundsIncludingLocation: true,
                 mouseDrop: function (e: go.InputEvent, grp: go.Group) {
-                    const diagram = e.diagram;
-                    const dragged = diagram.selection;
-                    let hasLane = false;
-                    let valid = true;
-                    dragged.each((part: go.Part) => {
-                        if (!(part instanceof go.Group)) {
-                            valid = false;
-                            return;
-                        }
-                        const isLane =
-                            part.data?.category === "Lane" ||
-                            part.data?.category === "Lane_w_handles" ||
-                            part.data?.template === "Lane" ||
-                            part.data?.template === "Lane_w_handles";
-                        if (!isLane) {
-                            valid = false;
-                            return;
-                        }
-                        hasLane = true;
-                    });
-                    if (!valid || !hasLane) {
-                        diagram.currentTool.doCancel();
-                        return;
-                    }
-                    const ok = grp.addMembers(dragged, true);
-                    if (!ok) {
-                        diagram.currentTool.doCancel();
-                        return;
-                    }
-                    const modelview = myMetis.currentModelview;
-                    dragged.each((part: go.Part) => {
-                        if (!(part instanceof go.Group)) return;
-                        const laneOv = modelview?.findObjectView(part.data?.key);
-                        if (!laneOv) return;
-                        laneOv.group = grp.data?.key;
-                        laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
-                        if (part.data?.size) laneOv.size = part.data.size;
-                        const jsnLaneOv = new jsn.jsnObjectView(laneOv);
-                        const data = JSON.parse(JSON.stringify(jsnLaneOv));
-                        diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
-                    });
-                    const poolOv = modelview?.findObjectView(grp.data?.key);
-                    if (poolOv?.isGroup) {
-                        uid.doGroupLayout(poolOv, diagram, myMetis);
-                    }
+                    handlePoolLaneDrop(e, grp);
                 },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
@@ -4183,8 +4262,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 
     if (true) {
     // each Group is a "swimlane" with a header on the left and a resizable lane on the right
-    // Legacy lane template: keep it available for reference, but do not override the main swimlane templates.
-    groupTemplateMap.add('Lane9_legacy',
+    // Legacy lane template: keep it available for reference under a non-conflicting key.
+    groupTemplateMap.add('Lane9_reference',
       new go.Group('Horizontal')
         .apply(groupStyle)
         .set({

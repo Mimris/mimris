@@ -2954,7 +2954,9 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                     poolStroke
                 );
                 const nextPoolWidth = preserveWidth ? snapSizeEven(currentPoolSize.width) : computedPoolWidth;
-                const nextPoolHeight = snapSizeEven(Math.max(
+                // With `locationSpot: TopLeft` for pools, forcing even sizes can create a 1px slack area
+                // at the bottom when the computed height is odd. Use a simple ceil instead.
+                const nextPoolHeight = snapSize(Math.max(
                     80,
                     (2 * POOL_TEMPLATE_MARGIN) +
                     anchorPad.top + anchorPad.bottom +

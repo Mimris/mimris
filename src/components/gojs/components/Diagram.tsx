@@ -5889,6 +5889,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const grp = part.containingGroup;
         if (!grp) return pt;
         if (part.diagram?.lastInput?.shift) return pt;
+        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
+        // their container group is also moving, bounds can be temporarily stale and members will
+        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
+        // is in the current selection (i.e., is being dragged).
+        const diagram = part.diagram;
+        if (diagram) {
+          let g: go.Group | null = grp;
+          while (g) {
+            if (diagram.selection.contains(g)) return pt;
+            g = g.containingGroup;
+          }
+        }
         const back =
           grp.findObject("LANE_BODY_SHAPE") ||
           grp.findObject("BODY") ||

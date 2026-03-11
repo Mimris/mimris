@@ -58,14 +58,22 @@ function getRenderedPartScale(part: go.Part | null | undefined): number {
   return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
 }
 
+function getRenderedTextScale(part: go.Part | null | undefined): number {
+  if (!(part instanceof go.Part)) return 1.0;
+  const partScale = getRenderedPartScale(part);
+  const textScaleRaw = Number(part.data?.textscale ?? 1.0);
+  const textScale = Number.isFinite(textScaleRaw) && textScaleRaw > 0 ? textScaleRaw : 1.0;
+  return partScale * textScale;
+}
+
 function getRelationshipTextScale(diagram: go.Diagram | null | undefined, relview: any): number {
   if (!diagram || !relview) return 1.0;
   const fromId = relview?.fromObjview?.id;
   const toId = relview?.toObjview?.id;
   const fromPart = fromId ? (diagram.findNodeForKey(fromId) as go.Part | null) : null;
   const toPart = toId ? (diagram.findNodeForKey(toId) as go.Part | null) : null;
-  const fromScale = getRenderedPartScale(fromPart);
-  const toScale = getRenderedPartScale(toPart);
+  const fromScale = getRenderedTextScale(fromPart);
+  const toScale = getRenderedTextScale(toPart);
   return (fromScale + toScale) / 2;
 }
 
@@ -238,6 +246,21 @@ function isPartVisuallyInsideGroup(part: go.Part | null | undefined, grp: go.Gro
   if (!groupBounds || !partBounds) return false;
   const center = partBounds.center;
   return groupBounds.containsPoint(center);
+}
+
+function resolveClickedPortGraphObject(subject: any): go.GraphObject | null {
+  let probe: any = subject;
+  for (let depth = 0; probe && depth < 8; depth++) {
+    const data = probe?.data;
+    if (data && (data.id || data.portId) && data.side) {
+      return probe as go.GraphObject;
+    }
+    if (probe?.portId && probe?.part instanceof go.Node) {
+      return probe as go.GraphObject;
+    }
+    probe = probe.panel;
+  }
+  return null;
 }
 
 function isAncestorGroupKey(
@@ -754,7 +777,17 @@ function ensureInitialGroupSize(diagram, node, data, options) {
   if (!data) {
     return;
   }
-  const defaults = { minWidth: 800, minHeight: 460, preferredWidth: undefined, preferredHeight: undefined };
+  const viewportBounds = diagram?.viewportBounds;
+  const viewportWidth = Number(viewportBounds?.width) || 0;
+  const viewportHeight = Number(viewportBounds?.height) || 0;
+  const viewportBasedMinWidth = viewportWidth > 0 ? Math.max(240, Math.floor(viewportWidth * 0.72)) : 480;
+  const viewportBasedMinHeight = viewportHeight > 0 ? Math.max(160, Math.floor(viewportHeight * 0.72)) : 320;
+  const defaults = {
+    minWidth: viewportBasedMinWidth,
+    minHeight: viewportBasedMinHeight,
+    preferredWidth: undefined,
+    preferredHeight: undefined
+  };
   const merged = { ...defaults, ...(options || {}) };
   let minWidth = merged.minWidth;
   let minHeight = merged.minHeight;
@@ -1522,6 +1555,64 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case 'TextEdited': {
+        const editedTextBlock: any = e.subject;
+        let editedPortItem: any = null;
+        let probe: any = editedTextBlock;
+        for (let depth = 0; probe && depth < 8; depth++) {
+          const data = probe?.data;
+          if (data && (data.id || data.portId) && data.side) {
+            editedPortItem = data;
+            break;
+          }
+          probe = probe.panel;
+        }
+        if (editedPortItem) {
+          const nodePart = editedTextBlock?.part as go.Node;
+          const nodeData: any = nodePart?.data;
+          const objectRef = nodeData?.objRef || nodeData?.object?.id;
+          const object = objectRef ? myMetis.findObject(objectRef) : null;
+          const nextName = (editedPortItem.name ?? '').toString().trim();
+          if (!object || !nextName) break;
+          const portId = editedPortItem.id || editedPortItem.portId;
+          const currentPort = Array.isArray(object.ports)
+            ? object.ports.find((p: any) => (p?.id || p?.portId) === portId)
+            : null;
+          if (!currentPort) break;
+          currentPort.name = nextName;
+          try { uit.changePortName(editedTextBlock, nextName, myDiagram); } catch (_) {}
+          try {
+            const connectedLinks: go.Link[] = [];
+            if (nodePart && portId) {
+              nodePart.findLinksConnected(String(portId)).each((l: go.Link) => connectedLinks.push(l));
+            }
+            connectedLinks.forEach((link: go.Link) => {
+              try { link.invalidateRoute(); } catch (_) {}
+              try {
+                if (link.data) {
+                  myDiagram.model.setDataProperty(link.data, "points", []);
+                }
+              } catch (_) {}
+              try {
+                const relview = link.data?.relshipview || myModelview.findRelationshipView(link.data?.key);
+                if (relview) {
+                  relview.points = [];
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  let relData: any = jsnRelview;
+                  relData = JSON.parse(JSON.stringify(relData));
+                  myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: relData });
+                }
+              } catch (_) {}
+            });
+          } catch (_) {}
+          try {
+            const jsnObj = new jsn.jsnObject(object);
+            let data: any = jsnObj;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+          } catch (_) {}
+          myDiagram.requestUpdate();
+          break;
+        }
         const sel = e.subject.part;
         const gjsData = sel.data;
         let textvalue = gjsData.name;
@@ -2738,11 +2829,20 @@ class GoJSApp extends React.Component<{}, AppState> {
             const rview = myModelview.findRelationshipView(link.data.key);
             if (!rview) continue;
             const ldata = link.data;
+            let resetRoute = false;
             if (rview.fromPortid && ldata?.fromPort !== rview.fromPortid) {
               myDiagram.model.setDataProperty(ldata, "fromPort", rview.fromPortid);
+              resetRoute = true;
             }
             if (rview.toPortid && ldata?.toPort !== rview.toPortid) {
               myDiagram.model.setDataProperty(ldata, "toPort", rview.toPortid);
+              resetRoute = true;
+            }
+            if (resetRoute) {
+              try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) {}
+              try { link.invalidateRoute(); } catch (_) {}
+              try { link.updateRoute(); } catch (_) {}
+              rview.points = [];
             }
             const relviews = myModelview.relshipviews;
             for (let i = 0; i < relviews?.length; i++) {
@@ -4462,6 +4562,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "ObjectDoubleClicked": {
+        const clickedPortObject = resolveClickedPortGraphObject(e.subject);
+        if (clickedPortObject) {
+          break;
+        }
+        const suppressUntil = Number((myDiagram as any)?._suppressObjectDoubleClickUntil || 0);
+        if (suppressUntil > Date.now()) {
+          try { (myDiagram as any)._suppressObjectDoubleClickUntil = 0; } catch (_) {}
+          break;
+        }
         let sel = e.subject.part;
         const node = sel.data;
         if (debug) console.log('981 node', node);
@@ -4479,6 +4588,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "ObjectSingleClicked": {
+        const clickedPortObject = resolveClickedPortGraphObject(e.subject);
+        if (clickedPortObject) {
+          break;
+        }
         const sel = e.subject.part;
         let data = sel.data;
         // sel.location = data.loc;
@@ -4852,7 +4965,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
             const link = it.value;
-            const relview = link.data.relshipview;
+            const linkData = link?.data;
+            if (!linkData) continue;
+            const relview = linkData.relshipview;
             if (!relview) continue;
             const points = [];
             for (let it = link.points.iterator; it?.next();) {

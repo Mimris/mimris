@@ -80,6 +80,13 @@ Grouping scale is derived from containment only.
 - Expand/collapse buttons use a fixed visual size.
 - Group header controls must remain fully visible and not clip at normal zoom levels.
 
+### Palette Persistence
+
+- The left-side `Palette: Obj. Types` collapse/expand state should persist across reloads.
+- The palette width mode (`expanded` vs normal width) should persist across reloads.
+- The palette component must stay mounted when the global `Toggle Palettes` control collapses it, so its own collapsed rail remains visible.
+- The modeller object palette collapse/expand state should persist across reloads as well.
+
 ### ICOM Rendering
 
 - The default ICOM style is `idef`.

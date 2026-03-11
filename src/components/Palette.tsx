@@ -21,13 +21,28 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
+const PALETTE_VISIBLE_STORAGE_KEY = 'mimris.palette.visible';
+const PALETTE_TYPES_VISIBLE_STORAGE_KEY = 'mimris.palette.visibleTypes';
+const PALETTE_EXPANDED_STORAGE_KEY = 'mimris.palette.expanded';
+
+function readStoredBoolean(key: string, fallback: boolean) {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === null) return fallback;
+    return value === 'true';
+  } catch (_) {
+    return fallback;
+  }
+}
+
 const Palette = React.forwardRef((props: any, ref: any) => {
 
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
 
-  const [visiblePalette, setVisiblePalette] = useState(true)
+  const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
@@ -47,8 +62,8 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const [selMetamodelName, setSelMetamodelName] = useState('')
   const [openDetail, setOpenDetail] = useState<string | null>('top');
 
-  const [visibleTypes, setVisibleTypes] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(PALETTE_TYPES_VISIBLE_STORAGE_KEY, true))
+  const [isExpanded, setIsExpanded] = useState(() => readStoredBoolean(PALETTE_EXPANDED_STORAGE_KEY, false))
 
   const handleToggle = (id: string) => {
     setOpenDetail(id);
@@ -99,8 +114,6 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     setTask(focusTask);
     const types = objecttypes?.map((t: any) => t?.name);
     setTypes(types);
-    setVisibleTypes(true);
-
     const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
     setFilteredOtNodeDataArray(nodes);
     setFilteredLinkDataArray(links);
@@ -112,6 +125,33 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_VISIBLE_STORAGE_KEY, String(visiblePalette));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visiblePalette]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_TYPES_VISIBLE_STORAGE_KEY, String(visibleTypes));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visibleTypes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_EXPANDED_STORAGE_KEY, String(isExpanded));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [isExpanded]);
 
   function toggleTypes() {
     setVisibleTypes(!visibleTypes);

@@ -300,7 +300,63 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     diagram.selection.each((part: go.Part) => {
       part.updateAdornments();
     });
+    this.updateZoomInvariantHandles(diagram);
     diagram.requestUpdate();
+  }
+
+  private updateZoomInvariantHandles = (diagram: go.Diagram) => {
+    if (!(diagram instanceof go.Diagram)) return;
+    const diagramScale = diagram.scale || 1;
+    const setHandleSize = (obj: any, baseWidth?: number, baseHeight?: number) => {
+      if (!obj) return;
+      if (typeof baseWidth === 'number' && typeof baseHeight === 'number' && !obj._baseDesiredSize) {
+        obj._baseDesiredSize = new go.Size(baseWidth, baseHeight);
+      }
+      const baseSize = obj._baseDesiredSize || obj.desiredSize;
+      if (!baseSize) return;
+      const width = Number(baseSize.width) || 0;
+      const height = Number(baseSize.height) || 0;
+      if (width <= 0 || height <= 0) return;
+      obj._baseDesiredSize = new go.Size(width, height);
+      obj.desiredSize = new go.Size(width / diagramScale, height / diagramScale);
+    };
+    const updateAdornmentHandles = (obj: any) => {
+      if (!obj) return;
+      if (obj instanceof go.Shape && obj.desiredSize) {
+        setHandleSize(obj);
+      }
+      const elements = obj.elements;
+      if (!elements) return;
+      for (let i = 0; i < elements.count; i++) {
+        updateAdornmentHandles(elements.elt(i));
+      }
+    };
+
+    setHandleSize(diagram.toolManager.relinkingTool.fromHandleArchetype, 8, 8);
+    setHandleSize(diagram.toolManager.relinkingTool.toHandleArchetype, 8, 8);
+    setHandleSize(diagram.toolManager.linkReshapingTool.handleArchetype, 7, 7);
+
+    diagram.selection.each((part: go.Part) => {
+      if (!(part instanceof go.Link)) return;
+      ['LinkReshaping', 'RelinkingFrom', 'RelinkingTo', 'Relinking', 'Selection'].forEach((name) => {
+        try { part.removeAdornment(name); } catch (_) {}
+      });
+      try {
+        const adornments: any = (part as any).adornments;
+        if (adornments && typeof adornments.each === 'function') {
+          adornments.each((adornment: go.Adornment) => {
+            try { updateAdornmentHandles(adornment); } catch (_) {}
+          });
+        }
+      } catch (_) {}
+      ['LinkReshaping', 'RelinkingFrom', 'RelinkingTo', 'Relinking', 'Selection'].forEach((name) => {
+        try {
+          const adornment = part.findAdornment(name);
+          if (adornment) updateAdornmentHandles(adornment);
+        } catch (_) {}
+      });
+      try { part.updateAdornments(); } catch (_) {}
+    });
   }
 
   public handleSelectDropdownChange = (selected) => {
@@ -1285,6 +1341,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
     myMetis.myDiagram = myDiagram;
+    this.updateZoomInvariantHandles(myDiagram);
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";
     const myModelview: akm.cxModelView = myMetis.currentModelview;
@@ -4524,7 +4581,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   let suppressMenuDispose = false; // Transient flag to prevent menu disposal while select/input is handling events
 
       const disposeSubMenu = () => {
-        if (activeSubMenuDiv && activeSubMenuDiv.parentElement) {
+        if (activeSubMenuDiv && activeSubMenuDiv.parentElement?.contains(activeSubMenuDiv)) {
           activeSubMenuDiv.parentElement.removeChild(activeSubMenuDiv);
         }
         activeSubMenuDiv = null;
@@ -4538,10 +4595,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const closeAllMenus = () => {
         // forcefully remove sub menu and main menu immediately
         try {
-          if (activeSubMenuDiv && activeSubMenuDiv.parentElement) activeSubMenuDiv.parentElement.removeChild(activeSubMenuDiv);
+          if (activeSubMenuDiv && activeSubMenuDiv.parentElement?.contains(activeSubMenuDiv)) activeSubMenuDiv.parentElement.removeChild(activeSubMenuDiv);
         } catch (_) {}
         try {
-          if (activeMenuDiv && activeMenuDiv.parentElement) activeMenuDiv.parentElement.removeChild(activeMenuDiv);
+          if (activeMenuDiv && activeMenuDiv.parentElement?.contains(activeMenuDiv)) activeMenuDiv.parentElement.removeChild(activeMenuDiv);
         } catch (_) {}
         activeSubMenuDiv = null;
         activeMenuDiv = null;
@@ -4561,7 +4618,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         pendingBackgroundDispose = false;
         disposeSubMenu();
-        if (activeMenuDiv && activeMenuDiv.parentElement) {
+        if (activeMenuDiv && activeMenuDiv.parentElement?.contains(activeMenuDiv)) {
           activeMenuDiv.parentElement.removeChild(activeMenuDiv);
         }
         // remove any document-level pointerdown handler
@@ -6574,6 +6631,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         };
         diagram.handleOpenModal(nodeData, modalContext);
       };
+      myDiagram.handleChangePortName = handleChangePortName;
 
       const handleChangePortColor = (diagram: go.Diagram, portObj?: go.GraphObject | null) => {
         const ctx = resolvePortContext(diagram, portObj);
@@ -7202,6 +7260,90 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
+        const buildObjectMenuItems = (): HtmlMenuItem[] => {
+          const objectMenuItems: HtmlMenuItem[] = [
+            {
+              label: "Edit Object",
+              action: () => handleEditObject(part),
+            },
+            {
+              label: "Delete Object",
+              action: (diagram) => handleDeletePart(diagram, part),
+              enabled: (diagram) => canDeleteSinglePart(diagram, part),
+            },
+            {
+              label: "Delete Selection",
+              action: (diagram) => handleDeleteSelection(diagram),
+              enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+            }
+          ];
+          return objectMenuItems;
+        };
+        const buildGroupLayoutMenuItems = (): HtmlMenuItem[] => {
+          const groupRelationshipPathItems: HtmlMenuItem[] = [
+            {
+              label: "Normal",
+              action: (diagram) => handleGroupRelshipRouting(diagram, "Normal", part),
+            },
+            {
+              label: "Orthogonal",
+              action: (diagram) => handleGroupRelshipRouting(diagram, "Orthogonal", part),
+            },
+            {
+              label: "Avoids Nodes",
+              action: (diagram) => handleGroupRelshipRouting(diagram, "AvoidsNodes", part),
+            },
+            { separator: true },
+            {
+              label: "Clear path",
+              action: (diagram) => handleGroupResetRelshipPath(diagram, part),
+            }
+          ];
+          try { (groupRelationshipPathItems as any).menuHeading = 'Relationship Paths'; } catch (_) {}
+          const groupLayoutItems: HtmlMenuItem[] = [
+            {
+              label: "Grid",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "Grid"),
+            },
+            {
+              label: "Circular",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "Circular"),
+            },
+            {
+              label: "Tree",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "Tree"),
+            },
+            {
+              label: "Force Directed",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "ForceDirected"),
+            },
+            {
+              label: "Layered Digraph",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "LayeredDigraph"),
+            },
+            {
+              label: "Manual",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "Manual"),
+            },
+            { separator: true },
+            {
+              label: "Relationship Paths…",
+              action: showSubMenu(groupRelationshipPathItems),
+              closeOnClick: false,
+            },
+            { separator: true },
+            {
+              label: "Do Layout",
+              action: (diagram) => handleGroupDoLayout(diagram, part),
+            },
+            {
+              label: "Save Layout",
+              action: (diagram) => handleGroupSaveLayout(diagram, part),
+            }
+          ];
+          try { (groupLayoutItems as any).menuHeading = 'Group Layout'; } catch (_) {}
+          return groupLayoutItems;
+        };
         items.push({
           label: "Copy",
           action: (diagram) => handlePartCopy(diagram, part),
@@ -7240,28 +7382,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           !!data.object ||
           !!data.objectview ||
           data.isGroup === true ||
+          (part instanceof go.Group) ||
           (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container');
         if (isObject) {
           items.push({ separator: true });
           // Group common object actions into an "Object…" submenu
           items.push({
             label: "Object…",
-            action: showSubMenu([
-              {
-                label: "Edit Object",
-                action: () => handleEditObject(part),
-              },
-              {
-                label: "Delete Object",
-                action: (diagram) => handleDeletePart(diagram, part),
-                enabled: (diagram) => canDeleteSinglePart(diagram, part),
-              },
-              {
-                label: "Delete Selection",
-                action: (diagram) => handleDeleteSelection(diagram),
-                enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-              }
-            ]),
+            action: showSubMenu(buildObjectMenuItems()),
             closeOnClick: false,
           });
           // Group object-view related actions into an "Objectview…" submenu
@@ -7843,6 +7971,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             action: showSubMenu(selectionMenuItems),
             closeOnClick: false,
           });
+          items.push({ separator: true });
           const arrangeMenuItems: HtmlMenuItem[] = [
             {
               label: "Align Vertical",
@@ -7870,6 +7999,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             action: showSubMenu(arrangeMenuItems),
             closeOnClick: false,
           });
+          if (part instanceof go.Group && isGroupNode(part?.data)) {
+            items.push({
+              label: "Layout…",
+              action: showSubMenu(buildGroupLayoutMenuItems()),
+              closeOnClick: false,
+            });
+          }
         }
 
         // Add Set Image option for closed groups
@@ -7975,6 +8111,79 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
           });
+          items.push({ separator: true });
+          items.push({
+            label: "Relationship Path",
+            action: showSubMenu((() => {
+              const relationshipPathItems: HtmlMenuItem[] = [
+                {
+                  label: "Normal",
+                  action: (diagram) => handleSetRelshipRouting(diagram, "Normal", linkPart),
+                  enabled: (diagram) => {
+                    if (!diagram) return false;
+                    if (linkPart?.data?.category === constants.gojs.C_RELATIONSHIP) return true;
+                    let found = false;
+                    diagram.selection.each((p: any) => {
+                      try {
+                        if ((p instanceof (go as any).Link) && p.data?.category === constants.gojs.C_RELATIONSHIP) found = true;
+                      } catch (_) {}
+                    });
+                    return found;
+                  },
+                },
+                {
+                  label: "Orthogonal",
+                  action: (diagram) => handleSetRelshipRouting(diagram, "Orthogonal", linkPart),
+                  enabled: (diagram) => {
+                    if (!diagram) return false;
+                    if (linkPart?.data?.category === constants.gojs.C_RELATIONSHIP) return true;
+                    let found = false;
+                    diagram.selection.each((p: any) => {
+                      try {
+                        if ((p instanceof (go as any).Link) && p.data?.category === constants.gojs.C_RELATIONSHIP) found = true;
+                      } catch (_) {}
+                    });
+                    return found;
+                  },
+                },
+                {
+                  label: "Avoids Nodes",
+                  action: (diagram) => handleSetRelshipRouting(diagram, "AvoidsNodes", linkPart),
+                  enabled: (diagram) => {
+                    if (!diagram) return false;
+                    if (linkPart?.data?.category === constants.gojs.C_RELATIONSHIP) return true;
+                    let found = false;
+                    diagram.selection.each((p: any) => {
+                      try {
+                        if ((p instanceof (go as any).Link) && p.data?.category === constants.gojs.C_RELATIONSHIP) found = true;
+                      } catch (_) {}
+                    });
+                    return found;
+                  },
+                },
+                { separator: true },
+                {
+                  label: "Clear path",
+                  action: (diagram) => handleResetRelshipPath(diagram, linkPart),
+                  enabled: (diagram) => {
+                    if (!diagram) return false;
+                    if (linkPart?.data?.category === constants.gojs.C_RELATIONSHIP) return true;
+                    let found = false;
+                    diagram.selection.each((p: any) => {
+                      try {
+                        if ((p instanceof (go as any).Link) && p.data?.category === constants.gojs.C_RELATIONSHIP) found = true;
+                      } catch (_) {}
+                    });
+                    return found;
+                  },
+                }
+              ];
+              try { (relationshipPathItems as any).menuHeading = 'Relationship Path'; } catch (_) {}
+              return relationshipPathItems;
+            })()),
+            closeOnClick: false,
+          });
+          items.push({ separator: true });
           // items.push({
           //   label: "Edit Relationship Type",
           //   action: (diagram) => {
@@ -8262,22 +8471,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   },
                   {
                     label: "Object…",
-                    action: showSubMenu([
-                      {
-                        label: "Edit Object",
-                        action: () => handleEditObject(part),
-                      },
-                      {
-                        label: "Delete Object",
-                        action: (diagram) => handleDeletePart(diagram, part),
-                        enabled: (diagram) => canDeleteSinglePart(diagram, part),
-                      },
-                      {
-                        label: "Delete Selection",
-                        action: (diagram) => handleDeleteSelection(diagram),
-                        enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-                      }
-                    ]),
+                    action: showSubMenu(buildObjectMenuItems()),
                     closeOnClick: false,
                   },
                   {
@@ -9557,6 +9751,148 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         };
         myMetis.myDiagram = targetDiagram;
         targetDiagram.handleOpenModal(targetDiagram, modalContext);
+      };
+
+      const handleResetRelshipPath = (diagram: go.Diagram, linkPart?: go.Link) => {
+        const targetDiagram = diagram || myDiagram;
+        const myModelview = myMetis.currentModelview;
+        if (!targetDiagram || !myModelview) return;
+
+        let selection: any = targetDiagram.selection;
+        if (selection?.count === 0 && linkPart) {
+          try {
+            targetDiagram.select(linkPart);
+            selection = targetDiagram.selection;
+          } catch (_) {}
+        }
+
+        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        selection?.each((sel: any) => {
+          try {
+            if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
+            const linkData = sel.data;
+            const relview = myModelview.findRelationshipView(linkData.key);
+            if (!relview) return;
+
+            try {
+              targetDiagram.model.setDataProperty(linkData, "points", []);
+            } catch (_) {
+              linkData.points = [];
+            }
+            relview.points = [];
+            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
+          } catch (_) {}
+        });
+
+        modifiedRelshipViews.forEach((mn) => {
+          let data: any = mn;
+          data = JSON.parse(JSON.stringify(data));
+          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        });
+      };
+
+      const handleSetRelshipRouting = (diagram: go.Diagram, routing: string, linkPart?: go.Link) => {
+        const targetDiagram = diagram || myDiagram;
+        const myModelview = myMetis.currentModelview;
+        if (!targetDiagram || !myModelview) return;
+
+        let selection: any = targetDiagram.selection;
+        if (selection?.count === 0 && linkPart) {
+          try {
+            targetDiagram.select(linkPart);
+            selection = targetDiagram.selection;
+          } catch (_) {}
+        }
+
+        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        selection?.each((sel: any) => {
+          try {
+            if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
+            const linkData = sel.data;
+            const relview = myModelview.findRelationshipView(linkData.key);
+            if (!relview) return;
+
+            try {
+              targetDiagram.model.setDataProperty(linkData, "routing", routing);
+              targetDiagram.model.setDataProperty(linkData, "points", []);
+            } catch (_) {
+              linkData.routing = routing;
+              linkData.points = [];
+            }
+            relview.routing = routing;
+            relview.points = [];
+            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
+          } catch (_) {}
+        });
+
+        modifiedRelshipViews.forEach((mn) => {
+          let data: any = mn;
+          data = JSON.parse(JSON.stringify(data));
+          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        });
+      };
+
+      const handleGroupRelshipRouting = (diagram: go.Diagram, routing: string, groupPart?: go.Part | null) => {
+        const targetDiagram = diagram || myDiagram;
+        const myModelview = myMetis.currentModelview;
+        if (!targetDiagram || !myModelview || !(groupPart instanceof go.Group)) return;
+
+        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        groupPart.findSubGraphParts().each((subPart: go.Part) => {
+          try {
+            if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
+            const linkData = subPart.data;
+            const relview = myModelview.findRelationshipView(linkData.key);
+            if (!relview) return;
+
+            try {
+              targetDiagram.model.setDataProperty(linkData, "routing", routing);
+              targetDiagram.model.setDataProperty(linkData, "points", []);
+            } catch (_) {
+              linkData.routing = routing;
+              linkData.points = [];
+            }
+            relview.routing = routing;
+            relview.points = [];
+            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
+          } catch (_) {}
+        });
+
+        modifiedRelshipViews.forEach((mn) => {
+          let data: any = mn;
+          data = JSON.parse(JSON.stringify(data));
+          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        });
+      };
+
+      const handleGroupResetRelshipPath = (diagram: go.Diagram, groupPart?: go.Part | null) => {
+        const targetDiagram = diagram || myDiagram;
+        const myModelview = myMetis.currentModelview;
+        if (!targetDiagram || !myModelview || !(groupPart instanceof go.Group)) return;
+
+        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        groupPart.findSubGraphParts().each((subPart: go.Part) => {
+          try {
+            if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
+            const linkData = subPart.data;
+            const relview = myModelview.findRelationshipView(linkData.key);
+            if (!relview) return;
+
+            try {
+              targetDiagram.model.setDataProperty(linkData, "points", []);
+            } catch (_) {
+              linkData.points = [];
+            }
+            relview.points = [];
+            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
+          } catch (_) {}
+        });
+
+        modifiedRelshipViews.forEach((mn) => {
+          let data: any = mn;
+          data = JSON.parse(JSON.stringify(data));
+          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        });
       };
 
       const showSubMenu = (items: HtmlMenuItem[]) => (diagram: go.Diagram, tool: go.ContextMenuTool, source?: HTMLElement) => {

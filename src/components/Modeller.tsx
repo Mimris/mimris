@@ -30,6 +30,20 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
 
+const OBJECTS_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleObjects';
+const TYPES_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleTypes';
+
+function readStoredBoolean(key: string, fallback: boolean) {
+    if (typeof window === 'undefined') return fallback;
+    try {
+        const value = window.localStorage.getItem(key);
+        if (value === null) return fallback;
+        return value === 'true';
+    } catch (_) {
+        return fallback;
+    }
+}
+
 const Modeller = React.forwardRef((props: any, ref) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
@@ -44,8 +58,8 @@ const Modeller = React.forwardRef((props: any, ref) => {
     const [objectsRefresh, setObjectsRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
-    const [visibleObjects, setVisibleObjects] = useState(false) // State to manage objects visibility 
-    const [visibleTypes, setVisibleTypes] = useState(false) // State to manage types palette visibility
+    const [visibleObjects, setVisibleObjects] = useState(() => readStoredBoolean(OBJECTS_PALETTE_STORAGE_KEY, true)) // State to manage objects visibility 
+    const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(TYPES_PALETTE_STORAGE_KEY, true)) // State to manage types palette visibility
     const [showPasteDialog, setShowPasteDialog] = useState(false); // State to manage paste dialog visibility
     const [jsonInput, setJsonInput] = useState(''); // State to manage JSON input
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
@@ -188,13 +202,29 @@ const Modeller = React.forwardRef((props: any, ref) => {
             setSelectedOption('Sorted alphabetical')
         }
         setMounted(true)
-
-        setVisibleObjects(true);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
         return () => clearTimeout(timer);
     }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(OBJECTS_PALETTE_STORAGE_KEY, String(visibleObjects));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleObjects]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(TYPES_PALETTE_STORAGE_KEY, String(visibleTypes));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleTypes]);
 
     useEffect(() => {
         if (debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
@@ -749,12 +779,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             </Modal> */}
         </>
 
+
     
 
     const modellerDiv = (props.modelType === 'model')
         ? // modelling
         <div className="modeller-workarea w-100 d-flex flex-col">
-        
             <div className={`modeller--objects me-1 
                 ${visibleObjects
                     ? isExpanded
@@ -835,6 +865,3 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 });
 
 export default Modeller;
-
-
-

@@ -662,7 +662,7 @@ export function groupTop1(contextMenu: any, notation: string) {
     )
 }
 
-export function groupTop2(contextMenu: any, notation: string) {
+export function groupTop2(contextMenu: any, notation: string, bodyLinkable: boolean = true) {
     // Without ports
     return $(go.Panel, "Auto",
         {
@@ -679,11 +679,11 @@ export function groupTop2(contextMenu: any, notation: string) {
                 fill: "white",
                 shadowVisible: true,
                 minSize: new go.Size(180, 90),
-                portId: "",
-                fromLinkable: true,
+                portId: bodyLinkable ? "" : null,
+                fromLinkable: bodyLinkable,
                 fromLinkableSelfNode: false,
                 fromLinkableDuplicates: true,
-                toLinkable: true,
+                toLinkable: bodyLinkable,
                 toLinkableSelfNode: false,
                 toLinkableDuplicates: true,
             },
@@ -1510,6 +1510,7 @@ function addLeftPorts(portContextMenu: any, offsetX: number = 0, offsetY: number
                 itemTemplate: makeItemTemplate('left', true, portContextMenu),
                 alignment: new go.Spot(0, 0.5, offsetX, offsetY), 
                 alignmentFocus: go.Spot.Right,
+                defaultAlignment: go.Spot.Right,
                 fromLinkable: true, 
                 toLinkable: true, 
                 cursor: "pointer",
@@ -1541,6 +1542,7 @@ function addRightPorts(portContextMenu: any, offsetX: number = 0, offsetY: numbe
                     itemTemplate: makeItemTemplate('right', true, portContextMenu),
                     alignment: new go.Spot(1, 0.5, offsetX, offsetY), 
                     alignmentFocus: go.Spot.Left,
+                    defaultAlignment: go.Spot.Left,
                     fromLinkable: true,
                     toLinkable: true,
                     cursor: "pointer",
@@ -1604,15 +1606,15 @@ function getIcomGeometry(side: string, style: "hybrid" | "idef"): string {
     if (style === "idef") {
         switch (side) {
             case "left":
-                return "M1 4 L15 4";
+                return "M0 4 L16 4";
             case "right":
-                return "M1 4 L15 4";
+                return "M0 4 L16 4";
             case "top":
-                return "M8 1 L8 15";
+                return "M8 0 L8 16";
             case "bottom":
-                return "M8 1 L8 15";
+                return "M8 0 L8 16";
             default:
-                return "M1 4 L15 4";
+                return "M0 4 L16 4";
         }
     }
     switch (side) {
@@ -1707,8 +1709,12 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     }
     if (leftside || rightside) {
         const isLeft = leftside;
-        const markerLaneWidth = 10;
-         const portShape =
+        const panelWidth = isLeft ? 56 : 26;
+        const lineWidth = isLeft ? 44 : 18;
+        const lineAlignment = isLeft ? go.Spot.Left : go.Spot.Right;
+        const endpointAlignment = isLeft ? go.Spot.Right : go.Spot.Left;
+        const endpointSpot = isLeft ? new go.Spot(1, 0.5, 0, 0) : new go.Spot(0, 0.5, 0, 0);
+        const lineShape =
             $(go.Shape,
                 {
                     name: "SHAPE",
@@ -1716,86 +1722,79 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
                     strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
                     geometryString: getIcomGeometry(side, "idef"),
-                    desiredSize: getSideMarkerVisualSize(isGroup, "idef"),
-                    alignment: go.Spot.Center,
+                    desiredSize: new go.Size(lineWidth, 8),
+                    alignment: lineAlignment,
+                    cursor: "pointer",
+                    contextMenu: portContextMenu,
                 },
                 new go.Binding("geometryString", "", function(d, obj) {
                     const style = resolveIcomStyle(obj);
                     obj.geometryString = getIcomGeometry(side, style);
-                    obj.desiredSize = getSideMarkerVisualSize(isGroup, style);
-                    if (DEBUG_ICOM_LAYOUT) {
-                    } else {
+                    obj.desiredSize = style === "idef"
+                        ? new go.Size(lineWidth, 8)
+                        : getSideMarkerVisualSize(isGroup, style);
+                    if (!DEBUG_ICOM_LAYOUT) {
                         obj.fill = getIcomFill(d, style);
+                    } else {
+                        obj.fill = style === "idef" ? "transparent" : getIcomFill(d, style);
                     }
                     obj.stroke = getIcomStroke(d, style);
                     obj.strokeWidth = getIcomStrokeWidth(style);
                     return obj.geometryString;
                 }),
             );
-        const markerLane = $(go.Panel, "Spot",
-            {
-                width: markerLaneWidth,
-                height: 2,
-                // margin: new go.Margin(16, 0, 0, 0),
-                defaultAlignment: go.Spot.Center,
-                background: DEBUG_ICOM_LAYOUT ? "gray" : "transparent",
-            },
-            portShape,
-        );
-        const leftText =
-            $(go.TextBlock,
+        const endpointPort =
+            $(go.Shape, "Rectangle",
                 {
-                    font: font,
-                    angle: textangle,
-                    textAlign: "right",
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    background: "transparent",
-                    margin: new go.Margin(0, 0, 0, 2),
-                    toLinkable: true,
-                    fromLinkable: true,
-                    toSpot: go.Spot.Left,
-                    fromSpot: go.Spot.Left,
-                    cursor: "alias",
+                    width: 10,
+                    height: 10,
+                    fill: "transparent",
+                    stroke: "transparent",
+                    alignment: endpointAlignment,
+                    alignmentFocus: go.Spot.Center,
+                    portId: "",
+                    fromLinkable: isLeft,
+                    toLinkable: !isLeft,
+                    cursor: "pointer",
                     contextMenu: portContextMenu,
+                    ...(isLeft ? { fromSpot: endpointSpot } : { toSpot: endpointSpot }),
                 },
                 new go.Binding("portId", "", function(d) {
                     return d?.id || d?.portId || "";
                 }),
-                new go.Binding("text", "name"),
-                new go.Binding('scale', 'textscale').makeTwoWay(),
             );
-        const rightText =
+        const labelText =
             $(go.TextBlock,
                 {
+                    name: "PORT_LABEL_TEXT",
                     font: font,
                     angle: textangle,
-                    textAlign: "left",
+                    textAlign: "center",
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
                     background: "transparent",
-                    margin: new go.Margin(0, 2, 0, 0),
-                    toLinkable: true,
-                    fromLinkable: true,
-                    toSpot: go.Spot.Right,
-                    fromSpot: go.Spot.Right,
-                    cursor: "alias",
+                    alignment: isLeft ? new go.Spot(0.72, 0, 0, 0) : new go.Spot(0.28, 0, 0, 0),
+                    alignmentFocus: go.Spot.BottomCenter,
+                    editable: true,
+                    isMultiline: false,
+                    cursor: "text",
                     contextMenu: portContextMenu,
                 },
-                new go.Binding("portId", "", function(d) {
-                    return d?.id || d?.portId || "";
-                }),
                 new go.Binding("text", "name"),
                 new go.Binding('scale', 'textscale').makeTwoWay(),
             );
-        return $(go.Panel, "Horizontal",
+        return $(go.Panel, "Spot",
             {
                 margin: new go.Margin(0, 0),
+                width: panelWidth,
+                height: 24,
                 alignment: isLeft ? new go.Spot(0, 0.5, 0, 0) : new go.Spot(1, 0.5, 0, 0),
-                alignmentFocus: isLeft ? go.Spot.Right : go.Spot.Left,
-                defaultAlignment: go.Spot.Center,
+                alignmentFocus: isLeft ? go.Spot.Left : go.Spot.Right,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 128, 255, 0.08)" : "transparent",
             },
-            ...(isLeft ? [leftText, markerLane] : [markerLane, rightText]),
+            lineShape,
+            endpointPort,
+            labelText,
         );
     }
     if (topside || bottomside) {
@@ -1812,7 +1811,16 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     geometryString: getIcomGeometry(side, "idef"),
                     desiredSize: new go.Size(markerThickness, markerLength),
                     alignment: go.Spot.Center,
+                    toLinkable: true,
+                    fromLinkable: true,
+                    toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    cursor: "pointer",
+                    contextMenu: portContextMenu,
                 },
+                new go.Binding("portId", "", function(d) {
+                    return d?.id || d?.portId || "";
+                }),
                 new go.Binding("desiredSize", "", function(_d, obj) {
                     const style = resolveIcomStyle(obj);
                     if (!DEBUG_ICOM_LAYOUT) {
@@ -1843,6 +1851,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
         const topBottomText =
             $(go.TextBlock,
                 {
+                    name: "PORT_LABEL_TEXT",
                     font: font,
                     angle: textangle,
                     textAlign: "center",
@@ -1850,16 +1859,11 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     overflow: go.TextBlock.OverflowEllipsis,
                     background: "transparent",
                     margin: new go.Margin(0),
-                    toLinkable: true,
-                    fromLinkable: true,
-                    toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
-                    fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
-                    cursor: "alias",
+                    editable: true,
+                    isMultiline: false,
+                    cursor: "text",
                     contextMenu: portContextMenu,
                 },
-                new go.Binding("portId", "", function(d) {
-                    return d?.id || d?.portId || "";
-                }),
                 new go.Binding("text", "name"),
                 new go.Binding('scale', 'textscale').makeTwoWay(),
             );
@@ -1911,11 +1915,16 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
         ),
         $(go.TextBlock,
             {
+                name: "PORT_LABEL_TEXT",
                 font: font,
                 angle: textangle,
                 alignment: textAlignment,
                 textAlign: textBlockAlign,
                 margin: textMargin,
+                editable: true,
+                isMultiline: false,
+                cursor: "text",
+                contextMenu: portContextMenu,
             },
             new go.Binding("text", "name"),
             new go.Binding('scale', 'textscale').makeTwoWay(),
@@ -3215,6 +3224,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     column: 0,
                     // alignment: new go.Spot(0, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('left',false, portContextMenu),
+                    defaultAlignment: go.Spot.Right,
                     alignment: go.Spot.Left, 
                 }
             ),  // end leftPorts Panel
@@ -3239,6 +3249,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 1, 
                     column: 2,
                     itemTemplate: makeItemTemplate('right', false, portContextMenu),
+                    defaultAlignment: go.Spot.Left,
                     alignment: go.Spot.Right, 
                 }
             ),  // end rightPorts Panel
@@ -4397,7 +4408,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon'),
+            groupTop2(contextMenu, 'Icon', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -4453,7 +4464,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Geometry'),
+            groupTop2(contextMenu, 'Geometry', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -4503,7 +4514,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Figure'),
+            groupTop2(contextMenu, 'Figure', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),

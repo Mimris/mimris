@@ -425,24 +425,20 @@ const Modelling = (props: any) => {
             <div className="workpad px-1 pt-2 bg-white">
               <Row className="row1">
                 {/* Palette area */}
-                {palettesOpen ? (
-                  <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
-                    <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                      <Palette // this is the Objects Palette area
-                        myMetis={myMetis}
-                        metis={metis}
-                        phFocus={phFocus}
-                        dispatch={dispatch}
-                        modelType='model'
-                        phUser={phUser}
-                        setVisiblePalette={props.setVisiblePalette}
-                        ref={paletteObjRef}
-                      />
-                    </div>
-                  </Col>
-                ) : (
-                  <Col xs="auto" className="p-0 m-0" style={{ width: '8px' }} />
-                )}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
+                  <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    <Palette // this is the Objects Palette area
+                      myMetis={myMetis}
+                      metis={metis}
+                      phFocus={phFocus}
+                      dispatch={dispatch}
+                      modelType='model'
+                      phUser={phUser}
+                      setVisiblePalette={props.setVisiblePalette}
+                      ref={paletteObjRef}
+                    />
+                  </div>
+                </Col>
                 {/* Modelling area */}
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
@@ -645,5 +641,4 @@ const Modelling = (props: any) => {
 
 export default Modelling;
 // export default Page(connect(state => state)(page));
-
 

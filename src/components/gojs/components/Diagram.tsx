@@ -458,16 +458,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        } catch {
 	          // Best-effort only; never block drag completion.
 	        }
-	        // Clear drag-time regroup permission markers here, after the drag completes, so other handlers
-	        // (SelectionMoved, mouseDrop) can't clear them before we enforce the membership.
-	        try {
-	          if ((diagram as any)?.__dragAllowReparentKeys) delete (diagram as any).__dragAllowReparentKeys;
-	          if ((diagram as any)?.__dragAllowReparent) delete (diagram as any).__dragAllowReparent;
-	        } catch {
-	        }
-	        super.doDeactivate();
-	      }
-	    }
+		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
+		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
+		        super.doDeactivate();
+		      }
+		    }
 
 	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
 

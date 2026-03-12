@@ -1066,8 +1066,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 	                  myDiagram.model.setDataProperty(n.data, "loc", `${n.location.x} ${n.location.y}`);
 	                }
 	              }
-	            } catch (error) {
-	            }
+	              } catch (error) {
+	              }
 	          }
           if (n.data.loc !== loc) {
             try {
@@ -1653,42 +1653,103 @@ class GoJSApp extends React.Component<{}, AppState> {
 		        // Final swimlane regroup enforcement: during a Shift-drag we allow crossing lanes, but a lot of legacy
 		        // "containment" logic below can overwrite `data.group` based on stale modelview membership.
 		        // Re-assert the intended lane membership based on current geometry, at the end of the move transaction.
-		        try {
-		          const lastPt = myDiagram?.lastInput?.documentPoint;
-		          for (let it = myParts?.iterator; it?.next();) {
-		            const part: go.Part = it.key;
-		            if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-		            const k = part.data?.key;
-		            if (!allowReparentForKey(k)) continue;
-		            let target = resolveContainingGroupByOverlap(part);
-		            if (!target && lastPt) target = resolveContainingGroupAtPoint(lastPt);
-		            if (!target) continue;
-		            const targetKey = String((target as any)?.key || (target as any)?.data?.key || "");
-		            if (!targetKey) continue;
-		            const lanePart = myDiagram.findNodeForKey(targetKey);
-		            const laneCat = String((lanePart as any)?.data?.category || (lanePart as any)?.data?.template || (lanePart as any)?.category || "");
-		            if (!laneCat.startsWith("Lane")) continue;
-		            const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
-		            if (cur === targetKey) continue;
-		            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
-		              (myDiagram.model as any).setGroupKeyForNodeData(part.data, targetKey);
-		            } else {
-		              myDiagram.model.setDataProperty(part.data, "group", targetKey);
-		            }
-		            const ov = myMetis.findObjectView(k) || myModelview.findObjectView(k);
-		            if (ov) {
-		              ov.group = targetKey;
-		              const jsnObjview = new jsn.jsnObjectView(ov);
-		              uic.addItemToList(modifiedObjectViews, jsnObjview);
-		            }
-		          }
-		        } catch (error) {
-		        }
+			        try {
+			          const lastPt = myDiagram?.lastInput?.documentPoint;
+			          const containsType =
+			            myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS) ||
+			            myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+			          for (let it = myParts?.iterator; it?.next();) {
+			            const part: go.Part = it.key;
+			            if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+			            const k = part.data?.key;
+			            if (!allowReparentForKey(k)) continue;
+			            let target = resolveContainingGroupByOverlap(part);
+			            if (!target && lastPt) target = resolveContainingGroupAtPoint(lastPt);
+			            if (!target) continue;
+			            const targetKey = String((target as any)?.key || (target as any)?.data?.key || "");
+			            if (!targetKey) continue;
+			            const lanePart = myDiagram.findNodeForKey(targetKey);
+			            const laneCat = String((lanePart as any)?.data?.category || (lanePart as any)?.data?.template || (lanePart as any)?.category || "");
+			            if (!laneCat.startsWith("Lane")) continue;
+			            const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+			            if (cur === targetKey) continue;
 
-		        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
-		        // when the member node is actually inside its lane. This avoids those links flashing in
-		        // after a drag/move transaction.
-		        applySwimlaneContainsVisibility();
+			            // Force a real GoJS reparent so `containingGroup` matches `data.group` immediately.
+			            const newLane = lanePart instanceof go.Group ? lanePart : null;
+			            if (newLane) {
+			              const oldLane = part.containingGroup;
+			              if (oldLane && oldLane !== newLane) {
+			                const s = new go.Set<go.Part>();
+			                s.add(part);
+			                oldLane.removeMembers(s, true);
+			              }
+			              newLane.addMembers(new go.Set<go.Part>().add(part), true);
+			            }
+
+			            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+			              (myDiagram.model as any).setGroupKeyForNodeData(part.data, targetKey);
+			            } else {
+			              myDiagram.model.setDataProperty(part.data, "group", targetKey);
+			            }
+			            const ov = myMetis.findObjectView(k) || myModelview.findObjectView(k);
+			            if (ov) {
+			              ov.group = targetKey;
+			              const jsnObjview = new jsn.jsnObjectView(ov);
+			              uic.addItemToList(modifiedObjectViews, jsnObjview);
+			            }
+
+			            // Keep the underlying AKM_CONTAINS relationship consistent with the swimlane grouping.
+			            // Some legacy code paths consult contains relationships/objectviews and can revert
+			            // membership if this isn't updated.
+			            if (containsType && ov) {
+			              const toLaneOv = myMetis.findObjectView(targetKey) || myModelview.findObjectView(targetKey);
+			              const memberOv = ov;
+			              const toObj = toLaneOv?.object ? myModel.findObject(toLaneOv.object.id) : null;
+			              const memberObj = memberOv?.object ? myModel.findObject(memberOv.object.id) : null;
+			              if (toObj && memberObj) {
+			                const relships = myModel.relships || [];
+			                let existing: any = null;
+			                for (let i = 0; i < relships.length; i++) {
+			                  const r: any = relships[i];
+			                  if (!r) continue;
+			                  if (r?.type?.name !== constants.types.AKM_CONTAINS) continue;
+			                  if (r?.toObject?.id === memberObj.id) { existing = r; break; }
+			                }
+			                if (existing && existing.fromObject?.id !== toObj.id) {
+			                  existing.relocate(existing.fromObject, toObj, existing.toObject, memberObj);
+			                } else if (!existing) {
+			                  const relId = utils.createGuid();
+			                  const relName = constants.types.AKM_CONTAINS;
+			                  const rel = new akm.cxRelationship(relId, containsType as any, toObj, memberObj, relName, "");
+			                  rel.parentModelRef = myModel.id;
+			                  myModel.addRelationship(rel);
+			                  toObj.addOutputrel(rel);
+			                  memberObj.addInputrel(rel);
+			                  myMetis.addRelationship(rel);
+			                }
+			                const relviews = myModelview.relshipviews || [];
+			                for (let i = 0; i < relviews.length; i++) {
+			                  const rv: any = relviews[i];
+			                  const r = rv?.relship;
+			                  if (!r || r?.type?.name !== constants.types.AKM_CONTAINS) continue;
+			                  if (rv?.toObjview?.id !== memberOv.id) continue;
+			                  rv.fromObjview = toLaneOv;
+			                  rv.visible = false;
+			                  rv.markedAsDeleted = false;
+			                }
+			              }
+			            }
+			          }
+			        } catch (error) {
+			        }
+
+			        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
+			        // when the member node is actually inside its lane. This avoids those links flashing in
+			        // after a drag/move transaction.
+			        applySwimlaneContainsVisibility();
+			        // Clear drag-time regroup permission markers after we have persisted the move.
+			        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
+			        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;
 		        break;
 		      }
       case "SelectionDeleting": {

@@ -910,14 +910,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         // This must match `stayInGroup` (Diagram.tsx) which allows crossing lanes only when Shift is held.
         const dragAllowKeys: Set<string> | undefined = (myDiagram as any)?.__dragAllowReparentKeys;
         const allowReparentGlobal = !!myDiagram?.lastInput?.shift || !!(myDiagram as any)?.__dragAllowReparent;
-        const allowReparentForKey = (k: any): boolean => {
-          if (allowReparentGlobal) return true;
-          if (!dragAllowKeys) return false;
-          if (k == null) return false;
-          return dragAllowKeys.has(String(k));
-        };
-        let relshipviews = myModelview.relshipviews;
-        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
+	        const allowReparentForKey = (k: any): boolean => {
+	          if (allowReparentGlobal) return true;
+	          if (!dragAllowKeys) return false;
+	          if (k == null) return false;
+	          return dragAllowKeys.has(String(k));
+	        };
+	        const isSwimlaneGroupKey = (k: any): boolean => {
+	          if (!k) return false;
+	          const p = myDiagram?.findNodeForKey?.(k);
+	          const c = String((p as any)?.data?.category || (p as any)?.data?.template || (p as any)?.category || "");
+	          return c === "Pool" || c.startsWith("Lane");
+	        };
+	        let relshipviews = myModelview.relshipviews;
+	        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         let objectviews = myModelview.objectviews;
         // Identify selected groups
         const selectedGroupNodes = [];
@@ -1094,23 +1100,30 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
               }
-              // Check if the MOVED node (goToNode) is member of a group
-              const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
-              let parentObjview = goParentGroup?.objectview; // The container objectview
-              if (!parentObjview) {
-                parentObjview = myModelview.findObjectView(goParentGroup?.key);
-              }
-              const fromGroupKey = (typeof myFromNode.group === "string") ? myFromNode.group : "";
-              // Do not "jump" lanes on mouse-up: only regroup when Shift is held,
-              // or if the node had no group yet (e.g., freshly created/pasted).
-              const canReparentOnDrop = allowReparentForKey(myToNode.key) || !fromGroupKey;
-              const targetGroupKey = goParentGroup?.key || "";
-              const shouldReparent =
-                !!(goParentGroup && parentObjview && targetGroupKey) &&
-                canReparentOnDrop &&
-                (targetGroupKey !== fromGroupKey);
+	              const fromGroupKey = (typeof myFromNode.group === "string") ? myFromNode.group : "";
+	              const inSwimlaneContext = isSwimlaneGroupKey(fromGroupKey) || isSwimlaneGroupKey(myToNode.group);
+	              if (!inSwimlaneContext) {
+	                // Legacy containment/grouping logic for non-swimlane diagrams.
+	                // Swimlanes manage membership explicitly (node.data.group -> Lane key) via GoJS Groups.
+	                // Running the rectangle-based containment logic here can overwrite lane membership and
+	                // cause the node to "snap back" to the old lane on the next drag.
 
-	              if (shouldReparent) { // the container (group)
+	                // Check if the MOVED node (goToNode) is member of a group
+	                const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
+	                let parentObjview = goParentGroup?.objectview; // The container objectview
+	                if (!parentObjview) {
+	                  parentObjview = myModelview.findObjectView(goParentGroup?.key);
+	                }
+	                // Do not "jump" lanes on mouse-up: only regroup when Shift is held,
+	                // or if the node had no group yet (e.g., freshly created/pasted).
+	                const canReparentOnDrop = allowReparentForKey(myToNode.key) || !fromGroupKey;
+	                const targetGroupKey = goParentGroup?.key || "";
+	                const shouldReparent =
+	                  !!(goParentGroup && parentObjview && targetGroupKey) &&
+	                  canReparentOnDrop &&
+	                  (targetGroupKey !== fromGroupKey);
+
+		                  if (shouldReparent) { // the container (group)
 	                // goToNode IS member of a group
 	                // First handle the object (node)
 	                const gjsPart = myToNode.gjsData; // The object (node) to be moved
@@ -1384,12 +1397,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                   }
                 }
-              }
-              if (myGoNode.key !== myToNode.group) {
-                myGoNode.scale = myToNode.scale;
-                myGoNode.loc = myToNode.loc;
-                myGoNode.group = myToNode.group;
-              }
+	              }
+	              } // end !inSwimlaneContext
+	              if (myGoNode.key !== myToNode.group) {
+	                myGoNode.scale = myToNode.scale;
+	                myGoNode.loc = myToNode.loc;
+	                myGoNode.group = myToNode.group;
+	              }
               if (myGoNode.object) {
                 const objvIdName = { id: myGoNode.key, name: myGoNode.name };
                 const objIdName = { id: myGoNode.object.id, name: myGoNode.object.name };

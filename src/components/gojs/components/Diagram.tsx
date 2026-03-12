@@ -356,12 +356,101 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 },
               })
           }
-        );
-    }
-    // when the user clicks on the background of the Diagram, remove all highlighting
-    myDiagram.click = function (e) {
-      e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
-    };
+	        );
+	    }
+
+	    // Enforce lane membership on Shift-drag completion. Without this, nodes can be dragged across
+	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
+	    // clamp/snap back into the source lane.
+	    class SwimlaneDraggingTool extends go.DraggingTool {
+	      override doDeactivate() {
+	        const diagram = this.diagram;
+	        try {
+	          const allowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
+	          const allowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
+	          if (diagram && (allowGlobal || (allowKeys && allowKeys.size > 0))) {
+	            const dropPt = diagram.lastInput?.documentPoint;
+	            const dragged = this.draggedParts;
+	            if (dropPt && dragged) {
+	              diagram.commit((d: go.Diagram) => {
+	                const laneBodyBounds = (g: go.Group): go.Rect | null => {
+	                  const body =
+	                    (g.findObject("LANE_BODY_SHAPE") ||
+	                      g.findObject("BODY")) as go.GraphObject | null;
+	                  return body ? body.getDocumentBounds() : null;
+	                };
+	                const findLaneAtPoint = (pt: go.Point): go.Group | null => {
+	                  let best: { area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const r = laneBodyBounds(n);
+	                    if (!r || !r.containsPoint(pt)) return;
+	                    const area = Math.max(1, r.width * r.height);
+	                    if (!best || area < best.area) best = { area, lane: n };
+	                  });
+	                  return best ? best.lane : null;
+	                };
+	                const findLaneByOverlap = (part: go.Node): go.Group | null => {
+	                  const nb = part.actualBounds;
+	                  let best: { overlap: number; area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const gb = laneBodyBounds(n);
+	                    if (!gb) return;
+	                    const ix1 = Math.max(nb.x, gb.x);
+	                    const iy1 = Math.max(nb.y, gb.y);
+	                    const ix2 = Math.min(nb.right, gb.right);
+	                    const iy2 = Math.min(nb.bottom, gb.bottom);
+	                    const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+	                    if (overlap <= 0) return;
+	                    const area = Math.max(1, gb.width * gb.height);
+	                    if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
+	                      best = { overlap, area, lane: n };
+	                    }
+	                  });
+	                  return best ? best.lane : null;
+	                };
+
+	                for (let it = dragged.iterator; it?.next();) {
+	                  const part: go.Part = it.key;
+	                  if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                  const k = part.data?.key;
+	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
+	                  if (!allowed) continue;
+
+	                  const targetLane = findLaneAtPoint(dropPt) || findLaneByOverlap(part);
+	                  if (!targetLane) continue;
+	                  const targetKey = String(targetLane.data?.key || targetLane.key || "");
+	                  if (!targetKey) continue;
+
+	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+	                  if (cur === targetKey) continue;
+	                  if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                    (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
+	                  } else {
+	                    d.model.setDataProperty(part.data, "group", targetKey);
+	                  }
+	                }
+	              }, "SwimlaneShiftReparent");
+	            }
+	          }
+	        } catch {
+	          // Best-effort only; never block drag completion.
+	        }
+	        super.doDeactivate();
+	      }
+	    }
+
+	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
+
+	    // when the user clicks on the background of the Diagram, remove all highlighting
+	    myDiagram.click = function (e) {
+	      e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
+	    };
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.dispatch = this.myMetis?.dispatch;

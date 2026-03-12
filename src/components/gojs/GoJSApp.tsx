@@ -1003,12 +1003,38 @@ class GoJSApp extends React.Component<{}, AppState> {
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
           goNode.loc = loc;
-          const size = n.actualBounds.width + " " + n.actualBounds.height;
-	          const existingGroupKey = (typeof n.data.group === "string") ? n.data.group : "";
-	          // Only allow lane/group changes when Shift is held, or if this node is not grouped yet.
-	          const canReparentThisNode = allowReparentForKey(n.data?.key) || !existingGroupKey;
-	          let groupKey = existingGroupKey || "";
-	          let group: any = null;
+	          const size = n.actualBounds.width + " " + n.actualBounds.height;
+		          const existingGroupKey = (typeof n.data.group === "string") ? n.data.group : "";
+		          // Swimlane rule: if a node is no longer fully inside its current lane body (due to a prior
+		          // shift-move or stale grouping), allow us to repair membership based on geometry even if
+		          // Shift is not currently held. This prevents the "looks in new lane but jumps back" bug.
+		          let outsideCurrentLaneBody = false;
+		          if (existingGroupKey) {
+		            const curLane = myDiagram.findNodeForKey(existingGroupKey);
+		            const curLaneCat = String((curLane as any)?.data?.category || (curLane as any)?.data?.template || (curLane as any)?.category || "");
+		            if (curLane instanceof go.Group && curLaneCat.startsWith("Lane")) {
+		              const body = curLane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+		              const r = body ? body.getDocumentBounds() : null;
+		              if (r) {
+		                const b = n.actualBounds;
+		                // Manual containsRect to avoid any mutations on frozen Rects.
+		                const contains =
+		                  b.x >= r.x &&
+		                  b.y >= r.y &&
+		                  b.right <= r.right &&
+		                  b.bottom <= r.bottom;
+		                outsideCurrentLaneBody = !contains;
+		              }
+		            }
+		          }
+		          // Allow regrouping when:
+		          // - Shift was used (explicit intent), OR
+		          // - node is ungrouped (new/palette), OR
+		          // - node is outside its current lane body (repair stale membership).
+		          const canReparentThisNode =
+		            allowReparentForKey(n.data?.key) || !existingGroupKey || outsideCurrentLaneBody;
+		          let groupKey = existingGroupKey || "";
+		          let group: any = null;
 	          if (canReparentThisNode) {
 	            // Prefer the lane under the mouse on drop (Shift-drag intent), fallback to node-center containment.
 	            const dropPt = myDiagram?.lastInput?.documentPoint;

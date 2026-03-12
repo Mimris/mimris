@@ -1589,9 +1589,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (isLane && pdata?.__previousGroup && !movedPoolKeys.has(String(pdata.__previousGroup))) poolsToRelayout.add(pdata.__previousGroup);
             if (isLane && pdata) delete (pdata as any).__previousGroup;
           }
-	          if (poolsToRelayout.size > 0) {
-            (myDiagram as any).__isPoolRelayoutFromMove = true;
-            relayoutPoolsByKeys(poolsToRelayout);
+		          if (poolsToRelayout.size > 0) {
+	            (myDiagram as any).__isPoolRelayoutFromMove = true;
+	            relayoutPoolsByKeys(poolsToRelayout);
             // After relayout, normalize membership/loc for all nodes under lanes in those pools.
             poolsToRelayout.forEach((poolKey) => normalizeSwimlanePool(poolKey));
             (myDiagram as any).__isPoolRelayoutFromMove = false;
@@ -1633,13 +1633,48 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnObjview = new jsn.jsnObjectView(ov);
               uic.addItemToList(modifiedObjectViews, jsnObjview);
             });
-	          }
-	        }
+		          }
+		        }
 
-	        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
-	        // when the member node is actually inside its lane. This avoids those links flashing in
-	        // after a drag/move transaction.
-	        applySwimlaneContainsVisibility();
+		        // Final swimlane regroup enforcement: during a Shift-drag we allow crossing lanes, but a lot of legacy
+		        // "containment" logic below can overwrite `data.group` based on stale modelview membership.
+		        // Re-assert the intended lane membership based on current geometry, at the end of the move transaction.
+		        try {
+		          const lastPt = myDiagram?.lastInput?.documentPoint;
+		          for (let it = myParts?.iterator; it?.next();) {
+		            const part: go.Part = it.key;
+		            if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+		            const k = part.data?.key;
+		            if (!allowReparentForKey(k)) continue;
+		            let target = resolveContainingGroupByOverlap(part);
+		            if (!target && lastPt) target = resolveContainingGroupAtPoint(lastPt);
+		            if (!target) continue;
+		            const targetKey = String((target as any)?.key || (target as any)?.data?.key || "");
+		            if (!targetKey) continue;
+		            const lanePart = myDiagram.findNodeForKey(targetKey);
+		            const laneCat = String((lanePart as any)?.data?.category || (lanePart as any)?.data?.template || (lanePart as any)?.category || "");
+		            if (!laneCat.startsWith("Lane")) continue;
+		            const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+		            if (cur === targetKey) continue;
+		            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+		              (myDiagram.model as any).setGroupKeyForNodeData(part.data, targetKey);
+		            } else {
+		              myDiagram.model.setDataProperty(part.data, "group", targetKey);
+		            }
+		            const ov = myMetis.findObjectView(k) || myModelview.findObjectView(k);
+		            if (ov) {
+		              ov.group = targetKey;
+		              const jsnObjview = new jsn.jsnObjectView(ov);
+		              uic.addItemToList(modifiedObjectViews, jsnObjview);
+		            }
+		          }
+		        } catch (error) {
+		        }
+
+		        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
+		        // when the member node is actually inside its lane. This avoids those links flashing in
+		        // after a drag/move transaction.
+		        applySwimlaneContainsVisibility();
 	        // Clear drag-time regroup permission markers after we have persisted the move.
 	        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
 	        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;

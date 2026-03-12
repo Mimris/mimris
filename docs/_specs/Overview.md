@@ -86,14 +86,21 @@ Grouping scale is derived from containment only.
 - The palette width mode (`expanded` vs normal width) should persist across reloads.
 - The palette component must stay mounted when the global `Toggle Palettes` control collapses it, so its own collapsed rail remains visible.
 - The modeller object palette collapse/expand state should persist across reloads as well.
+- The collapsed `Palette: Obj. Types` rail should use a single visible bar with no duplicated top arrow inside the label text.
+- The collapsed `Palette: Obj. Types` rail should match the Objects rail sizing, including icon scale, rail width, and vertical label font treatment.
+- The `Palette: Obj. Types` wrapper must not add an extra outer gutter or padding strip in either collapsed or expanded state.
 
 ### ICOM Rendering
 
 - The default ICOM style is `idef`.
 - ICOM rendering is defined by `icomStyle` on the typeview, with support for metamodel-driven notation choices.
 - Side ICOMs use a neutral marker close to the process border, with the relationship direction shown by the relationship arrow rather than the ICOM graphic.
-- For left/right ICOMs, the relationship should connect at the outer end of the text, while the neutral marker stays aligned with the same text/relationship center line.
-- For top/bottom ICOMs, the marker should stay close to the process border. Control text is placed above the marker and mechanism text below it.
+- For left/right ICOMs, the relationship should hook near the process-side end of the ICOM line, while the label remains outside the routing gap.
+- Side ICOM labels may wrap to two lines maximum and should use ellipsis if more text would be needed.
+- The whole colored side ICOM band should resolve to the port for context menus, but relationship hookup should still use the dedicated hookup area.
+- For top/bottom ICOMs, the whole ICOM should render outside the group border, with the ICOM strip hugging the border.
+- Control text is placed above the top strip and mechanism text below the bottom strip.
+- For top/bottom ICOMs, the relationship arrow should sit as close to the group border and ICOM line as possible, even if it overlaps the line.
 - ICOM text backgrounds should remain transparent.
 
 

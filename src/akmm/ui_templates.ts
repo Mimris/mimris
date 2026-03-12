@@ -1525,7 +1525,9 @@ function addTopPorts(portContextMenu: any, offsetX: number = 0, offsetY: number 
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('top', true, portContextMenu),
-                alignment: new go.Spot(0.5, 0, offsetX, offsetY), 
+                minSize: new go.Size(NaN, 72),
+                margin: new go.Margin(44, 0, 0, 0),
+                alignment: new go.Spot(0.5, 0, offsetX, offsetY - 12),
                 fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
@@ -1557,7 +1559,9 @@ function addBottomPorts(portContextMenu: any, offsetX: number = 0, offsetY: numb
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
-                alignment: new go.Spot(0.5, 1, offsetX, offsetY), 
+                minSize: new go.Size(NaN, 72),
+                margin: new go.Margin(0, 0, 44, 0),
+                alignment: new go.Spot(0.5, 1, offsetX, offsetY + 12),
                 fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
@@ -1682,6 +1686,13 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let textAlignment = go.Spot.Center;
     let textBlockAlign: "left" | "center" | "right" = "center";
     let textMargin = new go.Margin(0);
+    const openPortNameEditor = (e: go.InputEvent, obj: go.GraphObject) => {
+        const diagram: any = obj?.diagram;
+        if (diagram?.handleChangePortName) {
+            diagram.handleChangePortName(diagram, obj);
+            e.handled = true;
+        }
+    };
     if (topside) {
         toSpot = go.Spot.Top;
         fromSpot = go.Spot.Bottom;
@@ -1709,98 +1720,214 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     }
     if (leftside || rightside) {
         const isLeft = leftside;
-        const panelWidth = isLeft ? 56 : 26;
-        const lineWidth = isLeft ? 44 : 18;
-        const lineAlignment = isLeft ? go.Spot.Left : go.Spot.Right;
-        const endpointAlignment = isLeft ? go.Spot.Right : go.Spot.Left;
-        const endpointSpot = isLeft ? new go.Spot(1, 0.5, 0, 0) : new go.Spot(0, 0.5, 0, 0);
+        const labelWidth = 88;
+        const lineWidth = 24;
+        const routingGap = 10;
+        const labelOffset = 12;
+        const rowHeight = 28;
         const lineShape =
-            $(go.Shape,
+            $(go.Shape, "LineH",
                 {
                     name: "SHAPE",
-                    fill: DEBUG_ICOM_LAYOUT ? "rgba(255, 165, 0, 0.35)" : "transparent",
+                    fill: "transparent",
                     stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
                     strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
-                    geometryString: getIcomGeometry(side, "idef"),
-                    desiredSize: new go.Size(lineWidth, 8),
-                    alignment: lineAlignment,
-                    cursor: "pointer",
-                    contextMenu: portContextMenu,
-                },
-                new go.Binding("geometryString", "", function(d, obj) {
-                    const style = resolveIcomStyle(obj);
-                    obj.geometryString = getIcomGeometry(side, style);
-                    obj.desiredSize = style === "idef"
-                        ? new go.Size(lineWidth, 8)
-                        : getSideMarkerVisualSize(isGroup, style);
-                    if (!DEBUG_ICOM_LAYOUT) {
-                        obj.fill = getIcomFill(d, style);
-                    } else {
-                        obj.fill = style === "idef" ? "transparent" : getIcomFill(d, style);
-                    }
-                    obj.stroke = getIcomStroke(d, style);
-                    obj.strokeWidth = getIcomStrokeWidth(style);
-                    return obj.geometryString;
-                }),
-            );
-        const endpointPort =
-            $(go.Shape, "Rectangle",
-                {
-                    width: 10,
-                    height: 10,
-                    fill: "transparent",
-                    stroke: "transparent",
-                    alignment: endpointAlignment,
+                    desiredSize: new go.Size(lineWidth, 1),
+                    alignment: go.Spot.Center,
                     alignmentFocus: go.Spot.Center,
-                    portId: "",
-                    fromLinkable: isLeft,
-                    toLinkable: !isLeft,
                     cursor: "pointer",
                     contextMenu: portContextMenu,
-                    ...(isLeft ? { fromSpot: endpointSpot } : { toSpot: endpointSpot }),
+                    fromLinkable: false,
+                    toLinkable: false,
                 },
-                new go.Binding("portId", "", function(d) {
-                    return d?.id || d?.portId || "";
+                new go.Binding("desiredSize", "", function(_d, obj) {
+                    const style = resolveIcomStyle(obj);
+                    obj.desiredSize = style === "idef"
+                        ? new go.Size(lineWidth, 1)
+                        : getSideMarkerVisualSize(isGroup, style);
+                    obj.fill = "transparent";
+                    obj.stroke = getIcomStroke(_d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
+                    return obj.desiredSize;
                 }),
             );
-        const labelText =
-            $(go.TextBlock,
-                {
-                    name: "PORT_LABEL_TEXT",
-                    font: font,
-                    angle: textangle,
-                    textAlign: "center",
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    background: "transparent",
-                    alignment: isLeft ? new go.Spot(0.72, 0, 0, 0) : new go.Spot(0.28, 0, 0, 0),
-                    alignmentFocus: go.Spot.BottomCenter,
-                    editable: true,
-                    isMultiline: false,
-                    cursor: "text",
-                    contextMenu: portContextMenu,
-                },
-                new go.Binding("text", "name"),
-                new go.Binding('scale', 'textscale').makeTwoWay(),
-            );
+        const gapPanel = $(go.Panel, "Auto",
+            {
+                width: routingGap,
+                minSize: new go.Size(routingGap, rowHeight),
+                pickable: false,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(128, 0, 255, 0.12)" : "transparent",
+            },
+        );
+        const labelBlock = $(go.TextBlock,
+            {
+                name: "PORT_LABEL_TEXT",
+                width: labelWidth,
+                minSize: new go.Size(labelWidth, rowHeight),
+                maxSize: new go.Size(labelWidth, NaN),
+                alignment: go.Spot.Center,
+                alignmentFocus: go.Spot.Center,
+                font: font,
+                angle: textangle,
+                textAlign: isLeft ? "right" : "left",
+                wrap: go.TextBlock.WrapFit,
+                overflow: go.TextBlock.OverflowEllipsis,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
+                margin: isLeft ? new go.Margin(3, 2, 3, 0) : new go.Margin(3, 0, 3, 2),
+                editable: true,
+                isMultiline: true,
+                maxLines: 2,
+                verticalAlignment: go.Spot.Top,
+                cursor: "text",
+                contextMenu: portContextMenu,
+                isActionable: false,
+                pickable: true,
+            },
+            new go.Binding("text", "name"),
+            new go.Binding('scale', 'textscale').makeTwoWay(),
+        );
         return $(go.Panel, "Spot",
             {
                 margin: new go.Margin(0, 0),
-                width: panelWidth,
-                height: 24,
                 alignment: isLeft ? new go.Spot(0, 0.5, 0, 0) : new go.Spot(1, 0.5, 0, 0),
                 alignmentFocus: isLeft ? go.Spot.Left : go.Spot.Right,
-                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 128, 255, 0.08)" : "transparent",
+                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 180, 255, 0.18)" : "transparent",
+                isPanelMain: false,
+                pickable: true,
+                contextMenu: portContextMenu,
+                doubleClick: openPortNameEditor,
             },
-            lineShape,
-            endpointPort,
-            labelText,
+            ...(isLeft
+                ? [
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: go.Spot.Right,
+                            alignmentFocus: go.Spot.Right,
+                            width: lineWidth,
+                            minSize: new go.Size(lineWidth, rowHeight),
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+                            pickable: false,
+                        },
+                        lineShape,
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(1, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Right,
+                            width: 2,
+                            height: 8,
+                            fill: "transparent",
+                            stroke: "transparent",
+                            strokeWidth: 0,
+                            portId: "",
+                            fromLinkable: false,
+                            toLinkable: true,
+                            cursor: "alias",
+                            contextMenu: portContextMenu,
+                            toSpot: go.Spot.Left,
+                        },
+                        new go.Binding("portId", "", function(d) {
+                            return d?.id || d?.portId || "";
+                        }),
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(1, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Right,
+                            width: lineWidth,
+                            height: 10,
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                            pickable: false,
+                        },
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, -(lineWidth + 1), 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        gapPanel,
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, -(lineWidth + routingGap + 1), 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        labelBlock,
+                    )
+                ]
+                : [
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: go.Spot.Left,
+                            alignmentFocus: go.Spot.Left,
+                            width: lineWidth,
+                            minSize: new go.Size(lineWidth, rowHeight),
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+                            pickable: false,
+                        },
+                        lineShape,
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(0, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Left,
+                            width: 14,
+                            height: 8,
+                            fill: "transparent",
+                            stroke: "transparent",
+                            strokeWidth: 0,
+                            portId: "",
+                            fromLinkable: true,
+                            toLinkable: false,
+                            cursor: "alias",
+                            contextMenu: portContextMenu,
+                            fromSpot: go.Spot.Right,
+                        },
+                        new go.Binding("portId", "", function(d) {
+                            return d?.id || d?.portId || "";
+                        }),
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(0, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Left,
+                            width: lineWidth,
+                            height: 10,
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                            pickable: false,
+                        },
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(0, 0.5, 8, 0),
+                            alignmentFocus: go.Spot.Left,
+                            pickable: false,
+                        },
+                        labelBlock,
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, routingGap, 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        gapPanel,
+                    ),
+                ]),
         );
     }
     if (topside || bottomside) {
         const isTop = topside;
+        const topBottomWidth = 24;
         const markerThickness = 2;
-        const markerLength = getIcomPortSize(isGroup, "idef").height;
+        const markerLength = Math.max(10, getIcomPortSize(isGroup, "idef").height - 4);
+        const topBottomStripHeight = 12;
         const topBottomShape =
             $(go.Shape,
                 {
@@ -1810,17 +1937,13 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
                     geometryString: getIcomGeometry(side, "idef"),
                     desiredSize: new go.Size(markerThickness, markerLength),
-                    alignment: go.Spot.Center,
-                    toLinkable: true,
-                    fromLinkable: true,
-                    toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
-                    fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    alignment: isTop ? go.Spot.Center : go.Spot.Top,
+                    alignmentFocus: isTop ? go.Spot.Center : go.Spot.Top,
                     cursor: "pointer",
                     contextMenu: portContextMenu,
+                    fromLinkable: false,
+                    toLinkable: false,
                 },
-                new go.Binding("portId", "", function(d) {
-                    return d?.id || d?.portId || "";
-                }),
                 new go.Binding("desiredSize", "", function(_d, obj) {
                     const style = resolveIcomStyle(obj);
                     if (!DEBUG_ICOM_LAYOUT) {
@@ -1839,14 +1962,57 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     return getIcomGeometry(side, style);
                 }),
             );
+        const topBottomPort =
+            $(go.Shape, "Rectangle",
+                {
+                    width: 10,
+                    height: 10,
+                    fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                    stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                    alignment: isTop ? new go.Spot(0.5, 0.5, 0, 4) : new go.Spot(0.5, 0, -1, 1),
+                    alignmentFocus: isTop ? go.Spot.Center : go.Spot.Top,
+                    portId: "",
+                    toLinkable: true,
+                    fromLinkable: true,
+                    toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    cursor: "alias",
+                    contextMenu: portContextMenu,
+                },
+                new go.Binding("portId", "", function(d) {
+                    return d?.id || d?.portId || "";
+                }),
+            );
         const markerPanel = $(go.Panel, "Spot",
             {
-                width: markerThickness,
-                height: markerLength,
+                width: topBottomWidth,
+                height: topBottomStripHeight + 1,
                 defaultAlignment: go.Spot.Center,
-                background: DEBUG_ICOM_LAYOUT ? "gray" : "transparent",
+                alignment: go.Spot.Center,
+                alignmentFocus: go.Spot.Center,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
             },
+            DEBUG_ICOM_LAYOUT
+                ? $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "red",
+                    strokeWidth: 1,
+                    width: topBottomWidth - 2,
+                    height: topBottomStripHeight - 3,
+                    alignment: new go.Spot(0.5, 0.5, 0, -1),
+                    pickable: false,
+                  })
+                : $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 0,
+                    width: topBottomWidth,
+                    height: topBottomStripHeight,
+                    pickable: false,
+                  }),
             topBottomShape,
+            topBottomPort,
         );
         const topBottomText =
             $(go.TextBlock,
@@ -1854,10 +2020,11 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     name: "PORT_LABEL_TEXT",
                     font: font,
                     angle: textangle,
+                    alignment: go.Spot.Center,
                     textAlign: "center",
                     wrap: go.TextBlock.None,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    background: "transparent",
+                    background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
                     margin: new go.Margin(0),
                     editable: true,
                     isMultiline: false,
@@ -1867,14 +2034,49 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 new go.Binding("text", "name"),
                 new go.Binding('scale', 'textscale').makeTwoWay(),
             );
-        return $(go.Panel, "Vertical",
+        const stripPanel = $(go.Panel, "Spot",
             {
-                margin: new go.Margin(0, 0),
-                alignment: isTop ? new go.Spot(0.5, 0, 0, 0) : new go.Spot(0.5, 1, 0, 0),
+                width: topBottomWidth,
+                height: topBottomStripHeight,
+                alignment: isTop ? new go.Spot(0.5, 1, 0, 0) : new go.Spot(0.5, 0, 0, -6),
                 alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
-                defaultAlignment: go.Spot.Center,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 180, 255, 0.18)" : "transparent",
             },
-            ...(isTop ? [topBottomText, markerPanel] : [markerPanel, topBottomText]),
+            DEBUG_ICOM_LAYOUT
+                ? $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "cyan",
+                    strokeWidth: 1,
+                    width: topBottomWidth - 1,
+                    height: topBottomStripHeight - 1,
+                    pickable: false,
+                  })
+                : $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 0,
+                    width: topBottomWidth,
+                    height: topBottomStripHeight,
+                    pickable: false,
+                  }),
+            markerPanel,
+        );
+        const textPanel = $(go.Panel, "Auto",
+            {
+                alignment: isTop ? new go.Spot(0.5, 0, 0, -10) : new go.Spot(0.5, 1, 0, 18),
+                alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+                pickable: false,
+            },
+            topBottomText,
+        );
+        return $(go.Panel, "Spot",
+            {
+                margin: new go.Margin(6, 0, 6, 0),
+                alignment: isTop ? new go.Spot(0.5, 1, 0, -6) : new go.Spot(0.5, 0, 0, 6),
+                alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+            },
+            stripPanel,
+            textPanel,
         );
     }
     return $(go.Panel, "Spot",
@@ -3237,7 +3439,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 0, 
                     column: 1,
                     itemTemplate: makeItemTemplate('top',false, portContextMenu),
-                    alignment: go.Spot.Top, 
+                    minSize: new go.Size(NaN, 72),
+                    margin: new go.Margin(44, 0, 0, 0),
+                    alignment: new go.Spot(0.5, 0, 0, -12),
                 }
             ),  // end topPorts Panel
 
@@ -3262,7 +3466,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 2, 
                     column: 1,
                     itemTemplate: makeItemTemplate('bottom', false, portContextMenu),
-                    alignment: go.Spot.Bottom, 
+                    minSize: new go.Size(NaN, 72),
+                    margin: new go.Margin(0, 0, 44, 0),
+                    alignment: new go.Spot(0.5, 1, 0, 12),
                 }
             ),   // end bottomPorts Panel
         )    

@@ -2953,6 +2953,40 @@ class GoJSApp extends React.Component<{}, AppState> {
             });
           }
         }
+
+        // Refresh moved/affected groups so port itemArrays (left/top/right/bottom ICOMs)
+        // are rebound immediately after drag instead of waiting for a full reload.
+        const groupsToRefresh = new Set<string>();
+        affectedTopLevelGroupKeys.forEach((key) => groupsToRefresh.add(String(key)));
+        const movedSelection = e.subject;
+        for (let it = movedSelection?.iterator; it?.next();) {
+          const part = it.value;
+          if (part instanceof go.Group && part.data?.key) {
+            groupsToRefresh.add(String(part.data.key));
+          }
+          if (part instanceof go.Node) {
+            const containing = part.containingGroup;
+            if (containing instanceof go.Group && containing.data?.key) {
+              groupsToRefresh.add(String(containing.data.key));
+            }
+          }
+        }
+        groupsToRefresh.forEach((groupKey) => {
+          const groupPart = myDiagram.findNodeForKey(groupKey);
+          if (!(groupPart instanceof go.Group)) return;
+          try { groupPart.invalidateLayout(); } catch (_) {}
+          try { groupPart.updateTargetBindings(); } catch (_) {}
+          try { groupPart.updateAllTargetBindings(); } catch (_) {}
+          try {
+            const names = ["BODY", "LEFTPORTS", "TOPPORTS", "RIGHTPORTS", "BOTTOMPORTS"];
+            names.forEach((name) => {
+              const obj = groupPart.findObject(name);
+              try { obj?.updateTargetBindings?.(); } catch (_) {}
+            });
+          } catch (_) {}
+        });
+        try { myDiagram.updateAllTargetBindings(); } catch (_) {}
+        try { myDiagram.requestUpdate(); } catch (_) {}
         break;
       }
       case "SelectionDeleting": {

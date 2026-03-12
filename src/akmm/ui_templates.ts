@@ -916,7 +916,9 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                     name: "BODY",
                     row: 0,
                     column: 1,
-                    stretch: go.GraphObject.Fill,
+                    // Do not vertically stretch lane body to the pool height. The lane BODY height must be
+                    // driven by `LANE_BODY_SHAPE.desiredSize.height` (data.size) so lanes don't overlap.
+                    stretch: go.GraphObject.Horizontal,
                     isClipping: true,
                 },
                 $(go.Shape, "Rectangle",
@@ -925,9 +927,12 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         isPanelMain: true,
                         cursor: "move",
                         fill: "white",
-                        stroke: "transparent",
+                        // Visible stroke while debugging so we can see the true lane body bounds.
+                        stroke: DEBUG_SWIMLANE_BG ? "rgba(0,0,0,0.35)" : "transparent",
+                        strokeWidth: DEBUG_SWIMLANE_BG ? 1 : 0,
                         minSize: new go.Size(160, 65),
-                        stretch: go.GraphObject.Fill,
+                        // Horizontal stretch only; height comes from desiredSize binding.
+                        stretch: go.GraphObject.Horizontal,
                     },
                     new go.Binding("fill", "fillcolor", (c: any) => {
                         if (DEBUG_SWIMLANE_BG) return "rgba(0, 200, 60, 0.18)";

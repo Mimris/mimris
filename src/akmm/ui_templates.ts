@@ -4193,17 +4193,30 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 	                return;
 	            }
 
-	            // Ensure model membership is explicit when regrouping is allowed.
-	            if (allowReparentDrop && targetLaneKey) {
-	                dragged.each((part: go.Part) => {
-	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
-	                    if (part.data && typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
-	                        (diagram.model as any).setGroupKeyForNodeData(part.data, targetLaneKey);
-	                    } else if (part.data) {
-	                        diagram.model.setDataProperty(part.data, "group", targetLaneKey);
-	                    }
-	                });
-	            }
+		            // Ensure model membership is explicit when regrouping is allowed.
+		            if (allowReparentDrop && targetLaneKey) {
+		                // Force a real reparent: if the node still belongs to another lane, remove it there first,
+		                // then set the model group key, and finally ensure the Part is a member of this lane.
+		                // This prevents the "looks in new lane, but jumps back to old lane when moved" behavior.
+		                diagram.commit((d: go.Diagram) => {
+		                    dragged.each((part: go.Part) => {
+		                        if (!(part instanceof go.Node) || part instanceof go.Group) return;
+		                        if (!part.data) return;
+		                        const oldGrp = part.containingGroup;
+		                        if (oldGrp && oldGrp !== grp) {
+		                            const s = new go.Set<go.Part>();
+		                            s.add(part);
+		                            oldGrp.removeMembers(s, true);
+		                        }
+		                        if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+		                            (d.model as any).setGroupKeyForNodeData(part.data, targetLaneKey);
+		                        } else {
+		                            d.model.setDataProperty(part.data, "group", targetLaneKey);
+		                        }
+		                        grp.addMembers(new go.Set<go.Part>().add(part), true);
+		                    });
+		                }, "ReparentToLane");
+		            }
 
 	            // Keep lane body geometry stable when members are dropped.
 	            if (previousLaneSize && !isNaN(previousLaneSize.width) && !isNaN(previousLaneSize.height)) {

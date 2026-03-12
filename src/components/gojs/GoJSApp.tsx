@@ -1689,11 +1689,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 		        // when the member node is actually inside its lane. This avoids those links flashing in
 		        // after a drag/move transaction.
 		        applySwimlaneContainsVisibility();
-	        // Clear drag-time regroup permission markers after we have persisted the move.
-	        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
-	        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;
-	        break;
-	      }
+		        break;
+		      }
       case "SelectionDeleting": {
         // const newNode = myMetis.currentNode;
         const deletedFlag = true;

@@ -415,6 +415,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                  return best ? best.lane : null;
 	                };
 
+	                const targetLane = findLaneAtPoint(dropPt) || ((): go.Group | null => {
+	                  // If drop point is in header strip, overlap tends to still pick the correct lane.
+	                  // Use the first moved node as probe.
+	                  for (let it = dragged.iterator; it?.next();) {
+	                    const p: go.Part = it.key;
+	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findLaneByOverlap(p);
+	                  }
+	                  return null;
+	                })();
+	                const targetKey = targetLane ? String(targetLane.data?.key || targetLane.key || "") : "";
+
 	                for (let it = dragged.iterator; it?.next();) {
 	                  const part: go.Part = it.key;
 	                  if (!(part instanceof go.Node) || part instanceof go.Group) continue;
@@ -422,24 +433,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
 	                  if (!allowed) continue;
 
-	                  const targetLane = findLaneAtPoint(dropPt) || findLaneByOverlap(part);
-	                  if (!targetLane) continue;
-	                  const targetKey = String(targetLane.data?.key || targetLane.key || "");
-	                  if (!targetKey) continue;
+	                  if (!targetLane || !targetKey) continue;
 
 	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
 	                  if (cur === targetKey) continue;
+
+	                  // Force a real reparent in the Diagram so `containingGroup` updates immediately.
+	                  const oldGrp = part.containingGroup;
+	                  if (oldGrp && oldGrp !== targetLane) {
+	                    const s = new go.Set<go.Part>();
+	                    s.add(part);
+	                    oldGrp.removeMembers(s, true);
+	                  }
 	                  if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
 	                    (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
 	                  } else {
 	                    d.model.setDataProperty(part.data, "group", targetKey);
 	                  }
+	                  targetLane.addMembers(new go.Set<go.Part>().add(part), true);
 	                }
 	              }, "SwimlaneShiftReparent");
 	            }
 	          }
 	        } catch {
 	          // Best-effort only; never block drag completion.
+	        }
+	        // Clear drag-time regroup permission markers here, after the drag completes, so other handlers
+	        // (SelectionMoved, mouseDrop) can't clear them before we enforce the membership.
+	        try {
+	          if ((diagram as any)?.__dragAllowReparentKeys) delete (diagram as any).__dragAllowReparentKeys;
+	          if ((diagram as any)?.__dragAllowReparent) delete (diagram as any).__dragAllowReparent;
+	        } catch {
 	        }
 	        super.doDeactivate();
 	      }

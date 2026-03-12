@@ -2782,6 +2782,27 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     // Keep pool and lane layout responsibilities separate:
     // pool_structure = stack/size lanes only, lane_content = layout only selected lane members.
     if (layoutMode === "pool_structure") {
+        // IMPORTANT: never stack lanes using `lane.actualBounds` because it includes member Nodes and can change
+        // just by dropping/moving lane contents. Always use the lane's structural/visual bounds (selection object)
+        // so the lane stack stays stable regardless of what's inside each lane.
+        const laneStructureBounds = (part: go.Part): go.Rect => {
+            if (part instanceof go.Group) {
+                const selName = (part as any).selectionObjectName as string | undefined;
+                if (selName) {
+                    const selObj = part.findObject(selName) as go.GraphObject | null;
+                    if (selObj) return selObj.getDocumentBounds();
+                }
+                const resizeObj = part.resizeObject as go.GraphObject | null;
+                if (resizeObj) return resizeObj.getDocumentBounds();
+            }
+            return part.actualBounds;
+        };
+
+        const laneStructureY = (part: go.Part): number => {
+            const y = laneStructureBounds(part).y;
+            return isNaN(y) ? part.actualBounds.y : y;
+        };
+
         // Pool "Do Layout" should only arrange lane groups, not lane contents.
         const poolLaneLayout = new go.GridLayout({
             isOngoing: false,
@@ -2792,24 +2813,12 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             // Stack lanes using visible lane body bounds (not full group/link bounds),
             // so spacing matches what users actually see.
             boundsComputation: function (part: go.Part, _layout: go.Layout, rect: go.Rect) {
-                if (part instanceof go.Group) {
-                    // Keep pool stacking aligned with the same full-lane object used for selection/resize.
-                    const laneMain = part.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
-                    if (laneMain) {
-                        rect.set(laneMain.getDocumentBounds());
-                        return rect;
-                    }
-                    if (part.resizeObject) {
-                        rect.set(part.resizeObject.getDocumentBounds());
-                        return rect;
-                    }
-                }
-                part.getDocumentBounds(rect);
+                rect.set(laneStructureBounds(part));
                 return rect;
             },
             comparer: function (a: go.Part, b: go.Part) {
-                const ay = a.actualBounds.y;
-                const by = b.actualBounds.y;
+                const ay = laneStructureY(a);
+                const by = laneStructureY(b);
                 if (!isNaN(ay) && !isNaN(by) && ay !== by) return ay - by;
                 const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
                 const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
@@ -2834,8 +2843,8 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             if (isLanePart) lanes.push(part);
         });
         lanes.sort((a, b) => {
-            const ay = a.actualBounds.y;
-            const by = b.actualBounds.y;
+            const ay = laneStructureY(a);
+            const by = laneStructureY(b);
             if (!isNaN(ay) && !isNaN(by) && ay !== by) return ay - by;
             const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
             const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
@@ -2857,7 +2866,7 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             const y0 = snapCoord(y0Raw);
             let maxLaneTotalWidth = 0;
             lanes.forEach((lane) => {
-                const w = lane.actualBounds.width;
+                const w = laneStructureBounds(lane).width;
                 if (!isNaN(w)) maxLaneTotalWidth = Math.max(maxLaneTotalWidth, w);
             });
             const poolShapeForWidth = groupNode.findObject("POOL_SHAPE") as any;
@@ -2920,12 +2929,12 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                 if (lane.data && lane.data.laneIndex !== idx) {
                     myDiagram.model.setDataProperty(lane.data, "laneIndex", idx);
                 }
-                const laneHeight = lane.actualBounds.height;
+                const laneHeight = laneStructureBounds(lane).height;
                 const laneWidth = laneTotalWidth;
                 if (!isNaN(laneWidth)) maxLaneWidth = Math.max(maxLaneWidth, laneWidth);
                 stackHeight += laneHeight;
                 if (idx < lanes.length - 1) stackHeight += POOL_LANE_GAP;
-                y += lane.actualBounds.height + POOL_LANE_GAP;
+                y += laneHeight + POOL_LANE_GAP;
             });
 
             const poolShape = groupNode.findObject("POOL_SHAPE");
@@ -2945,7 +2954,9 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                     poolStroke
                 );
                 const nextPoolWidth = preserveWidth ? snapSizeEven(currentPoolSize.width) : computedPoolWidth;
-                const nextPoolHeight = snapSizeEven(Math.max(
+                // With `locationSpot: TopLeft` for pools, forcing even sizes can create a 1px slack area
+                // at the bottom when the computed height is odd. Use a simple ceil instead.
+                const nextPoolHeight = snapSize(Math.max(
                     80,
                     (2 * POOL_TEMPLATE_MARGIN) +
                     anchorPad.top + anchorPad.bottom +
@@ -3076,20 +3087,25 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         ? groupNode.actualBounds.top + LANE_LAYOUT_TOP_INSET
         : groupBounds.top + padding;
     
-    // Calculate the bounds of all member nodes
-    let memberBounds = new go.Rect();
-    let firstMember = true;
-    groupNode.memberParts.each((part: go.Part) => {
-        if (part instanceof go.Node) {
-            const node = part as go.Node;
-            if (firstMember) {
-                memberBounds = node.actualBounds.copy();
-                firstMember = false;
-            } else {
-                memberBounds.unionRect(node.actualBounds);
-            }
-        }
-    });
+	    // Calculate the bounds of all member nodes
+	    // Avoid Rect.unionRect on potentially frozen/shared Rects; compute bounds manually.
+	    let memberBounds: go.Rect | null = null;
+	    groupNode.memberParts.each((part: go.Part) => {
+	        if (part instanceof go.Node) {
+	            const node = part as go.Node;
+	            const b = node.actualBounds;
+	            if (!memberBounds) {
+	                memberBounds = new go.Rect(b.x, b.y, b.width, b.height);
+	            } else {
+	                const x1 = Math.min(memberBounds.x, b.x);
+	                const y1 = Math.min(memberBounds.y, b.y);
+	                const x2 = Math.max(memberBounds.right, b.right);
+	                const y2 = Math.max(memberBounds.bottom, b.bottom);
+	                memberBounds = new go.Rect(x1, y1, x2 - x1, y2 - y1);
+	            }
+	        }
+	    });
+	    if (!memberBounds) memberBounds = new go.Rect();
     
     // Calculate adjustments needed to fit within group
     let adjustX = 0;

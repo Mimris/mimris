@@ -5,6 +5,7 @@ import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
+import * as constants from './constants';
 import context from '../pages/context';
 import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
 
@@ -851,6 +852,13 @@ const LANE_HEADER_STRIP_WIDTH = 36;
 // Dark enough to be clearly visible even when the diagram background is white.
 const SWIM_BORDER_FALLBACK = "#000000";
 const SWIM_LANE_EDGE_WIDTH = 2;
+// Visual debugging aid: tint swimlane/pool panels so it is obvious which bounds are structural vs content.
+// Keep this off in normal use; it intentionally overrides data-driven fills.
+const DEBUG_SWIMLANE_BG = true;
+
+function dbgFill(normal: string, debugFill: string): string {
+    return DEBUG_SWIMLANE_BG ? debugFill : normal;
+}
 
 function parseRgbLike(s: string): { r: number; g: number; b: number } | null {
     // Supports #rgb, #rrggbb, rgb(...), rgba(...).
@@ -912,6 +920,8 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
         $(go.Shape, "Rectangle",
             {
                 name: "LANE_MAIN_SHAPE",
+                // Keep structural bounds transparent; body/header debug tints are sufficient and avoid a
+                // confusing "second region" appearing during drag.
                 fill: "transparent",
                 strokeWidth: SWIM_LANE_EDGE_WIDTH,
                 strokeCap: "square",
@@ -929,18 +939,20 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 margin: new go.Margin(0),
             },
             $(go.RowColumnDefinition, { column: 0, width: LANE_HEADER_STRIP_WIDTH, sizing: go.RowColumnDefinition.None }),
-            $(go.Panel, "Spot",
+            $(go.Panel, "Spot", // Header strip is a Spot so we can draw a stable border overlay that matches selection/handles.
                 {
                     name: "LANE_HEADER_STRIP",
                     row: 0,
                     column: 0,
                     width: LANE_HEADER_STRIP_WIDTH,
-                    stretch: go.GraphObject.Vertical,
+                    stretch: go.GraphObject.Fill,
+                    alignment: go.Spot.TopLeft,
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
                 $(go.Shape, "Rectangle", {
-                    fill: "#f3f3f3",
+                    isPanelMain: true,
+                    fill: dbgFill("#f3f3f3", "rgba(0, 120, 255, 0.10)"),
                     stroke: "transparent",
                     stretch: go.GraphObject.Fill,
                 }),
@@ -977,27 +989,39 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 ),
                 makeNotation(notation),
             ),
-            // Body is a Spot so we can draw a stable border overlay that matches selection/handles.
-            $(go.Panel, "Spot",
+            // Body panel must not grow/shrink based on member bounds; the lane BODY size is controlled by
+            // `LANE_BODY_SHAPE` (bound to `data.size`) and members are clipped to it.
+            $(go.Panel, "Auto",
                 {
                     name: "BODY",
                     row: 0,
                     column: 1,
-                    stretch: go.GraphObject.Fill,
+                    // Do not vertically stretch lane body to the pool height. The lane BODY height must be
+                    // driven by `LANE_BODY_SHAPE.desiredSize.height` (data.size) so lanes don't overlap.
+                    stretch: go.GraphObject.Horizontal,
+                    isClipping: true,
                 },
                 $(go.Shape, "Rectangle",
                     {
                         name: "LANE_BODY_SHAPE",
+                        isPanelMain: true,
                         cursor: "move",
                         fill: "white",
-                        stroke: "transparent",
+                        // Visible stroke while debugging so we can see the true lane body bounds.
+                        stroke: DEBUG_SWIMLANE_BG ? "rgba(0,0,0,0.35)" : "transparent",
+                        strokeWidth: DEBUG_SWIMLANE_BG ? 1 : 0,
                         minSize: new go.Size(160, 65),
-                        stretch: go.GraphObject.Fill,
+                        // Horizontal stretch only; height comes from desiredSize binding.
+                        stretch: go.GraphObject.Horizontal,
                     },
-                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("fill", "fillcolor", (c: any) => {
+                        if (DEBUG_SWIMLANE_BG) return "rgba(0, 200, 60, 0.18)";
+                        const s = (c == null) ? "" : String(c).trim();
+                        return s === "" ? "white" : s;
+                    }),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
                 ),
-                $(go.Placeholder, { padding: new go.Margin(12, 12, 12, 12), alignment: go.Spot.TopLeft }),
+                $(go.Placeholder, { padding: new go.Margin(0, 0, 0, 0), alignment: go.Spot.TopLeft }),
             ),
         ),
     );
@@ -1008,6 +1032,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
         $(go.Shape, "Rectangle",
             {
                 name: "POOL_SHAPE",
+                isPanelMain: true,
                 cursor: "alias",
                 fill: "white",
                 strokeWidth: 2,
@@ -1015,7 +1040,11 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 strokeJoin: "miter",
                 minSize: new go.Size(200, 100),
             },
-            new go.Binding("fill", "fillcolor"),
+            new go.Binding("fill", "fillcolor", (c: any) => {
+                if (DEBUG_SWIMLANE_BG) return "rgba(255, 180, 0, 0.06)";
+                const s = (c == null) ? "" : String(c).trim();
+                return s === "" ? "white" : s;
+            }),
             // Ensure pool borders are always visible even when `strokecolor` is unset/empty.
             new go.Binding("stroke", "strokecolor", swimStroke),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
@@ -1023,24 +1052,30 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
         $(go.Panel, "Table",
             {
                 stretch: go.GraphObject.Fill,
+                // Ensure the whole table is anchored to the pool shape, not centered within it.
+                alignment: go.Spot.TopLeft,
+                defaultAlignment: go.Spot.TopLeft,
                 // Keep pool header + lanes flush to the pool border (no gap).
                 margin: new go.Margin(0),
                 // Draw our own separator line so it doesn't affect column sizing/bounds (removes visible gap).
                 defaultColumnSeparatorStroke: "transparent",
             },
             $(go.RowColumnDefinition, { column: 0, width: SWIM_HEADER_WIDTH, sizing: go.RowColumnDefinition.None }),
+            // Make row 0 fill the pool height so the header strip spans the full pool vertically.
+            // GoJS uses RowColumnDefinition.stretch (go.Stretch), not a "Stretch" sizing enum.
+            $(go.RowColumnDefinition, { row: 0, stretch: go.Stretch.Fill }),
             $(go.Panel, "Spot",
                 {
                     name: "POOL_HEADER_STRIP",
                     row: 0,
                     column: 0,
                     width: SWIM_HEADER_WIDTH,
-                    stretch: go.GraphObject.Vertical,
+                    stretch: go.GraphObject.Fill,
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
                 $(go.Shape, "Rectangle", {
-                    fill: "#f3f3f3",
+                    fill: dbgFill("#f3f3f3", "rgba(160, 90, 255, 0.10)"),
                     strokeWidth: 2,
                     stretch: go.GraphObject.Fill,
                 },
@@ -1093,14 +1128,33 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     column: 1,
                     stretch: go.GraphObject.Fill,
                 },
-                $(go.Placeholder,
+                // NOTE: this panel must not size itself based on lane member bounds; otherwise the pool border
+                // will "jump" as lane contents are dragged/dropped. The main shape determines content size and
+                // the Placeholder is clipped to it.
+                $(go.Panel, "Auto",
                     {
-                        name: "POOL_CONTENT_ANCHOR",
                         stretch: go.GraphObject.Fill,
-                        // No extra inset; lane headers should align directly with the pool header separator.
-                        padding: new go.Margin(0, 0, 0, 0),
-                        alignment: go.Spot.TopLeft,
+                        isClipping: true,
                     },
+                    $(go.Shape, "Rectangle",
+                        {
+                            name: "POOL_CONTENT_SHAPE",
+                            isPanelMain: true,
+                            fill: dbgFill("transparent", "rgba(0, 0, 0, 0.03)"),
+                            stroke: "transparent",
+                            stretch: go.GraphObject.Fill,
+                            pickable: false,
+                        },
+                    ),
+                    $(go.Placeholder,
+                        {
+                            name: "POOL_CONTENT_ANCHOR",
+                            stretch: go.GraphObject.Fill,
+                            // No extra inset; lane headers should align directly with the pool header separator.
+                            padding: new go.Margin(0, 0, 0, 0),
+                            alignment: go.Spot.TopLeft,
+                        },
+                    ),
                 ),
             ),
         ),
@@ -1687,6 +1741,18 @@ function addLinkTemplateName(name: string) {
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
         group.findExternalLinksConnected().each((ll) => {
+            const d: any = (ll as any).data;
+            const typeName =
+              d?.typename ||
+              d?.name ||
+              d?.relship?.type?.name ||
+              d?.relshipview?.relship?.type?.name ||
+              "";
+            // Never force-visibility for lane membership links; those are handled by bindings.
+            if (typeName === constants.types.AKM_CONTAINS) {
+              ll.updateTargetBindings();
+              return;
+            }
             ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
         });
     }
@@ -3380,11 +3446,57 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
+    // Swimlane rule: "contains" (membership) relationships should not be drawn when the child is
+    // actually contained in (grouped to) its Lane. Otherwise these structural links pop in when
+    // moving nodes, which is visually confusing.
+    const linkShouldBeVisible = (d: any, linkObj: go.GraphObject): boolean => {
+        // Respect explicit hide flag from persisted relationship views.
+        if (d?.visible === false) return false;
+
+        const link = linkObj as any as go.Link;
+        const typeName =
+            d?.typename ||
+            d?.name || // relship name is often set to "contains"
+            d?.relship?.type?.name ||
+            d?.relshipview?.relship?.type?.name ||
+            d?.relshipkind ||
+            "";
+
+        const from = link?.fromNode as any;
+        const to = link?.toNode as any;
+        const fromCat = String(from?.data?.category || from?.data?.template || from?.category || "");
+        const toCat = String(to?.data?.category || to?.data?.template || to?.category || "");
+        const fromIsLane = fromCat.startsWith("Lane");
+        const toIsLane = toCat.startsWith("Lane");
+        const fromIsPool = fromCat === "Pool";
+        const toIsPool = toCat === "Pool";
+        const fromKey = String(from?.data?.key ?? d?.from ?? "");
+        const toKey = String(to?.data?.key ?? d?.to ?? "");
+        const fromGroup = String(from?.data?.group ?? "");
+        const toGroup = String(to?.data?.group ?? "");
+
+        // Swimlane invariant: membership ("contains") relationships should never be rendered for Pools/Lanes.
+        // We hide them unconditionally when either endpoint is a Pool or Lane group. This is robust even
+        // when membership data is briefly inconsistent during drag/layout.
+        if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
+            return false;
+        }
+
+        // Also hide membership links when the member is grouped to the parent (for non-swimlane containers),
+        // using stable model membership (data.group) rather than transient `containingGroup`.
+        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
+            if (fromIsLane && to && toGroup === fromKey) return false;
+            if (toIsLane && from && fromGroup === toKey) return false;
+        }
+        return true;
+    };
     const linkTemplate =
         $(go.Link,
             new go.Binding("deletable"),
             // new go.Binding("isLayoutPositioned", "isLayoutPositioned").makeTwoWay(), 
             { selectable: true },
+            // Hide structural "contains" links inside lanes.
+            new go.Binding("visible", "", linkShouldBeVisible),
             { 
                 toShortLength: 3, 
                 relinkableFrom: true, 
@@ -3485,12 +3597,51 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     const linkTemplate1 = getLinkTemplate("", contextMenu, myMetis);  
     linkTemplateMap.add("linkTemplate1", linkTemplate1);
     addLinkTemplateName('linkTemplate1');
+    // Most relationship links in this app use `data.category === "Relationship"`.
+    // Provide a template for that category so visibility rules (e.g. hide lane-membership "contains") apply.
+    linkTemplateMap.add(constants.gojs.C_RELATIONSHIP, linkTemplate1);
+    // Fallback for any links without a category set.
+    if (!linkTemplateMap.has("")) linkTemplateMap.add("", linkTemplate1);
+
+    // Keep consistent with `getLinkTemplate`'s contains-visibility rule.
+    const linkShouldBeVisible = (d: any, linkObj: go.GraphObject): boolean => {
+        if (d?.visible === false) return false;
+        const link = linkObj as any as go.Link;
+        const typeName =
+            d?.typename ||
+            d?.name ||
+            d?.relship?.type?.name ||
+            d?.relshipview?.relship?.type?.name ||
+            d?.relshipkind ||
+            "";
+        const from = link?.fromNode as any;
+        const to = link?.toNode as any;
+        const fromCat = String(from?.data?.category || from?.data?.template || from?.category || "");
+        const toCat = String(to?.data?.category || to?.data?.template || to?.category || "");
+        const fromIsLane = fromCat.startsWith("Lane");
+        const toIsLane = toCat.startsWith("Lane");
+        const fromIsPool = fromCat === "Pool";
+        const toIsPool = toCat === "Pool";
+        const fromKey = String(from?.data?.key ?? d?.from ?? "");
+        const toKey = String(to?.data?.key ?? d?.to ?? "");
+        const fromGroup = String(from?.data?.group ?? "");
+        const toGroup = String(to?.data?.group ?? "");
+        if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
+            return false;
+        }
+        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
+            if (fromIsLane && to && toGroup === fromKey) return false;
+            if (toIsLane && from && fromGroup === toKey) return false;
+        }
+        return true;
+    };
 
     const linkTemplate2 =      
         $(go.Link,
             new go.Binding("deletable"),
             { contextMenu: contextMenu },
             { selectable: true },
+            new go.Binding("visible", "", linkShouldBeVisible),
             { 
                 toShortLength: 3, 
                 relinkableFrom: true, 
@@ -3593,6 +3744,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             toSpot: go.Spot.BottomSide,
             toEndSegmentLength: 20, // fromEndSegmentLength: 40
         },
+        new go.Binding("visible", "", linkShouldBeVisible),
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
@@ -3606,23 +3758,24 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
 
-    const sequenceLinkTemplate = 
-        $(go.Link,
-        {
-          contextMenu: contextMenu,
-          routing: go.Link.AvoidsNodes,
-          corner: 10,
+	    const sequenceLinkTemplate = 
+	        $(go.Link,
+	        {
+	          contextMenu: contextMenu,
+	          routing: go.Link.AvoidsNodes,
+	          corner: 10,
           // fromSpot: go.Spot.RightSide, 
           // toSpot: go.Spot.LeftSide,
           // toSpot: go.Spot.BottomSide,
           reshapable: true,
           relinkableFrom: true,
-          relinkableTo: true,
-          toEndSegmentLength: 0,
-        },
-        new go.Binding('points').makeTwoWay(),
-        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
-        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
+	          relinkableTo: true,
+	          toEndSegmentLength: 0,
+	        },
+	        new go.Binding("visible", "", linkShouldBeVisible),
+	        new go.Binding('points').makeTwoWay(),
+	        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
+	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
         $(go.Shape,
           { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },
           new go.Binding('fromArrow', 'isDefault', function (s) {
@@ -3965,7 +4118,274 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         ];
     }
 
-    if (true) { // laneTemplate
+    // Shared helpers for Pool/Lane drag-drop behavior.
+    // These must live in the addGroupTemplates scope so both templates can call them.
+    const isLaneGroupPart = (part: go.Part): part is go.Group => {
+        if (!(part instanceof go.Group)) return false;
+        const t = part.data?.template;
+        const c = part.data?.category;
+        return c === "Lane" || c === "Lane_w_handles" || t === "Lane" || t === "Lane_w_handles";
+    };
+
+    const laneStructureBounds = (lane: go.Group): go.Rect => {
+        const main = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+        if (main) return main.getDocumentBounds();
+        return lane.actualBounds;
+    };
+
+    const handlePoolLaneDrop = (
+        e: go.InputEvent,
+        pool: go.Group,
+        opts?: { relativeToLane?: go.Group; dropY?: number }
+    ) => {
+        const diagram = e.diagram;
+        const dragged = diagram.selection;
+        let hasLane = false;
+        let valid = true;
+        dragged.each((part: go.Part) => {
+            if (part === pool) return;
+            if (!isLaneGroupPart(part)) {
+                valid = false;
+                return;
+            }
+            hasLane = true;
+        });
+        if (!valid || !hasLane) {
+            diagram.currentTool.doCancel();
+            return;
+        }
+
+        const ok = pool.addMembers(dragged, true);
+        if (!ok) {
+            diagram.currentTool.doCancel();
+            return;
+        }
+
+        // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
+        // target lane based on the drop Y coordinate. We do this by nudging the dropped lanes' Y
+        // locations just above/below the target lane before triggering PoolLayout.
+        if (opts?.relativeToLane && typeof opts.dropY === "number" && !Number.isNaN(opts.dropY)) {
+            const targetBounds = laneStructureBounds(opts.relativeToLane);
+            const midY = targetBounds.y + (targetBounds.height / 2);
+            const insertBefore = opts.dropY < midY;
+
+            const droppedLanes: go.Group[] = [];
+            dragged.each((part: go.Part) => {
+                if (!isLaneGroupPart(part)) return;
+                droppedLanes.push(part);
+            });
+            droppedLanes.sort((a, b) => laneStructureBounds(a).y - laneStructureBounds(b).y);
+
+            const targetY = targetBounds.y;
+            const n = droppedLanes.length;
+            droppedLanes.forEach((lane, idx) => {
+                const x = lane.location.x;
+                const yOffset = insertBefore
+                    ? (-1 - (n - 1 - idx) * 0.1)
+                    : (1 + idx * 0.1);
+                const y = targetY + yOffset;
+                lane.moveTo(x, y);
+                if (lane.data) {
+                    diagram.model.setDataProperty(lane.data, "loc", `${lane.location.x} ${lane.location.y}`);
+                }
+            });
+        }
+
+        const modelview = myMetis.currentModelview;
+        dragged.each((part: go.Part) => {
+            if (!isLaneGroupPart(part)) return;
+            const laneOv = modelview?.findObjectView(part.data?.key);
+            if (!laneOv) return;
+            laneOv.group = pool.data?.key;
+            laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
+            if (part.data?.size) laneOv.size = part.data.size;
+            const jsnLaneOv = new jsn.jsnObjectView(laneOv);
+            const data = JSON.parse(JSON.stringify(jsnLaneOv));
+            diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+        });
+
+        const poolOv = modelview?.findObjectView(pool.data?.key);
+        if (poolOv?.isGroup) {
+            uid.doGroupLayout(poolOv, diagram, myMetis);
+        }
+    };
+
+	    if (true) { // laneTemplate
+	        const handleLaneDrop = (e: go.InputEvent, grp: go.Group) => {
+	            const diagram = e.diagram;
+	            const dragged = diagram.selection;
+	            const dragAllowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
+	            const dragAllowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
+	            const allowReparentDrop =
+	                !!e.shift ||
+	                dragAllowGlobal ||
+	                (dragAllowKeys
+	                    ? dragged.any((p: go.Part) => p instanceof go.Node && !(p instanceof go.Group) && p.data?.key != null && dragAllowKeys.has(String(p.data.key)))
+	                    : false);
+	            const targetLaneKey = String(grp?.data?.key || grp.key || "");
+	            // If the user drops Lane groups onto a Lane, treat it as dropping lanes into the parent Pool.
+	            // This makes lane management feel natural (drop "on a lane" to insert into that pool).
+	            let hasLaneGroup = false;
+	            let onlyLaneGroups = true;
+            dragged.each((part: go.Part) => {
+                if (part === grp) return;
+                if (isLaneGroupPart(part)) {
+                    hasLaneGroup = true;
+                    return;
+                }
+                if (part instanceof go.Group) {
+                    onlyLaneGroups = false;
+                    return;
+                }
+                // selection contains non-groups
+                onlyLaneGroups = false;
+            });
+	            if (hasLaneGroup && onlyLaneGroups) {
+	                const parentPool = grp.containingGroup;
+	                if (parentPool && (parentPool.data?.template === "Pool" || parentPool.data?.category === "Pool")) {
+	                    handlePoolLaneDrop(e, parentPool, { relativeToLane: grp, dropY: e.documentPoint?.y });
+	                    return;
+	                }
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
+
+	            // Prevent "jump on mouse-up":
+	            // When dragging a node across a lane border without Shift, dragComputation clamps the node,
+	            // but the mouse-up can occur over a neighboring lane and trigger this mouseDrop.
+	            // Do not regroup or reposition nodes into a different lane unless Shift is held,
+	            // except for ungrouped nodes (allow initial assignment to a lane).
+	            if (!allowReparentDrop) {
+	                let hasConflictingGroupedNode = false;
+	                dragged.each((part: go.Part) => {
+	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	                    const g = (part.data && typeof (part.data as any).group === "string") ? String((part.data as any).group) : "";
+	                    if (g && targetLaneKey && g !== targetLaneKey) hasConflictingGroupedNode = true;
+	                });
+	                if (hasConflictingGroupedNode) {
+	                    // Leave the drag result as-is (clamped by dragComputation); don't move/reparent.
+	                    return;
+	                }
+	            }
+
+	            const previousLaneSize = grp.data?.size ? go.Size.parse(String(grp.data.size)) : null;
+	            let hasNode = false;
+	            let valid = true;
+	            dragged.each((part: go.Part) => {
+                if (part === grp) return;
+                if (part instanceof go.Group) {
+                    valid = false;
+                    return;
+                }
+                if (part instanceof go.Node) hasNode = true;
+                // Non-node/link parts are not valid lane content.
+                if (!(part instanceof go.Node) && !(part instanceof go.Link)) valid = false;
+            });
+	            if (!valid || !hasNode) {
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
+
+	            // Cross-lane regrouping requires Shift. Without Shift, only allow adding nodes that are
+	            // currently ungrouped (e.g., dropped from palette) or already in this lane.
+	            if (!allowReparentDrop) {
+	                let anyCrossLane = false;
+	                dragged.each((part: go.Part) => {
+	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	                    const g = (part.data && typeof (part.data as any).group === "string") ? String((part.data as any).group) : "";
+	                    if (g && targetLaneKey && g !== targetLaneKey) anyCrossLane = true;
+	                });
+	                if (anyCrossLane) return;
+	            }
+
+	            const ok = grp.addMembers(dragged, true);
+	            if (!ok) {
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
+
+		            // Ensure model membership is explicit when regrouping is allowed.
+		            if (allowReparentDrop && targetLaneKey) {
+		                // Force a real reparent: if the node still belongs to another lane, remove it there first,
+		                // then set the model group key, and finally ensure the Part is a member of this lane.
+		                // This prevents the "looks in new lane, but jumps back to old lane when moved" behavior.
+		                diagram.commit((d: go.Diagram) => {
+		                    dragged.each((part: go.Part) => {
+		                        if (!(part instanceof go.Node) || part instanceof go.Group) return;
+		                        if (!part.data) return;
+		                        const oldGrp = part.containingGroup;
+		                        if (oldGrp && oldGrp !== grp) {
+		                            const s = new go.Set<go.Part>();
+		                            s.add(part);
+		                            oldGrp.removeMembers(s, true);
+		                        }
+		                        if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+		                            (d.model as any).setGroupKeyForNodeData(part.data, targetLaneKey);
+		                        } else {
+		                            d.model.setDataProperty(part.data, "group", targetLaneKey);
+		                        }
+		                        grp.addMembers(new go.Set<go.Part>().add(part), true);
+		                    });
+		                }, "ReparentToLane");
+		            }
+
+	            // Keep lane body geometry stable when members are dropped.
+	            if (previousLaneSize && !isNaN(previousLaneSize.width) && !isNaN(previousLaneSize.height)) {
+	                const laneBody = grp.findObject("LANE_BODY_SHAPE") as any;
+                if (laneBody) {
+                    laneBody.desiredSize = previousLaneSize.copy();
+                    laneBody.width = previousLaneSize.width;
+                    laneBody.height = previousLaneSize.height;
+                }
+                if (grp.data) {
+                    diagram.model.setDataProperty(grp.data, "size", go.Size.stringify(previousLaneSize));
+                }
+            }
+
+            const laneBodyBounds = (grp.findObject("LANE_BODY_SHAPE") as go.GraphObject | null)?.getDocumentBounds();
+            if (laneBodyBounds) {
+                dragged.each((part: go.Part) => {
+                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+                    const b = part.actualBounds;
+                    const x = Math.max(laneBodyBounds.x, Math.min(b.x, laneBodyBounds.right - b.width - 1));
+                    const y = Math.max(laneBodyBounds.y, Math.min(b.y, laneBodyBounds.bottom - b.height - 1));
+                    part.moveTo(x, y);
+                    if (part.data) {
+                        diagram.model.setDataProperty(part.data, "loc", `${part.location.x} ${part.location.y}`);
+                    }
+                });
+            }
+
+            const modelview = myMetis.currentModelview;
+            dragged.each((part: go.Part) => {
+                if (!(part instanceof go.Node) || part instanceof go.Group) return;
+                const ov = modelview?.findObjectView(part.data?.key);
+                if (!ov) return;
+                ov.group = grp.data?.key;
+                ov.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
+                const jsnOv = new jsn.jsnObjectView(ov);
+                const data = JSON.parse(JSON.stringify(jsnOv));
+                diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+            });
+
+            const laneOv = modelview?.findObjectView(grp.data?.key);
+            if (laneOv) {
+                laneOv.loc = grp.data?.loc ? String(grp.data.loc) : `${grp.location.x} ${grp.location.y}`;
+                if (grp.data?.size) laneOv.size = grp.data.size;
+                const jsnLaneOv = new jsn.jsnObjectView(laneOv);
+                const laneData = JSON.parse(JSON.stringify(jsnLaneOv));
+                diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data: laneData });
+            }
+
+            const parentPool = grp.containingGroup;
+            if (parentPool?.data?.key) {
+                const poolOv = modelview?.findObjectView(parentPool.data.key);
+                if (poolOv?.isGroup) {
+                    uid.doGroupLayout(poolOv, diagram, myMetis);
+                }
+            }
+        };
+
         // each Group is a "swimlane" with a header on the left and a resizable lane on the right
         const laneTemplate = 
         $(go.Group, "Horizontal", groupStyle(),
@@ -3973,7 +4393,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             name: "GROUP",
             // Keep selection outline + resize handles aligned with the full lane (header + body).
             selectionObjectName: "LANE_MAIN_SHAPE",
-            resizeObjectName: "LANE_MAIN_SHAPE",
+            resizeObjectName: "LANE_BODY_SHAPE",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
@@ -3985,6 +4405,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             computesBoundsIncludingLinks: false,
             computesBoundsIncludingLocation: true,
             handlesDragDropForMembers: true,
+            mouseDrop: handleLaneDrop,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
@@ -4008,8 +4429,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         },
         laneTop(contextMenu, 'Icon', 1),
         );   
+        // Primary swimlane template key used by the model is "Lane" (nodeCategoryProperty: "template").
+        // Keep "Lane9" as a backward-compatible alias for older data.
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
+        groupTemplateMap.add("Lane9", laneTemplate);
+        addGroupTemplateName('Lane9');
+        // Some older models may still reference "Lane9_legacy" as the template key.
+        // Alias it to the modern swimlane template so selection/resize bounds are consistent.
+        groupTemplateMap.add("Lane9_legacy", laneTemplate);
+        addGroupTemplateName('Lane9_legacy');
         // define a custom resize adornment that has two resize handles if the group is expanded
   
         const laneTemplate2 = 
@@ -4018,7 +4447,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             name: "GROUP",
             // Keep selection outline + resize handles aligned with the full lane (header + body).
             selectionObjectName: "LANE_MAIN_SHAPE",
-            resizeObjectName: "LANE_MAIN_SHAPE",
+            resizeObjectName: "LANE_BODY_SHAPE",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
@@ -4029,6 +4458,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             computesBoundsIncludingLinks: false,
             computesBoundsIncludingLocation: true,
             handlesDragDropForMembers: true,
+            mouseDrop: handleLaneDrop,
             contextMenu: contextMenu,
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
@@ -4066,58 +4496,21 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 minSize: getMinSize(),
                 contextMenu: contextMenu,
                 selectionAdorned: true,
+                // Keep selection/resize aligned with the pool border shape, not with placeholder/member bounds.
+                selectionObjectName: "POOL_SHAPE",
+                resizeObjectName: "POOL_SHAPE",
                 locationSpot: go.Spot.TopLeft,
+                computesBoundsAfterDrag: true,
+                computesBoundsIncludingLinks: false,
+                computesBoundsIncludingLocation: true,
                 mouseDrop: function (e: go.InputEvent, grp: go.Group) {
-                    const diagram = e.diagram;
-                    const dragged = diagram.selection;
-                    let hasLane = false;
-                    let valid = true;
-                    dragged.each((part: go.Part) => {
-                        if (!(part instanceof go.Group)) {
-                            valid = false;
-                            return;
-                        }
-                        const isLane =
-                            part.data?.category === "Lane" ||
-                            part.data?.category === "Lane_w_handles" ||
-                            part.data?.template === "Lane" ||
-                            part.data?.template === "Lane_w_handles";
-                        if (!isLane) {
-                            valid = false;
-                            return;
-                        }
-                        hasLane = true;
-                    });
-                    if (!valid || !hasLane) {
-                        diagram.currentTool.doCancel();
-                        return;
-                    }
-                    const ok = grp.addMembers(dragged, true);
-                    if (!ok) {
-                        diagram.currentTool.doCancel();
-                        return;
-                    }
-                    const modelview = myMetis.currentModelview;
-                    dragged.each((part: go.Part) => {
-                        if (!(part instanceof go.Group)) return;
-                        const laneOv = modelview?.findObjectView(part.data?.key);
-                        if (!laneOv) return;
-                        laneOv.group = grp.data?.key;
-                        laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
-                        if (part.data?.size) laneOv.size = part.data.size;
-                        const jsnLaneOv = new jsn.jsnObjectView(laneOv);
-                        const data = JSON.parse(JSON.stringify(jsnLaneOv));
-                        diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
-                    });
-                    const poolOv = modelview?.findObjectView(grp.data?.key);
-                    if (poolOv?.isGroup) {
-                        uid.doGroupLayout(poolOv, diagram, myMetis);
-                    }
+                    handlePoolLaneDrop(e, grp);
                 },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            // NOTE: pool size is bound on POOL_SHAPE (in poolTop). Binding size on the Group itself causes
+            // resize/selection bounds to include transient member-bounds during drag/drop.
             new go.Binding("layout", "groupLayout").makeTwoWay(),
             
             { // Tooltip
@@ -4141,6 +4534,105 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         // define a custom resize adornment that has two resize handles if the group is expanded
         groupTemplateMap.get("Pool").resizeAdornmentTemplate = addResizeAdornment("Lane");
     } 
+
+    if (true) {
+    // each Group is a "swimlane" with a header on the left and a resizable lane on the right
+    // Legacy lane template: keep it available for reference under a non-conflicting key.
+    groupTemplateMap.add('Lane9_reference',
+      new go.Group('Horizontal')
+        .apply(groupStyle)
+        .set({
+          selectionObjectName: 'SHAPE', // selecting a lane causes the body of the lane to be highlit, not the label
+          resizable: true,
+          resizeObjectName: 'SHAPE', // the custom resizeAdornmentTemplate only permits two kinds of resizing
+          layout: new go.LayeredDigraphLayout({
+            // automatically lay out the lane's subgraph
+            isInitial: false, // don't even do initial layout
+            isOngoing: false, // don't invalidate layout when nodes or links are added or removed
+            direction: 0,
+            columnSpacing: 10,
+            layeringOption: go.LayeredDigraphLayering.LongestPathSource
+          }),
+          computesBoundsAfterDrag: true, // needed to prevent recomputing Group.placeholder bounds too soon
+          computesBoundsIncludingLinks: false, // to reduce occurrences of links going briefly outside the lane
+          computesBoundsIncludingLocation: true, // to support empty space at top-left corner of lane
+          handlesDragDropForMembers: true, // don't need to define handlers on member Nodes and Links
+          mouseDrop: (e, grp) => {
+            // dropping a copy of some Nodes and Links onto this Group adds them to this Group
+            if (!e.shift) return; // cannot change groups with an unmodified drag-and-drop
+            // don't allow drag-and-dropping a mix of regular Nodes and Groups
+            if (!e.diagram.selection.any(n => n instanceof go.Group)) {
+              const ok = grp.addMembers(grp.diagram.selection, true);
+              if (ok) {
+                updateCrossLaneLinks(grp);
+              } else {
+                grp.diagram.currentTool.doCancel();
+              }
+            } else {
+              e.diagram.currentTool.doCancel();
+            }
+          },
+          subGraphExpandedChanged: grp => {
+            const shp = grp.resizeObject;
+            if (grp.diagram.undoManager.isUndoingRedoing) return;
+            if (grp.isSubGraphExpanded) {
+              shp.height = grp.data.savedBreadth;
+            } else {
+              if (!isNaN(shp.height)) grp.diagram.model.set(grp.data, 'savedBreadth', shp.height);
+              shp.height = NaN;
+            }
+            updateCrossLaneLinks(grp);
+          }
+        })
+        .bindTwoWay('location', 'loc', go.Point.parse, go.Point.stringify)
+        .bindTwoWay('isSubGraphExpanded', 'expanded')
+        .add(
+          // the lane header consisting of a Shape and a TextBlock
+          new go.Panel('Horizontal', {
+              name: 'HEADER',
+              angle: 270, // maybe rotate the header to read sideways going up
+              alignment: go.Spot.Center
+            })
+            .add(
+              new go.Panel('Horizontal') // this is hidden when the swimlane is collapsed
+                .bindObject('visible', 'isSubGraphExpanded')
+                .add(
+                  new go.Shape('Diamond', { width: 8, height: 8, fill: 'white' })
+                    .bind('fill', 'color'),
+                  new go.TextBlock({
+                      font: 'bold 13pt sans-serif',
+                      editable: true,
+                      margin: new go.Margin(2, 0, 0, 0)
+                    })
+                    .bindTwoWay('text')
+                ),
+              go.GraphObject.build('SubGraphExpanderButton', { margin: 5 }) // but this remains always visible!
+            ), // end Horizontal Panel
+          new go.Panel('Auto') // the lane consisting of a background Shape and a Placeholder representing the subgraph
+            .add(
+              new go.Shape('Rectangle', { // this is the resized object
+                  name: 'SHAPE',
+                  fill: 'white'
+                })
+                .bind('fill', 'color')
+                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify),
+              new go.Placeholder({ padding: 12, alignment: go.Spot.TopLeft }),
+              new go.TextBlock({
+                  // this TextBlock is only seen when the swimlane is collapsed
+                  name: 'LABEL',
+                  font: 'bold 13pt sans-serif',
+                  editable: true,
+                  angle: 0,
+                  alignment: go.Spot.TopLeft,
+                  margin: new go.Margin(2, 0, 0, 4)
+                })
+                .bindObject('visible', 'isSubGraphExpanded', e => !e)
+                .bindTwoWay('text')
+            ) // end Auto Panel
+        )
+    ); // end Group
+    addGroupTemplateName('Lane9');
+    }
 }
 
 export function addPortTemplates() {

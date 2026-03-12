@@ -335,8 +335,281 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
     };
 
-    switch (name) {
-      case "InitialLayoutCompleted": {
+	    const normalizeSwimlanePool = (poolKey: string) => {
+	      if (!poolKey) return;
+	      if ((myDiagram as any).__isSwimlaneNormalizeInProgress) return;
+	      const poolNode = myDiagram.findNodeForKey(poolKey);
+	      if (!(poolNode instanceof go.Group)) return;
+      const pdata = poolNode.data;
+      const isPool = pdata?.category === "Pool" || pdata?.template === "Pool" || poolNode.category === "Pool";
+      if (!isPool) return;
+
+	      (myDiagram as any).__isSwimlaneNormalizeInProgress = true;
+	      try {
+	        myDiagram.model.startTransaction("normalizeSwimlanePool");
+	        // Precompute lane structural/body bounds so we can fix mis-parented nodes that
+	        // visually sit in a Lane but are grouped directly to the Pool.
+	        const laneInfos: Array<{
+	          key: string;
+	          lane: go.Group;
+	          mainBounds: go.Rect | null;
+	          bodyBounds: go.Rect | null;
+	          area: number;
+	        }> = [];
+	        poolNode.memberParts.each((part: go.Part) => {
+	          if (!(part instanceof go.Group)) return;
+	          const ldata = part.data;
+	          const c = String(ldata?.category || "");
+	          const t = String(ldata?.template || "");
+	          const isLane =
+	            c === "Lane" ||
+	            c === "Lane_w_handles" ||
+	            c === "Lane9" ||
+	            c === "Lane9_legacy" ||
+	            t === "Lane" ||
+	            t === "Lane_w_handles" ||
+	            t === "Lane9" ||
+	            t === "Lane9_legacy" ||
+	            part.category === "Lane" ||
+	            part.category === "Lane_w_handles";
+	          if (!isLane) return;
+
+	          const laneKey = String(ldata?.key || part.key || "");
+	          if (!laneKey) return;
+	          const laneMain = (part.findObject("LANE_MAIN_SHAPE") || part.findObject("LANE_MAIN")) as go.GraphObject | null;
+	          const laneBody = part.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+	          const mainBounds = laneMain ? laneMain.getDocumentBounds() : part.actualBounds;
+	          const bodyBounds = laneBody ? laneBody.getDocumentBounds() : null;
+	          const area = Math.max(1, mainBounds.width * mainBounds.height);
+	          laneInfos.push({ key: laneKey, lane: part, mainBounds, bodyBounds, area });
+
+	          part.memberParts.each((mp: go.Part) => {
+	            if (!(mp instanceof go.Node) || mp instanceof go.Group) return;
+	            if (!mp.data) return;
+
+	            // Keep membership explicit: nodes belong to their Lane, never directly to the Pool.
+	            if (typeof mp.data.group === "string" && mp.data.group !== laneKey) {
+	              if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+	                (myDiagram.model as any).setGroupKeyForNodeData(mp.data, laneKey);
+	              } else {
+	                myDiagram.model.setDataProperty(mp.data, "group", laneKey);
+	              }
+	            }
+
+            // Ensure the model loc matches what the user sees.
+            const locStr = `${mp.location.x} ${mp.location.y}`;
+            myDiagram.model.setDataProperty(mp.data, "loc", locStr);
+
+	            // Safety clamp: if a node ended up outside its lane body due to stale loc or relayout timing,
+	            // move it back inside so subsequent drags are constrained correctly.
+	            if (bodyBounds) {
+	              const b = mp.actualBounds;
+	              if (!bodyBounds.containsRect(b)) {
+	                const x = Math.max(bodyBounds.x + 2, Math.min(b.x, bodyBounds.right - b.width - 2));
+	                const y = Math.max(bodyBounds.y + 2, Math.min(b.y, bodyBounds.bottom - b.height - 2));
+	                mp.moveTo(x, y);
+	                myDiagram.model.setDataProperty(mp.data, "loc", `${mp.location.x} ${mp.location.y}`);
+	              }
+	            }
+	          });
+	        });
+
+	        // Fix nodes that are direct Pool members but clearly inside a Lane: assign them to the smallest
+	        // containing lane (usually the row they are in), then clamp into the lane body.
+	        if (laneInfos.length > 0) {
+	          // Sort smallest-first to pick the most specific lane if bounds overlap.
+	          laneInfos.sort((a, b) => a.area - b.area);
+	          poolNode.memberParts.each((part: go.Part) => {
+	            if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	            const d: any = part.data;
+	            if (!d) return;
+	            const currentGroup = typeof d.group === "string" ? d.group : "";
+	            if (currentGroup !== poolKey) return; // only repair pool-level members
+	            const center = part.actualBounds.center;
+	            let chosen: (typeof laneInfos)[number] | null = null;
+	            for (let i = 0; i < laneInfos.length; i++) {
+	              const li = laneInfos[i];
+	              if (li.mainBounds && li.mainBounds.containsPoint(center)) {
+	                chosen = li;
+	                break;
+	              }
+	            }
+	            if (!chosen) return;
+	            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+	              (myDiagram.model as any).setGroupKeyForNodeData(d, chosen.key);
+	            } else {
+	              myDiagram.model.setDataProperty(d, "group", chosen.key);
+	            }
+	            myDiagram.model.setDataProperty(d, "loc", `${part.location.x} ${part.location.y}`);
+	            if (chosen.bodyBounds) {
+	              const b = part.actualBounds;
+	              if (!chosen.bodyBounds.containsRect(b)) {
+	                const x = Math.max(chosen.bodyBounds.x + 2, Math.min(b.x, chosen.bodyBounds.right - b.width - 2));
+	                const y = Math.max(chosen.bodyBounds.y + 2, Math.min(b.y, chosen.bodyBounds.bottom - b.height - 2));
+	                part.moveTo(x, y);
+	                myDiagram.model.setDataProperty(d, "loc", `${part.location.x} ${part.location.y}`);
+	              }
+	            }
+	          });
+	        }
+	        myDiagram.model.commitTransaction("normalizeSwimlanePool");
+	      } finally {
+	        (myDiagram as any).__isSwimlaneNormalizeInProgress = false;
+	      }
+	    };
+	    const resolveContainingGroup = (nodePart: go.Part): gjs.goObjectNode | null => {
+	      if (!(nodePart instanceof go.Node) || nodePart instanceof go.Group) return null;
+	      const nodeBounds = nodePart.actualBounds;
+	      const nodeCenter = nodeBounds.center;
+	      const candidates: Array<{ area: number; key: string }> = [];
+	      myDiagram.nodes.each((part: go.Node) => {
+	        if (!(part instanceof go.Group)) return;
+	        if (part === nodePart) return;
+	        const pdata = part.data;
+	        const c = String(pdata?.category || "");
+	        const t = String(pdata?.template || "");
+	        const isLane = c.startsWith("Lane") || t.startsWith("Lane") || part.category.startsWith("Lane");
+	        // For containment decisions, consider the whole lane (header strip + body). This prevents
+	        // nodes dropped near the left edge from being incorrectly parented to the Pool.
+	        const laneMain = isLane ? (part.findObject("LANE_MAIN_SHAPE") || part.findObject("LANE_MAIN")) : null;
+	        const probe = (laneMain || part.findObject("SHAPE") || part.findObject("POOL_SHAPE")) as go.GraphObject | null;
+	        const groupBounds = probe ? probe.getDocumentBounds() : part.actualBounds;
+	        if (!groupBounds.containsPoint(nodeCenter)) return;
+	        const area = Math.max(1, groupBounds.width * groupBounds.height);
+	        const key = String(pdata?.key || "");
+	        if (key) candidates.push({ area, key });
+	      });
+	      if (candidates.length === 0) return null;
+	      candidates.sort((a, b) => a.area - b.area);
+	      return myGoModel.findNode(candidates[0].key) || null;
+	    };
+
+		    // When the user Shift-drags across lanes, the intended target is the lane under the mouse on drop.
+		    // Using nodeCenter can fail when a node straddles a lane border (looks "in" the neighbor lane but
+		    // center is still in the source lane). This resolves the lane/pool containing a point.
+		    const getStructuralGroupBounds = (part: go.Group, isLane: boolean): go.Rect => {
+		      // For lanes, use the lane BODY bounds (not the whole group bounds) so containment is stable and
+		      // not influenced by member nodes or selection adornments.
+		      // For pools, use POOL_SHAPE (or fallback to SHAPE) for the same reason.
+		      if (isLane) {
+		        const body =
+		          (part.findObject("LANE_BODY_SHAPE") ||
+		            part.findObject("BODY")) as go.GraphObject | null;
+		        if (body) return body.getDocumentBounds();
+		      }
+		      const probe = (part.findObject("POOL_SHAPE") || part.findObject("SHAPE")) as go.GraphObject | null;
+		      return probe ? probe.getDocumentBounds() : part.actualBounds;
+		    };
+		    const resolveContainingGroupAtPoint = (pt: go.Point): gjs.goObjectNode | null => {
+		      const candidates: Array<{ area: number; key: string; isLane: boolean }> = [];
+		      myDiagram.nodes.each((part: go.Node) => {
+		        if (!(part instanceof go.Group)) return;
+		        const pdata = part.data;
+		        const c = String(pdata?.category || "");
+		        const t = String(pdata?.template || "");
+		        const isLane = c.startsWith("Lane") || t.startsWith("Lane") || part.category.startsWith("Lane");
+		        const groupBounds = getStructuralGroupBounds(part, isLane);
+		        if (!groupBounds.containsPoint(pt)) return;
+		        const area = Math.max(1, groupBounds.width * groupBounds.height);
+		        const key = String(pdata?.key || "");
+		        if (key) candidates.push({ area, key, isLane });
+		      });
+		      if (candidates.length === 0) return null;
+	      // Prefer lanes over pools when both contain the point.
+	      candidates.sort((a, b) => {
+	        if (a.isLane !== b.isLane) return a.isLane ? -1 : 1;
+	        return a.area - b.area;
+	      });
+	      return myGoModel.findNode(candidates[0].key) || null;
+	    };
+
+	    // More robust than point/center containment: pick the lane/group with the largest overlap
+	    // with the moved node's bounds. This avoids "looks in neighbor lane but still grouped to old lane"
+	    // when the node straddles the border at drop.
+		    const resolveContainingGroupByOverlap = (nodePart: go.Part): gjs.goObjectNode | null => {
+		      if (!(nodePart instanceof go.Node) || nodePart instanceof go.Group) return null;
+		      const nb = nodePart.actualBounds;
+		      const candidates: Array<{ overlap: number; area: number; key: string; isLane: boolean }> = [];
+		      myDiagram.nodes.each((part: go.Node) => {
+		        if (!(part instanceof go.Group)) return;
+		        if (part === nodePart) return;
+		        const pdata = part.data;
+		        const c = String(pdata?.category || "");
+		        const t = String(pdata?.template || "");
+		        const isLane = c.startsWith("Lane") || t.startsWith("Lane") || part.category.startsWith("Lane");
+		        const gb = getStructuralGroupBounds(part, isLane);
+		        // NOTE: avoid using Rect.intersectRect here because `actualBounds` can be a frozen/shared Rect
+		        // in some GoJS builds; intersectRect mutates the Rect instance.
+		        const ix1 = Math.max(nb.x, gb.x);
+		        const iy1 = Math.max(nb.y, gb.y);
+		        const ix2 = Math.min(nb.right, gb.right);
+	        const iy2 = Math.min(nb.bottom, gb.bottom);
+	        const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+	        if (overlap <= 0) return;
+	        const area = Math.max(1, gb.width * gb.height);
+	        const key = String(pdata?.key || "");
+	        if (key) candidates.push({ overlap, area, key, isLane });
+	      });
+	      if (candidates.length === 0) return null;
+	      candidates.sort((a, b) => {
+	        if (a.isLane !== b.isLane) return a.isLane ? -1 : 1;
+	        if (b.overlap !== a.overlap) return b.overlap - a.overlap;
+	        return a.area - b.area;
+	      });
+	      return myGoModel.findNode(candidates[0].key) || null;
+	    };
+
+	    // Swimlane rule: "contains" membership relationships (Lane -> member) are structural and should
+	    // remain hidden when the member is actually grouped into that Lane. Some code paths were
+	    // resetting relview.visible=true after moves; this helper re-applies the hide rule deterministically.
+	    const applySwimlaneContainsVisibility = () => {
+	      if (!myDiagram) return;
+
+	      const isSwimlaneGroupKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      const groupKeyOf = (k: any): string => {
+	        const n = myDiagram.findNodeForKey(k);
+	        const g = n?.data?.group;
+	        return typeof g === "string" ? g : "";
+	      };
+
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
+	        const typeName =
+	          d?.typename ||
+	          d?.name ||
+	          d?.relship?.type?.name ||
+	          d?.relshipview?.relship?.type?.name ||
+	          "";
+	        // Only touch membership links.
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
+
+	        const fromKey = d.from;
+	        const toKey = d.to;
+	        const fromIsSwim = isSwimlaneGroupKey(fromKey);
+	        const toIsSwim = isSwimlaneGroupKey(toKey);
+	        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
+	        let hide = fromIsSwim || toIsSwim;
+	        // For non-swimlane containers, also hide when stable group membership matches.
+	        if (!hide) {
+	          if (String(fromKey) && groupKeyOf(toKey) === String(fromKey)) hide = true;
+	          if (String(toKey) && groupKeyOf(fromKey) === String(toKey)) hide = true;
+	        }
+	        if (hide) {
+	          // Force-hide at the data level so it stays hidden across refreshes.
+	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
+	        }
+	        l.updateTargetBindings();
+	      });
+	    };
+
+	    switch (name) {
+	      case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
@@ -403,7 +676,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log("End: After Reload:");
         uic.purgeDuplicatedRelshipViews(myModelview);
         const links = myDiagram.model.linkDataArray;
-        if (links.length > 0) {
+	        if (links.length > 0) {
           const modelview = myMetis.currentModelview;
           const objviews = modelview.objectviews;
           const nodes = myDiagram.nodes;
@@ -429,10 +702,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             const jsnObjview = new jsn.jsnObjectView(objview);
             uic.addItemToList(modifiedObjectViews, jsnObjview);
           }
-          // Fix links 
+	          // Fix links 
           const linksToRemove = [];
           const links = myDiagram.model.linkDataArray;
-          for (let it = links.iterator; it?.next();) {
+	          for (let it = links.iterator; it?.next();) {
             const link = it.value;
             const data = link.data;
             if (data.category === "Relationship") {
@@ -440,28 +713,31 @@ class GoJSApp extends React.Component<{}, AppState> {
               relview = myModelview.findRelationshipView(data.key);
               if (!relview)
                 relview = myMetis.findRelationshipView(data.key);
-              if (relview) {
-                relview.markedAsDeleted = data.markedAsDeleted;
-                relview.visible = !relview.markedAsDeleted
-                if (relview.visible === false) {
-                  linksToRemove.push(link);
-                } else {
+	              if (relview) {
+	                relview.markedAsDeleted = data.markedAsDeleted;
+	                // Do not force visible=true here; visibility can be intentionally false (e.g., swimlane contains).
+	                relview.visible = (relview.visible !== false) && !relview.markedAsDeleted;
+	                if (relview.visible === false) {
+	                  linksToRemove.push(link);
+	                } else {
                   const points = relview.points;
                   if (points?.length == 0 || points?.length == 4) {
                     link.points = [];
                     relview.points = [];
-                  }
-                }
-              }
+	              }
+	            }
+	          }
             }
           }
           for (let i=0; i<linksToRemove.length; i++) {
             const link = linksToRemove[i];
             myDiagram.remove(link);
           }
-        }
-        break;
-      }
+	        }
+	        // Re-apply swimlane contains hiding after initial load.
+	        applySwimlaneContainsVisibility();
+	        break;
+	      }
       case 'TextEdited': {
         const sel = e.subject.part;
         const gjsData = sel.data;
@@ -627,11 +903,27 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         return;
       }
-      case "SelectionMoved": {
+	      case "SelectionMoved": {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
-        let relshipviews = myModelview.relshipviews;
-        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
+        // Keep lane membership stable unless the user explicitly requests regrouping.
+        // This must match `stayInGroup` (Diagram.tsx) which allows crossing lanes only when Shift is held.
+        const dragAllowKeys: Set<string> | undefined = (myDiagram as any)?.__dragAllowReparentKeys;
+        const allowReparentGlobal = !!myDiagram?.lastInput?.shift || !!(myDiagram as any)?.__dragAllowReparent;
+	        const allowReparentForKey = (k: any): boolean => {
+	          if (allowReparentGlobal) return true;
+	          if (!dragAllowKeys) return false;
+	          if (k == null) return false;
+	          return dragAllowKeys.has(String(k));
+	        };
+	        const isSwimlaneGroupKey = (k: any): boolean => {
+	          if (!k) return false;
+	          const p = myDiagram?.findNodeForKey?.(k);
+	          const c = String((p as any)?.data?.category || (p as any)?.data?.template || (p as any)?.category || "");
+	          return c === "Pool" || c.startsWith("Lane");
+	        };
+	        let relshipviews = myModelview.relshipviews;
+	        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
         let objectviews = myModelview.objectviews;
         // Identify selected groups
         const selectedGroupNodes = [];
@@ -699,26 +991,64 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Then remember the new locs
         let myToNodes = [];
         const selection = e.subject;
-        for (let it = selection.iterator; it?.next();) {
-          let n = it.value;
+	        for (let it = selection.iterator; it?.next();) {
+	          let n = it.value;
           if (n instanceof go.Link) continue;
           // Group moves are persisted in a dedicated block later; keep this path
           // scoped to regular nodes to avoid accidental group membership rewrites.
           if (n instanceof go.Group) continue;
-          const loc = n.data.loc;
+          // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
+          // the rendered position and cause membership/loc persistence to drift.
+          const loc = `${n.location.x} ${n.location.y}`;
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
           goNode.loc = loc;
-          const size = n.actualBounds.width + " " + n.actualBounds.height;
-          let groupKey = "";
-          let group = uic.getGroupByLocation(myGoModel, loc, size, goNode); // goNode
-          if (group) groupKey = group.key;
-          if (!group) {
-            group = uic.isContainedInGroup(myGoModel, goNode); // objectview
-            if (group) groupKey = group.id;
-          }
-          if (!group) {
-            goNode.scale = 1.0; 
+	          const size = n.actualBounds.width + " " + n.actualBounds.height;
+		          const existingGroupKey = (typeof n.data.group === "string") ? n.data.group : "";
+		          // Swimlane rule: if a node is no longer fully inside its current lane body (due to a prior
+		          // shift-move or stale grouping), allow us to repair membership based on geometry even if
+		          // Shift is not currently held. This prevents the "looks in new lane but jumps back" bug.
+		          let outsideCurrentLaneBody = false;
+		          if (existingGroupKey) {
+		            const curLane = myDiagram.findNodeForKey(existingGroupKey);
+		            const curLaneCat = String((curLane as any)?.data?.category || (curLane as any)?.data?.template || (curLane as any)?.category || "");
+		            if (curLane instanceof go.Group && curLaneCat.startsWith("Lane")) {
+		              const body = curLane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+		              const r = body ? body.getDocumentBounds() : null;
+		              if (r) {
+		                const b = n.actualBounds;
+		                // Manual containsRect to avoid any mutations on frozen Rects.
+		                const contains =
+		                  b.x >= r.x &&
+		                  b.y >= r.y &&
+		                  b.right <= r.right &&
+		                  b.bottom <= r.bottom;
+		                outsideCurrentLaneBody = !contains;
+		              }
+		            }
+		          }
+		          // Allow regrouping when:
+		          // - Shift was used (explicit intent), OR
+		          // - node is ungrouped (new/palette), OR
+		          // - node is outside its current lane body (repair stale membership).
+		          const canReparentThisNode =
+		            allowReparentForKey(n.data?.key) || !existingGroupKey || outsideCurrentLaneBody;
+		          let groupKey = existingGroupKey || "";
+		          let group: any = null;
+	          if (canReparentThisNode) {
+	            // Prefer the lane under the mouse on drop (Shift-drag intent), fallback to node-center containment.
+	            const dropPt = myDiagram?.lastInput?.documentPoint;
+	            group = resolveContainingGroupByOverlap(n);
+	            if (!group && dropPt) group = resolveContainingGroupAtPoint(dropPt);
+	            if (!group) group = resolveContainingGroup(n);
+	            if (group) groupKey = group.key;
+	            if (!group) {
+	              group = uic.isContainedInGroup(myGoModel, goNode); // objectview
+	              if (group) groupKey = group.id;
+	            }
+	          }
+          if (!groupKey) {
+            goNode.scale = 1.0;
           } else {
             goNode.group = groupKey;
             goNode.scale = goNode.getMyScale(myGoModel);
@@ -739,9 +1069,35 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": goNode.typeview,
           }
           myToNodes.push(myToNode);
-          if (groupKey && (n.data.group !== groupKey)) {
+	          if (groupKey && (n.data.group !== groupKey) && canReparentThisNode) {
+	            try {
+	              if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+	                (myDiagram.model as any).setGroupKeyForNodeData(n.data, groupKey);
+	              } else {
+	                myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+	              }
+	              // If we reparented into a lane, clamp the node into the lane body so subsequent non-shift drags
+	              // don't immediately snap it back due to being outside the lane bounds.
+	              const lanePart = myDiagram.findNodeForKey(groupKey);
+	              const laneCat = String((lanePart as any)?.data?.category || (lanePart as any)?.data?.template || (lanePart as any)?.category || "");
+	              if (lanePart instanceof go.Group && laneCat.startsWith("Lane")) {
+	                const body = lanePart.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+	                const r = body ? body.getDocumentBounds() : null;
+	                if (r) {
+	                  const b = n.actualBounds;
+	                  const loc = n.location;
+	                  const x = Math.max(r.x + 2, Math.min(b.x, r.right - b.width - 2)) + (loc.x - b.x);
+	                  const y = Math.max(r.y + 2, Math.min(b.y, r.bottom - b.height - 2)) + (loc.y - b.y);
+	                  n.move(new go.Point(x, y));
+	                  myDiagram.model.setDataProperty(n.data, "loc", `${n.location.x} ${n.location.y}`);
+	                }
+	              }
+	              } catch (error) {
+	              }
+	          }
+          if (n.data.loc !== loc) {
             try {
-              myDiagram.model.setDataProperty(n.data, 'group', groupKey);
+              myDiagram.model.setDataProperty(n.data, 'loc', loc);
             } catch (error) {
             }
           }
@@ -770,23 +1126,44 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
               }
-              // Check if the MOVED node (goToNode) is member of a group
-              const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
-              let parentObjview = goParentGroup?.objectview; // The container objectview
-              if (!parentObjview) {
-                parentObjview = myModelview.findObjectView(goParentGroup?.key);
-              }
-              if (goParentGroup && parentObjview) { // the container (group)
-                // goToNode IS member of a group
-                // First handle the object (node)
-                const gjsPart = myToNode.gjsData; // The object (node) to be moved
-                goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
-                parentObjview.isExpanded = true;
-                myObjectview.group = goParentGroup.key;
-                myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
-                goToNode.scale = goToNode.getMyScale(myGoModel);
-                gjsPart.scale = Number(goToNode.scale);
-                myObjectview.scale = gjsPart.scale;
+	              const fromGroupKey = (typeof myFromNode.group === "string") ? myFromNode.group : "";
+	              const inSwimlaneContext = isSwimlaneGroupKey(fromGroupKey) || isSwimlaneGroupKey(myToNode.group);
+	              if (!inSwimlaneContext) {
+	                // Legacy containment/grouping logic for non-swimlane diagrams.
+	                // Swimlanes manage membership explicitly (node.data.group -> Lane key) via GoJS Groups.
+	                // Running the rectangle-based containment logic here can overwrite lane membership and
+	                // cause the node to "snap back" to the old lane on the next drag.
+
+	                // Check if the MOVED node (goToNode) is member of a group
+	                const goParentGroup = uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode);
+	                let parentObjview = goParentGroup?.objectview; // The container objectview
+	                if (!parentObjview) {
+	                  parentObjview = myModelview.findObjectView(goParentGroup?.key);
+	                }
+	                // Do not "jump" lanes on mouse-up: only regroup when Shift is held,
+	                // or if the node had no group yet (e.g., freshly created/pasted).
+	                const canReparentOnDrop = allowReparentForKey(myToNode.key) || !fromGroupKey;
+	                const targetGroupKey = goParentGroup?.key || "";
+	                const shouldReparent =
+	                  !!(goParentGroup && parentObjview && targetGroupKey) &&
+	                  canReparentOnDrop &&
+	                  (targetGroupKey !== fromGroupKey);
+
+		                  if (shouldReparent) { // the container (group)
+	                // goToNode IS member of a group
+	                // First handle the object (node)
+	                const gjsPart = myToNode.gjsData; // The object (node) to be moved
+	                goToNode.group = goParentGroup.key; // Make the node a member of the group (container)
+	                parentObjview.isExpanded = true;
+	                myObjectview.group = goParentGroup.key;
+	                if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+	                  (myDiagram.model as any).setGroupKeyForNodeData(gjsPart, goToNode.group);
+	                } else {
+	                  myDiagram.model.setDataProperty(gjsPart, "group", goToNode.group);
+	                }
+	                goToNode.scale = goToNode.getMyScale(myGoModel);
+	                gjsPart.scale = Number(goToNode.scale);
+	                myObjectview.scale = gjsPart.scale;
                 let loc = uic.scaleNodeLocation1(goParentGroup, goToNode);
                 if (loc) {
                   myToNode.loc = loc;
@@ -1046,12 +1423,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                   }
                 }
-              }
-              if (myGoNode.key !== myToNode.group) {
-                myGoNode.scale = myToNode.scale;
-                myGoNode.loc = myToNode.loc;
-                myGoNode.group = myToNode.group;
-              }
+	              }
+	              } // end !inSwimlaneContext
+	              if (myGoNode.key !== myToNode.group) {
+	                myGoNode.scale = myToNode.scale;
+	                myGoNode.loc = myToNode.loc;
+	                myGoNode.group = myToNode.group;
+	              }
               if (myGoNode.object) {
                 const objvIdName = { id: myGoNode.key, name: myGoNode.name };
                 const objIdName = { id: myGoNode.object.id, name: myGoNode.object.name };
@@ -1180,15 +1558,16 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        // Dispatch relshipviews
-        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
-        const relviews = myModelview.relshipviews;
-        for (let i = 0; i < relviews?.length; i++) {
-          const relview = relviews[i];
-          relview.visible = !relview.markedAsDeleted
-          const jsnRelview = new jsn.jsnRelshipView(relview);
-          modifiedRelshipViews.push(jsnRelview);
-        }
+	        // Dispatch relshipviews
+	        myModelview.relshipviews = utils.removeArrayDuplicates(relshipviews);
+	        const relviews = myModelview.relshipviews;
+	        for (let i = 0; i < relviews?.length; i++) {
+	          const relview = relviews[i];
+	          // Preserve explicit hidden state; only ensure deleted links are not visible.
+	          relview.visible = (relview.visible !== false) && !relview.markedAsDeleted;
+	          const jsnRelview = new jsn.jsnRelshipView(relview);
+	          modifiedRelshipViews.push(jsnRelview);
+	        }
         // Dispatch modelview
         const modifiedModelviews = new Array();
         const jsnModelview = new jsn.jsnModelView(myModelview);
@@ -1220,10 +1599,20 @@ class GoJSApp extends React.Component<{}, AppState> {
           dropCopiedParts.clear();
         }
 
-        // Auto-relayout affected pools after lane moves.
-        if (!(myDiagram as any).__isPoolRelayoutFromMove) {
+	        // Auto-relayout affected pools after lane moves.
+	        if (!(myDiagram as any).__isPoolRelayoutFromMove) {
           const poolsToRelayout = new Set<string>();
           const movedSelection = e.subject;
+          // When dragging a Pool, its Lane members move too; don't treat that as an intentional lane move
+          // that should trigger a pool relayout/resize.
+          const movedPoolKeys = new Set<string>();
+          for (let it = movedSelection?.iterator; it?.next();) {
+            const part = it.value;
+            if (!(part instanceof go.Group)) continue;
+            const pdata = part.data;
+            const isPool = pdata?.category === 'Pool' || pdata?.template === 'Pool' || part.category === 'Pool';
+            if (isPool && pdata?.key) movedPoolKeys.add(pdata.key);
+          }
           for (let it = movedSelection?.iterator; it?.next();) {
             const part = it.value;
             if (!(part instanceof go.Group)) continue;
@@ -1234,14 +1623,17 @@ class GoJSApp extends React.Component<{}, AppState> {
               pdata?.category === 'Lane_w_handles' ||
               pdata?.template === 'Lane' ||
               pdata?.template === 'Lane_w_handles';
-            if (isPool && pdata?.key) poolsToRelayout.add(pdata.key);
-            if (isLane && pdata?.group) poolsToRelayout.add(pdata.group);
-            if (isLane && pdata?.__previousGroup) poolsToRelayout.add(pdata.__previousGroup);
+            // Moving a Pool should be a pure translation; don't relayout pool structure on pool moves.
+            // Relayout is triggered for lane moves/drops (pool membership/order changes) and for resizes.
+            if (isLane && pdata?.group && !movedPoolKeys.has(String(pdata.group))) poolsToRelayout.add(pdata.group);
+            if (isLane && pdata?.__previousGroup && !movedPoolKeys.has(String(pdata.__previousGroup))) poolsToRelayout.add(pdata.__previousGroup);
             if (isLane && pdata) delete (pdata as any).__previousGroup;
           }
-          if (poolsToRelayout.size > 0) {
-            (myDiagram as any).__isPoolRelayoutFromMove = true;
-            relayoutPoolsByKeys(poolsToRelayout);
+		          if (poolsToRelayout.size > 0) {
+	            (myDiagram as any).__isPoolRelayoutFromMove = true;
+	            relayoutPoolsByKeys(poolsToRelayout);
+            // After relayout, normalize membership/loc for all nodes under lanes in those pools.
+            poolsToRelayout.forEach((poolKey) => normalizeSwimlanePool(poolKey));
             (myDiagram as any).__isPoolRelayoutFromMove = false;
 
             // Replace stale pre-relayout objectview updates with current post-relayout values.
@@ -1252,6 +1644,16 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (poolNode instanceof go.Group) {
                 poolNode.memberParts.each((part: go.Part) => {
                   if (part instanceof go.Group && part.data?.key) refreshedKeys.add(part.data.key);
+                  // Persist member node locations too: pool relayout moves lanes, which moves their members.
+                  // If we don't dispatch these updates, a later reload/refresh can "snap" nodes back to stale
+                  // objectview.loc values, making it look like they drift out of lanes after repeated pool moves.
+                  if (part instanceof go.Group) {
+                    part.memberParts.each((mp: go.Part) => {
+                      if (mp instanceof go.Node && !(mp instanceof go.Group) && mp.data?.key) {
+                        refreshedKeys.add(mp.data.key);
+                      }
+                    });
+                  }
                 });
               }
             });
@@ -1261,16 +1663,121 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (!ov) return;
               const node = myDiagram.findNodeForKey(key);
               if (node && node.data) {
-                ov.loc = node.data.loc ? String(node.data.loc) : `${node.location.x} ${node.location.y}`;
+                // After a pool/lane relayout or group drag, member Nodes can move without their `data.loc`
+                // being updated reliably. Persist what the user actually sees: the Part.location.
+                ov.loc = `${node.location.x} ${node.location.y}`;
                 if (node.data.size) ov.size = node.data.size;
+                // Keep persisted group membership in sync for nodes moved indirectly by group relayout.
+                if (typeof node.data.group === "string") ov.group = node.data.group;
               }
               const jsnObjview = new jsn.jsnObjectView(ov);
               uic.addItemToList(modifiedObjectViews, jsnObjview);
             });
-          }
-        }
-        break;
-      }
+		          }
+		        }
+
+		        // Final swimlane regroup enforcement: during a Shift-drag we allow crossing lanes, but a lot of legacy
+		        // "containment" logic below can overwrite `data.group` based on stale modelview membership.
+		        // Re-assert the intended lane membership based on current geometry, at the end of the move transaction.
+			        try {
+			          const lastPt = myDiagram?.lastInput?.documentPoint;
+			          const containsType =
+			            myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS) ||
+			            myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+			          for (let it = myParts?.iterator; it?.next();) {
+			            const part: go.Part = it.key;
+			            if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+			            const k = part.data?.key;
+			            if (!allowReparentForKey(k)) continue;
+			            let target = resolveContainingGroupByOverlap(part);
+			            if (!target && lastPt) target = resolveContainingGroupAtPoint(lastPt);
+			            if (!target) continue;
+			            const targetKey = String((target as any)?.key || (target as any)?.data?.key || "");
+			            if (!targetKey) continue;
+			            const lanePart = myDiagram.findNodeForKey(targetKey);
+			            const laneCat = String((lanePart as any)?.data?.category || (lanePart as any)?.data?.template || (lanePart as any)?.category || "");
+			            if (!laneCat.startsWith("Lane")) continue;
+			            const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+			            if (cur === targetKey) continue;
+
+			            // Force a real GoJS reparent so `containingGroup` matches `data.group` immediately.
+			            const newLane = lanePart instanceof go.Group ? lanePart : null;
+			            if (newLane) {
+			              const oldLane = part.containingGroup;
+			              if (oldLane && oldLane !== newLane) {
+			                const s = new go.Set<go.Part>();
+			                s.add(part);
+			                oldLane.removeMembers(s, true);
+			              }
+			              newLane.addMembers(new go.Set<go.Part>().add(part), true);
+			            }
+
+			            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+			              (myDiagram.model as any).setGroupKeyForNodeData(part.data, targetKey);
+			            } else {
+			              myDiagram.model.setDataProperty(part.data, "group", targetKey);
+			            }
+			            const ov = myMetis.findObjectView(k) || myModelview.findObjectView(k);
+			            if (ov) {
+			              ov.group = targetKey;
+			              const jsnObjview = new jsn.jsnObjectView(ov);
+			              uic.addItemToList(modifiedObjectViews, jsnObjview);
+			            }
+
+			            // Keep the underlying AKM_CONTAINS relationship consistent with the swimlane grouping.
+			            // Some legacy code paths consult contains relationships/objectviews and can revert
+			            // membership if this isn't updated.
+			            if (containsType && ov) {
+			              const toLaneOv = myMetis.findObjectView(targetKey) || myModelview.findObjectView(targetKey);
+			              const memberOv = ov;
+			              const toObj = toLaneOv?.object ? myModel.findObject(toLaneOv.object.id) : null;
+			              const memberObj = memberOv?.object ? myModel.findObject(memberOv.object.id) : null;
+			              if (toObj && memberObj) {
+			                const relships = myModel.relships || [];
+			                let existing: any = null;
+			                for (let i = 0; i < relships.length; i++) {
+			                  const r: any = relships[i];
+			                  if (!r) continue;
+			                  if (r?.type?.name !== constants.types.AKM_CONTAINS) continue;
+			                  if (r?.toObject?.id === memberObj.id) { existing = r; break; }
+			                }
+			                if (existing && existing.fromObject?.id !== toObj.id) {
+			                  existing.relocate(existing.fromObject, toObj, existing.toObject, memberObj);
+			                } else if (!existing) {
+			                  const relId = utils.createGuid();
+			                  const relName = constants.types.AKM_CONTAINS;
+			                  const rel = new akm.cxRelationship(relId, containsType as any, toObj, memberObj, relName, "");
+			                  rel.parentModelRef = myModel.id;
+			                  myModel.addRelationship(rel);
+			                  toObj.addOutputrel(rel);
+			                  memberObj.addInputrel(rel);
+			                  myMetis.addRelationship(rel);
+			                }
+			                const relviews = myModelview.relshipviews || [];
+			                for (let i = 0; i < relviews.length; i++) {
+			                  const rv: any = relviews[i];
+			                  const r = rv?.relship;
+			                  if (!r || r?.type?.name !== constants.types.AKM_CONTAINS) continue;
+			                  if (rv?.toObjview?.id !== memberOv.id) continue;
+			                  rv.fromObjview = toLaneOv;
+			                  rv.visible = false;
+			                  rv.markedAsDeleted = false;
+			                }
+			              }
+			            }
+			          }
+			        } catch (error) {
+			        }
+
+			        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
+			        // when the member node is actually inside its lane. This avoids those links flashing in
+			        // after a drag/move transaction.
+			        applySwimlaneContainsVisibility();
+			        // Clear drag-time regroup permission markers after we have persisted the move.
+			        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
+			        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;
+		        break;
+		      }
       case "SelectionDeleting": {
         // const newNode = myMetis.currentNode;
         const deletedFlag = true;
@@ -1672,7 +2179,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // myDiagram.model.addNodeData(goNode);
           }
           // Check if goNode is member of a group
-          const group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
+          const dropPart = node || myDiagram.findNodeForKey(part.key);
+          const group = dropPart ? resolveContainingGroup(dropPart) : null;
           if (group) {
             const parentgroup = group;
             goNode.group = parentgroup.key;
@@ -1851,9 +2359,20 @@ class GoJSApp extends React.Component<{}, AppState> {
               continue;
             const category = n.data?.category || n.data?.template;
             if (category === 'Lane' || category === 'Lane_w_handles') {
+              const laneMain = n.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+              const laneHeader = n.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
               const laneBody = n.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
-              if (laneBody) {
-                const bodySize = `${laneBody.actualBounds.width} ${laneBody.actualBounds.height}`;
+              if (laneBody || laneMain) {
+                const headerWidth = laneHeader ? laneHeader.actualBounds.width : 36;
+                const sourceWidth = laneBody ? laneBody.actualBounds.width : Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth);
+                const sourceHeight = laneBody ? laneBody.actualBounds.height : (laneMain?.actualBounds.height || 0);
+                const nextBodyWidth = Math.max(20, sourceWidth);
+                const nextBodyHeight = Math.max(20, sourceHeight);
+                if (laneBody) {
+                  (laneBody as any).width = nextBodyWidth;
+                  (laneBody as any).height = nextBodyHeight;
+                }
+                const bodySize = `${nextBodyWidth} ${nextBodyHeight}`;
                 myDiagram.model.setDataProperty(n.data, "size", bodySize);
               }
             }
@@ -2132,11 +2651,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('1770 pastedNodes', pastedNodes);
         break;
       }      
-      case 'LayoutCompleted': {
-        if (false) {
-          const nodes = myDiagram.nodes;
-          for (let it = nodes.iterator; it?.next();) {
-            const node = it.value;
+	      case 'LayoutCompleted': {
+	        // Layout can recreate/update Link Parts; re-apply swimlane membership visibility rules.
+	        applySwimlaneContainsVisibility();
+	        if (false) {
+	          const nodes = myDiagram.nodes;
+	          for (let it = nodes.iterator; it?.next();) {
+	            const node = it.value;
             const objectview = node.data.objectview;
             if (objectview) {
               objectview.loc = node.data.loc;
@@ -2325,11 +2846,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         break;
       }
-      case "SubGraphCollapsed":
-      case "SubGraphExpanded": {
-        const affectedPoolKeys = new Set<string>();
-        e.subject.each(function (n) {
-          const data = n.data;
+	      case "SubGraphCollapsed":
+	      case "SubGraphExpanded": {
+	        const affectedPoolKeys = new Set<string>();
+	        e.subject.each(function (n) {
+	          const data = n.data;
           const objview = data?.objectview;
           if (objview) {
             objview.isExpanded = data.isExpanded;
@@ -2342,10 +2863,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else if (category === 'Pool') {
             if (data?.key) affectedPoolKeys.add(data.key);
           }
-        });
-        relayoutPoolsByKeys(affectedPoolKeys);
-        break;
-      }
+	        });
+	        relayoutPoolsByKeys(affectedPoolKeys);
+	        // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
+	        // and clamp all lane members back into their lane bodies.
+	        affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+	        break;
+	      }
       case "BackgroundSingleClicked": {
         if (debug) console.log('1615 myMetis', myMetis);
         uid.clearFocus(myModelview);

@@ -642,12 +642,120 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 },
               })
           }
-        );
-    }
-    // when the user clicks on the background of the Diagram, remove all highlighting
-    myDiagram.click = function (e) {
-      e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
-    };
+	        );
+	    }
+
+	    // Enforce lane membership on Shift-drag completion. Without this, nodes can be dragged across
+	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
+	    // clamp/snap back into the source lane.
+	    class SwimlaneDraggingTool extends go.DraggingTool {
+	      override doDeactivate() {
+	        const diagram = this.diagram;
+	        try {
+	          const allowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
+	          const allowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
+	          if (diagram && (allowGlobal || (allowKeys && allowKeys.size > 0))) {
+	            const dropPt = diagram.lastInput?.documentPoint;
+	            const dragged = this.draggedParts;
+	            if (dropPt && dragged) {
+	              diagram.commit((d: go.Diagram) => {
+	                const laneBodyBounds = (g: go.Group): go.Rect | null => {
+	                  const body =
+	                    (g.findObject("LANE_BODY_SHAPE") ||
+	                      g.findObject("BODY")) as go.GraphObject | null;
+	                  return body ? body.getDocumentBounds() : null;
+	                };
+	                const findLaneAtPoint = (pt: go.Point): go.Group | null => {
+	                  let best: { area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const r = laneBodyBounds(n);
+	                    if (!r || !r.containsPoint(pt)) return;
+	                    const area = Math.max(1, r.width * r.height);
+	                    if (!best || area < best.area) best = { area, lane: n };
+	                  });
+	                  return best ? best.lane : null;
+	                };
+	                const findLaneByOverlap = (part: go.Node): go.Group | null => {
+	                  const nb = part.actualBounds;
+	                  let best: { overlap: number; area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const gb = laneBodyBounds(n);
+	                    if (!gb) return;
+	                    const ix1 = Math.max(nb.x, gb.x);
+	                    const iy1 = Math.max(nb.y, gb.y);
+	                    const ix2 = Math.min(nb.right, gb.right);
+	                    const iy2 = Math.min(nb.bottom, gb.bottom);
+	                    const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+	                    if (overlap <= 0) return;
+	                    const area = Math.max(1, gb.width * gb.height);
+	                    if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
+	                      best = { overlap, area, lane: n };
+	                    }
+	                  });
+	                  return best ? best.lane : null;
+	                };
+
+	                const targetLane = findLaneAtPoint(dropPt) || ((): go.Group | null => {
+	                  // If drop point is in header strip, overlap tends to still pick the correct lane.
+	                  // Use the first moved node as probe.
+	                  for (let it = dragged.iterator; it?.next();) {
+	                    const p: go.Part = it.key;
+	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findLaneByOverlap(p);
+	                  }
+	                  return null;
+	                })();
+	                const targetKey = targetLane ? String(targetLane.data?.key || targetLane.key || "") : "";
+
+	                for (let it = dragged.iterator; it?.next();) {
+	                  const part: go.Part = it.key;
+	                  if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                  const k = part.data?.key;
+	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
+	                  if (!allowed) continue;
+
+	                  if (!targetLane || !targetKey) continue;
+
+	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+	                  if (cur === targetKey) continue;
+
+	                  // Force a real reparent in the Diagram so `containingGroup` updates immediately.
+	                  const oldGrp = part.containingGroup;
+	                  if (oldGrp && oldGrp !== targetLane) {
+	                    const s = new go.Set<go.Part>();
+	                    s.add(part);
+	                    oldGrp.removeMembers(s, true);
+	                  }
+	                  if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                    (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
+	                  } else {
+	                    d.model.setDataProperty(part.data, "group", targetKey);
+	                  }
+	                  targetLane.addMembers(new go.Set<go.Part>().add(part), true);
+	                }
+	              }, "SwimlaneShiftReparent");
+	            }
+	          }
+	        } catch {
+	          // Best-effort only; never block drag completion.
+	        }
+		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
+		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
+		        super.doDeactivate();
+		      }
+		    }
+
+	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
+
+	    // when the user clicks on the background of the Diagram, remove all highlighting
+	    myDiagram.click = function (e) {
+	      e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
+	    };
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.dispatch = this.myMetis?.dispatch;
@@ -6648,11 +6756,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Define template maps
     {
-      // Keep nodes inside their lane/group unless Shift is held while dragging.
-      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
-        const grp = part.containingGroup;
-        if (!grp) return pt;
-        if (part.diagram?.lastInput?.shift) return pt;
+	      // Keep nodes inside their lane/group unless Shift is held while dragging.
+	      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
+	        const grp = part.containingGroup;
+	        if (!grp) return pt;
+	        // If Shift is held at any point during this drag, remember that so mouse-up handlers
+	        // can allow regrouping even if Shift is released just before drop.
+	        const diagram = part.diagram;
+	        if (diagram?.lastInput?.shift) {
+	          (diagram as any).__dragAllowReparent = true;
+	          const k = part.data?.key;
+	          if (k != null) {
+	            const s: Set<string> = ((diagram as any).__dragAllowReparentKeys ||= new Set<string>());
+	            s.add(String(k));
+	          }
+	          return pt;
+	        }
+	        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
+	        // their container group is also moving, bounds can be temporarily stale and members will
+	        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
+	        // is in the current selection (i.e., is being dragged).
+	        if (diagram) {
+	          let g: go.Group | null = grp;
+	          while (g) {
+	            if (diagram.selection.contains(g)) return pt;
+            g = g.containingGroup;
+          }
+        }
         const back =
           grp.findObject("LANE_BODY_SHAPE") ||
           grp.findObject("BODY") ||

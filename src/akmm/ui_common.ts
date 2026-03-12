@@ -16,6 +16,9 @@ import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
 
 const grabIsAllowed = true;
+// Swimlane lane `data.size` represents the lane BODY width/height; the lane header strip is separate.
+// When determining containment based on `loc`/`size` strings, include the header strip width too.
+const LANE_HEADER_STRIP_WIDTH = 36;
 
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {
@@ -2305,11 +2308,11 @@ export function onClipboardPasted(selection: any, context: any) {
 export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string, nod: gjs.goObjectNode): gjs.goObjectNode | null {
     if (!loc) return;
     const nodeLoc = loc?.split(" ");
-    const nx = parseInt(nodeLoc[0]);
-    const ny = parseInt(nodeLoc[1]);
+    const nx = parseFloat(nodeLoc[0]);
+    const ny = parseFloat(nodeLoc[1]);
     const nodeSize = siz?.split(" ");
-    const nw = parseInt(nodeSize[0]);
-    const nh = parseInt(nodeSize[1]);
+    const nw = parseFloat(nodeSize[0]);
+    const nh = parseFloat(nodeSize[1]);
     const myNode = nod;
     let nodes = model.nodes;
     let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
@@ -2328,16 +2331,30 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
             const grpLoc = myGroup.loc?.split(" ");
             const grpSize = myGroup.size?.split(" ");
             if (!grpLoc) return;
-            const gx = parseInt(grpLoc[0]);
-            const gy = parseInt(grpLoc[1]);
-            const gw = parseInt(grpSize[0]);
-            const gh = parseInt(grpSize[1]);
+            const gx = parseFloat(grpLoc[0]);
+            const gy = parseFloat(grpLoc[1]);
+            const gwRaw = parseFloat(grpSize?.[0]);
+            const ghRaw = parseFloat(grpSize?.[1]);
+            if (Number.isNaN(gx) || Number.isNaN(gy) || Number.isNaN(gwRaw) || Number.isNaN(ghRaw)) continue;
+
+            // Lane groups persist the BODY size only; widen containment bounds to include the header strip.
+            const template = myGroup.template || myGroup.objectview?.template || myGroup.category;
+            const isLane =
+                template === "Lane" ||
+                template === "Lane_w_handles" ||
+                template === "Lane9" ||
+                template === "Lane9_legacy" ||
+                myGroup.category === "Lane" ||
+                myGroup.category === "Lane_w_handles";
+
+            const gw = isLane ? (gwRaw + LANE_HEADER_STRIP_WIDTH) : gwRaw;
+            const gh = ghRaw;
             if (
-                (nx > gx) // Check upper left corner of node
+                (nx >= gx) // Check upper left corner of node
                 &&
                 (nx + nw * nodeScale <= gx + gw * grpScale) // Check upper right corner of node
                 &&
-                (ny > gy) // Check lower left corner of node
+                (ny >= gy) // Check lower left corner of node
                 &&
                 (ny + nh * nodeScale <= gy + gh * grpScale) // Check lower right corner of node
             ) {
@@ -2529,6 +2546,22 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
             }
             if (node.isGroup) {   // node is a group
                 const group = node;
+                // Swimlanes: do not auto-recompute membership based on rectangle containment when moving
+                // Pools/Lanes. Membership is explicit (node.data.group -> Lane key) and should not be
+                // rewritten just because the container was moved.
+                const movedTemplate = group.template || group.objectview?.template || group.category;
+                const isSwimlaneStructure =
+                    movedTemplate === "Pool" ||
+                    movedTemplate === "Lane" ||
+                    movedTemplate === "Lane_w_handles" ||
+                    movedTemplate === "Lane9" ||
+                    movedTemplate === "Lane9_legacy" ||
+                    group.category === "Pool" ||
+                    group.category === "Lane" ||
+                    group.category === "Lane_w_handles";
+                if (isSwimlaneStructure) {
+                    // Keep existing node.group assignments unchanged.
+                } else {
                 // Get potential members of the group
                 const nods = goModel?.nodes;
                 for (let i = 0; i < nods.length; i++) {
@@ -2565,6 +2598,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         else
                             objview.group = "";
                     }
+                }
                 }
             }
             if (objview) {

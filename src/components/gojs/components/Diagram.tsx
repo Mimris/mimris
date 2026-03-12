@@ -5884,20 +5884,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Define template maps
     {
-      // Keep nodes inside their lane/group unless Shift is held while dragging.
-      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
-        const grp = part.containingGroup;
-        if (!grp) return pt;
-        if (part.diagram?.lastInput?.shift) return pt;
-        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
-        // their container group is also moving, bounds can be temporarily stale and members will
-        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
-        // is in the current selection (i.e., is being dragged).
-        const diagram = part.diagram;
-        if (diagram) {
-          let g: go.Group | null = grp;
-          while (g) {
-            if (diagram.selection.contains(g)) return pt;
+	      // Keep nodes inside their lane/group unless Shift is held while dragging.
+	      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
+	        const grp = part.containingGroup;
+	        if (!grp) return pt;
+	        // If Shift is held at any point during this drag, remember that so mouse-up handlers
+	        // can allow regrouping even if Shift is released just before drop.
+	        const diagram = part.diagram;
+	        if (diagram?.lastInput?.shift) {
+	          (diagram as any).__dragAllowReparent = true;
+	          const k = part.data?.key;
+	          if (k != null) {
+	            const s: Set<string> = ((diagram as any).__dragAllowReparentKeys ||= new Set<string>());
+	            s.add(String(k));
+	          }
+	          return pt;
+	        }
+	        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
+	        // their container group is also moving, bounds can be temporarily stale and members will
+	        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
+	        // is in the current selection (i.e., is being dragged).
+	        if (diagram) {
+	          let g: go.Group | null = grp;
+	          while (g) {
+	            if (diagram.selection.contains(g)) return pt;
             g = g.containingGroup;
           }
         }

@@ -3087,20 +3087,25 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         ? groupNode.actualBounds.top + LANE_LAYOUT_TOP_INSET
         : groupBounds.top + padding;
     
-    // Calculate the bounds of all member nodes
-    let memberBounds = new go.Rect();
-    let firstMember = true;
-    groupNode.memberParts.each((part: go.Part) => {
-        if (part instanceof go.Node) {
-            const node = part as go.Node;
-            if (firstMember) {
-                memberBounds = node.actualBounds.copy();
-                firstMember = false;
-            } else {
-                memberBounds.unionRect(node.actualBounds);
-            }
-        }
-    });
+	    // Calculate the bounds of all member nodes
+	    // Avoid Rect.unionRect on potentially frozen/shared Rects; compute bounds manually.
+	    let memberBounds: go.Rect | null = null;
+	    groupNode.memberParts.each((part: go.Part) => {
+	        if (part instanceof go.Node) {
+	            const node = part as go.Node;
+	            const b = node.actualBounds;
+	            if (!memberBounds) {
+	                memberBounds = new go.Rect(b.x, b.y, b.width, b.height);
+	            } else {
+	                const x1 = Math.min(memberBounds.x, b.x);
+	                const y1 = Math.min(memberBounds.y, b.y);
+	                const x2 = Math.max(memberBounds.right, b.right);
+	                const y2 = Math.max(memberBounds.bottom, b.bottom);
+	                memberBounds = new go.Rect(x1, y1, x2 - x1, y2 - y1);
+	            }
+	        }
+	    });
+	    if (!memberBounds) memberBounds = new go.Rect();
     
     // Calculate adjustments needed to fit within group
     let adjustX = 0;

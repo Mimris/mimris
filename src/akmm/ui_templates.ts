@@ -5,6 +5,7 @@ import * as go from 'gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
+import * as constants from './constants';
 import context from '../pages/context';
 import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
 
@@ -1637,6 +1638,18 @@ function addLinkTemplateName(name: string) {
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
         group.findExternalLinksConnected().each((ll) => {
+            const d: any = (ll as any).data;
+            const typeName =
+              d?.typename ||
+              d?.name ||
+              d?.relship?.type?.name ||
+              d?.relshipview?.relship?.type?.name ||
+              "";
+            // Never force-visibility for lane membership links; those are handled by bindings.
+            if (typeName === constants.types.AKM_CONTAINS) {
+              ll.updateTargetBindings();
+              return;
+            }
             ll.visible = (ll.fromNode !== null && ll.fromNode.isVisible() && ll.toNode !== null && ll.toNode.isVisible());
         });
     }
@@ -3330,11 +3343,57 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
+    // Swimlane rule: "contains" (membership) relationships should not be drawn when the child is
+    // actually contained in (grouped to) its Lane. Otherwise these structural links pop in when
+    // moving nodes, which is visually confusing.
+    const linkShouldBeVisible = (d: any, linkObj: go.GraphObject): boolean => {
+        // Respect explicit hide flag from persisted relationship views.
+        if (d?.visible === false) return false;
+
+        const link = linkObj as any as go.Link;
+        const typeName =
+            d?.typename ||
+            d?.name || // relship name is often set to "contains"
+            d?.relship?.type?.name ||
+            d?.relshipview?.relship?.type?.name ||
+            d?.relshipkind ||
+            "";
+
+        const from = link?.fromNode as any;
+        const to = link?.toNode as any;
+        const fromCat = String(from?.data?.category || from?.data?.template || from?.category || "");
+        const toCat = String(to?.data?.category || to?.data?.template || to?.category || "");
+        const fromIsLane = fromCat.startsWith("Lane");
+        const toIsLane = toCat.startsWith("Lane");
+        const fromIsPool = fromCat === "Pool";
+        const toIsPool = toCat === "Pool";
+        const fromKey = String(from?.data?.key ?? d?.from ?? "");
+        const toKey = String(to?.data?.key ?? d?.to ?? "");
+        const fromGroup = String(from?.data?.group ?? "");
+        const toGroup = String(to?.data?.group ?? "");
+
+        // Swimlane invariant: membership ("contains") relationships should never be rendered for Pools/Lanes.
+        // We hide them unconditionally when either endpoint is a Pool or Lane group. This is robust even
+        // when membership data is briefly inconsistent during drag/layout.
+        if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
+            return false;
+        }
+
+        // Also hide membership links when the member is grouped to the parent (for non-swimlane containers),
+        // using stable model membership (data.group) rather than transient `containingGroup`.
+        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
+            if (fromIsLane && to && toGroup === fromKey) return false;
+            if (toIsLane && from && fromGroup === toKey) return false;
+        }
+        return true;
+    };
     const linkTemplate =
         $(go.Link,
             new go.Binding("deletable"),
             // new go.Binding("isLayoutPositioned", "isLayoutPositioned").makeTwoWay(), 
             { selectable: true },
+            // Hide structural "contains" links inside lanes.
+            new go.Binding("visible", "", linkShouldBeVisible),
             { 
                 toShortLength: 3, 
                 relinkableFrom: true, 
@@ -3435,12 +3494,51 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     const linkTemplate1 = getLinkTemplate("", contextMenu, myMetis);  
     linkTemplateMap.add("linkTemplate1", linkTemplate1);
     addLinkTemplateName('linkTemplate1');
+    // Most relationship links in this app use `data.category === "Relationship"`.
+    // Provide a template for that category so visibility rules (e.g. hide lane-membership "contains") apply.
+    linkTemplateMap.add(constants.gojs.C_RELATIONSHIP, linkTemplate1);
+    // Fallback for any links without a category set.
+    if (!linkTemplateMap.has("")) linkTemplateMap.add("", linkTemplate1);
+
+    // Keep consistent with `getLinkTemplate`'s contains-visibility rule.
+    const linkShouldBeVisible = (d: any, linkObj: go.GraphObject): boolean => {
+        if (d?.visible === false) return false;
+        const link = linkObj as any as go.Link;
+        const typeName =
+            d?.typename ||
+            d?.name ||
+            d?.relship?.type?.name ||
+            d?.relshipview?.relship?.type?.name ||
+            d?.relshipkind ||
+            "";
+        const from = link?.fromNode as any;
+        const to = link?.toNode as any;
+        const fromCat = String(from?.data?.category || from?.data?.template || from?.category || "");
+        const toCat = String(to?.data?.category || to?.data?.template || to?.category || "");
+        const fromIsLane = fromCat.startsWith("Lane");
+        const toIsLane = toCat.startsWith("Lane");
+        const fromIsPool = fromCat === "Pool";
+        const toIsPool = toCat === "Pool";
+        const fromKey = String(from?.data?.key ?? d?.from ?? "");
+        const toKey = String(to?.data?.key ?? d?.to ?? "");
+        const fromGroup = String(from?.data?.group ?? "");
+        const toGroup = String(to?.data?.group ?? "");
+        if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
+            return false;
+        }
+        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
+            if (fromIsLane && to && toGroup === fromKey) return false;
+            if (toIsLane && from && fromGroup === toKey) return false;
+        }
+        return true;
+    };
 
     const linkTemplate2 =      
         $(go.Link,
             new go.Binding("deletable"),
             { contextMenu: contextMenu },
             { selectable: true },
+            new go.Binding("visible", "", linkShouldBeVisible),
             { 
                 toShortLength: 3, 
                 relinkableFrom: true, 
@@ -3543,6 +3641,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             toSpot: go.Spot.BottomSide,
             toEndSegmentLength: 20, // fromEndSegmentLength: 40
         },
+        new go.Binding("visible", "", linkShouldBeVisible),
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
@@ -3556,23 +3655,24 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
 
-    const sequenceLinkTemplate = 
-        $(go.Link,
-        {
-          contextMenu: contextMenu,
-          routing: go.Link.AvoidsNodes,
-          corner: 10,
+	    const sequenceLinkTemplate = 
+	        $(go.Link,
+	        {
+	          contextMenu: contextMenu,
+	          routing: go.Link.AvoidsNodes,
+	          corner: 10,
           // fromSpot: go.Spot.RightSide, 
           // toSpot: go.Spot.LeftSide,
           // toSpot: go.Spot.BottomSide,
           reshapable: true,
           relinkableFrom: true,
-          relinkableTo: true,
-          toEndSegmentLength: 0,
-        },
-        new go.Binding('points').makeTwoWay(),
-        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
-        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
+	          relinkableTo: true,
+	          toEndSegmentLength: 0,
+	        },
+	        new go.Binding("visible", "", linkShouldBeVisible),
+	        new go.Binding('points').makeTwoWay(),
+	        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
+	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
         $(go.Shape,
           { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },
           new go.Binding('fromArrow', 'isDefault', function (s) {
@@ -3999,14 +4099,23 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         }
     };
 
-    if (true) { // laneTemplate
-        const handleLaneDrop = (e: go.InputEvent, grp: go.Group) => {
-            const diagram = e.diagram;
-            const dragged = diagram.selection;
-            // If the user drops Lane groups onto a Lane, treat it as dropping lanes into the parent Pool.
-            // This makes lane management feel natural (drop "on a lane" to insert into that pool).
-            let hasLaneGroup = false;
-            let onlyLaneGroups = true;
+	    if (true) { // laneTemplate
+	        const handleLaneDrop = (e: go.InputEvent, grp: go.Group) => {
+	            const diagram = e.diagram;
+	            const dragged = diagram.selection;
+	            const dragAllowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
+	            const dragAllowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
+	            const allowReparentDrop =
+	                !!e.shift ||
+	                dragAllowGlobal ||
+	                (dragAllowKeys
+	                    ? dragged.any((p: go.Part) => p instanceof go.Node && !(p instanceof go.Group) && p.data?.key != null && dragAllowKeys.has(String(p.data.key)))
+	                    : false);
+	            const targetLaneKey = String(grp?.data?.key || grp.key || "");
+	            // If the user drops Lane groups onto a Lane, treat it as dropping lanes into the parent Pool.
+	            // This makes lane management feel natural (drop "on a lane" to insert into that pool).
+	            let hasLaneGroup = false;
+	            let onlyLaneGroups = true;
             dragged.each((part: go.Part) => {
                 if (part === grp) return;
                 if (isLaneGroupPart(part)) {
@@ -4020,20 +4129,38 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 // selection contains non-groups
                 onlyLaneGroups = false;
             });
-            if (hasLaneGroup && onlyLaneGroups) {
-                const parentPool = grp.containingGroup;
-                if (parentPool && (parentPool.data?.template === "Pool" || parentPool.data?.category === "Pool")) {
-                    handlePoolLaneDrop(e, parentPool, { relativeToLane: grp, dropY: e.documentPoint?.y });
-                    return;
-                }
-                diagram.currentTool.doCancel();
-                return;
-            }
+	            if (hasLaneGroup && onlyLaneGroups) {
+	                const parentPool = grp.containingGroup;
+	                if (parentPool && (parentPool.data?.template === "Pool" || parentPool.data?.category === "Pool")) {
+	                    handlePoolLaneDrop(e, parentPool, { relativeToLane: grp, dropY: e.documentPoint?.y });
+	                    return;
+	                }
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
 
-            const previousLaneSize = grp.data?.size ? go.Size.parse(String(grp.data.size)) : null;
-            let hasNode = false;
-            let valid = true;
-            dragged.each((part: go.Part) => {
+	            // Prevent "jump on mouse-up":
+	            // When dragging a node across a lane border without Shift, dragComputation clamps the node,
+	            // but the mouse-up can occur over a neighboring lane and trigger this mouseDrop.
+	            // Do not regroup or reposition nodes into a different lane unless Shift is held,
+	            // except for ungrouped nodes (allow initial assignment to a lane).
+	            if (!allowReparentDrop) {
+	                let hasConflictingGroupedNode = false;
+	                dragged.each((part: go.Part) => {
+	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	                    const g = (part.data && typeof (part.data as any).group === "string") ? String((part.data as any).group) : "";
+	                    if (g && targetLaneKey && g !== targetLaneKey) hasConflictingGroupedNode = true;
+	                });
+	                if (hasConflictingGroupedNode) {
+	                    // Leave the drag result as-is (clamped by dragComputation); don't move/reparent.
+	                    return;
+	                }
+	            }
+
+	            const previousLaneSize = grp.data?.size ? go.Size.parse(String(grp.data.size)) : null;
+	            let hasNode = false;
+	            let valid = true;
+	            dragged.each((part: go.Part) => {
                 if (part === grp) return;
                 if (part instanceof go.Group) {
                     valid = false;
@@ -4043,20 +4170,44 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 // Non-node/link parts are not valid lane content.
                 if (!(part instanceof go.Node) && !(part instanceof go.Link)) valid = false;
             });
-            if (!valid || !hasNode) {
-                diagram.currentTool.doCancel();
-                return;
-            }
+	            if (!valid || !hasNode) {
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
 
-            const ok = grp.addMembers(dragged, true);
-            if (!ok) {
-                diagram.currentTool.doCancel();
-                return;
-            }
+	            // Cross-lane regrouping requires Shift. Without Shift, only allow adding nodes that are
+	            // currently ungrouped (e.g., dropped from palette) or already in this lane.
+	            if (!allowReparentDrop) {
+	                let anyCrossLane = false;
+	                dragged.each((part: go.Part) => {
+	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	                    const g = (part.data && typeof (part.data as any).group === "string") ? String((part.data as any).group) : "";
+	                    if (g && targetLaneKey && g !== targetLaneKey) anyCrossLane = true;
+	                });
+	                if (anyCrossLane) return;
+	            }
 
-            // Keep lane body geometry stable when members are dropped.
-            if (previousLaneSize && !isNaN(previousLaneSize.width) && !isNaN(previousLaneSize.height)) {
-                const laneBody = grp.findObject("LANE_BODY_SHAPE") as any;
+	            const ok = grp.addMembers(dragged, true);
+	            if (!ok) {
+	                diagram.currentTool.doCancel();
+	                return;
+	            }
+
+	            // Ensure model membership is explicit when regrouping is allowed.
+	            if (allowReparentDrop && targetLaneKey) {
+	                dragged.each((part: go.Part) => {
+	                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+	                    if (part.data && typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
+	                        (diagram.model as any).setGroupKeyForNodeData(part.data, targetLaneKey);
+	                    } else if (part.data) {
+	                        diagram.model.setDataProperty(part.data, "group", targetLaneKey);
+	                    }
+	                });
+	            }
+
+	            // Keep lane body geometry stable when members are dropped.
+	            if (previousLaneSize && !isNaN(previousLaneSize.width) && !isNaN(previousLaneSize.height)) {
+	                const laneBody = grp.findObject("LANE_BODY_SHAPE") as any;
                 if (laneBody) {
                     laneBody.desiredSize = previousLaneSize.copy();
                     laneBody.width = previousLaneSize.width;

@@ -122,17 +122,6 @@ export class cxMetis {
                     this.addMetamodel(metamodel);
                 }
             }
-            for (let i = len - 1; i >= 0; i--) {
-                const metamodel = metamodels[i];
-                if (!metamodel) continue;
-                if (metamodel.name !== constants.core.AKM_CORE_META)
-                    continue;
-                if (metamodel && metamodel.id) {
-                    this.importMetamodel(metamodel);
-                    this.addMetamodel(metamodel);
-                    this.coreMetamodel = metamodel;
-                }
-            }
         }
         // Handle viewstyles
         const viewstyles: any[] = (importedData) && importedData.viewstyles;
@@ -4932,8 +4921,10 @@ export class cxMetaModel extends cxMetaObject {
             reltype = rtypes[i];
             if (reltype.isDeleted())
                 continue;
-            // if (reltype.name === constants.types.AKM_IS)
-            //     continue;
+            if (reltype.name === constants.types.AKM_IS)
+                continue;
+            if (reltype.name === constants.types.AKM_CONTAINS)
+                continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
                 reltypes.push(reltype);
                 continue;
@@ -6597,6 +6588,7 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     // abstract: boolean;
+    icomStyle: string;
     memberscale: number;
     arrowscale: number;
     viewkind: string;
@@ -6623,6 +6615,7 @@ export class cxObjtypeviewData {
     textscale: number;
     constructor() {
         // this.abstract = false;
+        this.icomStyle = "idef";
         this.memberscale = 1.0;
         this.arrowscale = 1.3;
         this.viewkind = constants.viewkinds.OBJ;
@@ -6803,6 +6796,12 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.template = template;
         this.template = template;
     }
+    setIcomStyle(icomStyle: string) {
+        this.data.icomStyle = icomStyle || "idef";
+    }
+    getIcomStyle(): string {
+        return this.data?.icomStyle || "idef";
+    }
     getTemplate(): string {
         if (this.data.template)
             return this.data.template;
@@ -6821,11 +6820,18 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template2;
         return "";
     }
+    getFigure(): string {
+        if (this.figure)
+            return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
+        return "";
+    }
     setFigure(figure: string) {
         this.data.figure = figure;
         this.figure = figure;
     }
-    getFigure(): string {
+    getFigure2(): string {
         if (this.figure2)
             return this.figure;
         else if (this.data.figure2)
@@ -6835,13 +6841,6 @@ export class cxObjectTypeView extends cxMetaObject {
     setFigure2(figure: string) {
         this.data.figure2 = figure;
         this.figure2 = figure;
-    }
-    getFigure2(): string {
-        if (this.figure)
-            return this.figure;
-        else if (this.data.figure)
-            return this.data.figure;
-        return "";
     }
     setGeometry(geometry: string) {
         this.data.geometry = geometry;
@@ -9427,9 +9426,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview: cxObjectView = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 if (objview.id === id) {
                     if (!objview.objectRef) {
                         const obj = objview.object;
@@ -9446,9 +9452,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 const obj = objview.object;
                 if (obj?.name === name)
                     return objview;
@@ -9461,9 +9474,16 @@ export class cxModelView extends cxMetaObject {
         let oviews = this.objectviews;
         if (!oviews)
             return null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         for (let i = 0; i < oviews.length; i++) {
             const ov = oviews[i];
-            if (ov.isDeleted())
+            if (isViewDeleted(ov))
                 continue;
             if (ov && obj) {
                 if (ov.object?.id === obj.id) {
@@ -9477,9 +9497,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objecttypeviews) return null;
         let i = 0;
         let obj = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objecttypeviews.length) {
             obj = this.objecttypeviews[i];
-            if (!obj?.isDeleted()) {
+            if (!isViewDeleted(obj)) {
                 if (obj.id === id)
                     return obj;
             }
@@ -9491,9 +9518,20 @@ export class cxModelView extends cxMetaObject {
         if (!relshipviews) return null;
         let i = 0;
         let rv = null;
+        var isViewDeleted = function (view) {
+            if (!view)
+                return false;
+            if (typeof view.isDeleted === 'function')
+                return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted'))
+                return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted'))
+                return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < relshipviews.length) {
             rv = relshipviews[i];
-            if (rv && !rv?.isDeleted()) {
+            if (!isViewDeleted(rv)) {
                 if (rv.id === id)
                     return rv;
             }
@@ -9804,7 +9842,15 @@ export class cxObjectView extends cxMetaObject {
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
         if (true) {
         this.group = "";
-        this.isGroup = false;
+        const baseViewkind =
+            this.typeview?.getViewKind?.() ||
+            this.typeview?.viewkind ||
+            object?.type?.viewkind ||
+            "";
+        const inferredContainer =
+            baseViewkind === constants.viewkinds.CONT ||
+            typeof (object?.type as any)?.isContainer === 'function' && (object?.type as any).isContainer();
+        this.isGroup = inferredContainer;
         this.groupLayout = "";
         this.parent = "";
         this.isExpanded = true;
@@ -9813,7 +9859,7 @@ export class cxObjectView extends cxMetaObject {
         this.visible = true;
         this.readonly = false;
         this.grabIsAllowed = false;
-        this.viewkind = "";
+        this.viewkind = inferredContainer ? constants.viewkinds.CONT : "";
         this.loc = "";
         this.size = "";
         this.scale = 1.0;
@@ -9824,15 +9870,15 @@ export class cxObjectView extends cxMetaObject {
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
-        this.fillcolor = "white";
-        this.fillcolor1 = "white";
-        this.fillcolor2 = "white";
-        this.strokecolor = "black";
-        this.strokecolor1 = "black";
-        this.strokecolor2 = "black";
+        this.fillcolor = "";
+        this.fillcolor1 = "";
+        this.fillcolor2 = "";
+        this.strokecolor = "";
+        this.strokecolor1 = "";
+        this.strokecolor2 = "";
         this.strokewidth = 1.0;
-        this.textcolor = "black";
-        this.textcolor2 = "black";
+        this.textcolor = "";
+        this.textcolor2 = "";
         this.icon = "";
         this.iconpath = "";
         this.icon1 = "";

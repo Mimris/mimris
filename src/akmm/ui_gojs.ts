@@ -18,6 +18,32 @@ Functions:
 // ----------------------------------------------------------------------------------
 
 const debug = false;
+
+function deriveTypeviewIcon(objview: akm.cxObjectView): string {
+    if (!objview) return "";
+
+    const tryIcon = (candidate: any): string => {
+        if (!candidate) return "";
+        if (typeof candidate === "string") return candidate;
+        if (typeof candidate === "object" && typeof candidate.icon === "string") return candidate.icon;
+        if (typeof candidate === "object" && typeof candidate.getIcon === "function") {
+            const value = candidate.getIcon();
+            return typeof value === "string" ? value : "";
+        }
+        return "";
+    };
+
+    const direct = tryIcon(objview.typeview);
+    if (direct) return direct;
+
+    const fromObjectType = tryIcon(objview.object?.type?.typeview);
+    if (fromObjectType) return fromObjectType;
+
+    const fromType = tryIcon(objview.object?.type);
+    if (fromType) return fromType;
+
+    return "";
+}
 export class goModel {
     key: string;
     name: string;
@@ -502,6 +528,15 @@ export class goObjectNode extends goNode {
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
             this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
+            if (!this.icon || this.icon === "") {
+                const typeviewIcon = deriveTypeviewIcon(objview);
+                if (typeviewIcon) {
+                    this.icon = typeviewIcon;
+                    if (!objview.icon) {
+                        objview.icon = typeviewIcon;
+                    }
+                }
+            }
             this.iconpath       = objview.iconpath ? objview.iconpath : "";
             this.icon1           = objview.icon1 ? objview.icon1 : "";
             this.icon2           = objview.icon2 ? objview.icon2 : "";
@@ -511,6 +546,7 @@ export class goObjectNode extends goNode {
             this.loc            = objview.loc;
             this.size           = objview.size;
             this.scale         = objview.scale;
+            (this as any).scale1 = objview.scale;
             this.memberscale    = objview.memberscale;
             this.grabIsAllowed  = objview.grabIsAllowed;
             this.isExpanded     = objview.isExpanded;
@@ -607,6 +643,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
+                ;(this as any).scale1 = this.objectview.getScale();
                 this.isExpanded = this.objectview.isExpanded;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
@@ -626,63 +663,67 @@ export class goObjectNode extends goNode {
         }
     }
     getParentNode(model: goModel): goNode {
+        if (!model) return null;
         const groupId = this.group;
-        if (groupId !== "" && groupId !== undefined) {
-            const nodes = model.nodes;
-            for (let i = 0; i < nodes?.length; i++) {
-                const node = nodes[i] as goObjectNode;
-                if (node.key === groupId) {
-                    return node;
+        if (!groupId || groupId === "" || groupId === undefined) return null;
+        // Avoid self-references that can cause recursive lookups
+        if (groupId === this.key) return null;
+        const nodes = model.nodes;
+        if (!nodes || !nodes.length) return null;
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            if (!node || !node.key) continue;
+            if (node.key === groupId) {
+                // Extra guard: break group cycles
+                if (node.group === this.key) {
+                    return null;
                 }
+                return node;
             }
         }
         return null;
     }
     getTopNode(model: goModel): goNode {
-        const node = this.getParentNode(model);
-        if (node) {
-            if (node.key === this.key) {
-                return this;
-            } else {
-                const topNode = node.getTopNode(model);
-                if (topNode) {
-                    return topNode;
-                } else
-                    return this;
-            }
+        let current: goObjectNode = this;
+        const visited = new Set<string>();
+        while (true) {
+            const next = current.getParentNode(model) as goObjectNode | null;
+            if (!next) return current;
+            if (visited.has(next.key)) return current; // break cycles
+            visited.add(next.key);
+            if (next.key === current.key) return current;
+            current = next;
         }
-        return this;
     }
     getMyScale(model: goModel): number {
-        let scale = this.scale;
         if (!this.group)
-            scale = 1;
+            return 1;
         const pnode = this.getParentNode(model);
         if (pnode) {
-            scale = pnode.memberscale;
-            if (!scale || scale == 'undefined')
-                scale = pnode.typeview.memberscale;
-            const prevscale = scale;   
+            let parentScale = 1;
             try {
-                scale *= pnode.getMyScale(model);
+                parentScale = pnode.getActualScale(model);
             } catch (error) {
-                return prevscale;
             }
-        } else 
-            scale = 1;
-        return scale;
+            let memberScale = pnode.memberscale;
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = pnode.typeview?.memberscale;
+            memberScale = Number(memberScale);
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = 1;
+            return Number(parentScale || 1) * memberScale;
+        }
+        return 1;
     }
     getActualScale(model: goModel): number {
-        let scale = this.scale;
+        let scale: any = (this as any).scale1;
+        if (!scale || scale == 'undefined')
+            scale = this.scale;
+        if (!scale || scale == 'undefined')
+            scale = this.objectview?.scale;
         if (!scale || scale == 'undefined')
             scale = 1;
-        const node = this.getParentNode(model);
-        if (debug) console.log('597 node', node);
-        if (node && node.key !== this.key) {
-            let scale1 = node.getActualScale(model);
-            scale *= scale1;
-        }
-        return scale;
+        return Number(scale);
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
@@ -837,6 +878,15 @@ export class goObjectTypeNode extends goNode {
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
                 this.setViewkind(objtype.getViewKind());
+                const viewkind = objtype.getViewKind() || (typeof typeview.getViewKind === 'function'
+                    ? typeview.getViewKind()
+                    : (typeview as any).viewkind);
+                if (viewkind === constants.viewkinds.CONT) {
+                    this.isGroup = true;
+                    const templateName = typeview.getTemplate?.() || typeview.template || constants.gojs.C_CONTAINER;
+                    this.template = templateName;
+                    this.category = templateName || constants.gojs.C_CONTAINER;
+                }
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -866,7 +916,7 @@ export class goLink extends goMetaObject {
     // parentModel: goModel;
     parentModelRef: string;
     markedAsDeleted: boolean;
-    constructor(key: string, model: goModel) {
+    constructor(key: string, model?: goModel) {
         super(key);
         this.parentModelRef = model?.key;  // goModel
         // this.parentModel = model;  // goModel

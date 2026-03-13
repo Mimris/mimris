@@ -214,7 +214,7 @@ import * as go from 'gojs';
 
 export function initializeDiagram(): go.Diagram {
   const $ = go.GraphObject.make;
-
+  
   return $(go.Diagram, {
     'undoManager.isEnabled': true,
     layout: $(go.ForceDirectedLayout),
@@ -230,20 +230,23 @@ export const nodeTemplate = (
     locationSpot={go.Spot.Center}
     selectionAdorned={true}
   >
-    <Shape
-      figure="Rectangle"
-      fill="#2F80ED"
+    <Shape 
+      figure="Rectangle" 
+      fill="#2F80ED" 
       strokeWidth={0}
     />
-    <TextBlock
-      text="{name}"
-      margin={8}
+    <TextBlock 
+      text="{name}" 
+      margin={8} 
       stroke="white"
     />
   </Node>
 );
 ```
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 ## 📚 Documentation
 
 Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
@@ -251,8 +254,46 @@ Mimris documentation is published as a GitHub Pages site backed by the [`docs/`]
 - **Landing page** – https://mimris.github.io/mimris/
 - **Getting started guide** – https://mimris.github.io/mimris/getting-started
 
+<<<<<<< ours
+=======
+### Enable GitHub Pages
+
+1. Commit and push updates to the `docs/` directory (for example, editing `docs/index.md`).
+2. In the GitHub repository, open **Settings → Pages**.
+3. Under **Build and deployment**, select **Source → Deploy from a branch**.
+4. Choose the `main` branch and the `/docs` folder, then click **Save**. GitHub Pages will build the Just the Docs site automatically.
+
+### Ensure the default branch is `main`
+
+If your repository still uses `master` (or another name), rename the branch and update the default in GitHub:
+
+```bash
+git branch -m master main
+git push -u origin main
+```
+
+Then go to **Settings → Branches** and set the default branch to `main`.
+
+### Preview locally
+
+1. Install Ruby (2.7+) and Bundler if they are not already available.
+2. Change into the documentation directory and start Jekyll:
+   ```bash
+   cd docs
+   bundle install
+   bundle exec jekyll serve --livereload
+   ```
+3. Visit <http://localhost:4000> to preview the documentation with live reload while you edit markdown files.
+
+>>>>>>> theirs
 To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
 
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 ## Contributing 🤝
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.

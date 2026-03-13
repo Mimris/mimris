@@ -115,7 +115,7 @@ export function getMinSize(): go.Size {
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
-        return go.Link.Normal;ƒ
+        return go.Link.Normal;
     case 'Orthogonal':
         return go.Link.Orthogonal;
     case 'AvoidsNodes':
@@ -228,16 +228,54 @@ let groupTemplateNames = [];
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
-    new go.Binding("source", "icon", findImage),
+    new go.Binding("source", "icon", getIconSource),
     {
             name: "Picture",
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
+            column: 1, 
+            margin: new go.Margin(0, 5, 0, 0),
+            desiredSize: new go.Size(27, 27),
             alignment: go.Spot.Right,
+            // allow icon background color via fillcolor2
+            background: "transparent",
         },
+        new go.Binding("background", "fillcolor2"),
         new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "icon", shouldShowIconPicture),
     )                                
+}
+
+// Helper function to force update all icon sources in the diagram
+// This is needed because GoJS bindings don't always trigger for emoji after reload
+export function forceUpdateAllIconSources(diagram: any): void {
+  if (!diagram || !diagram.nodes) return;
+  
+  console.log("forceUpdateAllIconSources: Starting to update all icon sources in diagram");
+  let updated = 0;
+  
+  for (let it = diagram.nodes; it?.next();) {
+    const node = it.value;
+    if (!node || !node.data) continue;
+    
+    const icon = node.data.icon;
+    if (!icon) continue;
+    
+    // Find the Picture element named "Picture"
+    const pictureElement = node.findObject("Picture");
+    if (pictureElement && pictureElement.source !== undefined) {
+      try {
+        const newSource = getIconSource(icon);
+        if (pictureElement.source !== newSource) {
+          pictureElement.source = newSource;
+          console.log("forceUpdateAllIconSources: Updated icon for", node.data.name || node.key, "with value", icon);
+          updated++;
+        }
+      } catch (e) {
+        console.error("forceUpdateAllIconSources: Failed to update icon for", node.data.name || node.key, e);
+      }
+    }
+  }
+  
+  console.log("forceUpdateAllIconSources: Complete. Updated", updated, "icons");
 }
 
 function makeGeometry() {
@@ -311,24 +349,42 @@ function makeImage(kind: string) {
 }
 
 function makeImageImage() {
-    return $(go.Picture,  // the image -------------------------------------
-        new go.Binding("source", "image", findImage),
+    return $(go.Panel, "Auto",
         {
-            column: 2, 
-            margin: new go.Margin(2, 0, 0, 0),
-            desiredSize: new go.Size(25, 25),
-            alignment: go.Spot.Right,
-            imageStretch: go.GraphObject.Uniform,
+            name: "GROUP_CLOSED_IMAGE",
+            stretch: go.GraphObject.Fill,
+            minSize: new go.Size(200, 100),
+            margin: new go.Margin(0, 0, 0, 0),
             cursor: "move",
         },
-        new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
-        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-    )                                
+        new go.Binding('visible', 'isSubGraphExpanded', function (expanded) { return !expanded; }).ofObject(),
+        $(go.Picture,
+            new go.Binding("source", "image", findImage),
+            {
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
+                alignment: go.Spot.Center,
+                opacity: 0.95,
+                pickable: true,
+                cursor: "move",
+            },
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
+        ),
+        $(go.Shape,  // invisible hit area to allow dragging even without an image
+            {
+                fill: "transparent",
+                stroke: null,
+                cursor: "move",
+                stretch: go.GraphObject.Fill,
+                pickable: true,
+            }
+        )
+    );                               
 }
 
 function makeIconImage() {
     return $(go.Picture,  // the image -------------------------------------
-        new go.Binding("source", "icon", findImage),
+        new go.Binding("source", "icon", getIconSource),
         {
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -338,6 +394,7 @@ function makeIconImage() {
             cursor: "move",
         },
         new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+        new go.Binding("visible", "icon", shouldShowIconPicture),
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
     )                                
 }
@@ -394,8 +451,9 @@ function makeFigure2Image() {
 }
 
 export function groupTop1(contextMenu: any, notation: string) {
-    // With ports
-    return $(go.Panel, "Auto",
+    // With ports - wrapped in Spot panel for edge overlays
+    const edgeWidth = 15; // Width of the linkable edge area
+    return $(go.Panel, "Spot",
         {
             row: 1, 
             column: 1, 
@@ -436,54 +494,132 @@ export function groupTop1(contextMenu: any, notation: string) {
             name: "HEADER", 
             defaultAlignment: go.Spot.TopLeft, 
         },
-        $(go.Panel, "Table",  // the header
-            {
-                contextMenu: contextMenu , 
-                cursor: "move",
-                stretch: go.GraphObject.Horizontal,
-            },
-            $("SubGraphExpanderButton",
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        // Main content in Auto panel
+        $(go.Panel, "Auto",
+            { stretch: go.GraphObject.Fill },
+            $(go.Shape, "RoundedRectangle", // visible border
                 {
-                    column: 0, 
-                    margin: new go.Margin(-2, 2, 2, 0),
-                    alignment: go.Spot.Left,
-                    scale: 1.2,
-                },
-            ),  
-            $(go.TextBlock, // group title located at the left
-                { 
-                    row: 0, 
-                    column: 1, 
-                    isMultiline: false,
-                    maxLines: 1,
-                    editable: true, 
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 0, 0, 10), 
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    stretch: go.GraphObject.Horizontal,
-                    name: "name",
+                    fill: "white", 
+                    shadowVisible: true,
+                    minSize: new go.Size(160, 65),
+                    strokeWidth: 2,
+                    // Small visual padding
+                    spot1: new go.Spot(0, 0, 2, 2),
+                    spot2: new go.Spot(1, 1, -2, -2),
                 },
                 new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay(),
-                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
             ),
-            $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
+            $(go.Panel, "Vertical",  // position header above the subgraph
             {
-                row: 0, 
-                column: 1, 
-                isMultiline: false,  // don't allow newlines in text
-                maxLines: 1,
-                editable: true,  // allow in-place editing by user
-                font: "Bold 28pt Sans-Serif",
-                textAlign: "left",
-                alignment: go.Spot.Left,
-                margin: new go.Margin(0, 0, 0, 10),
-                wrap: go.TextBlock.None,
-                overflow: go.TextBlock.OverflowEllipsis,
+                name: "HEADER",
+                defaultAlignment: go.Spot.TopLeft,
+                stretch: go.GraphObject.Fill,
+                alignment: go.Spot.TopLeft,
+                margin: new go.Margin(2),
+                cursor: "move",
+            },
+            $(go.Panel, "Table",  // the header
+                {
+                    alignment: go.Spot.TopLeft,
+                    contextMenu: contextMenu,
+                    cursor: "move",
+                    stretch: go.GraphObject.Horizontal,
+                },
+                $(go.RowColumnDefinition, { column: 0, width: 20 }),
+                $(go.RowColumnDefinition, { column: 1, sizing: go.RowColumnDefinition.ProportionalExtra }),
+                makeZoomInvariantExpanderButton(1.25, {
+                    column: 0,
+                    margin: new go.Margin(0, 0, 0, 0),
+                    alignment: go.Spot.Left,
+                }),
+                $(go.TextBlock, // group title located at the left
+                    { 
+                        row: 0, 
+                        column: 1, 
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true, 
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(0, 0, 0, 8), 
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        stretch: go.GraphObject.Horizontal,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                ),
+                $(go.TextBlock, textStyle(),  // the name - closed container
+                    {
+                        row: 0, 
+                        column: 1, 
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        alignmentFocus: go.Spot.Left,
+                        margin: new go.Margin(0, 0, 0, 8),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        stretch: go.GraphObject.None,
+                        name: "name"
+                    },        
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                ),
+                makeNotation(notation),
+                ), // End Table Panel
+
+                $(go.Shape,  // open container background
+                    {
+                        name: "SHAPE", 
+                        fill: "lightyellow", 
+                        opacity: 0.95,
+                        minSize: new go.Size(200, 100),
+                        margin: new go.Margin(0, 10, 10, 10),
+                        cursor: "move",
+                        stroke: "transparent",
+                        stretch: go.GraphObject.Fill,
+                    },
+                    new go.Binding("fill", "fillcolor2"),
+                    new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                    new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
+                ),     
+                makeImage("Image"),
+            ),
+            $(go.TextBlock, textStyle(), // typename always visible, anchored bottom-left
+                {
+                    alignment: new go.Spot(0, 1, 8, -2),
+                    alignmentFocus: new go.Spot(0, 1, 0, -2),
+                    isMultiline: false,
+                    editable: false,
+                    font: "Bold 8pt Sans-Serif",
+                    maxLines: 1,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    textAlign: "left",
+                    cursor: "move",
+                    stroke: "black"
+                },
+                new go.Binding("text", "typename"),
+                new go.Binding("stroke", "textcolor"),
+            ),
+        ), // End inner Auto panel
+        // TOP edge overlay - wide linkable area
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Top,
+                alignmentFocus: go.Spot.Top,
+                height: edgeWidth,
                 stretch: go.GraphObject.Horizontal,
                 name: "name"
             },        
@@ -512,27 +648,27 @@ export function groupTop1(contextMenu: any, notation: string) {
             makeImage("Image"),
             $(go.TextBlock, textStyle(), // the typename  --------------------
             {
-                row: 2,
-                stretch: go.GraphObject.Fill,
-                isMultiline: false,
-                editable: false,
-                minSize: new go.Size(10, 4),
-                margin: new go.Margin(0, 0, 0, 2), 
-                textAlign: "left",
-                cursor: "move", 
+                alignment: go.Spot.Bottom,
+                alignmentFocus: go.Spot.Bottom,
+                height: edgeWidth,
+                stretch: go.GraphObject.Horizontal,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
-            new go.Binding("text", "typename")
-            ),  
         ),
     )
 }
 
-export function groupTop2(contextMenu: any, notation: string) {
+export function groupTop2(contextMenu: any, notation: string, bodyLinkable: boolean = true) {
     // Without ports
     return $(go.Panel, "Auto",
         {
-            row: 1, 
-            column: 1, 
+            row: 1,
+            column: 1,
             name: "BODY",
             stretch: go.GraphObject.Fill,
             isPanelMain: true,
@@ -541,12 +677,16 @@ export function groupTop2(contextMenu: any, notation: string) {
             {
                 name: "SHAPE",
                 cursor: "alias",
-                fill: "white", 
+                fill: "white",
                 shadowVisible: true,
-                minSize: new go.Size(200, 100),
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                minSize: new go.Size(180, 90),
+                portId: bodyLinkable ? "" : null,
+                fromLinkable: bodyLinkable,
+                fromLinkableSelfNode: false,
+                fromLinkableDuplicates: true,
+                toLinkable: bodyLinkable,
+                toLinkableSelfNode: false,
+                toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
@@ -557,96 +697,91 @@ export function groupTop2(contextMenu: any, notation: string) {
                 cursor: "move",
                 fill: "transparent",
                 stroke: "transparent",
-                margin: new go.Margin(30, 12, 12, 12),
-                minSize: new go.Size(150, 55),
+                margin: new go.Margin(26, 10, 10, 10),
+                minSize: new go.Size(136, 50),
                 stretch: go.GraphObject.Fill,
-                pickable: false,
             },
         ),
-
         $(go.Panel, "Table",  // position header above the subgraph
             {
                 stretch: go.GraphObject.Fill,
                 defaultAlignment: go.Spot.TopLeft
-            },            
-            $(go.RowColumnDefinition, { row: 0, height: 20, sizing: go.RowColumnDefinition.None }),
+            },
+            $(go.RowColumnDefinition, { row: 0, height: 26, sizing: go.RowColumnDefinition.None }),
             $(go.Panel, "Table",  // the header
+                {
+                    row: 0,
+                    background: "transparent",
+                    contextMenu: contextMenu,
+                    cursor: "move",
+                    margin: new go.Margin(2, 0, 0, 0),
+                    stretch: go.GraphObject.Horizontal,
+                },
+                $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
+                makeZoomInvariantExpanderButton(0.9, {
+                    column: 0,
+                    margin: new go.Margin(7, 1, 0, 0),
+                    alignment: go.Spot.Left,
+                }),
+                $(go.TextBlock, textStyle(),  // the name - open container
                     {
                         row: 0,
-                        background: "transparent",
-                        contextMenu: contextMenu , 
-                        cursor: "move",
-                        margin: new go.Margin(3, 0, 0, 0),
-                        stretch: go.GraphObject.Horizontal,
-                    },
-                $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
-                $("SubGraphExpanderButton",
-                    {
-                        column: 0, 
-                        margin: new go.Margin(1, 1, 1, 0), 
+                        column: 1,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "10pt Segoe UI,sans-serif",
+                        textAlign: "left",
                         alignment: go.Spot.Left,
-                        scale: 1.0,
+                        margin: new go.Margin(7, 0, 0, 4),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name"
                     },
-                ),  
-                $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
-                {
-                    row: 0, 
-                    column: 1, 
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "10pt Segoe UI,sans-serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(2, 0, 0, 2),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name"
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
                 ),
-                // $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
-                // {
-                //     row: 0, 
-                //     column: 1, 
-                //     isMultiline: false,  // don't allow newlines in text
-                //     maxLines: 1,
-                //     editable: true,  // allow in-place editing by user
-                //     font: "Bold 10pt Segoe UI,sans-serif",
-                //     textAlign: "left",
-                //     alignment: go.Spot.Left,
-                //     margin: new go.Margin(0, 0, 0, 2),
-                //     wrap: go.TextBlock.None,
-                //     overflow: go.TextBlock.OverflowEllipsis,
-                //     name: "name",
-                //     // visible: false,
-                // },        
-                // new go.Binding("fill", "fillcolor"),
-                // new go.Binding("text", "name").makeTwoWay(),
-                // new go.Binding("stroke", "textcolor").makeTwoWay(),
-                // ),
-                // makeNotation(notation),
+                $(go.TextBlock, textStyle(),  // the name - closed container
+                    {
+                        row: 0,
+                        column: 1,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "10pt Segoe UI,sans-serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(5, 0, 0, 2),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay(),
+                    new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
+                ),
             ), // End Panel
-            $(go.Shape,  // using a Shape instead of a Placeholder 
-                //This is open container - showing the content
+            $(go.RowColumnDefinition, { row: 1, sizing: go.RowColumnDefinition.None }),
+            $(go.Shape, // the shape inside the shape
                 {
                     row: 1,
-                    stretch: go.GraphObject.Fill,
                     fill: "rgba(128,128,128,0.33)",
                     stroke: "rgba(120,120,120,0.55)",
                     strokeWidth: 1.2,
                     opacity: 0.75,
-                    margin: new go.Margin(2, 2, 3, 4),
+                    minSize: new go.Size(146, 62),
+                    margin: new go.Margin(2, 2, 2, 3),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
                 new go.Binding("desiredSize", "size", function (s) {
                     const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
                     return new go.Size(
-                        Math.max(80, parsed.width - 16),
-                        Math.max(40, parsed.height - 28)
+                        Math.max(72, parsed.width - 14),
+                        Math.max(36, parsed.height - 24)
                     );
                 }),
                 // Keep open/closed visuals consistent; only the expander symbol changes.
@@ -663,25 +798,10 @@ export function groupTop2(contextMenu: any, notation: string) {
                     alignment: go.Spot.Center,
                     imageStretch: go.GraphObject.Uniform,
                 },
-                // Hide picture-based collapsed mode to avoid blank/shifted closed appearance.
-                new go.Binding("visible", "", function () { return false; }).ofObject(),
+                new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
             ), // End Picture
 
             $(go.RowColumnDefinition, { row: 2, height: 6, sizing: go.RowColumnDefinition.None }),
-            // $(go.TextBlock, textStyle(), // the typename  --------------------
-            //     {
-            //         row: 2, 
-            //         stretch: go.GraphObject.Horizontal,
-            //         isMultiline: false,
-            //         editable: false,
-            //         font: "10pt Segoe UI,sans-serif",
-            //         minSize: new go.Size(10, 4),
-            //         margin: new go.Margin(0, 0, 1, 1), 
-            //         visible: false,
-            //         cursor: "move", 
-            //     },
-            //     new go.Binding("text", "typename"),
-            // ), // End TextBlock
         ),
     );
 }
@@ -729,120 +849,169 @@ function groupWithPortsSelectionPadding(offsetX: number, offsetY: number) {
         { pickable: false },
         // Reserve ICOM space on all sides so selection bounds remain stable
         // even before ports are added.
-        pad(go.Spot.Left, -offsetX, 0),
+        pad(go.Spot.Left, 0, 0),
         pad(go.Spot.Top, 0, -offsetY),
-        pad(go.Spot.Right, offsetX, 0),
+        pad(go.Spot.Right, 0, 0),
         pad(go.Spot.Bottom, 0, offsetY),
     );
 }
 
 export function groupTop3(contextMenu: any, notation: string, textscale: number) {
-    // Without ports
-    return $(go.Panel, "Auto",
+    // Without ports - wrapped in Spot panel for edge overlays
+    const edgeWidth = 15; // Width of the linkable edge area
+    return $(go.Panel, "Spot",
         {
             row: 1, 
             column: 1, 
             name: "BODY",
             stretch: go.GraphObject.Fill,
         },
-        $(go.Shape, "RoundedRectangle", // surrounds everything
-            {
-                cursor: "alias",
-                fill: "white", 
-                shadowVisible: true,
-                minSize: new go.Size(160, 65),
-                portId: "", 
-                fromLinkable: true, 
-                fromLinkableSelfNode: false, 
-                fromLinkableDuplicates: true,
-                toLinkable: true, 
-                toLinkableSelfNode: false, 
-                toLinkableDuplicates: true,
-            },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-        ),
-        $(go.Shape, "RoundedRectangle", // Inner shape for moving
-            {
-                cursor: "move",
-                fill: "transparent", 
-                stroke: "transparent",
-                margin: new go.Margin(30, 12, 12, 12),
-                minSize: new go.Size(150, 55),
-                stretch: go.GraphObject.Fill,
-            },
-        ),
-        $(go.Panel, "Table",  // position header above the subgraph
-            {
-                stretch: go.GraphObject.Fill,
-                defaultAlignment: go.Spot.TopLeft
-            },            
-            $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-            $(go.Panel, "Table",  // the header
+        // Main content in Auto panel
+        $(go.Panel, "Auto",
+            { stretch: go.GraphObject.Fill },
+            $(go.Shape, "RoundedRectangle", // visible border
+                {
+                    fill: "white", 
+                    shadowVisible: true,
+                    minSize: new go.Size(160, 65),
+                    strokeWidth: 2,
+                    // Small visual padding
+                    spot1: new go.Spot(0, 0, 2, 2),
+                    spot2: new go.Spot(1, 1, -2, -2),
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            ),
+            $(go.Panel, "Table",  // position header above the subgraph
+                {
+                    stretch: go.GraphObject.Fill,
+                    defaultAlignment: go.Spot.TopLeft,
+                    cursor: "move",
+                },            
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.Panel, "Table",  // the header
+                        {
+                            row: 0,
+                            contextMenu: contextMenu, 
+                            cursor: "move",
+                            stretch: go.GraphObject.Horizontal,
+                        },
+                    $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
+                    makeZoomInvariantExpanderButton(1.45, {
+                        column: 0,
+                        angle: 270,
+                        margin: new go.Margin(10, 2, 2, 2),
+                        alignment: go.Spot.Center,
+                    }),
+                    $(go.TextBlock, textStyle(),  // the name - open container
                     {
-                        row: 0,
-                        contextMenu: contextMenu , 
-                        cursor: "move",
-                        stretch: go.GraphObject.Horizontal,
-                    },
-                $(go.RowColumnDefinition, { column: 0, sizing: go.RowColumnDefinition.None }),
-                $("SubGraphExpanderButton",
-                    {
+                        row: 1, 
                         column: 0, 
                         angle: 270,
-                        margin: new go.Margin(10, 2, 2, 2), 
-                        alignment: go.Spot.Center,
-                        scale: 1.5,
-                    },
-                ),  
-                $(go.TextBlock, textStyle(),  // the name - open container  -----------------------
-                {
-                    row: 1, 
-                    column: 0, 
-                    angle: 270,
-                    scale: textscale,
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(5, 0, 0, 10),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name"
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "strokecolor").makeTwoWay(),
-                new go.Binding("visible", "isSubGraphExpanded").ofObject(),
-                ),
-                $(go.TextBlock, textStyle(),  // the name - closed container  -----------------------
-                {
-                    row: 0, 
-                    column: 1, 
-                    scale: textscale * 1.5,
-                    isMultiline: false,  // don't allow newlines in text
-                    maxLines: 1,
-                    editable: true,  // allow in-place editing by user
-                    font: "Bold 14pt Sans-Serif",
-                    textAlign: "left",
-                    alignment: go.Spot.Left,
-                    margin: new go.Margin(0, 100, 0, 0),
-                    wrap: go.TextBlock.None,
-                    overflow: go.TextBlock.OverflowEllipsis,
-                    name: "name",
-                },        
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "strokecolor").makeTwoWay(),
-                new go.Binding('visible', 'isSubGraphExpanded', 
-                    function (e) { return !e; }).ofObject(),
-                ),
-                makeNotation(notation),
-            ), // End Panel
-            $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+                        scale: textscale,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(5, 0, 0, 10),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name"
+                    },        
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
+                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                    ),
+                    $(go.TextBlock, textStyle(),  // the name - closed container
+                    {
+                        row: 0, 
+                        column: 1, 
+                        scale: textscale * 1.5,
+                        isMultiline: false,
+                        maxLines: 1,
+                        editable: true,
+                        font: "Bold 14pt Sans-Serif",
+                        textAlign: "left",
+                        alignment: go.Spot.Left,
+                        margin: new go.Margin(0, 100, 0, 0),
+                        wrap: go.TextBlock.None,
+                        overflow: go.TextBlock.OverflowEllipsis,
+                        name: "name",
+                    },        
+                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
+                    new go.Binding('visible', 'isSubGraphExpanded', 
+                        function (e) { return !e; }).ofObject(),
+                    ),
+                    makeNotation(notation),
+                ), // End header Table Panel
+                $(go.RowColumnDefinition, { row: 2, sizing: go.RowColumnDefinition.None }),
+            ), // End outer Table panel
+        ), // End inner Auto panel
+        // TOP edge overlay - wide linkable area
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Top,
+                alignmentFocus: go.Spot.Top,
+                height: edgeWidth,
+                stretch: go.GraphObject.Horizontal,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // BOTTOM edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Bottom,
+                alignmentFocus: go.Spot.Bottom,
+                height: edgeWidth,
+                stretch: go.GraphObject.Horizontal,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // LEFT edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Left,
+                alignmentFocus: go.Spot.Left,
+                width: edgeWidth,
+                stretch: go.GraphObject.Vertical,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
+        ),
+        // RIGHT edge overlay
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Right,
+                alignmentFocus: go.Spot.Right,
+                width: edgeWidth,
+                stretch: go.GraphObject.Vertical,
+                fill: "transparent",
+                stroke: null,
+                cursor: "alias",
+                portId: "",
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            },
         ),
     );
 }
@@ -985,7 +1154,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "strokecolor").makeTwoWay(),
                     ),
-                    $("SubGraphExpanderButton", { margin: new go.Margin(0, 0, 0, 4), scale: 1.1 }),
+                    makeZoomInvariantExpanderButton(1.2, { margin: new go.Margin(0, 0, 0, 4) }),
                 ),
                 makeNotation(notation),
             ),
@@ -1150,8 +1319,9 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                         {
                             name: "POOL_CONTENT_ANCHOR",
                             stretch: go.GraphObject.Fill,
-                            // No extra inset; lane headers should align directly with the pool header separator.
-                            padding: new go.Margin(0, 0, 0, 0),
+                            // Keep lane content flush to the left/top separator while leaving a tiny
+                            // right/bottom inset so the pool border remains visible.
+                            padding: new go.Margin(0, 2, 2, 0),
                             alignment: go.Spot.TopLeft,
                         },
                     ),
@@ -1161,27 +1331,120 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
     );
 }
 
+function makeZoomInvariantExpanderButton(baseScale: number, props: Record<string, any> = {}) {
+    const {
+        width,
+        height,
+        minSize,
+        desiredSize,
+        alignment,
+        alignmentFocus,
+        margin,
+        row,
+        column,
+        columnSpan,
+        rowSpan,
+        ...buttonProps
+    } = props || {};
+    const slotWidth =
+        typeof width === "number" ? width
+        : desiredSize instanceof go.Size ? desiredSize.width
+        : minSize instanceof go.Size ? minSize.width
+        : 18;
+    const slotHeight =
+        typeof height === "number" ? height
+        : desiredSize instanceof go.Size ? desiredSize.height
+        : minSize instanceof go.Size ? minSize.height
+        : 18;
+    const button = $("SubGraphExpanderButton",
+        {
+            name: "EXPANDER_BUTTON",
+            alignment: go.Spot.Center,
+            scale: baseScale,
+            ...buttonProps,
+        },
+    );
+    const slotProps: Record<string, any> = {
+        width: slotWidth,
+        height: slotHeight,
+        minSize: new go.Size(slotWidth, slotHeight),
+        stretch: go.GraphObject.None,
+        alignment: alignment || go.Spot.Center,
+        margin: margin || new go.Margin(0),
+    };
+    if (alignmentFocus instanceof go.Spot) {
+        slotProps.alignmentFocus = alignmentFocus;
+    }
+    if (Number.isFinite(row)) {
+        slotProps.row = row;
+    }
+    if (Number.isFinite(column)) {
+        slotProps.column = column;
+    }
+    if (Number.isFinite(columnSpan)) {
+        slotProps.columnSpan = columnSpan;
+    }
+    if (Number.isFinite(rowSpan)) {
+        slotProps.rowSpan = rowSpan;
+    }
+    return $(go.Panel, "Spot",
+        slotProps,
+        button,
+    );
+}
+
 function addResizeAdornment(groupName: string) {
+    const scaledAdornmentSize = (width: number, height: number) =>
+        new go.Binding("desiredSize", "", (_data, shape) => {
+            const scale = shape?.part?.diagram?.scale || 1;
+            return new go.Size(width / scale, height / scale);
+        }).ofObject();
+    if (
+        groupName === "Pool" ||
+        groupName === "Lane" ||
+        groupName === "Container1" ||
+        groupName === "IDEF0" ||
+        groupName === "groupWithPorts" ||
+        groupName === "groupWithIconAndPorts" ||
+        groupName === "groupWithGeoAndPorts" ||
+        groupName === "groupWithFigAndPorts" ||
+        groupName === "groupNoPorts" ||
+        groupName === "groupIconNoPorts" ||
+        groupName === "groupGeoNoPorts" ||
+        groupName === "groupFigNoPorts"
+    ) {
+        return $(go.Adornment, "Spot",
+            $(go.Placeholder),
+            $(go.Shape, { alignment: go.Spot.TopLeft, fill: "lightblue", stroke: "dodgerblue", cursor: "nw-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Top, fill: "lightblue", stroke: "dodgerblue", cursor: "s-resize" }, scaledAdornmentSize(16, 6)),
+            $(go.Shape, { alignment: go.Spot.TopRight, fill: "lightblue", stroke: "dodgerblue", cursor: "ne-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Right, fill: "lightblue", stroke: "dodgerblue", cursor: "w-resize" }, scaledAdornmentSize(6, 16)),
+            $(go.Shape, { alignment: go.Spot.BottomRight, fill: "lightblue", stroke: "dodgerblue", cursor: "se-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Bottom, fill: "lightblue", stroke: "dodgerblue", cursor: "n-resize" }, scaledAdornmentSize(16, 6)),
+            $(go.Shape, { alignment: go.Spot.BottomLeft, fill: "lightblue", stroke: "dodgerblue", cursor: "sw-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Left, fill: "lightblue", stroke: "dodgerblue", cursor: "e-resize" }, scaledAdornmentSize(6, 16))
+        );
+    }
     return $(go.Adornment, "Spot",
         $(go.Placeholder),
-        $(go.Shape,  // for changing the length of a lane
+            $(go.Shape,
         {
             alignment: go.Spot.Right,
-            desiredSize: new go.Size(7, 50),
             fill: "lightblue", stroke: "dodgerblue",
             cursor: "col-resize"
         },
+        scaledAdornmentSize(6, 24),
         new go.Binding("visible", "", ad => {
             if (ad.adornedPart === null) return false;
             return ad.adornedPart.isSubGraphExpanded;
         }).ofObject()),
-        $(go.Shape,  // for changing the breadth of a lane
+        $(go.Shape,
         {
             alignment: go.Spot.Bottom,
-            desiredSize: new go.Size(50, 7),
             fill: "lightblue", stroke: "dodgerblue",
             cursor: "row-resize"
         },
+        scaledAdornmentSize(24, 6),
         new go.Binding("visible", "", ad => {
             if (ad.adornedPart === null) return false;
             return ad.adornedPart.isSubGraphExpanded;
@@ -1220,10 +1483,11 @@ function addNodeText0(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         // $(go.TextBlock, textStyle(), // the typename  --------------------
         //     {
@@ -1239,7 +1503,7 @@ function addNodeText0(contextMenu: any) {
     )
 }
 
-function addNodeText(contextMenu: any) {
+function addNodeText(contextMenu: any, typeviewContextMenu: any) {
     return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
             contextMenu: contextMenu, 
@@ -1270,10 +1534,11 @@ function addNodeText(contextMenu: any) {
                 // stretch: go.GraphObject.Fill, // added to not resize object
                 // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
                 margin: new go.Margin(0,3,0,0),
-                name: "name"
+                name: "name",
+                stroke: "black"
             },        
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor", s => s || "black")
         ),
         $(go.TextBlock, textStyle(), // the typename  --------------------
             {
@@ -1282,9 +1547,11 @@ function addNodeText(contextMenu: any) {
                 minSize: new go.Size(10, 4),
                 margin: new go.Margin(0, 0, 0, 2),  
                 textAlign: "center",
+                // cursor: "context-menu",
+                name: "typename",
+                contextMenu: typeviewContextMenu
             },
-            new go.Binding("text", "typename"),
-            new go.Binding("stroke", "textcolor2").makeTwoWay()
+            new go.Binding("text", "typename")
         ),
     )
 }
@@ -1297,6 +1564,8 @@ function addLeftPorts(portContextMenu: any, offsetX: number = 0, offsetY: number
                 column: 0,
                 itemTemplate: makeItemTemplate('left', true, portContextMenu),
                 alignment: new go.Spot(0, 0.5, offsetX, offsetY), 
+                alignmentFocus: go.Spot.Right,
+                defaultAlignment: go.Spot.Right,
                 fromLinkable: true, 
                 toLinkable: true, 
                 cursor: "pointer",
@@ -1311,7 +1580,9 @@ function addTopPorts(portContextMenu: any, offsetX: number = 0, offsetY: number 
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('top', true, portContextMenu),
-                alignment: new go.Spot(0.5, 0, offsetX, offsetY), 
+                minSize: new go.Size(NaN, 72),
+                margin: new go.Margin(44, 0, 0, 0),
+                alignment: new go.Spot(0.5, 0, offsetX, offsetY - 12),
                 fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
@@ -1327,6 +1598,8 @@ function addRightPorts(portContextMenu: any, offsetX: number = 0, offsetY: numbe
                     column: 2,
                     itemTemplate: makeItemTemplate('right', true, portContextMenu),
                     alignment: new go.Spot(1, 0.5, offsetX, offsetY), 
+                    alignmentFocus: go.Spot.Left,
+                    defaultAlignment: go.Spot.Left,
                     fromLinkable: true,
                     toLinkable: true,
                     cursor: "pointer",
@@ -1341,13 +1614,107 @@ function addBottomPorts(portContextMenu: any, offsetX: number = 0, offsetY: numb
                 row: 0, 
                 column: 0,
                 itemTemplate: makeItemTemplate('bottom', true, portContextMenu),
-                alignment: new go.Spot(0.5, 1, offsetX, offsetY), 
+                minSize: new go.Size(NaN, 72),
+                margin: new go.Margin(0, 0, 44, 0),
+                alignment: new go.Spot(0.5, 1, offsetX, offsetY + 12),
                 fromLinkable: true, 
                 toLinkable: true,
                 cursor: "pointer",
             }
         );  // end bottomPorts Panel
 }
+
+function normalizeIcomStyle(value: any): "hybrid" | "idef" {
+    return String(value || "").toLowerCase() === "hybrid" ? "hybrid" : "idef";
+}
+
+function resolveIcomStyle(targetObj: go.GraphObject | null | undefined): "hybrid" | "idef" {
+    const partData: any = targetObj?.part?.data || {};
+    const modelData: any = targetObj?.part?.diagram?.model?.modelData || {};
+    const explicitStyle =
+        partData?.icomStyle ??
+        partData?.objectview?.icomStyle ??
+        partData?.objectview?.typeview?.data?.icomStyle ??
+        partData?.typeview?.icomStyle ??
+        partData?.typeview?.data?.icomStyle ??
+        modelData?.icomStyle;
+    if (explicitStyle) {
+        return normalizeIcomStyle(explicitStyle);
+    }
+    const templateName = String(
+        partData?.template ??
+        partData?.category ??
+        partData?.typeview?.template ??
+        partData?.objectview?.template ??
+        ""
+    ).toLowerCase();
+    const typeName = String(
+        partData?.typename ??
+        partData?.objecttype?.name ??
+        partData?.object?.type?.name ??
+        partData?.typeview?.name ??
+        ""
+    ).toLowerCase();
+    if (templateName === "idef0" || typeName === "process") {
+        return "idef";
+    }
+    return "idef";
+}
+
+function getIcomGeometry(side: string, style: "hybrid" | "idef"): string {
+    if (style === "idef") {
+        switch (side) {
+            case "left":
+                return "M0 4 L16 4";
+            case "right":
+                return "M0 4 L16 4";
+            case "top":
+                return "M8 0 L8 16";
+            case "bottom":
+                return "M8 0 L8 16";
+            default:
+                return "M0 4 L16 4";
+        }
+    }
+    switch (side) {
+        case "top":
+            return "F1 m 0,0 l 6,0 0,8  2,0  -5,4  -5,-4 2,0 0,-8 z";
+        case "bottom":
+            return "F1 m 0,0 l 6,0 0,-8  2,0  -5,-4  -5,4 2,0 0,8 z";
+        default:
+            return "F1 m 0,0 l 5,0 1,8 -1,8 -5,0 1,-8 -1,-8 z";
+    }
+}
+
+function getIcomPortSize(isGroup: boolean, style: "hybrid" | "idef"): go.Size {
+    if (style === "idef") {
+        return isGroup ? new go.Size(18, 16) : new go.Size(16, 14);
+    }
+    return isGroup ? new go.Size(34, 18) : new go.Size(30, 15);
+}
+
+function getSideMarkerVisualSize(isGroup: boolean, style: "hybrid" | "idef"): go.Size {
+    if (style === "idef") {
+        return isGroup ? new go.Size(18, 8) : new go.Size(16, 8);
+    }
+    return getIcomPortSize(isGroup, style);
+}
+
+function getIcomFill(data: any, style: "hybrid" | "idef"): string {
+    if (style === "idef") return "transparent";
+    return data?.color || "white";
+}
+
+function getIcomStroke(data: any, style: "hybrid" | "idef"): string {
+    if (style === "idef") return data?.color || "gray";
+    return "gray";
+}
+
+function getIcomStrokeWidth(style: "hybrid" | "idef"): number {
+    return style === "idef" ? 1.5 : 1;
+}
+
+const DEBUG_ICOM_LAYOUT = false;
 
 function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) {
     let rightside = side === 'right';
@@ -1374,6 +1741,13 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     let textAlignment = go.Spot.Center;
     let textBlockAlign: "left" | "center" | "right" = "center";
     let textMargin = new go.Margin(0);
+    const openPortNameEditor = (e: go.InputEvent, obj: go.GraphObject) => {
+        const diagram: any = obj?.diagram;
+        if (diagram?.handleChangePortName) {
+            diagram.handleChangePortName(diagram, obj);
+            e.handled = true;
+        }
+    };
     if (topside) {
         toSpot = go.Spot.Top;
         fromSpot = go.Spot.Bottom;
@@ -1399,46 +1773,420 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
         textBlockAlign = "left";
         textMargin = new go.Margin(0, 0, 0, 2);
     }
-    let geostring = geostring1;
-    if (topside) geostring = geostring2;
-    else if (bottomside) geostring = geostring3;
+    if (leftside || rightside) {
+        const isLeft = leftside;
+        const labelWidth = 88;
+        const lineWidth = 24;
+        const routingGap = 10;
+        const labelOffset = 12;
+        const rowHeight = 28;
+        const lineShape =
+            $(go.Shape, "LineH",
+                {
+                    name: "SHAPE",
+                    fill: "transparent",
+                    stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
+                    desiredSize: new go.Size(lineWidth, 1),
+                    alignment: go.Spot.Center,
+                    alignmentFocus: go.Spot.Center,
+                    cursor: "pointer",
+                    contextMenu: portContextMenu,
+                    fromLinkable: false,
+                    toLinkable: false,
+                },
+                new go.Binding("desiredSize", "", function(_d, obj) {
+                    const style = resolveIcomStyle(obj);
+                    obj.desiredSize = style === "idef"
+                        ? new go.Size(lineWidth, 1)
+                        : getSideMarkerVisualSize(isGroup, style);
+                    obj.fill = "transparent";
+                    obj.stroke = getIcomStroke(_d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
+                    return obj.desiredSize;
+                }),
+            );
+        const gapPanel = $(go.Panel, "Auto",
+            {
+                width: routingGap,
+                minSize: new go.Size(routingGap, rowHeight),
+                pickable: false,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(128, 0, 255, 0.12)" : "transparent",
+            },
+        );
+        const labelBlock = $(go.TextBlock,
+            {
+                name: "PORT_LABEL_TEXT",
+                width: labelWidth,
+                minSize: new go.Size(labelWidth, rowHeight),
+                maxSize: new go.Size(labelWidth, NaN),
+                alignment: go.Spot.Center,
+                alignmentFocus: go.Spot.Center,
+                font: font,
+                angle: textangle,
+                textAlign: isLeft ? "right" : "left",
+                wrap: go.TextBlock.WrapFit,
+                overflow: go.TextBlock.OverflowEllipsis,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
+                margin: isLeft ? new go.Margin(3, 2, 3, 0) : new go.Margin(3, 0, 3, 2),
+                editable: true,
+                isMultiline: true,
+                maxLines: 2,
+                verticalAlignment: go.Spot.Top,
+                cursor: "text",
+                contextMenu: portContextMenu,
+                isActionable: false,
+                pickable: true,
+            },
+            new go.Binding("text", "name"),
+            new go.Binding('scale', 'textscale').makeTwoWay(),
+        );
+        return $(go.Panel, "Spot",
+            {
+                margin: new go.Margin(0, 0),
+                alignment: isLeft ? new go.Spot(0, 0.5, 0, 0) : new go.Spot(1, 0.5, 0, 0),
+                alignmentFocus: isLeft ? go.Spot.Left : go.Spot.Right,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 180, 255, 0.18)" : "transparent",
+                isPanelMain: false,
+                pickable: true,
+                contextMenu: portContextMenu,
+                doubleClick: openPortNameEditor,
+            },
+            ...(isLeft
+                ? [
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: go.Spot.Right,
+                            alignmentFocus: go.Spot.Right,
+                            width: lineWidth,
+                            minSize: new go.Size(lineWidth, rowHeight),
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+                            pickable: false,
+                        },
+                        lineShape,
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(1, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Right,
+                            width: 2,
+                            height: 8,
+                            fill: "transparent",
+                            stroke: "transparent",
+                            strokeWidth: 0,
+                            portId: "",
+                            fromLinkable: false,
+                            toLinkable: true,
+                            cursor: "alias",
+                            contextMenu: portContextMenu,
+                            toSpot: go.Spot.Left,
+                        },
+                        new go.Binding("portId", "", function(d) {
+                            return d?.id || d?.portId || "";
+                        }),
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(1, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Right,
+                            width: lineWidth,
+                            height: 10,
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                            pickable: false,
+                        },
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, -(lineWidth + 1), 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        gapPanel,
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, -(lineWidth + routingGap + 1), 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        labelBlock,
+                    )
+                ]
+                : [
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: go.Spot.Left,
+                            alignmentFocus: go.Spot.Left,
+                            width: lineWidth,
+                            minSize: new go.Size(lineWidth, rowHeight),
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+                            pickable: false,
+                        },
+                        lineShape,
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(0, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Left,
+                            width: 14,
+                            height: 8,
+                            fill: "transparent",
+                            stroke: "transparent",
+                            strokeWidth: 0,
+                            portId: "",
+                            fromLinkable: true,
+                            toLinkable: false,
+                            cursor: "alias",
+                            contextMenu: portContextMenu,
+                            fromSpot: go.Spot.Right,
+                        },
+                        new go.Binding("portId", "", function(d) {
+                            return d?.id || d?.portId || "";
+                        }),
+                    ),
+                    $(go.Shape, "Rectangle",
+                        {
+                            alignment: new go.Spot(0, 0.5, 0, 0),
+                            alignmentFocus: go.Spot.Left,
+                            width: lineWidth,
+                            height: 10,
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                            pickable: false,
+                        },
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(0, 0.5, 8, 0),
+                            alignmentFocus: go.Spot.Left,
+                            pickable: false,
+                        },
+                        labelBlock,
+                    ),
+                    $(go.Panel, "Auto",
+                        {
+                            alignment: new go.Spot(1, 0.5, routingGap, 0),
+                            alignmentFocus: go.Spot.Right,
+                            pickable: false,
+                        },
+                        gapPanel,
+                    ),
+                ]),
+        );
+    }
+    if (topside || bottomside) {
+        const isTop = topside;
+        const topBottomWidth = 24;
+        const markerThickness = 2;
+        const markerLength = Math.max(10, getIcomPortSize(isGroup, "idef").height - 4);
+        const topBottomStripHeight = 12;
+        const topBottomShape =
+            $(go.Shape,
+                {
+                    name: "SHAPE",
+                    fill: DEBUG_ICOM_LAYOUT ? "rgba(255, 165, 0, 0.35)" : "transparent",
+                    stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : getIcomStrokeWidth("idef"),
+                    geometryString: getIcomGeometry(side, "idef"),
+                    desiredSize: new go.Size(markerThickness, markerLength),
+                    alignment: isTop ? go.Spot.Center : go.Spot.Top,
+                    alignmentFocus: isTop ? go.Spot.Center : go.Spot.Top,
+                    cursor: "pointer",
+                    contextMenu: portContextMenu,
+                    fromLinkable: false,
+                    toLinkable: false,
+                },
+                new go.Binding("desiredSize", "", function(_d, obj) {
+                    const style = resolveIcomStyle(obj);
+                    if (!DEBUG_ICOM_LAYOUT) {
+                        obj.fill = getIcomFill(_d, style);
+                    } else {
+                        obj.fill = style === "idef" ? "transparent" : getIcomFill(_d, style);
+                    }
+                    obj.stroke = getIcomStroke(_d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
+                    return style === "idef"
+                        ? new go.Size(markerThickness, markerLength)
+                        : getIcomPortSize(isGroup, style);
+                }),
+                new go.Binding("geometryString", "", function(d, obj) {
+                    const style = resolveIcomStyle(obj);
+                    return getIcomGeometry(side, style);
+                }),
+            );
+        const topBottomPort =
+            $(go.Shape, "Rectangle",
+                {
+                    width: 10,
+                    height: 10,
+                    fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
+                    stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                    strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                    alignment: isTop ? new go.Spot(0.5, 0.5, 0, 4) : new go.Spot(0.5, 0, -1, 1),
+                    alignmentFocus: isTop ? go.Spot.Center : go.Spot.Top,
+                    portId: "",
+                    toLinkable: true,
+                    fromLinkable: true,
+                    toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                    cursor: "alias",
+                    contextMenu: portContextMenu,
+                },
+                new go.Binding("portId", "", function(d) {
+                    return d?.id || d?.portId || "";
+                }),
+            );
+        const markerPanel = $(go.Panel, "Spot",
+            {
+                width: topBottomWidth,
+                height: topBottomStripHeight + 1,
+                defaultAlignment: go.Spot.Center,
+                alignment: go.Spot.Center,
+                alignmentFocus: go.Spot.Center,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+            },
+            DEBUG_ICOM_LAYOUT
+                ? $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "red",
+                    strokeWidth: 1,
+                    width: topBottomWidth - 2,
+                    height: topBottomStripHeight - 3,
+                    alignment: new go.Spot(0.5, 0.5, 0, -1),
+                    pickable: false,
+                  })
+                : $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 0,
+                    width: topBottomWidth,
+                    height: topBottomStripHeight,
+                    pickable: false,
+                  }),
+            topBottomShape,
+            topBottomPort,
+        );
+        const topBottomText =
+            $(go.TextBlock,
+                {
+                    name: "PORT_LABEL_TEXT",
+                    font: font,
+                    angle: textangle,
+                    alignment: go.Spot.Center,
+                    textAlign: "center",
+                    wrap: go.TextBlock.None,
+                    overflow: go.TextBlock.OverflowEllipsis,
+                    background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
+                    margin: new go.Margin(0),
+                    editable: true,
+                    isMultiline: false,
+                    cursor: "text",
+                    contextMenu: portContextMenu,
+                },
+                new go.Binding("text", "name"),
+                new go.Binding('scale', 'textscale').makeTwoWay(),
+            );
+        const stripPanel = $(go.Panel, "Spot",
+            {
+                width: topBottomWidth,
+                height: topBottomStripHeight,
+                alignment: isTop ? new go.Spot(0.5, 1, 0, 0) : new go.Spot(0.5, 0, 0, -6),
+                alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+                background: DEBUG_ICOM_LAYOUT ? "rgba(0, 180, 255, 0.18)" : "transparent",
+            },
+            DEBUG_ICOM_LAYOUT
+                ? $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "cyan",
+                    strokeWidth: 1,
+                    width: topBottomWidth - 1,
+                    height: topBottomStripHeight - 1,
+                    pickable: false,
+                  })
+                : $(go.Shape, "Rectangle", {
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 0,
+                    width: topBottomWidth,
+                    height: topBottomStripHeight,
+                    pickable: false,
+                  }),
+            markerPanel,
+        );
+        const textPanel = $(go.Panel, "Auto",
+            {
+                alignment: isTop ? new go.Spot(0.5, 0, 0, -10) : new go.Spot(0.5, 1, 0, 18),
+                alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+                pickable: false,
+            },
+            topBottomText,
+        );
+        return $(go.Panel, "Spot",
+            {
+                margin: new go.Margin(6, 0, 6, 0),
+                alignment: isTop ? new go.Spot(0.5, 1, 0, -6) : new go.Spot(0.5, 0, 0, 6),
+                alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+            },
+            stripPanel,
+            textPanel,
+        );
+    }
     return $(go.Panel, "Spot",
         { 
             margin: new go.Margin(1, 1),
-            toLinkable: true, // tolinkable,
-            fromLinkable: true, // fromlinkable,
-            toSpot: toSpot,
-            fromSpot: fromSpot,
-            portId: "",
             cursor: "pointer",
             contextMenu: portContextMenu, 
         },  // some space between ports
-        new go.Binding("portId", "", function(d) { 
-            return d?.id || d?.portId || ""; 
-        }),
         $(go.Shape,
             {
                 name: "SHAPE",
-                fill: "white", 
-                stroke: "gray",
-                strokeWidth: 1,
-                geometryString: geostring, 
-                desiredSize: portSize,
+                fill: DEBUG_ICOM_LAYOUT ? "rgba(255, 165, 0, 0.35)" : "white", 
+                stroke: DEBUG_ICOM_LAYOUT ? "orange" : "gray",
+                strokeWidth: DEBUG_ICOM_LAYOUT ? 2 : 1,
+                geometryString: getIcomGeometry(side, "hybrid"), 
+                desiredSize: getIcomPortSize(isGroup, "hybrid"),
+                toLinkable: true,
+                fromLinkable: true,
+                toSpot: toSpot,
+                fromSpot: fromSpot,
+                cursor: "pointer",
+                contextMenu: portContextMenu,
             },
-            new go.Binding("fill", "color"),
+            new go.Binding("portId", "", function(d) { 
+                return d?.id || d?.portId || ""; 
+            }),
+            new go.Binding("geometryString", "", function(d, obj) {
+                const style = resolveIcomStyle(obj);
+                obj.geometryString = getIcomGeometry(side, style);
+                obj.desiredSize = getIcomPortSize(isGroup, style);
+                if (!DEBUG_ICOM_LAYOUT) {
+                    obj.fill = getIcomFill(d, style);
+                    obj.stroke = getIcomStroke(d, style);
+                    obj.strokeWidth = getIcomStrokeWidth(style);
+                }
+                return obj.geometryString;
+            }),
         ),
         $(go.TextBlock,
             {
+                name: "PORT_LABEL_TEXT",
                 font: font,
                 angle: textangle,
                 alignment: textAlignment,
                 textAlign: textBlockAlign,
                 margin: textMargin,
+                editable: true,
+                isMultiline: false,
+                cursor: "text",
+                contextMenu: portContextMenu,
             },
             new go.Binding("text", "name"),
             new go.Binding('scale', 'textscale').makeTwoWay(),
         ),
-    );
+            );
 }
 
 export function getNodeTemplateNames() {
@@ -1460,21 +2208,29 @@ const GradientLightGray = $(go.Brush, 'Linear', { 0: 'White', 1: '#DADADA' });
 const EventNodeSize = 42;
 const DataFill = GradientLightGray;
 
+function resolvePortItemData(port: any) {
+    return port?.data || port?.panel?.data || port?.part?.data || null;
+}
+
 // Change name
 export function changePortName(port, name, myDiagram) {
     myDiagram.startTransaction("changePortName");
-    const data = port.data;
+    const data = resolvePortItemData(port);
     if (debug) console.log('394 port, data', port, data);
-    myDiagram.model.setDataProperty(data, "name", name);
+    if (data) {
+        myDiagram.model.setDataProperty(data, "name", name);
+    }
     myDiagram.commitTransaction("changePortName");
 }
   
 // Change the color of the clicked port.
 export function changePortColor(port, color, myDiagram) {
     myDiagram.startTransaction("colorPort");
-    const data = port.data;
+    const data = resolvePortItemData(port);
     if (debug) console.log('403 port, data', port, data);
-    myDiagram.model.setDataProperty(data, "color", color);
+    if (data) {
+        myDiagram.model.setDataProperty(data, "color", color);
+    }
     myDiagram.commitTransaction("colorPort");
 }
   
@@ -1733,7 +2489,11 @@ function addLinkTemplateName(name: string) {
           // changing the breadth of a single lane
           super.resize.call(this, newr);
         }
-        relayoutDiagram(); // now that the lane has changed size, layout the pool again
+      }
+
+      public doMouseUp(): void {
+        super.doMouseUp();
+        relayoutDiagram(); // run pool/lane relayout only after the resize interaction completes
       }
   }
   // end LaneResizingTool class
@@ -1837,7 +2597,7 @@ function addLinkTemplateName(name: string) {
         myDiagram.commitTransaction('addLane');
     }
 // }
-export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis) {
+export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portContextMenu: any, myMetis: akm.cxMetis, typeviewContextMenu: any) {
     const myDiagram = myMetis.myDiagram;
     if (debug) console.log('981 addNodeTemplates', myMetis, contextMenu, portContextMenu);
     let nodeTemplate0 =      
@@ -1847,7 +2607,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             mouseLeave: (e, node) => node.isHighlighted = false,
         },
         new go.Binding("isSelected", "isSelected").makeTwoWay(),
-        new go.Binding("stroke", "strokecolor"),
+        new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1884,7 +2644,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             },
             // Shape bindings
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), 
+            new go.Binding('stroke', 'strokecolor', s => s || "lightgray"), 
             new go.Binding("stroke", "isHighlighted", 
                 function(h, shape) { 
                     return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
@@ -1902,7 +2662,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 desiredSize: new go.Size(136, 60),              
             }    
         ), 
-        addNodeText(contextMenu),       
+        addNodeText(contextMenu, typeviewContextMenu),       
     );
     nodeTemplateMap.add("", nodeTemplate0);
     nodeTemplateMap.add("textOnly", nodeTemplate0);
@@ -2075,7 +2835,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 function(h, shape) { 
                     return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
                 }).ofObject(),
-            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -2110,9 +2869,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 // content
                 $(go.TextBlock, textStyle(),  // the name -----------------------
                 {
-                    isMultiline: true,  // don't allow newlines in text
+                    isMultiline: false,  // don't allow newlines in text
                     editable: true,  // allow in-place editing by user
                     row: 0, column: 0, columnSpan: 6,
+                    font: "bold 10pt Segoe UI,sans-serif",
                     font: "bold 10pt Segoe UI,sans-serif",
                     minSize: new go.Size(120, 36), 
                     desiredSize: new go.Size(400, 100),
@@ -2233,7 +2993,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     name: "name"
                 },        
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("stroke", "textcolor").makeTwoWay()
+                new go.Binding("stroke", "textcolor")
                 ),
             ),
             ),
@@ -2269,7 +3029,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     desiredSize: new go.Size(48, 48),
                     row: 2, column: 0, columnSpan: 6,
                 },
-                new go.Binding("source", "icon", findImage),
+                new go.Binding("source", "icon", getIconSource),
+                new go.Binding("visible", "icon", shouldShowIconPicture),
             ),      
             $(go.TextBlock, textStyle(), // the typename  --------------------
                 {
@@ -2419,37 +3180,45 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
                                 new go.Binding("template", "template"),
-                            ),                                                                
-                            $(go.Picture,  // the image -------------------------------------
-                                {
-                                    name: "Picture",
-                                    desiredSize: new go.Size(48, 48),
-                                },
-                                new go.Binding("source", "icon", findImage),
-                            ),    
-                            $(go.TextBlock, textStyle(), // the unicode symbol \uf015 is the plus sign
-                                {
-                                    background: "transparent",
-                                    textAlign: "center",    
-                                    stroke:    "black",
-                                    // stroke: {(strokecolor2 !== '') ? strokecolor2 : "black"},
-                                    // margin: new go.Margin(20, 12, 12, 12), 
-                                    desiredSize: new go.Size(48, 36),
-                                    font: "38px 'FontAwesome'",
-                                    editable: false,
-                                    isMultiline: false,
-                                    // alignment: go.Spot.Center, // Add this line to align the text center
-                                },
-                                // new go.Binding("fill", "fillcolor2"),
-                                new go.Binding("stroke", "strokecolor2", defaultStrokeColor), // Apply converter here
-                                new go.Binding("text", "icon", findUnicodeImage)
-                            )
+                            ),             
+                            makeIconGlyph({
+                                desiredSize: new go.Size(52, 52),
+                            }),                                               
+                            // $(go.Picture,  // the image -------------------------------------
+                            //     {
+                            //         name: "Picture",
+                            //         desiredSize: new go.Size(52, 52),
+                            //         stretch: go.GraphObject.Fill,
+                            //         imageStretch: go.GraphObject.Fill,
+                            //         alignment: go.Spot.Center,
+                            //     },
+                            //     new go.Binding("source", "icon", getIconSource),
+                            //     new go.Binding("visible", "icon", shouldShowIconPicture),
+                            // ),    
+                            // $(go.TextBlock, textStyle(), // the unicode symbol \uf015 is the plus sign
+                            //     {
+                            //         background: "transparent",
+                            //         textAlign: "center",    
+                            //         stroke:    "black",
+                            //         // stroke: {(strokecolor2 !== '') ? strokecolor2 : "black"},
+                            //         // margin: new go.Margin(20, 12, 12, 12), 
+                            //         desiredSize: new go.Size(48, 36),
+                            //         font: "bold 38px 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe UI Emoji','Apple Color Emoji','Segoe UI Symbol','Noto Color Emoji','Helvetica','Arial',sans-serif",
+                            //         editable: false,
+                            //         isMultiline: false,
+                            //         // alignment: go.Spot.Center, // Add this line to align the text center
+                            //     },
+                            //     // new go.Binding("fill", "fillcolor2"),
+                            //     new go.Binding("stroke", "textcolor2", defaultStrokeColor), // Apply converter here - icon text color
+                            //     new go.Binding("text", "icon", findUnicodeImage),
+                            //     new go.Binding("visible", "icon", shouldShowUnicodeFallback)
+                            // )
                         ),
                     ),
                     // comment out icon stop
                     // define the panel where the text will appear
 
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2546,7 +3315,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2640,7 +3409,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         ),
                     ),
                     // define the panel where the text will appear
-                    addNodeText(contextMenu),
+                    addNodeText(contextMenu, typeviewContextMenu),
                 ),
             ),
         )
@@ -2728,6 +3497,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     column: 0,
                     // alignment: new go.Spot(0, 0.5, 0, 7),
                     itemTemplate: makeItemTemplate('left',false, portContextMenu),
+                    defaultAlignment: go.Spot.Right,
                     alignment: go.Spot.Left, 
                 }
             ),  // end leftPorts Panel
@@ -2740,7 +3510,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 0, 
                     column: 1,
                     itemTemplate: makeItemTemplate('top',false, portContextMenu),
-                    alignment: go.Spot.Top, 
+                    minSize: new go.Size(NaN, 72),
+                    margin: new go.Margin(44, 0, 0, 0),
+                    alignment: new go.Spot(0.5, 0, 0, -12),
                 }
             ),  // end topPorts Panel
 
@@ -2752,6 +3524,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 1, 
                     column: 2,
                     itemTemplate: makeItemTemplate('right', false, portContextMenu),
+                    defaultAlignment: go.Spot.Left,
                     alignment: go.Spot.Right, 
                 }
             ),  // end rightPorts Panel
@@ -2764,7 +3537,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     row: 2, 
                     column: 1,
                     itemTemplate: makeItemTemplate('bottom', false, portContextMenu),
-                    alignment: go.Spot.Bottom, 
+                    minSize: new go.Size(NaN, 72),
+                    margin: new go.Margin(0, 0, 44, 0),
+                    alignment: new go.Spot(0.5, 1, 0, 12),
                 }
             ),   // end bottomPorts Panel
         )    
@@ -2968,94 +3743,154 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     nodeTemplateMap.add("ActivityNode", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            new go.Binding("scale", "scale1").makeTwoWay(),
+            // new go.Binding("scale", "scale1").makeTwoWay(),
             {
-                mouseEnter: (e, node) => node.isHighlighted = true,
-                mouseLeave: (e, node) => node.isHighlighted = false,
+                selectionObjectName: "SHAPE",
+                // resizable: true, 
+                resizeObjectName: "SHAPE",
+                contextMenu: contextMenu ,    
             },
-            { // Tooltips
+            { // Tooltip
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
                         new go.Binding("text", "", 
                             function (d) { 
-                                const tt = uid.nodeInfo(d, myMetis); 
-                                if (debug) console.log('234 tooltip', tt);
-                                return tt;               
+                                return uid.nodeInfo(d, myMetis);                
                             }
                         )
                     )
                 )
             },
-            $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
+            {
+                locationObjectName: 'SHAPE', 
+                locationSpot: go.Spot.Center,
+                resizable: true, 
+                resizeObjectName: 'PANEL',
+                selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
+                //itemTemplate: boundaryEventItemTemplate
+            },
+            $(go.Panel, 'Spot',
                 {
-                    cursor: "alias", 
-                    name: 'SHAPE', 
-                    fill: 'transparent', 
-                    stroke: "#aaa",  
-                    strokeWidth: 2, 
-                    margin: new go.Margin(0, 0, 0, 0),
-                    shadowVisible: true,
-                    desiredSize: new go.Size(169, 69), // outer Shape size with icon
-                    // set the port properties
-                    portId: "", 
-                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                name: 'PANEL',
+                minSize: new go.Size(160, 80),
+                desiredSize: new go.Size(160, 80)
                 },
-                // Shape bindings
-                new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", 
-                    function(h, shape) { 
-                        return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
-                    }).ofObject(),
-                // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-                new go.Binding('strokeWidth', 'strokewidth', function(val) { 
-                    return typeof val === 'number' ? val : parseInt(val) || 1; 
-                }),
-                { contextMenu: contextMenu },
-            ),
-            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-                {
-                    cursor: "move",    
-                    fill: "transparent",
-                    stroke: "transparent",
-                    strokeWidth: 10,
-                    margin: new go.Margin(1, 1, 1, 1),
-                    shadowVisible: false,
-                }    
-            ),
-
-            $(go.Panel, "Table", // Panel for text and icon ------------------------
-                { 
-                    defaultAlignment: go.Spot.Left, 
-                    margin: 1, 
-                    cursor: "move" 
-                },
-                $(go.RowColumnDefinition, 
-                    { 
-                        column: 1, 
-                        width: 4 
-                    }
-                ),
-                $(go.Panel, "Horizontal",
-                    // { margin: new go.Margin(10, 10, 10, 10) },
+                $(go.Panel, 'Spot',
+                    $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
+                        {
+                            cursor: 'alias',
+                            name: 'SHAPE',
+                            fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
+                            stroke: '#CDAA7D',
+                            strokeWidth: 3,
+                            parameter1: 10, // corner size
+                            portId: '', 
+                            fromLinkable: true,
+                            fromSpot: go.Spot.RightSide, 
+                            toSpot: go.Spot.LeftSide,
+                            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+                        },
+                        new go.Binding('fill', 'fillcolor'),
+                        new go.Binding("stroke", "strokecolor"),
+                        new go.Binding('strokeWidth', 'strokewidth', function(val) { 
+                            return typeof val === 'number' ? val : parseInt(val) || 1; 
+                        }),
+                    ),
+                ), 
+            ),  // end main body rectangles spot panel
+        
+            $(go.Panel, 'Auto',  // make an area around text for move cursor
+                $(go.Shape, 'Rectangle',  // area around the text
                     {
-                        defaultAlignment: go.Spot.Center,
+                        fill: 'transparent', stroke: null, strokeWidth: 1,
+                        cursor: 'move',
+                        desiredSize: new go.Size(140, 60),
                     },
-                    // define the panel where the text will appear
-
-                    addNodeText0(contextMenu),
                 ),
             ),
-        )
-    );
-     addNodeTemplateName('ActivityNode');
+            $(go.TextBlock,  // the center text
+            {
+                alignment: go.Spot.Center, 
+                // background: 'gray',
+                cursor: 'move',
+                textAlign: 'center', 
+                margin: 4,
+                editable: true,
+                scale: 1,
+                isMultiline: true,
+                wrap: go.TextBlock.WrapFit,
+                overflow: go.TextBlock.OverflowEllipsis,
+                maxSize: new go.Size(150, NaN),  // limit width, allow height to grow
+            },
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("scale", "textscale").makeTwoWay(),
+            new go.Binding("stroke", "textcolor").makeTwoWay(),
+            ),
+            $(go.Picture,
+                { 
+                    name: "nodeImage", 
+                    desiredSize: new go.Size(30, 30),
+                    alignmentFocus: go.Spot.TopLeft,
+                    alignment: new go.Spot(0, 0, 5, 5),
+                    margin: 50, //new go.Margin(5, 5, 5, 5),
+                    cursor: "move",
+                    stretch: go.GraphObject.Fill,
+                    imageStretch: go.GraphObject.Fill,
+                },
+                new go.Binding("source", "icon", getIconSource),
+                new go.Binding("visible", "icon", shouldShowIconPicture),
+            ),
+
+            $(go.Picture,
+                { 
+                    name: "nodeImage", 
+                    desiredSize: new go.Size(30, 30),
+                    alignmentFocus: go.Spot.TopLeft,
+                    alignment: new go.Spot(0, 0, 30, 65),
+                    margin: 50, //new go.Margin(5, 5, 5, 5),
+                    cursor: "move",
+                    stretch: go.GraphObject.Fill,
+                    imageStretch: go.GraphObject.Fill,
+                },
+                new go.Binding("source", "icon1", findImage),
+            ),
+
+            $(go.Picture,
+                { 
+                    name: "nodeImage", 
+                    desiredSize: new go.Size(30, 30),
+                    alignmentFocus: go.Spot.TopLeft,
+                    alignment: new go.Spot(0, 0, 65, 65),
+                    margin: 50, //new go.Margin(5, 5, 5, 5),
+                    cursor: "move",
+                    stretch: go.GraphObject.Fill,
+                    imageStretch: go.GraphObject.Fill,
+                },
+                new go.Binding("source", "icon2", findImage),
+            ),
+
+            $(go.Picture,
+                { 
+                    name: "nodeImage", 
+                    desiredSize: new go.Size(30, 30),
+                    alignmentFocus: go.Spot.TopLeft,
+                    alignment: new go.Spot(0, 0, 100, 65),
+                    margin: 50, //new go.Margin(5, 5, 5, 5),
+                    cursor: "move",
+                    stretch: go.GraphObject.Fill,
+                    imageStretch: go.GraphObject.Fill,
+                },
+                new go.Binding("source", "icon3", findImage),
+            ),
+        ));  
+        
+    addNodeTemplateName('ActivityNode');
 
     nodeTemplateMap.add("EventNode",
         $(go.Node, 'Vertical',  // the Shape will go around the TextBlock
@@ -3087,37 +3922,68 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Spot',
                 $(go.Shape,  // Outer circle
                     { 
+                        cursor: "alias",                    // cursor: "pointer",
                         alignment: go.Spot.Center,
                         figure: "Circle", 
                         fill: "white",
-                        stroke: "black",
+                        stroke: "transparent",
                         strokeWidth: 4,
-                        cursor: "alias",                    // cursor: "pointer",
                         minSize: new go.Size(60, 60), 
-                        desiredSize: new go.Size(76, 76),   // outer Shape size 
+                        desiredSize: new go.Size(80, 80),   // outer Shape size 
                         // set the port properties
                         portId: "", 
                         fromLinkable: true,
                         fromSpot: go.Spot.RightSide,
                         toLinkable: true,
-                        toSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.LeftSide,
                         toLinkableSelfNode: false,
                         toLinkableDuplicates: false,
                     },
                     // Shape bindings
                     new go.Binding('fill', 'fillcolor'),
                     new go.Binding('stroke', 'strokecolor'),
-                    new go.Binding('strokeWidth', 'strokewidth', function(val) { 
-                        return typeof val === 'number' ? val : parseInt(val) || 1; 
-                    }),
+                    // new go.Binding('strokeWidth', 'strokewidth', function(val) { 
+                    //     return typeof val === 'number' ? val : parseInt(val) || 1; 
+                    // }),
                 ),
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
-                    new go.Binding("source", "icon", findImage),
+                    new go.Binding("source", "icon", getIconSource),
+                    new go.Binding("visible", "icon", shouldShowIconPicture),
                 ),    
+                $(go.Shape,  // Figure
+                    { 
+                        cursor: "move",    
+                        figure: "Circle", 
+                        fill: "transparent",
+                        // stroke: "transparent",
+                        strokeWidth: 4,
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(58, 58), 
+                        desiredSize: new go.Size(59, 59), // outer Shape size 
+                    },
+                    new go.Binding('stroke', 'strokecolor2'), 
+                    new go.Binding("figure", "figure"), 
+                ),
+
+                $(go.Shape,  // move area
+                    { 
+                        figure: "Circle", 
+                        fill: "transparent",
+                        stroke: "transparent",
+                        strokeWidth: 1,
+                        cursor: "move",                    // To move a node,
+                        // margin: new go.Margin(0, 0, 6, 0), // Set top margin to 10
+                        minSize: new go.Size(40, 40), 
+                        desiredSize: new go.Size(50, 50),  // outer Shape size 
+                    },
+                ),
             ),
             // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
@@ -3170,7 +4036,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         stroke: "black",
                         strokeWidth: 3,
                         minSize: new go.Size(60, 60), 
-                        desiredSize: new go.Size(79, 79),  // outer Shape size 
+                        desiredSize: new go.Size(80, 80),  // outer Shape size 
                         // set the port properties
                         portId: '', 
                         fromLinkable: true, 
@@ -3187,9 +4053,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 $(go.Picture,  // the image -------------------------------------
                     {
                         name: "Picture",
-                        desiredSize: new go.Size(48, 48),
+                        desiredSize: new go.Size(70, 70),
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
                     },
-                    new go.Binding("source", "icon", findImage),
+                    new go.Binding("source", "icon", getIconSource),
+                    new go.Binding("visible", "icon", shouldShowIconPicture),
                 ),    
                 $(go.Shape,  // Plus line
                     { 
@@ -3352,7 +4222,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         figure: "Triangle",
                         alignment: new go.Spot(0.5, 0, 0, 10.5),  // positioned at top center with no offset
                         angle: 180,  // point down
-                        desiredSize: new go.Size(77, 20),
+                        desiredSize: new go.Size(80, 20),
                         fill: null,
                         stroke: "black",
                         strokeWidth: 1,
@@ -3826,6 +4696,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             minSize: getMinSize(),
             selectionAdorned: true,
             contextMenu: contextMenu,
+            // Add padding to make room for shadow on right/bottom
+            padding: new go.Margin(0, 6, 6, 0),
+            // Make the entire group background linkable
+            portId: "",
+            fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+            toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+            cursor: "alias",
         },
         new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3854,8 +4731,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
     groupTemplateMap.get("Container1").resizeAdornmentTemplate = addResizeAdornment("Container1");
 
     if (true) { // groupWithPorts
-        const PORT_OUT_X = 22;
+        const PORT_OUT_X = 4;
         const PORT_OUT_Y = 12;
+        const PORT_ALIGN_X = 0;
         const groupWithPorts1 =
         $(go.Group, "Spot",
             {
@@ -3863,11 +4741,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
-                selectionObjectName: "GROUP",
+                selectionObjectName: "BODY",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             // new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3890,12 +4772,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon'),
+            groupTop2(contextMenu, 'Icon', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
-            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
-            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addRightPorts(portContextMenu, -PORT_ALIGN_X, 0),
             addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithPorts", groupWithPorts1);
@@ -3904,6 +4786,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         addGroupTemplateName('groupWithIconAndPorts');      
         groupTemplateMap.add("IDEF0", groupWithPorts1);
         addGroupTemplateName('IDEF0');      
+        groupTemplateMap.get("groupWithPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithPorts");
+        groupTemplateMap.get("groupWithIconAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithIconAndPorts");
+        groupTemplateMap.get("IDEF0").resizeAdornmentTemplate = addResizeAdornment("IDEF0");
         
         const groupWithPorts2 =
         $(go.Group, "Spot",
@@ -3912,11 +4797,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
-                selectionObjectName: "GROUP",
+                selectionObjectName: "BODY",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3939,16 +4828,17 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Geometry'),
+            groupTop2(contextMenu, 'Geometry', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
-            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
-            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addRightPorts(portContextMenu, -PORT_ALIGN_X, 0),
             addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithGeoAndPorts", groupWithPorts2);
-        addGroupTemplateName('groupWithGeoAndPorts');      
+        addGroupTemplateName('groupWithGeoAndPorts');    
+        groupTemplateMap.get("groupWithGeoAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithGeoAndPorts");  
         
         const groupWithPorts3 =
         $(go.Group, "Spot",
@@ -3957,11 +4847,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
-                selectionObjectName: "GROUP",
+                selectionObjectName: "BODY",
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
                 locationObjectName: 'SHAPE',
                 locationSpot: go.Spot.Center,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("isSelected", "isSelected").makeTwoWay(),
@@ -3984,16 +4878,17 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Figure'),
+            groupTop2(contextMenu, 'Figure', false),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
-            addLeftPorts(portContextMenu, -PORT_OUT_X, 0),
+            addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
             addTopPorts(portContextMenu, 0, -PORT_OUT_Y),
-            addRightPorts(portContextMenu, PORT_OUT_X, 0),
+            addRightPorts(portContextMenu, -PORT_ALIGN_X, 0),
             addBottomPorts(portContextMenu, 0, PORT_OUT_Y),
         )
         groupTemplateMap.add("groupWithFigAndPorts", groupWithPorts3);
-        addGroupTemplateName('groupWithFigAndPorts');      
+        addGroupTemplateName('groupWithFigAndPorts');    
+        groupTemplateMap.get("groupWithFigAndPorts").resizeAdornmentTemplate = addResizeAdornment("groupWithFigAndPorts");  
     }
 
     if (true) { // groupWithoutPorts
@@ -4006,7 +4901,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4030,7 +4929,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );
         groupTemplateMap.add("groupNoPorts", groupWithoutPorts1);
         addGroupTemplateName('groupNoPorts');        
-        // groupTemplateMap.get("groupNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupNoPorts");
+        groupTemplateMap.get("groupNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupNoPorts");
 
         groupTemplateMap.add("groupIconNoPorts", groupWithoutPorts1);
         addGroupTemplateName('groupIconNoPorts');        
@@ -4044,7 +4943,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4068,6 +4971,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         );
         groupTemplateMap.add("groupGeoNoPorts", groupWithoutPorts2);
         addGroupTemplateName('groupGeoNoPorts');        
+        groupTemplateMap.get("groupGeoNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupGeoNoPorts");
 
         const groupWithoutPorts3 =
         $(go.Group, "Spot",
@@ -4078,7 +4982,11 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
                 selectionAdorned: true,
+                handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
+                mouseDrop: function (e: go.InputEvent, grp: go.Group) {
+                    finishDrop(e, grp);
+                },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4103,6 +5011,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 
         groupTemplateMap.add("groupFigNoPorts", groupWithoutPorts3);
         addGroupTemplateName('groupFigNoPorts');        
+        groupTemplateMap.get("groupFigNoPorts").resizeAdornmentTemplate = addResizeAdornment("groupFigNoPorts");
     }
 
     function groupStyle() {  // common settings for both Lane and Pool Groups
@@ -4392,8 +5301,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         {
             name: "GROUP",
             // Keep selection outline + resize handles aligned with the full lane (header + body).
-            selectionObjectName: "LANE_MAIN_SHAPE",
-            resizeObjectName: "LANE_BODY_SHAPE",
+            selectionObjectName: "LANE_MAIN",
+            resizeObjectName: "LANE_MAIN",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
@@ -4433,21 +5342,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         // Keep "Lane9" as a backward-compatible alias for older data.
         groupTemplateMap.add("Lane", laneTemplate);
         addGroupTemplateName('Lane');
-        groupTemplateMap.add("Lane9", laneTemplate);
-        addGroupTemplateName('Lane9');
-        // Some older models may still reference "Lane9_legacy" as the template key.
-        // Alias it to the modern swimlane template so selection/resize bounds are consistent.
-        groupTemplateMap.add("Lane9_legacy", laneTemplate);
-        addGroupTemplateName('Lane9_legacy');
-        // define a custom resize adornment that has two resize handles if the group is expanded
+        // define a custom resize adornment bigger
+        groupTemplateMap.get("Lane").resizeAdornmentTemplate = addResizeAdornment("Lane");
   
         const laneTemplate2 = 
         $(go.Group, "Horizontal", groupStyle(),
         {
             name: "GROUP",
             // Keep selection outline + resize handles aligned with the full lane (header + body).
-            selectionObjectName: "LANE_MAIN_SHAPE",
-            resizeObjectName: "LANE_BODY_SHAPE",
+            selectionObjectName: "LANE_MAIN",
+            resizeObjectName: "LANE_MAIN",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
@@ -4484,10 +5388,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         },
         laneTop(contextMenu, 'Icon', 1),
         );   
-        groupTemplateMap.add("Lane_w_handles", laneTemplate2);
-        addGroupTemplateName('Lane_w_handles');
-        groupTemplateMap.get("Lane_w_handles").resizeAdornmentTemplate = addResizeAdornment("Lane_w_handles");
     }
+    
     if (true) { // poolTemplate
         const poolTemplate =
         $(go.Group, "Auto",
@@ -4639,14 +5541,243 @@ export function addPortTemplates() {
     // define the Node template for each attribute in the nodeDataArray
 }
 
+
+// Helper functions to provide default color if none specified and icons ----------------------------------------------------------------------------
+
 function defaultStrokeColor(strokecolor2) {
-  if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
-  return  (strokecolor2 === "") ? strokecolor2 : "#466"; // Dark bluegreen
+    if (debug) console.log("3567 defaultStrokeColor: ", strokecolor2);
+    return  (strokecolor2 === "") ? "#466" : strokecolor2; // Dark bluegreen default, or custom color
 }
 
+function decodeUnicodeGlyph(value: string): string {
+    if (!value) return "";
+
+    const normalized = value.trim();
+    const lowerMatch = normalized.match(/^\\u(?:\{([0-9a-fA-F]{1,6})\}|([0-9a-fA-F]{4,6}))$/);
+    const upperMatch = normalized.match(/^\\U(?:\{([0-9a-fA-F]{1,8})\}|([0-9a-fA-F]{6,8}))$/);
+
+    if (lowerMatch || upperMatch) {
+        let hex = (lowerMatch && (lowerMatch[1] || lowerMatch[2])) || (upperMatch && (upperMatch[1] || upperMatch[2])) || "";
+        if (!hex) return "";
+
+        if (hex.length === 5 && /^ff/i.test(hex)) {
+            const adjusted = hex.slice(1);
+            if (debug) console.log("decodeUnicodeGlyph - normalizing legacy FontAwesome code from", hex, "to", adjusted);
+            hex = adjusted;
+        }
+
+        const codePoint = parseInt(hex, 16);
+        if (Number.isNaN(codePoint)) return "";
+
+        try {
+            return String.fromCodePoint(codePoint);
+        } catch (err) {
+            console.warn("decodeUnicodeGlyph failed", value, err);
+            return "";
+        }
+    }
+
+    const glyphs = Array.from(normalized);
+    return glyphs.length > 0 ? glyphs[0] : "";
+}
+
+// Helper function to detect icon format from string content
+// Returns: 'unicode' | 'url' | 'shape' | 'library' | 'unknown'
+export function detectIconFormat(value: string): string {
+  if (!value) return 'unknown';
+
+    const unicodeEscapeMatch = value.match(/^\\u(?:\{[0-9a-fA-F]{1,6}\}|[0-9a-fA-F]{4,6})$/);
+    const unicodeEmojiMatch = value.match(/^\\U(?:\{[0-9a-fA-F]{1,8}\}|[0-9a-fA-F]{6,8})$/);
+    const figureMatch = value.match(/^[a-zA-Z]+(\/[a-zA-Z0-9_\-]+)+$/);
+
+    if (unicodeEscapeMatch || unicodeEmojiMatch) {
+        if (debug) console.log("detectIconFormat - detected as unicode escape sequence", value);
+        return 'unicode';
+    }
+
+    if (Array.from(value).length === 1 && value.charCodeAt(0) > 127) {
+        if (debug) console.log("detectIconFormat - detected as single unicode char", value);
+        return 'unicode';
+    }
+
+    if (Array.from(value).length > 1 && value.charCodeAt(0) > 127) {
+        if (debug) console.log("detectIconFormat - detected as multi-byte unicode", value);
+        return 'unicode';
+    }
+    if (figureMatch) {
+        if (debug) console.log("detectIconFormat - detected as figure/shape", value);
+        return 'unicode';
+    }
+
+  // Check if it's an SVG data URL
+  if (value.startsWith('data:image/svg+xml')) {
+        if (debug) console.log("detectIconFormat - detected as svg data url");
+    return 'svg';
+  }
+  
+  // Check if it's a URL (http:// or https://)
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+        if (debug) console.log("detectIconFormat - detected as url");
+    return 'url';
+  }
+  
+  // Check if it's a GoJS figure/shape (contains / or \ suggesting a path or figure name)
+  // But NOT if it's a Unicode escape sequence (already checked above)
+  if (value.includes('/') || (value.includes('\\') && !value.match(/^\\[uU]/))) {
+        if (debug) console.log("detectIconFormat - detected as shape");
+    return 'shape';
+  }
+  
+  // Otherwise it's likely a library icon name or file name
+    if (debug) console.log("detectIconFormat - detected as library", value);
+  return 'library';
+}
+
+// Function to render icon from unified icon field with format detection
+export function getIconSource(iconValue: any): string {
+  // Handle both cases: if called from binding with string value, or with object
+  let value = iconValue;
+  
+  // If it's an object with an icon property, extract the icon value
+  if (iconValue && typeof iconValue === 'object' && iconValue.icon) {
+    value = iconValue.icon;
+  }
+  
+  if (!value) {
+    return "";
+  }
+  
+    const format = detectIconFormat(value);
+    if (debug) console.log("getIconSource called with value:", value, "format:", format);
+  
+  if (format === 'unicode') {
+        const glyph = decodeUnicodeGlyph(typeof value === 'string' ? value : String(value));
+        if (!glyph) {
+            if (debug) console.warn("getIconSource - unable to decode unicode glyph for", value);
+            return "";
+        }
+
+        const escapeForXml = (input: string) =>
+            input
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+        const escapedGlyph = escapeForXml(glyph);
+
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <defs>
+                                <style type="text/css">
+                                        text {
+                                                font-size: 24px;
+                                                font-family: 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe MDL2 Assets','Material Icons','Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','EmojiOne Color','Noto Emoji','Segoe UI Symbol','Helvetica','Arial',sans-serif;
+                                                font-weight: 900;
+                                                font-style: normal;
+                                                text-anchor: middle;
+                                                dominant-baseline: central;
+                                                fill: currentColor;
+                                        }
+                                </style>
+                        </defs>
+                        <text x="50%" y="50%" dominant-baseline="central" alignment-baseline="central">${escapedGlyph}</text>
+                </svg>`;
+    
+    // Use base64 encoding for better Unicode support
+    // This helper function properly encodes UTF-8 to base64
+    const utf8_btoa = (str: string) => {
+      try {
+    // Use TextEncoder to properly handle UTF-8 encoding including emoji
+        const encoder = new TextEncoder();
+        const uint8array = encoder.encode(str);
+        let binaryString = '';
+        for (let i = 0; i < uint8array.byteLength; i++) {
+          binaryString += String.fromCharCode(uint8array[i]);
+        }
+        return btoa(binaryString);
+      } catch (e) {
+        console.warn("TextEncoder failed, trying fallback for value:", value);
+                try {
+                    return btoa(unescape(encodeURIComponent(str)));
+                } catch (e2) {
+                    console.warn("All encoding methods failed for:", value, e2);
+                    return "";
+                }
+      }
+    };
+    
+    const btoa_svg = utf8_btoa(svg);
+    if (!btoa_svg) {
+      console.error("Failed to encode SVG for icon:", value);
+      return "";
+    }
+    const result = `data:image/svg+xml;base64,${btoa_svg}`;
+        if (debug) console.log("getIconSource - generated SVG data URL for:", value, "glyph:", glyph, "codePoint:", glyph.codePointAt(0), "result length:", result.length);
+    return result;
+  } else if (format === 'svg') {
+    // SVG data URL - wrap in a viewBox container to ensure proper scaling and centering
+    // This ensures the SVG fits within the icon frame
+    if (value.startsWith('data:image/svg+xml;base64,')) {
+            if (debug) console.log("getIconSource - SVG data URL detected, wrapping for proper scaling");
+      return value; // SVG data URLs already contain the full image data
+    }
+    return value;
+  } else if (format === 'url') {
+    // URL format - return as-is
+    return value;
+  } else if (format === 'shape') {
+    // Shape/path format - return as-is
+    return value;
+  } else if (format === 'figure') {
+    // Figure format - return as-is
+    return makeFigureImage(value);
+  } else {
+    // Library icon name - use existing findImage logic
+    return findImage(value);
+  }
+}
+
+// Function to create icon glyph panel with picture and unicode fallback
+export function makeIconGlyph(
+    pictureOverrides: Partial<go.Picture> = {},
+    unicodeOverrides: Partial<go.TextBlock> = {}
+) {
+    return $(go.Panel, "Spot",
+        $(go.Picture,
+            {
+                name: "Picture",
+                desiredSize: new go.Size(48, 48),
+                stretch: go.GraphObject.Fill,
+                imageStretch: go.GraphObject.Fill,
+                alignment: go.Spot.Center,
+                ...pictureOverrides,
+            },
+            new go.Binding("source", "icon", getIconSource),
+            // allow icon background color via fillcolor2
+            new go.Binding("background", "fillcolor2"),
+            new go.Binding("visible", "icon", shouldShowIconPicture),
+        ),
+        $(go.TextBlock, textStyle(),
+            {
+                alignment: go.Spot.Center,
+                desiredSize: new go.Size(48, 36),
+                textAlign: "center",
+                background: "transparent",
+                font: "bold 38px 'Font Awesome 6 Free','Font Awesome 6 Pro','Font Awesome 6 Brands','Font Awesome 5 Free','Font Awesome 5 Pro','Font Awesome 5 Brands','FontAwesome','Font Awesome','FontAwesome5Free','FontAwesome6Free','Segoe UI Emoji','Apple Color Emoji','Segoe UI Symbol','Noto Color Emoji','Helvetica','Arial',sans-serif",
+                editable: false,
+                isMultiline: false,
+                ...unicodeOverrides,
+            },
+            new go.Binding("stroke", "textcolor2", defaultStrokeColor),
+            new go.Binding("text", "icon", findUnicodeImage),
+            new go.Binding("visible", "icon", shouldShowUnicodeFallback),
+        ),
+    );
+}
 // Function to identify images related to an image id
 export function findImage(image: string) {
-    if (debug) console.log("3238 findImage: ", image);
+    if (debug) console.log("458 findImage: ", image);
     if (image == "")
          return "";
     if (image?.includes('//')) { // this is an http:// or https:// image
@@ -4664,19 +5795,41 @@ export function findImage(image: string) {
         if (debug) console.log('3269', img);
         return img
     } else if (!image?.includes('images/') && image?.includes('.png')) { // its an image in public/images 
-        const img = "./../images/types/" + image
+        const img = "./../images/types/" + image;
         if (debug) console.log('3273 Diagram', image, img)
-        return img
+        return img;
     } else {
-        return "";
+        return "" // default no image
     }
 }
 
+export function shouldShowIconPicture(icon: string) {
+    if (!icon) return false; 
+    return detectIconFormat(icon) !== "unicode";
+}
+
+export function shouldShowUnicodeFallback(icon: string) {
+    if (!icon) return false;
+    return detectIconFormat(icon) === "unicode";
+}
+
 export function findUnicodeImage(image: string) {
-    if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
+    if (!image) return "";
+
+    if (detectIconFormat(image) !== "unicode") return "";
+
+    let char = "";
+
+    try {
+        char = decodeUnicodeGlyph(image);
+    } catch (err) {
+        console.warn("findUnicodeImage failed to parse", image, err);
+        return "";
     }
-    return ""; 
+
+    if (!char) return "";
+
+    return char;
 }
 
 // Function to specify default text style
@@ -4727,6 +5880,82 @@ function defaultFont(horiz) {  // a Binding conversion function
 return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
 }
 
+function getParentMemberScale(grp: go.Group | null): number {
+    if (!grp) return 1;
+    const data: any = grp.data || {};
+    const raw =
+        data?.memberscale ??
+        data?.objectview?.memberscale ??
+        data?.typeview?.memberscale ??
+        1;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function getAncestorMemberScaleProduct(grp: go.Group | null): number {
+    let current = grp;
+    let product = 1;
+    while (current instanceof go.Group) {
+        product *= getParentMemberScale(current);
+        current = current.containingGroup;
+    }
+    return product;
+}
+
+function isGroupLikePart(part: go.Part | null | undefined): boolean {
+    const data: any = part?.data || {};
+    const templateName = String(data?.template || data?.category || "");
+    return Boolean(
+        part instanceof go.Group ||
+        data?.isGroup === true ||
+        data?.objectview?.isGroup === true ||
+        templateName.startsWith("group")
+    );
+}
+
+function applyDroppedGroupScale(diagram: go.Diagram, grp: go.Group | null) {
+    if (!diagram) return;
+    const inheritedScale = getAncestorMemberScaleProduct(grp);
+    diagram.selection.each((part: go.Part) => {
+        if (!(part instanceof go.Node)) return;
+        const data: any = part.data || {};
+        let nextScale = inheritedScale;
+        if (grp && isGroupLikePart(part)) {
+            const parentSize =
+                grp.data?.size instanceof go.Size
+                    ? grp.data.size
+                    : go.Size.parse(grp.data?.size || `${grp.actualBounds.width} ${grp.actualBounds.height}`);
+            const childWidth = Math.max(1, parentSize.width / 2);
+            const childHeight = Math.max(1, parentSize.height / 2);
+            const childSize = `${childWidth} ${childHeight}`;
+            const resizeObj = part.resizeObject || part.reshapeObject || part;
+            try {
+                resizeObj.desiredSize = new go.Size(childWidth, childHeight);
+            } catch (_) {}
+            data.size = childSize;
+            data.desiredSize = childSize;
+            try { diagram.model.setDataProperty(data, "size", childSize); } catch (_) {}
+            try { diagram.model.setDataProperty(data, "desiredSize", childSize); } catch (_) {}
+        }
+        part.scale = nextScale;
+        data.scale = nextScale;
+        data.scale1 = nextScale;
+        const currentObjectview = data.objectview;
+        const nextObjectview = currentObjectview ? new jsn.jsnObjectView(currentObjectview) : null;
+        if (nextObjectview) {
+            nextObjectview.scale = nextScale;
+            data.objectview = nextObjectview;
+        }
+        try { diagram.model.setDataProperty(data, "scale", nextScale); } catch (_) {}
+        try { diagram.model.setDataProperty(data, "scale1", nextScale); } catch (_) {}
+        if (nextObjectview) {
+            try { diagram.model.setDataProperty(data, "objectview", nextObjectview); } catch (_) {}
+        }
+    });
+    try { diagram.updateAllTargetBindings(); } catch (_) {}
+    try { diagram.requestUpdate(); } catch (_) {}
+}
+
 // Upon a drop onto a Group, we try to add the selection as members of the Group.
 // Upon a drop onto the background, or onto a top-level Node, make selection top-level.
 // If this is OK, we're done; otherwise we cancel the operation to rollback everything.
@@ -4734,7 +5963,11 @@ function finishDrop(e, grp) {
     let ok = (grp !== null
         ? grp.addMembers(grp.diagram.selection, true)
         : e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true));
-    if (!ok) e.diagram.currentTool.doCancel();
+    if (!ok) {
+        e.diagram.currentTool.doCancel();
+        return;
+    }
+    applyDroppedGroupScale(e.diagram, grp);
 }
 
 // TESTING TESTING TESTING

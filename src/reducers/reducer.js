@@ -280,6 +280,10 @@ function reducer(state = InitialState, action) {
               ...state.phData.metis.models.slice(loadmodindex + 1, state.phData.metis.models.length),
             ]
           },
+          domain: {
+            ...state.phData.domain,
+            ...action.data.domain
+          }
         },
         phSource: 'Model server'
       }
@@ -294,7 +298,14 @@ function reducer(state = InitialState, action) {
       const retval_LOAD_TOSTORE_PHDATA =
       {
         ...state,
-        phData: action.data
+        phData: {
+          ...state.phData,
+          ...action.data,
+          metis: {
+            ...state.phData.metis,
+            ...action.data.metis
+          } 
+        }
       }
       if (debug) console.log('235 LOAD_TOSTORE_PHDATA', retval_LOAD_TOSTORE_PHDATA);
       return retval_LOAD_TOSTORE_PHDATA;
@@ -852,7 +863,7 @@ function reducer(state = InitialState, action) {
       return retval_UPDATE_OBJECT_PROPERTIES
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (debug) console.log('777 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
+      if (!debug) console.log('866 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
       const curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
       let curObjectviewIndex = curModelview?.objectviews?.findIndex((ov) => ov.id === curObjectview?.id); // current objectview index
       const curObjectviewsLength = curModelview?.objectviews?.length
@@ -1823,7 +1834,5 @@ function reducer(state = InitialState, action) {
       return state
   }
 }
-
-
 
 export default reducer

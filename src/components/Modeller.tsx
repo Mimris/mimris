@@ -1,7 +1,7 @@
 // @ts-nocheck
 // modeller
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import { select } from "redux-saga/effects";
@@ -30,7 +30,21 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
 
-const Modeller = (props: any) => {
+const OBJECTS_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleObjects';
+const TYPES_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleTypes';
+
+function readStoredBoolean(key: string, fallback: boolean) {
+    if (typeof window === 'undefined') return fallback;
+    try {
+        const value = window.localStorage.getItem(key);
+        if (value === null) return fallback;
+        return value === 'true';
+    } catch (_) {
+        return fallback;
+    }
+}
+
+const Modeller = React.forwardRef((props: any, ref) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
 
@@ -44,7 +58,8 @@ const Modeller = (props: any) => {
     const [objectsRefresh, setObjectsRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
-    const [visibleObjects, setVisibleObjects] = useState(false) // State to manage objects visibility 
+    const [visibleObjects, setVisibleObjects] = useState(() => readStoredBoolean(OBJECTS_PALETTE_STORAGE_KEY, true)) // State to manage objects visibility 
+    const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(TYPES_PALETTE_STORAGE_KEY, true)) // State to manage types palette visibility
     const [showPasteDialog, setShowPasteDialog] = useState(false); // State to manage paste dialog visibility
     const [jsonInput, setJsonInput] = useState(''); // State to manage JSON input
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
@@ -59,6 +74,7 @@ const Modeller = (props: any) => {
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
     const [objColumns, setObjColumns] = useState(1);
+    const [resetPaletteFilterToken, setResetPaletteFilterToken] = useState(0);
     let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
@@ -136,6 +152,29 @@ const Modeller = (props: any) => {
         setVisibleObjects(!visibleObjects);
     }
 
+    // Toggle both Objects and Types palettes together
+    function togglePalettes() {
+        const bothOpen = visibleObjects && visibleTypes;
+        setObjectsRefresh(!objectsRefresh);
+        setVisibleObjects(!bothOpen);
+        setVisibleTypes(!bothOpen);
+    }
+
+    // Expose imperative methods so parent can control the palettes
+    useImperativeHandle(ref, () => ({
+        isOpen: () => {
+            return Boolean(visibleObjects || visibleTypes);
+        },
+        setVisibleAll: (v: boolean) => {
+            setVisibleObjects(v);
+            setVisibleTypes(v);
+            setObjectsRefresh(!objectsRefresh);
+        },
+        toggleAll: () => {
+            togglePalettes();
+        }
+    }), [visibleObjects, visibleTypes, objectsRefresh]);
+
     useEffect(() => {
         return () => {
             componentMounted.current = false;
@@ -163,13 +202,29 @@ const Modeller = (props: any) => {
             setSelectedOption('Sorted alphabetical')
         }
         setMounted(true)
-
-        setVisibleObjects(true);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
         return () => clearTimeout(timer);
     }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(OBJECTS_PALETTE_STORAGE_KEY, String(visibleObjects));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleObjects]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(TYPES_PALETTE_STORAGE_KEY, String(visibleTypes));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleTypes]);
 
     useEffect(() => {
         if (debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
@@ -479,33 +534,46 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const SelectOTypes = (
         <>
-            <select
-                className="select-field mx-1 text-secondary"
-                style={{ width: "98%" }}
-                // value={uniqueTypes[selectedOption]}
-                onChange={(e) => handleSelectOTypes(e.target.value)}
-            >
-                <option value="In this modelview" key="01">
-                    Filter/Sort
-                </option>
-                <option value="In this modelview" key="02">
-                    Objects in this Modelview *
-                </option>
-                <option value="Sorted alphabetical" key="03">
-                    All Sorted Alphabetical *
-                </option>
-                <option value="Sorted by type" key="04">
-                    All Sorted by Type *
-                </option>
-                {uniqueTypes.map((t: any, index) => (
-                    <option key={index} value={t}>{t}</option>
-                ))}
-            </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 }}>
+                <select
+                    className="select-field mx-1 text-secondary"
+                    style={{ width: "98%" }}
+                    // value={uniqueTypes[selectedOption]}
+                    onChange={(e) => handleSelectOTypes(e.target.value)}
+                >
+                    <option value="In this modelview" key="01">
+                        Filter/Sort
+                    </option>
+                    <option value="In this modelview" key="02">
+                        Objects in this Modelview *
+                    </option>
+                    <option value="Sorted alphabetical" key="03">
+                        All Sorted Alphabetical *
+                    </option>
+                    <option value="Sorted by type" key="04">
+                        All Sorted by Type *
+                    </option>
+                    {uniqueTypes.map((t: any, index) => (
+                        <option key={index} value={t}>{t}</option>
+                    ))}
+                </select>
+                <button
+                    className="btn btn-sm"
+                    style={{ whiteSpace: 'nowrap', paddingLeft: 6, paddingRight: 6, backgroundColor: '#e5e7eb', color: '#111827', border: '1px solid #d1d5db' }}
+                    onClick={() => { setSelectedOption('Sorted alphabetical'); setResetPaletteFilterToken((t) => t + 1); }}
+                >
+                    Clear
+                </button>
+            </div>
         </>
     );
 
     const myMetamodel = myModel.metamodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
+
+    // Types palette (metamodel) — declared early so it is available when the Objects palette
+    // or other UI references it during render. Kept simple and re-uses GoJSPaletteApp.
+    
 
     // Function to export objects and relship to clipboard
     const exportToClipboard = () => {
@@ -540,6 +608,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
                     noOfCols={isExpanded ? 4 : 1}
+                    resetPaletteFilterToken={resetPaletteFilterToken}
                 />
             </div>
         </>
@@ -668,13 +737,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </>
     if (debug) console.log('372 Modeller ', props.modelType)
 
+    /* Types palette inlined where needed to avoid initialization order issues */
+
     const objectsDiv =
         <>
+
             <Col className="p-0 m-0 my-0 " xs="auto">
-                <div className="btn-horizontal bg-light" style={{ fontSize: "14px", minWidth: '14rem'}}>
+                <div className="btn-horizontal bg-light palette-horizontal">
                     {objectsTabDiv}
                 </div>
             </Col>
+
             {/* <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
                 <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
             </button>
@@ -696,15 +769,18 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={closePasteDialog}>
+                    <Butto variant="secondary" onClick={closePasteDialog}>
                         Cancel
-                    </Button>
+                    </Butto
                     <Button variant="primary" onClick={handleJsonPaste}>
                         Import
                     </Button>
                 </Modal.Footer>
             </Modal> */}
         </>
+
+
+    
 
     const modellerDiv = (props.modelType === 'model')
         ? // modelling
@@ -720,17 +796,22 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
                     style={{ backgroundColor: "#7b8" }}
                 >
-                    <button
-                        className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
-                        onClick={toggleObjects}
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
-                        {visibleObjects 
-                            ?   <span> &lt;- Objects </span> 
-                            :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                    <div className="d-flex align-items-center">
+                        <button
+                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
+                            onClick={toggleObjects}
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
+                            {visibleObjects 
+                                ? <span className="fs-8 px-1 palette-label"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i>
+                                    Objects
+                                  </span>
+                                :   
+                                <span> <i className="fa fa-angle-right text-white pull-right-container ps-1"></i><span className="palette-label ms-1 palette-label-spaced"> O b j e c t s</span>
                                 </span>}
-                    </button>
+                        </button>
+                    </div>
                     <button
                         className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
                         onClick={() => setIsExpanded(!isExpanded)}
@@ -766,6 +847,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 </div>
                 <div>
                     {metamodelTabDiv}
+
+    
                 </div>
             </div>
             <div className="">
@@ -779,9 +862,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
         </div>
     )
-}
+});
 
 export default Modeller;
-
-
-

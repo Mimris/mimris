@@ -15,10 +15,12 @@ let includeNoType = false;
 export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
   if (debug) console.log('16 metamodel', metamodel);
   let inheritedTypenames = []; 
+  let inheritedRelTypenames = [];
   let typenames;
   const modelRef = metamodel?.generatedFromModelRef;
   let genFromModel = metis?.findModel(modelRef);
   let objtypes = [];
+  const objtypeIdsInPalette = new Set<string>();
   const isCoreMetamodel = metamodel?.name === constants.core.AKM_CORE_MM;
   if (metamodel) {
     const mmtypenames = [];
@@ -62,6 +64,29 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     }
     inheritedTypenames = [...new Set(objtypenames)];
     if (debug) console.log('47 objecttypes', inheritedTypenames);
+
+    const reltypenames = [];
+    const reltypes = mmodel?.relshiptypes;
+    if (reltypes) {
+      for (let i = 0; i < reltypes.length; i++) {
+        const reltype = reltypes[i];
+        if (reltype?.name) {
+          const fromRef = reltype.fromobjtypeRef;
+          if (fromRef && !reltype.fromObjtype) {
+            reltype.fromObjtype =
+              mmodel.findObjectType(fromRef) || metamodel?.findObjectType(fromRef);
+          }
+          const toRef = reltype.toobjtypeRef;
+          if (toRef && !reltype.toObjtype) {
+            reltype.toObjtype =
+              mmodel.findObjectType(toRef) || metamodel?.findObjectType(toRef);
+          }
+          reltypenames.push(reltype.name);
+        }
+      }
+    }
+    inheritedRelTypenames = [...new Set(reltypenames)];
+    if (debug) console.log('63 reltypes', reltypes,  inheritedRelTypenames);
   }
   
   const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
@@ -120,45 +145,74 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
           }
         }
       }
-      const id = utils.createGuid();
-      const name = objtype.name;
-      const obj = new akm.cxObject(id, name, objtype, "");
-      if (obj.id === "") obj.id = id;
-      if (obj.name === "") obj.name = name;
-      if (!obj.type) {
-        const otype = metamodel.findObjectType(obj.type.id);
-        obj.type = otype;
-      }
-      if (obj.isDeleted())
-        continue;
-      if (debug) console.log('103 obj, objtype', obj, objtype);
-      const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "", null);
+
       let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
-      if (typeview?.data.viewkind === 'Container') {
+      if (typeview?.data?.viewkind === 'Container') {
         objtype.viewkind = 'Container';
       }
-      // Hack
-      const otype = metis.findObjectTypeByName(objtype.name);
-      if (!otype.abstract) {
-        if (!typeview) {
-          if (otype) {
-            typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
-          } else
-            typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+      if (!typeview) {
+        const metisObjtype = metis.findObjectTypeByName(objtype.name);
+        if (metisObjtype && !metisObjtype.abstract) {
+          typeview = metisObjtype.getDefaultTypeView() as akm.cxObjectTypeView;
         }
       }
-      // End hack
-      objview.setTypeView(typeview); 
-      const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
-      node.loadNodeContent(myGoPaletteModel);  
-      if (debug) console.log('121 node', objtype, objview, node);
-      node.isGroup = objtype.isContainer();
-      if (node.isGroup)
-        node.category = constants.gojs.C_OBJECT;
+      if (!typeview) {
+        typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+      } else {
+        objtype.setDefaultTypeView(typeview);
+      }
+
+      const nodeKey = objtype.id || utils.createGuid();
+      const node = new gjs.goObjectTypeNode(nodeKey, objtype);
+      if (!node.loadNodeContent(metamodel))
+        continue;
       myGoPaletteModel.addNode(node);
+      if (objtype?.id) objtypeIdsInPalette.add(objtype.id);
     }
   }
-  if (debug) console.log('154 Objecttype palette', myGoPaletteModel.nodes);
+
+  const paletteReltypes =
+    metamodel?.includeSystemtypes ? metamodel?.relshiptypes : (metamodel?.relshiptypes0 || metamodel?.relshiptypes);
+  if (paletteReltypes?.length) {
+    for (let i = 0; i < paletteReltypes.length; i++) {
+      const reltype = paletteReltypes[i];
+      if (!reltype) continue;
+      if (reltype.markedAsDeleted) continue;
+      if (reltype.abstract) continue;
+
+      let fromObjtype = reltype.fromObjtype;
+      if (!fromObjtype && reltype.fromobjtypeRef) {
+        fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+        if (fromObjtype) reltype.fromObjtype = fromObjtype;
+      }
+      let toObjtype = reltype.toObjtype;
+      if (!toObjtype && reltype.toobjtypeRef) {
+        toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
+        if (toObjtype) reltype.toObjtype = toObjtype;
+      }
+      if (!fromObjtype || !toObjtype) continue;
+      if (!objtypeIdsInPalette.has(fromObjtype.id) || !objtypeIdsInPalette.has(toObjtype.id)) continue;
+
+      if (!reltype.typeview) {
+        reltype.typeview = reltype.getDefaultTypeView() || reltype.newDefaultTypeView(reltype.relshipkind);
+      }
+      if (reltype.markedAsDeleted === undefined) reltype.markedAsDeleted = false;
+
+      const link = new gjs.goRelshipTypeLink(utils.createGuid(), myGoPaletteModel, reltype);
+      const fromNode = myGoPaletteModel.findTypeNode(fromObjtype.id);
+      const toNode = myGoPaletteModel.findTypeNode(toObjtype.id);
+      link.fromNode = fromNode;
+      link.toNode = toNode;
+      link.from = fromNode?.key ?? fromObjtype.id;
+      link.to = toNode?.key ?? toObjtype.id;
+
+      if (link.loadLinkContent()) {
+        myGoPaletteModel.addLink(link);
+      }
+    }
+  }
+
+  if (debug) console.log('161 Objecttype palette', myGoPaletteModel.nodes, myGoPaletteModel.links);
   return myGoPaletteModel;
 }
 
@@ -362,6 +416,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
+        (node as any).scale1 = objview.scale;
         myGoModel.addNode(node);
         node.name = objview.name;
         const object = node.object as akm.cxObject;
@@ -565,7 +620,7 @@ export function buildGoMetaPalette() {
   let linkArray = JSON.parse(links);
   myGoMetaPalette.nodes = nodeArray;
   myGoMetaPalette.links = linkArray;
-  if (debug) console.log('428 myGoMetaPalette', myGoMetaPalette);
+  if (debug) console.log('568 myGoMetaPalette', myGoMetaPalette);
   return myGoMetaPalette;
 }
 

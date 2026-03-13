@@ -64,7 +64,18 @@ MyProject_PR.json, MyMetamodel_META.json, MyModelview_MV.json, MyObject_OB.json,
         "currentTargetModelRef": "",
         "currentTargetModelviewRef": "",
         "currentTaskModelRef": ""
-      }
+      },
+      "domian": {
+        "name": "",
+        "description": ""
+        "ontology": { 
+          name: "",
+          description: "",
+          concepts: [ ],
+          relationships: [ ]
+        }
+      },
+    
     },
     "phFocus": {
       "focusTab": "",

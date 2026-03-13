@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { set } from "immer/dist/internal";
@@ -12,7 +12,7 @@ import Tasks from '../components/Tasks'
 
 
 const debug = false;
-const includeCoreAndIRTVAndPOPS = true;
+const includeMetamodelSelector = true;
 
 const clog = console.log.bind(console, '%c %s',
   'background: blue; color: white');
@@ -21,17 +21,33 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
-const Palette = (props: any) => {
+const PALETTE_VISIBLE_STORAGE_KEY = 'mimris.palette.visible';
+const PALETTE_TYPES_VISIBLE_STORAGE_KEY = 'mimris.palette.visibleTypes';
+const PALETTE_EXPANDED_STORAGE_KEY = 'mimris.palette.expanded';
+
+function readStoredBoolean(key: string, fallback: boolean) {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === null) return fallback;
+    return value === 'true';
+  } catch (_) {
+    return fallback;
+  }
+}
+
+const Palette = React.forwardRef((props: any, ref: any) => {
 
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
 
-  const [visiblePalette, setVisiblePalette] = useState(true)
+  const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
+  const [filteredLinkDataArray, setFilteredLinkDataArray] = useState([])
   // const [IRTVOtNodeDataArray, setIRTVOtNodeDataArray] = useState([])
   // const [POPSOtNodeDataArray, setPOPSOtNodeDataArray] = useState([])
   // const [BPMNOtNodeDataArray, setBPMNOtNodeDataArray] = useState([])
@@ -45,6 +61,9 @@ const Palette = (props: any) => {
   const [addMetamodelName, setAddMetamodelName] = useState(false)
   const [selMetamodelName, setSelMetamodelName] = useState('')
   const [openDetail, setOpenDetail] = useState<string | null>('top');
+
+  const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(PALETTE_TYPES_VISIBLE_STORAGE_KEY, true))
+  const [isExpanded, setIsExpanded] = useState(() => readStoredBoolean(PALETTE_EXPANDED_STORAGE_KEY, false))
 
   const handleToggle = (id: string) => {
     setOpenDetail(id);
@@ -77,17 +96,13 @@ const Palette = (props: any) => {
   function togglePalette() { setVisiblePalette(!visiblePalette); }
   // function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
-  // let ndarr = props.gojsMetamodel?.nodeDataArray
-  let ndarr = uib.buildGoPalette(props.myMetis.currentMetamodel, props.myMetis).nodes;
-
-  let taskNodeDataArray: any[] = ndarr
-
   if (debug) console.log('85 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
     const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id);
     // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
     const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
+    setSelMetamodelName(mmodel?.name);
     if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, props.phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
@@ -99,18 +114,59 @@ const Palette = (props: any) => {
     setTask(focusTask);
     const types = objecttypes?.map((t: any) => t?.name);
     setTypes(types);
-
-    // setFilteredNewtypesNodeDataArray(buildFilterOtNodeDataArray(types, mmodel));  // build the palette for current metamodel
-    const newFilteredData = buildFilterOtNodeDataArray(types, mmodel);
-    setFilteredOtNodeDataArray(newFilteredData);
+    const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
+    setFilteredOtNodeDataArray(nodes);
+    setFilteredLinkDataArray(links);
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
     const timer = setTimeout(() => {
-      setRefreshPalette(!refreshPalette);
+      setRefreshPalette(prev => !prev);
       if (debug) console.log('110 Palette useEffect 3', mmodel.name, filteredOtNodeDataArray);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_VISIBLE_STORAGE_KEY, String(visiblePalette));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visiblePalette]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_TYPES_VISIBLE_STORAGE_KEY, String(visibleTypes));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visibleTypes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_EXPANDED_STORAGE_KEY, String(isExpanded));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [isExpanded]);
+
+  function toggleTypes() {
+    setVisibleTypes(!visibleTypes);
+  }
+
+  useImperativeHandle(ref, () => ({
+    toggleAll: () => {
+      setVisibleTypes(v => !v);
+      setVisiblePalette(p => !p);
+    },
+    setVisibleAll: (v: boolean) => {
+      setVisibleTypes(v);
+      setVisiblePalette(v);
+    }
+  }), [visibleTypes, visiblePalette]);
 
   if (!metamodels) return null;
 
@@ -120,16 +176,19 @@ const Palette = (props: any) => {
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
-    setTypes(curPalette?.nodes?.map((t: any) => t?.name));  
+    const paletteNodes = curPalette?.nodes ?? [];
+    const paletteLinks = curPalette?.links ?? [];
+    setTypes(paletteNodes?.map((t: any) => t?.name));
     if (debug) console.log('123 Palette', curPalette?.nodes?.map((t: any) => t?.name), curPalette);
 
     if (debug) console.log('124 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
 
+    let filteredNodes = paletteNodes;
     if (types?.length > 0) {
       const otsArr = types.map(wot =>
         curPalette?.nodes.find(i => {
           if (debug) console.log('123 Palette', i?.name, wot, i?.name === wot);
-          return i?.name === wot && i;g
+          return (i?.name === wot) ? i : undefined;
         })
       ).filter(Boolean);
       if (debug) console.log('122 Palette', otsArr);
@@ -154,8 +213,20 @@ const Palette = (props: any) => {
         return aIndex - bIndex; // both a and b are found in wotArr, sort them based on their indices
       });
 
-      return otsArr
-    } else { return ndarr }
+      filteredNodes = otsArrSorted;
+    }
+
+    const nodeKeys = new Set(
+      filteredNodes
+        ?.map((n: any) => n?.key ?? n?.objecttype?.id ?? n?.objecttype?.key)
+        ?.filter(Boolean)
+    );
+
+    const filteredLinks = paletteLinks.filter(
+      (link: any) => nodeKeys.has(link?.from) && nodeKeys.has(link?.to)
+    );
+
+    return { nodes: filteredNodes, links: filteredLinks };
   };
 
   if (debug) console.log('159 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
@@ -170,12 +241,13 @@ const Palette = (props: any) => {
     dispatch({ type: 'SET_CURRENT_METAMODEL', data: mmodel });
     setCurrentMetamodelRef(mmodel?.id);
     if (debug) console.log('169 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
-    const filteredNodeDataArray = buildFilterOtNodeDataArray(types, mmodel);
-    if (debug) console.log('171 Palette', mmodel.name, filteredNodeDataArray);
+    const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
+    if (debug) console.log('171 Palette', mmodel.name, nodes, links);
     const timer = setTimeout(() => {
 
-      setFilteredOtNodeDataArray(filteredNodeDataArray);
-      setRefreshPalette(!refreshPalette);
+      setFilteredOtNodeDataArray(nodes);
+      setFilteredLinkDataArray(links);
+      setRefreshPalette(prev => !prev);
     }, 200);
 
     return () => clearTimeout(timer);
@@ -192,7 +264,7 @@ const Palette = (props: any) => {
         onChange={(e) => getMetamodels(e.target.value)}
       >
         <option value="" key="-1">
-          Change Metamodel
+          {(selMetamodelName) ? selMetamodelName : "Change Metamodel"}
         </option>
         {metamodelList?.map((t, i) => (
           <option key={i} value={i}>
@@ -202,79 +274,34 @@ const Palette = (props: any) => {
       </select>
     </>
   );
-
+  const paletteLinkData = isExpanded ? filteredLinkDataArray : [];
 
     // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
     (
-      <details open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">
-        <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary>
+      <div className="metamodel-pad pt-2">
+        {/* <detail open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">*/}
+        {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
+          key={props.myMetis?.currentMetamodel?.id ?? 'palette-default'}
           nodeDataArray={filteredOtNodeDataArray}
-          linkDataArray={[]}
+          linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
-          diagramStyle={{ height: "76vh" }}
+          diagramStyle={{ height: '76vh' }}
+          noOfCols={isExpanded ? 4 : 1}
         />
-      </details>
+      {/* </detail> */}
+      </div>
     )
-
-  //   let gojsappPaletteIRTVDiv = null; // Initialize with a default value
-  //   if (includeCoreAndIRTVAndPOPS) {
-  //     gojsappPaletteIRTVDiv = (mmodel && (mmodel?.name !== 'IRTV_META') && IRTVOtNodeDataArray) && // this is the palette with the IRTV metamodel
-  //     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-  //       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{irtvmetamodel?.name}</summary>
-  //       <GoJSPaletteApp
-  //         nodeDataArray={IRTVOtNodeDataArray}
-  //         linkDataArray={[]}
-  //         myMetis={props.myMetis}
-  //         metis={props.metis}
-  //         phFocus={props.phFocus}
-  //         dispatch={props.dispatch}
-  //         diagramStyle={{ height: "76vh" }}
-  //       />
-  //     </details>
-  // }
-  //   let gojsappPalettePOPSDiv = null; // Initialize with a default value
-  //   if (includeCoreAndIRTVAndPOPS) {
-  //     gojsappPalettePOPSDiv = (mmodel && (mmodel?.name !== 'POPS_META') && POPSOtNodeDataArray) && // this is the palette with the IRTV metamodel
-  //     <details open={openDetail === 'irtv'} onClick={() => handleToggle('irtv')} className="metamodel-pad">
-  //       <summary className="mmname mx-0 px-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{popsmetamodel?.name}</summary>
-  //       <GoJSPaletteApp
-  //         nodeDataArray={POPSOtNodeDataArray}
-  //         linkDataArray={[]}
-  //         myMetis={props.myMetis}
-  //         metis={props.metis}
-  //         phFocus={props.phFocus}
-  //         dispatch={props.dispatch}
-  //         diagramStyle={{ height: "76vh" }}
-  //       />
-  //     </details>
-  // }
-
-  //   let gojsappPaletteMETADiv = null; // Initialize with a default value
-  // gojsappPaletteMETADiv = (mmodel && (mmodel?.name !== 'CORE_META') && CoreOtNodeDataArray) && // this is the palette with the coret metamodel
-  //     <details open={openDetail === 'core'} onClick={() => handleToggle('core')} className="metamodel-pad">
-  //       <summary className="mmname mx-0 px-1 my-1" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{coremetamodel?.name}</summary>
-  //       <GoJSPaletteApp
-  //         nodeDataArray={CoreOtNodeDataArray}
-  //         linkDataArray={[]}
-  //         myMetis={props.myMetis}
-  //         metis={props.metis}
-  //         phFocus={props.phFocus}
-  //         dispatch={props.dispatch}
-  //         diagramStyle={{ height: "76vh" }}
-  //       />
-  //   </details>
-
 
   const metamodelTasks = <Tasks taskFocusModel={undefined} asPage={false} visible={true} props={props} />
 
   let gojsappPaletteDiv = null; // Initialize with a default value
-  if (includeCoreAndIRTVAndPOPS) {
+  if (includeMetamodelSelector) {
     gojsappPaletteDiv =
     <>
       {otDiv}
@@ -289,42 +316,129 @@ const Palette = (props: any) => {
     </>
   }
 
-  const palette = // this is the left pane with the palette and toggle for refreshing
-    <>
-      <button className="btn-sm text-light bg-transparent border border-0 border-transparent"
-        onClick={togglePalette}> {visiblePalette
-          ? <span className="fs-8"><i className="fa fa-lg fa-angle-left pull-right-container"></i>  Palette: Obj. Types </span>
-          // ? <span> &lt;- Palette: Src Metamodel</span> 
-          : <i className="fa fa-lg fa-angle-right pull-right-container"></i>
-        }
-      </button>
-      <div className="d-flex justify-content-left">
-        <div>
-          {visiblePalette
-            ? (refreshPalette)
-              ? <>{gojsappPaletteDiv}</>
-              : <> {gojsappPaletteDiv}  </>
-            : <div className="btn-vertical d-flex justify-content-between fs-7" style={{ height: "82vh", maxWidth: "4px", padding: "2px", fontSize: "12px", fontWeight: "bold" }}><span> P a l e t t e - S o u r c e - M e t a m o d e l</span> </div>
-          }
-        </div>
-        <div
-          className="ps-1 m-0 bg-transparent"
-        // style={{ position: "relative", marginRight: "0px", marginTop: "-32px", marginLeft: "0", right: "10", top: "4", color: "lightgray" }}
+  const paletteControls = // Palette controls: toggle palette visibility and width
+    <div
+      className="palette-top d-flex pl-1 pr-2 py-0 mb-1 w-100"
+      style={{
+        backgroundColor: "#9cd",
+        width: "100%",
+      }}
+    >
+      <div className="d-flex align-items-center justify-content-between w-100" style={{ columnGap: '0.5rem', minWidth: 0 }}>
+        <button
+          className="btn-sm p-0 m-0 text-light bg-transparent border-0"
+          style={{ minWidth: 0, flex: "1 1 auto", textAlign: "left" }}
+          onClick={togglePalette}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Show or hide palette content"
         >
-          {metamodelTasks}
+          {visiblePalette
+          ? <span className="fs-8 px-1 palette-label" style={{ whiteSpace: "nowrap", fontSize: "0.82rem" }}><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
+          Palette: Obj. Types
+          </span>
+          : <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>}
+        </button>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", flex: "0 0 auto" }}>
+          <button
+          className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
+          style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
+          onClick={() => { setIsExpanded(!isExpanded); (isExpanded) ? setRefreshPalette(true) : setRefreshPalette(false); }}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Toggle palette width"
+          disabled={!visiblePalette}
+          >
+            {visiblePalette ? (isExpanded ? <span>&lt; --</span> : <span>-- &gt;</span>) : <span></span>}
+          </button>
         </div>
       </div>
-    </>
+    </div>
 
-  if (debug) clog('244 Palette', props);
+  const paletteBody =
+    <div
+      className="d-flex flex-column px-2"
+      style={{ flexGrow: 1 }}
+    >
+      {refreshPalette ? <> {gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>}
+  </div>
+
+  const collapsedPaletteSidebar =
+    <div
+      className="palette-sidebar d-flex flex-column"
+      style={{
+        width: 16,
+        minWidth: 16,
+        maxWidth: 16,
+        transition: 'width 0.2s ease',
+        backgroundColor: '#9cd',
+      }}
+    >
+      <button
+        className="btn-sm p-0 m-0 text-light bg-transparent border-0"
+        onClick={togglePalette}
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Show or hide palette content"
+      >
+        <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>
+      </button>
+      <div
+        className="d-flex flex-column align-items-start"
+        style={{
+          flexGrow: 1,
+          width: "12px",
+          minWidth: "16px",
+          maxWidth: "16px",
+          padding: 0,
+          overflow: "hidden",
+          color: "#ffffffff",
+        }}
+      >
+        <span className="palette-label ms-1 palette-label-spaced"> T y p e - P a l e t t e</span>
+      </div>
+    </div>
+
+  const paletteSidebarWidth = visiblePalette
+    ? (isExpanded ? 600 : 220)
+    : 16
+
+  const paletteSidebar =
+    <div
+      className="palette-sidebar d-flex flex-column"
+      style={{
+        width: paletteSidebarWidth,
+        minWidth: paletteSidebarWidth,
+        maxWidth: paletteSidebarWidth,
+        transition: 'width 0.2s ease',
+        backgroundColor: '#9cd',
+        // height: '100vh', // <-- ensure full viewport height
+      }}
+    >
+      {paletteControls}
+      {paletteBody}
+    </div>
+
+  const paletteGuide =
+    <div
+      className="palette--workarea flex-grow-1"
+      style={{
+        minWidth: 0,
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        backgroundColor: 'rgba(255, 253, 229, 1)',
+        height: '89vh', // <-- ensure full viewport height
+      }}
+    >
+      {metamodelTasks}
+    </div>
+
   return (props.metis) ? (
-    <>
-      {palette}
-    </>
+    <div className="palette-workarea d-flex flex-row" style={{ height: 'calc(100vh - 11vh)' }}>
+      {paletteGuide}
+      {visiblePalette ? paletteSidebar : collapsedPaletteSidebar}
+    </div>
   ) : <>No metamodels found</>;
-}
+});
 
-export default Palette;
-
-
-
+export default Palette; 

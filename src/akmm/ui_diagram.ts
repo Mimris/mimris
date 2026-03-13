@@ -518,10 +518,32 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const objviewRef = gjsNode.key;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
-    const objtypeRef = gjsNode.objtypeRef;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    let object: akm.cxObject = null;
+    if (objectview?.objectRef) {
+        object = myMetis.findObject(objectview.objectRef);
+    }
+    if (!object) {
+        object = gjsNode?.object || myMetis.findObject(gjsNode?.objRef);
+    }
+    const objtypeRef =
+        gjsNode?.objtypeRef ||
+        object?.type?.id ||
+        object?.typeRef ||
+        objectview?.object?.type?.id ||
+        objectview?.object?.typeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
-    const objecttypeview = objecttype?.typeview;
+    if (!objecttype) {
+        objecttype =
+            gjsNode?.objecttype ||
+            object?.type ||
+            objectview?.object?.type ||
+            myMetis.findObjectTypeByName(object?.typeName) ||
+            myMetis.findObjectTypeByName(objectview?.object?.typeName);
+    }
+    const objecttypeview = objecttype?.typeview || objectview?.typeview || object?.type?.typeview;
     let supertypes = objecttype?.supertypes;
     const icon = uit.findImage(gjsNode.icon);
 
@@ -535,7 +557,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
             objecttype: objecttype,
             objecttypeview: objecttypeview,
             supertypes: supertypes,
-            allowPorts:  objecttype.allowPorts,
+            allowPorts:  objecttype?.allowPorts ?? false,
             includeInherited: false,
             includeConnected: false,
             relship:     null,
@@ -662,12 +684,23 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
     let objectview = myModelview.findObjectView(key);
-    if (objectview) objectview.viewkind = gjsNode.viewkind;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    if (objectview) objectview.viewkind = gjsNode.viewkind || objectview.viewkind;
     let object = objectview?.object;
-    if (!object) object = myModel.findObject(gjsNode?.objRef);
+    if (!object) object = gjsNode?.object || myModel.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
-    objecttype = myMetis.findObjectType(objecttype?.id);
+    objecttype =
+        myMetis.findObjectType(objecttype?.id || object?.typeRef || objectview?.object?.typeRef) ||
+        gjsNode?.objecttype ||
+        objecttype ||
+        myMetis.findObjectTypeByName(object?.typeName) ||
+        myMetis.findObjectTypeByName(objectview?.object?.typeName);
     let goNode = myGoModel.findNode(key);
+    if (!goNode) {
+        goNode = gjsNode;
+    }
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
@@ -680,7 +713,12 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     if (!objectview)
         objectview = myModelview.findObjectView(goNode?.objviewRef);
     if (!objecttype)
-        objecttype = myMetamodel.findObjectType(goNode?.objtypeRef);
+        objecttype =
+            myMetamodel.findObjectType(goNode?.objtypeRef || goNode?.object?.typeRef) ||
+            goNode?.objecttype ||
+            object?.type ||
+            myMetis.findObjectTypeByName(goNode?.object?.typeName) ||
+            myMetis.findObjectTypeByName(object?.typeName);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -705,7 +743,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       myContext:  myContext,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-    myDiagram.handleOpenModal(gjsNode, modalContext);
+    myDiagram.handleOpenModal(objectview || gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -1376,7 +1414,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 } 
 
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
-    let reltypeNames = [constants.types.AKM_REFERS_TO];
+    let reltypeNames = [constants.types.AKM_CONTAINS];
     const myMetamodel = myMetis.currentMetamodel;
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel;
@@ -2434,33 +2472,33 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
-        let reltype;
-        if (reltypes) { // Check if reltype is specified
-            // get reltype from comma separated list
-            const reltypename = reltypes.split(',')[0];        
-            try {
-                reltype = myMetamodel.findRelationshipTypeByName(reltypename);
-            } catch {
-                reltype = myMetis.findRelationshipTypeByName(reltypename);
-            }
+        // Parse reltypes as array of allowed type names (or IDs)
+        let allowedRelTypes: string[] = [];
+        let allowAll = false;
+        if (reltypes && reltypes.trim() !== '' && reltypes !== 'All') {
+            allowedRelTypes = reltypes.split(',').map(s => s.trim()).filter(Boolean);
+        } else {
+            allowAll = true;
         }
-        // Find all relationships of object sorted by name, type name and toObj name
         let useinp = (reldir === 'in');
         for (let i=0; i<2; i++) {
             let rels: akm.cxRelationship[];
             if (i == 0) rels = object.inputrels;
             if (i == 1) rels = object.outputrels;
             if (rels) {
-                let cnt = 0;
-                for (let i=0; i<rels.length; i++) {
-                    let rel = rels[i];
+                for (let j=0; j<rels.length; j++) {
+                    let rel = rels[j];
                     if (!rel)
                         continue;
                     if (rel.markedAsDeleted)
                         continue;
                     rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                    if (reltype) {
-                        if (rel?.type.id !== reltype?.id)
+                    // Only follow if type is allowed
+                    if (!allowAll) {
+                        // Accept match by name or id
+                        const relTypeName = rel?.type?.name;
+                        const relTypeId = rel?.type?.id;
+                        if (!allowedRelTypes.includes(relTypeName) && !allowedRelTypes.includes(relTypeId))
                             continue;
                     }
                     let toObj;
@@ -2479,7 +2517,7 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
                         const relviews = modelview.findRelationshipViewsByRel2(rel, objview, oview);
                         if (relviews.length > 0)
                             viewCollection.addRelshipView(relviews[0]);
-                    }                                                                              
+                    }
                 }
             }
         }
@@ -2638,7 +2676,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
         case 'TreeLayout':
             layout = new go.TreeLayout({ 
                 isOngoing: false,
-                treeStyle: go.TreeLayout.StyleRootOnly, 
+                treeStyle: go.TreeLayout.StyleRootOnly,
                 angle: 0,
                 layerSpacing: 100,
                 nodeSpacing: 50,
@@ -2685,8 +2723,8 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
                 isOngoing: false,
                 isInitial: false,
                 direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
+                layerSpacing: 80,
+                columnSpacing: 40,
                 setsPortSpots: false,
                 cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
                 initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
@@ -2741,7 +2779,10 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
 
 export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis: akm.cxMetis) {
     const lay = setGroupLayoutParameters(myGroup.groupLayout);
-    const myModelview = myMetis.currentModelview;
+    const myModelview = myMetis.currentModelview || myDiagram.myModelView;
+    if (!myModelview) {
+        return;
+    }
 
     // Find the GoJS group node
     const groupNode = myDiagram.findNodeForKey(myGroup.id);
@@ -2782,56 +2823,35 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     // Keep pool and lane layout responsibilities separate:
     // pool_structure = stack/size lanes only, lane_content = layout only selected lane members.
     if (layoutMode === "pool_structure") {
-        // IMPORTANT: never stack lanes using `lane.actualBounds` because it includes member Nodes and can change
-        // just by dropping/moving lane contents. Always use the lane's structural/visual bounds (selection object)
-        // so the lane stack stays stable regardless of what's inside each lane.
-        const laneStructureBounds = (part: go.Part): go.Rect => {
-            if (part instanceof go.Group) {
-                const selName = (part as any).selectionObjectName as string | undefined;
-                if (selName) {
-                    const selObj = part.findObject(selName) as go.GraphObject | null;
-                    if (selObj) return selObj.getDocumentBounds();
+        const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
+            if (!(group instanceof go.Group)) return 28;
+            let maxWidth = 0;
+            const candidateNames = [
+                'LEFT_HEADER',
+                'leftHeader',
+                'poolLeftHeader',
+                'leftLabel',
+                'HEADER_LEFT',
+                'poolHeaderLeft',
+                'POOL_LEFT_HEADER',
+                'poolLeftLabel',
+                'leftHeaderPanel',
+            ];
+            candidateNames.forEach((name) => {
+                try {
+                    const obj = group.findObject(name);
+                    const bounds = obj?.actualBounds;
+                    if (bounds?.width) maxWidth = Math.max(maxWidth, bounds.width);
+                } catch (_) {
                 }
-                const resizeObj = part.resizeObject as go.GraphObject | null;
-                if (resizeObj) return resizeObj.getDocumentBounds();
-            }
-            return part.actualBounds;
+            });
+            const d: any = group.data;
+            const dataWidth = [d?.leftHeaderWidth, d?.headerWidth, d?.poolHeaderWidth]
+                .find((value) => typeof value === 'number' && !Number.isNaN(value)) || 0;
+            return Math.max(maxWidth, dataWidth, 28);
         };
 
-        const laneStructureY = (part: go.Part): number => {
-            const y = laneStructureBounds(part).y;
-            return isNaN(y) ? part.actualBounds.y : y;
-        };
-
-        // Pool "Do Layout" should only arrange lane groups, not lane contents.
-        const poolLaneLayout = new go.GridLayout({
-            isOngoing: false,
-            wrappingColumn: 1,
-            wrappingWidth: Infinity,
-            spacing: new go.Size(0, POOL_LANE_GAP),
-            alignment: go.GridLayout.Position,
-            // Stack lanes using visible lane body bounds (not full group/link bounds),
-            // so spacing matches what users actually see.
-            boundsComputation: function (part: go.Part, _layout: go.Layout, rect: go.Rect) {
-                rect.set(laneStructureBounds(part));
-                return rect;
-            },
-            comparer: function (a: go.Part, b: go.Part) {
-                const ay = laneStructureY(a);
-                const by = laneStructureY(b);
-                if (!isNaN(ay) && !isNaN(by) && ay !== by) return ay - by;
-                const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
-                const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
-                if (!isNaN(ai) && !isNaN(bi) && ai !== bi) return ai - bi;
-                return 0;
-            }
-        });
-        groupNode.layout = poolLaneLayout;
-        groupNode.layout.isValidLayout = false;
-        groupNode.layout.doLayout(groupNode.memberParts);
-
-        // Enforce deterministic visible gap between lane bodies.
-        const lanes: go.Group[] = [];
+        const laneGroups: go.Group[] = [];
         groupNode.memberParts.each((part: go.Part) => {
             if (!(part instanceof go.Group)) return;
             const isLanePart =
@@ -2840,162 +2860,162 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                 part?.data?.category === 'Lane' ||
                 part?.data?.template === 'Lane' ||
                 part?.data?.template === 'Lane_w_handles';
-            if (isLanePart) lanes.push(part);
+            if (isLanePart) laneGroups.push(part);
         });
-        lanes.sort((a, b) => {
-            const ay = laneStructureY(a);
-            const by = laneStructureY(b);
-            if (!isNaN(ay) && !isNaN(by) && ay !== by) return ay - by;
+        if (!laneGroups.length) {
+            myDiagram.commitTransaction('doGroupLayout');
+            return;
+        }
+
+        laneGroups.sort((a, b) => {
+            const ay = typeof a.location?.y === 'number' ? a.location.y : a.actualBounds.y;
+            const by = typeof b.location?.y === 'number' ? b.location.y : b.actualBounds.y;
+            if (ay !== by) return ay - by;
             const ai = (a?.data && typeof a.data.laneIndex === 'number') ? a.data.laneIndex : NaN;
             const bi = (b?.data && typeof b.data.laneIndex === 'number') ? b.data.laneIndex : NaN;
             if (!isNaN(ai) && !isNaN(bi) && ai !== bi) return ai - bi;
             return 0;
         });
-        if (lanes.length > 0) {
-            // Align lane stack directly to the pool content anchor bounds.
-            // This avoids any drift from hand-maintained constants when parts are moved.
-            const poolContentPanel = groupNode.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
-            const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
-            const anchorPad = poolContentAnchor ? asMargin((poolContentAnchor as any).padding) : new go.Margin(0, 0, 0, 0);
-            const contentBounds = poolContentPanel
-                ? poolContentPanel.getDocumentBounds()
-                : groupNode.actualBounds;
-            const xRaw = contentBounds.x + POOL_LANE_SIDE_PADDING;
-            const y0Raw = contentBounds.y + POOL_LANE_SIDE_PADDING;
-            const x = snapCoord(xRaw);
-            const y0 = snapCoord(y0Raw);
-            let maxLaneTotalWidth = 0;
-            lanes.forEach((lane) => {
-                const w = laneStructureBounds(lane).width;
-                if (!isNaN(w)) maxLaneTotalWidth = Math.max(maxLaneTotalWidth, w);
-            });
-            const poolShapeForWidth = groupNode.findObject("POOL_SHAPE") as any;
-            const poolStrokeForWidth = Number(poolShapeForWidth?.strokeWidth) || 0;
-            const currentPoolSize = groupNode.data?.size
-                ? go.Size.parse(String(groupNode.data.size))
-                : new go.Size(groupNode.actualBounds.width, groupNode.actualBounds.height);
-            // Width must follow the pool size (especially when shrinking the pool).
-            // Content bounds can be stale/expanded by previous lane sizes, so use pool size first.
-            const poolDrivenLaneTotalWidth = currentPoolSize.width -
-                ((2 * POOL_TEMPLATE_MARGIN) +
-                 POOL_HEADER_WIDTH +
-                 anchorPad.left + anchorPad.right +
-                 (2 * POOL_LANE_SIDE_PADDING) +
-                 poolStrokeForWidth);
-            const contentDrivenLaneTotalWidth = contentBounds.width - (2 * POOL_LANE_SIDE_PADDING);
-            const laneTotalWidth = snapSize(Math.max(
-                LANE_HEADER_WIDTH + 20,
-                !isNaN(poolDrivenLaneTotalWidth) && poolDrivenLaneTotalWidth > 0
-                    ? poolDrivenLaneTotalWidth
-                    : (!isNaN(contentDrivenLaneTotalWidth) && contentDrivenLaneTotalWidth > 0
-                        ? contentDrivenLaneTotalWidth
-                        : maxLaneTotalWidth)
-            ));
-            const laneBodyWidth = snapSize(Math.max(
-                20,
-                laneTotalWidth - LANE_HEADER_WIDTH
-            ));
-            let y = y0;
-            let stackHeight = 0;
-            let maxLaneWidth = 0;
-            lanes.forEach((lane, idx) => {
-                const laneMain = lane.findObject("LANE_MAIN_SHAPE") as any;
-                const laneBody = lane.findObject("LANE_BODY_SHAPE") as any;
-                if (laneMain && !isNaN(laneTotalWidth)) {
-                    laneMain.width = laneTotalWidth;
-                }
-                if (laneBody && !isNaN(laneBodyWidth)) {
-                    laneBody.width = laneBodyWidth;
-                }
-                lane.moveTo(x, snapCoord(y));
-                const locStr = `${lane.location.x} ${lane.location.y}`;
-                myDiagram.model.setDataProperty(lane.data, "loc", locStr);
-                // Keep persisted membership stable after relayout/reorder and reload.
+
+        const poolLocation = groupNode.location?.copy() || new go.Point(0, 0);
+        const forcedPoolSizes = (myDiagram as any).__forcedPoolLayoutSizes || {};
+        const forcedPoolSize = forcedPoolSizes[String(groupNode.data?.key || myGroup?.id || "")] || null;
+        const poolSize = groupNode.data?.size ? go.Size.parse(String(groupNode.data.size)) : null;
+        const poolResizeObject = groupNode.resizeObject || groupNode.placeholder || null;
+        const poolLeftReserve = detectPoolLeftHeaderReserve(groupNode);
+        const poolContentPanel = groupNode.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
+        const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
+        const lanePaddingLeft = 4;
+        const lanePaddingRight = 4;
+        const laneRightVisualInset = 4;
+        const laneTopMargin = 4;
+        const laneBottomMargin = 4;
+        const laneSpacing = POOL_LANE_GAP;
+        const minLaneWidth = 120;
+        const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
+        const preservePoolWidths = (myDiagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
+        const preserveWidth =
+            !!preservePoolWidths?.has(String(groupNode.data?.key || myGroup?.id || "")) ||
+            !!forcedPoolSize;
+        let poolWidth = preserveWidth
+            ? Math.max(forcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
+            : Math.max(
+                forcedPoolSize?.width || 0,
+                poolResizeObject?.desiredSize?.width || 0,
+                poolSize?.width || 0,
+                minPoolWidth
+            );
+        const measuredInnerWidth = (() => {
+            if (preserveWidth) return 0;
+            const bounds = (poolContentAnchor || poolContentPanel)?.getDocumentBounds?.();
+            if (bounds?.width && Number.isFinite(bounds.width) && bounds.width > 0) return bounds.width;
+            return 0;
+        })();
+        const laneWidth = Math.max(
+            (measuredInnerWidth > 0 ? measuredInnerWidth : (poolWidth - poolLeftReserve)) - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+            minLaneWidth
+        );
+
+        let currentY = poolLocation.y + laneTopMargin;
+        const laneLayouts: Array<{ height: number; resizeObject: any }> = [];
+        laneGroups.forEach((lane, idx) => {
+            const laneSize = lane.data?.size ? go.Size.parse(String(lane.data.size)) : null;
+            const resizeObject = lane.resizeObject || lane.placeholder || lane;
+            const laneBounds = lane.actualBounds?.copy();
+            const laneHeight =
+                (typeof laneSize?.height === 'number' && Number.isFinite(laneSize.height) && laneSize.height > 0)
+                    ? laneSize.height
+                    : Math.max(
+                        resizeObject?.desiredSize?.height || 0,
+                        laneBounds?.height || 0,
+                        260
+                    );
+            laneLayouts.push({ height: laneHeight, resizeObject });
+        });
+
+        const finalPoolWidth = poolWidth;
+        const finalLaneWidth = Math.max(finalPoolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset, minLaneWidth);
+
+        laneGroups.forEach((lane, idx) => {
+            const laneLayout = laneLayouts[idx];
+            const laneHeight = laneLayout?.height || 260;
+            const resizeObject = laneLayout?.resizeObject || null;
+            const laneHeader = lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+            const laneHeaderWidth =
+                (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+                    ? laneHeader.actualBounds.width
+                    : 36;
+            const laneBodyWidth = Math.max(20, finalLaneWidth - laneHeaderWidth);
+            const laneMain = lane.findObject("LANE_MAIN") as go.GraphObject | null;
+            const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
+            const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+            const laneMainShape = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+            const lanePoint = new go.Point(poolLocation.x + poolLeftReserve + lanePaddingLeft, currentY);
+            lane.location = lanePoint;
+            if (lane.data) {
+                myDiagram.model.setDataProperty(lane.data, "loc", go.Point.stringify(lanePoint));
+                myDiagram.model.setDataProperty(lane.data, "size", `${laneBodyWidth} ${laneHeight}`);
                 if (groupNode.data?.key && lane.data?.group !== groupNode.data.key) {
                     myDiagram.model.setGroupKeyForNodeData(lane.data, groupNode.data.key);
                 }
-                if (!isNaN(laneBodyWidth)) {
-                    const currentSize = lane.data?.size
-                        ? go.Size.parse(String(lane.data.size))
-                        : new go.Size(laneBodyWidth, lane.actualBounds.height);
-                    const nextSize = new go.Size(
-                        laneBodyWidth,
-                        !isNaN(currentSize.height) ? currentSize.height : lane.actualBounds.height
-                    );
-                    if (!lane.data?.size || currentSize.width !== laneBodyWidth) {
-                        myDiagram.model.setDataProperty(lane.data, "size", go.Size.stringify(nextSize));
-                    }
-                }
-                if (lane.data && lane.data.laneIndex !== idx) {
+                if (lane.data.laneIndex !== idx) {
                     myDiagram.model.setDataProperty(lane.data, "laneIndex", idx);
                 }
-                const laneHeight = laneStructureBounds(lane).height;
-                const laneWidth = laneTotalWidth;
-                if (!isNaN(laneWidth)) maxLaneWidth = Math.max(maxLaneWidth, laneWidth);
-                stackHeight += laneHeight;
-                if (idx < lanes.length - 1) stackHeight += POOL_LANE_GAP;
-                y += laneHeight + POOL_LANE_GAP;
-            });
-
-            const poolShape = groupNode.findObject("POOL_SHAPE");
-            if (poolShape && !isNaN(maxLaneWidth)) {
-                const poolStroke = Number((poolShape as any).strokeWidth) || 0;
-                const preservePoolWidths = (myDiagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
-                const preserveWidth = !!preservePoolWidths?.has(String(groupNode.data?.key || myGroup?.id || ""));
-                // Pool desiredSize needs to include the Pool template's internal Table margin.
-                // Without this, lanes can end up flush with the pool border, making the
-                // left/right/top/bottom strokes look different due to overdraw/antialiasing.
-                const computedPoolWidth = snapSizeEven(
-                    (2 * POOL_TEMPLATE_MARGIN) +
-                    POOL_HEADER_WIDTH +
-                    anchorPad.left + anchorPad.right +
-                    (2 * POOL_LANE_SIDE_PADDING) +
-                    maxLaneWidth +
-                    poolStroke
-                );
-                const nextPoolWidth = preserveWidth ? snapSizeEven(currentPoolSize.width) : computedPoolWidth;
-                // With `locationSpot: TopLeft` for pools, forcing even sizes can create a 1px slack area
-                // at the bottom when the computed height is odd. Use a simple ceil instead.
-                const nextPoolHeight = snapSize(Math.max(
-                    80,
-                    (2 * POOL_TEMPLATE_MARGIN) +
-                    anchorPad.top + anchorPad.bottom +
-                    (2 * POOL_LANE_SIDE_PADDING) +
-                    stackHeight +
-                    poolStroke
-                ));
-                const nextPoolSize = new go.Size(
-                    nextPoolWidth,
-                    nextPoolHeight
-                );
-                if (!groupNode.data?.size ||
-                    currentPoolSize.width !== nextPoolWidth ||
-                    currentPoolSize.height !== nextPoolHeight) {
-                    myDiagram.model.setDataProperty(groupNode.data, "size", go.Size.stringify(nextPoolSize));
-                }
             }
+            if (resizeObject) {
+                resizeObject.desiredSize = new go.Size(finalLaneWidth, laneHeight);
+            }
+            if (laneMain) {
+                (laneMain as any).desiredSize = new go.Size(finalLaneWidth, laneHeight);
+                (laneMain as any).width = finalLaneWidth;
+                (laneMain as any).height = laneHeight;
+            }
+            if (laneMainShape) {
+                (laneMainShape as any).desiredSize = new go.Size(finalLaneWidth, laneHeight);
+                (laneMainShape as any).width = finalLaneWidth;
+                (laneMainShape as any).height = laneHeight;
+            }
+            if (laneBodyPanel) {
+                (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+                (laneBodyPanel as any).width = laneBodyWidth;
+                (laneBodyPanel as any).height = laneHeight;
+            }
+            if (laneBody) {
+                (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+                (laneBody as any).width = laneBodyWidth;
+                (laneBody as any).height = laneHeight;
+            }
+            try {
+                lane.desiredSize = new go.Size(finalLaneWidth, laneHeight);
+            } catch (_) {
+            }
+            const laneView = myModelview.findObjectView(lane.data?.key);
+            if (laneView) {
+                laneView.loc = go.Point.stringify(lanePoint);
+                laneView.group = groupNode.data?.key || laneView.group;
+                laneView.size = `${Math.max(20, finalLaneWidth - laneHeaderWidth)} ${laneHeight}`;
+                const data = JSON.parse(JSON.stringify(new jsn.jsnObjectView(laneView)));
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+            }
+            currentY += laneHeight;
+            if (idx < laneGroups.length - 1) currentY += laneSpacing;
+        });
+
+        const totalHeight = (currentY - poolLocation.y) + laneBottomMargin;
+        const finalPoolSize = new go.Size(finalPoolWidth, Math.max(totalHeight, 80));
+        if (poolResizeObject) {
+            poolResizeObject.desiredSize = finalPoolSize;
         }
-
-        const modifiedLaneViews = [];
-        groupNode.memberParts.each((part: go.Part) => {
-            if (!(part instanceof go.Group)) return;
-            const laneView = myModelview.findObjectView(part.data?.key);
-            if (!laneView) return;
-            laneView.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
-            laneView.group = groupNode.data?.key || laneView.group;
-            if (part.data?.size) laneView.size = part.data.size;
-            const jsnLaneView = new jsn.jsnObjectView(laneView);
-            modifiedLaneViews.push(jsnLaneView);
-        });
-        modifiedLaneViews.forEach((ov) => {
-            const data = JSON.parse(JSON.stringify(ov));
-            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-        });
-
-        if (groupNode.data?.size) myGroup.size = String(groupNode.data.size);
-        const jsnGroupPool = new jsn.jsnObjectView(myGroup);
-        const poolData = JSON.parse(JSON.stringify(jsnGroupPool));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: poolData });
+        try {
+            groupNode.desiredSize = finalPoolSize;
+        } catch (_) {
+        }
+        if (groupNode.data) {
+            myDiagram.model.setDataProperty(groupNode.data, "size", go.Size.stringify(finalPoolSize));
+        }
+        myGroup.size = go.Size.stringify(finalPoolSize);
+        const persistedPoolData = JSON.parse(JSON.stringify(new jsn.jsnObjectView(myGroup)));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: persistedPoolData });
         myDiagram.commitTransaction('doGroupLayout');
         return;
     }

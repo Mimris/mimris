@@ -141,6 +141,7 @@ export let types = {
           AKM_MODEL             : "Model",
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
+          AKM_VISUAL_CONTAINER  : "VisualContainer",
           AKM_ENTITY_TYPE       : "EntityType",
           AKM_RELSHIP_TYPE      : "RelshipType",
           AKM_INFORMATION       : "Information",

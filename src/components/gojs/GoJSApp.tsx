@@ -1478,7 +1478,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       const poolLeftReserve = resolvePoolLeftHeaderReserve(poolNode);
       const lanePaddingLeft = 4;
       const lanePaddingRight = 4;
-      const laneRightVisualInset = 4;
+      const laneRightVisualInset = 6;
       const finalLaneWidth = Math.max(
         poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
         120
@@ -3365,8 +3365,18 @@ class GoJSApp extends React.Component<{}, AppState> {
               pdata?.category === 'Lane_w_handles' ||
               pdata?.template === 'Lane' ||
               pdata?.template === 'Lane_w_handles';
+            const parentIsPool =
+              part.containingGroup instanceof go.Group &&
+              (part.containingGroup.data?.category === 'Pool' ||
+                part.containingGroup.data?.template === 'Pool' ||
+                part.containingGroup.category === 'Pool');
             // Moving a Pool should be a pure translation; don't relayout pool structure on pool moves.
             // Relayout is triggered for lane moves/drops (pool membership/order changes) and for resizes.
+            // Exception: a Pool nested inside a parent Pool behaves like a structural row and should
+            // trigger parent pool relayout when moved.
+            if (isPool && parentIsPool && part.containingGroup?.data?.key && !movedPoolKeys.has(String(part.containingGroup.data.key))) {
+              poolsToRelayout.add(String(part.containingGroup.data.key));
+            }
             if (isLane && pdata?.group && !movedPoolKeys.has(String(pdata.group))) poolsToRelayout.add(pdata.group);
             if (isLane && pdata?.__previousGroup && !movedPoolKeys.has(String(pdata.__previousGroup))) poolsToRelayout.add(pdata.__previousGroup);
             if (isLane && pdata) delete (pdata as any).__previousGroup;
@@ -4128,14 +4138,21 @@ const relayoutPoolGroupAfterLaneChanges = (
     return;
   }
 
-  const laneGroups: go.Group[] = [];
+  const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
   poolGroup.memberParts.each((member: go.Part) => {
-    if (member instanceof go.Group && isLaneLike(member.data)) {
-      laneGroups.push(member);
+    if (!(member instanceof go.Group)) {
+      return;
+    }
+    if (isLaneLike(member.data)) {
+      structuralGroups.push({ group: member, kind: 'lane' });
+      return;
+    }
+    if (isPoolLike(member.data)) {
+      structuralGroups.push({ group: member, kind: 'pool' });
     }
   });
 
-  if (!laneGroups.length) {
+  if (!structuralGroups.length) {
     return;
   }
 
@@ -4254,11 +4271,11 @@ const relayoutPoolGroupAfterLaneChanges = (
     return 0;
   };
 
-  laneGroups.sort((a, b) => {
-    const diff = getLaneSortValue(a) - getLaneSortValue(b);
+  structuralGroups.sort((a, b) => {
+    const diff = getLaneSortValue(a.group) - getLaneSortValue(b.group);
     if (Math.abs(diff) < 0.5) {
-      const aKey = getNodeKey(a);
-      const bKey = getNodeKey(b);
+      const aKey = getNodeKey(a.group);
+      const bKey = getNodeKey(b.group);
       if (aKey !== undefined && aKey !== null && bKey !== undefined && bKey !== null) {
         return String(aKey).localeCompare(String(bKey));
       }
@@ -4283,11 +4300,13 @@ const relayoutPoolGroupAfterLaneChanges = (
 
   const forcedPoolSizes = (diagram as any).__forcedPoolLayoutSizes || {};
   const forcedPoolSize = forcedPoolSizes[String(poolGroup.data?.key || "")] || null;
+  const isNestedInPool = poolGroup.containingGroup instanceof go.Group && isPoolLike(poolGroup.containingGroup.data);
+  const effectiveForcedPoolSize = isNestedInPool ? null : forcedPoolSize;
   const poolSize = parseSizeString(poolGroup?.data?.size);
   const poolResizeObject = poolGroup.resizeObject || poolGroup.placeholder || null;
   const poolWidthCandidates: number[] = [];
-  if (forcedPoolSize?.width) {
-    poolWidthCandidates.push(forcedPoolSize.width);
+  if (effectiveForcedPoolSize?.width) {
+    poolWidthCandidates.push(effectiveForcedPoolSize.width);
   }
   if (poolResizeObject?.desiredSize?.width) {
     poolWidthCandidates.push(poolResizeObject.desiredSize.width);
@@ -4300,17 +4319,17 @@ const relayoutPoolGroupAfterLaneChanges = (
   const poolContentAnchor = poolGroup.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
   const lanePaddingLeft = 4;
   const lanePaddingRight = 4;
-  const laneRightVisualInset = 4;
+  const laneRightVisualInset = 6;
   const laneTopMargin = 4;
-  const laneBottomMargin = 4;
+  const laneBottomMargin = 6;
   const minLaneWidth = 120;
   const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
   const preservePoolWidths = (diagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
   const preserveWidth =
     !!preservePoolWidths?.has(String(poolGroup.data?.key || "")) ||
-    !!forcedPoolSize;
+    !!effectiveForcedPoolSize;
   let poolWidth = preserveWidth
-    ? Math.max(forcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
+    ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
     : (poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : minPoolWidth);
 
   const model = diagram.model;
@@ -4326,18 +4345,17 @@ const relayoutPoolGroupAfterLaneChanges = (
   );
 
   const laneLayouts: Array<{
-    lane: go.Group;
+    group: go.Group;
+    kind: 'lane' | 'pool';
     height: number;
-    storedWidth: number;
-    contentWidth: number;
-    hasStoredWidth: boolean;
     topY: number;
   }> = [];
+  const nestedPoolsToRelayout: go.Group[] = [];
 
-  laneGroups.forEach((lane) => {
-    const laneSizeData = parseSizeString(lane?.data?.size);
-    const resizeObject = lane.resizeObject || lane.placeholder || lane;
-    const laneBounds = lane.actualBounds?.copy();
+  structuralGroups.forEach(({ group, kind }) => {
+    const laneSizeData = parseSizeString(group?.data?.size);
+    const resizeObject = group.resizeObject || group.placeholder || group;
+    const laneBounds = group.actualBounds?.copy();
     const desiredSize = resizeObject?.desiredSize;
 
     const laneHeight =
@@ -4349,50 +4367,10 @@ const relayoutPoolGroupAfterLaneChanges = (
             260
           );
 
-    const laneWidthCandidates: number[] = [];
-    if (typeof desiredSize?.width === 'number' && Number.isFinite(desiredSize.width) && desiredSize.width > 0) {
-      laneWidthCandidates.push(desiredSize.width);
-    }
-    if (typeof laneSizeData?.width === 'number' && Number.isFinite(laneSizeData.width) && laneSizeData.width > 0) {
-      laneWidthCandidates.push(laneSizeData.width);
-    }
-    let laneMemberContentWidth = 0;
-    if (lane.memberParts) {
-      lane.memberParts.each((member: go.Part) => {
-        if (!(member instanceof go.Node || member instanceof go.Group)) {
-          return;
-        }
-        const memberBounds = member.actualBounds;
-        if (!memberBounds) {
-          return;
-        }
-        const memberWidth = memberBounds.width;
-        if (typeof memberWidth !== 'number' || !Number.isFinite(memberWidth) || memberWidth <= 0) {
-          return;
-        }
-        laneMemberContentWidth = Math.max(laneMemberContentWidth, memberWidth);
-      });
-    }
-
-    const storedWidth = laneWidthCandidates.length ? Math.max(...laneWidthCandidates) : 0;
-    const hasStoredWidth = storedWidth > 0;
-    const contentWidthWithPadding = laneMemberContentWidth > 0
-      ? laneMemberContentWidth + lanePaddingLeft + lanePaddingRight
-      : 0;
-
-    const desiredLaneWidth = preserveWidth
-      ? initialLaneWidthAvailable
-      : Math.max(
-          initialLaneWidthAvailable,
-          contentWidthWithPadding,
-          hasStoredWidth ? storedWidth : 0
-        );
     laneLayouts.push({
-      lane,
+      group,
+      kind,
       height: laneHeight,
-      storedWidth: storedWidth,
-      contentWidth: contentWidthWithPadding,
-      hasStoredWidth,
       topY: 0,
     });
   });
@@ -4414,19 +4392,21 @@ const relayoutPoolGroupAfterLaneChanges = (
   );
 
   laneLayouts.forEach((layout) => {
-    const lane = layout.lane;
+    const lane = layout.group;
     const laneHeight = layout.height;
-    const laneHeader = lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+    const laneTotalWidth = finalLaneWidthAvailable;
+    const isLaneGroup = layout.kind === 'lane';
+    const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
     const laneHeaderWidth =
-      (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+      isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0
         ? laneHeader.actualBounds.width
         : 36;
-    const laneTotalWidth = finalLaneWidthAvailable;
-    const laneBodyWidth = Math.max(20, laneTotalWidth - laneHeaderWidth);
+    const laneBodyWidth = isLaneGroup ? Math.max(20, laneTotalWidth - laneHeaderWidth) : laneTotalWidth;
     const laneMain = lane.findObject("LANE_MAIN") as go.GraphObject | null;
     const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
     const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
     const laneMainShape = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+    const childPoolShape = !isLaneGroup ? lane.findObject("POOL_SHAPE") as go.GraphObject | null : null;
 
     const laneTopLeftX = poolLocation.x + poolLeftReserve + lanePaddingLeft;
     const laneTopLeft = new go.Point(laneTopLeftX, layout.topY);
@@ -4458,25 +4438,31 @@ const relayoutPoolGroupAfterLaneChanges = (
     if (resizeObject) {
       resizeObject.desiredSize = newLaneMainSize;
     }
-    if (laneMain) {
+    if (isLaneGroup && laneMain) {
       (laneMain as any).desiredSize = newLaneMainSize;
       (laneMain as any).width = laneTotalWidth;
       (laneMain as any).height = laneHeight;
     }
-    if (laneMainShape) {
+    if (isLaneGroup && laneMainShape) {
       (laneMainShape as any).desiredSize = newLaneMainSize;
       (laneMainShape as any).width = laneTotalWidth;
       (laneMainShape as any).height = laneHeight;
     }
-    if (laneBodyPanel) {
+    if (isLaneGroup && laneBodyPanel) {
       (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
       (laneBodyPanel as any).width = laneBodyWidth;
       (laneBodyPanel as any).height = laneHeight;
     }
-    if (laneBody) {
+    if (isLaneGroup && laneBody) {
       (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
       (laneBody as any).width = laneBodyWidth;
       (laneBody as any).height = laneHeight;
+    }
+    if (!isLaneGroup && childPoolShape) {
+      (childPoolShape as any).desiredSize = newLaneMainSize;
+      (childPoolShape as any).width = laneTotalWidth;
+      (childPoolShape as any).height = laneHeight;
+      nestedPoolsToRelayout.push(lane);
     }
     try {
       lane.desiredSize = newLaneMainSize;
@@ -4533,6 +4519,11 @@ const relayoutPoolGroupAfterLaneChanges = (
   }
 
   poolGroup.ensureBounds();
+  nestedPoolsToRelayout.forEach((nestedPool) => {
+    if (nestedPool !== poolGroup) {
+      relayoutPoolGroupAfterLaneChanges(diagram, nestedPool, laneSpacing);
+    }
+  });
 };
 
 e.subject.each(function (n) {

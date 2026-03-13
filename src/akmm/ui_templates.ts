@@ -244,6 +244,26 @@ function makeGeoIcon() {
     )                                
 }
 
+function makeSwimlaneHeaderIcon() {
+    return $(go.Picture,
+        {
+            name: "SWIMLANE_HEADER_ICON",
+            desiredSize: new go.Size(24, 24),
+            alignment: new go.Spot(0.5, 1, 0, -4),
+            alignmentFocus: go.Spot.Bottom,
+            margin: new go.Margin(0),
+            background: "transparent",
+            pickable: false,
+            opacity: 0,
+        },
+        new go.Binding("source", "icon", getIconSource),
+        new go.Binding("background", "fillcolor2"),
+        new go.Binding("opacity", "icon", (icon: any) => shouldShowIconPicture(icon) ? 1 : 0),
+        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "icon", shouldShowIconPicture),
+    );
+}
+
 // Helper function to force update all icon sources in the diagram
 // This is needed because GoJS bindings don't always trigger for emoji after reload
 export function forceUpdateAllIconSources(diagram: any): void {
@@ -320,17 +340,30 @@ function makeFigure2() {
     )
 }
 
-function makeNotation(kind: string) {
+function makeNotation(kind: string, props: Record<string, any> = {}) {
+    let notation;
     switch(kind) {
         case 'Icon':
-            return makeGeoIcon();
+            notation = makeGeoIcon();
+            break;
         case 'Geometry':
-            return makeGeometry();
+            notation = makeGeometry();
+            break;
         case 'Figure':
-            return makeFigure();
+            notation = makeFigure();
+            break;
         default:
-            return makeGeoIcon();
+            notation = makeGeoIcon();
+            break;
     }
+    if (notation && props) {
+        for (const [key, value] of Object.entries(props)) {
+            if (value !== undefined) {
+                (notation as any)[key] = value;
+            }
+        }
+    }
+    return notation;
 }
 
 function makeImage(kind: string) {
@@ -577,7 +610,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                     new go.Binding("stroke", "textcolor").makeTwoWay(),
                     new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
                 ),
-                makeNotation(notation),
+                makeSwimlaneHeaderIcon(),
                 ), // End Table Panel
 
                 $(go.Shape,  // open container background
@@ -1154,9 +1187,14 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "strokecolor").makeTwoWay(),
                     ),
-                    makeZoomInvariantExpanderButton(1.2, { margin: new go.Margin(0, 0, 0, 4) }),
                 ),
-                makeNotation(notation),
+                makeZoomInvariantExpanderButton(1.0, {
+                    width: 22,
+                    height: 22,
+                    alignment: new go.Spot(1, 0, -6, 4),
+                    alignmentFocus: go.Spot.TopRight,
+                }),
+                makeSwimlaneHeaderIcon(),
             ),
             // Body panel must not grow/shrink based on member bounds; the lane BODY size is controlled by
             // `LANE_BODY_SHAPE` (bound to `data.size`) and members are clipped to it.
@@ -1168,7 +1206,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                     // Do not vertically stretch lane body to the pool height. The lane BODY height must be
                     // driven by `LANE_BODY_SHAPE.desiredSize.height` (data.size) so lanes don't overlap.
                     stretch: go.GraphObject.Horizontal,
-                    isClipping: true,
+                    margin: new go.Margin(0, 2, 2, 0),
                 },
                 $(go.Shape, "Rectangle",
                     {
@@ -1189,6 +1227,21 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         return s === "" ? "white" : s;
                     }),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+                ),
+                $(go.Picture,
+                    {
+                        name: "LANE_BODY_IMAGE",
+                        stretch: go.GraphObject.Fill,
+                        imageStretch: go.GraphObject.Fill,
+                        alignment: go.Spot.Center,
+                        opacity: 0.95,
+                        pickable: false,
+                    },
+                    new go.Binding("source", "image", findImage),
+                    new go.Binding("visible", "isSubGraphExpanded", (expanded: boolean, pict: any) => {
+                        const img = findImage(pict?.part?.data?.image);
+                        return Boolean(img) && !expanded;
+                    }).ofObject(),
                 ),
                 $(go.Placeholder, { padding: new go.Margin(0, 0, 0, 0), alignment: go.Spot.TopLeft }),
             ),
@@ -1239,10 +1292,16 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     row: 0,
                     column: 0,
                     width: SWIM_HEADER_WIDTH,
+                    desiredSize: new go.Size(SWIM_HEADER_WIDTH, 100),
                     stretch: go.GraphObject.Fill,
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
+                new go.Binding("desiredSize", "size", (s: any) => {
+                    const parsed = go.Size.parse(typeof s === "string" ? s : "");
+                    const height = Number(parsed?.height);
+                    return new go.Size(SWIM_HEADER_WIDTH, Number.isFinite(height) && height > 0 ? height : 100);
+                }),
                 $(go.Shape, "Rectangle", {
                     fill: dbgFill("#f3f3f3", "rgba(160, 90, 255, 0.10)"),
                     strokeWidth: 2,
@@ -1288,7 +1347,13 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     new go.Binding("stroke", "strokecolor").makeTwoWay(),
                     new go.Binding("visible", "isSubGraphExpanded", function (e) { return !e; }).ofObject(),
                 ),
-                makeNotation(notation),
+                makeZoomInvariantExpanderButton(1.0, {
+                    width: 22,
+                    height: 22,
+                    alignment: new go.Spot(1, 0, -6, 4),
+                    alignmentFocus: go.Spot.TopRight,
+                }),
+                makeSwimlaneHeaderIcon(),
             ),
             $(go.Panel, "Spot",
                 {
@@ -1303,7 +1368,6 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 $(go.Panel, "Auto",
                     {
                         stretch: go.GraphObject.Fill,
-                        isClipping: true,
                     },
                     $(go.Shape, "Rectangle",
                         {
@@ -1315,13 +1379,28 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             pickable: false,
                         },
                     ),
+                    $(go.Picture,
+                        {
+                            name: "POOL_CONTENT_IMAGE",
+                            stretch: go.GraphObject.Fill,
+                            imageStretch: go.GraphObject.Fill,
+                            alignment: go.Spot.Center,
+                            opacity: 0.95,
+                            pickable: false,
+                        },
+                        new go.Binding("source", "image", findImage),
+                        new go.Binding("visible", "isSubGraphExpanded", (expanded: boolean, pict: any) => {
+                            const img = findImage(pict?.part?.data?.image);
+                            return Boolean(img) && !expanded;
+                        }).ofObject(),
+                    ),
                     $(go.Placeholder,
                         {
                             name: "POOL_CONTENT_ANCHOR",
                             stretch: go.GraphObject.Fill,
                             // Keep lane content flush to the left/top separator while leaving a tiny
                             // right/bottom inset so the pool border remains visible.
-                            padding: new go.Margin(0, 2, 2, 0),
+                            padding: new go.Margin(0, 4, 4, 0),
                             alignment: go.Spot.TopLeft,
                         },
                     ),
@@ -5035,6 +5114,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         const c = part.data?.category;
         return c === "Lane" || c === "Lane_w_handles" || t === "Lane" || t === "Lane_w_handles";
     };
+    const isPoolGroupPart = (part: go.Part): part is go.Group => {
+        if (!(part instanceof go.Group)) return false;
+        const t = part.data?.template;
+        const c = part.data?.category;
+        return c === "Pool" || t === "Pool";
+    };
 
     const laneStructureBounds = (lane: go.Group): go.Rect => {
         const main = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
@@ -5050,16 +5135,25 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         const diagram = e.diagram;
         const dragged = diagram.selection;
         let hasLane = false;
+        let hasPool = false;
         let valid = true;
         dragged.each((part: go.Part) => {
             if (part === pool) return;
-            if (!isLaneGroupPart(part)) {
+            if (isLaneGroupPart(part)) {
+                hasLane = true;
+                return;
+            }
+            if (isPoolGroupPart(part)) {
+                hasPool = true;
+                return;
+            }
+            if (part instanceof go.Group) {
                 valid = false;
                 return;
             }
-            hasLane = true;
+            valid = false;
         });
-        if (!valid || !hasLane) {
+        if (!valid || (!hasLane && !hasPool) || (hasLane && hasPool)) {
             diagram.currentTool.doCancel();
             return;
         }
@@ -5073,7 +5167,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
         // target lane based on the drop Y coordinate. We do this by nudging the dropped lanes' Y
         // locations just above/below the target lane before triggering PoolLayout.
-        if (opts?.relativeToLane && typeof opts.dropY === "number" && !Number.isNaN(opts.dropY)) {
+        if (hasLane && opts?.relativeToLane && typeof opts.dropY === "number" && !Number.isNaN(opts.dropY)) {
             const targetBounds = laneStructureBounds(opts.relativeToLane);
             const midY = targetBounds.y + (targetBounds.height / 2);
             const insertBefore = opts.dropY < midY;
@@ -5102,19 +5196,18 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
 
         const modelview = myMetis.currentModelview;
         dragged.each((part: go.Part) => {
-            if (!isLaneGroupPart(part)) return;
-            const laneOv = modelview?.findObjectView(part.data?.key);
-            if (!laneOv) return;
-            laneOv.group = pool.data?.key;
-            laneOv.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
-            if (part.data?.size) laneOv.size = part.data.size;
-            const jsnLaneOv = new jsn.jsnObjectView(laneOv);
-            const data = JSON.parse(JSON.stringify(jsnLaneOv));
-            diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data });
+            if (!(isLaneGroupPart(part) || isPoolGroupPart(part))) return;
+            const objview = modelview?.findObjectView(part.data?.key);
+            if (!objview) return;
+            objview.group = pool.data?.key;
+            objview.loc = part.data?.loc ? String(part.data.loc) : `${part.location.x} ${part.location.y}`;
+            if (part.data?.size) objview.size = part.data.size;
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
+            diagram.dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data: payload });
         });
 
         const poolOv = modelview?.findObjectView(pool.data?.key);
-        if (poolOv?.isGroup) {
+        if (hasLane && poolOv?.isGroup) {
             uid.doGroupLayout(poolOv, diagram, myMetis);
         }
     };
@@ -5306,6 +5399,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
+            padding: new go.Margin(0, 2, 2, 0),
             // Make "loc" represent the top-left of the whole lane (header + body),
             // so pool layout can align lane headers flush to the pool header separator.
             locationObjectName: "LANE_MAIN",
@@ -5316,6 +5410,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             handlesDragDropForMembers: true,
             mouseDrop: handleLaneDrop,
             contextMenu: contextMenu,
+            subGraphExpandedChanged: (grp: go.Group) => {
+                updateCrossLaneLinks(grp);
+                const diagram = grp.diagram;
+                if (!diagram) return;
+                grp.invalidateLayout();
+                if (grp.containingGroup instanceof go.Group) {
+                    grp.containingGroup.invalidateLayout();
+                }
+                diagram.requestUpdate();
+            },
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -5355,7 +5459,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
-            padding: new go.Margin(0, 0, 0, 0),
+            padding: new go.Margin(0, 2, 2, 0),
             locationObjectName: "LANE_MAIN",
             locationSpot: go.Spot.TopLeft,
             computesBoundsAfterDrag: true,
@@ -5364,6 +5468,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             handlesDragDropForMembers: true,
             mouseDrop: handleLaneDrop,
             contextMenu: contextMenu,
+            subGraphExpandedChanged: (grp: go.Group) => {
+                updateCrossLaneLinks(grp);
+                const diagram = grp.diagram;
+                if (!diagram) return;
+                grp.invalidateLayout();
+                if (grp.containingGroup instanceof go.Group) {
+                    grp.containingGroup.invalidateLayout();
+                }
+                diagram.requestUpdate();
+            },
         },
         new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -5398,6 +5512,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 minSize: getMinSize(),
                 contextMenu: contextMenu,
                 selectionAdorned: true,
+                padding: new go.Margin(0, 2, 2, 0),
                 // Keep selection/resize aligned with the pool border shape, not with placeholder/member bounds.
                 selectionObjectName: "POOL_SHAPE",
                 resizeObjectName: "POOL_SHAPE",

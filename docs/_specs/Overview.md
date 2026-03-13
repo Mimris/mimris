@@ -84,10 +84,17 @@ Grouping scale is derived from containment only.
 
 - Pool width is the source of truth for swimlane layout.
 - Lane width must always adapt to the current pool width; lane width must never expand the pool.
+- A pool may contain lanes and child pools.
+- A child pool inside a parent pool must behave like a structural row in the parent pool layout.
+- A nested child pool must adapt to the parent pool row width; nested pools must not preserve an older independent width against the parent pool layout.
 - Lane `data.size` / persisted `objectview.size` stores the lane body size, not the full lane width including the header strip.
 - The visible lane main width is derived from the pool's available inner width, and the lane body width is derived from that main width minus the lane header width.
 - Manual pool resize must persist across reload.
 - After a manual pool resize, later lane moves or lane relayouts must preserve the pool width and refit the lanes to the pool.
+- Dragging a nested pool must trigger relayout of its parent pool, the same way dragging a lane does.
+- Pool and lane expander buttons live in the top-right of their rotated header strips.
+- Pool and lane header object icons live at the bottom of the rotated header strip and should not overlap the rotated header text.
+- Pool and lane content images are only shown in the collapsed state.
 - Pool right and bottom borders must remain visible; lane content should leave a small inset from those borders.
 
 ### Palette Persistence

@@ -587,7 +587,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
-        link.routing = relview.routing ? relview.routing : "Normal";
+        link.routing = relview.routing ? relview.routing : "Orthogonal";
         if (!showRelshipNames)
           link.name = " ";
         if (includeDeleted || includeNoObject || includeNoType) {

@@ -110,15 +110,20 @@ Grouping scale is derived from containment only.
 ### ICOM Rendering
 
 - The default ICOM style is `idef`.
+- The default relationship routing for IDEF0 ICOM usage is `Orthogonal`.
 - ICOM rendering is defined by `icomStyle` on the typeview, with support for metamodel-driven notation choices.
 - Side ICOMs use a neutral marker close to the process border, with the relationship direction shown by the relationship arrow rather than the ICOM graphic.
 - For left/right ICOMs, the relationship should hook near the process-side end of the ICOM line, while the label remains outside the routing gap.
+- Output labels should sit further to the right so they stay between routed orthogonal segments when possible.
 - Side ICOM labels may wrap to two lines maximum and should use ellipsis if more text would be needed.
 - The whole colored side ICOM band should resolve to the port for context menus, but relationship hookup should still use the dedicated hookup area.
 - For top/bottom ICOMs, the whole ICOM should render outside the group border, with the ICOM strip hugging the border.
 - Control text is placed above the top strip and mechanism text below the bottom strip.
+- Control and mechanism labels may wrap to two lines and should use compact horizontal spacing between neighboring labels.
+- Single-line control/mechanism labels should align to the bottom of their two-line text box.
+- The top control strip and bottom mechanism strip should be tuned independently so each can sit flush with its group border.
 - For top/bottom ICOMs, the relationship arrow should sit as close to the group border and ICOM line as possible, even if it overlaps the line.
-- ICOM text backgrounds should remain transparent.
+- ICOM text backgrounds should remain transparent, while the text itself may use slight opacity to soften overlap with relationship routing.
 
 
 ### Development activities

@@ -1855,7 +1855,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     if (leftside || rightside) {
         const isLeft = leftside;
         const labelWidth = 88;
-        const lineWidth = 24;
+        const lineWidth = 10;
         const routingGap = 10;
         const labelOffset = 12;
         const rowHeight = 28;
@@ -1907,6 +1907,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 wrap: go.TextBlock.WrapFit,
                 overflow: go.TextBlock.OverflowEllipsis,
                 background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
+                opacity: DEBUG_ICOM_LAYOUT ? 1 : 0.9,
                 margin: isLeft ? new go.Margin(3, 2, 3, 0) : new go.Margin(3, 0, 3, 2),
                 editable: true,
                 isMultiline: true,
@@ -1996,11 +1997,11 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 : [
                     $(go.Panel, "Auto",
                         {
-                            alignment: go.Spot.Left,
+                            alignment: new go.Spot(0, 0.5, -2, 0),
                             alignmentFocus: go.Spot.Left,
                             width: lineWidth,
                             minSize: new go.Size(lineWidth, rowHeight),
-                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 0, 0, 0.18)" : "transparent",
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 99, 71, 0.28)" : "transparent",
                             pickable: false,
                         },
                         lineShape,
@@ -2009,17 +2010,17 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                         {
                             alignment: new go.Spot(0, 0.5, 0, 0),
                             alignmentFocus: go.Spot.Left,
-                            width: 14,
+                            width: 8,
                             height: 8,
-                            fill: "transparent",
-                            stroke: "transparent",
-                            strokeWidth: 0,
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(50, 205, 50, 0.35)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(34, 139, 34, 0.9)" : "transparent",
+                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
                             portId: "",
                             fromLinkable: true,
                             toLinkable: false,
                             cursor: "alias",
                             contextMenu: portContextMenu,
-                            fromSpot: go.Spot.Right,
+                            fromSpot: new go.Spot(1, 0.5, -3, 0),
                         },
                         new go.Binding("portId", "", function(d) {
                             return d?.id || d?.portId || "";
@@ -2031,16 +2032,17 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                             alignmentFocus: go.Spot.Left,
                             width: lineWidth,
                             height: 10,
-                            fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
-                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                            fill: DEBUG_ICOM_LAYOUT ? "rgba(30, 144, 255, 0.45)" : "transparent",
+                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 90, 200, 0.9)" : "transparent",
                             strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
                             pickable: false,
                         },
                     ),
                     $(go.Panel, "Auto",
                         {
-                            alignment: new go.Spot(0, 0.5, 8, 0),
+                            alignment: new go.Spot(0, 0.5, 20, 0),
                             alignmentFocus: go.Spot.Left,
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(255, 215, 0, 0.24)" : "transparent",
                             pickable: false,
                         },
                         labelBlock,
@@ -2049,6 +2051,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                         {
                             alignment: new go.Spot(1, 0.5, routingGap, 0),
                             alignmentFocus: go.Spot.Right,
+                            background: DEBUG_ICOM_LAYOUT ? "rgba(186, 85, 211, 0.24)" : "transparent",
                             pickable: false,
                         },
                         gapPanel,
@@ -2059,6 +2062,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
     if (topside || bottomside) {
         const isTop = topside;
         const topBottomWidth = 24;
+        const topBottomLabelWidth = 80;
         const markerThickness = 2;
         const markerLength = Math.max(10, getIcomPortSize(isGroup, "idef").height - 4);
         const topBottomStripHeight = 12;
@@ -2152,16 +2156,22 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
             $(go.TextBlock,
                 {
                     name: "PORT_LABEL_TEXT",
+                    width: topBottomLabelWidth,
+                    minSize: new go.Size(topBottomLabelWidth, 34),
+                    maxSize: new go.Size(topBottomLabelWidth, NaN),
                     font: font,
                     angle: textangle,
                     alignment: go.Spot.Center,
                     textAlign: "center",
-                    wrap: go.TextBlock.None,
+                    wrap: go.TextBlock.WrapFit,
                     overflow: go.TextBlock.OverflowEllipsis,
+                    verticalAlignment: go.Spot.Bottom,
                     background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
-                    margin: new go.Margin(0),
+                    opacity: DEBUG_ICOM_LAYOUT ? 1 : 0.9,
+                    margin: new go.Margin(2, 2, 2, 2),
                     editable: true,
-                    isMultiline: false,
+                    isMultiline: true,
+                    maxLines: 2,
                     cursor: "text",
                     contextMenu: portContextMenu,
                 },
@@ -2172,7 +2182,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
             {
                 width: topBottomWidth,
                 height: topBottomStripHeight,
-                alignment: isTop ? new go.Spot(0.5, 1, 0, 0) : new go.Spot(0.5, 0, 0, -6),
+                alignment: isTop ? new go.Spot(0.5, 1, 0, -7) : new go.Spot(0.5, 0, 0, 4),
                 alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
                 background: DEBUG_ICOM_LAYOUT ? "rgba(0, 180, 255, 0.18)" : "transparent",
             },
@@ -2197,16 +2207,17 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
         );
         const textPanel = $(go.Panel, "Auto",
             {
-                alignment: isTop ? new go.Spot(0.5, 0, 0, -10) : new go.Spot(0.5, 1, 0, 18),
+                alignment: isTop ? new go.Spot(0.5, 0, 0, -12) : new go.Spot(0.5, 1, 0, 14),
                 alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
+                margin: new go.Margin(0, 2, 0, 2),
                 pickable: false,
             },
             topBottomText,
         );
         return $(go.Panel, "Spot",
             {
-                margin: new go.Margin(6, 0, 6, 0),
-                alignment: isTop ? new go.Spot(0.5, 1, 0, -6) : new go.Spot(0.5, 0, 0, 6),
+                margin: new go.Margin(4, 2, 4, 2),
+                alignment: isTop ? new go.Spot(0.5, 1, 0, -7) : new go.Spot(0.5, 0, 0, 6),
                 alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
             },
             stripPanel,
@@ -4455,7 +4466,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 resegmentable: true,
             },
             // link route 
-            { routing: go.Link.Normal,  corner: 10},  // link route should avoid nodes
+            { routing: go.Link.Orthogonal,  corner: 10},  // default relationship routing
             new go.Binding("routing", "routing",
                 function(r) {
                     return getRouting(r);

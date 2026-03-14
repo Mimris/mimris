@@ -7,6 +7,9 @@ User guides, installation instructions, and system architecture documentation.
 - **[getting-started.md](./getting-started.md)** - Quick start guide for new users
 - **[installation.md](./installation.md)** - Installation instructions
 - **[system-architecture.md](./system-architecture.md)** - System architecture overview
+- **[../spec-governance.md](../spec-governance.md)** - Spec, docs, agent, and AI layer governance
+- **[../spec-kit-migration-checklist.md](../spec-kit-migration-checklist.md)** - Repo-by-repo migration checklist
+- **[../mimris-constitution-draft.md](../mimris-constitution-draft.md)** - Draft constitution for future spec-kit adoption
 
 ## Quick Start
 

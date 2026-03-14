@@ -19,7 +19,7 @@ JSON.safeStringify = (obj, indent = 2) => {
     return retVal;
 };
 
-export const SaveModelviewToFile = (model, name, type, universe) => {
+export const SaveModelviewToFile = (model, name, type, universe = '') => {
     const today = new Date().toISOString().slice(0, 19)
     let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(model);
@@ -33,7 +33,7 @@ export const SaveModelviewToFile = (model, name, type, universe) => {
     document.body.removeChild(link);
 }
 
-export const SaveModelToFile = (model, name, type, universe) => {
+export const SaveModelToFile = (model, name, type, universe = '') => {
     let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
@@ -47,7 +47,7 @@ export const SaveModelToFile = (model, name, type, universe) => {
 }
 
 
-export const SaveMetamodelToFile = (metamodel, name, type, universe) => {
+export const SaveMetamodelToFile = (metamodel, name, type, universe = '') => {
     let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(metamodel);
     const blob = new Blob([json], {type:'application/json'});
@@ -61,7 +61,7 @@ export const SaveMetamodelToFile = (metamodel, name, type, universe) => {
 }
 
 
-export const SaveAllToFile = (data, name, type, universe) => {
+export const SaveAllToFile = (data, name, type, universe = '') => {
     if (!name) { name = 'New-Project' }
     let fileName = buildConsistentFileName(name, universe, type);
     if ((!debug)) console.log('69 SaveModelToFile', fileName, data);
@@ -77,7 +77,7 @@ export const SaveAllToFile = (data, name, type, universe) => {
     document.body.removeChild(link);
 }
 
-export const SaveAllToFileDate = (data, name, type, universe) => {
+export const SaveAllToFileDate = (data, name, type, universe = '') => {
     const today = new Date().toISOString().slice(0, 10)
     let fileName = buildConsistentFileName(name, universe, type, today);
     if (debug) console.log('88 SaveModelToFile', data, fileName);

@@ -863,7 +863,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
       const goNode = myGoModel.findNodeByViewId(selObj.key);
-      const objview = myModelview.findObjectView(selObj.key);
+      const objview =
+        myModelview.findObjectView(selObj.key) ||
+        goNode?.objectview ||
+        goNode?.data?.objectview;
+      if (!objview || !goNode) {
+        if (debug) console.log("editObjectview: missing goNode or objview", selObj);
+        break;
+      }
       objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;

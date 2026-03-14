@@ -870,12 +870,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
       objview.figure2 = selObj.figure2;
+      objview.groupLayout = selObj.groupLayout;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
       goNode.figure2 = selObj.figure2;
+      goNode.groupLayout = selObj.groupLayout;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       myModelview.addObjectView(objview);
       if (debug) console.log("editObjectview: ", selObj);
@@ -1063,23 +1065,33 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Add Port') {
         const selectedValue = modalContext.selected?.value;
         const node = modalContext.node;
-        let objId;
-        let object = node.object;
-        if (object)
-          objId = object.id;
+        let objId = node.objRef;
+        let object = myMetis.findObject(objId);
+        // if (object)
+        //   objId = object.id;
+        // else
+        //   objId = node.objRef;
+        // object = myMetis.findObject(objId);
+        let objview = node.objectview;
+        let objviewId;
+        if (objview)
+          objviewId = objview.id;
         else
-          objId = node.objRef;
-        object = myMetis.findObject(objId)
+          objviewId = node.objviewRef;
+        objview = myMetis.findObjectView(objviewId);
         const side = selectedValue;
         let name = '';
         switch(side) {
           case 'top':
+          case 'Control':
             name = 'C';
             break;
           case 'bottom':
+          case 'Mechanism':
             name = 'M';
             break;
           case 'left':
+          case 'Input':
             name = 'I';
             break;
           case 'right':

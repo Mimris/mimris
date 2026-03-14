@@ -24,6 +24,15 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
     toggle();
   };
 
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const select = e.currentTarget as unknown as HTMLSelectElement;
+    const options = Array.from(
+      select.selectedOptions,
+      (option: HTMLOptionElement) => option.value
+    );
+    setSelectedTypes(options);
+  };
+
   return (
     <Modal isOpen={isOpen} toggle={toggle} size="lg">
       <ModalHeader toggle={toggle}>Selected Connected Objects</ModalHeader>
@@ -57,10 +66,7 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
             </FormGroup>
             <FormGroup>
               <Label for="reltypes">Relationship types to traverse</Label>
-              <Input type="select" id="reltypes" multiple value={selectedTypes} onChange={e => {
-                const options = Array.from(e.target.selectedOptions, option => option.value);
-                setSelectedTypes(options);
-              }}>
+              <Input type="select" id="reltypes" multiple value={selectedTypes} onChange={handleSelectionChange}>
                 {relationshipTypes.map(type => (
                     <option key={type} value={type}>{type}</option>
                 ))}

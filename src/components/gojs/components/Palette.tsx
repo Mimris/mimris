@@ -151,7 +151,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             try { document.removeEventListener('pointerdown', docListener); } catch (_) { }
           }
           docListener = null;
-          if (activeMenu?.parentElement) {
+          if (activeMenu?.parentElement?.contains(activeMenu)) {
             try { activeMenu.parentElement.removeChild(activeMenu); } catch (_) { }
           }
           activeMenu = null;

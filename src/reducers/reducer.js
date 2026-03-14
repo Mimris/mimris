@@ -176,7 +176,7 @@ let focusProj
 let focusRole
 let focusCollection
 
-function reducer(state = InitialState, action) {
+function reducer(state = InitialState, action) {  
 
   const { phData, domain, phFocus, phUser } = state;
   const { type, payload } = action;
@@ -1834,7 +1834,5 @@ function reducer(state = InitialState, action) {
       return state
   }
 }
-
-
 
 export default reducer

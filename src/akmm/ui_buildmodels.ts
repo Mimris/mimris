@@ -416,6 +416,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
         node.scale = objview.scale;
+        (node as any).scale1 = objview.scale;
         myGoModel.addNode(node);
         node.name = objview.name;
         const object = node.object as akm.cxObject;

@@ -42,6 +42,8 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored console lo
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
+const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
+
 const Modelling = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
@@ -53,6 +55,7 @@ const Modelling = (props: any) => {
   const modellerRef = useRef<any>(null);
   const paletteRef = useRef<any>(null); // metamodel palette
   const paletteObjRef = useRef<any>(null); // objects palette (left column)
+  const didRestoreStoredFocusModelRef = useRef(false);
 
   const [refresh, setRefresh] = useState(true);
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
@@ -141,6 +144,32 @@ const Modelling = (props: any) => {
     setMount(true);
   }, [])
 
+  useEffect(() => {
+    if (didRestoreStoredFocusModelRef.current) return;
+    if (typeof window === 'undefined') return;
+    if (!models?.length) return;
+    didRestoreStoredFocusModelRef.current = true;
+
+    const storedFocusModelId = window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+    if (!storedFocusModelId) return;
+    if (focusModel?.id === storedFocusModelId) return;
+
+    const storedModel = models.find((m: any) => m?.id === storedFocusModelId);
+    if (!storedModel) return;
+
+    const storedModelview = storedModel?.modelviews?.find((mv: any) => mv) || storedModel?.modelviews?.[0];
+    dispatch({ type: 'SET_FOCUS_MODEL', data: { id: storedModel.id, name: storedModel.name } });
+    if (storedModelview) {
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: storedModelview.id, name: storedModelview.name } });
+    }
+  }, [dispatch, models, focusModel?.id])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!focusModel?.id) return;
+    window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
+  }, [focusModel?.id])
+
 
   const handleShowProjectModal = () => {
     // if (minimized) {
@@ -168,9 +197,7 @@ const Modelling = (props: any) => {
     </Modal>
   );
 
-  useEffect(() => {
-    if (debug) useEfflog('157 Modelling useEffect 2 [props.phSource]', props.phSource)
-  }, [props.phSource]) // Show project modal when the phSource is a template project
+  // Keep GitHub Settings modal closed by default; open explicitly via UI actions only.
 
   useEffect(() => {
     if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
@@ -241,7 +268,7 @@ const Modelling = (props: any) => {
             <NavLink
               style={{
                 paddingTop: "0px",
-                paddingBottom: "2px",
+                paddingBottom: "5px",
                 paddingLeft: "8px",
                 paddingRight: "8px",
                 border: "solid 1px",
@@ -251,6 +278,7 @@ const Modelling = (props: any) => {
               }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => {
+                if (typeof window !== 'undefined') window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, m.id);
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
                 doRefresh();
@@ -277,7 +305,6 @@ const Modelling = (props: any) => {
         ref={paletteRef}
       />
 
-
     const metamodelDiv =  // this is the metamodel modelling area
       <Modeller
         myMetis={myMetis}
@@ -295,16 +322,16 @@ const Modelling = (props: any) => {
 
     const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
       ?
-      <TargetMeta // maybe replaced by Palette?
-        // gojsModel={gojsmodel}
-        // gojsMetamodel={gojsmetamodel}
-        // gojsTargetMetamodel={gojstargetmetamodel}
-        myMetis={myMetis}
-        phFocus={phFocus}
-        metis={metis}
-        dispatch={dispatch}
-        modelType='model'
-      />
+        <TargetMeta // maybe replaced by Palette?
+          // gojsModel={gojsmodel}
+          // gojsMetamodel={gojsmetamodel}
+          // gojsTargetMetamodel={gojstargetmetamodel}
+          myMetis={myMetis}
+          phFocus={phFocus}
+          metis={metis}
+          dispatch={dispatch}
+          modelType='model'
+        />
       : <></>;
 
     const metamodellingtabs = (
@@ -392,7 +419,7 @@ const Modelling = (props: any) => {
       <>
         {/* compact toggle will be placed inline inside the Nav below */}
         <Nav tabs style={{ minWidth: "50px", borderBottom: "white" }} >
-          <span className="ms-1 me-2">
+          <span className="ms-1 me-2 ">
             <button
               className={`btn btn-model-toggle ms-0 me-2 d-flex align-items-center justify-content-center ${mmToggle ? 'active' : ''}`}
               data-toggle="tooltip"
@@ -407,7 +434,7 @@ const Modelling = (props: any) => {
           </span>
           {/* Small icon-only toggle placed between the Model button and the model tabs */}
           <button
-            className="btn btn-outline-secondary btn-sm p-1 me-2"
+            className="btn btn-outline-secondary btn-sm px-1 me-2 my-0 py-1 d-flex align-items-center justify-content-center"
             onClick={() => {
               const next = !palettesOpen;
               setPalettesOpen(next);
@@ -424,27 +451,23 @@ const Modelling = (props: any) => {
         </Nav>
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
-            <div className="workpad px-1 pt-2 bg-white">
+            <div className="workpad px-1 pt-1 bg-white">
               <Row className="row1">
                 {/* Palette area */}
-                {palettesOpen ? (
-                  <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
-                    <div className="myPalette pe-1 mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "2px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
-                      <Palette // this is the Objects Palette area
-                        myMetis={myMetis}
-                        metis={metis}
-                        phFocus={phFocus}
-                        dispatch={dispatch}
-                        modelType='model'
-                        phUser={phUser}
-                        setVisiblePalette={props.setVisiblePalette}
-                        ref={paletteObjRef}
-                      />
-                    </div>
-                  </Col>
-                ) : (
-                  <Col xs="auto" className="p-0 m-0" style={{ width: '8px' }} />
-                )}
+                <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
+                  <div className="myPalette mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "0px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                    <Palette // this is the Objects Palette area
+                      myMetis={myMetis}
+                      metis={metis}
+                      phFocus={phFocus}
+                      dispatch={dispatch}
+                      modelType='model'
+                      phUser={phUser}
+                      setVisiblePalette={props.setVisiblePalette}
+                      ref={paletteObjRef}
+                    />
+                  </div>
+                </Col>
                 {/* Modelling area */}
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
@@ -532,7 +555,7 @@ const Modelling = (props: any) => {
     const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
     const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
 
-    const modellingDiv =
+    const modellingDiv = // this is the button row and the modelling area with OSDU import and load options and Reload button
       <>
         <div className="buttonrow d-flex justify-content-between align-items-center" style={{ maxHeight: "22px", minHeight: "18px", whiteSpace: "nowrap" }}>
           <div className="d-flex justify-content-between align-items-center">
@@ -559,10 +582,9 @@ const Modelling = (props: any) => {
             </span>
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
-
-            {/* <span className="btn me-1 d-flex justify-content-center align-items-center bg-secondary" onClick={exportToClipboard}>
-            <i className="fas fa-copy me-2"></i> Objects
-            </span> */}
+          {/* <span className="btn me-1 d-flex justify-content-center align-items-center bg-secondary" onClick={exportToClipboard}>
+          <i className="fas fa-copy me-2"></i> Objects
+          </span> */}
           {/* <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span> */}
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
           <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
@@ -608,44 +630,41 @@ const Modelling = (props: any) => {
         </div>
       </>
 
-
     if (!curmod || !curmod.modelviews) {
       return <div>Loading model data...</div>;
-      }
+    }
 
     return ((mmToggle)
       ? (myMetis) &&
         <>
           <div className="diagramtabs pb-0" >
             {mount && (
-            <>
-              <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
-                {modellingDiv}
-              </div>
-              <div className="modellingContent mt-1 ">
-                {/* {modellingtabs} */}
-                {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
-              </div>
-            </>
-         )}
-        </div>
-        {projectModalDiv}
-      </>
+              <>
+                <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+                  {modellingDiv}
+                </div>
+                <div className="modellingContent mt-1">
+                  {/* {modellingtabs} */}
+                  {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+                </div>
+              </>
+            )}
+          </div>
+          {projectModalDiv}
+        </>
       : <>
-        <div className="diagramtabs pb-0 " >
-          <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
-            {metamodellingDiv}
+          <div className="diagramtabs pb-0 " >
+            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+              {metamodellingDiv}
+            </div>
+            <div className="modellingContent mt-1">
+              {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
+            </div>
           </div>
-          <div className="modellingContent mt-1">
-            {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
-          </div>
-        </div>
-      </>
+        </>
     )
   }
 }
 
 export default Modelling;
 // export default Page(connect(state => state)(page));
-
-

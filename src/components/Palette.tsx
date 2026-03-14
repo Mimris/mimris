@@ -21,13 +21,28 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
+const PALETTE_VISIBLE_STORAGE_KEY = 'mimris.palette.visible';
+const PALETTE_TYPES_VISIBLE_STORAGE_KEY = 'mimris.palette.visibleTypes';
+const PALETTE_EXPANDED_STORAGE_KEY = 'mimris.palette.expanded';
+
+function readStoredBoolean(key: string, fallback: boolean) {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === null) return fallback;
+    return value === 'true';
+  } catch (_) {
+    return fallback;
+  }
+}
+
 const Palette = React.forwardRef((props: any, ref: any) => {
 
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
 
-  const [visiblePalette, setVisiblePalette] = useState(true)
+  const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
@@ -47,8 +62,8 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const [selMetamodelName, setSelMetamodelName] = useState('')
   const [openDetail, setOpenDetail] = useState<string | null>('top');
 
-  const [visibleTypes, setVisibleTypes] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(PALETTE_TYPES_VISIBLE_STORAGE_KEY, true))
+  const [isExpanded, setIsExpanded] = useState(() => readStoredBoolean(PALETTE_EXPANDED_STORAGE_KEY, false))
 
   const handleToggle = (id: string) => {
     setOpenDetail(id);
@@ -99,8 +114,6 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     setTask(focusTask);
     const types = objecttypes?.map((t: any) => t?.name);
     setTypes(types);
-    setVisibleTypes(true);
-
     const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
     setFilteredOtNodeDataArray(nodes);
     setFilteredLinkDataArray(links);
@@ -112,6 +125,33 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_VISIBLE_STORAGE_KEY, String(visiblePalette));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visiblePalette]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_TYPES_VISIBLE_STORAGE_KEY, String(visibleTypes));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [visibleTypes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(PALETTE_EXPANDED_STORAGE_KEY, String(isExpanded));
+    } catch (_) {
+      // ignore storage errors
+    }
+  }, [isExpanded]);
 
   function toggleTypes() {
     setVisibleTypes(!visibleTypes);
@@ -279,23 +319,27 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const paletteControls = // Palette controls: toggle palette visibility and width
     <div
       className="palette-top d-flex pl-1 pr-2 py-0 mb-1 w-100"
-      style={{ backgroundColor: "#9cd", width: "100%" }}
+      style={{
+        backgroundColor: "#9cd",
+        width: "100%",
+      }}
     >
-      <div className="d-flex align-items-center justify-content-between w-100" style={{ columnGap: '0.5rem' }}>
+      <div className="d-flex align-items-center justify-content-between w-100" style={{ columnGap: '0.5rem', minWidth: 0 }}>
         <button
-          className="btn-sm text-light bg-transparent border-0"
+          className="btn-sm p-0 m-0 text-light bg-transparent border-0"
+          style={{ minWidth: 0, flex: "1 1 auto", textAlign: "left" }}
           onClick={togglePalette}
           data-toggle="tooltip"
           data-placement="top"
           title="Show or hide palette content"
         >
           {visiblePalette
-          ? <span className="fs-8 px-1 palette-label"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
+          ? <span className="fs-8 px-1 palette-label" style={{ whiteSpace: "nowrap", fontSize: "0.82rem" }}><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
           Palette: Obj. Types
           </span>
-          : <i className="fa fa-lg fa-angle-right pull-right-container ps-1"></i>}
+          : <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>}
         </button>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", flex: "0 0 auto" }}>
           <button
           className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
           style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
@@ -303,7 +347,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           data-toggle="tooltip"
           data-placement="top"
           title="Toggle palette width"
-          disabled={!visibleTypes}
+          disabled={!visiblePalette}
           >
             {visiblePalette ? (isExpanded ? <span>&lt; --</span> : <span>-- &gt;</span>) : <span></span>}
           </button>
@@ -312,34 +356,52 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     </div>
 
   const paletteBody =
-    <div className="d-flex flex-column px-2">
-      {visiblePalette
-        ? (refreshPalette ? <> {gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>)
-        : <div
-          className="d-flex justify-content-between fs-900"
-          style={{
-            height: "100%",
-            width: "12px",        // Increase width for visibility
-            minWidth: "12px",
-            maxWidth: "12px",
-            padding: 0,
-            fontSize: "16px",
-            fontWeight: "bold",
-            overflow: "hidden",
-            // textOverflow: "ellipsis",
-            color: "#ffffffff",        // Ensure text is visible
-            writingMode: "horizontal-tb", // force horizontal text
-            transform: "none"             // remove any rotation
-          }}
-        >
-          <span>T y p e - P a l e t t e</span>
-        </div>
-      }
+    <div
+      className="d-flex flex-column px-2"
+      style={{ flexGrow: 1 }}
+    >
+      {refreshPalette ? <> {gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>}
+  </div>
+
+  const collapsedPaletteSidebar =
+    <div
+      className="palette-sidebar d-flex flex-column"
+      style={{
+        width: 16,
+        minWidth: 16,
+        maxWidth: 16,
+        transition: 'width 0.2s ease',
+        backgroundColor: '#9cd',
+      }}
+    >
+      <button
+        className="btn-sm p-0 m-0 text-light bg-transparent border-0"
+        onClick={togglePalette}
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Show or hide palette content"
+      >
+        <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>
+      </button>
+      <div
+        className="d-flex flex-column align-items-start"
+        style={{
+          flexGrow: 1,
+          width: "12px",
+          minWidth: "16px",
+          maxWidth: "16px",
+          padding: 0,
+          overflow: "hidden",
+          color: "#ffffffff",
+        }}
+      >
+        <span className="palette-label ms-1 palette-label-spaced"> T y p e - P a l e t t e</span>
+      </div>
     </div>
 
   const paletteSidebarWidth = visiblePalette
-    ? (visibleTypes ? (isExpanded ? 600 : 220) : 160)
-    : 1
+    ? (isExpanded ? 600 : 220)
+    : 16
 
   const paletteSidebar =
     <div
@@ -372,9 +434,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     </div>
 
   return (props.metis) ? (
-    <div className="palette-workarea d-flex flex-row pe-3" style={{ height: 'calc(100vh - 11vh)' }}>
+    <div className="palette-workarea d-flex flex-row" style={{ height: 'calc(100vh - 11vh)' }}>
       {paletteGuide}
-      {paletteSidebar}
+      {visiblePalette ? paletteSidebar : collapsedPaletteSidebar}
     </div>
   ) : <>No metamodels found</>;
 });

@@ -711,7 +711,7 @@ export function groupTop2(contextMenu: any, notation: string, bodyLinkable: bool
                 name: "SHAPE",
                 cursor: "alias",
                 fill: "white",
-                shadowVisible: true,
+                shadowVisible: false,
                 minSize: new go.Size(180, 90),
                 strokeWidth: 2,
                 spot1: new go.Spot(0, 0, 3, 3),
@@ -726,7 +726,19 @@ export function groupTop2(contextMenu: any, notation: string, bodyLinkable: bool
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("desiredSize", "size", function (s) {
+                const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
+                return new go.Size(
+                    Math.max(176, parsed.width - 2),
+                    Math.max(86, parsed.height - 2)
+                );
+            }).makeTwoWay(function (size) {
+                const parsed = size instanceof go.Size ? size : go.Size.parse(size || "218 118");
+                return go.Size.stringify(new go.Size(
+                    Math.max(180, parsed.width + 2),
+                    Math.max(90, parsed.height + 2)
+                ));
+            }),
         ),
         $(go.Shape, "RoundedRectangle", // Inner shape for moving
             {
@@ -4992,7 +5004,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionObjectName: "SHAPE",
                 selectionAdorned: true,
                 handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
@@ -5034,7 +5046,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionObjectName: "SHAPE",
                 selectionAdorned: true,
                 handlesDragDropForMembers: true,
                 contextMenu: contextMenu,
@@ -5073,7 +5085,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-                selectionObjectName: "GROUP",  // selecting a custom part also selects the shape
+                selectionObjectName: "SHAPE",
                 selectionAdorned: true,
                 handlesDragDropForMembers: true,
                 contextMenu: contextMenu,

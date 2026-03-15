@@ -713,6 +713,9 @@ export function groupTop2(contextMenu: any, notation: string, bodyLinkable: bool
                 fill: "white",
                 shadowVisible: true,
                 minSize: new go.Size(180, 90),
+                strokeWidth: 2,
+                spot1: new go.Spot(0, 0, 3, 3),
+                spot2: new go.Spot(1, 1, -4, -4),
                 portId: bodyLinkable ? "" : null,
                 fromLinkable: bodyLinkable,
                 fromLinkableSelfNode: false,
@@ -806,15 +809,15 @@ export function groupTop2(contextMenu: any, notation: string, bodyLinkable: bool
                     strokeWidth: 1.2,
                     opacity: 0.75,
                     minSize: new go.Size(146, 62),
-                    margin: new go.Margin(2, 2, 2, 3),
+                    margin: new go.Margin(3, 3, 3, 3),
                     cursor: "move",
                 },
                 new go.Binding("fill", "fillcolor2"),
                 new go.Binding("desiredSize", "size", function (s) {
                     const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
                     return new go.Size(
-                        Math.max(72, parsed.width - 14),
-                        Math.max(36, parsed.height - 24)
+                        Math.max(72, parsed.width - 16),
+                        Math.max(36, parsed.height - 33)
                     );
                 }),
                 // Keep open/closed visuals consistent; only the expander symbol changes.
@@ -1793,7 +1796,7 @@ function getIcomStrokeWidth(style: "hybrid" | "idef"): number {
     return style === "idef" ? 1.5 : 1;
 }
 
-const DEBUG_ICOM_LAYOUT = false;
+const DEBUG_ICOM_LAYOUT = true;
 
 function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) {
     let rightside = side === 'right';
@@ -2165,7 +2168,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                     textAlign: "center",
                     wrap: go.TextBlock.WrapFit,
                     overflow: go.TextBlock.OverflowEllipsis,
-                    verticalAlignment: go.Spot.Bottom,
+                    verticalAlignment: isTop ? go.Spot.Bottom : go.Spot.Top,
                     background: DEBUG_ICOM_LAYOUT ? "rgba(255, 255, 0, 0.18)" : "transparent",
                     opacity: DEBUG_ICOM_LAYOUT ? 1 : 0.9,
                     margin: new go.Margin(2, 2, 2, 2),

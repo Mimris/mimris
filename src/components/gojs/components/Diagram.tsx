@@ -5757,7 +5757,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
 
       function isObjectNodeData(data: any): boolean {
-        return data?.category === constants.gojs.C_OBJECT;
+        return !!data && (
+          data?.category === constants.gojs.C_OBJECT ||
+          !!data?.object ||
+          !!data?.objectview ||
+          data?.isGroup === true ||
+          typeof data?.viewkind === 'string'
+        );
       }
 
       function isContainerView(data: any): boolean {
@@ -5766,12 +5772,111 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return viewkind === 'Container';
       }
 
+      function getTemplateName(data: any): string {
+        if (!data) return "";
+        const objview = resolveObjectview(data);
+        return String(data?.template || objview?.template || "");
+      }
+
+      function isPortedGroup(data: any): boolean {
+        if (!isContainerView(data)) return false;
+        const template = getTemplateName(data);
+        return template === 'groupWithPorts' ||
+          template === 'groupWithFigAndPorts' ||
+          template === 'groupWithGeoAndPorts';
+      }
+
+      function isPlainGroup(data: any): boolean {
+        if (!isContainerView(data)) return false;
+        const template = getTemplateName(data);
+        return template === 'groupNoPorts' ||
+          template === 'groupFigNoPorts' ||
+          template === 'groupGeoNoPorts';
+      }
+
+      function getPlainGroupTemplate(templateFromNode: string): string {
+        switch (templateFromNode) {
+          case 'textAndGeometry':
+          case 'groupWithGeoAndPorts':
+          case 'groupGeoNoPorts':
+            return 'groupGeoNoPorts';
+          case 'textAndFigure':
+          case 'groupWithFigAndPorts':
+          case 'groupFigNoPorts':
+            return 'groupFigNoPorts';
+          case 'textAndIcon':
+          case 'groupWithPorts':
+          case 'groupNoPorts':
+          default:
+            return 'groupNoPorts';
+        }
+      }
+
+      function getPortedGroupTemplate(templateFromNode: string): string {
+        switch (templateFromNode) {
+          case 'textAndGeometry':
+          case 'groupWithGeoAndPorts':
+          case 'groupGeoNoPorts':
+            return 'groupWithGeoAndPorts';
+          case 'textAndFigure':
+          case 'groupWithFigAndPorts':
+          case 'groupFigNoPorts':
+            return 'groupWithFigAndPorts';
+          case 'textAndIcon':
+          case 'groupWithPorts':
+          case 'groupNoPorts':
+          default:
+            return 'groupWithPorts';
+        }
+      }
+
       function canConvertToGroup(data: any): boolean {
         return isObjectNodeData(data) && !isContainerView(data);
       }
 
       function canConvertToNode(data: any): boolean {
-        return isObjectNodeData(data) && isContainerView(data);
+        return isObjectNodeData(data) && isPlainGroup(data);
+      }
+
+      function canEnablePorts(data: any): boolean {
+        return isObjectNodeData(data) && isPlainGroup(data);
+      }
+
+      function ensureMinimumGroupSize(nodeData: any, objview: any, part: go.Part | null): string | null {
+        const minWidth = 220;
+        const minHeight = 120;
+        const sizeCandidates: any[] = [
+          part && (part as any).resizeObject?.desiredSize,
+          part && (part as any).desiredSize,
+          part?.actualBounds,
+          nodeData?.size,
+          objview?.size,
+        ];
+
+        let width = 0;
+        let height = 0;
+
+        for (const candidate of sizeCandidates) {
+          if (!candidate) continue;
+          if (typeof candidate === "string") {
+            try {
+              const parsed = go.Size.parse(candidate);
+              width = Math.max(width, parsed.width || 0);
+              height = Math.max(height, parsed.height || 0);
+            } catch (_err) {
+              // ignore invalid size strings
+            }
+            continue;
+          }
+          const candidateWidth = Number(candidate.width);
+          const candidateHeight = Number(candidate.height);
+          if (Number.isFinite(candidateWidth)) width = Math.max(width, candidateWidth);
+          if (Number.isFinite(candidateHeight)) height = Math.max(height, candidateHeight);
+        }
+
+        const normalizedWidth = Math.max(width, minWidth);
+        const normalizedHeight = Math.max(height, minHeight);
+        return `${normalizedWidth} ${normalizedHeight}`;
       }
 
       function handleConvertToGroup(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -5780,9 +5885,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const nodeData: any = part.data;
         if (!canConvertToGroup(nodeData)) return;
 
-        const noPorts = confirm("No Ports (OK) or Allow Ports?");
-        const allowPorts = !noPorts;
-
         let objview: any = resolveObjectview(nodeData);
         if (!objview) {
           alert("You need to do a Reload to see the change!");
@@ -5790,32 +5892,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         const templateFromNode = nodeData?.template || objview?.template;
-        let template = templateFromNode;
-        switch (templateFromNode) {
-          case 'textAndGeometry':
-            template = allowPorts ? 'groupWithGeoAndPorts' : 'groupGeoNoPorts';
-            break;
-          case 'textAndFigure':
-            template = allowPorts ? 'groupWithFigAndPorts' : 'groupFigNoPorts';
-            break;
-          case 'textAndIcon':
-          default:
-            template = allowPorts ? 'groupWithPorts' : 'groupNoPorts';
-            break;
-        }
+        const template = getPlainGroupTemplate(templateFromNode);
 
         objview.viewkind = 'Container';
         objview.template = template;
         objview.isGroup = true;
+        objview.portMode = 'none';
+        const normalizedSize = ensureMinimumGroupSize(nodeData, objview, part);
+        if (normalizedSize) {
+          objview.size = normalizedSize;
+        }
 
         if (nodeData.objectview) {
           nodeData.objectview.viewkind = 'Container';
           nodeData.objectview.template = template;
           nodeData.objectview.isGroup = true;
+          nodeData.objectview.portMode = 'none';
+          if (normalizedSize) {
+            nodeData.objectview.size = normalizedSize;
+          }
         }
 
         nodeData.viewkind = 'Container';
         nodeData.template = template;
+        if (normalizedSize) {
+          nodeData.size = normalizedSize;
+        }
 
         const jsnObjview = new jsn.jsnObjectView(objview);
         const data = JSON.parse(JSON.stringify(jsnObjview));
@@ -5825,10 +5927,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         try {
           const newTemplate = template ?? (nodeData.template || "textAndIcon");
           if (typeof newTemplate === "string" && newTemplate.length > 0) {
-            diagram.model.setCategoryForNodeData(nodeModelData, newTemplate);
+            targetDiagram.model.setCategoryForNodeData(nodeModelData, newTemplate);
             nodeData.template = newTemplate;
+            if (normalizedSize) {
+              targetDiagram.model.setDataProperty(nodeModelData, "size", normalizedSize);
+            }
           }
-          // (targetDiagram?.model as any)?.setCategoryForNodeData?.(nodeModelData, template);
         } catch (_err) {
           // Ignore if category update fails
         }
@@ -5849,11 +5953,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         objview.viewkind = 'Object';
         objview.template = 'textAndIcon';
         objview.isGroup = false;
+        objview.portMode = 'none';
 
         if (nodeData.objectview) {
           nodeData.objectview.viewkind = 'Object';
           nodeData.objectview.template = 'textAndIcon';
           nodeData.objectview.isGroup = false;
+          nodeData.objectview.portMode = 'none';
         }
 
         nodeData.viewkind = 'Object';
@@ -5864,6 +5970,51 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
 
         alert("You need to a Reload to see the change!");
+      }
+
+      function handleEnablePorts(diagram: go.Diagram | null | undefined, part: go.Part | null) {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram || !part) return;
+        const nodeData: any = part.data;
+        if (!canEnablePorts(nodeData)) return;
+
+        const objview: any = resolveObjectview(nodeData);
+        if (!objview) {
+          alert("You need to do a Reload to see the change!");
+          return;
+        }
+
+        const templateFromNode = nodeData?.template || objview?.template;
+        const template = getPortedGroupTemplate(templateFromNode);
+
+        objview.viewkind = 'Container';
+        objview.template = template;
+        objview.isGroup = true;
+        objview.portMode = 'generic';
+
+        if (nodeData.objectview) {
+          nodeData.objectview.viewkind = 'Container';
+          nodeData.objectview.template = template;
+          nodeData.objectview.isGroup = true;
+          nodeData.objectview.portMode = 'generic';
+        }
+
+        nodeData.viewkind = 'Container';
+        nodeData.template = template;
+
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+
+        const nodeModelData = nodeData.data ?? nodeData;
+        try {
+          if (typeof template === "string" && template.length > 0) {
+            targetDiagram.model.setCategoryForNodeData(nodeModelData, template);
+            nodeData.template = template;
+          }
+        } catch (_err) {
+          // Ignore if category update fails
+        }
       }
 
       function getLayoutOptions() {
@@ -7366,27 +7517,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       //   },
       // ];
 
+      const buildObjectMenuItems = (part: go.Part): HtmlMenuItem[] => {
+        const objectMenuItems: HtmlMenuItem[] = [
+          {
+            label: "Edit Object",
+            action: () => handleEditObject(part),
+          },
+          {
+            label: "Convert to Group",
+            action: (diagram) => handleConvertToGroup(diagram, part),
+            visible: () => canConvertToGroup(part?.data),
+          },
+          {
+            label: "Convert to Object",
+            action: (diagram) => handleConvertToNode(diagram, part),
+            visible: () => canConvertToNode(part?.data),
+          },
+          {
+            label: "Enable Ports",
+            action: (diagram) => handleEnablePorts(diagram, part),
+            visible: () => canEnablePorts(part?.data),
+          },
+          {
+            label: "Add Ports",
+            action: (diagram) => handleAddPort(diagram, part),
+            visible: () => canAddPortToNode(part),
+            enabled: () => canAddPortToNode(part),
+          },
+          { separator: true },
+          {
+            label: "Delete Object",
+            action: (diagram) => handleDeletePart(diagram, part),
+            enabled: (diagram) => canDeleteSinglePart(diagram, part),
+          },
+          {
+            label: "Delete Selection",
+            action: (diagram) => handleDeleteSelection(diagram),
+            enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
+          }
+        ];
+        return objectMenuItems;
+      };
+
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
-        const buildObjectMenuItems = (): HtmlMenuItem[] => {
-          const objectMenuItems: HtmlMenuItem[] = [
-            {
-              label: "Edit Object",
-              action: () => handleEditObject(part),
-            },
-            {
-              label: "Delete Object",
-              action: (diagram) => handleDeletePart(diagram, part),
-              enabled: (diagram) => canDeleteSinglePart(diagram, part),
-            },
-            {
-              label: "Delete Selection",
-              action: (diagram) => handleDeleteSelection(diagram),
-              enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-            }
-          ];
-          return objectMenuItems;
-        };
         const buildGroupLayoutMenuItems = (): HtmlMenuItem[] => {
           const groupRelationshipPathItems: HtmlMenuItem[] = [
             {
@@ -7497,7 +7671,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // Group common object actions into an "Object…" submenu
           items.push({
             label: "Object…",
-            action: showSubMenu(buildObjectMenuItems()),
+            action: showSubMenu(buildObjectMenuItems(part)),
             closeOnClick: false,
           });
           // Group object-view related actions into an "Objectview…" submenu
@@ -8014,11 +8188,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           items.push({
             label: "Change Icon",
             action: (diagram) => handleChangeIcon(diagram, part),
-          });
-          items.push({
-            label: "Add Ports",
-            action: (diagram) => handleAddPort(diagram, part),
-            enabled: () => canAddPortToNode(part),
           });
           items.push({
             label: "Open Group",
@@ -8579,7 +8748,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   },
                   {
                     label: "Object…",
-                    action: showSubMenu(buildObjectMenuItems()),
+                    action: showSubMenu(buildObjectMenuItems(targetPart)),
                     closeOnClick: false,
                   },
                   {

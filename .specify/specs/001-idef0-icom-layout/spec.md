@@ -17,6 +17,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 4. **Given** a bottom mechanism ICOM with a one-line or two-line label, **When** the label is rendered, **Then** the text aligns from the first line instead of sinking to the bottom of the label box.
 5. **Given** an object converted into a non-ported group, **When** the group is first shown or later resized, **Then** the visible outer border remains fully visible on all sides and the resized state persists.
 6. **Given** a port-to-port relationship with an orthogonal path, **When** a connected process is moved, **Then** stale stored path points are cleared so the relationship reroutes from the correct port side instead of flipping to the wrong end.
+7. **Given** an object or group is converted between object and group representations, **When** the conversion is triggered from the canvas menu, **Then** the canvas updates immediately without requiring a full reload.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
@@ -24,6 +25,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - What happens when persisted diagrams already store non-orthogonal routing explicitly?
 - What happens when a non-ported group is resized after conversion from an object?
 - What happens when a moved port-to-port relationship still has persisted route points from an earlier geometry?
+- What happens when a live object-to-group conversion changes the GoJS part class from node to group?
 
 ## Requirements
 
@@ -39,6 +41,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-009**: The system MUST allow object-to-group conversion to create a non-ported group that is large enough to show its inner frame and header without clipping.
 - **FR-010**: The system MUST keep the visible border of non-ported groups fully rendered on all sides after selection and resize, and resized dimensions MUST persist after interaction.
 - **FR-011**: The system MUST clear stale persisted path points for port-to-port relationships when connected objects move so orthogonal routing recomputes from the correct side-specific ports.
+- **FR-012**: The system MUST rebuild converted object/group parts live on the canvas so object-to-group and group-to-object conversions are immediately visible without using reload.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.

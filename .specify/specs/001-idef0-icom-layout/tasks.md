@@ -26,6 +26,7 @@
 - [x] T011a Make object-to-group conversion create a non-ported group large enough to avoid initial inner-frame clipping in `src/components/gojs/components/Diagram.tsx`
 - [x] T011b Keep non-ported group outer borders visible on all sides after selection and resize while preserving resize persistence in `src/akmm/ui_templates.ts`
 - [x] T011c Clear stale persisted path points for moved port-to-port relationships so orthogonal routes recompute from correct port sides in `src/components/gojs/components/Diagram.tsx`
+- [x] T011d Rebuild converted object/group parts live on canvas so conversion is visible immediately without reload in `src/components/gojs/components/Diagram.tsx`
 
 ## Phase 4: Documentation
 
@@ -38,3 +39,4 @@
 - [ ] T015 Confirm persisted diagrams with explicit routing still honor stored routing values
 - [ ] T016 Manually verify object-to-group conversion and subsequent resize persistence for non-ported groups
 - [ ] T017 Manually verify that moved port-to-port process relationships no longer flip sides after stale path clearing
+- [ ] T018 Manually verify canvas menu conversion between object and group without using reload

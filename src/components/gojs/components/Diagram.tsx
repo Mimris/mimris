@@ -5932,6 +5932,81 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return `${normalizedWidth} ${normalizedHeight}`;
       }
 
+      function refreshConvertedPart(diagram: go.Diagram, part: go.Part | null, data?: any) {
+        if (!diagram || !(part instanceof go.Part)) return;
+        const targetData = data || part.data;
+        if (targetData && typeof diagram.model?.updateTargetBindings === "function") {
+          try { diagram.model.updateTargetBindings(targetData); } catch (_err) { }
+        }
+        try { diagram.updateAllTargetBindings("scale"); } catch (_err) { }
+        try { part.updateTargetBindings(); } catch (_err) { }
+        try { part.ensureBounds(); } catch (_err) { }
+        try { part.updateAdornments(); } catch (_err) { }
+        try { diagram.layoutDiagram(true); } catch (_err) {
+          try { diagram.requestUpdate(); } catch (_err2) { }
+        }
+      }
+
+      function rebuildConvertedPart(diagram: go.Diagram, part: go.Part | null, mutateData: (data: any) => void) {
+        if (!diagram || !(part instanceof go.Node)) return;
+        const data: any = part.data;
+        if (!data) return;
+        const wasSelected = !!part.isSelected;
+        const connectedLinks: any[] = [];
+        part.linksConnected.each((link: go.Link) => {
+          if (!link?.data) return;
+          connectedLinks.push(link.data);
+        });
+
+        diagram.startTransaction('rebuild-converted-part');
+        try {
+          mutateData(data);
+          if (typeof diagram.model.removeNodeData === 'function') {
+            diagram.model.removeNodeData(data);
+          }
+          if (typeof diagram.model.addNodeData === 'function') {
+            diagram.model.addNodeData(data);
+          }
+          connectedLinks.forEach((linkData) => {
+            if (!linkData || typeof diagram.model.addLinkData !== 'function') return;
+            const alreadyPresent = typeof diagram.findLinkForData === 'function'
+              ? diagram.findLinkForData(linkData)
+              : null;
+            if (!alreadyPresent) {
+              diagram.model.addLinkData(linkData);
+            }
+          });
+        } finally {
+          diagram.commitTransaction('rebuild-converted-part');
+        }
+
+        const rebuiltPart = (data?.key !== undefined ? diagram.findNodeForKey(data.key) : null) as go.Part | null;
+        if (rebuiltPart && wasSelected) {
+          try { diagram.select(rebuiltPart); } catch (_err) { }
+        }
+        refreshConvertedPart(diagram, rebuiltPart, data);
+      }
+
+      function applyConvertedGroupTemplate(diagram: go.Diagram, part: go.Part | null, template: string | null) {
+        if (!diagram || !(part instanceof go.Node) || !template) return;
+        rebuildConvertedPart(diagram, part, (data: any) => {
+          data.isGroup = true;
+          data.viewkind = constants.viewkinds.CONT;
+          data.template = template;
+          data.category = template;
+        });
+      }
+
+      function clearConvertedGroupTemplate(diagram: go.Diagram, part: go.Part | null) {
+        if (!diagram || !(part instanceof go.Node)) return;
+        rebuildConvertedPart(diagram, part, (data: any) => {
+          data.isGroup = false;
+          data.viewkind = constants.viewkinds.OBJ;
+          data.template = data.template || constants.gojs.C_NODETEMPLATE;
+          data.category = data.template || constants.gojs.C_NODETEMPLATE;
+        });
+      }
+
       function handleConvertToGroup(diagram: go.Diagram | null | undefined, part: go.Part | null) {
         const targetDiagram = diagram || myDiagram;
         if (!targetDiagram || !part) return;
@@ -5980,11 +6055,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         try {
           const newTemplate = template ?? (nodeData.template || "textAndIcon");
           if (typeof newTemplate === "string" && newTemplate.length > 0) {
-            targetDiagram.model.setCategoryForNodeData(nodeModelData, newTemplate);
+            nodeModelData.isGroup = true;
+            nodeModelData.viewkind = 'Container';
+            nodeModelData.template = newTemplate;
+            nodeModelData.category = newTemplate;
             nodeData.template = newTemplate;
             if (normalizedSize) {
               targetDiagram.model.setDataProperty(nodeModelData, "size", normalizedSize);
             }
+            applyConvertedGroupTemplate(targetDiagram, part, newTemplate);
           }
         } catch (_err) {
           // Ignore if category update fails
@@ -6021,8 +6100,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnObjview = new jsn.jsnObjectView(objview);
         const data = JSON.parse(JSON.stringify(jsnObjview));
         targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-
-        alert("You need to a Reload to see the change!");
+        const nodeModelData = nodeData.data ?? nodeData;
+        try {
+          nodeModelData.isGroup = false;
+          nodeModelData.viewkind = 'Object';
+          nodeModelData.template = 'textAndIcon';
+          nodeModelData.category = 'textAndIcon';
+          clearConvertedGroupTemplate(targetDiagram, part);
+        } catch (_err) {
+          alert("You need to a Reload to see the change!");
+        }
       }
 
       function handleEnablePorts(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -6062,8 +6149,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const nodeModelData = nodeData.data ?? nodeData;
         try {
           if (typeof template === "string" && template.length > 0) {
-            targetDiagram.model.setCategoryForNodeData(nodeModelData, template);
+            nodeModelData.isGroup = true;
+            nodeModelData.viewkind = 'Container';
+            nodeModelData.template = template;
+            nodeModelData.category = template;
             nodeData.template = template;
+            applyConvertedGroupTemplate(targetDiagram, part, template);
           }
         } catch (_err) {
           // Ignore if category update fails

@@ -4470,7 +4470,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 const isContains = typeName === constants.types.AKM_CONTAINS;
                 const isMetamodelling = String((myMetis as any)?.modelType || "") === "Metamodelling";
                 // If the link was explicitly configured (d.routing), honor it.
-                if (d?.routing != null) return getRouting(d.routing);
+                if (typeof d?.routing === "string" && d.routing.trim() !== "") return getRouting(d.routing);
+                if (typeof d?.routing === "number") return d.routing;
                 if (isMetamodelling && isContains) return go.Link.Normal;
                 return go.Link.Orthogonal;
             }).makeTwoWay(),
@@ -4485,7 +4486,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 const isContains = typeName === constants.types.AKM_CONTAINS;
                 const isMetamodelling = String((myMetis as any)?.modelType || "") === "Metamodelling";
                 // If explicitly configured, honor it.
-                if (d?.curve != null) return getCurve(d.curve);
+                if (typeof d?.curve === "string" && d.curve.trim() !== "") return getCurve(d.curve);
+                if (typeof d?.curve === "number") return d.curve;
                 if (isMetamodelling && isContains) return go.Link.None;
                 return getCurve(d?.curve);
             }).makeTwoWay(),

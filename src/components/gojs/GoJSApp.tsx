@@ -1878,6 +1878,57 @@ class GoJSApp extends React.Component<{}, AppState> {
 	      });
 	    };
 
+	    // In Metamodelling views, we want metamodel "contains" to use the template defaults
+	    // (straight lines). If routing/curve were previously persisted as "Orthogonal", clear them.
+	    const normalizeMetamodelContainsRouting = () => {
+	      if (!myDiagram) return;
+	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+	      const isSwimlaneNodeKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
+	        const typeName =
+	          d?.typename ||
+	          d?.name ||
+	          d?.relship?.type?.name ||
+	          d?.relshipview?.relship?.type?.name ||
+	          "";
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+
+	        // Clear default-looking persisted routing so our metamodel defaults can apply.
+	        if (typeof d.routing === "string" && d.routing.trim() === "Orthogonal") {
+	          myDiagram.model.setDataProperty(d, "routing", "");
+	        }
+	        if (typeof d.curve === "string" && d.curve.trim() !== "") {
+	          myDiagram.model.setDataProperty(d, "curve", "");
+	        }
+	        if (d.corner != null) {
+	          myDiagram.model.setDataProperty(d, "corner", "");
+	        }
+
+	        const relview = d.relshipview || myModelview.findRelationshipView(d.key);
+	        if (relview) {
+	          if (String((relview as any).routing || "").trim() === "Orthogonal") (relview as any).routing = "";
+	          if (String((relview as any).curve || "").trim() !== "") (relview as any).curve = "";
+	          if ((relview as any).corner != null) (relview as any).corner = "";
+	          try {
+	            const jsnRelview = new jsn.jsnRelshipView(relview);
+	            let rvData: any = jsnRelview;
+	            rvData = JSON.parse(JSON.stringify(rvData));
+	            myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: rvData });
+	          } catch (_) { }
+	        }
+
+	        l.updateTargetBindings();
+	      });
+	    };
+
     switch (name) {
 	      case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
@@ -1901,6 +1952,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 	        const focusObjectView = myMetis.currentModelview?.focusObjectview;
 	        // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
 	        restoreMetamodelContainsVisibility();
+	        normalizeMetamodelContainsRouting();
 	        if (true) {
 	          for (let i = 0; i < objviews?.length; i++) {
 	            let resetToTypeview = true;

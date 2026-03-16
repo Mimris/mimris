@@ -1804,54 +1804,82 @@ class GoJSApp extends React.Component<{}, AppState> {
     // Swimlane rule: "contains" membership relationships (Lane -> member) are structural and should
     // remain hidden when the member is actually grouped into that Lane. Some code paths were
     // resetting relview.visible=true after moves; this helper re-applies the hide rule deterministically.
-    const applySwimlaneContainsVisibility = () => {
-      if (!myDiagram) return;
+	    const applySwimlaneContainsVisibility = () => {
+	      if (!myDiagram) return;
 
-      const isSwimlaneGroupKey = (k: any): boolean => {
-        if (!k) return false;
-        const n = myDiagram.findNodeForKey(k);
-        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-        return c === "Pool" || c.startsWith("Lane");
-      };
-      const groupKeyOf = (k: any): string => {
-        const n = myDiagram.findNodeForKey(k);
-        const g = n?.data?.group;
-        return typeof g === "string" ? g : "";
-      };
+	      const isSwimlaneGroupKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      // Only apply this rule in actual swimlane diagrams. In other diagrams (e.g. Metamodelling),
+	      // "contains" can be a meaningful relationship that users expect to see.
+	      let isSwimlaneDiagram = false;
+	      myDiagram.nodes.each((n: go.Node) => {
+	        if (isSwimlaneDiagram) return;
+	        if (!(n instanceof go.Group)) return;
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        if (c === "Pool" || c.startsWith("Lane")) isSwimlaneDiagram = true;
+	      });
+	      if (!isSwimlaneDiagram) return;
 
-      myDiagram.links.each((l: go.Link) => {
-        const d: any = l.data;
-        if (!d) return;
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
         const typeName =
           d?.typename ||
           d?.name ||
           d?.relship?.type?.name ||
           d?.relshipview?.relship?.type?.name ||
           "";
-        // Only touch membership links.
-        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        // Only touch membership links.
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
 
-        const fromKey = d.from;
-        const toKey = d.to;
-        const fromIsSwim = isSwimlaneGroupKey(fromKey);
-        const toIsSwim = isSwimlaneGroupKey(toKey);
-        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
-        let hide = fromIsSwim || toIsSwim;
-        // For non-swimlane containers, also hide when stable group membership matches.
-        if (!hide) {
-          if (String(fromKey) && groupKeyOf(toKey) === String(fromKey)) hide = true;
-          if (String(toKey) && groupKeyOf(fromKey) === String(toKey)) hide = true;
-        }
-        if (hide) {
-          // Force-hide at the data level so it stays hidden across refreshes.
-          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
-        }
-        l.updateTargetBindings();
-      });
-    };
+	        const fromKey = d.from;
+	        const toKey = d.to;
+	        const fromIsSwim = isSwimlaneGroupKey(fromKey);
+	        const toIsSwim = isSwimlaneGroupKey(toKey);
+	        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
+	        const hide = fromIsSwim || toIsSwim;
+	        if (hide) {
+	          // Force-hide at the data level so it stays hidden across refreshes.
+	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
+	        }
+	        l.updateTargetBindings();
+	      });
+	    };
+
+	    // In metamodelling views, "contains" is often meaningful (Metamodel -> EntityType, etc).
+	    // Past swimlane fixes may have persisted `link.data.visible = false` for AKM_CONTAINS links.
+	    // Restore those links to visible in Metamodelling mode unless they involve Pool/Lane groups.
+	    const restoreMetamodelContainsVisibility = () => {
+	      if (!myDiagram) return;
+	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+	      const isSwimlaneNodeKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
+	        const typeName =
+	          d?.typename ||
+	          d?.name ||
+	          d?.relship?.type?.name ||
+	          d?.relshipview?.relship?.type?.name ||
+	          "";
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+	        if (d.visible === false) myDiagram.model.setDataProperty(d, "visible", true);
+	        l.updateTargetBindings();
+	      });
+	    };
 
     switch (name) {
-      case "InitialLayoutCompleted": {
+	      case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
@@ -1870,11 +1898,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        const focusObjectView = myMetis.currentModelview?.focusObjectview;
-        if (true) {
-          for (let i = 0; i < objviews?.length; i++) {
-            let resetToTypeview = true;
-            let isGroup = false;
+	        const focusObjectView = myMetis.currentModelview?.focusObjectview;
+	        // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
+	        restoreMetamodelContainsVisibility();
+	        if (true) {
+	          for (let i = 0; i < objviews?.length; i++) {
+	            let resetToTypeview = true;
+	            let isGroup = false;
             const objview = objviews[i];
             if (objview.isGroup) {
               isGroup = true;

@@ -1388,6 +1388,7 @@ export class cxMetis {
                         relview.name = " ";
                     }
                     relview.markedAsDeleted = item.markedAsDeleted;
+                    if (!relview.markedAsDeleted) relview.visible = true;
                     relview.template = item.template;
                     relview.template2 = item.template2;
                     relship.addRelationshipView(relview);

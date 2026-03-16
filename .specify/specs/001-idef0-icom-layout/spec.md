@@ -16,12 +16,14 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 3. **Given** a modelview without explicit relationship routing, **When** the view is rendered, **Then** relationships default to orthogonal routing.
 4. **Given** a bottom mechanism ICOM with a one-line or two-line label, **When** the label is rendered, **Then** the text aligns from the first line instead of sinking to the bottom of the label box.
 5. **Given** an object converted into a non-ported group, **When** the group is first shown or later resized, **Then** the visible outer border remains fully visible on all sides and the resized state persists.
+6. **Given** a port-to-port relationship with an orthogonal path, **When** a connected process is moved, **Then** stale stored path points are cleared so the relationship reroutes from the correct port side instead of flipping to the wrong end.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
 - What happens when adjacent control/mechanism labels are both two lines long?
 - What happens when persisted diagrams already store non-orthogonal routing explicitly?
 - What happens when a non-ported group is resized after conversion from an object?
+- What happens when a moved port-to-port relationship still has persisted route points from an earlier geometry?
 
 ## Requirements
 
@@ -36,6 +38,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-008**: The system MUST keep top control labels bottom-aligned within their two-line label box while bottom mechanism labels align from the first visible line.
 - **FR-009**: The system MUST allow object-to-group conversion to create a non-ported group that is large enough to show its inner frame and header without clipping.
 - **FR-010**: The system MUST keep the visible border of non-ported groups fully rendered on all sides after selection and resize, and resized dimensions MUST persist after interaction.
+- **FR-011**: The system MUST clear stale persisted path points for port-to-port relationships when connected objects move so orthogonal routing recomputes from the correct side-specific ports.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.

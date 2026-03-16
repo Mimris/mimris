@@ -1463,6 +1463,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
     }
 
+    const clearStalePortLinkPaths = (diagram: go.Diagram, movedParts: go.Iterable<go.Part> | null | undefined) => {
+      if (!diagram || !movedParts) return;
+      const linksToClear = new go.Set<go.Link>();
+
+      movedParts.each((part: go.Part) => {
+        if (!(part instanceof go.Node)) return;
+        part.linksConnected.each((link: go.Link) => {
+          const linkData: any = link?.data;
+          if (!linkData) return;
+          const fromPort = String(linkData?.fromPort || "");
+          const toPort = String(linkData?.toPort || "");
+          if (!fromPort && !toPort) return;
+          linksToClear.add(link);
+        });
+      });
+
+      if (linksToClear.count === 0) return;
+
+      diagram.commit((d: go.Diagram) => {
+        linksToClear.each((link: go.Link) => {
+          const linkData: any = link?.data;
+          if (!linkData) return;
+          try {
+            d.model.setDataProperty(linkData, "points", []);
+          } catch (_err) {
+            linkData.points = [];
+          }
+          try {
+            link.points = new go.List<go.Point>();
+          } catch (_err) {
+            // ignore
+          }
+
+          const relview =
+            myMetis.findRelationshipView(linkData?.relviewRef) ||
+            linkData?.relshipview ||
+            null;
+          if (relview) {
+            relview.points = [];
+            const jsnRelView = new jsn.jsnRelshipView(relview);
+            let data: any = jsnRelView;
+            data = JSON.parse(JSON.stringify(data));
+            d.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+          }
+        });
+      }, "clear-stale-port-link-paths");
+    };
+
+    myDiagram.addDiagramListener("SelectionMoved", (e: go.DiagramEvent) => {
+      const movedParts = e.subject as go.Iterable<go.Part>;
+      clearStalePortLinkPaths(myDiagram, movedParts);
+    });
+
 
     // Tooltip functions
     function nodeInfo(d: any) {  // Tooltip info for a node data object

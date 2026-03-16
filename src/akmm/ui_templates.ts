@@ -4457,6 +4457,38 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             { selectable: true },
             // Hide structural "contains" links inside lanes.
             new go.Binding("visible", "", linkShouldBeVisible),
+            // In Metamodelling views, render "contains" as straight lines (non-orthogonal).
+            // This keeps metamodel containment visually distinct from runtime relationships.
+            new go.Binding("routing", "", function (d: any, link: go.Link) {
+                const typeName =
+                    d?.typename ||
+                    d?.name ||
+                    d?.relship?.type?.name ||
+                    d?.relshipview?.relship?.type?.name ||
+                    d?.relshipkind ||
+                    "";
+                const isContains = typeName === constants.types.AKM_CONTAINS;
+                const isMetamodelling = String((myMetis as any)?.modelType || "") === "Metamodelling";
+                // If the link was explicitly configured (d.routing), honor it.
+                if (d?.routing != null) return getRouting(d.routing);
+                if (isMetamodelling && isContains) return go.Link.Normal;
+                return go.Link.Orthogonal;
+            }).makeTwoWay(),
+            new go.Binding("curve", "", function (d: any, link: go.Link) {
+                const typeName =
+                    d?.typename ||
+                    d?.name ||
+                    d?.relship?.type?.name ||
+                    d?.relshipview?.relship?.type?.name ||
+                    d?.relshipkind ||
+                    "";
+                const isContains = typeName === constants.types.AKM_CONTAINS;
+                const isMetamodelling = String((myMetis as any)?.modelType || "") === "Metamodelling";
+                // If explicitly configured, honor it.
+                if (d?.curve != null) return getCurve(d.curve);
+                if (isMetamodelling && isContains) return go.Link.None;
+                return getCurve(d?.curve);
+            }).makeTwoWay(),
             { 
                 toShortLength: 3, 
                 relinkableFrom: true, 
@@ -4465,18 +4497,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 reshapable: true,
                 resegmentable: true,
             },
-            // link route 
-            { routing: go.Link.Orthogonal,  corner: 10},  // default relationship routing
-            new go.Binding("routing", "routing",
-                function(r) {
-                    return getRouting(r);
-                }
-            ),
-            new go.Binding("curve", "curve",
-                function (c) {
-                    return getCurve(c);
-                }
-            ),
+            // link route (defaults are overridden by the bindings above when relevant)
+            { routing: go.Link.Orthogonal, corner: 10 },  // default relationship routing
             new go.Binding("points").makeTwoWay(),
             { contextMenu: contextMenu },
             // link shape

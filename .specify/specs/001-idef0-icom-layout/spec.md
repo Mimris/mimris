@@ -22,6 +22,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 9. **Given** a process group is `Shift`-dragged into another group, **When** the drop is accepted, **Then** the dragged group becomes a member of the target group and is resized smaller than half-parent defaults so several subprocesses with ICOMs can fit inside the parent.
 10. **Given** a grouped process is dragged inside its current parent without `Shift`, **When** the drag starts and continues, **Then** the child group follows the cursor smoothly without jumping to a corner or lagging behind the pointer.
 11. **Given** the user is working inside nested groups, **When** `Space` is held and the pointer is dragged, **Then** the canvas pans without changing selection or firing click-driven focus/zoom behavior on mouse-up.
+12. **Given** the modelling or landing page renders the project menu bar, **When** the page is opened after these interaction changes, **Then** the menu bar still renders without Redux hook failures and its actions can dispatch project-loading updates normally.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
@@ -32,6 +33,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - What happens when a live object-to-group conversion changes the GoJS part class from node to group?
 - What happens when a grouped subprocess is dragged near the rounded corners or port-label extents of a parent group?
 - What happens when `Space` is pressed and released without dragging while keyboard shortcuts are active elsewhere in the diagram?
+- What happens when a page-level menu component that dispatches model-loading actions is rendered after diagram interaction refactors?
 
 ## Requirements
 
@@ -53,6 +55,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-015**: The system MUST size newly nested groups small enough to leave room for several subprocesses with ICOMs inside the parent, rather than using a fixed half-parent size.
 - **FR-016**: The system MUST keep grouped child drags aligned to the cursor inside the parent bounds instead of jumping due to oversized hit or clamp bounds.
 - **FR-017**: The system MUST allow temporary canvas panning with `Space` plus drag without breaking ordinary background dragging when `Space` is not held.
+- **FR-018**: The system MUST keep project menu rendering stable after interaction changes so model-loading actions still dispatch correctly from the page-level project menu.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.

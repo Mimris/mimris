@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import Link from 'next/link';
 import { useRouter } from 'next/router'; // Add this import
@@ -19,7 +18,7 @@ const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
-    const dispatch = useDispatch();
+    const dispatch = props.dispatch;
     const router = useRouter(); // Initialize router
     if (!props.phData) return null;
     const project = props.phData.metis;

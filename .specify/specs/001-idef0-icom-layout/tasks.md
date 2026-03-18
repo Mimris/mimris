@@ -40,6 +40,7 @@
 - [x] T021 Reduce the default nested-group size ratio so multiple subprocesses with ICOMs fit inside a parent in `src/components/gojs/GoJSApp.tsx` and `src/akmm/ui_templates.ts`
 - [x] T022 Fix grouped-child drag clamping so nested groups stay under the cursor while moving inside a parent in `src/components/gojs/components/Diagram.tsx`
 - [x] T023 Add temporary `Space`-drag canvas panning without breaking normal background drag behavior in `src/components/gojs/components/Diagram.tsx`
+- [x] T023a Keep `ProjectMenuBar` dispatch wiring stable after interaction changes by passing page-level dispatch explicitly in `src/components/loadModelData/ProjectMenuBar.tsx`, `src/pages/index.tsx`, and `src/pages/modelling.tsx`
 
 ## Validation Tasks
 
@@ -51,3 +52,4 @@
 - [ ] T024 Manually verify non-Shift drag over a process group does not regroup the dragged process or subprocess
 - [ ] T025 Manually verify `Shift` drag into and out of process groups, including first-attempt detach, nested sizing, and cursor-aligned child dragging
 - [ ] T026 Manually verify `Space`-drag pans the canvas over nested groups and does not trigger click/zoom behavior on mouse-up
+- [ ] T027 Manually verify the project menu bar renders and its project load/save actions still work on both landing and modelling pages

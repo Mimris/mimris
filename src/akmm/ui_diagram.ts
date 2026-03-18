@@ -3349,43 +3349,41 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
 
 export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
     myDiagram.startTransaction('updateLink');
-    const myModelview = myDiagram.myModelView;
     if (!relview) {
         relview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, gjsLink, "");
     }
     for (let it = myDiagram.links; it?.next();) {
         const link = it.value;
         const ldata = link.data;
-        if (ldata?.key === goLink.key) {
-            for (let prop in goLink) {
-                if (prop !== 'key') {
-                    if (!(typeof prop === 'object')) {
-                        if (prop === 'category')
-                            continue;
-                        if (gjsLink[prop] !== undefined && gjsLink[prop] !== null && gjsLink[prop] !== "") {
-                            relview[prop] = gjsLink[prop];
-                            ldata[prop]    = gjsLink[prop];
-                            goLink[prop]   = gjsLink[prop];
-                            if (ldata.name === 'flowsTo' || ldata.name === 'isFollowedBy') {
-                                // special handling of these links
-                                gjsLink[prop] = " ";
-                                goLink[prop] = " ";
-                                relview[prop] = " ";
-                            }
-                            myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
-                        }
-                    }
-                }
+        if (ldata?.key !== goLink.key) continue;
+
+        for (const prop in goLink) {
+            if (prop === 'key' || prop === 'category') continue;
+            if (typeof goLink[prop] === 'function') continue;
+            if (gjsLink[prop] === undefined || gjsLink[prop] === null || gjsLink[prop] === "") continue;
+
+            relview[prop] = gjsLink[prop];
+            ldata[prop] = gjsLink[prop];
+            goLink[prop] = gjsLink[prop];
+
+            if (ldata.name === 'flowsTo' || ldata.name === 'isFollowedBy') {
+                // special handling of these links
+                gjsLink[prop] = " ";
+                goLink[prop] = " ";
+                relview[prop] = " ";
             }
+
+            myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
         }
+
         const points = [];
-        for (let it = link.points.iterator; it?.next();) {
-            const point = it.value;
-            points.push(point.x)
-            points.push(point.y)
-            myDiagram.model.addLinkData(ldata);
+        for (let pit = link.points.iterator; pit?.next();) {
+            const point = pit.value;
+            points.push(point.x);
+            points.push(point.y);
         }
         relview.points = points;
+        break;
     }
     myDiagram.commitTransaction('updateLink');
     return relview;

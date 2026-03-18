@@ -401,7 +401,7 @@ export class goNode extends goMetaObject {
         this.loc = "";
         this.size = 1;
         this.scale = 1;
-        this.memberscale = 1;
+        this.memberscale = constants.params.MEMBERSCALE;
         this.arrowscale = 1.3;
         this.strokecolor = "";
         this.strokecolor2 = "";
@@ -710,7 +710,7 @@ export class goObjectNode extends goNode {
                 memberScale = pnode.typeview?.memberscale;
             memberScale = Number(memberScale);
             if (!memberScale || memberScale == 'undefined')
-                memberScale = 1;
+                memberScale = constants.params.MEMBERSCALE;
             return Number(parentScale || 1) * memberScale;
         }
         return 1;

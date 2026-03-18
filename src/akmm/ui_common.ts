@@ -1188,6 +1188,9 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     relview.toObjview = toObjview;
     relview.fromPortid = resolvedFromPort;
     relview.toPortid = resolvedToPort;
+    relview.typeview = reltypeview;
+    relview.template = reltypeview?.template || constants.gojs.C_LINKEMPLATE;
+    relview.template2 = reltypeview?.template2 || "";
     rel.addRelationshipView(relview);
     if (context.reltype?.name === constants.types.AKM_CONTAINS) {
         if (fromObj?.type.name === constants.types.AKM_CONTAINER) {
@@ -1201,14 +1204,25 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     fromObjview.addOutputRelview(relview);
     toObjview.addInputRelview(relview);
     const goRelshipLink = new gjs.goRelshipLink(relview.id, myGoModel, relview);
+    const linkName = goRelshipLink.name;
+    goRelshipLink.fromNode = myGoModel.findNodeByViewId(fromObjview.id);
+    goRelshipLink.from = goRelshipLink.fromNode?.key;
+    goRelshipLink.toNode = myGoModel.findNodeByViewId(toObjview.id);
+    goRelshipLink.to = goRelshipLink.toNode?.key;
+    goRelshipLink.loadLinkContent(myGoModel);
+    goRelshipLink.name = linkName;
+    goRelshipLink.curve = relview.curve ? relview.curve : "None";
+    goRelshipLink.routing = relview.routing || reltypeview?.routing || "Normal";
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
     myGoModel.addLink(goRelshipLink);
+    relview.points = [];
     // create a link data between the actual nodes
     let linkdata = {
         key:    relview?.id,
         name:   relname,
         category: constants.gojs.C_RELATIONSHIP,
+        template: constants.gojs.C_LINKEMPLATE,
         from:   gjsFromKey,
         to:     gjsToKey,
         fromPort: resolvedFromPort,
@@ -1217,6 +1231,7 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         relviewRef: relview?.id,
         reltypeRef: reltype?.id,
         reltypeview: reltype?.typeview?.id,
+        points: [],
     };
     // set the link attributes
     const rtviewdata = reltypeview?.data;
@@ -1234,10 +1249,34 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
         if (prop === 'data') continue;
         linkdata[prop] = rtviewdata[prop];
     }
+    if (!linkdata.routing) {
+        linkdata.routing = relview.routing || reltypeview?.routing || "Normal";
+    }
+    if (!linkdata.curve) {
+        linkdata.curve = relview.curve || reltypeview?.linkcurve || "None";
+    }
+    if (linkdata.corner === undefined || linkdata.corner === null || linkdata.corner === "") {
+        linkdata.corner = relview.corner || reltypeview?.corner || 10;
+    }
+    relview.routing = linkdata.routing;
+    relview.curve = linkdata.curve;
+    relview.corner = linkdata.corner;
+    relview.template = linkdata.template || relview.template || constants.gojs.C_LINKEMPLATE;
     // and add the link data to the model
     if (data) myDiagram.model.removeLinkData(data);
     myDiagram.model.addLinkData(linkdata);
     uid.updateLinkAndView(linkdata, goRelshipLink, relview, myDiagram);
+    try {
+        const newLink = myDiagram.findLinkForKey(linkdata.key);
+        if (newLink) {
+            myDiagram.model.setDataProperty(linkdata, "points", []);
+            newLink.points = new go.List<go.Point>();
+            newLink.invalidateRoute();
+            newLink.updateTargetBindings();
+        }
+        myDiagram.layoutDiagram(true);
+        myDiagram.requestUpdate();
+    } catch (_) {}
 
     // Prepare for dispatch
     const jsnRelship = new jsn.jsnRelationship(rel);
@@ -1499,13 +1538,23 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 
     if (reltype) {
         const reltypeview = reltype.getDefaultTypeView();
-        const currentRelship = myMetis.findRelationship(data.relship.id);
+        const relshipId =
+            data?.relship?.id ||
+            data?.relshipRef ||
+            data?.relationship?.id ||
+            "";
+        const relshipViewId =
+            data?.relshipview?.id ||
+            data?.relviewRef ||
+            data?.key ||
+            "";
+        const currentRelship = relshipId ? myMetis.findRelationship(relshipId) : null;
         if (currentRelship) {
             let name = data.name;
             currentRelship.setType(reltype);
             currentRelship.setName(name);
             currentRelship.setModified();
-            const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
+            const currentRelshipView = relshipViewId ? myMetis.findRelationshipView(relshipViewId) : null;
             if (currentRelshipView) {
                 currentRelshipView.setTypeView(reltypeview);
                 currentRelshipView.setName(name);
@@ -1525,6 +1574,7 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
                 if (debug) console.log('1687 SetReltype', jsnRelView);
                 const modifiedRelshipViews = new Array();
+                modifiedRelshipViews.push(jsnRelView);
                 modifiedRelshipViews.map(mn => {
                     let data = mn;
                     data = JSON.parse(JSON.stringify(data));
@@ -1554,6 +1604,7 @@ export function updateRelationshipView(relview: akm.cxRelationshipView): akm.cxR
         if (typeview) {
             const viewdata = typeview.data;
             for (let prop in viewdata) {
+                if (prop === 'routing') continue;
                 if (relview[prop] === viewdata[prop]) {
                     relview[prop] = "";
                 }

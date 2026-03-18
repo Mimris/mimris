@@ -30,6 +30,7 @@ interface DiagramProps {
   diagramStyle: React.CSSProperties;
   noOfCols?: number;
   onNodeContextMenu?: (nodeData: go.ObjectData, diagram: go.Diagram) => void;
+  phFocus?: any;
 }
 
 const debug = false;
@@ -46,6 +47,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     }
     diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
     this.updatePalettePresentation(diagram);
+    this.updateFocusHighlight(diagram);
   };
   /** @internal */
   constructor(props: DiagramProps) {
@@ -69,6 +71,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
       this.updatePalettePresentation(diagram);
+      this.updateFocusHighlight(diagram);
     }
   }
 
@@ -88,6 +91,55 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     if (prevProps.noOfCols !== this.props.noOfCols || prevProps.divClassName !== this.props.divClassName) {
       this.updatePalettePresentation();
     }
+    if (
+      prevProps.phFocus?.focusObject?.id !== this.props.phFocus?.focusObject?.id ||
+      prevProps.nodeDataArray !== this.props.nodeDataArray
+    ) {
+      this.updateFocusHighlight();
+    }
+  }
+
+  private updateFocusHighlight(diagram?: go.Diagram) {
+    const palette = diagram ?? this.diagramRef.current?.getDiagram();
+    if (!(palette instanceof go.Diagram)) return;
+    const isObjectsPalette = this.props.divClassName === 'diagram-component-objects';
+    const focusObjectId = String(this.props?.phFocus?.focusObject?.id || '');
+    const focusTypeId = String(
+      this.props?.phFocus?.focusObject?.type?.id ||
+      this.props?.phFocus?.focusObject?.typeRef ||
+      this.props?.phFocus?.focusObjecttype?.id ||
+      ''
+    );
+    for (let it = palette.nodes.iterator; it?.next();) {
+      const node = it.value as go.Node;
+      const nodeFocusId = isObjectsPalette
+        ? String(
+            node?.data?.object?.id ||
+            node?.data?.objRef ||
+            node?.data?.objectRef ||
+            node?.data?.objectview?.object?.id ||
+            node?.data?.objectview?.objectRef ||
+            ''
+          )
+        : String(
+            node?.data?.objecttype?.id ||
+            node?.data?.objtypeRef ||
+            node?.data?.typeRef ||
+            node?.data?.key ||
+            ''
+          );
+      const targetFocusId = isObjectsPalette ? focusObjectId : focusTypeId;
+      const matches = Boolean(targetFocusId) && nodeFocusId === targetFocusId;
+      try {
+        if (typeof palette.model?.setDataProperty === 'function') {
+          palette.model.setDataProperty(node.data, 'isFocusPeer', matches);
+        } else {
+          node.data.isFocusPeer = matches;
+        }
+      } catch (_) { }
+      try { node.updateTargetBindings(); } catch (_) { }
+    }
+    try { palette.requestUpdate(); } catch (_) { }
   }
 
   private updatePalettePresentation(diagram?: go.Diagram) {
@@ -239,6 +291,21 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         if (!value || value === 'None' || value === ' ') return '';
         return value;
       };
+      const paletteFocusStroke = (data: any, shape: any) => {
+        const baseStroke = data?.strokecolor || "black";
+        if (data?.isFocusPeer) return "lightblue";
+        if (shape?.part?.isHighlighted) return baseStroke;
+        return baseStroke;
+      };
+      const paletteFocusStrokeWidth = (h: any, shape: any) => {
+        const data = shape?.part?.data || {};
+        const raw = data?.strokewidth;
+        const baseWidth = typeof raw === 'number' ? raw : parseInt(raw) || 1;
+        if (data?.isFocusPeer && h) return Math.max(baseWidth, 4);
+        if (data?.isFocusPeer) return Math.max(baseWidth, 3);
+        if (h) return Math.max(baseWidth, 2);
+        return baseWidth;
+      };
       myPalette =
         $(go.Palette,       // must name or refer to the DIV HTML element
           {
@@ -293,8 +360,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             selectionAdorned: true,
             click: function (e, node) {
               // Your click handler logic (optional)
-            },
-            contextMenu: contextMenu || undefined
+            }
           },
           new go.Binding("text", "name"),
           new go.Binding("scale", "scale").makeTwoWay(),
@@ -325,8 +391,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               cursor: "grabbing",
             },
             new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("strokeWidth", "strokewidth")
+            new go.Binding("stroke", "", paletteFocusStroke),
+            new go.Binding("strokeWidth", "isHighlighted", paletteFocusStrokeWidth).ofObject()
           ),
 
           // Horizontal Panel containing Icon and Text
@@ -469,9 +535,6 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         $(go.Group, "Auto",
           // for sorting, have the Node.text be the data.name
           new go.Binding("text", "name"),
-          {
-            contextMenu: contextMenu || undefined
-          },
 
           // define the node's outer shape
           $(go.Shape, "RoundedRectangle",

@@ -25,6 +25,7 @@ import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from 
 const debug = false;
 const debugPorts = true;
 const linkToLink = false;
+const NESTED_GROUP_SIZE_RATIO = 0.35;
 
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
@@ -134,6 +135,49 @@ function applyDerivedScaleToPart(
   }
   syncRelationshipTextScaleForObjectView(diagram, objectview || data.objectview);
   return nextScale;
+}
+
+function applyNestedGroupHalfSize(
+  diagram: go.Diagram | null | undefined,
+  part: go.Part | null | undefined,
+  targetGroup: go.Group | null | undefined,
+  objectview?: any,
+  goNode?: any
+) {
+  if (!diagram || !(part instanceof go.Part) || !(targetGroup instanceof go.Group)) return;
+  if (!isGroupLikeNode(part, part.data || objectview)) return;
+
+  const parentSize = targetGroup.data?.size
+    ? go.Size.parse(String(targetGroup.data.size))
+    : new go.Size(targetGroup.actualBounds.width, targetGroup.actualBounds.height);
+  if (!(parentSize.width > 0) || !(parentSize.height > 0)) return;
+
+  const nextSize = new go.Size(
+    Math.max(1, parentSize.width * NESTED_GROUP_SIZE_RATIO),
+    Math.max(1, parentSize.height * NESTED_GROUP_SIZE_RATIO)
+  );
+  const sizeString = go.Size.stringify(nextSize);
+  const data: any = part.data || {};
+  const resizeObj = (part as any).resizeObject || (part as any).reshapeObject || part;
+
+  try { resizeObj.desiredSize = nextSize; } catch (_) { }
+  data.size = sizeString;
+  data.desiredSize = sizeString;
+  if (typeof diagram.model?.setDataProperty === 'function') {
+    try { diagram.model.setDataProperty(data, "size", sizeString); } catch (_) { }
+    try { diagram.model.setDataProperty(data, "desiredSize", sizeString); } catch (_) { }
+  }
+  if (objectview) {
+    objectview.size = sizeString;
+  } else if (data.objectview) {
+    data.objectview.size = sizeString;
+  }
+  if (goNode) {
+    goNode.size = sizeString;
+    if (goNode.objectview) {
+      goNode.objectview.size = sizeString;
+    }
+  }
 }
 
 function isGroupLikeNode(part: any, data?: any): boolean {
@@ -263,6 +307,32 @@ function resolveClickedPortGraphObject(subject: any): go.GraphObject | null {
   return null;
 }
 
+function syncFocusedObjectPeerFlags(
+  diagram: go.Diagram | null | undefined,
+  focusObjectId: string | null | undefined,
+  _focusObjectviewId: string | null | undefined
+) {
+  if (!diagram) return;
+  const normalizedObjectId = focusObjectId ? String(focusObjectId) : "";
+  const it = diagram.nodes.iterator;
+  while (it?.next()) {
+    const node = it.value as go.Node;
+    const data: any = node?.data || {};
+    const objectId =
+      data?.object?.id ||
+      data?.objectview?.object?.id ||
+      data?.objRef ||
+      data?.objectRef ||
+      "";
+    const isFocusPeer = Boolean(normalizedObjectId) && String(objectId) === normalizedObjectId;
+    const hadDataFlag = Boolean(data.isFocusPeer);
+    if (hadDataFlag === isFocusPeer) continue;
+    data.isFocusPeer = isFocusPeer;
+    try { node.updateTargetBindings(); } catch (_) { }
+  }
+  try { diagram.requestUpdate(); } catch (_) { }
+}
+
 function isAncestorGroupKey(
   diagram: go.Diagram | null | undefined,
   ancestorKey: string | number | null | undefined,
@@ -303,17 +373,29 @@ function detachPartToTopLevel(
   data?: any
 ) {
   if (!diagram || !(part instanceof go.Part)) return;
+  const detachedLocation = part.location?.copy ? part.location.copy() : new go.Point(part.location.x, part.location.y);
   const previousContainingGroup = part.containingGroup;
   clearPartGroupState(diagram, part, data);
   if (previousContainingGroup instanceof go.Group) {
     const detachSet = new go.Set<go.Part>();
     detachSet.add(part);
-    try { previousContainingGroup.removeMembers(detachSet, false); } catch (_) { }
+    try { previousContainingGroup.removeMembers(detachSet, true); } catch (_) { }
   }
   const topLevelSet = new go.Set<go.Part>();
   topLevelSet.add(part);
-  try { diagram.commandHandler.addTopLevelParts(topLevelSet, false); } catch (_) { }
+  try { diagram.commandHandler.addTopLevelParts(topLevelSet, true); } catch (_) { }
   clearPartGroupState(diagram, part, data);
+  try { part.location = detachedLocation; } catch (_) { }
+  if (data) {
+    const detachedLocString = `${detachedLocation.x} ${detachedLocation.y}`;
+    try { diagram.model.setDataProperty(data, "loc", detachedLocString); } catch (_) { }
+    try { data.loc = detachedLocString; } catch (_) { }
+  }
+  try { part.invalidateLayout(); } catch (_) { }
+  try { part.updateTargetBindings(); } catch (_) { }
+  try { part.updateAllTargetBindings(); } catch (_) { }
+  try { diagram.updateAllTargetBindings(); } catch (_) { }
+  try { diagram.requestUpdate(); } catch (_) { }
 }
 
 function attachPartToGroup(
@@ -776,11 +858,22 @@ function parseSizeString(value) {
 function getPersistedGroupSize(part: any): string {
   if (!part) return "";
   const data: any = part.data || {};
+  const resizeObject = part.resizeObject || part.findObject?.("SHAPE") || part.findObject?.("BODY") || null;
+  const desiredWidth = Number(resizeObject?.desiredSize?.width);
+  const desiredHeight = Number(resizeObject?.desiredSize?.height);
+  const actualWidth = Number(resizeObject?.actualBounds?.width);
+  const actualHeight = Number(resizeObject?.actualBounds?.height);
   const category = String(data?.category || data?.template || part.category || "");
   if (category === "Lane" || category === "Lane_w_handles" || category === "Pool") {
     return String(data?.size || part.size || "");
   }
-  return String(part.size || data?.size || "");
+  if (Number.isFinite(desiredWidth) && desiredWidth > 0 && Number.isFinite(desiredHeight) && desiredHeight > 0) {
+    return `${desiredWidth} ${desiredHeight}`;
+  }
+  if (Number.isFinite(actualWidth) && actualWidth > 0 && Number.isFinite(actualHeight) && actualHeight > 0) {
+    return `${actualWidth} ${actualHeight}`;
+  }
+  return String(data?.size || part.size || "");
 }
 
 function ensureInitialGroupSize(diagram, node, data, options) {
@@ -864,6 +957,10 @@ function refreshGroupPartRendering(diagram: go.Diagram | null | undefined, part:
 
 function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart: go.Part | null, parentPart: go.Part | null) {
   if (!diagram || !childData || !parentPart) return;
+  const existingSize = parseSizeString(childData?.size) || parseSizeString(childData?.objectview?.size);
+  if (existingSize && existingSize.width > 0 && existingSize.height > 0) {
+    return;
+  }
   const parentSize =
     parseSizeString(parentPart.data?.size) || {
       width: parentPart.actualBounds?.width || 0,
@@ -871,8 +968,8 @@ function resizeGroupToHalfParent(diagram: go.Diagram, childData: any, childPart:
     };
   if (!parentSize.width || !parentSize.height) return;
 
-  const width = Math.max(1, parentSize.width / 2);
-  const height = Math.max(1, parentSize.height / 2);
+  const width = Math.max(1, parentSize.width * NESTED_GROUP_SIZE_RATIO);
+  const height = Math.max(1, parentSize.height * NESTED_GROUP_SIZE_RATIO);
   const sizeString = `${width} ${height}`;
 
   if (typeof diagram.model?.setDataProperty === 'function') {
@@ -1161,7 +1258,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
   }
 
-  public componentDidUpdate() {
+  public componentDidUpdate(prevProps: any) {
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     const currentDropLayout = this.state?.modelData?.dropLayout;
     const currentSerialized = currentDropLayout ? JSON.stringify(currentDropLayout) : '';
@@ -1177,6 +1274,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         return { modelData: updatedModelData };
       });
     }
+    const focusObjectId = this.props?.phFocus?.focusObject?.id || "";
+    const focusObjectviewId = this.props?.phFocus?.focusObjectview?.id || "";
+    syncFocusedObjectPeerFlags(this.props?.myMetis?.myDiagram, focusObjectId, focusObjectviewId);
   }
 
   public handleOpenModal = (node: any, modalContext: any) => {
@@ -1222,8 +1322,20 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!typename) typename = modalContext.typename;
     if (debug) console.log('113 typename: ', typename);
     if (debug) console.log('122 modalContext', modalContext);
+    const previewKey = data?.key;
+    const previewData = data ? { ...data } : data;
+    if (previewKey) {
+      try {
+        const previewLink = myDiagram.findLinkForKey(previewKey);
+        if (previewLink?.data) {
+          myDiagram.model.removeLinkData(previewLink.data);
+        } else if (data) {
+          myDiagram.model.removeLinkData(data);
+        }
+      } catch (_) {}
+    }
     const args = {
-      data: data,
+      data: previewData,
       metamodel: modalContext.myMetamodel,
       typename: typename,
       fromType: modalContext.fromType,
@@ -1235,7 +1347,37 @@ class GoJSApp extends React.Component<{}, AppState> {
       context: modalContext.context
     }
     if (debug) console.log('128 args', args);
-    uic.createRelshipCallback(args);
+    const createdRelview = uic.createRelshipCallback(args);
+    try {
+      const nextKey = createdRelview?.id;
+      if (nextKey) {
+        const rerouteFinalLink = () => {
+          const nextLink = myDiagram.findLinkForKey(nextKey);
+          if (!nextLink) return;
+          const nextRouting = createdRelview?.routing || createdRelview?.typeview?.routing || "Normal";
+          const nextCurve = createdRelview?.curve || createdRelview?.typeview?.linkcurve || "None";
+          const nextCorner = createdRelview?.corner ?? createdRelview?.typeview?.corner ?? 10;
+          try { myDiagram.clearSelection(); } catch (_) {}
+          try { myDiagram.model.setDataProperty(nextLink.data, "template", "linkTemplate1"); } catch (_) {}
+          try { myDiagram.model.setDataProperty(nextLink.data, "routing", nextRouting); } catch (_) {}
+          try { myDiagram.model.setDataProperty(nextLink.data, "curve", nextCurve); } catch (_) {}
+          try { myDiagram.model.setDataProperty(nextLink.data, "corner", nextCorner); } catch (_) {}
+          try { myDiagram.model.setDataProperty(nextLink.data, "points", []); } catch (_) {}
+          try { nextLink.points = new go.List<go.Point>(); } catch (_) {}
+          try { nextLink.invalidateRoute(); } catch (_) {}
+          try { nextLink.updateRoute(); } catch (_) {}
+          try { nextLink.updateTargetBindings(); } catch (_) {}
+          try { myDiagram.layoutDiagram(true); } catch (_) {}
+          try { myDiagram.requestUpdate(); } catch (_) {}
+          try { myDiagram.select(nextLink); } catch (_) {}
+        };
+        rerouteFinalLink();
+        setTimeout(rerouteFinalLink, 0);
+        setTimeout(rerouteFinalLink, 50);
+      }
+      try { myDiagram.layoutDiagram(true); } catch (_) {}
+      try { myDiagram.requestUpdate(); } catch (_) {}
+    } catch (_) {}
     this.setState({ showModal: false, selectedData: null, modalContext: null });
   }
 
@@ -1870,7 +2012,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        const focusObjectView = myMetis.currentModelview?.focusObjectview;
+        const activeFocusModelviewId = this.props?.phFocus?.focusModelview?.id || "";
+        const focusObjectViewId = this.props?.phFocus?.focusObjectview?.id || "";
+        const shouldApplyRealSelection = Boolean(activeFocusModelviewId) && activeFocusModelviewId === myModelview?.id;
         if (true) {
           for (let i = 0; i < objviews?.length; i++) {
             let resetToTypeview = true;
@@ -1905,7 +2049,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             // Set focus object view
-            if (objview.id === focusObjectView?.id) {
+            if (shouldApplyRealSelection && objview.id === focusObjectViewId) {
               const node = myGoModel.findNodeByViewId(objview.id);
               if (node) {
                 const gjsNode = myDiagram.findNodeForKey(node?.key)
@@ -2843,11 +2987,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             (myDiagram as any).__movedAffectedTopLevelGroupKeys.add(previousGroup);
           }
           const newLoc = `${sel.location.x} ${sel.location.y}`;
+          const currentGroupSize = getPersistedGroupSize(sel);
           objview.loc = newLoc;
+          objview.size = currentGroupSize;
           if (data) {
             myDiagram.model.setDataProperty(data, "loc", newLoc);
+            myDiagram.model.setDataProperty(data, "size", currentGroupSize);
           }
-          if (data?.size) objview.size = data.size;
           let persistedGroup = objview.group;
           if (isLaneGroup) {
             // Resolve lane membership from the actual drop position.
@@ -3016,7 +3162,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               let nextScale = 1.0;
               if (persistedGroup) {
                 const parentPart = myDiagram.findNodeForKey(persistedGroup) as go.Group | null;
-                resizeGroupToHalfParent(myDiagram, data, sel, parentPart);
+                const parentChanged = previousGroup !== persistedGroup;
+                if (shiftPressed && parentChanged && parentPart instanceof go.Group) {
+                  applyNestedGroupHalfSize(myDiagram, sel, parentPart, objview, gnode);
+                }
+                // Keep an explicitly resized group at its current size when it is moved.
+                // The half-parent default should only be applied on initial grouping paths.
                 nextScale = applyDerivedScaleToPart(myDiagram, sel, parentPart, objview, gnode);
               } else {
                 nextScale = applyDerivedScaleToPart(myDiagram, sel, null, objview, gnode);
@@ -3053,9 +3204,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               previousGroup === persistedGroup &&
               !shiftPressed
             ) {
-              const parentPart = myDiagram.findNodeForKey(previousGroup) as go.Group | null;
-              const visuallyInsideParent = isPartVisuallyInsideGroup(sel, parentPart);
-              const nextVisible = !visuallyInsideParent;
+              const nextVisible = false;
               const existingRelviews = myModelview.findRelationshipViewsByRel2(previousRel, previousParentObjview, objview, true)
                 || myModelview.findRelationshipViewsByRel(previousRel, true)
                 || [];
@@ -3285,6 +3434,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         });
         { // links
+          const movedNodeKeys = new Set<string>();
+          const movedSelection = e.subject;
+          for (let it = movedSelection?.iterator; it?.next();) {
+            const part = it.value;
+            if (part instanceof go.Node && part.data?.key) {
+              movedNodeKeys.add(String(part.data.key));
+            }
+          }
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
             const link = it.value;
@@ -3292,6 +3449,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!rview) continue;
             const ldata = link.data;
             let resetRoute = false;
+            const isSelfLoop =
+              (link.fromNode && link.toNode && link.fromNode === link.toNode) ||
+              (rview?.fromObjview?.id && rview?.toObjview?.id && rview.fromObjview.id === rview.toObjview.id) ||
+              (rview?.fromObjview?.object?.id && rview?.toObjview?.object?.id && rview.fromObjview.object.id === rview.toObjview.object.id);
             if (rview.fromPortid && ldata?.fromPort !== rview.fromPortid) {
               myDiagram.model.setDataProperty(ldata, "fromPort", rview.fromPortid);
               resetRoute = true;
@@ -3300,8 +3461,18 @@ class GoJSApp extends React.Component<{}, AppState> {
               myDiagram.model.setDataProperty(ldata, "toPort", rview.toPortid);
               resetRoute = true;
             }
+            if (
+              isSelfLoop &&
+              (
+                (link.fromNode?.data?.key && movedNodeKeys.has(String(link.fromNode.data.key))) ||
+                (link.toNode?.data?.key && movedNodeKeys.has(String(link.toNode.data.key)))
+              )
+            ) {
+              resetRoute = true;
+            }
             if (resetRoute) {
               try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) { }
+              try { link.points = new go.List<go.Point>(); } catch (_) { }
               try { link.invalidateRoute(); } catch (_) { }
               try { link.updateRoute(); } catch (_) { }
               rview.points = [];
@@ -3469,7 +3640,19 @@ class GoJSApp extends React.Component<{}, AppState> {
         groupsToRefresh.forEach((groupKey) => {
           const groupPart = myDiagram.findNodeForKey(groupKey);
           if (!(groupPart instanceof go.Group)) return;
-          try { groupPart.invalidateLayout(); } catch (_) { }
+          const groupData: any = groupPart.data || {};
+          const isSwimlaneStructure =
+            groupData?.category === "Pool" ||
+            groupData?.template === "Pool" ||
+            groupData?.category === "Lane" ||
+            groupData?.template === "Lane" ||
+            groupData?.category === "Lane_w_handles" ||
+            groupData?.template === "Lane_w_handles";
+          // Generic groups should keep their explicit size after a move.
+          // Invalidating their layout here can trigger a recompute from groupLayout/member bounds.
+          if (isSwimlaneStructure) {
+            try { groupPart.invalidateLayout(); } catch (_) { }
+          }
           try { groupPart.updateTargetBindings(); } catch (_) { }
           try { groupPart.updateAllTargetBindings(); } catch (_) { }
           try {
@@ -5160,6 +5343,10 @@ break;
   break;
 }
       case "ObjectSingleClicked": {
+  const suppressUntil = Number((myDiagram as any)?.__spacePanSuppressClickUntil || 0);
+  if (suppressUntil > Date.now()) {
+    break;
+  }
   const clickedPortObject = resolveClickedPortGraphObject(e.subject);
   if (clickedPortObject) {
     break;
@@ -5185,10 +5372,13 @@ break;
   if (objectview && object) {
     const objvIdName = { id: objectview.id, name: objectview.name };
     const objIdName = { id: object.id, name: object.name };
+    const objtype = object?.type || myMetamodel?.findObjectType(object?.typeRef);
+    const objtypeIdName = objtype ? { id: objtype.id, name: objtype.name } : { id: '', name: '' };
 
     if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
     context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
     context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+    context.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data: objtypeIdName });
   }
   for (let it = sel.memberParts; it?.next();) {
     let n = it.value;
@@ -5263,6 +5453,27 @@ break;
           forcedPoolSizes[String(n.data.key)] = { width: resizedWidth, height: resizedHeight };
           (myDiagram as any).__forcedPoolLayoutSizes = forcedPoolSizes;
           syncPoolLaneWidthsToPool(String(n.data.key));
+        }
+      } else {
+        const resizeObject = (n.resizeObject || n.findObject?.("SHAPE") || n.findObject?.("BODY")) as go.GraphObject | null;
+        const resizedWidth =
+          (typeof resizeObject?.desiredSize?.width === 'number' && Number.isFinite(resizeObject.desiredSize.width) && resizeObject.desiredSize.width > 0)
+            ? resizeObject.desiredSize.width
+            : (typeof resizeObject?.actualBounds?.width === 'number' && Number.isFinite(resizeObject.actualBounds.width) && resizeObject.actualBounds.width > 0)
+              ? resizeObject.actualBounds.width
+              : (typeof n.actualBounds?.width === 'number' && Number.isFinite(n.actualBounds.width))
+                ? n.actualBounds.width
+            : 0;
+        const resizedHeight =
+          (typeof resizeObject?.desiredSize?.height === 'number' && Number.isFinite(resizeObject.desiredSize.height) && resizeObject.desiredSize.height > 0)
+            ? resizeObject.desiredSize.height
+            : (typeof resizeObject?.actualBounds?.height === 'number' && Number.isFinite(resizeObject.actualBounds.height) && resizeObject.actualBounds.height > 0)
+              ? resizeObject.actualBounds.height
+              : (typeof n.actualBounds?.height === 'number' && Number.isFinite(n.actualBounds.height))
+                ? n.actualBounds.height
+            : 0;
+        if (resizedWidth > 0 && resizedHeight > 0) {
+          myDiagram.model.setDataProperty(n.data, "size", `${resizedWidth} ${resizedHeight}`);
         }
       }
       objview.loc = n.data.loc;
@@ -5539,10 +5750,10 @@ break;
       let scale = 1.0;
       if (isGroupLikeNode(myGoNode, myObjectview)) {
         const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
-        resizeGroupToHalfParent(myDiagram, myToNode.gjsData, myToNode.n, parentPart);
-        scale = applyDerivedScaleToPart(myDiagram, myToNode.n, parentPart, myObjectview, myGoNode);
+        resizeGroupToHalfParent(myDiagram, myGoNode, myGoNode, parentPart);
+        scale = applyDerivedScaleToPart(myDiagram, myGoNode, parentPart, myObjectview, myGoNode);
       } else {
-        scale = applyDerivedScaleToPart(myDiagram, myToNode.n, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
+        scale = applyDerivedScaleToPart(myDiagram, myGoNode, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
       }
       myObjectview.scale = scale;
       myObjectview.loc = myGoNode.loc;
@@ -5714,8 +5925,15 @@ break;
   if (isObjectNode(gjsFromNode)) {
     // gjsData.category = constants.gojs.C_RELATIONSHIP;
     context.handleOpenModal = this.handleOpenModal;
-    if (gjsFromNode && gjsToNode)
+    if (gjsFromNode && gjsToNode) {
+      try {
+        myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
+        myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
+        myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
+        myDiagram.model.setDataProperty(gjsData, 'name', '');
+      } catch (_) {}
       uic.createRelationship(gjsFromNode, gjsToNode, context);
+    }
   }
   myDiagram.requestUpdate();
   break;
@@ -6000,6 +6218,7 @@ if (debug) console.log('1704 myMetis', myMetis);
         onInputChange={this.handleInputChange}
         myMetis={this.state.myMetis}
         dispatch={this.state.dispatch}
+        phFocus={this.props?.phFocus}
         diagramStyle={this.state.diagramStyle}
         onExportSvgReady={this.state.onExportSvgReady}
         onOpenSelectConnectedObjects={(payload) => this.openConnectedObjectsDialog('select', payload)}

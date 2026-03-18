@@ -33,6 +33,14 @@
 - [x] T012 Update ICOM rendering notes in `docs/_specs/Overview.md`
 - [x] T013 Capture the work as a real spec-kit feature under `.specify/specs/001-idef0-icom-layout/`
 
+## Phase 5: Group Dragging And Pan Behavior
+
+- [x] T019 Require `Shift` for regrouping into non-lane groups in `src/akmm/ui_templates.ts` and `src/components/gojs/GoJSApp.tsx`
+- [x] T020 Make first-time `Shift` detach from a group persist cleanly without snap-back in `src/components/gojs/GoJSApp.tsx`
+- [x] T021 Reduce the default nested-group size ratio so multiple subprocesses with ICOMs fit inside a parent in `src/components/gojs/GoJSApp.tsx` and `src/akmm/ui_templates.ts`
+- [x] T022 Fix grouped-child drag clamping so nested groups stay under the cursor while moving inside a parent in `src/components/gojs/components/Diagram.tsx`
+- [x] T023 Add temporary `Space`-drag canvas panning without breaking normal background drag behavior in `src/components/gojs/components/Diagram.tsx`
+
 ## Validation Tasks
 
 - [ ] T014 Manually verify an IDEF0 model with long input/output/control/mechanism labels
@@ -40,3 +48,6 @@
 - [ ] T016 Manually verify object-to-group conversion and subsequent resize persistence for non-ported groups
 - [ ] T017 Manually verify that moved port-to-port process relationships no longer flip sides after stale path clearing
 - [ ] T018 Manually verify canvas menu conversion between object and group without using reload
+- [ ] T024 Manually verify non-Shift drag over a process group does not regroup the dragged process or subprocess
+- [ ] T025 Manually verify `Shift` drag into and out of process groups, including first-attempt detach, nested sizing, and cursor-aligned child dragging
+- [ ] T026 Manually verify `Space`-drag pans the canvas over nested groups and does not trigger click/zoom behavior on mouse-up

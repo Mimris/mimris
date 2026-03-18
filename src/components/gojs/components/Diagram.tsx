@@ -64,6 +64,7 @@ interface DiagramProps {
   modelType: string;
   myMetis: akm.cxMetis;
   dispatch: any;
+  phFocus?: any;
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
@@ -188,6 +189,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('InitialLayoutCompleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('InitialLayoutCompleted', () => {
+        this.updateFocusPeerHighlight(diagram);
+      });
       diagram.addDiagramListener('LayoutCompleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
@@ -204,6 +208,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
+      this.updateFocusPeerHighlight(diagram);
       
       // Add listener to force update emoji icons after model is loaded
       diagram.addDiagramListener('InitialLayoutCompleted', () => {
@@ -219,11 +224,133 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       diagram.addModelChangedListener(this.props.onModelChange);
 
+      const diagramDiv = diagram.div;
+      const diagramDoc = diagramDiv?.ownerDocument;
+      const setPanCursor = () => {
+        if (!diagram.div) return;
+        diagram.div.style.cursor = (diagram as any).__spacePanDragging
+          ? 'grabbing'
+          : ((diagram as any).__spacePanActive ? 'grab' : '');
+      };
+      if (diagramDiv && diagramDoc) {
+        const keydownHandler = (event: KeyboardEvent) => {
+          if (event.code !== 'Space') return;
+          (diagram as any).__spacePanActive = true;
+          setPanCursor();
+          event.preventDefault();
+          event.stopPropagation();
+          try { event.stopImmediatePropagation(); } catch (_) { }
+        };
+        const keypressHandler = (event: KeyboardEvent) => {
+          if (event.code !== 'Space') return;
+          event.preventDefault();
+          event.stopPropagation();
+          try { event.stopImmediatePropagation(); } catch (_) { }
+        };
+        const keyupHandler = (event: KeyboardEvent) => {
+          if (event.code !== 'Space') return;
+          (diagram as any).__spacePanActive = false;
+          (diagram as any).__spacePanDragging = false;
+          setPanCursor();
+          event.preventDefault();
+          event.stopPropagation();
+          try { event.stopImmediatePropagation(); } catch (_) { }
+        };
+        const pointerdownHandler = (event: PointerEvent) => {
+          if (!(diagram as any).__spacePanActive) return;
+          if (event.button !== 0) return;
+          const scale = Number(diagram.scale || 1) || 1;
+          (diagram as any).__spacePanDragging = true;
+          (diagram as any).__spacePanStartClient = { x: event.clientX, y: event.clientY };
+          (diagram as any).__spacePanStartPosition = new go.Point(diagram.position.x, diagram.position.y);
+          (diagram as any).__spacePanStartScale = scale;
+          setPanCursor();
+          event.preventDefault();
+          event.stopPropagation();
+        };
+        const pointermoveHandler = (event: PointerEvent) => {
+          if (!(diagram as any).__spacePanDragging) return;
+          const startClient = (diagram as any).__spacePanStartClient;
+          const startPosition = (diagram as any).__spacePanStartPosition;
+          const scale = Number((diagram as any).__spacePanStartScale || diagram.scale || 1) || 1;
+          if (!startClient || !(startPosition instanceof go.Point)) return;
+          const dx = (event.clientX - startClient.x) / scale;
+          const dy = (event.clientY - startClient.y) / scale;
+          diagram.position = new go.Point(startPosition.x - dx, startPosition.y - dy);
+          event.preventDefault();
+          event.stopPropagation();
+        };
+        const pointerupHandler = (event: PointerEvent) => {
+          if (!(diagram as any).__spacePanDragging) return;
+          (diagram as any).__spacePanDragging = false;
+          (diagram as any).__spacePanSuppressClickUntil = Date.now() + 250;
+          setPanCursor();
+          event.preventDefault();
+          event.stopPropagation();
+        };
+        const blurHandler = () => {
+          (diagram as any).__spacePanActive = false;
+          (diagram as any).__spacePanDragging = false;
+          (diagram as any).__spacePanSuppressClickUntil = 0;
+          setPanCursor();
+        };
+        (diagram as any).__spacePanKeydownHandler = keydownHandler;
+        (diagram as any).__spacePanKeypressHandler = keypressHandler;
+        (diagram as any).__spacePanKeyupHandler = keyupHandler;
+        (diagram as any).__spacePanPointerdownHandler = pointerdownHandler;
+        (diagram as any).__spacePanPointermoveHandler = pointermoveHandler;
+        (diagram as any).__spacePanPointerupHandler = pointerupHandler;
+        (diagram as any).__spacePanBlurHandler = blurHandler;
+        try { diagramDoc.addEventListener('keydown', keydownHandler, true); } catch (_) { }
+        try { diagramDoc.addEventListener('keypress', keypressHandler, true); } catch (_) { }
+        try { diagramDoc.addEventListener('keyup', keyupHandler, true); } catch (_) { }
+        try { diagramDiv.addEventListener('pointerdown', pointerdownHandler, true); } catch (_) { }
+        try { diagramDoc.addEventListener('pointermove', pointermoveHandler, true); } catch (_) { }
+        try { diagramDoc.addEventListener('pointerup', pointerupHandler, true); } catch (_) { }
+        try { diagramDoc.defaultView?.addEventListener('blur', blurHandler); } catch (_) { }
+      }
+
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(this.exportSvg, true); // Pass true to indicate that the diagram is ready
       }
 
     }
+  }
+
+  public componentDidUpdate(prevProps: DiagramProps) {
+    if (
+      prevProps.phFocus?.focusObject?.id !== this.props.phFocus?.focusObject?.id ||
+      prevProps.phFocus?.focusObjectview?.id !== this.props.phFocus?.focusObjectview?.id ||
+      prevProps.nodeDataArray !== this.props.nodeDataArray
+    ) {
+      this.updateFocusPeerHighlight();
+    }
+  }
+
+  private updateFocusPeerHighlight(diagram?: go.Diagram) {
+    const currentDiagram = diagram ?? this.diagramRef.current?.getDiagram();
+    if (!(currentDiagram instanceof go.Diagram)) return;
+    const focusObjectId = String(this.props?.phFocus?.focusObject?.id || '');
+    for (let it = currentDiagram.nodes.iterator; it?.next();) {
+      const node = it.value as go.Node;
+      const data: any = node?.data || {};
+      const objectId =
+        data?.object?.id ||
+        data?.objectview?.object?.id ||
+        data?.objRef ||
+        data?.objectRef ||
+        '';
+      const isPeer = Boolean(focusObjectId) && String(objectId) === focusObjectId;
+      try {
+        if (typeof currentDiagram.model?.setDataProperty === 'function') {
+          currentDiagram.model.setDataProperty(data, 'isFocusPeer', isPeer);
+        } else {
+          data.isFocusPeer = isPeer;
+        }
+      } catch (_) { }
+      try { node.updateTargetBindings(); } catch (_) { }
+    }
+    try { currentDiagram.requestUpdate(); } catch (_) { }
   }
 
   /**
@@ -233,6 +360,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
+      const diagramDiv = diagram.div;
+      const diagramDoc = diagramDiv?.ownerDocument;
+      const keydownHandler = (diagram as any).__spacePanKeydownHandler;
+      const keypressHandler = (diagram as any).__spacePanKeypressHandler;
+      const keyupHandler = (diagram as any).__spacePanKeyupHandler;
+      const pointerdownHandler = (diagram as any).__spacePanPointerdownHandler;
+      const pointermoveHandler = (diagram as any).__spacePanPointermoveHandler;
+      const pointerupHandler = (diagram as any).__spacePanPointerupHandler;
+      const blurHandler = (diagram as any).__spacePanBlurHandler;
+      if (diagramDoc && keydownHandler) {
+        try { diagramDoc.removeEventListener('keydown', keydownHandler, true); } catch (_) { }
+      }
+      if (diagramDoc && keypressHandler) {
+        try { diagramDoc.removeEventListener('keypress', keypressHandler, true); } catch (_) { }
+      }
+      if (diagramDoc && keyupHandler) {
+        try { diagramDoc.removeEventListener('keyup', keyupHandler, true); } catch (_) { }
+      }
+      if (diagramDiv && pointerdownHandler) {
+        try { diagramDiv.removeEventListener('pointerdown', pointerdownHandler, true); } catch (_) { }
+      }
+      if (diagramDoc && pointermoveHandler) {
+        try { diagramDoc.removeEventListener('pointermove', pointermoveHandler, true); } catch (_) { }
+      }
+      if (diagramDoc && pointerupHandler) {
+        try { diagramDoc.removeEventListener('pointerup', pointerupHandler, true); } catch (_) { }
+      }
+      if (diagramDoc?.defaultView && blurHandler) {
+        try { diagramDoc.defaultView.removeEventListener('blur', blurHandler); } catch (_) { }
+      }
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
@@ -1244,16 +1401,56 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myMetis.deleteViewsOnly = false;
       myMetis.pasteViewsOnly = false;
     }
+    const guardedStandardMouseSelect = function () {
+      const diagram = this.diagram;
+      if (!diagram) return;
+      if ((diagram as any).__spacePanActive || (diagram as any).__spacePanDragging) return;
+      const suppressUntil = Number((diagram as any).__spacePanSuppressClickUntil || 0);
+      if (suppressUntil > Date.now()) return;
+      const clickPoint = diagram.lastInput.documentPoint;
+      const clickedObject = diagram.findObjectAt(clickPoint);
+      const targetPart = clickedObject?.part instanceof go.Part ? clickedObject.part : null;
+      let selectablePart = targetPart;
+      if (targetPart instanceof go.Group) {
+        const data: any = targetPart.data || {};
+        const templateName = String(data?.template || data?.category || targetPart.category || "");
+        const isPortedGroup =
+          templateName === "groupWithPorts" ||
+          templateName === "groupWithIconAndPorts" ||
+          templateName === "groupWithGeoAndPorts" ||
+          templateName === "groupWithFigAndPorts" ||
+          templateName === "IDEF0";
+        if (isPortedGroup) {
+          const shape = targetPart.findObject("SHAPE");
+          const localPoint = shape?.getLocalPoint?.(clickPoint);
+          const geometryContainsPoint =
+            !!shape?.geometry &&
+            !!localPoint &&
+            typeof shape.geometry.containsPoint === "function" &&
+            shape.geometry.containsPoint(localPoint);
+          if (!geometryContainsPoint) {
+            selectablePart = null;
+          }
+        }
+      }
+      if (selectablePart instanceof go.Part) {
+        if (diagram.lastInput.shift) {
+          selectablePart.isSelected = true;
+        } else {
+          diagram.clearSelection();
+          diagram.select(selectablePart);
+        }
+      } else if (!diagram.lastInput.shift) {
+        diagram.clearSelection();
+      }
+    };
     { // define myDiagram
       myDiagram =
         $(go.Diagram,
           {
             initialContentAlignment: go.Spot.Center,       // center the content
             initialAutoScale: go.Diagram.Uniform,
-            "contextMenuTool.standardMouseSelect": function () {
-              this.diagram.lastInput.shift = true;
-              go.ContextMenuTool.prototype.standardMouseSelect.call(this);
-            },
+            "contextMenuTool.standardMouseSelect": guardedStandardMouseSelect,
             // layout: new go.TreeLayout({ isOngoing: false }),
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
@@ -1423,6 +1620,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 		    }
 
 	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
+      myDiagram.toolManager.clickSelectingTool.standardMouseSelect = guardedStandardMouseSelect;
 
 	    // when the user clicks on the background of the Diagram, remove all highlighting
 	    myDiagram.click = function (e) {
@@ -5577,7 +5775,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!diagram || !part) return;
         if (part instanceof go.Node) {
           const nodePart = diagram.findPartForKey(part.data?.key) as go.Node;
-          if (nodePart) {
+          const shouldCopySubgraph =
+            nodePart instanceof go.Group ||
+            isGroupNode(nodePart?.data) ||
+            isPoolGroup(nodePart) ||
+            isLaneGroup(nodePart);
+          if (nodePart && shouldCopySubgraph) {
             try {
               const subParts = nodePart.findSubGraphParts();
               if (subParts) {
@@ -6020,12 +6223,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         const templateFromNode = nodeData?.template || objview?.template;
-        const template = getPlainGroupTemplate(templateFromNode);
+        const template = getPortedGroupTemplate(templateFromNode);
 
         objview.viewkind = 'Container';
         objview.template = template;
         objview.isGroup = true;
-        objview.portMode = 'none';
+        objview.portMode = 'generic';
         const normalizedSize = ensureMinimumGroupSize(nodeData, objview, part);
         if (normalizedSize) {
           objview.size = normalizedSize;
@@ -6035,7 +6238,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           nodeData.objectview.viewkind = 'Container';
           nodeData.objectview.template = template;
           nodeData.objectview.isGroup = true;
-          nodeData.objectview.portMode = 'none';
+          nodeData.objectview.portMode = 'generic';
           if (normalizedSize) {
             nodeData.objectview.size = normalizedSize;
           }
@@ -7688,6 +7891,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             visible: () => canAddPortToNode(part),
             enabled: () => canAddPortToNode(part),
           },
+          {
+            label: "Select all of this type",
+            action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
+          },
           { separator: true },
           {
             label: "Delete Object",
@@ -7705,6 +7912,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
+        const data: any = part.data || {};
+        const isObject =
+          data.category === constants.gojs.C_OBJECT ||
+          !!data.object ||
+          !!data.objectview ||
+          data.isGroup === true ||
+          (part instanceof go.Group) ||
+          (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container');
         const buildGroupLayoutMenuItems = (): HtmlMenuItem[] => {
           const groupRelationshipPathItems: HtmlMenuItem[] = [
             {
@@ -7774,6 +7989,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           label: "Copy",
           action: (diagram) => handlePartCopy(diagram, part),
         });
+        if (isObject) {
+          items.push({
+            label: "Delete",
+            action: (diagram) => handleDeletePart(diagram, part),
+            enabled: (diagram) => canDeleteSinglePart(diagram, part),
+          });
+          items.push({
+            label: "Select all of this type",
+            action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
+          });
+        }
         items.push({
           label: "Paste",
           action: (diagram) => handlePartPaste(diagram, false),
@@ -7802,14 +8028,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             action: (diagram) => handleEditAttribute(diagram, part),
           });
         }
-        const data: any = part.data || {};
-        const isObject =
-          data.category === constants.gojs.C_OBJECT ||
-          !!data.object ||
-          !!data.objectview ||
-          data.isGroup === true ||
-          (part instanceof go.Group) ||
-          (typeof data.viewkind === 'string' && data.viewkind.toLowerCase() === 'container');
         if (isObject) {
           items.push({ separator: true });
           // Group common object actions into an "Object…" submenu
@@ -8383,7 +8601,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection(),
             },
             {
-              label: "Select All Objects of This Type",
+              label: "Select all of this type",
               action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
             },
           ];
@@ -8482,6 +8700,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           items.push({
             label: "Edit Relationship",
             action: (diagram) => handleEditRelationship(diagram, part),
+          });
+          items.push({
+            label: "Select all of this type",
+            action: (diagram) => handleSelectAllRelationshipsOfSameType(diagram, linkPart),
           });
           // Add delete actions directly to the relationship's context menu
           items.push({
@@ -8889,6 +9111,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   {
                       label: "Copy",
                       action: (diagram) => handlePartCopy(diagram, part),
+                  },
+                  {
+                      label: "Delete",
+                      action: (diagram) => handleDeletePart(diagram, part),
+                      enabled: (diagram) => canDeleteSinglePart(diagram, part),
+                  },
+                  {
+                      label: "Select all of this type",
+                      action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
                   },
                   {
                     label: "Object…",
@@ -10106,6 +10337,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (!myModelview) return;
           const nodes = targetDiagram.nodes;
           const modifiedObjViews = new Array();
+          const modifiedRelshipViews = new Array();
           for (let it = nodes.iterator; it?.next();) {
             const node = it.value;
             const data = node.data;
@@ -10129,6 +10361,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          });
+          const links = targetDiagram.links;
+          for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const data = link?.data;
+            if (!data || data.category !== constants.gojs.C_RELATIONSHIP) continue;
+            let relview = data.relshipview;
+            if (!relview) {
+              relview = myModelview.findRelationshipView(data.relviewRef || data.key);
+            }
+            if (!relview) continue;
+            relview.points = data.points || [];
+            relview.routing = data.routing;
+            relview.curve = data.curve;
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
+          }
+          modifiedRelshipViews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
           });
         }
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
@@ -10192,7 +10445,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try {
             if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
             const linkData = sel.data;
-            const relview = myModelview.findRelationshipView(linkData.key);
+            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
             if (!relview) return;
 
             try {
@@ -10230,7 +10483,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try {
             if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
             const linkData = sel.data;
-            const relview = myModelview.findRelationshipView(linkData.key);
+            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
             if (!relview) return;
 
             try {
@@ -10263,7 +10516,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try {
             if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
             const linkData = subPart.data;
-            const relview = myModelview.findRelationshipView(linkData.key);
+            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
             if (!relview) return;
 
             try {
@@ -10296,7 +10549,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try {
             if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
             const linkData = subPart.data;
-            const relview = myModelview.findRelationshipView(linkData.key);
+            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
             if (!relview) return;
 
             try {
@@ -10485,6 +10738,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   try { diagram.model.setDataProperty(l.data, 'routing', 'Normal'); } catch (_) {}
                 });
                 diagram.commitTransaction('set-link-routing');
+                const myModelview = myMetis.currentModelview;
+                if (!myModelview) return;
+                diagram.links.each((l) => {
+                  const linkData: any = l?.data;
+                  if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+                  const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
+                  if (!relview) return;
+                  relview.routing = 'Normal';
+                  relview.points = [];
+                  let data: any = new jsn.jsnRelshipView(relview);
+                  data = JSON.parse(JSON.stringify(data));
+                  diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+                });
               }
             },
             {
@@ -10495,6 +10761,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 try { diagram.routing = go.Link.Orthogonal; } catch (_) {}
                 diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'Orthogonal'); } catch (_) {} });
                 diagram.commitTransaction('set-link-routing');
+                const myModelview = myMetis.currentModelview;
+                if (!myModelview) return;
+                diagram.links.each((l) => {
+                  const linkData: any = l?.data;
+                  if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+                  const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
+                  if (!relview) return;
+                  relview.routing = 'Orthogonal';
+                  relview.points = [];
+                  let data: any = new jsn.jsnRelshipView(relview);
+                  data = JSON.parse(JSON.stringify(data));
+                  diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+                });
               }
             },
             {
@@ -10505,6 +10784,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 try { diagram.routing = go.Link.AvoidsNodes; } catch (_) {}
                 diagram.links.each((l) => { try { diagram.model.setDataProperty(l.data, 'routing', 'AvoidsNodes'); } catch (_) {} });
                 diagram.commitTransaction('set-link-routing');
+                const myModelview = myMetis.currentModelview;
+                if (!myModelview) return;
+                diagram.links.each((l) => {
+                  const linkData: any = l?.data;
+                  if (!linkData || linkData.category !== constants.gojs.C_RELATIONSHIP) return;
+                  const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
+                  if (!relview) return;
+                  relview.routing = 'AvoidsNodes';
+                  relview.points = [];
+                  let data: any = new jsn.jsnRelshipView(relview);
+                  data = JSON.parse(JSON.stringify(data));
+                  diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+                });
               }
             }
           ]),
@@ -10960,18 +11252,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             g = g.containingGroup;
           }
         }
-        const back =
-          grp.findObject("LANE_BODY_SHAPE") ||
-          grp.findObject("BODY") ||
-          grp.resizeObject;
-        if (!back) return pt;
-        const r = back.getDocumentBounds();
-        const b = part.actualBounds;
-        const loc = part.location;
-        const x = Math.max(r.x + 2, Math.min(pt.x, r.right - b.width - 2)) + (loc.x - b.x);
-        const y = Math.max(r.y + 2, Math.min(pt.y, r.bottom - b.height - 2)) + (loc.y - b.y);
-        return new go.Point(x, y);
-      };
+	        const back =
+	          grp.findObject("LANE_BODY_SHAPE") ||
+	          grp.findObject("BODY") ||
+	          grp.resizeObject;
+	        if (!back) return pt;
+	        const r = back.getDocumentBounds();
+	        const dragObject =
+	          (part instanceof go.Group
+	            ? part.findObject("SHAPE") ||
+	              part.findObject("BODY") ||
+	              part.resizeObject ||
+	              part.selectionObject
+	            : null) || part;
+	        const b = dragObject.getDocumentBounds ? dragObject.getDocumentBounds() : part.actualBounds;
+	        const loc = part.location;
+	        const offsetX = loc.x - b.x;
+	        const offsetY = loc.y - b.y;
+	        const minX = r.x + offsetX + 2;
+	        const maxX = r.right - (b.width - offsetX) - 2;
+	        const minY = r.y + offsetY + 2;
+	        const maxY = r.bottom - (b.height - offsetY) - 2;
+	        const x = Math.max(minX, Math.min(pt.x, maxX));
+	        const y = Math.max(minY, Math.min(pt.y, maxY));
+	        return new go.Point(x, y);
+	      };
 
       const getGroupBodyBounds = (grp: go.Group) => {
         const back =
@@ -11021,6 +11326,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const part = it.value;
         if (!(part instanceof go.Node)) continue;
         if (key === "LinkLabel") continue;
+        part.dragComputation = stayInGroup;
+      }
+
+      for (let it = groupTemplateMap.iterator; it.next();) {
+        const key = String(it.key || "");
+        const part = it.value;
+        if (!(part instanceof go.Group)) continue;
+        if (key === "Pool" || key === "Lane" || key.startsWith("Lane")) continue;
         part.dragComputation = stayInGroup;
       }
 

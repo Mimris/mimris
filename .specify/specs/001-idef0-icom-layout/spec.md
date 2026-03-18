@@ -18,6 +18,10 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 5. **Given** an object converted into a non-ported group, **When** the group is first shown or later resized, **Then** the visible outer border remains fully visible on all sides and the resized state persists.
 6. **Given** a port-to-port relationship with an orthogonal path, **When** a connected process is moved, **Then** stale stored path points are cleared so the relationship reroutes from the correct port side instead of flipping to the wrong end.
 7. **Given** an object or group is converted between object and group representations, **When** the conversion is triggered from the canvas menu, **Then** the canvas updates immediately without requiring a full reload.
+8. **Given** a process group is dragged onto another group, **When** the user does not hold `Shift`, **Then** the dragged group keeps its existing parentage and only repositions.
+9. **Given** a process group is `Shift`-dragged into another group, **When** the drop is accepted, **Then** the dragged group becomes a member of the target group and is resized smaller than half-parent defaults so several subprocesses with ICOMs can fit inside the parent.
+10. **Given** a grouped process is dragged inside its current parent without `Shift`, **When** the drag starts and continues, **Then** the child group follows the cursor smoothly without jumping to a corner or lagging behind the pointer.
+11. **Given** the user is working inside nested groups, **When** `Space` is held and the pointer is dragged, **Then** the canvas pans without changing selection or firing click-driven focus/zoom behavior on mouse-up.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
@@ -26,6 +30,8 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - What happens when a non-ported group is resized after conversion from an object?
 - What happens when a moved port-to-port relationship still has persisted route points from an earlier geometry?
 - What happens when a live object-to-group conversion changes the GoJS part class from node to group?
+- What happens when a grouped subprocess is dragged near the rounded corners or port-label extents of a parent group?
+- What happens when `Space` is pressed and released without dragging while keyboard shortcuts are active elsewhere in the diagram?
 
 ## Requirements
 
@@ -42,6 +48,11 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-010**: The system MUST keep the visible border of non-ported groups fully rendered on all sides after selection and resize, and resized dimensions MUST persist after interaction.
 - **FR-011**: The system MUST clear stale persisted path points for port-to-port relationships when connected objects move so orthogonal routing recomputes from the correct side-specific ports.
 - **FR-012**: The system MUST rebuild converted object/group parts live on the canvas so object-to-group and group-to-object conversions are immediately visible without using reload.
+- **FR-013**: The system MUST require `Shift` for regrouping objects or groups into a different non-lane group so plain dragging only repositions the existing selection.
+- **FR-014**: The system MUST allow `Shift`-dragging a group out of its parent to detach it on the first attempt without snapping back on a second layout pass.
+- **FR-015**: The system MUST size newly nested groups small enough to leave room for several subprocesses with ICOMs inside the parent, rather than using a fixed half-parent size.
+- **FR-016**: The system MUST keep grouped child drags aligned to the cursor inside the parent bounds instead of jumping due to oversized hit or clamp bounds.
+- **FR-017**: The system MUST allow temporary canvas panning with `Space` plus drag without breaking ordinary background dragging when `Space` is not held.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.

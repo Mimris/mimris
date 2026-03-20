@@ -23,6 +23,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 10. **Given** a grouped process is dragged inside its current parent without `Shift`, **When** the drag starts and continues, **Then** the child group follows the cursor smoothly without jumping to a corner or lagging behind the pointer.
 11. **Given** the user is working inside nested groups, **When** `Space` is held and the pointer is dragged, **Then** the canvas pans without changing selection or firing click-driven focus/zoom behavior on mouse-up.
 12. **Given** the modelling or landing page renders the project menu bar, **When** the page is opened after these interaction changes, **Then** the menu bar still renders without Redux hook failures and its actions can dispatch project-loading updates normally.
+13. **Given** a group with ports has both visible ports and a visible inner frame, **When** the pointer is inside the inner frame, **Then** dragging repositions the group, and **When** the pointer is in the band between the outer and inner borders, **Then** relationship hookup targets the group body rather than a separate side strip or the move surface.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
@@ -34,6 +35,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - What happens when a grouped subprocess is dragged near the rounded corners or port-label extents of a parent group?
 - What happens when `Space` is pressed and released without dragging while keyboard shortcuts are active elsewhere in the diagram?
 - What happens when a page-level menu component that dispatches model-loading actions is rendered after diagram interaction refactors?
+- What happens when a group has both ICOM ports and a connectable body, and the pointer is near the inner frame border?
 
 ## Requirements
 
@@ -56,12 +58,14 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-016**: The system MUST keep grouped child drags aligned to the cursor inside the parent bounds instead of jumping due to oversized hit or clamp bounds.
 - **FR-017**: The system MUST allow temporary canvas panning with `Space` plus drag without breaking ordinary background dragging when `Space` is not held.
 - **FR-018**: The system MUST keep project menu rendering stable after interaction changes so model-loading actions still dispatch correctly from the page-level project menu.
+- **FR-019**: The system MUST let the visible inner frame of a ported group act as the move zone while the remaining visible group body continues to act as a single relationship hookup target when the pointer is not on an explicit port.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.
 - **ICOM Label**: The text associated with an ICOM port, including its wrapping, alignment, and spacing behavior.
 - **Relationship View**: The persisted or runtime view data that determines routing, curve, points, and label placement for a relationship.
 - **Non-ported Group View**: A container-style group rendering without ports that may be created from an object view and later resized.
+- **Ported Group View**: A process or container-style group with explicit ICOM ports and a body surface that must distinguish move-vs-connect hit zones.
 
 ## Review & Acceptance Checklist
 
@@ -74,5 +78,5 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 ### Requirement Completeness
 - [x] No unresolved clarification markers remain
 - [x] Requirements are testable and visually reviewable
-- [x] Scope is bounded to IDEF0 ICOM rendering, routing defaults, and adjacent non-ported group rendering behavior
+- [x] Scope is bounded to IDEF0 ICOM rendering, routing defaults, and adjacent group rendering/hit-zone behavior
 - [x] Dependencies and assumptions identified

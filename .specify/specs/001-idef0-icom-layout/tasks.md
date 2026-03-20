@@ -41,6 +41,7 @@
 - [x] T022 Fix grouped-child drag clamping so nested groups stay under the cursor while moving inside a parent in `src/components/gojs/components/Diagram.tsx`
 - [x] T023 Add temporary `Space`-drag canvas panning without breaking normal background drag behavior in `src/components/gojs/components/Diagram.tsx`
 - [x] T023a Keep `ProjectMenuBar` dispatch wiring stable after interaction changes by passing page-level dispatch explicitly in `src/components/loadModelData/ProjectMenuBar.tsx`, `src/pages/index.tsx`, and `src/pages/modelling.tsx`
+- [ ] T023b Make ported group body hit zones distinguish inner-frame move behavior from group-body relationship hookup in `src/akmm/ui_templates.ts`
 
 ## Validation Tasks
 
@@ -53,3 +54,4 @@
 - [ ] T025 Manually verify `Shift` drag into and out of process groups, including first-attempt detach, nested sizing, and cursor-aligned child dragging
 - [ ] T026 Manually verify `Space`-drag pans the canvas over nested groups and does not trigger click/zoom behavior on mouse-up
 - [ ] T027 Manually verify the project menu bar renders and its project load/save actions still work on both landing and modelling pages
+- [ ] T028 Manually verify a ported group moves from the visible inner frame, connects from the remaining group body, and still prefers explicit ports when hovered

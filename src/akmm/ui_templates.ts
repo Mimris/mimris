@@ -1681,7 +1681,7 @@ function addLeftPorts(portContextMenu: any, offsetX: number = 0, offsetY: number
                 alignmentFocus: go.Spot.Right,
                 defaultAlignment: go.Spot.Right,
                 background: DEBUG_HIT_AREAS ? "rgba(0, 128, 255, 0.12)" : "transparent",
-                pickable: false,
+                pickable: true,
             },
     );  // end leftPorts Panel
 }
@@ -1698,7 +1698,7 @@ function addTopPorts(portContextMenu: any, offsetX: number = 0, offsetY: number 
                 margin: new go.Margin(44, 0, 0, 0),
                 alignment: new go.Spot(0.5, 0, offsetX, offsetY - 12),
                 background: DEBUG_HIT_AREAS ? "rgba(0, 255, 128, 0.12)" : "transparent",
-                pickable: false,
+                pickable: true,
             }
     );  // end topPorts Panel
 }
@@ -1715,7 +1715,7 @@ function addRightPorts(portContextMenu: any, offsetX: number = 0, offsetY: numbe
                     alignmentFocus: go.Spot.Left,
                     defaultAlignment: go.Spot.Left,
                     background: DEBUG_HIT_AREAS ? "rgba(255, 128, 0, 0.12)" : "transparent",
-                    pickable: false,
+                    pickable: true,
                 }
             );  // end rightPorts Panel
 }
@@ -1732,7 +1732,7 @@ function addBottomPorts(portContextMenu: any, offsetX: number = 0, offsetY: numb
                 margin: new go.Margin(0, 0, 44, 0),
                 alignment: new go.Spot(0.5, 1, offsetX, offsetY + 12),
                 background: DEBUG_HIT_AREAS ? "rgba(255, 0, 128, 0.12)" : "transparent",
-                pickable: false,
+                pickable: true,
             }
         );  // end bottomPorts Panel
 }
@@ -1936,6 +1936,32 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 background: DEBUG_ICOM_LAYOUT ? "rgba(128, 0, 255, 0.12)" : "transparent",
             },
         );
+        const sidePortHitArea = $(go.Shape, "Rectangle",
+            {
+                name: "PORT_HIT_AREA",
+                alignment: isLeft ? go.Spot.Right : go.Spot.Left,
+                alignmentFocus: isLeft ? go.Spot.Right : go.Spot.Left,
+                width: lineWidth + 8,
+                height: Math.max(12, rowHeight - 6),
+                fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.25)" : "rgba(0, 0, 0, 0.001)",
+                stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
+                strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
+                cursor: "pointer",
+                contextMenu: portContextMenu,
+                portId: "",
+                fromLinkable: !isLeft,
+                toLinkable: isLeft,
+                fromLinkableSelfNode: false,
+                fromLinkableDuplicates: true,
+                toLinkableSelfNode: false,
+                toLinkableDuplicates: true,
+                fromSpot: go.Spot.Right,
+                toSpot: go.Spot.Left,
+            },
+            new go.Binding("portId", "", function(d) {
+                return d?.id || d?.portId || "";
+            }),
+        );
         const labelBlock = $(go.TextBlock,
             {
                 name: "PORT_LABEL_TEXT",
@@ -1975,7 +2001,19 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 cursor: "pointer",
                 contextMenu: portContextMenu,
                 doubleClick: openPortNameEditor,
+                portId: "",
+                fromLinkable: !isLeft,
+                toLinkable: isLeft,
+                fromLinkableSelfNode: false,
+                fromLinkableDuplicates: true,
+                toLinkableSelfNode: false,
+                toLinkableDuplicates: true,
+                fromSpot: go.Spot.Right,
+                toSpot: go.Spot.Left,
             },
+            new go.Binding("portId", "", function(d) {
+                return d?.id || d?.portId || "";
+            }),
             ...(isLeft
                 ? [
                     $(go.Panel, "Auto",
@@ -1989,26 +2027,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                         },
                         lineShape,
                     ),
-                    $(go.Shape, "Rectangle",
-                        {
-                            alignment: new go.Spot(1, 0.5, 0, 0),
-                            alignmentFocus: go.Spot.Right,
-                            width: 2,
-                            height: 8,
-                            fill: "rgba(0, 0, 0, 0.001)",
-                            stroke: "transparent",
-                            strokeWidth: 0,
-                            portId: "",
-                            fromLinkable: false,
-                            toLinkable: true,
-                            cursor: "pointer",
-                            contextMenu: portContextMenu,
-                            toSpot: go.Spot.Left,
-                        },
-                        new go.Binding("portId", "", function(d) {
-                            return d?.id || d?.portId || "";
-                        }),
-                    ),
+                    sidePortHitArea,
                     $(go.Shape, "Rectangle",
                         {
                             alignment: new go.Spot(1, 0.5, 0, 0),
@@ -2050,26 +2069,7 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                         },
                         lineShape,
                     ),
-                    $(go.Shape, "Rectangle",
-                        {
-                            alignment: new go.Spot(0, 0.5, 0, 0),
-                            alignmentFocus: go.Spot.Left,
-                            width: 8,
-                            height: 8,
-                            fill: DEBUG_ICOM_LAYOUT ? "rgba(50, 205, 50, 0.35)" : "rgba(0, 0, 0, 0.001)",
-                            stroke: DEBUG_ICOM_LAYOUT ? "rgba(34, 139, 34, 0.9)" : "transparent",
-                            strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
-                            portId: "",
-                            fromLinkable: true,
-                            toLinkable: false,
-                            cursor: "pointer",
-                            contextMenu: portContextMenu,
-                            fromSpot: new go.Spot(1, 0.5, -3, 0),
-                        },
-                        new go.Binding("portId", "", function(d) {
-                            return d?.id || d?.portId || "";
-                        }),
-                    ),
+                    sidePortHitArea,
                     $(go.Shape, "Rectangle",
                         {
                             alignment: new go.Spot(0, 0.5, 0, 0),
@@ -2157,8 +2157,8 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
         const topBottomPort =
             $(go.Shape, "Rectangle",
                 {
-                    width: 10,
-                    height: 10,
+                    width: 16,
+                    height: 16,
                     fill: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.45)" : "transparent",
                     stroke: DEBUG_ICOM_LAYOUT ? "rgba(0, 120, 255, 0.9)" : "transparent",
                     strokeWidth: DEBUG_ICOM_LAYOUT ? 1 : 0,
@@ -2274,7 +2274,19 @@ function makeItemTemplate(side: string, isGroup: boolean, portContextMenu: any) 
                 alignment: isTop ? new go.Spot(0.5, 1, 0, -7) : new go.Spot(0.5, 0, 0, 6),
                 alignmentFocus: isTop ? go.Spot.Bottom : go.Spot.Top,
                 cursor: "pointer",
+                portId: "",
+                toLinkable: true,
+                fromLinkable: true,
+                fromLinkableSelfNode: false,
+                fromLinkableDuplicates: true,
+                toLinkableSelfNode: false,
+                toLinkableDuplicates: true,
+                toSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
+                fromSpot: isTop ? go.Spot.Top : go.Spot.Bottom,
             },
+            new go.Binding("portId", "", function(d) {
+                return d?.id || d?.portId || "";
+            }),
             stripPanel,
             textPanel,
         );

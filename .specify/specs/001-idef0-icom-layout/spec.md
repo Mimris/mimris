@@ -24,6 +24,8 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 11. **Given** the user is working inside nested groups, **When** `Space` is held and the pointer is dragged, **Then** the canvas pans without changing selection or firing click-driven focus/zoom behavior on mouse-up.
 12. **Given** the modelling or landing page renders the project menu bar, **When** the page is opened after these interaction changes, **Then** the menu bar still renders without Redux hook failures and its actions can dispatch project-loading updates normally.
 13. **Given** a group with ports has both visible ports and a visible inner frame, **When** the pointer is inside the inner frame, **Then** dragging repositions the group, and **When** the pointer is in the band between the outer and inner borders, **Then** relationship hookup targets the group body rather than a separate side strip or the move surface.
+14. **Given** a group exposes visible ICOM ports, **When** the pointer is over a visible port marker, **Then** relationship hookup targets that explicit port instead of selecting or linking from the group body.
+15. **Given** a new `isFollowedBy` or `triggers` relationship is created without an explicit routing value, **When** the relationship is first rendered, **Then** it defaults to `AvoidsNodes`.
 
 ### Edge Cases
 - What happens when a side label is long enough to intersect the first orthogonal bend?
@@ -36,6 +38,8 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - What happens when `Space` is pressed and released without dragging while keyboard shortcuts are active elsewhere in the diagram?
 - What happens when a page-level menu component that dispatches model-loading actions is rendered after diagram interaction refactors?
 - What happens when a group has both ICOM ports and a connectable body, and the pointer is near the inner frame border?
+- What happens when a visible port sits close to the group body hit area and both could plausibly win the pointer hit?
+- What happens when an existing `isFollowedBy` or `triggers` relationship already stores a non-default routing explicitly?
 
 ## Requirements
 
@@ -59,6 +63,8 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **FR-017**: The system MUST allow temporary canvas panning with `Space` plus drag without breaking ordinary background dragging when `Space` is not held.
 - **FR-018**: The system MUST keep project menu rendering stable after interaction changes so model-loading actions still dispatch correctly from the page-level project menu.
 - **FR-019**: The system MUST let the visible inner frame of a ported group act as the move zone while the remaining visible group body continues to act as a single relationship hookup target when the pointer is not on an explicit port.
+- **FR-020**: The system MUST let visible ICOM ports on groups win relationship hookup over the group body when the pointer is on the port marker or its intended hit area.
+- **FR-021**: The system MUST default `isFollowedBy` and `triggers` relationships to `AvoidsNodes` only when no explicit routing is already set in the relview or typeview.
 
 ### Key Entities
 - **ICOM Marker**: The visible line/strip associated with an input, output, control, or mechanism attachment point.
@@ -66,6 +72,7 @@ A modeller working with IDEF0 diagrams wants ICOM markers, label text, and ortho
 - **Relationship View**: The persisted or runtime view data that determines routing, curve, points, and label placement for a relationship.
 - **Non-ported Group View**: A container-style group rendering without ports that may be created from an object view and later resized.
 - **Ported Group View**: A process or container-style group with explicit ICOM ports and a body surface that must distinguish move-vs-connect hit zones.
+- **Port Hit Area**: The effective interactive area around a visible ICOM marker that should resolve hookup to the explicit port rather than to the enclosing group body.
 
 ## Review & Acceptance Checklist
 

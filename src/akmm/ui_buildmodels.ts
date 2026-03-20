@@ -11,6 +11,14 @@ import * as constants from './constants';
 
 let includeNoType = false;
 
+function getDefaultRoutingForRelshipType(typeName: string | undefined | null, fallback: string) {
+  const normalized = String(typeName || "").trim().toLowerCase();
+  if ((normalized === "isfollowedby" || normalized === "triggers") && (!fallback || fallback === "Normal")) {
+    return "AvoidsNodes";
+  }
+  return fallback || "Normal";
+}
+
 
 export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
   if (debug) console.log('16 metamodel', metamodel);
@@ -589,7 +597,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
-        link.routing = relview.routing || relview.typeview?.routing || "Normal";
+        link.routing = getDefaultRoutingForRelshipType(
+          relview?.name || relview?.relship?.name || relview?.typeview?.name,
+          relview.routing || relview.typeview?.routing || "Normal"
+        );
         if (!showRelshipNames)
           link.name = " ";
         if (includeDeleted || includeNoObject || includeNoType) {

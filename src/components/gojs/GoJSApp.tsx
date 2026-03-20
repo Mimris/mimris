@@ -765,6 +765,14 @@ function getSizeOptionsForType(typeName: string | undefined | null) {
   }
 }
 
+function getDefaultRoutingForRelshipType(typeName: string | undefined | null, fallback: string) {
+  const normalized = String(typeName || "").trim().toLowerCase();
+  if ((normalized === "isfollowedby" || normalized === "triggers") && (!fallback || fallback === "Normal")) {
+    return "AvoidsNodes";
+  }
+  return fallback || "Normal";
+}
+
 interface CenterNodeOptions {
   offset?: { x?: number; y?: number };
   padding?: number;
@@ -1354,7 +1362,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         const rerouteFinalLink = () => {
           const nextLink = myDiagram.findLinkForKey(nextKey);
           if (!nextLink) return;
-          const nextRouting = createdRelview?.routing || createdRelview?.typeview?.routing || "Normal";
+          const nextRouting = getDefaultRoutingForRelshipType(
+            typename,
+            createdRelview?.routing || createdRelview?.typeview?.routing || "Normal"
+          );
           const nextCurve = createdRelview?.curve || createdRelview?.typeview?.linkcurve || "None";
           const nextCorner = createdRelview?.corner ?? createdRelview?.typeview?.corner ?? 10;
           try { myDiagram.clearSelection(); } catch (_) {}

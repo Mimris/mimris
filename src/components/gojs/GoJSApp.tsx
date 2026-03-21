@@ -1267,7 +1267,6 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public componentDidUpdate(prevProps: any) {
-<<<<<<< HEAD
     const nextState: any = {};
     let shouldSyncFromProps = false;
 
@@ -1291,9 +1290,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.setState(nextState);
       return;
     }
-
-=======
->>>>>>> 3625e066b714498fdc4acaa6ae8f88b258999f55
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     const currentDropLayout = this.state?.modelData?.dropLayout;
     const currentSerialized = currentDropLayout ? JSON.stringify(currentDropLayout) : '';
@@ -2129,16 +2125,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-<<<<<<< HEAD
-	        const focusObjectView = myMetis.currentModelview?.focusObjectview;
-	        // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
-	        restoreMetamodelContainsVisibility();
-	        normalizeMetamodelContainsRouting();
-	        if (true) {
-	          for (let i = 0; i < objviews?.length; i++) {
-	            let resetToTypeview = true;
-	            let isGroup = false;
-=======
+        // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
+        restoreMetamodelContainsVisibility();
+        normalizeMetamodelContainsRouting();
         const activeFocusModelviewId = this.props?.phFocus?.focusModelview?.id || "";
         const focusObjectViewId = this.props?.phFocus?.focusObjectview?.id || "";
         const shouldApplyRealSelection = Boolean(activeFocusModelviewId) && activeFocusModelviewId === myModelview?.id;
@@ -2146,7 +2135,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let i = 0; i < objviews?.length; i++) {
             let resetToTypeview = true;
             let isGroup = false;
->>>>>>> 3625e066b714498fdc4acaa6ae8f88b258999f55
             const objview = objviews[i];
             if (objview.isGroup) {
               isGroup = true;

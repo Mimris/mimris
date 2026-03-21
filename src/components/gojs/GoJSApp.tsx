@@ -1161,7 +1161,31 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
   }
 
-  public componentDidUpdate() {
+  public componentDidUpdate(prevProps: any) {
+    const nextState: any = {};
+    let shouldSyncFromProps = false;
+
+    if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
+      nextState.nodeDataArray = this.props.nodeDataArray;
+      shouldSyncFromProps = true;
+    }
+    if (this.props.linkDataArray !== prevProps.linkDataArray) {
+      nextState.linkDataArray = this.props.linkDataArray;
+      shouldSyncFromProps = true;
+    }
+    if (this.props.myMetis !== prevProps.myMetis) {
+      nextState.myMetis = this.props.myMetis;
+      shouldSyncFromProps = true;
+    }
+    if (this.props.phFocus !== prevProps.phFocus) {
+      nextState.phFocus = this.props.phFocus;
+      shouldSyncFromProps = true;
+    }
+    if (shouldSyncFromProps) {
+      this.setState(nextState);
+      return;
+    }
+
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     const currentDropLayout = this.state?.modelData?.dropLayout;
     const currentSerialized = currentDropLayout ? JSON.stringify(currentDropLayout) : '';

@@ -123,6 +123,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     super(props);
     this.myMetis = props.myMetis;
     this.myMetis.modelType = props.modelType;
+    this.myMetis.dispatch = props.dispatch;
     this.diagramRef = React.createRef();
     this.state = {
       // myMetis: props.myMetis,
@@ -178,6 +179,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   public componentDidMount() {
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef?.current?.getDiagram();
+    this.myMetis.dispatch = this.props.dispatch;
     if (diagram instanceof go.Diagram) {
       if (diagram.model?.modelData) {
         (diagram.model.modelData as any)._viewportScale = diagram.scale || 1;
@@ -1430,7 +1432,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    };
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
-    myDiagram.dispatch = this.myMetis?.dispatch;
+    this.myMetis.dispatch = this.props.dispatch;
+    myDiagram.dispatch = this.props.dispatch || this.myMetis?.dispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.selectedOption = this.state.selectedOption;

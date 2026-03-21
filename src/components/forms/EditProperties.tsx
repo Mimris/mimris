@@ -6,7 +6,7 @@
 //@ts-nocheck
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, useStore } from 'react-redux'
 // import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
 import { selectIcons } from './selectIcons'
@@ -18,6 +18,7 @@ const EditProperties = (props) => {
   const debug = false
   if (debug) console.log('19 EditProperties', props);
   const dispatch = useDispatch()
+  const store = useStore()
   let edititem = props.item
   // console.log('27', edititem);
 
@@ -27,19 +28,37 @@ const EditProperties = (props) => {
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
 
-  useEffect((colorvalue) => {
-    setColorvalue(colorvalue)
-  }, [colorvalue]);
+  useEffect(() => {
+    setColorvalue(props.item.fillcolor)
+    setStrokecolorvalue(props.item.strokecolor)
+    setStrokewidthvalue(props.item.strokewidth)
+    setIconvalue(props.item.icon)
+  }, [props.item])
 
   const onSubmit = (e) => { // dispatch the edititem to phData
     // const data = e 
     if (debug) console.log('36 EditProperties', edititem, e, props.item);
     const data = { ...edititem, ...e }
+    if (Object.prototype.hasOwnProperty.call(edititem, 'fillcolor')) data.fillcolor = colorvalue
+    if (Object.prototype.hasOwnProperty.call(edititem, 'strokecolor')) data.strokecolor = strokecolorvalue
+    if (Object.prototype.hasOwnProperty.call(edititem, 'strokewidth')) data.strokewidth = strokewidthvalue
+    if (Object.prototype.hasOwnProperty.call(edititem, 'icon')) data.icon = iconvalue
     if (debug) console.log('38 EditProperties', props, data);
     // props.onInputChange(e)
     // if (data && data.id) {
       // props.handleInputChange(e)
     dispatch({ type: props.type, data })
+    try {
+      const state = store.getState()
+      const persistedState = {
+        phData: state.phData,
+        phFocus: state.phFocus,
+        phUser: state.phUser,
+        phSource: state.phSource,
+      }
+      window?.sessionStorage?.setItem('memorystate', JSON.stringify(persistedState))
+      window?.localStorage?.setItem('memorystate', JSON.stringify(persistedState))
+    } catch (_) {}
     // }
   }
 

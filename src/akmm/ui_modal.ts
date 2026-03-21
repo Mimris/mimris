@@ -118,6 +118,65 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       // Do nothing
     }
   }
+  if (obj.category === constants.gojs.C_OBJECTVIEW) {
+    const objview = myMetis.findObjectView(obj?.id || obj?.key);
+    if (objview) {
+      myItem = objview;
+      const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+      let startedTxn = false;
+      try {
+        if (myDiagram?.startTransaction) {
+          myDiagram.startTransaction('edit-objectview-live');
+          startedTxn = true;
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        myItem[propname] = value;
+      } catch {
+        // Do nothing
+      }
+      const goNode =
+        myMetis.gojsModel?.findNode?.(objview.id) ||
+        myMetis.gojsModel?.findNode?.(objview.key) ||
+        myMetis.currentNode;
+      try {
+        if (goNode) {
+          goNode[propname] = value;
+          if (goNode.data) {
+            if (myDiagram?.model?.setDataProperty) {
+              myDiagram.model.setDataProperty(goNode.data, propname, value);
+            } else {
+              goNode.data[propname] = value;
+            }
+          }
+          try { goNode.updateTargetBindings?.(); } catch {}
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        myDiagram?.updateAllTargetBindings?.(propname);
+        myDiagram?.requestUpdate?.();
+      } catch {
+        // Do nothing
+      }
+      try {
+        const data = safeClone(new jsn.jsnObjectView(objview));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      } catch {
+        // Do nothing
+      }
+      try {
+        if (startedTxn) {
+          myDiagram?.commitTransaction?.('edit-objectview-live');
+        }
+      } catch {
+        // Do nothing
+      }
+    }
+  }
 
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {
@@ -702,6 +761,61 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const modifiedRelships     = new Array();    
   // const modifiedModels       = new Array();    
   const modifiedModelviews   = new Array();    
+
+  const applyObjectviewUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.models || !data?.id) return;
+    for (let mi = 0; mi < root.metis.models.length; mi++) {
+      const model = root.metis.models[mi];
+      const modelviews = model?.modelviews || [];
+      for (let mvi = 0; mvi < modelviews.length; mvi++) {
+        const modelview = modelviews[mvi];
+        const objectviews = modelview?.objectviews || [];
+        for (let ovi = 0; ovi < objectviews.length; ovi++) {
+          const objectview = objectviews[ovi];
+          if (objectview?.id === data.id) {
+            Object.assign(objectview, data);
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  const dispatchUpdate = (action: any) => {
+    try { myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.dispatch?.(action); } catch (_) {}
+    try { props?.dispatch?.(action); } catch (_) {}
+    if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
+      try { applyObjectviewUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        if (rawSession) {
+          const parsedSession = JSON.parse(rawSession);
+          applyObjectviewUpdateById(parsedSession?.phData, action.data);
+          window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+        }
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        if (rawLocal) {
+          const parsedLocal = JSON.parse(rawLocal);
+          applyObjectviewUpdateById(parsedLocal?.phData, action.data);
+          window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+        }
+      } catch (_) {}
+    }
+  }
+
+  const pushPhDataUpdate = (data: any) => {
+    if (!props?.phData?.metis || !data?.id) return;
+    try {
+      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      applyObjectviewUpdateById(phDataClone, data);
+      props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone });
+    } catch (_) {}
+  }
+
   switch(what) {
     case "editObjectType": {
       // To be done !!!
@@ -727,7 +841,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {
         const data = safeClone(mn);
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+        dispatchUpdate({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
       break;
     }
@@ -853,10 +967,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // Dispatch
   const jsnRelship = new jsn.jsnRelationship(relship);
   let dataRel = safeClone(jsnRelship);
-  myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: dataRel })
+  dispatchUpdate({ type: 'UPDATE_RELSHIP_PROPERTIES', data: dataRel })
   const jsnRelview = new jsn.jsnRelshipView(relview);
   let dataRelView = safeClone(jsnRelview);
-  myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: dataRelView })
+  dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: dataRelView })
       break;
     }
     case "editObjectview": {
@@ -871,12 +985,37 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log("editObjectview: missing goNode or objview", selObj);
         break;
       }
+      let startedTxn = false;
+      try {
+        if (myDiagram?.startTransaction) {
+          myDiagram.startTransaction('edit-objectview-close');
+          startedTxn = true;
+        }
+      } catch {
+        // Do nothing
+      }
+      const keepValue = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue !== undefined && nextValue !== null && nextValue !== "") return nextValue;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate !== undefined && candidate !== null && candidate !== "") return candidate;
+        }
+        return nextValue;
+      };
       objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
       objview.figure2 = selObj.figure2;
+      objview.fillcolor = keepValue(selObj.fillcolor, objview.fillcolor, goNode?.fillcolor, goNode?.data?.fillcolor);
+      objview.fillcolor2 = keepValue(selObj.fillcolor2, objview.fillcolor2, goNode?.fillcolor2, goNode?.data?.fillcolor2);
+      objview.strokecolor = keepValue(selObj.strokecolor, objview.strokecolor, goNode?.strokecolor, goNode?.data?.strokecolor);
+      objview.strokecolor2 = keepValue(selObj.strokecolor2, objview.strokecolor2, goNode?.strokecolor2, goNode?.data?.strokecolor2);
+      objview.strokewidth = keepValue(selObj.strokewidth, objview.strokewidth, goNode?.strokewidth, goNode?.data?.strokewidth);
+      objview.textcolor = keepValue(selObj.textcolor, objview.textcolor, goNode?.textcolor, goNode?.data?.textcolor);
+      objview.textcolor2 = keepValue(selObj.textcolor2, objview.textcolor2, goNode?.textcolor2, goNode?.data?.textcolor2);
+      objview.textscale = keepValue(selObj.textscale, objview.textscale, goNode?.textscale, goNode?.data?.textscale);
       objview.groupLayout = selObj.groupLayout;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
@@ -884,15 +1023,85 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
       goNode.figure2 = selObj.figure2;
+      goNode.fillcolor = keepValue(selObj.fillcolor, goNode.fillcolor, objview.fillcolor, goNode?.data?.fillcolor);
+      goNode.fillcolor2 = keepValue(selObj.fillcolor2, goNode.fillcolor2, objview.fillcolor2, goNode?.data?.fillcolor2);
+      goNode.strokecolor = keepValue(selObj.strokecolor, goNode.strokecolor, objview.strokecolor, goNode?.data?.strokecolor);
+      goNode.strokecolor2 = keepValue(selObj.strokecolor2, goNode.strokecolor2, objview.strokecolor2, goNode?.data?.strokecolor2);
+      goNode.strokewidth = keepValue(selObj.strokewidth, goNode.strokewidth, objview.strokewidth, goNode?.data?.strokewidth);
+      goNode.textcolor = keepValue(selObj.textcolor, goNode.textcolor, objview.textcolor, goNode?.data?.textcolor);
+      goNode.textcolor2 = keepValue(selObj.textcolor2, goNode.textcolor2, objview.textcolor2, goNode?.data?.textcolor2);
+      goNode.textscale = keepValue(selObj.textscale, goNode.textscale, objview.textscale, goNode?.data?.textscale);
       goNode.groupLayout = selObj.groupLayout;
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      const diagramNode = myDiagram.findNodeForKey(selObj.key || objview.id || goNode.key);
+      const diagramData = diagramNode?.data || goNode?.data;
+      if (diagramData && myDiagram?.model?.setDataProperty) {
+        try { myDiagram.model.setDataProperty(diagramData, 'objectview', objview); } catch {}
+        try { diagramData.objectview = objview; } catch {}
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor', objview.fillcolor);
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor2', objview.fillcolor2);
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor', objview.strokecolor);
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor2', objview.strokecolor2);
+        myDiagram.model.setDataProperty(diagramData, 'strokewidth', objview.strokewidth);
+        myDiagram.model.setDataProperty(diagramData, 'textcolor', objview.textcolor);
+        myDiagram.model.setDataProperty(diagramData, 'textcolor2', objview.textcolor2);
+        myDiagram.model.setDataProperty(diagramData, 'textscale', objview.textscale);
+        try { uic.setObjviewAttributes(diagramData, myDiagram); } catch {}
+      }
+      const forceNodeVisuals = (part: any, view: any) => {
+        if (!part || !view) return;
+        const shapeNames = ['SHAPE', 'BODY', 'SELECTION_BOX', 'LANE_BODY_SHAPE'];
+        for (let i = 0; i < shapeNames.length; i++) {
+          const shape = part.findObject?.(shapeNames[i]);
+          if (!shape) continue;
+          try {
+            if (view.fillcolor !== undefined) shape.fill = view.fillcolor || 'transparent';
+          } catch {}
+          try {
+            if (view.strokecolor !== undefined && shape.stroke !== undefined) shape.stroke = view.strokecolor || shape.stroke;
+          } catch {}
+          try {
+            if (view.strokewidth !== undefined && shape.strokeWidth !== undefined) shape.strokeWidth = Number(view.strokewidth) || shape.strokeWidth;
+          } catch {}
+        }
+      };
+      forceNodeVisuals(diagramNode, objview);
+      try { diagramNode?.updateTargetBindings?.(); } catch {}
+      try { myDiagram?.updateAllTargetBindings?.('fillcolor'); } catch {}
+      try { myDiagram?.requestUpdate?.(); } catch {}
       myModelview.addObjectView(objview);
+      const persistedObjview = myModelview.findObjectView(objview.id);
+      if (persistedObjview) {
+        persistedObjview.fillcolor = objview.fillcolor;
+        persistedObjview.fillcolor2 = objview.fillcolor2;
+        persistedObjview.strokecolor = objview.strokecolor;
+        persistedObjview.strokecolor2 = objview.strokecolor2;
+        persistedObjview.strokewidth = objview.strokewidth;
+        persistedObjview.textcolor = objview.textcolor;
+        persistedObjview.textcolor2 = objview.textcolor2;
+        persistedObjview.textscale = objview.textscale;
+      }
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
   let data = safeClone(jsnObjview);
-  myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  console.warn('[OBJVIEW_SAVE]', { id: data?.id, fillcolor: data?.fillcolor, fillcolor2: data?.fillcolor2, strokecolor: data?.strokecolor, name: data?.name });
+  dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  pushPhDataUpdate(data)
+      try {
+        props?.dispatch?.({
+          type: 'SET_FOCUS_REFRESH',
+          data: { id: Math.random().toString(36).substring(7), name: 'editObjectview' }
+        });
+      } catch (_) {}
+      try {
+        if (startedTxn) {
+          myDiagram?.commitTransaction?.('edit-objectview-close');
+        }
+      } catch {
+        // Do nothing
+      }
       const modifiedModelviews = new Array();
       
       // const jsnModelview = new jsn.jsnModelView(myModelview);

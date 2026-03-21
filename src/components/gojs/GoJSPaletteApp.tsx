@@ -19,6 +19,21 @@ import { Button } from '../ui/button';
 
 const debug = false;
 
+function normalizePaletteNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
+  return nodeDataArray.map((node) => {
+    if (!node || typeof node !== 'object') return node;
+    const category = node.category || node.template || 'textAndIcon';
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
+      return node;
+    }
+    return {
+      ...node,
+      category,
+    };
+  });
+}
+
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
@@ -55,9 +70,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     super(props);
     if (debug) console.log('47 GoJSPaletteApp', this.props.nodeDataArray, this.props);
     this.state = {
-      nodeDataArray: this.props?.nodeDataArray,
+      nodeDataArray: normalizePaletteNodeCategoryData(this.props?.nodeDataArray),
       linkDataArray: this.props?.linkDataArray,
-      fullNodeDataArray: this.props?.nodeDataArray,
+      fullNodeDataArray: normalizePaletteNodeCategoryData(this.props?.nodeDataArray),
       fullLinkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: false
@@ -167,7 +182,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     const linksChanged = prevProps.linkDataArray !== this.props.linkDataArray;
 
     if (nodesChanged || linksChanged) {
-      const nextNodes = nodesChanged ? (this.props.nodeDataArray ?? []) : this.state.nodeDataArray;
+      const nextNodes = nodesChanged ? normalizePaletteNodeCategoryData(this.props.nodeDataArray ?? []) : this.state.nodeDataArray;
       const nextLinks = linksChanged ? (this.props.linkDataArray ?? []) : this.state.linkDataArray;
 
       this.setState({

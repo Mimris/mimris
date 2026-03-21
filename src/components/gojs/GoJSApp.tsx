@@ -27,6 +27,27 @@ const debugPorts = true;
 const linkToLink = false;
 const NESTED_GROUP_SIZE_RATIO = 0.35;
 
+function installSafeNodeCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
+  const original = proto.setCategoryForNodeData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForNodeData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : constants.gojs.C_NODETEMPLATE));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeNodeCategoryGuardInstalled = true;
+}
+
+installSafeNodeCategoryGuard();
+
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
   const data: any = part.data || {};
@@ -1066,13 +1087,28 @@ interface AppState {
   connectedObjectsContext: any;
 }
 
+function normalizeNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
+  return nodeDataArray.map((node) => {
+    if (!node || typeof node !== 'object') return node;
+    const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
+      return node;
+    }
+    return {
+      ...node,
+      category,
+    };
+  });
+}
+
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
     if (debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
     const initialDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     this.state = {
-      nodeDataArray: this.props?.nodeDataArray,
+      nodeDataArray: normalizeNodeCategoryData(this.props?.nodeDataArray),
       linkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: true,
@@ -1271,7 +1307,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     let shouldSyncFromProps = false;
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
-      nextState.nodeDataArray = this.props.nodeDataArray;
+      nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
       shouldSyncFromProps = true;
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {

@@ -56,6 +56,42 @@ import { i } from '../../utils/SvgLetters';
 const linkToLink = false;
 const AllowTopLevel = true;
 
+function installSafeNodeCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
+  const original = proto.setCategoryForNodeData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForNodeData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : constants.gojs.C_NODETEMPLATE));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeNodeCategoryGuardInstalled = true;
+}
+
+installSafeNodeCategoryGuard();
+
+function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
+  return nodeDataArray.map((node) => {
+    if (!node || typeof node !== 'object') return node;
+    const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
+      return node;
+    }
+    return {
+      ...node,
+      category,
+    };
+  });
+}
+
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
@@ -11922,11 +11958,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // console.log('4157 Diagram render: ', this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
     return (
       <div>
+        {(() => {
+          const normalizedNodeDataArray = normalizeDiagramNodeCategoryData(this.props.nodeDataArray);
+          return (
         <ReactDiagram
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
-          nodeDataArray={this.props.nodeDataArray}
+          nodeDataArray={normalizedNodeDataArray}
           linkDataArray={this.props.linkDataArray}
           modelData={this.props.modelData}
           // myMetis={this.props.myMetis}
@@ -11936,6 +11975,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           style={this.props.diagramStyle}
         // exportToSvg={this.props.exportToSvg}
         />
+          );
+        })()}
         {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 
         <Modal isOpen={this.state.showModal}  >

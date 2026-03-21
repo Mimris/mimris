@@ -1347,11 +1347,15 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleOpenModal = (node: any, modalContext: any) => {
+    const isRelationshipTypeChooser =
+      modalContext?.what === 'selectDropdown' &&
+      modalContext?.case === 'Create Relationship';
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: true
+      showModal: true,
+      skipsDiagramUpdate: isRelationshipTypeChooser ? true : this.state.skipsDiagramUpdate
     });
     if (debug) console.log('90 node', this.state.selectedData);
   }
@@ -1381,7 +1385,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const data = gjsLink.data;
     if (e === 'x') {
       myDiagram.remove(gjsLink);
-      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
       return;
     }
     const props = this.props;
@@ -1448,7 +1452,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       try { myDiagram.layoutDiagram(true); } catch (_) {}
       try { myDiagram.requestUpdate(); } catch (_) {}
     } catch (_) {}
-    this.setState({ showModal: false, selectedData: null, modalContext: null });
+    this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
   }
 
   /**

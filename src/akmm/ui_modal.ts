@@ -213,6 +213,43 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       if (myItem) 
           myItem[propname] = value;
   }
+  if (obj.category === constants.gojs.C_RELSHIPVIEW) {
+      const relview = myMetis.findRelationshipView(obj?.id || obj?.key);
+      if (relview) {
+          myItem = relview;
+          try {
+              myItem[propname] = value;
+          } catch {
+              // Do nothing
+          }
+          const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+          const goLink =
+              myMetis.gojsModel?.findLinkByViewId?.(relview.id) ||
+              myMetis.gojsModel?.findLink?.(relview.id) ||
+              myMetis.currentLink;
+          try {
+              if (goLink) {
+                  goLink[propname] = value;
+                  if (goLink.data) {
+                      if (myDiagram?.model?.setDataProperty) {
+                          myDiagram.model.setDataProperty(goLink.data, propname, value);
+                      } else {
+                          goLink.data[propname] = value;
+                      }
+                  }
+                  try { goLink.updateTargetBindings?.(); } catch {}
+              }
+          } catch {
+              // Do nothing
+          }
+          try {
+              const data = safeClone(new jsn.jsnRelshipView(relview));
+              myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+          } catch {
+              // Do nothing
+          }
+      }
+  }
 }
 
 export function handleSelectDropdownChange(selected, context) {
@@ -225,6 +262,12 @@ export function handleSelectDropdownChange(selected, context) {
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
+  const dispatchUpdate = (action: any) => {
+    try { myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.dispatch?.(action); } catch (_) {}
+    try { context?.dispatch?.(action); } catch (_) {}
+  };
   const selectedOption = selected.value;
   const objectview = modalContext.objectview;
   switch(modalContext.case) {
@@ -711,7 +754,7 @@ export function handleSelectDropdownChange(selected, context) {
           modifiedLinkTypeViews.push(jsnTypeView);
           modifiedLinkTypeViews?.map(mn => {
             const data = safeClone(mn);
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+            dispatchUpdate({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
       }
@@ -1433,8 +1476,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnRelview = new jsn.jsnRelshipView(relview);
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
-        let data = mn;
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        const data = safeClone(mn);
+        dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       });    
       break;
     }

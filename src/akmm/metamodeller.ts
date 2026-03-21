@@ -9838,7 +9838,7 @@ export class cxObjectView extends cxMetaObject {
         this.template2 = "";
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
-        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
         if (true) {
@@ -10181,13 +10181,13 @@ export class cxObjectView extends cxMetaObject {
     }
     setMemberscale(memberscale: number) {
         if (memberscale == undefined || memberscale == null)
-            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.memberscale = memberscale;
     }
     getMemberscale(): number {
         const memberscale = this.memberscale;
         if (memberscale == undefined || memberscale == "" || memberscale == null)
-            return this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            return this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         return this.memberscale;
     }
     setArrowscale(arrowscale: number) {

@@ -11,6 +11,14 @@ import * as constants from './constants';
 
 let includeNoType = false;
 
+function getDefaultRoutingForRelshipType(typeName: string | undefined | null, fallback: string) {
+  const normalized = String(typeName || "").trim().toLowerCase();
+  if ((normalized === "isfollowedby" || normalized === "triggers") && (!fallback || fallback === "Normal")) {
+    return "AvoidsNodes";
+  }
+  return fallback || "Normal";
+}
+
 
 export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
   if (debug) console.log('16 metamodel', metamodel);
@@ -324,7 +332,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   let objviews = modelview?.getObjectViews() as akm.cxObjectView[];
   if (debug) console.log('232 objviews', objviews);
   if (objviews) {
-    const focusObjview = modelview?.focusObjectview;
+    const focusObjview = (metis?.currentModelview?.id === modelview?.id)
+      ? modelview?.focusObjectview
+      : null;
     for (let i = 0; i < objviews.length; i++) {
       let includeObjview = false;
       let objview = objviews[i] as akm.cxObjectView;
@@ -587,7 +597,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
-        link.routing = relview.routing ? relview.routing : "Orthogonal";
+        link.routing = getDefaultRoutingForRelshipType(
+          relview?.name || relview?.relship?.name || relview?.typeview?.name,
+          relview.routing || relview.typeview?.routing || "Normal"
+        );
         if (!showRelshipNames)
           link.name = " ";
         if (includeDeleted || includeNoObject || includeNoType) {

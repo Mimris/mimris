@@ -261,6 +261,7 @@ const Page1 = (props: any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             <ProjectMenuBar {...props}
+              dispatch={dispatch}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               refresh={refresh} setRefresh={setRefresh}

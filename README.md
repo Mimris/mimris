@@ -20,6 +20,7 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Authors](#authors)
   - [Tech Stack](#tech-stack)
   - [Features](#features)
+  - [Spec Workflow](#spec-workflow)
   - [Quick Start �](#quick-start-)
   - [Installation](#installation)
     - [Prerequisites](#prerequisites)
@@ -33,6 +34,10 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
   - [📚 Documentation](#-documentation)
+- [\<\<\<\<\<\<\< ours](#-ours)
+    - [Enable GitHub Pages](#enable-github-pages)
+    - [Ensure the default branch is `main`](#ensure-the-default-branch-is-main)
+    - [Preview locally](#preview-locally)
   - [Contributing 🤝](#contributing-)
   - [License](#license)
 - [Mimris](#mimris)
@@ -114,6 +119,15 @@ Below is shown an example model built using a template generated from the metamo
   - Generated API types from OpenAPI spe
 - Customizable templates & components
 - Web based Cross-platform support (Windows/Linux/macOS)
+
+## Spec Workflow
+
+Mimris now uses a spec-kit workspace under [`.specify/`](/Users/snorrefossland/GitHub/mimris/.specify) for new active feature work.
+
+- Use `.specify/memory/constitution.md` for project-wide engineering rules.
+- Use `.specify/specs/` for active feature specifications, plans, and tasks.
+- Use `docs/` for stable architecture, ADRs, and reference material.
+- Treat `docs/_specs/` as legacy/reference documentation rather than the default place for new feature specs.
 
 ## Quick Start �
 
@@ -386,4 +400,3 @@ There are two main code parts:
  The code also includes functions for setting and updating the focus of the application, refreshing the objects, and handling the state of the application. Overall, the code is used to manage the state and behavior of the modeling application.
 
 AKM client is a collection of functions and components written in TypeScript and React for a modeling application. The functions and components are responsible for handling various tasks such as updating the properties of objects and relationships, handling events on the diagram, toggling tasks, dispatching data to the store, and loading data from local storage. The code also includes functions for setting and updating the focus of the application, refreshing the objects, and handling the state of the application. Overall, the code is used to manage the state and behavior of the modeling application.
-

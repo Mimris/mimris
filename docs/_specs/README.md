@@ -11,4 +11,10 @@ Formal technical specifications and architectural documentation for the project.
 
 ## Purpose
 
-This folder contains the authoritative technical specifications that define system components, data models, file formats, and architectural patterns. These documents provide the foundation for implementation decisions.
+This folder contains legacy and reference technical specifications that define system components, data models, file formats, and architectural patterns.
+
+## Status
+
+- `docs/_specs/` remains useful as stable reference material.
+- New active feature work should be captured under `.specify/specs/`.
+- When a legacy spec area is actively changed, prefer creating or updating a corresponding spec-kit feature instead of extending the legacy spec alone.

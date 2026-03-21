@@ -86,6 +86,77 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   }
 
+  public componentDidMount() {
+    this.syncFocusPeerState(this.props?.phFocus?.focusObject?.id || '');
+  }
+
+  private syncFocusPeerState = (focusObjectId: string) => {
+    const isObjectsPalette = this.props?.divClassName === 'diagram-component-objects';
+    const focusTypeId = String(
+      this.props?.phFocus?.focusObject?.type?.id ||
+      this.props?.phFocus?.focusObject?.typeRef ||
+      this.props?.phFocus?.focusObjecttype?.id ||
+      ''
+    );
+    const targetFocusId = isObjectsPalette ? String(focusObjectId) : focusTypeId;
+    const getNodeFocusId = (node: any) => isObjectsPalette
+      ? String(
+          node?.object?.id ||
+          node?.objRef ||
+          node?.objectRef ||
+          node?.objectview?.object?.id ||
+          node?.objectview?.objectRef ||
+          ''
+        )
+      : String(
+          node?.objecttype?.id ||
+          node?.objtypeRef ||
+          node?.typeRef ||
+          node?.key ||
+          ''
+        );
+    const syncArray = (arr?: Array<go.ObjectData>) => {
+      const source = arr ?? [];
+      let changed = false;
+      const next = source.map((node: any) => {
+        const isFocusPeer = Boolean(targetFocusId) && getNodeFocusId(node) === targetFocusId;
+        if (Boolean(node?.isFocusPeer) === isFocusPeer) {
+          return node;
+        }
+        changed = true;
+        return {
+          ...node,
+          isFocusPeer
+        };
+      });
+      return { next, changed };
+    };
+
+    const syncedNodes = syncArray(this.state.nodeDataArray);
+    const syncedFullNodes = syncArray(this.state.fullNodeDataArray);
+    if (!syncedNodes.changed && !syncedFullNodes.changed) {
+      return;
+    }
+    this.setState({
+      nodeDataArray: syncedNodes.next,
+      fullNodeDataArray: syncedFullNodes.next,
+      skipsDiagramUpdate: false,
+    }, () => {
+      const palette = (this as any)?.diagramRef?.current?.getDiagram?.();
+      if (!(palette instanceof go.Diagram)) {
+        return;
+      }
+      for (let it = palette.nodes.iterator; it?.next();) {
+        const part = it.value as go.Node;
+        const nodeFocusId = getNodeFocusId(part?.data);
+        const isFocusPeer = Boolean(targetFocusId) && nodeFocusId === targetFocusId;
+        try { part.data.isFocusPeer = isFocusPeer; } catch (_) { }
+        try { part.updateTargetBindings(); } catch (_) { }
+      }
+      try { palette.requestUpdate(); } catch (_) { }
+    });
+  };
+
   public componentDidUpdate(prevProps: any) {
     const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
     if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
@@ -109,6 +180,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       }, () => {
         if (nodesChanged) this.refreshNodeIndex(nextNodes);
         if (linksChanged) this.refreshLinkIndex(nextLinks);
+        this.syncFocusPeerState(this.props?.phFocus?.focusObject?.id || '');
       });
     }
 
@@ -117,6 +189,12 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     if (resetToken !== undefined && resetToken !== prevResetToken) {
       this.handleResetPaletteFilter();
       this.lastResetToken = resetToken;
+    }
+
+    const focusObjectId = this.props?.phFocus?.focusObject?.id || '';
+    const prevFocusObjectId = prevProps?.phFocus?.focusObject?.id || '';
+    if (focusObjectId !== prevFocusObjectId) {
+      this.syncFocusPeerState(focusObjectId);
     }
   }
 
@@ -153,39 +231,30 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       return;
     }
 
+    const objectId =
+      nodeData?.object?.id ||
+      nodeData?.objRef ||
+      nodeData?.objectRef ||
+      nodeData?.objectview?.object?.id ||
+      nodeData?.objectview?.objectRef ||
+      '';
     let object = nodeData.object;
+    if (objectId) {
+      const foundObject = myMetis.findObject(objectId);
+      object = foundObject ? foundObject : object;
+    }
     if (!object) {
       return;
     }
-    const foundObject = myMetis.findObject(object?.id);
-    object = foundObject ? foundObject : object;
 
     if (object) {
       const jsnObj = new jsn.jsnObject(object);
       const focusData = { id: jsnObj.id, name: jsnObj.name };
+      const objtype = object?.type || myMetis.findObjectType(object?.typeRef);
+      const focusTypeData = objtype ? { id: objtype.id, name: objtype.name } : { id: '', name: '' };
       this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECT', data: focusData });
-    }
-
-    const myModelview = myMetis.currentModelview;
-    let dataov = { id: '', name: '' };
-    const objview = myModelview?.objectviews?.filter(ov => ov.object?.id === object?.id);
-    if (objview && objview[0]?.id) {
-      dataov = { id: objview[0]?.id, name: objview[0]?.name };
-    }
-    this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECTVIEW', data: dataov });
-
-    const nodes = diagram?.nodes;
-    this.suppressSelectionChange = true;
-    try {
-      for (let it = nodes?.iterator; it?.next();) {
-        const candidateNode = it.value as go.Node;
-        const nodeObject = candidateNode?.data?.object;
-        if (nodeObject?.id === object?.id) {
-          candidateNode.isSelected = true;
-        }
-      }
-    } finally {
-      this.suppressSelectionChange = false;
+      this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECTTYPE', data: focusTypeData });
+      this.props?.dispatch?.({ type: 'SET_FOCUS_OBJECTVIEW', data: { id: '', name: '' } });
     }
   };
 
@@ -601,7 +670,10 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         <PaletteWrapper
           divClassName={this.props?.divClassName || 'diagram-component-palette'}
           nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
+          linkDataArray={(this.state.linkDataArray || []).map((link: any) => ({
+            ...link,
+            category: typeof link?.category === 'string' ? link.category : ''
+          }))}
           modelData={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent={this.handleDiagramEvent}
@@ -609,6 +681,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           diagramStyle={this.state.diagramStyle}
           noOfCols={this.state.noOfCols}
           onNodeContextMenu={this.handleSelectConnected}
+          phFocus={this.props?.phFocus}
 
         />
         {/* <label>

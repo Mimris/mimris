@@ -138,6 +138,11 @@ export function getCurve(c: string): any {
     }   
 }
 
+function shouldPersistLinkPoints(data: any): boolean {
+    const routing = data?.routing;
+    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
 export function getGatewayType(t: string): any {
     switch(t) {
     case 'Inclusive':
@@ -4523,7 +4528,11 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                     return getCurve(c);
                 }
             ),
-            new go.Binding("points").makeTwoWay(),
+            new go.Binding("points", "", function(d) {
+                return shouldPersistLinkPoints(d) ? d?.points : null;
+            }).makeTwoWay(function(points, data) {
+                return shouldPersistLinkPoints(data) ? points : undefined;
+            }),
             { contextMenu: contextMenu },
             // link shape
             $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
@@ -4771,18 +4780,30 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
 	        $(go.Link,
 	        {
 	          contextMenu: contextMenu,
-	          routing: go.Link.AvoidsNodes,
+	          routing: go.Link.Orthogonal,
 	          corner: 10,
           // fromSpot: go.Spot.RightSide, 
           // toSpot: go.Spot.LeftSide,
           // toSpot: go.Spot.BottomSide,
-          reshapable: true,
-          relinkableFrom: true,
+	          reshapable: true,
+          resegmentable: true,
+	          relinkableFrom: true,
 	          relinkableTo: true,
+          adjusting: go.Link.Stretch,
 	          toEndSegmentLength: 0,
 	        },
 	        new go.Binding("visible", "", linkShouldBeVisible),
-	        new go.Binding('points').makeTwoWay(),
+	        new go.Binding("routing", "routing", function(r) {
+	          return getRouting(r);
+	        }),
+	        new go.Binding("curve", "curve", function(c) {
+	          return getCurve(c);
+	        }),
+	        new go.Binding("points", "", function(d) {
+	          return shouldPersistLinkPoints(d) ? d?.points : null;
+	        }).makeTwoWay(function(points, data) {
+	          return shouldPersistLinkPoints(data) ? points : undefined;
+	        }),
 	        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
 	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
         $(go.Shape,

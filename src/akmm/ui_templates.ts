@@ -3949,9 +3949,18 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             $(go.Panel, 'Auto',  // make an area around text for move cursor
                 $(go.Shape, 'Rectangle',  // area around the text
                     {
-                        fill: 'transparent', stroke: null, strokeWidth: 1,
-                        cursor: 'move',
-                        desiredSize: new go.Size(140, 60),
+                        cursor: 'alias',
+                        name: 'SHAPE',
+                        fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
+                        stroke: '#CDAA7D',
+                        strokeWidth: 3,
+                        parameter1: 10, // corner size
+                        portId: 'activityPort',  // the main port
+                        fromLinkable: true,
+                        fromSpot: go.Spot.RightSide, 
+                        toSpot: go.Spot.LeftSide,
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
                     },
                 ),
             ),

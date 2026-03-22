@@ -2423,173 +2423,148 @@ export function onClipboardPasted(selection: any, context: any) {
 }
 
 // Functions handling nodes and groups
+// export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string, nod: gjs.goObjectNode): gjs.goObjectNode | null {
+//     if (!loc) return;
+//     const nodeLoc = loc?.split(" ");
+//     const nx = parseInt(nodeLoc[0]);
+//     const ny = parseInt(nodeLoc[1]);
+//     const nodeSize = siz?.split(" ");
+//     const nw = parseInt(nodeSize[0]);
+//     const nh = parseInt(nodeSize[1]);
+//     const myNode = nod;
+//     let nodes = model.nodes;
+//     let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
+//     nodes = uniqueSet;
+//     if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
+//     // Go through all the groups
+//     let groups = new Array();
+//     for (let i = 0; i < nodes?.length; i++) {
+//         const node = nodes[i] as gjs.goObjectNode;
+//         if (debug) console.log('798 node', node);
+//         if (node.key === nod?.key) continue;
+//         if (node.isGroup) {
+//             let nodeScale = 1.0;
+//             let grpScale = 1.0;
+//             const myGroup = node;
+//             const grpLoc = myGroup.loc?.split(" ");
+//             const grpSize = myGroup.size?.split(" ");
+//             if (!grpLoc) return;
+//             const gx = parseInt(grpLoc[0]);
+//             const gy = parseInt(grpLoc[1]);
+//             const gw = parseInt(grpSize[0]);
+//             const gh = parseInt(grpSize[1]);
+//             if (
+//                 (nx > gx) // Check upper left corner of node
+//                 &&
+//                 (nx + nw * nodeScale <= gx + gw * grpScale) // Check upper right corner of node
+//                 &&
+//                 (ny > gy) // Check lower left corner of node
+//                 &&
+//                 (ny + nh * nodeScale <= gy + gh * grpScale) // Check lower right corner of node
+//             ) {
+//                 let grp = {
+//                     "name": node.name,
+//                     "groupId": node.key,
+//                     "group": node,
+//                     "size": gw * grpScale * gh * grpScale,
+//                 };
+//                 groups.push(grp);
+//             }
+//         }
+//     }
+//     uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
+//     groups = uniqueSet;
+
+//     groups.sort(function (a, b) {
+//         return a.size - b.size;
+//     });
+
+//     if (groups.length > 0) {
+//         const grp = groups[0];
+//         const group = model.findNode(grp.groupId);
+//         if (group) {
+//             return group;
+//         }
+//     } else {
+//         return null;
+//     }
+// }
+
 export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string, nod: gjs.goObjectNode): gjs.goObjectNode | null {
-    if (!loc) return;
-    const usesTopLeftLocation = (node: any): boolean => {
-        const category = String(node?.category || node?.data?.category || "");
-        const template = String(node?.template || node?.data?.template || "");
-        return (
-            category === "Pool" ||
-            category === "Lane" ||
-            category === "Lane_w_handles" ||
-            template === "Pool" ||
-            template === "Lane" ||
-            template === "Lane_w_handles"
-        );
-    };
-    const getRectFromLocation = (x: number, y: number, width: number, height: number, topLeft: boolean) => {
-        if (topLeft) {
-            return {
-                left: x,
-                top: y,
-                right: x + width,
-                bottom: y + height,
-            };
-        }
-        return {
-            left: x - width / 2,
-            top: y - height / 2,
-            right: x + width / 2,
-            bottom: y + height / 2,
-        };
-    };
-    const nodeLoc = loc?.split(" ");
-    const nx = parseFloat(nodeLoc[0]);
-    const ny = parseFloat(nodeLoc[1]);
-    const nodeSize = siz?.split(" ");
-    const nw = parseFloat(nodeSize[0]);
-    const nh = parseFloat(nodeSize[1]);
-    const myNode = nod;
-    let nodes = model.nodes;
-    let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
-    nodes = uniqueSet;
-    if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
-    const nodeScale =
-        typeof nod?.getActualScale === 'function'
-            ? Math.max(0.01, Number(nod.getActualScale(model)) || 1)
-            : Math.max(0.01, Number(nod?.scale) || 1);
-    const childWidth = nw * nodeScale;
-    const childHeight = nh * nodeScale;
-    const childRect = getRectFromLocation(nx, ny, childWidth, childHeight, usesTopLeftLocation(nod));
-    const childLeft = childRect.left;
-    const childTop = childRect.top;
-    const childRight = childRect.right;
-    const childBottom = childRect.bottom;
-    const childCenterX = (childLeft + childRight) / 2;
-    const childCenterY = (childTop + childBottom) / 2;
-    const childArea = Math.max(1, childWidth * childHeight);
-    // Go through all the groups
-    let groups = new Array();
-    for (let i = 0; i < nodes?.length; i++) {
-        const node = nodes[i] as gjs.goObjectNode;
-        if (debug) console.log('798 node', node);
-        if (node.key === nod?.key) continue;
-        if (node.isGroup) {
-            let grpScale =
-                typeof node?.getActualScale === 'function'
-                    ? Math.max(0.01, Number(node.getActualScale(model)) || 1)
-                    : Math.max(0.01, Number(node?.scale) || 1);
-            const myGroup = node;
-            const grpLoc = myGroup.loc?.split(" ");
-            const grpSize = myGroup.size?.split(" ");
-            if (!grpLoc) return;
-            const gx = parseInt(grpLoc[0]);
-            const gy = parseInt(grpLoc[1]);
-            const gw = parseInt(grpSize[0]);
-            const gh = parseInt(grpSize[1]);
-            const groupRect = getRectFromLocation(gx, gy, gw * grpScale, gh * grpScale, usesTopLeftLocation(node));
-            const groupLeft = groupRect.left;
-            const groupTop = groupRect.top;
-            const groupRight = groupRect.right;
-            const groupBottom = groupRect.bottom;
-            // Primary strict containment check (all corners inside)
-            if (
-                (childLeft > groupLeft) // upper left x
-                && (childRight <= groupRight) // upper right x
-                && (childTop > groupTop) // upper left y
-                && (childBottom <= groupBottom) // lower right y
-            ) {
-                groups.push({
-                    "name": node.name,
-                    "groupId": node.key,
-                    "group": node,
-                    "size": gw * grpScale * gh * grpScale,
-                });
-                continue;
-            }
-            // For dragged groups, use visual containment instead of upper-left anchor.
-            // This matches what the user sees after the final drop scale is applied.
-            if (nod?.isGroup) {
-                const centerInside =
-                    childCenterX > groupLeft &&
-                    childCenterX < groupRight &&
-                    childCenterY > groupTop &&
-                    childCenterY < groupBottom;
-                const overlapLeft = Math.max(childLeft, groupLeft);
-                const overlapTop = Math.max(childTop, groupTop);
-                const overlapRight = Math.min(childRight, groupRight);
-                const overlapBottom = Math.min(childBottom, groupBottom);
-                const overlapWidth = Math.max(0, overlapRight - overlapLeft);
-                const overlapHeight = Math.max(0, overlapBottom - overlapTop);
-                const overlapArea = overlapWidth * overlapHeight;
-                const overlapRatio = overlapArea / childArea;
-                if (centerInside || overlapRatio >= 0.45) {
-                    groups.push({
-                        "name": node.name,
-                        "groupId": node.key,
-                        "group": node,
-                        "size": gw * grpScale * gh * grpScale,
-                    });
-                }
-                continue;
-            }
-            // Non-group members can still use the simpler point-inside fallback.
-            if (childCenterX > groupLeft && childCenterX < groupRight && childCenterY > groupTop && childCenterY < groupBottom) {
-                groups.push({
-                    "name": node.name,
-                    "groupId": node.key,
-                    "group": node,
-                    "size": gw * grpScale * gh * grpScale,
-                });
-            }
-        }
-    }
-    uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
-    groups = uniqueSet;
+    // Return null early on invalid input
+    if (!loc || !siz || !model || !nod) return null;
 
-    groups.sort(function (a, b) {
-        return a.size - b.size;
-    });
+    const nodeLocParts = (loc || "").trim().split(/\s+/);
+    const nx = parseFloat(nodeLocParts[0]);
+    const ny = parseFloat(nodeLocParts[1]);
+    const nodeSizeParts = (siz || "").trim().split(/\s+/);
+    const nw = parseFloat(nodeSizeParts[0]);
+    const nh = parseFloat(nodeSizeParts[1]);
 
-    if (groups.length > 0) {
-        const grp = groups[0];
-        const group = model.findNode(grp.groupId);
-        if (group) {
-            return group;
+    if (isNaN(nx) || isNaN(ny) || isNaN(nw) || isNaN(nh)) return null;
+
+    // Deduplicate nodes by key
+    let nodes = model.nodes || [];
+    nodes = utils.removeArrayDuplicatesById(nodes, "key") || [];
+
+    // Node scale (if node already has a scale)
+    const nodeScale = (typeof nod?.scale === 'number' && !isNaN(nod.scale)) ? nod.scale : 1.0;
+
+    // Collect candidate groups that fully contain the node rectangle
+    const groups: { groupId: string; group: gjs.goObjectNode; area: number }[] = [];
+
+    for (let i = 0; i < nodes.length; i++) {
+        const candidate = nodes[i] as gjs.goObjectNode;
+        if (!candidate) continue;
+        if (candidate.key === nod?.key) continue;
+        if (!candidate.isGroup) continue;
+
+        const grpLocParts = (candidate.loc || "").trim().split(/\s+/);
+        const grpSizeParts = (candidate.size || "").trim().split(/\s+/);
+        if (grpLocParts.length < 2 || grpSizeParts.length < 2) continue;
+
+        const gx = parseFloat(grpLocParts[0]);
+        const gy = parseFloat(grpLocParts[1]);
+        const gw = parseFloat(grpSizeParts[0]);
+        const gh = parseFloat(grpSizeParts[1]);
+
+        if ([gx, gy, gw, gh].some(v => isNaN(v))) continue;
+
+        // consider group's scale and memberscale (if present)
+        const grpScaleVal = (typeof candidate.scale === 'number' && !isNaN(candidate.scale)) ? candidate.scale : 1.0;
+        const memberscaleVal = (typeof candidate.memberscale === 'number' && !isNaN(candidate.memberscale)) ? candidate.memberscale : 1.0;
+        const grpScale = grpScaleVal * memberscaleVal;
+
+        // containment test (inclusive)
+        const nodeLeft = nx;
+        const nodeRight = nx + (nw * nodeScale);
+        const nodeTop = ny;
+        const nodeBottom = ny + (nh * nodeScale);
+
+        const grpLeft = gx;
+        const grpRight = gx + (gw * grpScale);
+        const grpTop = gy;
+        const grpBottom = gy + (gh * grpScale);
+
+        if (nodeLeft >= grpLeft && nodeRight <= grpRight && nodeTop >= grpTop && nodeBottom <= grpBottom) {
+            // compute effective area in absolute coordinates to compare groups
+            const effectiveW = gw * grpScale;
+            const effectiveH = gh * grpScale;
+            const area = effectiveW * effectiveH;
+            groups.push({ groupId: candidate.key, group: candidate, area });
         }
     }
-    // Fallback: if no fit found (e.g., oversized dropped group), try center-point inclusion
-    if ((!groups || groups.length === 0) && nod?.isGroup) {
-        const cx = childCenterX;
-        const cy = childCenterY;
-        for (let i = 0; i < nodes?.length; i++) {
-            const node = nodes[i] as gjs.goObjectNode;
-            if (!node?.isGroup || node.key === nod?.key) continue;
-            const grpLoc = node.loc?.split(" ");
-            const grpSize = node.size?.split(" ");
-            if (!grpLoc) continue;
-            const gx = parseInt(grpLoc[0]);
-            const gy = parseInt(grpLoc[1]);
-            const gw = parseInt(grpSize[0]);
-            const gh = parseInt(grpSize[1]);
-            const groupRect = getRectFromLocation(gx, gy, gw, gh, usesTopLeftLocation(node));
-            if (cx > groupRect.left && cx < groupRect.right && cy > groupRect.top && cy < groupRect.bottom) {
-                return model.findNode(node.key);
-            }
-        }
-    }
-    return null;
+
+    if (groups.length === 0) return null;
+
+    // pick the smallest containing group (by area)
+    groups.sort((a, b) => a.area - b.area);
+    const chosen = groups[0];
+    const groupNode = model.findNode(chosen.groupId);
+    return groupNode || null;
 }
+
+
 
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
     const myMetis = context.myMetis;
@@ -2630,36 +2605,6 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
                     }
                 }
             }
-        }
-    }
-}
-
-export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
-    const myModel = context.myModel;
-    if (!groupNode) {
-        let nodeObj = node.object;
-        if (nodeObj) {
-            let nodeObjview = node.objectview;
-            if (nodeObjview) {
-                nodeObjview.setGroup("");
-                let rels = nodeObj.getInputRelships(myModel, constants.relkinds.COMP);
-                if (rels) {
-                    for (let i = 0; i < rels.length; i++) {
-                        let rel = rels[i];
-                        if (rel) {
-                            let fromObj = rel.getFromObject();
-                            if (fromObj.getType().getViewKind() === constants.viewkinds.CONT) {
-                                rel.setModified();
-                                rel.setMarkedAsDeleted(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[]): gjs.goObjectNode[] {
     const nodes = new Array();
     const groupId = groupNode.objviewRef;
@@ -2721,7 +2666,6 @@ export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, m
             if (nodeloc) {
                 let loc = nodeloc.x + " " + nodeloc.y;
                 n.loc = loc;
-                n.scale = toScale;
 
                 const nod = myGoModel.findNodeByViewId(n.objectview.id);
                 if (nod) {

@@ -1566,6 +1566,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });
       if (gjsLink && relview) {         
         const data = gjsLink.data;
+        const previousRouting = keepValue(gjsLink?.data?.routing, relview?.routing, reltypeview?.data?.routing, "Normal");
+        const previousCurve = keepValue(gjsLink?.data?.curve, relview?.curve, reltypeview?.data?.curve, "None");
         const relviewProps = [
           'template',
           'template2',
@@ -1619,6 +1621,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, prop, nextValue);
           }
         });
+        const nextRouting = keepValue(relview?.routing, data?.routing, reltypeview?.data?.routing, "Normal");
+        const nextCurve = keepValue(relview?.curve, data?.curve, reltypeview?.data?.curve, "None");
+        if (nextRouting !== previousRouting || nextCurve !== previousCurve) {
+          try { relview.points = []; } catch (_) {}
+          try { if (relview?.data) relview.data.points = []; } catch (_) {}
+          try { myDiagram.model.setDataProperty(data, 'points', []); } catch (_) {}
+          try { data.points = []; } catch (_) {}
+          try { gjsLink.points = new go.List<go.Point>(); } catch (_) {}
+          try { gjsLink.clearPoints?.(); } catch (_) {}
+          try { gjsLink.updateRoute?.(); } catch (_) {}
+        }
         try { gjsLink.updateTargetBindings?.(); } catch {}
         try { gjsLink.invalidateRoute?.(); } catch {}
         try { myDiagram?.updateAllTargetBindings?.(); } catch {}

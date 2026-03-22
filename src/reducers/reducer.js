@@ -967,9 +967,44 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
-      const curRelshipview = curModelview?.relshipviews?.find(rv => rv?.id === action?.data?.id) // current relshipview
-      let curRelshipviewIndex = curModelview?.relshipviews?.findIndex((rv) => rv?.id === curRelshipview?.id) //action?.data?.id); // current relshipview index
-      const curRelshipviewsLength = curModelview?.relshipviews?.length
+      console.warn('[RELSHIPVIEW_REDUCER]', {
+        id: action?.data?.id,
+        textcolor: action?.data?.textcolor,
+        fromArrow: action?.data?.fromArrow,
+        toArrow: action?.data?.toArrow,
+        toArrowColor: action?.data?.toArrowColor,
+        curve: action?.data?.curve,
+        focusModel: state.phFocus?.focusModel?.id,
+        focusModelview: state.phFocus?.focusModelview?.id
+      });
+      let targetRelModelIndex = curModelIndex;
+      let targetRelModel = curModel;
+      let targetRelModelviewIndex = curModelviewIndex;
+      let targetRelModelview = curModelview;
+      let curRelshipview = curModelview?.relshipviews?.find(rv => rv?.id === action?.data?.id);
+
+      if (!curRelshipview && action?.data?.id) {
+        for (let mi = 0; mi < state.phData.metis.models.length; mi++) {
+          const model = state.phData.metis.models[mi];
+          const modelviews = model?.modelviews || [];
+          for (let mvi = 0; mvi < modelviews.length; mvi++) {
+            const modelview = modelviews[mvi];
+            const foundRelshipview = modelview?.relshipviews?.find(rv => rv?.id === action.data.id);
+            if (foundRelshipview) {
+              targetRelModelIndex = mi;
+              targetRelModel = model;
+              targetRelModelviewIndex = mvi;
+              targetRelModelview = modelview;
+              curRelshipview = foundRelshipview;
+              break;
+            }
+          }
+          if (curRelshipview) break;
+        }
+      }
+
+      let curRelshipviewIndex = targetRelModelview?.relshipviews?.findIndex((rv) => rv?.id === curRelshipview?.id)
+      const curRelshipviewsLength = targetRelModelview?.relshipviews?.length
       if (curRelshipviewIndex < 0) { curRelshipviewIndex = curRelshipviewsLength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
 
       const retval_UPDATE_RELSHIPVIEW_PROPERTIES = {
@@ -979,26 +1014,26 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...state.phData.metis.models.slice(0, targetRelModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...state.phData.metis.models[targetRelModelIndex],
                 modelviews: [
-                  ...curModel?.modelviews?.slice(0, curModelviewIndex),
+                  ...targetRelModel?.modelviews?.slice(0, targetRelModelviewIndex),
                   {
-                    ...curModel?.modelviews[curModelviewIndex],
+                    ...targetRelModel?.modelviews[targetRelModelviewIndex],
                     relshipviews: [
-                      ...curModelview?.relshipviews?.slice(0, curRelshipviewIndex),
+                      ...targetRelModelview?.relshipviews?.slice(0, curRelshipviewIndex),
                       {
-                        ...curModelview?.relshipviews[curRelshipviewIndex],
+                        ...targetRelModelview?.relshipviews[curRelshipviewIndex],
                         ...action.data,
                       },
-                      ...curModelview?.relshipviews.slice(curRelshipviewIndex + 1, curModelview?.relshipviews?.length)
+                      ...targetRelModelview?.relshipviews.slice(curRelshipviewIndex + 1, targetRelModelview?.relshipviews?.length)
                     ]
                   },
-                  ...curModel?.modelviews.slice(curModelviewIndex + 1, curModel?.modelviews?.length),
+                  ...targetRelModel?.modelviews.slice(targetRelModelviewIndex + 1, targetRelModel?.modelviews?.length),
                 ],
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...state.phData.metis.models.slice(targetRelModelIndex + 1, state.phData.metis.models.length),
             ]
           },
         },

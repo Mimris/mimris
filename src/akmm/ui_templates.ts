@@ -4563,7 +4563,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -4574,7 +4574,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "toArrowColor", s => s || "black"),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -4708,7 +4708,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
@@ -4716,7 +4716,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "toArrowColor", s => s || "black"),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // cardinality from
@@ -4779,8 +4779,24 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         },
         new go.Binding("visible", "", linkShouldBeVisible),
         new go.Binding('points').makeTwoWay(),
-        $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
-        $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
+        $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] },
+            new go.Binding("stroke", "strokecolor", s => s || "black"),
+            new go.Binding("strokeWidth", "strokewidth", function(val) {
+                return typeof val === 'number' ? val : parseInt(val) || 1;
+            }),
+            new go.Binding("strokeDashArray", "dash",
+                function(d) { return setDashed(d) || [1, 3]; }),
+        ),
+        $(go.Shape, { fromArrow: "None", scale: 1, fill: "transparent" },
+            new go.Binding("fromArrow", "fromArrow"),
+            new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
+        ),
+        $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black', fill: 'white' },
+            new go.Binding("toArrow", "toArrow"),
+            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+        ),
         // { segmentOffset: new go.Point(-10, -10) },
         new go.Binding("stroke", "textcolor").makeTwoWay(),
         new go.Binding("scale", "textscale").makeTwoWay(),
@@ -4807,14 +4823,28 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
 	        },
 	        new go.Binding("visible", "", linkShouldBeVisible),
 	        new go.Binding('points').makeTwoWay(),
-	        $(go.Shape, { stroke: 'black', strokeWidth: 1 }),
-	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null }),
+	        $(go.Shape, { stroke: 'black', strokeWidth: 1 },
+            new go.Binding("stroke", "strokecolor", s => s || "black"),
+            new go.Binding("strokeWidth", "strokewidth", function(val) {
+              return typeof val === 'number' ? val : parseInt(val) || 1;
+            }),
+          ),
+	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null },
+            new go.Binding("toArrow", "toArrow"),
+            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+          ),
         $(go.Shape,
           { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },
-          new go.Binding('fromArrow', 'isDefault', function (s) {
-            if (s === null) return '';
-            return s ? 'BackSlash' : 'StretchedDiamond';
+          new go.Binding('fromArrow', '', function (d) {
+            const explicit = d?.fromArrow;
+            if (explicit !== undefined && explicit !== null && explicit !== '') return explicit;
+            const fallback = d?.isDefault;
+            if (fallback === null || fallback === undefined) return '';
+            return fallback ? 'BackSlash' : 'StretchedDiamond';
           }),
+          new go.Binding('fill', 'fromArrowColor'),
+          new go.Binding('stroke', 'fromArrowColor', s => s || 'black'),
           new go.Binding('segmentOffset', 'isDefault', function (s) {
             return s ? new go.Point(5, 0) : new go.Point(0, 0);
           })

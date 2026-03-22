@@ -583,8 +583,21 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         includeRelview = false;
       if (includeRelview) {
         if (!relview.strokewidth) relview.strokewidth = 1;
+        const explicitRelviewOverrides = {
+          textcolor: relview.textcolor,
+          fromArrow: relview.fromArrow,
+          toArrow: relview.toArrow,
+          fromArrowColor: relview.fromArrowColor,
+          toArrowColor: relview.toArrowColor,
+        };
         relview.setFromArrow2(rel?.relshipkind);
         relview.setToArrow2(rel?.relshipkind);
+        Object.keys(explicitRelviewOverrides).forEach((prop) => {
+          const nextValue = explicitRelviewOverrides[prop];
+          if (nextValue !== undefined && nextValue !== null && nextValue !== "") {
+            relview[prop] = nextValue;
+          }
+        });
         relview = uic.updateRelationshipView(relview);
         relshipviews.push(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);

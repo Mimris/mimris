@@ -51,7 +51,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
     if (debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [showRenameModal, setShowRenameModal] = useState(false);
 
 
     const [refresh, setRefresh] = useState(false)
@@ -75,11 +75,18 @@ const Modeller = React.forwardRef((props: any, ref) => {
     const [ofilteredArr, setOfilteredArr] = useState([]);
     const [objColumns, setObjColumns] = useState(1);
     const [resetPaletteFilterToken, setResetPaletteFilterToken] = useState(0);
+    const [editingModelviewId, setEditingModelviewId] = useState<string | null>(null);
+    const [editingModelviewName, setEditingModelviewName] = useState('');
+    const [pendingRenameModelview, setPendingRenameModelview] = useState<any>(null);
+    const [renameModalName, setRenameModalName] = useState('');
+    const [renameModalDescription, setRenameModalDescription] = useState('');
     let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
     const diagramRef = useRef(null);
+    const dragModelviewIdRef = useRef<string | null>(null);
+    const renameInputRef = useRef<HTMLInputElement | null>(null);
 
     const componentMounted = useRef(true);
 
@@ -102,13 +109,18 @@ const Modeller = React.forwardRef((props: any, ref) => {
     const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
     const modelviews = model?.modelviews
     const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id) 
-    const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
+    const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
     if (debug) console.log('81 Modeller: modelview', model, modelview, modelviews, focusModelview, modelviewindex);
 
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
+    const handleShowRenameModal = () => setShowRenameModal(true);
+    const handleCloseRenameModal = () => {
+        setShowRenameModal(false);
+        setPendingRenameModelview(null);
+        setRenameModalName('');
+        setRenameModalDescription('');
+    };
 
     // const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
 
@@ -121,6 +133,13 @@ const Modeller = React.forwardRef((props: any, ref) => {
         if (debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
         setActiveTab(activetabindex)
     }, [props.phFocus?.focusModelview?.id])
+
+    useEffect(() => {
+        if (editingModelviewId && renameInputRef.current) {
+            renameInputRef.current.focus();
+            renameInputRef.current.select();
+        }
+    }, [editingModelviewId]);
 
     if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
 
@@ -390,6 +409,73 @@ const Modeller = React.forwardRef((props: any, ref) => {
         }
     };
 
+    const beginModelviewRename = (mv: any) => {
+        if (!mv?.id) return;
+        setEditingModelviewId(mv.id);
+        setEditingModelviewName(mv.name || '');
+    };
+
+    const cancelModelviewRename = () => {
+        setEditingModelviewId(null);
+        setEditingModelviewName('');
+    };
+
+    const commitModelviewRename = (mv: any) => {
+        if (!mv?.id) {
+            cancelModelviewRename();
+            return;
+        }
+        const nextName = (editingModelviewName || '').trim();
+        if (!nextName || nextName === mv.name) {
+            cancelModelviewRename();
+            return;
+        }
+        setPendingRenameModelview(mv);
+        setRenameModalName(nextName);
+        setRenameModalDescription(mv.description || '');
+        handleShowRenameModal();
+        cancelModelviewRename();
+    };
+
+    const saveModelviewRename = () => {
+        const mv = pendingRenameModelview;
+        const nextName = (renameModalName || '').trim();
+        if (!mv?.id || !nextName) {
+            handleCloseRenameModal();
+            return;
+        }
+        dispatch({
+            type: 'UPDATE_MODELVIEW_PROPERTIES',
+            data: {
+                id: mv.id,
+                name: nextName,
+                description: renameModalDescription,
+                modifiedDate: new Date().toISOString(),
+            }
+        });
+        if (props.phFocus?.focusModelview?.id === mv.id) {
+            dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: mv.id, name: nextName } });
+        }
+        handleCloseRenameModal();
+    };
+
+    const handleModelviewDragStart = (modelviewId: string) => {
+        dragModelviewIdRef.current = modelviewId;
+    };
+
+    const handleModelviewDrop = (targetModelviewId: string) => {
+        const sourceModelviewId = dragModelviewIdRef.current;
+        dragModelviewIdRef.current = null;
+        if (!sourceModelviewId || sourceModelviewId === targetModelviewId) return;
+        dispatch({
+            type: 'REORDER_MODELVIEWS',
+            data: {
+                sourceId: sourceModelviewId,
+                targetId: targetModelviewId,
+            }
+        });
+    };
+
     function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
         let newobj = {};
         for (let i in obj) {
@@ -504,21 +590,61 @@ const Modeller = React.forwardRef((props: any, ref) => {
         if (mv && !mv.markedAsDeleted) {
             const strindex = index.toString()
             const data = { id: mv.id, name: mv.name }
-            const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
             // GenGojsModel(props, dispatch);
             // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
             return (
-                <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                <NavItem
+                    key={mv.id || strindex}
+                    className="model-selection"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-bs-html="true"
                     title={
                         `Description: ${modelview?.description}
 
 To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
-                    }>
-                    <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft: "8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
+                    }
+                    draggable
+                    onDragStart={() => handleModelviewDragStart(mv.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleModelviewDrop(mv.id)}
+                    onDragEnd={() => { dragModelviewIdRef.current = null; }}
+                >
+                    <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft: "8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black", cursor: "pointer" }}
                         className={classnames({ active: activeTab == strindex })}
-                        onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+                        onClick={() => {
+                            if (editingModelviewId === mv.id) return;
+                            dispatch({ type: 'SET_FOCUS_MODELVIEW', data });
+                        }}
+                        onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            beginModelviewRename(mv);
+                        }}
                     >
-                        {mv.name}
+                        {editingModelviewId === mv.id ? (
+                            <input
+                                ref={renameInputRef}
+                                type="text"
+                                value={editingModelviewName}
+                                className="form-control form-control-sm"
+                                style={{ minWidth: "120px", paddingTop: "0px", paddingBottom: "0px" }}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => setEditingModelviewName(e.target.value)}
+                                onBlur={() => commitModelviewRename(mv)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        commitModelviewRename(mv);
+                                    } else if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        cancelModelviewRename();
+                                    }
+                                }}
+                            />
+                        ) : (
+                            mv.name
+                        )}
                     </NavLink>
                 </NavItem>
             )
@@ -857,10 +983,41 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
 
     return (
-        <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
-            {/* {modellerDiv} */}
-            {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
-        </div>
+        <>
+            <Modal show={showRenameModal} onHide={handleCloseRenameModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Modelview</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mb-3">
+                        <label className="form-label mb-1">Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={renameModalName}
+                            onChange={(e) => setRenameModalName(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className="form-label mb-1">Description</label>
+                        <textarea
+                            className="form-control"
+                            rows={3}
+                            value={renameModalDescription}
+                            onChange={(e) => setRenameModalDescription(e.target.value)}
+                        />
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseRenameModal}>Cancel</Button>
+                    <Button variant="primary" onClick={() => saveModelviewRename()}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+            <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
+                {/* {modellerDiv} */}
+                {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
+            </div>
+        </>
     )
 });
 

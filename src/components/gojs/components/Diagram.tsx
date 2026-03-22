@@ -232,9 +232,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           ? 'grabbing'
           : ((diagram as any).__spacePanActive ? 'grab' : '');
       };
+      const isEditableTarget = (target: EventTarget | null) => {
+        const element = target as HTMLElement | null;
+        if (!element) return false;
+        const tagName = element.tagName?.toLowerCase();
+        if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') return true;
+        if ((element as any).isContentEditable) return true;
+        if (typeof element.closest === 'function' && element.closest('[contenteditable="true"]')) return true;
+        return false;
+      };
       if (diagramDiv && diagramDoc) {
         const keydownHandler = (event: KeyboardEvent) => {
           if (event.code !== 'Space') return;
+          if (isEditableTarget(event.target)) return;
           (diagram as any).__spacePanActive = true;
           setPanCursor();
           event.preventDefault();
@@ -243,12 +253,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         };
         const keypressHandler = (event: KeyboardEvent) => {
           if (event.code !== 'Space') return;
+          if (isEditableTarget(event.target)) return;
           event.preventDefault();
           event.stopPropagation();
           try { event.stopImmediatePropagation(); } catch (_) { }
         };
         const keyupHandler = (event: KeyboardEvent) => {
           if (event.code !== 'Space') return;
+          if (isEditableTarget(event.target)) return;
           (diagram as any).__spacePanActive = false;
           (diagram as any).__spacePanDragging = false;
           setPanCursor();

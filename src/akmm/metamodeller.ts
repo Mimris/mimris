@@ -1388,6 +1388,7 @@ export class cxMetis {
                         relview.name = " ";
                     }
                     relview.markedAsDeleted = item.markedAsDeleted;
+                    if (!relview.markedAsDeleted) relview.visible = true;
                     relview.template = item.template;
                     relview.template2 = item.template2;
                     relship.addRelationshipView(relview);
@@ -3105,22 +3106,28 @@ export class cxMetis {
         return null;
     }
     removeClassInstances(sel: any) {
-        if (sel.objectview) sel.objectview = null;
-        if (sel.object) sel.object = null;
-        if (sel.objecttype) sel.objecttype = null; 
-        if (sel.typeview) sel.typeview = null; 
-        if (sel.leftPorts) sel.leftPorts = null;
-        if (sel.rightPorts) sel.rightPorts = null;
-        if (sel.topPorts) sel.topPorts = null;
-        if (sel.bottomPorts) sel.bottomPorts = null;
-        if (sel.relshipview) sel.relshipview = null;
-        if (sel.relship) sel.relship = null;
-        if (sel.relshiptype) sel.relshiptype = null;
-        if (sel.typeview) sel.typeview = null;
-        if (sel.fromNode) sel.fromNode = null;
-        if (sel.toNode) sel.toNode = null;
-        if (sel.fromObjview) sel.fromObjview = null;
-        if (sel.toObjview) sel.toObjview = null;
+        const clearProp = (key: string) => {
+            try {
+                if (sel && sel[key]) sel[key] = null;
+            } catch (_) {
+                // Some selection objects expose read-only runtime references.
+            }
+        };
+        clearProp('objectview');
+        clearProp('object');
+        clearProp('objecttype');
+        clearProp('typeview');
+        clearProp('leftPorts');
+        clearProp('rightPorts');
+        clearProp('topPorts');
+        clearProp('bottomPorts');
+        clearProp('relshipview');
+        clearProp('relship');
+        clearProp('relshiptype');
+        clearProp('fromNode');
+        clearProp('toNode');
+        clearProp('fromObjview');
+        clearProp('toObjview');
         return sel;
     }
     substituteNodeMapValues(nodemaps: any, from, to) {

@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
 // import { FaJoint } from 'react-icons/fa';
@@ -14,6 +14,7 @@ const EditFocusModal = (props) => {
 
   const refresh = props.refresh
   const setRefresh = props.setRefresh
+  const modalBodyRef = useRef(null)
   function toggleRefresh() { setRefresh(!refresh); }
 
   const models = props.ph.phData.metis?.models
@@ -220,16 +221,30 @@ const EditFocusModal = (props) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+
+  const submitFormsAndClose = () => {
+    const forms = modalBodyRef.current?.querySelectorAll?.('form') || [];
+    forms.forEach((form: HTMLFormElement) => {
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+    });
+    toggle();
+    toggleRefresh();
+  }
+
   return (
     <>
       < button className="btn-dark bg-dark text-light float-right px-3 mr-1" onClick={toggle} > {buttonLabel}</button >
       <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%" }} >
-        <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
-        <ModalBody >
+        <ModalHeader toggle={submitFormsAndClose}>{modalheader}</ModalHeader>
+        <ModalBody innerRef={modalBodyRef}>
           {dialogDiv}
         </ModalBody>
         <ModalFooter>
-          <Button className="modal-footer m-0 p-0" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
+          <Button className="modal-footer m-0 p-0" color="link" onClick={submitFormsAndClose}>Done</Button>
         </ModalFooter>
       </Modal>
     </>

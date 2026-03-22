@@ -27,6 +27,27 @@ const debugPorts = true;
 const linkToLink = false;
 const NESTED_GROUP_SIZE_RATIO = 0.35;
 
+function installSafeNodeCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
+  const original = proto.setCategoryForNodeData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForNodeData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : constants.gojs.C_NODETEMPLATE));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeNodeCategoryGuardInstalled = true;
+}
+
+installSafeNodeCategoryGuard();
+
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
   const data: any = part.data || {};
@@ -1066,13 +1087,28 @@ interface AppState {
   connectedObjectsContext: any;
 }
 
+function normalizeNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
+  return nodeDataArray.map((node) => {
+    if (!node || typeof node !== 'object') return node;
+    const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
+      return node;
+    }
+    return {
+      ...node,
+      category,
+    };
+  });
+}
+
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
     if (debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
     const initialDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     this.state = {
-      nodeDataArray: this.props?.nodeDataArray,
+      nodeDataArray: normalizeNodeCategoryData(this.props?.nodeDataArray),
       linkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: true,
@@ -1267,6 +1303,29 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public componentDidUpdate(prevProps: any) {
+    const nextState: any = {};
+    let shouldSyncFromProps = false;
+
+    if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
+      nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
+      shouldSyncFromProps = true;
+    }
+    if (this.props.linkDataArray !== prevProps.linkDataArray) {
+      nextState.linkDataArray = this.props.linkDataArray;
+      shouldSyncFromProps = true;
+    }
+    if (this.props.myMetis !== prevProps.myMetis) {
+      nextState.myMetis = this.props.myMetis;
+      shouldSyncFromProps = true;
+    }
+    if (this.props.phFocus !== prevProps.phFocus) {
+      nextState.phFocus = this.props.phFocus;
+      shouldSyncFromProps = true;
+    }
+    if (shouldSyncFromProps) {
+      this.setState(nextState);
+      return;
+    }
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
     const currentDropLayout = this.state?.modelData?.dropLayout;
     const currentSerialized = currentDropLayout ? JSON.stringify(currentDropLayout) : '';
@@ -1288,11 +1347,15 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleOpenModal = (node: any, modalContext: any) => {
+    const isRelationshipTypeChooser =
+      modalContext?.what === 'selectDropdown' &&
+      modalContext?.case === 'Create Relationship';
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: true
+      showModal: true,
+      skipsDiagramUpdate: isRelationshipTypeChooser ? true : this.state.skipsDiagramUpdate
     });
     if (debug) console.log('90 node', this.state.selectedData);
   }
@@ -1322,7 +1385,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const data = gjsLink.data;
     if (e === 'x') {
       myDiagram.remove(gjsLink);
-      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
       return;
     }
     const props = this.props;
@@ -1389,7 +1452,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       try { myDiagram.layoutDiagram(true); } catch (_) {}
       try { myDiagram.requestUpdate(); } catch (_) {}
     } catch (_) {}
-    this.setState({ showModal: false, selectedData: null, modalContext: null });
+    this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
   }
 
   /**
@@ -1957,54 +2020,133 @@ class GoJSApp extends React.Component<{}, AppState> {
     // Swimlane rule: "contains" membership relationships (Lane -> member) are structural and should
     // remain hidden when the member is actually grouped into that Lane. Some code paths were
     // resetting relview.visible=true after moves; this helper re-applies the hide rule deterministically.
-    const applySwimlaneContainsVisibility = () => {
-      if (!myDiagram) return;
+	    const applySwimlaneContainsVisibility = () => {
+	      if (!myDiagram) return;
 
-      const isSwimlaneGroupKey = (k: any): boolean => {
-        if (!k) return false;
-        const n = myDiagram.findNodeForKey(k);
-        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-        return c === "Pool" || c.startsWith("Lane");
-      };
-      const groupKeyOf = (k: any): string => {
-        const n = myDiagram.findNodeForKey(k);
-        const g = n?.data?.group;
-        return typeof g === "string" ? g : "";
-      };
+	      const isSwimlaneGroupKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      // Only apply this rule in actual swimlane diagrams. In other diagrams (e.g. Metamodelling),
+	      // "contains" can be a meaningful relationship that users expect to see.
+	      let isSwimlaneDiagram = false;
+	      myDiagram.nodes.each((n: go.Node) => {
+	        if (isSwimlaneDiagram) return;
+	        if (!(n instanceof go.Group)) return;
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        if (c === "Pool" || c.startsWith("Lane")) isSwimlaneDiagram = true;
+	      });
+	      if (!isSwimlaneDiagram) return;
 
-      myDiagram.links.each((l: go.Link) => {
-        const d: any = l.data;
-        if (!d) return;
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
         const typeName =
           d?.typename ||
           d?.name ||
           d?.relship?.type?.name ||
           d?.relshipview?.relship?.type?.name ||
           "";
-        // Only touch membership links.
-        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        // Only touch membership links.
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
 
-        const fromKey = d.from;
-        const toKey = d.to;
-        const fromIsSwim = isSwimlaneGroupKey(fromKey);
-        const toIsSwim = isSwimlaneGroupKey(toKey);
-        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
-        let hide = fromIsSwim || toIsSwim;
-        // For non-swimlane containers, also hide when stable group membership matches.
-        if (!hide) {
-          if (String(fromKey) && groupKeyOf(toKey) === String(fromKey)) hide = true;
-          if (String(toKey) && groupKeyOf(fromKey) === String(toKey)) hide = true;
-        }
-        if (hide) {
-          // Force-hide at the data level so it stays hidden across refreshes.
-          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
-        }
-        l.updateTargetBindings();
-      });
-    };
+	        const fromKey = d.from;
+	        const toKey = d.to;
+	        const fromIsSwim = isSwimlaneGroupKey(fromKey);
+	        const toIsSwim = isSwimlaneGroupKey(toKey);
+	        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
+	        const hide = fromIsSwim || toIsSwim;
+	        if (hide) {
+	          // Force-hide at the data level so it stays hidden across refreshes.
+	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
+	        }
+	        l.updateTargetBindings();
+	      });
+	    };
+
+	    // In metamodelling views, "contains" is often meaningful (Metamodel -> EntityType, etc).
+	    // Past swimlane fixes may have persisted `link.data.visible = false` for AKM_CONTAINS links.
+	    // Restore those links to visible in Metamodelling mode unless they involve Pool/Lane groups.
+	    const restoreMetamodelContainsVisibility = () => {
+	      if (!myDiagram) return;
+	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+	      const isSwimlaneNodeKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
+	        const typeName =
+	          d?.typename ||
+	          d?.name ||
+	          d?.relship?.type?.name ||
+	          d?.relshipview?.relship?.type?.name ||
+	          "";
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+	        if (d.visible === false) myDiagram.model.setDataProperty(d, "visible", true);
+	        l.updateTargetBindings();
+	      });
+	    };
+
+	    // In Metamodelling views, we want metamodel "contains" to use the template defaults
+	    // (straight lines). If routing/curve were previously persisted as "Orthogonal", clear them.
+	    const normalizeMetamodelContainsRouting = () => {
+	      if (!myDiagram) return;
+	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+	      const isSwimlaneNodeKey = (k: any): boolean => {
+	        if (!k) return false;
+	        const n = myDiagram.findNodeForKey(k);
+	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+	        return c === "Pool" || c.startsWith("Lane");
+	      };
+	      myDiagram.links.each((l: go.Link) => {
+	        const d: any = l.data;
+	        if (!d) return;
+	        const typeName =
+	          d?.typename ||
+	          d?.name ||
+	          d?.relship?.type?.name ||
+	          d?.relshipview?.relship?.type?.name ||
+	          "";
+	        if (typeName !== constants.types.AKM_CONTAINS) return;
+	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+
+	        // Clear default-looking persisted routing so our metamodel defaults can apply.
+	        if (typeof d.routing === "string" && d.routing.trim() === "Orthogonal") {
+	          myDiagram.model.setDataProperty(d, "routing", "");
+	        }
+	        if (typeof d.curve === "string" && d.curve.trim() !== "") {
+	          myDiagram.model.setDataProperty(d, "curve", "");
+	        }
+	        if (d.corner != null) {
+	          myDiagram.model.setDataProperty(d, "corner", "");
+	        }
+
+	        const relview = d.relshipview || myModelview.findRelationshipView(d.key);
+	        if (relview) {
+	          if (String((relview as any).routing || "").trim() === "Orthogonal") (relview as any).routing = "";
+	          if (String((relview as any).curve || "").trim() !== "") (relview as any).curve = "";
+	          if ((relview as any).corner != null) (relview as any).corner = "";
+	          try {
+	            const jsnRelview = new jsn.jsnRelshipView(relview);
+	            let rvData: any = jsnRelview;
+	            rvData = JSON.parse(JSON.stringify(rvData));
+	            myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: rvData });
+	          } catch (_) { }
+	        }
+
+	        l.updateTargetBindings();
+	      });
+	    };
 
     switch (name) {
-      case "InitialLayoutCompleted": {
+	      case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
@@ -2023,6 +2165,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
+        restoreMetamodelContainsVisibility();
+        normalizeMetamodelContainsRouting();
         const activeFocusModelviewId = this.props?.phFocus?.focusModelview?.id || "";
         const focusObjectViewId = this.props?.phFocus?.focusObjectview?.id || "";
         const shouldApplyRealSelection = Boolean(activeFocusModelviewId) && activeFocusModelviewId === myModelview?.id;

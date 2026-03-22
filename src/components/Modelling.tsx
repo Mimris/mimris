@@ -6,7 +6,7 @@ const debug = false;
 // import React from "react";
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector, useDispatch, useStore } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import { type } from "os";
@@ -50,6 +50,7 @@ const Modelling = (props: any) => {
   // if (!props) return <></>
   if (debug) console.log('55 Modelling:', props)//, props);        
   const dispatch = useDispatch();
+  const store = useStore();
 
   const projectModalRef = useRef(null);
   const modellerRef = useRef<any>(null);
@@ -85,6 +86,16 @@ const Modelling = (props: any) => {
 
   const ph = props
   const metis = ph.phData?.metis
+
+  const getPersistedState = () => {
+    const state = store.getState();
+    return {
+      phData: state.phData,
+      phFocus: state.phFocus,
+      phUser: state.phUser,
+      phSource: state.phSource,
+    };
+  }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
@@ -217,10 +228,17 @@ const Modelling = (props: any) => {
     return () => clearTimeout(timer);
   }, [props.phFocus?.focusModelview?.id])
 
+  useEffect(() => {
+    const persistedProps = getPersistedState();
+    setMemorySessionState(persistedProps)
+    setMemoryLocState(persistedProps)
+  }, [props.phData, props.phFocus, props.phSource, props.phUser])
+
   function doRefresh() { // 
     if (!debug) console.log('207 Modelling doRefresh', props);
-    setMemorySessionState(props)
-    setMemoryLocState(props)
+    const persistedProps = getPersistedState();
+    setMemorySessionState(persistedProps)
+    setMemoryLocState(persistedProps)
     const timer = setTimeout(() => {
       setRefresh(!refresh)
     }, 1000);

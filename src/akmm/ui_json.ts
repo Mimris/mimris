@@ -2240,6 +2240,7 @@ export class jsnImportMetis {
     }
     importObjectView(item: akm.cxObjectView, modelview: akm.cxModelView) {
         if (item.objectRef) {
+            console.warn('[OBJVIEW_IMPORT]', { id: item?.id, fillcolor: item?.fillcolor, fillcolor2: item?.fillcolor2, modelview: modelview?.id });
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
                 const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);

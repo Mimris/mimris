@@ -1605,6 +1605,8 @@ export function updateRelationshipView(relview: akm.cxRelationshipView): akm.cxR
             const viewdata = typeview.data;
             for (let prop in viewdata) {
                 if (prop === 'routing') continue;
+                if (prop === 'fromArrowColor') continue;
+                if (prop === 'toArrowColor') continue;
                 if (relview[prop] === viewdata[prop]) {
                     relview[prop] = "";
                 }
@@ -4636,26 +4638,22 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (prop === 'relshipkind') continue;
                 if (prop === 'class') continue;
                 if (prop === 'name') continue;
-                if (relview[prop] && relview[prop] !== "") {
-                    // if (propIsColor(prop)) {
-                    //     if (viewdata[prop] != null)
-                    //         diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                    // }
-                    diagram.model.setDataProperty(data, prop, relview[prop]);
-                    if (debug) console.log('2904 updateLink', prop, viewdata[prop], relview[prop]);
+                let nextValue = viewdata[prop];
+                if (relview[prop] !== undefined && relview[prop] !== null && relview[prop] !== "") {
+                    nextValue = relview[prop];
                 }
                 if (prop === 'strokewidth') {
-                    if (!relview[prop])
-                        relview[prop] === 1;
+                    if (!nextValue)
+                        nextValue = 1;
                 } else if (prop === 'fromArrowColor') {
-                    if (relview[prop] === "" || !relview[prop])
-                        relview[prop] === "white";
+                    if (nextValue === "" || !nextValue)
+                        nextValue = "white";
                 } else if (prop === 'toArrowColor') {
-                    if (relview[prop] === "" || !relview[prop])
-                        relview[prop] === "white";
+                    if (nextValue === "" || !nextValue)
+                        nextValue = "white";
                 }
-                diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
+                diagram.model.setDataProperty(data, prop, nextValue);
+                if (debug) console.log('2916 updateLink', prop, nextValue, relview[prop], viewdata[prop]);
             }
         }
     }

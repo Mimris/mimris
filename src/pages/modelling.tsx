@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector, useDispatch, useStore } from 'react-redux';
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
@@ -29,6 +29,7 @@ const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 const Page1 = (props: any) => {
 
   const dispatch = useDispatch();
+  const store = useStore();
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -84,6 +85,16 @@ const Page1 = (props: any) => {
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const focus = useSelector((state: any) => state.phFocus)
+
+  const getPersistedState = () => {
+    const state = store.getState();
+    return {
+      phData: state.phData,
+      phFocus: state.phFocus,
+      phUser: state.phUser,
+      phSource: state.phSource,
+    };
+  }
 
   useEffect(() => {
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
@@ -210,7 +221,7 @@ const Page1 = (props: any) => {
   }, []);
 
   useEffect(() => {
-    const locProps = { ...props, phMymetis: null }
+    const locProps = getPersistedState()
     setMemorySessionState(locProps)
   }, [props.phSource])
   

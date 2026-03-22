@@ -34,6 +34,41 @@ interface DiagramProps {
 }
 
 const debug = false;
+function installSafeNodeCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
+  const original = proto.setCategoryForNodeData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForNodeData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : 'textAndIcon'));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeNodeCategoryGuardInstalled = true;
+}
+
+installSafeNodeCategoryGuard();
+
+function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
+  return nodeDataArray.map((node) => {
+    if (!node || typeof node !== 'object') return node;
+    const category = node.category || node.template || 'textAndIcon';
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
+      return node;
+    }
+    return {
+      ...node,
+      category,
+    };
+  });
+}
 export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -670,6 +705,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       : (this.props.divClassName === 'diagram-component-target')
         ? 'diagram-component-target'
         : 'diagram-component-palette'
+    const normalizedNodeDataArray = normalizePaletteWrapperNodeCategoryData(this.props?.nodeDataArray);
 
     if (debug) console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
@@ -698,7 +734,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ref={this.diagramRef}
         divClassName={divclassname}
         initDiagram={this.initPalette}
-        nodeDataArray={this.props?.nodeDataArray}
+        nodeDataArray={normalizedNodeDataArray}
         linkDataArray={this.props?.linkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}

@@ -44,6 +44,7 @@
 - [x] T023b Make ported group body hit zones distinguish inner-frame move behavior from group-body relationship hookup in `src/akmm/ui_templates.ts`
 - [x] T023c Restore explicit ICOM port hookup on groups by fixing pickable port containers and visible port hit areas in `src/akmm/ui_templates.ts`
 - [x] T023d Default `isFollowedBy` and `triggers` relationships to `AvoidsNodes` when no explicit routing is set in `src/components/gojs/GoJSApp.tsx` and `src/akmm/ui_buildmodels.ts`
+- [x] T023e Stop persisting point arrays for auto-routed `Orthogonal` and `AvoidsNodes` links while preserving persisted points for explicit non-orthogonal routes in `src/akmm/ui_templates.ts`, `src/akmm/ui_diagram.ts`, and `src/akmm/ui_gojs.ts`
 
 ## Validation Tasks
 
@@ -59,3 +60,4 @@
 - [ ] T028 Manually verify a ported group moves from the visible inner frame, connects from the remaining group body, and still prefers explicit ports when hovered
 - [ ] T029 Manually verify explicit group ports hook up relationships directly instead of selecting the group body
 - [ ] T030 Manually verify new `isFollowedBy` and `triggers` relationships default to `AvoidsNodes` while persisted explicit routing values remain unchanged
+- [ ] T031 Manually verify `Orthogonal` and `AvoidsNodes` links reroute from current geometry after moving nodes and do not save stale point arrays, while manually routed non-orthogonal links still persist their point arrays

@@ -143,6 +143,35 @@ function shouldPersistLinkPoints(data: any): boolean {
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
+function resolveToArrowShape(data: any): string {
+    const arrow = data?.toArrow;
+    const explicitColor = data?.toArrowColor;
+    if ((arrow === "Triangle" || arrow === "BackwardTriangle") && (!explicitColor || explicitColor === "white")) {
+        return arrow === "BackwardTriangle" ? "BackwardOpenTriangle" : "OpenTriangle";
+    }
+    return arrow;
+}
+
+function resolveToArrowFill(data: any): string {
+    const arrow = data?.toArrow;
+    if (arrow === "Triangle" || arrow === "BackwardTriangle") {
+        const explicitColor = data?.toArrowColor;
+        if (!explicitColor || explicitColor === "white") {
+            return "transparent";
+        }
+        return explicitColor;
+    }
+    return data?.toArrowColor || "white";
+}
+
+function resolveToArrowStroke(data: any): string {
+    const explicitColor = data?.toArrowColor;
+    if (!explicitColor || explicitColor === "white") {
+        return data?.strokecolor || "black";
+    }
+    return explicitColor;
+}
+
 export function getGatewayType(t: string): any {
     switch(t) {
     case 'Inclusive':
@@ -4577,9 +4606,9 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             // the "to" arrowhead
             $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
-            new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("toArrow", "", resolveToArrowShape),
+            new go.Binding("fill", "", resolveToArrowFill),
+            new go.Binding("stroke", "", resolveToArrowStroke),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -4719,9 +4748,9 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             // the "to" arrowhead
             $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
-            new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("toArrow", "", resolveToArrowShape),
+            new go.Binding("fill", "", resolveToArrowFill),
+            new go.Binding("stroke", "", resolveToArrowStroke),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // cardinality from
@@ -4798,9 +4827,9 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             new go.Binding("stroke", "fromArrowColor", s => s || "black"),
         ),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black', fill: 'white' },
-            new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("toArrow", "", resolveToArrowShape),
+            new go.Binding("fill", "", resolveToArrowFill),
+            new go.Binding("stroke", "", resolveToArrowStroke),
         ),
         // { segmentOffset: new go.Point(-10, -10) },
         new go.Binding("stroke", "textcolor").makeTwoWay(),
@@ -4837,9 +4866,9 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             }),
           ),
 	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null },
-            new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("toArrow", "", resolveToArrowShape),
+            new go.Binding("fill", "", resolveToArrowFill),
+            new go.Binding("stroke", "", resolveToArrowStroke),
           ),
         $(go.Shape,
           { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },

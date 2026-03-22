@@ -452,7 +452,7 @@ const Modelling = (props: any) => {
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
             <div className="workpad px-1 pt-1 bg-white">
-              <Row className="row1">
+              <Row className="row1 align-items-start">
                 {/* Palette area */}
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "0px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
@@ -469,8 +469,8 @@ const Modelling = (props: any) => {
                   </div>
                 </Col>
                 {/* Modelling area */}
-                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px" }}>
-                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px", alignSelf: "flex-start" }}>
+                  <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "auto", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
                       myMetis={myMetis}
                       metis={metis}
@@ -493,7 +493,7 @@ const Modelling = (props: any) => {
                 </Col> */}
                 <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
                   <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right"
-                    style={{ minHeight: "6h", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+                    style={{ minHeight: "89vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                     {targetmetamodelDiv}
                   </div>
                 </Col>

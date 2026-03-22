@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/.specify/specs/002-modelview-tab-editing/spec.md`
 
 ## Summary
-Add direct modelview tab rename and reorder controls in the modeller, backed by persisted Redux updates and a confirmation modal for name and description changes.
+Add direct modelview tab rename and reorder controls in the modeller, backed by persisted Redux updates, a confirmation modal for name and description changes, and viewport-fit adjustments so the modeller panel fills its available area cleanly.
 
 ## Technical Context
 **Language/Version**: TypeScript / JavaScript  
@@ -15,7 +15,7 @@ Add direct modelview tab rename and reorder controls in the modeller, backed by 
 **Project Type**: web  
 **Performance Goals**: no noticeable lag while editing or dragging tabs  
 **Constraints**: preserve persisted modelview compatibility; do not break diagram keyboard shortcuts outside form controls  
-**Scale/Scope**: focused on `src/components/Modeller.tsx`, `src/reducers/reducer.js`, `src/actions/types.js`, and diagram keyboard handling in `src/components/gojs/components/Diagram.tsx`
+**Scale/Scope**: focused on `src/components/Modeller.tsx`, `src/components/Modelling.tsx`, `src/components/export/ReportModule.tsx`, `src/components/FocusDetails.tsx`, `src/reducers/reducer.js`, `src/actions/types.js`, and diagram keyboard handling in `src/components/gojs/components/Diagram.tsx`
 
 ## Constitution Check
 
@@ -30,10 +30,14 @@ Add direct modelview tab rename and reorder controls in the modeller, backed by 
 - Keep inline rename lightweight, but confirm the final save in a modal so `description` can be reviewed at the same time.
 - Use the persisted `modelviews` array order as the only source of truth for tab sequencing.
 - Exempt focused form controls from the global `Space` pan shortcut so modal editing behaves like normal text input.
+- Keep a small consistent visual margin around the modeller canvas rather than letting parent container backgrounds show as a large empty block below the work area.
 
 ## Files
 
 - `src/components/Modeller.tsx`
+- `src/components/Modelling.tsx`
+- `src/components/export/ReportModule.tsx`
+- `src/components/FocusDetails.tsx`
 - `src/reducers/reducer.js`
 - `src/actions/types.js`
 - `src/components/gojs/components/Diagram.tsx`
@@ -45,3 +49,4 @@ Add direct modelview tab rename and reorder controls in the modeller, backed by 
 - Cancel a rename and verify no modelview property changes are saved.
 - Drag modelview tabs into a new order and verify the order persists.
 - Type spaces in the modal description field and verify no diagram pan shortcut fires.
+- Verify the modelling page keeps only a small consistent margin around the modeller and does not show a large empty strip below the canvas.

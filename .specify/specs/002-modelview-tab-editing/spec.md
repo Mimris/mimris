@@ -3,7 +3,7 @@
 **Feature Branch**: `002-modelview-tab-editing`  
 **Created**: 2026-03-22  
 **Status**: In Progress  
-**Input**: User description: "Make modelview tabs editable directly, allow drag reorder, and confirm description updates when the name changes."
+**Input**: User description: "Make modelview tabs editable directly, allow drag reorder, confirm description updates when the name changes, and keep the modeller viewport fit tidy."
 
 ## User Scenarios & Testing
 
@@ -20,6 +20,7 @@ A modeller working across several modelviews wants to rename and reorder modelvi
 7. **Given** multiple modelview tabs are visible, **When** the user drags one tab onto another, **Then** the tab order changes and the persisted `modelviews` array reflects the new order.
 8. **Given** a modelview is focused elsewhere in the UI, **When** its name is changed from the tab workflow, **Then** the focused modelview name shown in the rest of the interface updates immediately.
 9. **Given** the rename confirmation modal contains a description textarea, **When** the user types `Space`, **Then** a normal space character is inserted instead of triggering canvas pan behavior.
+10. **Given** the modeller is displayed inside the main modelling page, **When** the page renders at normal desktop height, **Then** the modelview canvas area fills the available modeller panel cleanly with only a small consistent margin around it instead of leaving a large empty block below.
 
 ### Edge Cases
 - What happens when the first modelview in the array is the focused tab and is renamed or reordered?
@@ -27,6 +28,7 @@ A modeller working across several modelviews wants to rename and reorder modelvi
 - What happens when the user clears the inline rename field or only enters whitespace?
 - What happens when the diagram-level `Space` keyboard shortcut is active while a modal input has focus?
 - What happens when a renamed modelview has a long description that should remain untouched?
+- What happens when modeller and detail panes have slightly different heights and the parent modelling wrapper would otherwise show a large empty background area?
 
 ## Requirements
 
@@ -40,6 +42,7 @@ A modeller working across several modelviews wants to rename and reorder modelvi
 - **FR-007**: The system MUST ignore no-op drag drops where the source and target modelview are the same.
 - **FR-008**: The system MUST keep `phFocus.focusModelview` synchronized with the saved modelview name after rename.
 - **FR-009**: The system MUST prevent the diagram-level `Space` panning shortcut from intercepting keystrokes inside modal form controls.
+- **FR-010**: The system MUST size the modeller and adjacent detail panes so the modelling page shows only a small deliberate outer margin around the active work area, without a large empty area beneath the canvas.
 
 ### Key Entities
 - **Modelview Tab**: The visible tab in the modeller header that selects the active modelview.

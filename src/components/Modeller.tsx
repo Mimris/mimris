@@ -32,7 +32,6 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const OBJECTS_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleObjects';
 const TYPES_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleTypes';
-
 function readStoredBoolean(key: string, fallback: boolean) {
     if (typeof window === 'undefined') return fallback;
     try {
@@ -799,9 +798,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                        }
                 </button>
             </Nav>
-            <TabContent className=" p-0 m-0 border border-white">
+            <TabContent className=" p-0 m-0 bg-white border border-white">
                 <TabPane className="">
-                    <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
+                    <Row className="m-0 rounded" style={{ backgroundColor: "transparent", outline: "0", borderStyle: "none" }}>
                         {/* {(visibleObjects)
                             ? (objectsRefresh)
                                 ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
@@ -809,7 +808,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
 
                         } */}
-                        <Col className="me-2 my-1 p-1 border" xe="auto" >
+                        <Col className="me-1 my-1 p-1 border" xe="auto" >
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
@@ -821,7 +820,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                                     dispatch={props.dispatch}
                                     modelType={props.phFocus.focusTab}
                                     onExportSvgReady={handleExportSvgReady}
-                                    diagramStyle={{ height: "77vh" }}
+                                    diagramStyle={{ height: "83vh" }}
                                 />
                             </div>
                             <div className="smaller-div m-0 p-0">{footerButtonsDiv}</div>
@@ -857,7 +856,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     dispatch={props.dispatch}
                     modelType={props.phFocus.focusTab}
                     onExportSvgReady={handleExportSvgReady}
-                    diagramStyle={{ height: "77vh" }}
+                    diagramStyle={{ height: "83vh" }}
                 />
             </div>
         </>
@@ -910,7 +909,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const modellerDiv = (props.modelType === 'model')
         ? // modelling
-        <div className="modeller-workarea w-100 d-flex flex-col">
+        <div className="modeller-workarea d-flex flex-col" style={{ width: 'calc(99% - 2px)' }}>
             <div className={`modeller--objects me-1 
                 ${visibleObjects
                     ? isExpanded

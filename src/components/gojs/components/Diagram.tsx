@@ -1482,6 +1482,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myMetis.deleteViewsOnly = false;
       myMetis.pasteViewsOnly = false;
     }
+    const baseStandardMouseSelect = go.ClickSelectingTool.prototype.standardMouseSelect;
     const guardedStandardMouseSelect = function () {
       const diagram = this.diagram;
       if (!diagram) return;
@@ -1514,16 +1515,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
       }
-      if (selectablePart instanceof go.Part) {
-        if (diagram.lastInput.shift) {
-          selectablePart.isSelected = true;
-        } else {
+      if (!(selectablePart instanceof go.Part)) {
+        if (!diagram.lastInput.shift) {
           diagram.clearSelection();
-          diagram.select(selectablePart);
         }
-      } else if (!diagram.lastInput.shift) {
-        diagram.clearSelection();
+        return;
       }
+      baseStandardMouseSelect.call(this);
     };
     { // define myDiagram
       myDiagram =
@@ -11428,8 +11426,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.currentPart ||
             diagram.findPartAt(diagram.lastInput.documentPoint, true);
           if (draggedPart instanceof go.Part && draggedPart.canSelect()) {
-            diagram.clearSelection();
-            draggedPart.isSelected = true;
+            if (!draggedPart.isSelected) {
+              draggedPart.isSelected = true;
+            }
             this.currentPart = draggedPart;
           }
         }

@@ -2783,7 +2783,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             mouseEnter: (e, node) => node.isHighlighted = true,
             mouseLeave: (e, node) => node.isHighlighted = false,
         },
-        new go.Binding("isSelected", "isSelected").makeTwoWay(),
         new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -2843,7 +2842,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate1 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("isSelected", "isSelected").makeTwoWay(),
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -2954,7 +2952,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate2 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock   
-        new go.Binding("isSelected", "isSelected").makeTwoWay(),
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -3056,7 +3053,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate3 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("isSelected", "isSelected").makeTwoWay(),
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -3216,7 +3212,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndIcon", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
@@ -3374,7 +3369,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
          
     nodeTemplateMap.add("textAndGeometry", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
@@ -3466,7 +3460,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
@@ -3566,7 +3559,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 resizable: true, 
                 selectionAdorned: false,
             },
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
             { // Tooltips
@@ -3696,7 +3688,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 resizable: true, 
                 selectionAdorned: false,
             },
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
             { // Tooltips
@@ -3764,7 +3755,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("label", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3841,7 +3831,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("Annotation",
         $(go.Node, 'Auto',
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             { contextMenu: contextMenu },  
@@ -3883,7 +3872,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("ActivityNode", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4035,7 +4023,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("EventNode",
         $(go.Node, 'Vertical',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4143,7 +4130,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("GatewayNode",
         $(go.Node, 'Vertical',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4245,7 +4231,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("DataObjectNode",
         $(go.Node, 'Vertical',
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -4316,7 +4301,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
     
     nodeTemplateMap.add("MessageNode",
         $(go.Node, 'Vertical',  // the Shape will go around the TextBlock
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -5051,7 +5035,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify()),
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),
@@ -5102,7 +5085,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 },
             },
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
-            new go.Binding("isSelected", "isSelected").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("layout", "groupLayout").makeTwoWay(),

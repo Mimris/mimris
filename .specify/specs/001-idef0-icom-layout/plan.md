@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/.specify/specs/001-idef0-icom-layout/spec.md`
 
 ## Summary
-Adjust IDEF0 ICOM marker geometry, label placement, and default relship routing so diagrams remain readable with orthogonal links and dense port labeling.
+Adjust IDEF0 ICOM marker geometry, label placement, default relship routing, and auto-routed point persistence so diagrams remain readable and reroute cleanly after movement.
 
 ## Technical Context
 **Language/Version**: TypeScript  
@@ -15,7 +15,7 @@ Adjust IDEF0 ICOM marker geometry, label placement, and default relship routing 
 **Project Type**: web  
 **Performance Goals**: no noticeable regression in diagram rendering responsiveness  
 **Constraints**: preserve persisted model compatibility; tune geometry incrementally  
-**Scale/Scope**: focused on `src/akmm/ui_templates.ts` and routing defaults in related diagram/model build code
+**Scale/Scope**: focused on `src/akmm/ui_templates.ts` plus routing and point-persistence behavior in related diagram/model build code
 
 ## Constitution Check
 
@@ -35,12 +35,15 @@ Adjust IDEF0 ICOM marker geometry, label placement, and default relship routing 
 - Keep side marker lines visually neutral and short.
 - Keep side labels slightly transparent rather than adding an opaque visible background block.
 - Use orthogonal routing as the default fallback only when no explicit relview routing exists.
+- Avoid storing point arrays for auto-routed `Orthogonal` and `AvoidsNodes` links so GoJS can recompute current paths.
 - Allow top/bottom labels to wrap to two lines with compact horizontal spacing.
 
 ## Files
 
 - `src/akmm/ui_templates.ts`
 - `src/akmm/ui_buildmodels.ts`
+- `src/akmm/ui_diagram.ts`
+- `src/akmm/ui_gojs.ts`
 - `docs/_specs/Overview.md`
 
 ## Validation
@@ -49,3 +52,5 @@ Adjust IDEF0 ICOM marker geometry, label placement, and default relship routing 
 - Check a long output label against an orthogonal routed relship.
 - Check top control and bottom mechanism strips against the visible group border.
 - Check top/bottom label wrapping and spacing with both one-line and two-line labels.
+- Check that orthogonal and `AvoidsNodes` links reroute cleanly after movement without replaying stale stored points.
+- Check that explicitly stored non-orthogonal link points still persist across save and reload.

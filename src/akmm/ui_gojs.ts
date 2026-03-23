@@ -19,6 +19,10 @@ Functions:
 
 const debug = false;
 
+function shouldPersistLinkPoints(routing: string | undefined | null): boolean {
+    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
 function deriveTypeviewIcon(objview: akm.cxObjectView): string {
     if (!objview) return "";
 
@@ -1115,7 +1119,7 @@ export class goRelshipLink extends goLink {
                     const data: any = typeview.data;
                     // this.addData(data);
                     this.setName(relview.name);
-                    this.points = relview.points;
+                    this.points = shouldPersistLinkPoints(relview.routing) ? relview.points : [];
                     for (let prop in viewdata) {
                         if (prop === 'abstract') continue;
                         if (prop === 'class') continue;
@@ -1147,7 +1151,7 @@ export class goRelshipLink extends goLink {
         //         }
         //     }
         // }
-        this.routing = modelview.routing;
+        this.routing = relview?.routing || modelview.routing;
         this.curve = modelview.linkcurve;
         if (modelview.showCardinality) {
             this.cardinalityFrom = relview.relship?.getCardinalityFrom(); 

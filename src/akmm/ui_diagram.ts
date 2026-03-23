@@ -53,6 +53,10 @@ function snapSizeEven(n: number): number {
 }
 const GROUP_LAYOUT_PADDING = 15;
 
+function shouldPersistLinkPoints(routing: string | undefined | null): boolean {
+    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
 const uidTemplates = {
     "default":          uit.textAndIconTemplate,
     "ActivityNode":     uit.activityNodeTemplate,
@@ -3376,13 +3380,23 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
             myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
         }
 
-        const points = [];
-        for (let pit = link.points.iterator; pit?.next();) {
-            const point = pit.value;
-            points.push(point.x);
-            points.push(point.y);
+        const routing = gjsLink?.routing || ldata?.routing || relview?.routing;
+        if (shouldPersistLinkPoints(routing)) {
+            const points = [];
+            for (let pit = link.points.iterator; pit?.next();) {
+                const point = pit.value;
+                points.push(point.x);
+                points.push(point.y);
+            }
+            relview.points = points;
+        } else {
+            relview.points = [];
+            try {
+                myDiagram.model.setDataProperty(ldata, 'points', []);
+            } catch (_) {
+                ldata.points = [];
+            }
         }
-        relview.points = points;
         break;
     }
     myDiagram.commitTransaction('updateLink');

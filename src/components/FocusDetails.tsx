@@ -425,7 +425,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   )
 
   return (
-    <div className="context m-0" style={{ maxHeight: '78vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '78vh', overflowY: 'auto' }} >
+    <div className="context m-0" style={{ maxHeight: '82vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '84vh', overflowY: 'auto' }} >
       <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto' }}>
         {tabsDiv}
       </div>

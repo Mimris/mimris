@@ -60,6 +60,7 @@ import {
   UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
+  REORDER_MODELVIEWS,
   UPDATE_METAMODEL_PROPERTIES,
   UPDATE_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
@@ -800,6 +801,15 @@ function reducer(state = InitialState, action) {
 
       const retval_UPDATE_MODELVIEW_PROPERTIES = {
         ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusModelview: state.phFocus?.focusModelview?.id === action?.data?.id
+            ? {
+              ...state.phFocus.focusModelview,
+              ...action.data,
+            }
+            : state.phFocus?.focusModelview,
+        },
         phData: {
           ...state.phData,
           metis: {
@@ -824,6 +834,37 @@ function reducer(state = InitialState, action) {
       }
       if (debug) console.log('731 retval', retval_UPDATE_MODELVIEW_PROPERTIES);
       return retval_UPDATE_MODELVIEW_PROPERTIES
+
+    case REORDER_MODELVIEWS: {
+      const sourceId = action?.data?.sourceId;
+      const targetId = action?.data?.targetId;
+      const existingModelviews = curModel?.modelviews || [];
+      const sourceIndex = existingModelviews.findIndex((mv) => mv?.id === sourceId);
+      const targetIndex = existingModelviews.findIndex((mv) => mv?.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) {
+        return state;
+      }
+      const reorderedModelviews = [...existingModelviews];
+      const [movedModelview] = reorderedModelviews.splice(sourceIndex, 1);
+      reorderedModelviews.splice(targetIndex, 0, movedModelview);
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            models: [
+              ...state.phData.metis.models.slice(0, curModelIndex),
+              {
+                ...state.phData.metis.models[curModelIndex],
+                modelviews: reorderedModelviews,
+              },
+              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+            ]
+          },
+        },
+      };
+    }
 
     case UPDATE_OBJECT_PROPERTIES:
       if (debug) console.log('796 UPDATE_OBJECT_PROPERTIES', action);

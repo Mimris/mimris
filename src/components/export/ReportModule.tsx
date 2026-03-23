@@ -49,7 +49,7 @@ const ReportModule = (props: any) => {
           </button>
           <>
             <Tabs onSelect={index => setActiveTab(index)}
-              style={{ maxHeight: '78vh', overflow: 'hidden', borderTop: 'none' }}
+              style={{ maxHeight: '82vh', overflow: 'hidden', borderTop: 'none' }}
             >
               <TabList style={{ margin: '0px' }}>
                 <Tab>Focus Object</Tab>
@@ -91,7 +91,7 @@ const ReportModule = (props: any) => {
       {visibleTabsDiv
         ?
         <div className="report-module--tabs p-1 border border-dark rounded bg-transparent"
-          style={{ height: '78vh', overflow: 'hidden', borderTop: 'none' }}>
+          style={{ height: '82vh', overflow: 'hidden', borderTop: 'none' }}>
           {tabsDiv}
           {/* {ph.refresh ? <> {tabsDiv} </> : <>{tabsDiv} {ph.refresh}</>} */}
         </div>
@@ -100,7 +100,7 @@ const ReportModule = (props: any) => {
     </>
 
   return (
-    <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "78vh", overflowX: 'hidden', maxWidth: '49vw', minWidth: (visibleTabsDiv) ? '10px' : '10vw'.toString() }}>
+    <div className="report-module pe-1 bg-transparent" style={{ maxHeight: "82vh", overflowX: 'hidden', maxWidth: '49vw', minWidth: (visibleTabsDiv) ? '10px' : '10vw'.toString() }}>
       {reportDiv}
     </div>
   )

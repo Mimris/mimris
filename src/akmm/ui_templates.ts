@@ -138,6 +138,11 @@ export function getCurve(c: string): any {
     }   
 }
 
+function shouldPersistLinkPoints(data: any): boolean {
+    const routing = data?.routing;
+    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
 export function getGatewayType(t: string): any {
     switch(t) {
     case 'Inclusive':
@@ -4811,14 +4816,16 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
 	        $(go.Link,
 	        {
 	          contextMenu: contextMenu,
-	          routing: go.Link.AvoidsNodes,
+	          routing: go.Link.Orthogonal,
 	          corner: 10,
           // fromSpot: go.Spot.RightSide, 
           // toSpot: go.Spot.LeftSide,
           // toSpot: go.Spot.BottomSide,
-          reshapable: true,
-          relinkableFrom: true,
+	          reshapable: true,
+          resegmentable: true,
+	          relinkableFrom: true,
 	          relinkableTo: true,
+          adjusting: go.Link.Stretch,
 	          toEndSegmentLength: 0,
 	        },
 	        new go.Binding("visible", "", linkShouldBeVisible),

@@ -2577,6 +2577,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
         const selectionShiftPressed = Boolean(myDiagram?.lastInput?.shift);
+        const dragAllowKeys: Set<string> | undefined = (myDiagram as any)?.__dragAllowReparentKeys;
+        const dragAllowGlobal: boolean = !!(myDiagram as any)?.__dragAllowReparent;
         (myDiagram as any).__movedAffectedTopLevelGroupKeys = new Set<string | number>();
         let relshipviews = myModelview.relshipviews;
         myModelview.relshipviews = utils.removeArrayDuplicates(myModelview.relshipviews);
@@ -2666,7 +2668,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           const size = n.actualBounds.width + " " + n.actualBounds.height;
           const currentGroupKey = String(goNode.objectview?.group || goNode.group || n.data.group || "");
           let groupKey = "";
-          let group = uic.getGroupByLocation(myGoModel, loc, size, goNode); // goNode
+          const nodeCenter = n.actualBounds?.center || null;
+          const dropPoint = (myDiagram.lastInput?.documentPoint as go.Point | undefined) || null;
+          let group =
+            resolveDeepestDropTargetGroup(myDiagram, n, dropPoint) ||
+            resolveDeepestDropTargetGroup(myDiagram, n, nodeCenter) ||
+            uic.getGroupByLocation(myGoModel, loc, size, goNode); // goNode
           const containingGroupKey =
             n?.containingGroup instanceof go.Group && n.containingGroup.key !== undefined && n.containingGroup.key !== null
               ? n.containingGroup.key
@@ -2683,11 +2690,23 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else if (group) {
             groupKey = group.key;
           }
-          if (!selectionShiftPressed) {
+          const adoptResolvedContainingGroup =
+            Boolean(containingGroupKey) &&
+            String(containingGroupKey) !== String(currentGroupKey || "");
+          const adoptResolvedVisualGroup =
+            !containingGroupKey &&
+            Boolean(groupKey) &&
+            String(groupKey) !== String(currentGroupKey || "");
+          if (!selectionShiftPressed && !adoptResolvedContainingGroup && !adoptResolvedVisualGroup) {
             groupKey = currentGroupKey;
             goNode.group = currentGroupKey;
             goNode.scale = currentGroupKey
               ? getDerivedScaleForGroup(myDiagram.findNodeForKey(currentGroupKey) as go.Group | null)
+              : 1.0;
+          } else if (!selectionShiftPressed && (adoptResolvedContainingGroup || adoptResolvedVisualGroup)) {
+            goNode.group = groupKey;
+            goNode.scale = groupKey
+              ? getDerivedScaleForGroup(myDiagram.findNodeForKey(groupKey) as go.Group | null)
               : 1.0;
           } else if (!group) {
             goNode.scale = 1.0;
@@ -2717,7 +2736,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             "typeview": goNode.typeview,
           }
           myToNodes.push(myToNode);
-          if (selectionShiftPressed && groupKey && (n.data.group !== groupKey)) {
+          const reparentAllowedForNode =
+            selectionShiftPressed ||
+            dragAllowGlobal ||
+            !!(n?.data?.key != null && dragAllowKeys?.has(String(n.data.key)));
+          if (reparentAllowedForNode && groupKey && (n.data.group !== groupKey)) {
             try {
               myDiagram.model.setDataProperty(n.data, 'loc', loc);
             } catch (error) {
@@ -2755,10 +2778,20 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (myObjectview?.id) goToNode.objviewRef = myObjectview.id;
               }
               // Check if the MOVED node (goToNode) is member of a group
-              let goParentGroup = selectionShiftPressed
-                ? uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode)
+              const reparentAllowedForNode =
+                selectionShiftPressed ||
+                dragAllowGlobal ||
+                !!(myToNode.key != null && dragAllowKeys?.has(String(myToNode.key)));
+              const movedNodeCenter = myToNode.n.actualBounds?.center || null;
+              const movedDropPoint = (myDiagram.lastInput?.documentPoint as go.Point | undefined) || null;
+              let goParentGroup = reparentAllowedForNode
+                ? (
+                  resolveDeepestDropTargetGroup(myDiagram, myToNode.n, movedDropPoint) ||
+                  resolveDeepestDropTargetGroup(myDiagram, myToNode.n, movedNodeCenter) ||
+                  uic.getGroupByLocation(myGoModel, goToNode.loc, goToNode.size, goToNode)
+                )
                 : (myToNode.group ? myGoModel.findNode(myToNode.group) as gjs.goObjectNode : null);
-              if (!selectionShiftPressed && myToNode.n?.containingGroup instanceof go.Group) {
+              if (!reparentAllowedForNode && myToNode.n?.containingGroup instanceof go.Group) {
                 const containingKey = myToNode.n.containingGroup.key;
                 if (containingKey) {
                   goParentGroup = myGoModel.findNode(containingKey) as gjs.goObjectNode;
@@ -2947,7 +2980,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myMetis.purgeInputRelships(myModel);
                 // goToNode is NOT visually member of a group.
                 // Structural containment may still exist, but it must not force group membership.
-                if (selectionShiftPressed && myToNode.n?.containingGroup instanceof go.Group) {
+                if (reparentAllowedForNode && myToNode.n?.containingGroup instanceof go.Group) {
                   detachPartToTopLevel(myDiagram, myToNode.n, myToNode.n.data);
                   const detachedLoc = `${myToNode.n.location.x} ${myToNode.n.location.y}`;
                   myToNode.loc = detachedLoc;
@@ -3012,7 +3045,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     myModel.purgeInputRelships(myModel);
                     const fromGroup = fromObjview.object;
                     const fromGroupView = fromObjview;
-                    if (selectionShiftPressed) {
+                    if (reparentAllowedForNode) {
                       relship.markedAsDeleted = true;
                       fromGroup?.removeOutputrel?.(relship);
                       movedObj?.removeInputrel?.(relship);
@@ -3527,7 +3560,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
             if (
-              shiftPressed &&
               movedObj &&
               containsType &&
               nextParentObjview?.object &&
@@ -3570,7 +3602,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnRelship = new jsn.jsnRelationship(nextRel);
               uic.addItemToList(modifiedRelships, jsnRelship);
             }
-            if (shiftPressed && movedObj && containsType && nextParentObjview?.object && persistedGroup) {
+            if (movedObj && containsType && nextParentObjview?.object && persistedGroup) {
               const inputRels = [...(movedObj.inputrels || [])];
               for (let i = 0; i < inputRels.length; i++) {
                 const rel = inputRels[i];
@@ -3993,6 +4025,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               modifiedObjectTypes.push(jsnObjtype);
             }
           }
+        }
+        try {
+          delete (myDiagram as any).__dragAllowReparent;
+          delete (myDiagram as any).__dragAllowReparentKeys;
+        } catch (_) {
         }
       }
       if (isMetamodel) {

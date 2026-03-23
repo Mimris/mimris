@@ -6239,7 +6239,6 @@ function finishDrop(e, grp) {
 }
 
 function finishDropOnShiftOnly(e, grp) {
-    if (!e?.shift) return;
     finishDrop(e, grp);
 }
 

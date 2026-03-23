@@ -1469,8 +1469,48 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedLinkData = obj.modifiedLinkData;
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
+    let nextNodeDataArray = this.state.nodeDataArray;
+    let nextLinkDataArray = this.state.linkDataArray;
+    let shouldUpdate = false;
 
+    if (Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+      const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
+      modifiedNodeData.forEach((node: any) => {
+        if (!node?.key) return;
+        const prev = nodeMap.get(node.key) || {};
+        nodeMap.set(node.key, { ...prev, ...node });
+      });
+      nextNodeDataArray = Array.from(nodeMap.values());
+      shouldUpdate = true;
+    }
 
+    if (Array.isArray(modifiedLinkData) && modifiedLinkData.length > 0) {
+      const linkMap = new Map((nextLinkDataArray || []).map((link: any) => [link?.key, link]));
+      modifiedLinkData.forEach((link: any) => {
+        if (!link?.key) return;
+        const prev = linkMap.get(link.key) || {};
+        linkMap.set(link.key, { ...prev, ...link });
+      });
+      nextLinkDataArray = Array.from(linkMap.values());
+      shouldUpdate = true;
+    }
+
+    if (Array.isArray(insertedLinkKeys) && insertedLinkKeys.length > 0) {
+      shouldUpdate = true;
+    }
+
+    if (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0) {
+      const removed = new Set(removedLinkKeys);
+      nextLinkDataArray = (nextLinkDataArray || []).filter((link: any) => !removed.has(link?.key));
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.setState({
+        nodeDataArray: normalizeNodeCategoryData(nextNodeDataArray),
+        linkDataArray: nextLinkDataArray,
+      });
+    }
   }
 
   public addToNode(myToNodes: any, n: any) {
@@ -6159,13 +6199,14 @@ break;
   relview = myModelview.findRelationshipView(data?.key);
   if (relview) {
     const points = [];
-    myDiagram.model.setDataProperty(data, "points", []);
-    for (let it = data.points.iterator; it?.next();) {
+    const livePoints = link?.points || gjsLink?.points || data?.points;
+    for (let it = livePoints?.iterator; it?.next();) {
       const point = it.value;
       if (debug) console.log('1603 point', point.x, point.y);
       points.push(point.x)
       points.push(point.y)
     }
+    try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
     relview.points = points;
     const jsnRelview = new jsn.jsnRelshipView(relview);
     if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);

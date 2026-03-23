@@ -146,6 +146,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
+  private persistReshapedLinkPoints: (e: go.DiagramEvent) => void;
 
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -194,6 +195,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       addConnectedRelOptions: ['All'],
       addConnectedRelChoice: ['All']
     };
+    this.persistReshapedLinkPoints = (e: go.DiagramEvent) => {
+      const diagram = e.diagram;
+      const link = e.subject as go.Link;
+      const linkData: any = link?.data;
+      if (!(diagram instanceof go.Diagram) || !(link instanceof go.Link) || !linkData) return;
+      const relview =
+        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
+        linkData?.relshipview ||
+        null;
+      if (!relview) return;
+      const points: number[] = [];
+      try {
+        for (let it = link.points.iterator; it?.next();) {
+          const point = it.value;
+          points.push(point.x, point.y);
+        }
+      } catch (_) {
+        return;
+      }
+      relview.points = points;
+      try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
+        try { linkData.points = points; } catch (_err) {}
+      }
+      try {
+        const data = JSON.parse(JSON.stringify(new jsn.jsnRelshipView(relview)));
+        diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      } catch (_) {}
+    };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
@@ -234,6 +263,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkReshaped', this.persistReshapedLinkPoints);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -437,6 +467,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('InitialLayoutCompleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkReshaped', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('LinkReshaped', this.persistReshapedLinkPoints);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);

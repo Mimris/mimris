@@ -47,7 +47,27 @@ function installSafeNodeCategoryGuard() {
   proto.__safeNodeCategoryGuardInstalled = true;
 }
 
+function installSafeLinkCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeLinkCategoryGuardInstalled) return;
+  const original = proto.setCategoryForLinkData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForLinkData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : constants.gojs.C_LINKEMPLATE));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeLinkCategoryGuardInstalled = true;
+}
+
 installSafeNodeCategoryGuard();
+installSafeLinkCategoryGuard();
 
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;

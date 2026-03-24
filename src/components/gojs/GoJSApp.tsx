@@ -1534,45 +1534,55 @@ class GoJSApp extends React.Component<{}, AppState> {
    */
   public handleModelChange(obj: go.IncrementalData) {
     const insertedNodeKeys = obj.insertedNodeKeys;
-    const modifiedNodeData = obj.modifiedNodeData;
     const removedNodeKeys = obj.removedNodeKeys;
     const insertedLinkKeys = obj.insertedLinkKeys;
-    const modifiedLinkData = obj.modifiedLinkData;
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
+    const diagram = this.state?.myMetis?.myDiagram;
+    const activeTool = diagram?.currentTool;
+    const isActiveDrag =
+      activeTool instanceof go.DraggingTool &&
+      activeTool.isActive === true;
+    const hasMeaningfulModelDataChanges =
+      !!modifiedModelData &&
+      typeof modifiedModelData === 'object' &&
+      Object.keys(modifiedModelData).length > 0;
+    const hasStructuralModelChanges =
+      (Array.isArray(insertedNodeKeys) && insertedNodeKeys.length > 0) ||
+      (Array.isArray(removedNodeKeys) && removedNodeKeys.length > 0) ||
+      (Array.isArray(insertedLinkKeys) && insertedLinkKeys.length > 0) ||
+      (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0) ||
+      hasMeaningfulModelDataChanges;
+
+    if (
+      isActiveDrag &&
+      !hasStructuralModelChanges
+    ) {
+      return;
+    }
+
     let nextNodeDataArray = this.state.nodeDataArray;
     let nextLinkDataArray = this.state.linkDataArray;
     let shouldUpdate = false;
 
-    if (Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
-      const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
-      modifiedNodeData.forEach((node: any) => {
-        if (!node?.key) return;
-        const prev = nodeMap.get(node.key) || {};
-        nodeMap.set(node.key, { ...prev, ...node });
-      });
-      nextNodeDataArray = Array.from(nodeMap.values());
+    // Keep GoJS as the source of truth for ordinary model mutations such as drag
+    // location/size/group updates. Feeding those changes back into React state can
+    // cause ReactDiagram to re-drive the live diagram and make dragging appear to
+    // advance in delayed steps. Structural changes are still mirrored below.
+    const hasStructuralNodeChanges =
+      (Array.isArray(insertedNodeKeys) && insertedNodeKeys.length > 0) ||
+      (Array.isArray(removedNodeKeys) && removedNodeKeys.length > 0);
+    const hasStructuralLinkChanges =
+      (Array.isArray(insertedLinkKeys) && insertedLinkKeys.length > 0) ||
+      (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0);
+
+    if (hasStructuralNodeChanges && Array.isArray((diagram?.model as any)?.nodeDataArray)) {
+      nextNodeDataArray = [...(diagram.model as any).nodeDataArray];
       shouldUpdate = true;
     }
 
-    if (Array.isArray(modifiedLinkData) && modifiedLinkData.length > 0) {
-      const linkMap = new Map((nextLinkDataArray || []).map((link: any) => [link?.key, link]));
-      modifiedLinkData.forEach((link: any) => {
-        if (!link?.key) return;
-        const prev = linkMap.get(link.key) || {};
-        linkMap.set(link.key, { ...prev, ...link });
-      });
-      nextLinkDataArray = Array.from(linkMap.values());
-      shouldUpdate = true;
-    }
-
-    if (Array.isArray(insertedLinkKeys) && insertedLinkKeys.length > 0) {
-      shouldUpdate = true;
-    }
-
-    if (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0) {
-      const removed = new Set(removedLinkKeys);
-      nextLinkDataArray = (nextLinkDataArray || []).filter((link: any) => !removed.has(link?.key));
+    if (hasStructuralLinkChanges && Array.isArray((diagram?.model as any)?.linkDataArray)) {
+      nextLinkDataArray = [...(diagram.model as any).linkDataArray];
       shouldUpdate = true;
     }
 
@@ -3328,6 +3338,35 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.model.setDataProperty(data, "loc", newLoc);
             myDiagram.model.setDataProperty(data, "size", currentGroupSize);
           }
+          const isPlainTopLevelGroupMove =
+            !isLaneGroup &&
+            !shiftPressed &&
+            !(sel.containingGroup instanceof go.Group) &&
+            !previousGroup &&
+            !(typeof data?.group === "string" && data.group);
+          if (isPlainTopLevelGroupMove) {
+            objview.group = "";
+            objview.isGroup = true;
+            if (data) {
+              data.isGroup = true;
+            }
+            const gnode = myGoModel.findNodeByViewId(objview.id);
+            if (gnode) {
+              gnode.loc = objview.loc;
+              if (objview.size) gnode.size = objview.size;
+              gnode.group = "";
+            }
+            const nextScale = applyDerivedScaleToPart(myDiagram, sel, null, objview, gnode);
+            objview.scale = nextScale;
+            uic.addItemToList(modifiedObjectViews, {
+              id: objview?.id,
+              loc: objview?.loc,
+              size: objview?.size,
+              group: "",
+              scale: objview?.scale,
+            });
+            continue;
+          }
           let persistedGroup = objview.group;
           if (isLaneGroup) {
             // Resolve lane membership from the actual drop position.
@@ -3517,28 +3556,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          try {
-            console.warn('[GROUP_MOVE_STATE]', {
-              groupKey: sel.key,
-              groupName: data?.name,
-              isLaneGroup,
-              grabIsAllowed: objview?.grabIsAllowed,
-              persistedGroup,
-              selectionCount: myDiagram.selection.count,
-            });
-          } catch (_) {
-          }
           if (!isLaneGroup && groupAllowsGrab(sel, myModelview, myMetis)) {
             const parentObj = objview?.object || myModel?.findObject?.(objview?.objectRef);
             const containsType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-            try {
-              console.warn('[GROUP_GRAB_START]', {
-                groupKey: sel.key,
-                groupName: data?.name,
-                grabIsAllowed: objview?.grabIsAllowed,
-              });
-            } catch (_) {
-            }
             const grabCandidates: go.Node[] = [];
             myDiagram.nodes.each((candidate: go.Node) => {
               if (!(candidate instanceof go.Node) || candidate instanceof go.Group) return;
@@ -3548,15 +3568,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             });
             grabCandidates.forEach((candidate: go.Node) => {
               const candidateData: any = candidate.data || {};
-              try {
-                console.warn('[GROUP_GRAB_CANDIDATE]', {
-                  groupKey: sel.key,
-                  candidateKey: candidateData?.key,
-                  candidateName: candidateData?.name,
-                  candidateGroup: candidateData?.group,
-                });
-              } catch (_) {
-              }
               const candidateObjview =
                 myModelview.findObjectView(candidateData?.key) ||
                 candidateData?.objectview;
@@ -3574,14 +3585,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 return;
               }
               const attached = attachPartToGroup(myDiagram, candidate, sel, candidateData);
-              try {
-                console.warn('[GROUP_GRAB_ATTACH]', {
-                  groupKey: sel.key,
-                  candidateKey: candidateData?.key,
-                  attached,
-                });
-              } catch (_) {
-              }
               if (!attached) return;
 
               const goCandidate = myGoModel.findNode(candidateData?.key);
@@ -4152,6 +4155,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       const selection = e.subject;
       const data = selection.first().data;
       const isMetamodel = this.isMetamodelType(data.category);
+      const nodeDataToForceRemove: any[] = [];
+      const linkDataToForceRemove: any[] = [];
       if (isMetamodel) {
         if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
           renameTypes = true;
@@ -4306,6 +4311,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             modifiedRelships.push(jsnRelship);
             const jsnRelview = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelview);
+            linkDataToForceRemove.push(data);
           }
         }
       }
@@ -4333,32 +4339,75 @@ class GoJSApp extends React.Component<{}, AppState> {
       for (let it = selection?.iterator; it?.next();) {
         const sel = it.value;
         const data = sel.data;
-        if (data.category === constants.gojs.C_OBJECT) {
+        const isPersistedObjectNode =
+          sel instanceof go.Node &&
+          data?.category !== constants.gojs.C_OBJECTTYPE &&
+          data?.category !== constants.gojs.C_RELATIONSHIP &&
+          (
+            data?.category === constants.gojs.C_OBJECT ||
+            data?.objectview ||
+            data?.objviewRef ||
+            data?.object ||
+            data?.objRef
+          );
+        if (isPersistedObjectNode) {
           const key = data.key;
           const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
-          if (myNode) {
-            const objview = myModelview.findObjectView(myNode.key);
-            const object = objview?.object;
-            if (object) {
-              object.markedAsDeleted = !myMetis.deleteViewsOnly;
-              objview.markedAsDeleted = true;
-              const jsnObject = new jsn.jsnObject(object);
-              modifiedObjects.push(jsnObject);
-              const jsnObjview = new jsn.jsnObjectView(objview);
-              modifiedObjectViews.push(jsnObjview);
-            }
+          const objview =
+            myModelview.findObjectView(myNode?.key || key) ||
+            myMetis.findObjectView(data?.objviewRef || key) ||
+            data?.objectview;
+          const object =
+            objview?.object ||
+            myNode?.object ||
+            data?.object ||
+            myModel.findObject(objview?.objectRef || data?.objRef);
+          if (objview) {
+            objview.markedAsDeleted = true;
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            modifiedObjectViews.push(jsnObjview);
           }
+          if (object) {
+            object.markedAsDeleted = !myMetis.deleteViewsOnly;
+            const jsnObject = new jsn.jsnObject(object);
+            modifiedObjects.push(jsnObject);
+          }
+          nodeDataToForceRemove.push(data);
         }
       }
     }
     for (let i = 0; i < modifiedObjectViews.length; i++) {
       const objview = modifiedObjectViews[i];
       if (objview.markedAsDeleted) {
-        const myNode = this.getNode(context.myGoModel, objview.id);
+        const myNode =
+          this.getNode(context.myGoModel, objview.id) ||
+          context.myGoModel?.findNodeByViewId?.(objview.id) ||
+          context.myGoModel?.findNode?.(objview.id);
         if (myNode) {
           uic.deleteNode(myNode, deletedFlag, context);
+          continue;
+        }
+        const liveDiagramNode =
+          myDiagram.findNodeForKey(objview.id) ||
+          myDiagram.findPartForKey(objview.id);
+        if (liveDiagramNode) {
+          try { myDiagram.remove(liveDiagramNode); } catch (_) { }
         }
       }
+    }
+    for (let i = 0; i < linkDataToForceRemove.length; i++) {
+      const linkData = linkDataToForceRemove[i];
+      try {
+        const liveLinkData = myDiagram.findLinkForKey(linkData?.key)?.data || linkData;
+        myDiagram.model.removeLinkData(liveLinkData);
+      } catch (_) { }
+    }
+    for (let i = 0; i < nodeDataToForceRemove.length; i++) {
+      const nodeData = nodeDataToForceRemove[i];
+      try {
+        const liveNodeData = myDiagram.findNodeForKey(nodeData?.key)?.data || nodeData;
+        myDiagram.model.removeNodeData(liveNodeData);
+      } catch (_) { }
     }
     break;
   }

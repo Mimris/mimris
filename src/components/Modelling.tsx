@@ -130,8 +130,11 @@ const Modelling = (props: any) => {
 
   let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel?.id) // if no model in focus, set the active tab to 0
 
-  let myMetis = new akm.cxMetis();
-  GenGojsModel(props, myMetis)
+  const myMetisRef = useRef<any>(null);
+  if (!myMetisRef.current) {
+    myMetisRef.current = new akm.cxMetis();
+  }
+  const myMetis = myMetisRef.current;
 
   useEffect(() => {
     if (!debug) console.log('136 Modelling', mmToggle )
@@ -145,15 +148,14 @@ const Modelling = (props: any) => {
 
 
 
-  useEffect(() => { // Genereate GoJs node model 
-    if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+  useEffect(() => { // Generate GoJS node model when focus changes
+    if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
-    setRefresh(!refresh)
     setActiveTab(activetabindex)
     setMount(true);
-  }, [])
+  }, [props.phFocus?.focusModel?.id, props.phFocus?.focusModelview?.id, refresh])
 
   useEffect(() => {
     if (didRestoreStoredFocusModelRef.current) return;
@@ -212,20 +214,15 @@ const Modelling = (props: any) => {
 
   useEffect(() => {
     if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
-    const timer = setTimeout(() => {
-      doRefresh()
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-      // setRefresh(!refresh)
-    }, 50);
+    if (!props.phFocus?.focusRefresh?.id) return;
+    doRefresh();
+    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
   }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-    const timer = setTimeout(() => {
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
-      setRefresh(!refresh)
-    }, 50);
-    return () => clearTimeout(timer);
+    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
+    setRefresh(prev => !prev)
   }, [props.phFocus?.focusModelview?.id])
 
   useEffect(() => {
@@ -239,10 +236,7 @@ const Modelling = (props: any) => {
     const persistedProps = getPersistedState();
     setMemorySessionState(persistedProps)
     setMemoryLocState(persistedProps)
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 1000);
-    return () => clearTimeout(timer);
+    setRefresh(prev => !prev)
   }
 
   // Function to export curmod.objects to clipboard

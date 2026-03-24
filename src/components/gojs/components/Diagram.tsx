@@ -1584,7 +1584,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
             "draggingTool.dragsTree": false,
-            "draggingTool.isGridSnapEnabled": true,
+            // Continuous dragging is expected in the modeller; grid snapping makes
+            // groups/containers feel delayed and stepwise after they have been dropped.
+            "draggingTool.isGridSnapEnabled": false,
             "linkingTool.portGravity": 50,  // distance from port edge that still snaps to it (bigger = easier linking)
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
@@ -1760,7 +1762,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // use a converter to display information about the diagram model
       );
     myDiagram.grid.visible = true;
-    myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
+    myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
     myMetis.myDiagram = myDiagram;
     this.updateZoomInvariantHandles(myDiagram);
@@ -5887,6 +5889,70 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return canDelete;
       };
 
+      const persistDeletedObjectPart = (diagram: go.Diagram, part: go.Part) => {
+        if (!(part instanceof go.Node)) return false;
+        const data: any = part.data || {};
+        const objview =
+          myMetis.findObjectView(data?.objviewRef || data?.key) ||
+          myMetis.findObjectView(data?.key) ||
+          data?.objectview ||
+          null;
+        const object =
+          objview?.object ||
+          myMetis.findObject(data?.objRef || objview?.objectRef) ||
+          data?.object ||
+          null;
+
+        if (objview) {
+          objview.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
+            diagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+        if (object) {
+          object.markedAsDeleted = !myMetis.deleteViewsOnly;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnObject(object)));
+            diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+        try {
+          diagram.dispatch?.({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: String(Date.now()), name: 'deleteObjectPartDirect' }
+          });
+        } catch (_) { }
+
+        const livePart =
+          diagram.findNodeForKey(data?.key) ||
+          diagram.findPartForKey(data?.key) ||
+          part;
+        const liveNodeData = livePart?.data || data;
+        try {
+          diagram.startTransaction('deleteObjectPartDirect');
+          if (livePart instanceof go.Group) {
+            try {
+              const subParts = livePart.findSubGraphParts();
+              if (subParts) {
+                diagram.removeParts(subParts, false);
+              }
+            } catch (_) { }
+          }
+          diagram.model.removeNodeData(liveNodeData);
+          try {
+            diagram.remove(livePart);
+          } catch (_) { }
+          diagram.commitTransaction('deleteObjectPartDirect');
+        } catch (_) {
+          try {
+            if (diagram.isInTransaction) diagram.rollbackTransaction();
+          } catch (_rollbackErr) { }
+          return false;
+        }
+        return true;
+      };
+
       const handlePartCopy = (diagram: go.Diagram, part: go.Part) => {
         if (!diagram || !part) return;
         if (part instanceof go.Node) {
@@ -7800,7 +7866,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (confirm('Do you really want to delete this object?')) {
           myMetis.deleteViewsOnly = false;
           myMetis.currentNode = part.data;
-          diagram.commandHandler.deleteSelection();
+          if (!persistDeletedObjectPart(diagram, part)) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
         restore();
       };
@@ -7885,7 +7953,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!diagram.commandHandler.canDeleteSelection()) return;
         if (confirm('Do you really want to delete the current selection?')) {
           myMetis.deleteViewsOnly = false;
-          diagram.commandHandler.deleteSelection();
+          const selectedParts: go.Part[] = [];
+          diagram.selection.each((sel) => selectedParts.push(sel));
+          let deletedAny = false;
+          for (let i = 0; i < selectedParts.length; i++) {
+            deletedAny = persistDeletedObjectPart(diagram, selectedParts[i]) || deletedAny;
+          }
+          if (!deletedAny) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
       };
 
@@ -11450,7 +11526,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const part = it.value;
         if (!(part instanceof go.Group)) continue;
         if (key === "Pool" || key === "Lane" || key.startsWith("Lane")) continue;
-        part.dragComputation = stayInGroup;
+        // Generic containers should drag freely. Use a pass-through computation
+        // instead of clamping to a containing group.
+        part.dragComputation = (_part: go.Part, pt: go.Point) => pt;
       }
 
       const draggingTool = myDiagram.toolManager.draggingTool;

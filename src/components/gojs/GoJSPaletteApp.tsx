@@ -34,6 +34,38 @@ function normalizePaletteNodeCategoryData(nodeDataArray: any[] | undefined): any
   });
 }
 
+function arePaletteValuesEqual(left: any, right: any): boolean {
+  if (left === right) return true;
+  if (typeof left === 'number' && typeof right === 'number' && Number.isNaN(left) && Number.isNaN(right)) {
+    return true;
+  }
+  if (!left || !right || typeof left !== 'object' || typeof right !== 'object') {
+    return false;
+  }
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) return false;
+  for (let i = 0; i < leftKeys.length; i++) {
+    const key = leftKeys[i];
+    if (!Object.prototype.hasOwnProperty.call(right, key)) return false;
+    if (left[key] !== right[key]) return false;
+  }
+  return true;
+}
+
+function arePaletteArraysEquivalent(left: any[] | undefined, right: any[] | undefined): boolean {
+  if (left === right) return true;
+  const leftArr = Array.isArray(left) ? left : [];
+  const rightArr = Array.isArray(right) ? right : [];
+  if (leftArr.length !== rightArr.length) return false;
+  for (let i = 0; i < leftArr.length; i++) {
+    if (!arePaletteValuesEqual(leftArr[i], rightArr[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
@@ -184,19 +216,25 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     if (nodesChanged || linksChanged) {
       const nextNodes = nodesChanged ? normalizePaletteNodeCategoryData(this.props.nodeDataArray ?? []) : this.state.nodeDataArray;
       const nextLinks = linksChanged ? (this.props.linkDataArray ?? []) : this.state.linkDataArray;
+      const stateNodesChanged = !arePaletteArraysEquivalent(nextNodes, this.state.nodeDataArray);
+      const stateLinksChanged = !arePaletteArraysEquivalent(nextLinks, this.state.linkDataArray);
+      const stateFullNodesChanged = !arePaletteArraysEquivalent(nextNodes, this.state.fullNodeDataArray);
+      const stateFullLinksChanged = !arePaletteArraysEquivalent(nextLinks, this.state.fullLinkDataArray);
 
-      this.setState({
-        nodeDataArray: nextNodes,
-        linkDataArray: nextLinks,
-        selectedData: null,
-        skipsDiagramUpdate: false,
-        fullNodeDataArray: nextNodes,
-        fullLinkDataArray: nextLinks
-      }, () => {
-        if (nodesChanged) this.refreshNodeIndex(nextNodes);
-        if (linksChanged) this.refreshLinkIndex(nextLinks);
-        this.syncFocusPeerState(this.props?.phFocus?.focusObject?.id || '');
-      });
+      if (stateNodesChanged || stateLinksChanged || stateFullNodesChanged || stateFullLinksChanged || this.state.selectedData !== null || this.state.skipsDiagramUpdate) {
+        this.setState({
+          nodeDataArray: nextNodes,
+          linkDataArray: nextLinks,
+          selectedData: null,
+          skipsDiagramUpdate: false,
+          fullNodeDataArray: nextNodes,
+          fullLinkDataArray: nextLinks
+        }, () => {
+          if (stateNodesChanged) this.refreshNodeIndex(nextNodes);
+          if (stateLinksChanged) this.refreshLinkIndex(nextLinks);
+          this.syncFocusPeerState(this.props?.phFocus?.focusObject?.id || '');
+        });
+      }
     }
 
     const resetToken = (this.props as any)?.resetPaletteFilterToken;

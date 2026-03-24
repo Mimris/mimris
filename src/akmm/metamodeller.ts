@@ -1272,6 +1272,7 @@ export class cxMetis {
                     objview.setTemplate2(item.template2);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.setGrabIsAllowed(item.grabIsAllowed === true || item.grabIsAllowed === "true");
                     objview.setArrowscale(Number(item.arrowscale));
                     objview.setMemberscale(Number(item.memberscale));
                     objview.setGroupIsExpanded(item.isExpanded);

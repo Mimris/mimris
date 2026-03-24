@@ -1452,6 +1452,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (run === false) {
           run = true;
           draft.selectedData[propname] = value;
+          if (propname === 'grabIsAllowed') {
+            const nextValue = value === true || value === 'true';
+            try {
+              draft.selectedData[propname] = nextValue;
+            } catch (_) {}
+            try {
+              draft.modalContext.myContext.objectview[propname] = nextValue;
+            } catch (_) {}
+            try {
+              const currentNode: any = this.myMetis?.currentNode;
+              if (currentNode?.objectview) currentNode.objectview[propname] = nextValue;
+              if (currentNode?.data?.objectview) currentNode.data.objectview[propname] = nextValue;
+              if (currentNode?.data) currentNode.data[propname] = nextValue;
+              if (currentNode) currentNode[propname] = nextValue;
+            } catch (_) {}
+          }
         }
       })
     );

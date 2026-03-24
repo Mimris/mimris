@@ -14,6 +14,7 @@ import { core } from './constants';
 import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
+import { getCurrentStore } from '../store';
 
 const grabIsAllowed = true;
 const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
@@ -1708,6 +1709,9 @@ export function ensureContainsRelationshipView(
         relview.fromObjview = fromObjview;
         relview.toObjview = toObjview;
         relview.points = [];
+        if (typeof relship.addRelationshipView === 'function') {
+            relship.addRelationshipView(relview);
+        }
         if (typeof fromObjview.addOutputRelview === 'function') {
             fromObjview.addOutputRelview(relview);
         }
@@ -1715,7 +1719,9 @@ export function ensureContainsRelationshipView(
             toObjview.addInputRelview(relview);
         }
         modelview.addRelationshipView(relview);
-        if (myMetis?.relshipviews && !myMetis.relshipviews.find((rv) => rv?.id === relview.id)) {
+        if (typeof myMetis?.addRelationshipView === 'function') {
+            myMetis.addRelationshipView(relview);
+        } else if (myMetis?.relshipviews && !myMetis.relshipviews.find((rv) => rv?.id === relview.id)) {
             myMetis.relshipviews.push(relview);
         }
     }
@@ -1855,6 +1861,13 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 if (fromObjview && toObjview) {
                     relview.setFromObjectView(fromObjview);
                     relview.setToObjectView(toObjview);
+                    const isHiddenContains =
+                        rel?.type?.name === constants.types.AKM_CONTAINS &&
+                        String(toObjview.group || "") === String(fromObjview.id);
+                    relview.visible = !isHiddenContains;
+                    if (isHiddenContains) {
+                        relview.points = [];
+                    }
                     rel.addRelationshipView(relview);
                     if (debug) console.log('1682 relview', relview);
                     modelview.addRelationshipView(relview);
@@ -1865,6 +1878,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                     link.from = link.fromNode?.key;
                     link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
                     link.to = link.toNode?.key;
+                    link.visible = relview.visible !== false;
                     myGoModel.addLink(link);
                     links.push(link);
                     myDiagram.model.addLinkData(link);
@@ -1977,6 +1991,13 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         if (fromObjview && toObjview) {
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
+            const isHiddenContains =
+                relview.relship?.type?.name === constants.types.AKM_CONTAINS &&
+                String(toObjview.group || "") === String(fromObjview.id);
+            relview.visible = !isHiddenContains;
+            if (isHiddenContains) {
+                relview.points = [];
+            }
 
             if (debug) console.log('1789 relview', relview);
             modelview.addRelationshipView(relview);
@@ -1984,6 +2005,7 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
             const myGoModel = myMetis.gojsModel;
             let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
             link.loadLinkContent(myGoModel);
+            link.visible = relview.visible !== false;
             myGoModel.addLink(link);
             if (debug) console.log('1796 relview, link', relview, link);
             // Prepare and do the dispatch
@@ -2543,8 +2565,30 @@ export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string,
                 }
                 continue;
             }
-            // Non-group members can still use the simpler point-inside fallback.
-            if (childCenterX > groupLeft && childCenterX < groupRight && childCenterY > groupTop && childCenterY < groupBottom) {
+            // For regular nodes, prefer full containment, then center-inside, then a meaningful overlap.
+            const centerInside =
+                childCenterX > groupLeft &&
+                childCenterX < groupRight &&
+                childCenterY > groupTop &&
+                childCenterY < groupBottom;
+            const overlapLeft = Math.max(childLeft, groupLeft);
+            const overlapTop = Math.max(childTop, groupTop);
+            const overlapRight = Math.min(childRight, groupRight);
+            const overlapBottom = Math.min(childBottom, groupBottom);
+            const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+            const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+            const overlapArea = overlapWidth * overlapHeight;
+            const overlapRatio = overlapArea / childArea;
+            if (
+                centerInside ||
+                overlapRatio >= 0.45 ||
+                (
+                    childLeft >= groupLeft &&
+                    childRight <= groupRight &&
+                    childTop >= groupTop &&
+                    childBottom <= groupBottom
+                )
+            ) {
                 groups.push({
                     "name": node.name,
                     "groupId": node.key,
@@ -2771,41 +2815,107 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 if (isSwimlaneStructure) {
                     // Keep existing node.group assignments unchanged.
                 } else {
-                // Get potential members of the group
-                const nods = goModel?.nodes;
+                // Get potential members of the group. Snapshot candidates first so membership
+                // changes do not interfere with the iteration order.
+                const liveGroupPart = myDiagram?.findNodeForKey?.(group.key);
+                const storeState = getCurrentStore?.()?.getState?.();
+                let storedGroupObjview: any = null;
+                if (storeState?.phData?.metis?.models) {
+                    outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
+                        const model = storeState.phData.metis.models[mi];
+                        const modelviews = model?.modelviews || [];
+                        for (let mvi = 0; mvi < modelviews.length; mvi++) {
+                            const modelview = modelviews[mvi];
+                            const objectviews = modelview?.objectviews || [];
+                            for (let ovi = 0; ovi < objectviews.length; ovi++) {
+                                const candidate = objectviews[ovi];
+                                if (candidate?.id === group?.key || candidate?.id === group?.objviewRef || candidate?.id === group?.data?.objviewRef) {
+                                    storedGroupObjview = candidate;
+                                    break outer;
+                                }
+                            }
+                        }
+                    }
+                }
+                const groupAllowsGrab = !!(
+                    liveGroupPart?.data?.objectview?.grabIsAllowed ||
+                    liveGroupPart?.objectview?.grabIsAllowed ||
+                    liveGroupPart?.data?.grabIsAllowed ||
+                    storedGroupObjview?.grabIsAllowed ||
+                    group?.objectview?.grabIsAllowed ||
+                    group?.grabIsAllowed ||
+                    group?.data?.grabIsAllowed
+                );
+                try {
+                    console.warn('[LEGACY_GROUP_GRAB_STATE]', {
+                        groupKey: group?.key,
+                        groupName: group?.name,
+                        groupAllowsGrab,
+                        liveGrab: liveGroupPart?.data?.objectview?.grabIsAllowed,
+                        storeGrab: storedGroupObjview?.grabIsAllowed,
+                        modelGrab: group?.objectview?.grabIsAllowed,
+                    });
+                } catch (_) {}
+                const nods = goModel?.nodes || [];
+                const candidateGroups = new Map<string, gjs.goObjectNode | null>();
+                for (let i = 0; i < nods.length; i++) {
+                    const nod = nods[i] as gjs.goObjectNode;
+                    if (!nod || nod.key === group.key || nod.isGroup) continue;
+                    candidateGroups.set(String(nod.key), getGroupByLocation(goModel, nod.loc, nod.size, nod));
+                }
                 for (let i = 0; i < nods.length; i++) {
                     let nod = nods[i] as gjs.goObjectNode;
-                    // if nod is the group, do nothing
-                    if (nod.key === group.key)
-                        continue;
-                    const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (nod && grp /*?.grabIsAllowed*/) {
+                    if (!nod || nod.key === group.key || nod.isGroup) continue;
+                    const grp = candidateGroups.get(String(nod.key));
+                    if (nod && grp && grp.key === group.key && groupAllowsGrab) {
+                        try {
+                            console.warn('[LEGACY_GROUP_GRAB_CANDIDATE]', {
+                                groupKey: group?.key,
+                                nodeKey: nod?.key,
+                                nodeName: nod?.name,
+                            });
+                        } catch (_) {}
                         if (debug) console.log('960 grp, nod', grp, nod);
-                        // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
+                        if (loc) nod.loc = loc;
                         const n = myDiagram.findNodeForKey(nod.key);
+                        if (liveGroupPart && n) {
+                            try {
+                                const memberSet = new go.Set<go.Part>();
+                                memberSet.add(n);
+                                const added = liveGroupPart.addMembers(memberSet, true);
+                                try {
+                                    console.warn('[LEGACY_GROUP_GRAB_ATTACH]', {
+                                        groupKey: group?.key,
+                                        nodeKey: nod?.key,
+                                        added,
+                                    });
+                                } catch (_) {}
+                            } catch (e) {
+                                if (debug) console.log('966 addMembers e', e);
+                            }
+                        }
                         if (n?.data) {
                             try {
+                                if (myDiagram.model?.setGroupKeyForNodeData) {
+                                    myDiagram.model.setGroupKeyForNodeData(n.data, nod.group);
+                                }
                                 myDiagram.model.setDataProperty(n.data, "group", nod.group);
+                                if (loc) myDiagram.model.setDataProperty(n.data, "loc", nod.loc);
                                 if (debug) console.log('968 n.data', n.data);
                             } catch (e) {
                                 if (debug) console.log('970 e', e);
                             }
                         }
-                        // uid.selectContent(nod, myMetis, myDiagram);
-                    } else {
-                        nod.group = "";
                     }
                     objview = nod.objectview;
                     if (objview) {
                         objview.loc = nod.loc;
                         objview.size = nod.size;
                         objview.modified = true;
-                        if (nod.group)
-                            objview.group = grp.objviewRef;
-                        else
-                            objview.group = "";
+                        if (nod.group && candidateGroups.get(String(nod.key))?.objviewRef)
+                            objview.group = candidateGroups.get(String(nod.key)).objviewRef;
                     }
                 }
                 }
@@ -5128,6 +5238,29 @@ export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram
             relview.visible = !insideGroup;
             if (insideGroup) {
                 relview.points = [];
+            }
+            const liveLink = myDiagram?.findLinkForKey?.(relview.id);
+            if (liveLink) {
+                liveLink.visible = relview.visible !== false;
+                if (insideGroup) {
+                    try {
+                        myDiagram.model?.setDataProperty?.(liveLink.data, "visible", false);
+                        myDiagram.model?.setDataProperty?.(liveLink.data, "points", []);
+                    } catch (_) {}
+                }
+            }
+            if (insideGroup) {
+                try {
+                    myDiagram?.links?.each?.((ll: any) => {
+                        if (ll?.data?.relshipRef === relview.relship?.id) {
+                            ll.visible = false;
+                            try {
+                                myDiagram.model?.setDataProperty?.(ll.data, "visible", false);
+                                myDiagram.model?.setDataProperty?.(ll.data, "points", []);
+                            } catch (_) {}
+                        }
+                    });
+                } catch (_) {}
             }
             modifiedRelviews.push(relview);
         }

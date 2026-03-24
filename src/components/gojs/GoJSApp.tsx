@@ -21,6 +21,7 @@ import * as uim from '../../akmm/ui_modal';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
 import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
+import { getCurrentStore } from '../../store';
 
 const debug = false;
 const debugPorts = true;
@@ -304,13 +305,63 @@ function getGroupBodyBounds(grp: go.Group | null | undefined): go.Rect | null {
   return back.getDocumentBounds();
 }
 
+function groupAllowsGrab(
+  group: go.Group | null | undefined,
+  myModelview?: any,
+  myMetis?: any
+): boolean {
+  if (!(group instanceof go.Group)) return false;
+  const data: any = group.data || {};
+  const storeState = getCurrentStore?.()?.getState?.();
+  let storedObjview: any = null;
+  if (storeState?.phData?.metis?.models) {
+    outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
+      const model = storeState.phData.metis.models[mi];
+      const modelviews = model?.modelviews || [];
+      for (let mvi = 0; mvi < modelviews.length; mvi++) {
+        const modelview = modelviews[mvi];
+        const objectviews = modelview?.objectviews || [];
+        for (let ovi = 0; ovi < objectviews.length; ovi++) {
+          const candidate = objectviews[ovi];
+          if (candidate?.id === data?.key || candidate?.id === data?.objviewRef) {
+            storedObjview = candidate;
+            break outer;
+          }
+        }
+      }
+    }
+  }
+  const objview =
+    data.objectview ||
+    myModelview?.findObjectView?.(data?.key) ||
+    myMetis?.findObjectView?.(data?.objviewRef || data?.key) ||
+    storedObjview;
+  return (
+    objview?.grabIsAllowed === true ||
+    data?.grabIsAllowed === true ||
+    (group as any)?.grabIsAllowed === true ||
+    (group as any)?.objectview?.grabIsAllowed === true
+  );
+}
+
 function isPartVisuallyInsideGroup(part: go.Part | null | undefined, grp: go.Group | null | undefined): boolean {
   if (!(part instanceof go.Part) || !(grp instanceof go.Group)) return false;
   const groupBounds = getGroupBodyBounds(grp) || grp.actualBounds;
   const partBounds = part.actualBounds;
   if (!groupBounds || !partBounds) return false;
+  if (groupBounds.containsRect(partBounds)) return true;
   const center = partBounds.center;
-  return groupBounds.containsPoint(center);
+  if (groupBounds.containsPoint(center)) return true;
+  const overlapLeft = Math.max(partBounds.x, groupBounds.x);
+  const overlapTop = Math.max(partBounds.y, groupBounds.y);
+  const overlapRight = Math.min(partBounds.right, groupBounds.right);
+  const overlapBottom = Math.min(partBounds.bottom, groupBounds.bottom);
+  const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+  const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+  const overlapArea = overlapWidth * overlapHeight;
+  const partArea = Math.max(1, partBounds.width * partBounds.height);
+  const overlapRatio = overlapArea / partArea;
+  return overlapRatio >= 0.45;
 }
 
 function resolveClickedPortGraphObject(subject: any): go.GraphObject | null {
@@ -2658,7 +2709,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (n instanceof go.Link) continue;
           // Group moves are persisted in a dedicated block later; keep this path
           // scoped to regular nodes to avoid accidental group membership rewrites.
-          if (n instanceof go.Group) continue;
           // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
           // the rendered position and cause membership/loc persistence to drift.
           const loc = `${n.location.x} ${n.location.y}`;
@@ -2688,7 +2738,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               groupKey = containingGroupKey;
             }
           } else if (group) {
-            groupKey = group.key;
+            const groupPart = myDiagram.findNodeForKey(group.key) as go.Group | null;
+            if (!groupAllowsGrab(groupPart, myModelview, myMetis)) {
+              group = null;
+              groupKey = "";
+            } else {
+              groupKey = group.key;
+            }
           }
           const adoptResolvedContainingGroup =
             Boolean(containingGroupKey) &&
@@ -2795,6 +2851,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const containingKey = myToNode.n.containingGroup.key;
                 if (containingKey) {
                   goParentGroup = myGoModel.findNode(containingKey) as gjs.goObjectNode;
+                }
+              } else if (goParentGroup) {
+
+                const goParentGroupPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
+                if (!groupAllowsGrab(goParentGroupPart, myModelview, myMetis)) {
+                  goParentGroup = null;
                 }
               }
               const previousVisualGroupKey = myFromNode.group || "";
@@ -3203,7 +3265,30 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = it.value;
           if (!(sel instanceof go.Group)) continue;
           const data = sel.data;
-          const objview = myModelview.findObjectView(data?.key) || data?.objectview;
+          const storeState = getCurrentStore?.()?.getState?.();
+          let storedGroupObjview: any = null;
+          if (storeState?.phData?.metis?.models) {
+            outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
+              const model = storeState.phData.metis.models[mi];
+              const modelviews = model?.modelviews || [];
+              for (let mvi = 0; mvi < modelviews.length; mvi++) {
+                const modelview = modelviews[mvi];
+                const objectviews = modelview?.objectviews || [];
+                for (let ovi = 0; ovi < objectviews.length; ovi++) {
+                  const candidate = objectviews[ovi];
+                  if (candidate?.id === data?.key || candidate?.id === data?.objviewRef) {
+                    storedGroupObjview = candidate;
+                    break outer;
+                  }
+                }
+              }
+            }
+          }
+          const objview =
+            data?.objectview ||
+            myModelview.findObjectView(data?.key) ||
+            myMetis?.findObjectView?.(data?.objviewRef || data?.key) ||
+            storedGroupObjview;
           if (!objview) continue;
           const shiftPressed = Boolean(myDiagram?.lastInput?.shift);
           const isLaneGroup =
@@ -3412,6 +3497,150 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
+          try {
+            console.warn('[GROUP_MOVE_STATE]', {
+              groupKey: sel.key,
+              groupName: data?.name,
+              isLaneGroup,
+              grabIsAllowed: objview?.grabIsAllowed,
+              persistedGroup,
+              selectionCount: myDiagram.selection.count,
+            });
+          } catch (_) {
+          }
+          if (!isLaneGroup && groupAllowsGrab(sel, myModelview, myMetis)) {
+            const parentObj = objview?.object || myModel?.findObject?.(objview?.objectRef);
+            const containsType = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+            try {
+              console.warn('[GROUP_GRAB_START]', {
+                groupKey: sel.key,
+                groupName: data?.name,
+                grabIsAllowed: objview?.grabIsAllowed,
+              });
+            } catch (_) {
+            }
+            const grabCandidates: go.Node[] = [];
+            myDiagram.nodes.each((candidate: go.Node) => {
+              if (!(candidate instanceof go.Node) || candidate instanceof go.Group) return;
+              if (myDiagram.selection.contains(candidate)) return;
+              if (!isPartVisuallyInsideGroup(candidate, sel)) return;
+              grabCandidates.push(candidate);
+            });
+            grabCandidates.forEach((candidate: go.Node) => {
+              const candidateData: any = candidate.data || {};
+              try {
+                console.warn('[GROUP_GRAB_CANDIDATE]', {
+                  groupKey: sel.key,
+                  candidateKey: candidateData?.key,
+                  candidateName: candidateData?.name,
+                  candidateGroup: candidateData?.group,
+                });
+              } catch (_) {
+              }
+              const candidateObjview =
+                myModelview.findObjectView(candidateData?.key) ||
+                candidateData?.objectview;
+              if (!candidateObjview) return;
+              if (String(candidateObjview.group || "") === String(sel.key)) return;
+              const candidateObj = candidateObjview.object || myModel?.findObject?.(candidateObjview?.objectRef);
+              if (parentObj?.id && candidateObj?.id && parentObj.id === candidateObj.id) {
+                return;
+              }
+              if (
+                containsType &&
+                (wouldCreateGroupCycle(candidate as any, sel) ||
+                  objectContainsDescendant(candidateObj, parentObj, containsType))
+              ) {
+                return;
+              }
+              const attached = attachPartToGroup(myDiagram, candidate, sel, candidateData);
+              try {
+                console.warn('[GROUP_GRAB_ATTACH]', {
+                  groupKey: sel.key,
+                  candidateKey: candidateData?.key,
+                  attached,
+                });
+              } catch (_) {
+              }
+              if (!attached) return;
+
+              const goCandidate = myGoModel.findNode(candidateData?.key);
+              if (goCandidate) {
+                goCandidate.group = String(sel.key);
+                goCandidate.objectview = candidateObjview;
+              }
+              candidateObjview.group = String(sel.key);
+              const nextScale = applyDerivedScaleToPart(myDiagram, candidate, sel, candidateObjview, goCandidate);
+              candidateObjview.scale = nextScale;
+              candidateData.group = String(sel.key);
+              candidateData.scale = nextScale;
+              try {
+                myDiagram.model.setDataProperty(candidateData, "group", String(sel.key));
+                myDiagram.model.setDataProperty(candidateData, "scale", nextScale);
+              } catch (_) {
+              }
+              const nextLoc = uic.scaleNodeLocation1(gnode, goCandidate || candidateData);
+              if (nextLoc) {
+                candidateObjview.loc = nextLoc;
+                if (goCandidate) goCandidate.loc = nextLoc;
+                candidateData.loc = nextLoc;
+                try {
+                  myDiagram.model.setDataProperty(candidateData, "loc", nextLoc);
+                } catch (_) {
+                }
+              }
+              uic.addItemToList(modifiedObjectViews, {
+                id: candidateObjview?.id,
+                group: candidateObjview?.group,
+                loc: candidateObjview?.loc,
+                scale: candidateObjview?.scale,
+              });
+
+              if (parentObj && candidateObj && containsType) {
+                let nextRel = myModel.findRelationship1(parentObj, candidateObj, containsType, null, null);
+                if (!nextRel) {
+                  nextRel = new akm.cxRelationship(
+                    utils.createGuid(),
+                    containsType,
+                    parentObj,
+                    candidateObj,
+                    constants.types.AKM_CONTAINS,
+                    ""
+                  );
+                  nextRel.parentModelRef = myModel.id;
+                  myModel.addRelationship(nextRel);
+                  parentObj?.addOutputrel(nextRel);
+                  candidateObj?.addInputrel(nextRel);
+                  myMetis.addRelationship(nextRel);
+                }
+                const nextRelview = uic.ensureContainsRelationshipView(
+                  myModelview,
+                  myMetis,
+                  nextRel,
+                  objview,
+                  candidateObjview,
+                  false
+                );
+                if (nextRelview) {
+                  nextRelview.visible = false;
+                  nextRelview.points = [];
+                  const link = myDiagram.findLinkForKey(nextRelview.id);
+                  if (link) {
+                    link.visible = false;
+                  }
+                  myDiagram.links.each((ll: go.Link) => {
+                    if (ll?.data?.relshipRef === nextRel.id) {
+                      ll.visible = false;
+                    }
+                  });
+                  const jsnRelview = new jsn.jsnRelshipView(nextRelview);
+                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                }
+                const jsnRelship = new jsn.jsnRelationship(nextRel);
+                uic.addItemToList(modifiedRelships, jsnRelship);
+              }
+            });
+          }
           assertPartGroupConsistency(myDiagram, sel, persistedGroup);
           if (!isLaneGroup) {
             const movedObj = objview?.object || myModel?.findObject?.(objview?.objectRef);
@@ -3488,6 +3717,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               containsType &&
               previousParentObjview?.object &&
               nextParentObjview?.object &&
+              movedObj.id !== nextParentObjview.object.id &&
               previousGroup &&
               persistedGroup &&
               previousGroup !== persistedGroup &&
@@ -3563,6 +3793,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               movedObj &&
               containsType &&
               nextParentObjview?.object &&
+              movedObj.id !== nextParentObjview.object.id &&
               persistedGroup &&
               (!previousRel || previousGroup === persistedGroup || !previousParentObjview?.object) &&
               !objectContainsDescendant(movedObj, nextParentObjview.object, containsType)
@@ -6303,8 +6534,6 @@ break;
   break;
 }
     }
-
-// uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
 
 // Dispatches
 if (true) { // Dispatches to store individual objects/types

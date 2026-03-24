@@ -2605,6 +2605,9 @@ export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObje
                     }
                 }
             }
+        }
+    }
+}
 export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[]): gjs.goObjectNode[] {
     const nodes = new Array();
     const groupId = groupNode.objviewRef;

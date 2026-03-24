@@ -1682,6 +1682,7 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
+    grabIsAllowed:   boolean;
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
@@ -1720,6 +1721,7 @@ export class jsnObjectView {
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
         this.groupLayout     = objview?.groupLayout;
+        this.grabIsAllowed   = objview?.grabIsAllowed;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.isExpanded      = objview?.isExpanded;

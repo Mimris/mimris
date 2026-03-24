@@ -1033,8 +1033,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let required = false;
         let defValue = "";
         let values = [];
-        let val:string = selObj[k];
-        if (!val) val = "";
+        let val:any = selObj[k];
+        if (val === undefined || val === null) val = "";
         // Handle attributes not to be included in modal
         {
           if (k === 'dash') {
@@ -1061,6 +1061,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (k === 'groupLayout') {
                 val = instview[k];
                 console.log('1047 groupLayout val', val, instview);
+              }
+              if (k === 'memberscale' || k === 'arrowscale' || k === 'textscale') {
+                const selectedValue = selObj?.[k];
+                val = selectedValue !== undefined && selectedValue !== null && selectedValue !== ""
+                  ? selectedValue
+                  : instview?.[k];
               }
               break;             
             case 'editRelshipview':
@@ -1257,6 +1263,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue = 'black';
               fieldType = 'select';
               break;
+            case 'memberscale':
+            case 'arrowscale':
+            case 'textscale':
+              fieldType = 'number';
+              break;
             default:
               if (!fieldType)
                 fieldType = 'textarea';
@@ -1266,7 +1277,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // Handle fieldtypes
         {
           if (fieldType === 'checkbox') {
-            checked = val;
+            checked = val === true || val === 'true';
           }
           if (fieldType === 'radio') {
             fieldType = 'select';
@@ -1349,6 +1360,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
+        if (what === 'editObjectview' && (k === 'memberscale' || k === 'arrowscale' || k === 'textscale')) {
+          readonly = false;
+          disabled = false;
+          fieldType = 'number';
+        }
         if (readonly) { 
           disabled = true;
           if (fieldType !== "textarea")

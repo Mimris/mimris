@@ -28,16 +28,36 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     if (debug) console.log('28 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
     if (debug) console.log('30 InspectorRow: this', this, this.props);
+    this.state = {
+      checkboxValue: props.checked === true || props.value === true || props.value === 'true',
+      inputValue: props.value ?? '',
+    };
+  }
+
+  componentDidUpdate(prevProps: InspectorRowProps) {
+    if (this.props.type === 'checkbox') {
+      const prevChecked = prevProps.checked === true || prevProps.value === true || prevProps.value === 'true';
+      const nextChecked = this.props.checked === true || this.props.value === true || this.props.value === 'true';
+      if (prevChecked !== nextChecked) {
+        this.setState({ checkboxValue: nextChecked });
+      }
+      return;
+    }
+    if (this.props.type === 'number' && prevProps.value !== this.props.value) {
+      this.setState({ inputValue: this.props.value ?? '' });
+    }
   }
 
   private handleInputChange(e: any) {
     if (debug) console.log('33 this.props, e.target', this.props, e.target);
     const fieldType = this.props.type;
     let value = e.target.value;
-    if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
-      e.target.checked = true;
+    if (fieldType === 'checkbox') {
+      value = Boolean(e.target.checked);
+      this.setState({ checkboxValue: value });
+    } else if (fieldType === 'number') {
+      this.setState({ inputValue: value });
     }
-    if (fieldType === 'checkbox') value = e.target.checked;
     if (debug) console.log('41 e.target: ', e.target, e.type);
     if (debug) console.log('42 InspectorRow: this.props, value: ', this.props, value);
     this.props.onInputChange(this.props, value, e.type === 'blur');
@@ -130,6 +150,13 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     }    
     else{
       if (debug) console.log('132 props', this.props);
+      const isCheckbox = this.props.type === 'checkbox';
+      const checked =
+        isCheckbox ? (this.state as any).checkboxValue === true : this.props.checked;
+      const renderedValue =
+        this.props.type === 'number'
+          ? (this.state as any).inputValue
+          : val;
       return (  
         <tr>
           <td className="pr-2  w-25" >{this.props.id}</td> 
@@ -137,8 +164,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             <input
               disabled={this.props.disabled}
               id={this.props.id}
-              value={val}
-              checked={this.props.checked}
+              value={isCheckbox ? undefined : renderedValue}
+              checked={checked}
               type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}

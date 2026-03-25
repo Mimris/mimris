@@ -1170,9 +1170,63 @@ function setGroupMemberVisibilityRecursive(group: go.Group, visible: boolean) {
   }
 }
 
+function getGroupMemberLocSnapshots(diagram: any): Map<string, Map<string, string>> {
+  if (!diagram) return new Map();
+  if (!(diagram as any).__groupMemberLocSnapshots) {
+    (diagram as any).__groupMemberLocSnapshots = new Map<string, Map<string, string>>();
+  }
+  return (diagram as any).__groupMemberLocSnapshots;
+}
+
+function snapshotGroupMemberLocations(diagram: go.Diagram, group: go.Group) {
+  if (!diagram || !(group instanceof go.Group) || !group.data?.key) return;
+  const snapshots = getGroupMemberLocSnapshots(diagram);
+  const memberLocs = new Map<string, string>();
+  try {
+    group.memberParts.each((member: go.Part) => {
+      const key = member?.data?.key;
+      if (!key || !(member instanceof go.Node)) return;
+      const locString =
+        typeof member.data?.loc === "string"
+          ? member.data.loc
+          : `${member.location.x} ${member.location.y}`;
+      memberLocs.set(String(key), locString);
+    });
+  } catch (_) {
+  }
+  snapshots.set(String(group.data.key), memberLocs);
+}
+
+function restoreGroupMemberLocations(diagram: go.Diagram, group: go.Group) {
+  if (!diagram || !(group instanceof go.Group) || !group.data?.key) return;
+  const snapshots = getGroupMemberLocSnapshots(diagram);
+  const memberLocs = snapshots.get(String(group.data.key));
+  if (!memberLocs || memberLocs.size === 0) return;
+  try {
+    group.memberParts.each((member: go.Part) => {
+      const key = member?.data?.key;
+      if (!key || !(member instanceof go.Node)) return;
+      const savedLoc = memberLocs.get(String(key));
+      if (!savedLoc) return;
+      try { member.location = go.Point.parse(savedLoc); } catch (_) { }
+      try { diagram.model.setDataProperty(member.data, "loc", savedLoc); } catch (_) {
+        try { member.data.loc = savedLoc; } catch (_err) { }
+      }
+      try {
+        const objview = member.data?.objectview;
+        if (objview) objview.loc = savedLoc;
+      } catch (_) { }
+    });
+  } catch (_) {
+  }
+}
+
 function syncLiveGroupExpandedState(diagram: go.Diagram, group: go.Group, expanded: boolean) {
   if (!diagram || !(group instanceof go.Group)) return;
   const data: any = group.data || {};
+  if (!expanded) {
+    snapshotGroupMemberLocations(diagram, group);
+  }
   try { group.isSubGraphExpanded = expanded; } catch (_) { }
   try { diagram.model.setDataProperty(data, "isExpanded", expanded); } catch (_) { data.isExpanded = expanded; }
   try { diagram.model.setDataProperty(data, "isSubGraphExpanded", expanded); } catch (_) { data.isSubGraphExpanded = expanded; }
@@ -1181,10 +1235,12 @@ function syncLiveGroupExpandedState(diagram: go.Diagram, group: go.Group, expand
     if (objview) objview.isExpanded = expanded;
   } catch (_) { }
   setGroupMemberVisibilityRecursive(group, expanded);
+  if (expanded) {
+    restoreGroupMemberLocations(diagram, group);
+  }
   try { group.updateTargetBindings(); } catch (_) { }
   try { group.updateAdornments(); } catch (_) { }
   try { group.ensureBounds(); } catch (_) { }
-  try { group.invalidateLayout(); } catch (_) { }
   try { diagram.requestUpdate(); } catch (_) { }
 }
 
@@ -6805,6 +6861,20 @@ break;
         } catch (_) {
         }
       }, 0);
+      if (expanded) {
+        setTimeout(() => {
+          try {
+            const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
+            if (liveGroup instanceof go.Group) {
+              restoreGroupMemberLocations(myDiagram, liveGroup);
+              setGroupMemberVisibilityRecursive(liveGroup, true);
+              try { liveGroup.ensureBounds(); } catch (_) { }
+              try { myDiagram.requestUpdate(); } catch (_) { }
+            }
+          } catch (_) {
+          }
+        }, 50);
+      }
     }
     const objview = data?.objectview;
     if (objview) {

@@ -60,6 +60,7 @@ import {
   UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
+  REORDER_MODELS,
   REORDER_MODELVIEWS,
   UPDATE_METAMODEL_PROPERTIES,
   UPDATE_OBJECT_PROPERTIES,
@@ -757,6 +758,15 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
       return {
         ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusModel: state.phFocus?.focusModel?.id === action?.data?.id
+            ? {
+              ...state.phFocus.focusModel,
+              ...action.data,
+            }
+            : state.phFocus?.focusModel,
+        },
         phData: {
           ...state.phData,
           metis: {
@@ -772,6 +782,29 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+    case REORDER_MODELS: {
+      const sourceId = action?.data?.sourceId;
+      const targetId = action?.data?.targetId;
+      const existingModels = state.phData?.metis?.models || [];
+      const sourceIndex = existingModels.findIndex((model) => model?.id === sourceId);
+      const targetIndex = existingModels.findIndex((model) => model?.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) {
+        return state;
+      }
+      const reorderedModels = [...existingModels];
+      const [movedModel] = reorderedModels.splice(sourceIndex, 1);
+      reorderedModels.splice(targetIndex, 0, movedModel);
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            models: reorderedModels,
+          },
+        },
+      };
+    }
     case UPDATE_TARGETMODEL_PROPERTIES:
       // if (debug) console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       return {

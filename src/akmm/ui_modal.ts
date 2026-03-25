@@ -14,9 +14,56 @@ import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 import * as constants from './constants';
+import { getCurrentStore } from '../store';
 // const RegexParser = require("regex-parser");
 // const utils = require('./utilities');
 import * as utils from './utilities';
+
+// Safe stringifier that avoids circular reference errors and strips functions
+function safeClone<T>(obj: T): T {
+  try {
+    // Use structuredClone if available (Node 17+, browsers) for deep cloning
+    // @ts-ignore
+    if (typeof structuredClone === 'function') {
+      // structuredClone will still fail on some complex objects, so guard in try/catch
+      try {
+        return structuredClone(obj);
+      } catch (_e) {
+        // fallback to replacer below
+      }
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  const seen = new WeakSet<any>();
+  function replacer(_key: string, value: any) {
+    if (typeof value === 'function') return undefined;
+    if (value && typeof value === 'object') {
+      if (seen.has(value)) return undefined;
+      seen.add(value);
+    }
+    return value;
+  }
+
+  try {
+    const text = JSON.stringify(obj, replacer);
+    return JSON.parse(text) as T;
+  } catch (e) {
+    // Last resort: shallow copy enumerable properties
+    if (obj && typeof obj === 'object') {
+      const out: any = {};
+      for (const k in obj as any) {
+        const v = (obj as any)[k];
+        if (typeof v === 'function') continue;
+        if (v && typeof v === 'object') continue; // avoid nested circulars
+        out[k] = v;
+      }
+      return out as T;
+    }
+    return obj;
+  }
+}
 
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
@@ -28,6 +75,17 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   const pattern = props.pattern;
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
+  const coerceNumericObjectviewValue = (name: string, rawValue: any) => {
+    if (name !== 'memberscale' && name !== 'arrowscale' && name !== 'textscale') {
+      return rawValue;
+    }
+    if (rawValue === '' || rawValue === null || rawValue === undefined) {
+      return rawValue;
+    }
+    const numericValue = Number(rawValue);
+    return Number.isFinite(numericValue) ? numericValue : rawValue;
+  };
+  const nextObjectviewValue = coerceNumericObjectviewValue(propname, value);
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
     const node = obj; 
@@ -49,7 +107,13 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
     const node = obj; 
-    instview = myMetis.findObjectView(node?.key);
+    instview =
+      context?.myContext?.objectview ||
+      context?.objectview ||
+      myMetis.findObjectView(node?.key) ||
+      myMetis.findObjectView(node?.objviewRef) ||
+      node?.objectview ||
+      node?.data?.objectview;
     myInst = myMetis.findObject(instview?.objectRef);
     if (!myInst) myInst = obj;
     myInstview = instview //myMetis.findObjectView(instview?.id);
@@ -67,9 +131,195 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         myItem = myInst;
     }
     try {
-      myItem[propname] = value;
+      myItem[propname] = propname === 'grabIsAllowed'
+        ? (value === true || value === 'true')
+        : nextObjectviewValue;
     } catch {
       // Do nothing
+    }
+    if (context?.what === "editObjectview" && myInstview) {
+      const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+      const targetObjviewId =
+        myInstview?.id ||
+        context?.myContext?.objectview?.id ||
+        node?.objviewRef ||
+        node?.key;
+      const liveNode =
+        myMetis?.currentNode ||
+        myMetis?.gojsModel?.findNodeByViewId?.(node?.key) ||
+        myMetis?.gojsModel?.findNode?.(node?.key) ||
+        myDiagram?.findNodeForKey?.(node?.key) ||
+        node;
+      const nextValue = propname === 'grabIsAllowed'
+        ? (value === true || value === 'true')
+        : nextObjectviewValue;
+      try {
+        node[propname] = nextValue;
+        liveNode[propname] = nextValue;
+      } catch {
+        // Do nothing
+      }
+      try {
+        if (node?.objectview) node.objectview[propname] = nextValue;
+        if (liveNode?.objectview) liveNode.objectview[propname] = nextValue;
+        if (myInstview) myInstview[propname] = nextValue;
+      } catch {
+        // Do nothing
+      }
+      try {
+        const liveData = liveNode?.data || node?.data;
+        if (liveData) {
+          if (liveData.objectview) {
+            liveData.objectview[propname] = nextValue;
+          }
+          if (myDiagram?.model?.setDataProperty) {
+            myDiagram.model.setDataProperty(liveData, propname, nextValue);
+            if (liveData.objectview) {
+              myDiagram.model.setDataProperty(liveData, 'objectview', liveData.objectview);
+            }
+          } else {
+            liveData[propname] = nextValue;
+          }
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        const syncNode = (candidate: any) => {
+          if (!candidate) return;
+          const candidateData = candidate.data || candidate;
+          const matches =
+            candidate?.objviewRef === targetObjviewId ||
+            candidateData?.objviewRef === targetObjviewId ||
+            candidate?.key === targetObjviewId ||
+            candidateData?.key === targetObjviewId ||
+            candidate?.objectview?.id === targetObjviewId ||
+            candidateData?.objectview?.id === targetObjviewId;
+          if (!matches) return;
+          try { candidate[propname] = nextValue; } catch {}
+          try {
+            if (candidate.objectview) candidate.objectview[propname] = nextValue;
+          } catch {}
+          try {
+            if (candidateData.objectview) candidateData.objectview[propname] = nextValue;
+          } catch {}
+          try {
+            if (myDiagram?.model?.setDataProperty && candidateData) {
+              myDiagram.model.setDataProperty(candidateData, propname, nextValue);
+              if (candidateData.objectview) {
+                myDiagram.model.setDataProperty(candidateData, 'objectview', candidateData.objectview);
+              }
+            }
+          } catch {}
+        };
+        try {
+          myDiagram?.nodes?.each?.((part: any) => syncNode(part));
+        } catch {}
+        try {
+          const goNodes = myMetis?.gojsModel?.nodes || [];
+          for (let i = 0; i < goNodes.length; i++) syncNode(goNodes[i]);
+        } catch {}
+      } catch {
+        // Do nothing
+      }
+      try { liveNode.updateTargetBindings?.(); } catch {}
+      try {
+        myDiagram?.updateAllTargetBindings?.(propname);
+        myDiagram?.requestUpdate?.();
+      } catch {
+        // Do nothing
+      }
+      try {
+        const data = safeClone(new jsn.jsnObjectView(myInstview));
+        if (propname === 'grabIsAllowed') {
+          data.grabIsAllowed = nextValue === true || nextValue === 'true';
+        }
+        if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
+          data[propname] = nextValue;
+        }
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      } catch {
+        // Do nothing
+      }
+    }
+  }
+  if (obj.category === constants.gojs.C_OBJECTVIEW) {
+    const objview = myMetis.findObjectView(obj?.id || obj?.key);
+    if (objview) {
+      myItem = objview;
+      const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+      let startedTxn = false;
+      try {
+        if (myDiagram?.startTransaction) {
+          myDiagram.startTransaction('edit-objectview-live');
+          startedTxn = true;
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        myItem[propname] = propname === 'grabIsAllowed'
+          ? (value === true || value === 'true')
+          : nextObjectviewValue;
+      } catch {
+        // Do nothing
+      }
+      const goNode =
+        myMetis.gojsModel?.findNode?.(objview.id) ||
+        myMetis.gojsModel?.findNode?.(objview.key) ||
+        myMetis.currentNode;
+      try {
+        if (goNode) {
+          goNode[propname] = nextObjectviewValue;
+          if (goNode.data) {
+            if (myDiagram?.model?.setDataProperty) {
+              myDiagram.model.setDataProperty(goNode.data, propname, nextObjectviewValue);
+            } else {
+              goNode.data[propname] = nextObjectviewValue;
+            }
+          }
+          if (propname === 'grabIsAllowed') {
+            try {
+              goNode.grabIsAllowed = value === true || value === 'true';
+            } catch {}
+            try {
+              if (goNode.data) {
+                const nextGrab = value === true || value === 'true';
+                if (myDiagram?.model?.setDataProperty) {
+                  myDiagram.model.setDataProperty(goNode.data, 'grabIsAllowed', nextGrab);
+                } else {
+                  goNode.data.grabIsAllowed = nextGrab;
+                }
+              }
+            } catch {}
+          }
+          try { goNode.updateTargetBindings?.(); } catch {}
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        myDiagram?.updateAllTargetBindings?.(propname);
+        myDiagram?.requestUpdate?.();
+      } catch {
+        // Do nothing
+      }
+      try {
+        const data = safeClone(new jsn.jsnObjectView(objview));
+        if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
+          data[propname] = nextObjectviewValue;
+        }
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      } catch {
+        // Do nothing
+      }
+      try {
+        if (startedTxn) {
+          myDiagram?.commitTransaction?.('edit-objectview-live');
+        }
+      } catch {
+        // Do nothing
+      }
     }
   }
 
@@ -107,6 +357,85 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
           myItem = myRelship;
       if (myItem) 
           myItem[propname] = value;
+      if (context?.what === "editRelshipview") {
+          const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+          const goLink =
+              myMetis.gojsModel?.findLinkByViewId?.(link?.key) ||
+              myMetis.gojsModel?.findLink?.(link?.key) ||
+              myMetis.currentLink;
+          try {
+              if (goLink) {
+                  goLink[propname] = value;
+                  if (goLink.data) {
+                      if (myDiagram?.model?.setDataProperty) {
+                          myDiagram.model.setDataProperty(goLink.data, propname, value);
+                      } else {
+                          goLink.data[propname] = value;
+                      }
+                  }
+                  try { goLink.updateTargetBindings?.(); } catch {}
+                  try { goLink.invalidateRoute?.(); } catch {}
+              }
+          } catch {
+              // Do nothing
+          }
+          try {
+              myDiagram?.updateAllTargetBindings?.(propname);
+              myDiagram?.requestUpdate?.();
+          } catch {
+              // Do nothing
+          }
+          try {
+              const data = safeClone(new jsn.jsnRelshipView(myRelview));
+              myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+          } catch {
+              // Do nothing
+          }
+      }
+  }
+  if (obj.category === constants.gojs.C_RELSHIPVIEW) {
+      const relview = myMetis.findRelationshipView(obj?.id || obj?.key);
+      if (relview) {
+          myItem = relview;
+          try {
+              myItem[propname] = value;
+          } catch {
+              // Do nothing
+          }
+          const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+          const goLink =
+              myMetis.gojsModel?.findLinkByViewId?.(relview.id) ||
+              myMetis.gojsModel?.findLink?.(relview.id) ||
+              myMetis.currentLink;
+          try {
+              if (goLink) {
+                  goLink[propname] = value;
+                  if (goLink.data) {
+                      if (myDiagram?.model?.setDataProperty) {
+                          myDiagram.model.setDataProperty(goLink.data, propname, value);
+                      } else {
+                          goLink.data[propname] = value;
+                      }
+                  }
+                  try { goLink.updateTargetBindings?.(); } catch {}
+                  try { goLink.invalidateRoute?.(); } catch {}
+              }
+          } catch {
+              // Do nothing
+          }
+          try {
+              myDiagram?.updateAllTargetBindings?.(propname);
+              myDiagram?.requestUpdate?.();
+          } catch {
+              // Do nothing
+          }
+          try {
+              const data = safeClone(new jsn.jsnRelshipView(relview));
+              myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+          } catch {
+              // Do nothing
+          }
+      }
   }
 }
 
@@ -120,6 +449,12 @@ export function handleSelectDropdownChange(selected, context) {
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
+  const dispatchUpdate = (action: any) => {
+    try { myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.dispatch?.(action); } catch (_) {}
+    try { context?.dispatch?.(action); } catch (_) {}
+  };
   const selectedOption = selected.value;
   const objectview = modalContext.objectview;
   switch(modalContext.case) {
@@ -160,15 +495,28 @@ export function handleSelectDropdownChange(selected, context) {
           const idata = icn.data;
           myDiagram.model.setDataProperty(idata, "icon", icon);
           myDiagram.requestUpdate();
+          
+          // Force the binding to update by clearing the old source
+          const pictureElement = icn?.findObject("Picture");
+          if (pictureElement) {
+            // Manually call the converter to update the source
+            const source = uit.getIconSource(icon);
+            pictureElement.source = source;
+          }
+          
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
             objview.icon = icon;
+            console.log("Setting objview.icon to:", icon);
             const jsnObjview = new jsn.jsnObjectView(objview);
+            console.log("jsnObjview.icon:", jsnObjview.icon);
             const modifiedObjviews = [];
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              // Make sure to include the icon field in the data
+              const data = safeClone(mn);
+              console.log("Dispatching UPDATE_OBJECTVIEW_PROPERTIES with data:", data);
+              console.log("Data icon field:", data.icon);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -191,8 +539,7 @@ export function handleSelectDropdownChange(selected, context) {
             const modifiedObjtypeviews = [];
             modifiedObjtypeviews.push(jsnObjtypeview);
             modifiedObjtypeviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
             });
           }
@@ -200,7 +547,38 @@ export function handleSelectDropdownChange(selected, context) {
         }
       });
       break;
-    } 
+    }
+    case "Set Group Image": {
+      const image = (selectedOption) && selectedOption;
+      const group = modalContext.currentGroup;
+      if (!group) break;
+      
+      const groupPart = myDiagram.findPartForKey(group.key);
+      if (groupPart) {
+        myDiagram.model.setDataProperty(group, "image", image);
+        myDiagram.requestUpdate();
+      }
+      
+      // Update the objectview if it exists
+      let objview = group.objectview;
+      if (!objview && group.objviewRef) {
+        objview = myMetis.findObjectView(group.objviewRef);
+      }
+      if (objview) {
+        objview = myMetis.findObjectView(objview.id);
+        objview.image = image;
+        const jsnObjview = new jsn.jsnObjectView(objview);
+        const modifiedObjviews = [];
+        modifiedObjviews.push(jsnObjview);
+        modifiedObjviews.map(mn => {
+          const data = safeClone(mn);
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        });
+      }
+      
+      if (groupPart) groupPart.isSelected = false;
+      break;
+    }
     case "Set Layout Scheme": {
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
       const metamodelling = myMetis.modelType === 'Metamodelling';
@@ -215,8 +593,7 @@ export function handleSelectDropdownChange(selected, context) {
         const modifiedObjviews = [];
         modifiedObjviews.push(jsnObjview);
         modifiedObjviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         });
       } else
@@ -226,8 +603,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -236,8 +612,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -257,8 +632,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -267,8 +641,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -288,8 +661,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnModelview = new jsn.jsnModelView(myModelview);
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
       } else {
@@ -298,8 +670,7 @@ export function handleSelectDropdownChange(selected, context) {
         const jsnMetamodel = new jsn.jsnMetaModel(myMetamodel, true);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
       }
@@ -310,14 +681,119 @@ export function handleSelectDropdownChange(selected, context) {
       const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
       break;
     } 
+    case "Select All Relationships of This Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const links = myDiagram.links;
+      for (let it = links.iterator; it?.next();) {
+        const link = it.value;
+        try {
+          if (link.data && link.data.relshiptype && link.data.relshiptype.id === reltype.id) {
+            link.isSelected = true;
+          }
+        } catch (_) {}
+      }
+      break;
+    }
+    case "Hide Views of Relationship Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const modelview = myMetis.currentModelview;
+      if (!modelview) break;
+      const relviews = modelview.relshipviews || [];
+      const modifiedRelshipViews: any[] = [];
+      const linksHided: any[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const relview = relviews[i];
+        if (!relview) continue;
+        if (relview.relshiptype && relview.relshiptype.id === reltype.id) {
+          relview.visible = false;
+          const jsnRelView = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelView);
+          const goLink = myMetis.gojsModel.findLinkByViewId(relview.id);
+          const link = myDiagram.findLinkForKey(goLink?.key);
+          if (link) {
+            link.visible = false;
+            linksHided.push(link);
+          }
+        }
+      }
+      for (let i = 0; i < linksHided.length; i++) {
+        const link = linksHided[i];
+        try { myDiagram.remove(link); } catch (_) {}
+      }
+      modifiedRelshipViews.map(mn => {
+        const data = safeClone(mn);
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      });
+      break;
+    }
+    case "Delete Views of Relationship Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      const modelview = myMetis.currentModelview;
+      if (!modelview) break;
+      const relviews = modelview.relshipviews || [];
+      const modifiedRelshipViews: any[] = [];
+      for (let i = 0; i < relviews.length; i++) {
+        const relview = relviews[i];
+        if (!relview) continue;
+        if (relview.relshiptype && relview.relshiptype.id === reltype.id) {
+          // mark as deleted
+          relview.markedAsDeleted = true;
+          const jsnRelView = new jsn.jsnRelshipView(relview);
+          modifiedRelshipViews.push(jsnRelView);
+        }
+      }
+      modifiedRelshipViews.map(mn => {
+        const data = safeClone(mn);
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      });
+      break;
+    }
+    case "Delete Relationships of This Type": {
+      const typename = (selectedOption) && selectedOption;
+      if (!typename) break;
+      const types = myMetamodel.findRelationshipTypesByName(typename) || [];
+      if (!types || types.length === 0) break;
+      const reltype = types[0];
+      // Remove all links whose relshiptype matches
+      const toRemove: any[] = [];
+      const links = myDiagram.links;
+      for (let it = links.iterator; it?.next();) {
+        const link = it.value;
+        try {
+          if (link.data && link.data.relshiptype && link.data.relshiptype.id === reltype.id) {
+            toRemove.push(link);
+          }
+        } catch (_) {}
+      }
+      if (toRemove.length > 0) {
+        myDiagram.startTransaction('delete-relship-type');
+        for (let i = 0; i < toRemove.length; i++) {
+          try { myDiagram.model.removeLinkData(toRemove[i].data); } catch (_) {}
+        }
+        myDiagram.commitTransaction('delete-relship-type');
+      }
+      break;
+    }
     case "Set Target Model": { 
       const modelName = (selectedOption) && selectedOption;
       const targetModel = myMetis.findModelByName(modelName);
       myMetis.currentTargetModel = targetModel
       myMetis.currentModel.targetModelRef = targetModel.id
-      let mdata = new jsn.jsnModel(myMetis.currentModel, true);
-      mdata = JSON.parse(JSON.stringify(mdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
+  let mdata = new jsn.jsnModel(myMetis.currentModel, true);
+  mdata = safeClone(mdata);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
       break;
     }
     case "Set Target Metamodel":   
@@ -330,9 +806,9 @@ export function handleSelectDropdownChange(selected, context) {
       }
       myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id
-      let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
-      mmdata = JSON.parse(JSON.stringify(mmdata));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
+  let mmdata = new jsn.jsnModel(myMetis.currentModel, true);
+  mmdata = safeClone(mmdata);
+  myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: mmdata });
       break;
     }
     case "Change Relationship type": { 
@@ -344,10 +820,10 @@ export function handleSelectDropdownChange(selected, context) {
           const relshipRef = link.relshipRef;
           let relship = myModel.findRelationship(relshipRef);
           if (!relship) relship = myMetis.findRelationship(relshipRef);
-          let fromNode = link.fromNode;
-          let toNode   = link.toNode;
-          let fromType = fromNode?.objecttype;
-          let toType   = toNode?.objecttype;
+          const fromObject = relship.fromObject;
+          const toObject   =  relship.toObject;
+          let fromType = fromObject.type;;
+          let toType   = toObject.type;
           fromType = myMetis.findObjectType(fromType?.id);
           toType   = myMetis.findObjectType(toType?.id);
           const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
@@ -358,6 +834,9 @@ export function handleSelectDropdownChange(selected, context) {
             case 'Aggregation':
               relship.cardinalityFrom = reltype.cardinalityFrom;
               relship.cardinalityTo = reltype.cardinalityTo;
+            default:
+              if (reltype) myDiagram.model.setDataProperty(link, 'name', reltype.name);
+              break;
           }
           const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
           uid.resetToTypeview(link, myMetis, myDiagram);
@@ -399,8 +878,7 @@ export function handleSelectDropdownChange(selected, context) {
             const jsnRel = new jsn.jsnRelationship(inst);
             modifiedRelships.push(jsnRel);
             modifiedRelships?.map(mn => {
-              let data = (mn) && mn
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
             });
             break;
@@ -419,8 +897,7 @@ export function handleSelectDropdownChange(selected, context) {
             const jsnRelType = new jsn.jsnRelationshipType(inst, true);
             modifiedReltypes.push(jsnRelType);
             modifiedReltypes?.map(mn => {
-              let data = (mn) && mn
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
             });
             break;
@@ -463,9 +940,8 @@ export function handleSelectDropdownChange(selected, context) {
           const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
           modifiedLinkTypeViews.push(jsnTypeView);
           modifiedLinkTypeViews?.map(mn => {
-            let data = (mn) && mn
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+            const data = safeClone(mn);
+            dispatchUpdate({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
       }
@@ -515,6 +991,140 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const modifiedRelships     = new Array();    
   // const modifiedModels       = new Array();    
   const modifiedModelviews   = new Array();    
+
+  const applyObjectviewUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.models || !data?.id) return;
+    for (let mi = 0; mi < root.metis.models.length; mi++) {
+      const model = root.metis.models[mi];
+      const modelviews = model?.modelviews || [];
+      for (let mvi = 0; mvi < modelviews.length; mvi++) {
+        const modelview = modelviews[mvi];
+        const objectviews = modelview?.objectviews || [];
+        for (let ovi = 0; ovi < objectviews.length; ovi++) {
+          const objectview = objectviews[ovi];
+          if (objectview?.id === data.id) {
+            Object.assign(objectview, data);
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  const applyRelshipviewUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.models || !data?.id) return;
+    let fallbackMatch: any = null;
+    for (let mi = 0; mi < root.metis.models.length; mi++) {
+      const model = root.metis.models[mi];
+      const modelviews = model?.modelviews || [];
+      for (let mvi = 0; mvi < modelviews.length; mvi++) {
+        const modelview = modelviews[mvi];
+        const relshipviews = modelview?.relshipviews || [];
+        for (let rvi = 0; rvi < relshipviews.length; rvi++) {
+          const relshipview = relshipviews[rvi];
+          if (relshipview?.id === data.id) {
+            Object.assign(relshipview, data);
+            return;
+          }
+          const sameRelship = relshipview?.relshipRef && data?.relshipRef && relshipview.relshipRef === data.relshipRef;
+          const sameTypeview = !data?.typeviewRef || relshipview?.typeviewRef === data.typeviewRef;
+          const sameFrom = !data?.fromobjviewRef || relshipview?.fromobjviewRef === data.fromobjviewRef;
+          const sameTo = !data?.toobjviewRef || relshipview?.toobjviewRef === data.toobjviewRef;
+          if (!fallbackMatch && sameRelship && sameTypeview && sameFrom && sameTo) {
+            fallbackMatch = relshipview;
+          }
+        }
+      }
+    }
+    if (fallbackMatch) {
+      Object.assign(fallbackMatch, data);
+    }
+  }
+
+  const dispatchUpdate = (action: any) => {
+    const store = getCurrentStore();
+    try { myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
+    try { myMetis?.dispatch?.(action); } catch (_) {}
+    try { props?.dispatch?.(action); } catch (_) {}
+    try { modalContext?.context?.dispatch?.(action); } catch (_) {}
+    try { store?.dispatch?.(action); } catch (_) {}
+    const getPersistedBase = () => ({
+      phData: props?.phData ? JSON.parse(JSON.stringify(props.phData)) : undefined,
+      phFocus: props?.phFocus ? JSON.parse(JSON.stringify(props.phFocus)) : undefined,
+      phUser: props?.phUser ? JSON.parse(JSON.stringify(props.phUser)) : undefined,
+      phSource: props?.phSource ? JSON.parse(JSON.stringify(props.phSource)) : undefined,
+    });
+    if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
+      try { applyObjectviewUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyObjectviewUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyObjectviewUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
+    if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
+      try { applyRelshipviewUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyRelshipviewUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyRelshipviewUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
+  }
+
+  const pushPhDataUpdate = (data: any) => {
+    if (!props?.phData?.metis || !data?.id) return;
+    try {
+      const store = getCurrentStore();
+      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      applyObjectviewUpdateById(phDataClone, data);
+      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+    } catch (_) {}
+  }
+
+  const pushPhDataRelshipviewUpdate = (data: any) => {
+    if (!props?.phData?.metis || !data?.id) return;
+    try {
+      const store = getCurrentStore();
+      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      applyRelshipviewUpdateById(phDataClone, data);
+      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try {
+        const persistSnapshot = () => {
+          const snapshot = {
+            phData: phDataClone,
+            phFocus: props?.phFocus,
+            phUser: props?.phUser,
+            phSource: props?.phSource,
+          };
+          window?.sessionStorage?.setItem('memorystate', JSON.stringify(snapshot));
+          window?.localStorage?.setItem('memorystate', JSON.stringify(snapshot));
+        };
+        persistSnapshot();
+        window?.setTimeout?.(persistSnapshot, 150);
+      } catch (_) {}
+    } catch (_) {}
+  }
+
   switch(what) {
     case "editObjectType": {
       // To be done !!!
@@ -539,9 +1149,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnObjtype = new jsn.jsnObjectType(type, true);
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+        const data = safeClone(mn);
+        dispatchUpdate({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
       break;
     }
@@ -582,8 +1191,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnReltype = new jsn.jsnRelationshipType(type, true);
       modifiedReltypes.push(jsnReltype);
       modifiedReltypes.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        const data = safeClone(mn);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
       break;
@@ -607,12 +1215,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!object) object = myMetis.findObject(objview.objectRef);
       if (object) {
         const jsnObj = new jsn.jsnObject(object);
-        let data = JSON.parse(JSON.stringify(jsnObj));
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+        let dataObj = safeClone(jsnObj);
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: dataObj })
       }
       const jsnObjview = new jsn.jsnObjectView(objview);
-      let data = JSON.parse(JSON.stringify(jsnObjview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      let dataObjView = safeClone(jsnObjview);
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: dataObjView })
       break;
     }
     case "addPort": {
@@ -666,39 +1274,183 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
       // Dispatch
-      const jsnRelship = new jsn.jsnRelationship(relship);
-      let data = JSON.parse(JSON.stringify(jsnRelship));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      const jsnRelview = new jsn.jsnRelshipView(relview);
-      data = JSON.parse(JSON.stringify(jsnRelview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+  const jsnRelship = new jsn.jsnRelationship(relship);
+  let dataRel = safeClone(jsnRelship);
+  dispatchUpdate({ type: 'UPDATE_RELSHIP_PROPERTIES', data: dataRel })
+  const jsnRelview = new jsn.jsnRelshipView(relview);
+  let dataRelView = safeClone(jsnRelview);
+  dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: dataRelView })
       break;
     }
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode = myGoModel.findNodeByViewId(selObj.key);
-      const objview = myModelview.findObjectView(selObj.key);
+      const goNode =
+        myGoModel.findNodeByViewId(selObj.key) ||
+        myGoModel.findNode(selObj.key) ||
+        myDiagram.findNodeForKey(selObj.key);
+      const objview =
+        modalContext?.myContext?.objectview ||
+        myModelview.findObjectView(selObj.key) ||
+        goNode?.objectview ||
+        goNode?.data?.objectview;
+      if (!objview || !goNode) {
+        if (debug) console.log("editObjectview: missing goNode or objview", selObj);
+        break;
+      }
+      let startedTxn = false;
+      try {
+        if (myDiagram?.startTransaction) {
+          myDiagram.startTransaction('edit-objectview-close');
+          startedTxn = true;
+        }
+      } catch {
+        // Do nothing
+      }
+      const keepValue = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue !== undefined && nextValue !== null && nextValue !== "") return nextValue;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate !== undefined && candidate !== null && candidate !== "") return candidate;
+        }
+        return nextValue;
+      };
+      const keepBoolean = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue === true || nextValue === false) return nextValue;
+        if (nextValue === 'true') return true;
+        if (nextValue === 'false') return false;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate === true || candidate === false) return candidate;
+          if (candidate === 'true') return true;
+          if (candidate === 'false') return false;
+        }
+        return false;
+      };
       objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
       objview.figure2 = selObj.figure2;
+      objview.fillcolor = keepValue(selObj.fillcolor, objview.fillcolor, goNode?.fillcolor, goNode?.data?.fillcolor);
+      objview.fillcolor2 = keepValue(selObj.fillcolor2, objview.fillcolor2, goNode?.fillcolor2, goNode?.data?.fillcolor2);
+      objview.strokecolor = keepValue(selObj.strokecolor, objview.strokecolor, goNode?.strokecolor, goNode?.data?.strokecolor);
+      objview.strokecolor2 = keepValue(selObj.strokecolor2, objview.strokecolor2, goNode?.strokecolor2, goNode?.data?.strokecolor2);
+      objview.strokewidth = keepValue(selObj.strokewidth, objview.strokewidth, goNode?.strokewidth, goNode?.data?.strokewidth);
+      objview.textcolor = keepValue(selObj.textcolor, objview.textcolor, goNode?.textcolor, goNode?.data?.textcolor);
+      objview.textcolor2 = keepValue(selObj.textcolor2, objview.textcolor2, goNode?.textcolor2, goNode?.data?.textcolor2);
+      objview.textscale = keepValue(selObj.textscale, objview.textscale, goNode?.textscale, goNode?.data?.textscale);
+      objview.memberscale = keepValue(selObj.memberscale, objview.memberscale, goNode?.memberscale, goNode?.data?.memberscale);
+      objview.arrowscale = keepValue(selObj.arrowscale, objview.arrowscale, goNode?.arrowscale, goNode?.data?.arrowscale);
+      objview.groupLayout = selObj.groupLayout;
+      const nextGrabIsAllowed = selObj.grabIsAllowed === true || selObj.grabIsAllowed === 'true';
+      objview.grabIsAllowed = nextGrabIsAllowed;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
       goNode.figure2 = selObj.figure2;
+      goNode.fillcolor = keepValue(selObj.fillcolor, goNode.fillcolor, objview.fillcolor, goNode?.data?.fillcolor);
+      goNode.fillcolor2 = keepValue(selObj.fillcolor2, goNode.fillcolor2, objview.fillcolor2, goNode?.data?.fillcolor2);
+      goNode.strokecolor = keepValue(selObj.strokecolor, goNode.strokecolor, objview.strokecolor, goNode?.data?.strokecolor);
+      goNode.strokecolor2 = keepValue(selObj.strokecolor2, goNode.strokecolor2, objview.strokecolor2, goNode?.data?.strokecolor2);
+      goNode.strokewidth = keepValue(selObj.strokewidth, goNode.strokewidth, objview.strokewidth, goNode?.data?.strokewidth);
+      goNode.textcolor = keepValue(selObj.textcolor, goNode.textcolor, objview.textcolor, goNode?.data?.textcolor);
+      goNode.textcolor2 = keepValue(selObj.textcolor2, goNode.textcolor2, objview.textcolor2, goNode?.data?.textcolor2);
+      goNode.textscale = keepValue(selObj.textscale, goNode.textscale, objview.textscale, goNode?.data?.textscale);
+      goNode.memberscale = keepValue(selObj.memberscale, goNode.memberscale, objview.memberscale, goNode?.data?.memberscale);
+      goNode.arrowscale = keepValue(selObj.arrowscale, goNode.arrowscale, objview.arrowscale, goNode?.data?.arrowscale);
+      goNode.groupLayout = selObj.groupLayout;
+      goNode.grabIsAllowed = nextGrabIsAllowed;
+      try { goNode.objectview = objview; } catch {}
+      try {
+        if (goNode.data) {
+          goNode.data.objectview = objview;
+          goNode.data.grabIsAllowed = nextGrabIsAllowed;
+        }
+      } catch {}
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      const diagramNode = myDiagram.findNodeForKey(selObj.key || objview.id || goNode.key);
+      const diagramData = diagramNode?.data || goNode?.data;
+      if (diagramData && myDiagram?.model?.setDataProperty) {
+        try { myDiagram.model.setDataProperty(diagramData, 'objectview', objview); } catch {}
+        try { diagramData.objectview = objview; } catch {}
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor', objview.fillcolor);
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor2', objview.fillcolor2);
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor', objview.strokecolor);
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor2', objview.strokecolor2);
+        myDiagram.model.setDataProperty(diagramData, 'strokewidth', objview.strokewidth);
+        myDiagram.model.setDataProperty(diagramData, 'textcolor', objview.textcolor);
+        myDiagram.model.setDataProperty(diagramData, 'textcolor2', objview.textcolor2);
+        myDiagram.model.setDataProperty(diagramData, 'textscale', objview.textscale);
+        myDiagram.model.setDataProperty(diagramData, 'memberscale', objview.memberscale);
+        myDiagram.model.setDataProperty(diagramData, 'arrowscale', objview.arrowscale);
+        myDiagram.model.setDataProperty(diagramData, 'grabIsAllowed', nextGrabIsAllowed);
+        try { uic.setObjviewAttributes(diagramData, myDiagram); } catch {}
+      }
+      const forceNodeVisuals = (part: any, view: any) => {
+        if (!part || !view) return;
+        const shapeNames = ['SHAPE', 'BODY', 'SELECTION_BOX', 'LANE_BODY_SHAPE'];
+        for (let i = 0; i < shapeNames.length; i++) {
+          const shape = part.findObject?.(shapeNames[i]);
+          if (!shape) continue;
+          try {
+            if (view.fillcolor !== undefined) shape.fill = view.fillcolor || 'transparent';
+          } catch {}
+          try {
+            if (view.strokecolor !== undefined && shape.stroke !== undefined) shape.stroke = view.strokecolor || shape.stroke;
+          } catch {}
+          try {
+            if (view.strokewidth !== undefined && shape.strokeWidth !== undefined) shape.strokeWidth = Number(view.strokewidth) || shape.strokeWidth;
+          } catch {}
+        }
+      };
+      forceNodeVisuals(diagramNode, objview);
+      try { diagramNode?.updateTargetBindings?.(); } catch {}
+      try { myDiagram?.updateAllTargetBindings?.('fillcolor'); } catch {}
+      try { myDiagram?.requestUpdate?.(); } catch {}
       myModelview.addObjectView(objview);
+      const persistedObjview = myModelview.findObjectView(objview.id);
+      if (persistedObjview) {
+        persistedObjview.fillcolor = objview.fillcolor;
+        persistedObjview.fillcolor2 = objview.fillcolor2;
+        persistedObjview.strokecolor = objview.strokecolor;
+        persistedObjview.strokecolor2 = objview.strokecolor2;
+        persistedObjview.strokewidth = objview.strokewidth;
+        persistedObjview.textcolor = objview.textcolor;
+        persistedObjview.textcolor2 = objview.textcolor2;
+        persistedObjview.textscale = objview.textscale;
+        persistedObjview.memberscale = objview.memberscale;
+        persistedObjview.arrowscale = objview.arrowscale;
+        persistedObjview.grabIsAllowed = nextGrabIsAllowed;
+      }
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
-      let data = JSON.parse(JSON.stringify(jsnObjview));
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  let data = safeClone(jsnObjview);
+  data.grabIsAllowed = nextGrabIsAllowed;
+  data.memberscale = objview.memberscale;
+  data.arrowscale = objview.arrowscale;
+  data.textscale = objview.textscale;
+  console.warn('[OBJVIEW_SAVE]', { id: data?.id, fillcolor: data?.fillcolor, fillcolor2: data?.fillcolor2, strokecolor: data?.strokecolor, grabIsAllowed: data?.grabIsAllowed, name: data?.name });
+  dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  pushPhDataUpdate(data)
+      try {
+        props?.dispatch?.({
+          type: 'SET_FOCUS_REFRESH',
+          data: { id: Math.random().toString(36).substring(7), name: 'editObjectview' }
+        });
+      } catch (_) {}
+      try {
+        if (startedTxn) {
+          myDiagram?.commitTransaction?.('edit-objectview-close');
+        }
+      } catch {
+        // Do nothing
+      }
       const modifiedModelviews = new Array();
       
       // const jsnModelview = new jsn.jsnModelView(myModelview);
@@ -728,8 +1480,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const modifiedObjviews = new Array();    
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -748,8 +1499,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
           modifiedObjTypeviews.push(jsnObjtypeview);
           modifiedObjTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -762,8 +1512,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const modifiedObjviews = new Array();    
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
+              const data = safeClone(mn);
               myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
@@ -881,23 +1630,33 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Add Port') {
         const selectedValue = modalContext.selected?.value;
         const node = modalContext.node;
-        let objId;
-        let object = node.object;
-        if (object)
-          objId = object.id;
+        let objId = node.objRef;
+        let object = myMetis.findObject(objId);
+        // if (object)
+        //   objId = object.id;
+        // else
+        //   objId = node.objRef;
+        // object = myMetis.findObject(objId);
+        let objview = node.objectview;
+        let objviewId;
+        if (objview)
+          objviewId = objview.id;
         else
-          objId = node.objRef;
-        object = myMetis.findObject(objId)
+          objviewId = node.objviewRef;
+        objview = myMetis.findObjectView(objviewId);
         const side = selectedValue;
         let name = '';
         switch(side) {
           case 'top':
+          case 'Control':
             name = 'C';
             break;
           case 'bottom':
+          case 'Mechanism':
             name = 'M';
             break;
           case 'left':
+          case 'Input':
             name = 'I';
             break;
           case 'right':
@@ -914,8 +1673,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const modifiedObjects = new Array();
           modifiedObjects.push(jsnObj);
           modifiedObjects.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
           });
           uit.addPort(port, myDiagram)
@@ -944,8 +1702,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const jsnRel = new jsn.jsnRelationship(relship);
         modifiedRelships.push(jsnRel);
         modifiedRelships?.map(mn => {
-          let data = (mn) && mn
-          data = JSON.parse(JSON.stringify(data));
+          const data = safeClone(mn);
           myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         });
       }
@@ -967,6 +1724,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
+      const keepValue = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue !== undefined && nextValue !== null && nextValue !== "") return nextValue;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate !== undefined && candidate !== null && candidate !== "") return candidate;
+        }
+        return nextValue;
+      };
       const selection = myDiagram.selection;
       selection.each(function(sel) {
         const selRel = selectedData;
@@ -985,48 +1750,91 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });
       if (gjsLink && relview) {         
         const data = gjsLink.data;
-        for (let prop in reltypeview?.data) {
-          if (prop === 'template' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'template2' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokecolor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokewidth' && relview[prop])
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-            if (prop === 'textcolor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'textscale' && relview[prop]) 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'dash' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'routing' && relview[prop]) 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'curve' && relview[prop]) 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'fromArrow') {
-            let fromArrow = relview[prop];
-            if (relview[prop] === "") fromArrow = reltypeview.data[prop];
-            if (fromArrow === "None") fromArrow = "";
-            myDiagram.model.setDataProperty(data, prop, fromArrow);           
-          }          
-          if (prop === 'fromArrowColor' && relview[prop] !== "") 
-              myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'toArrow') {
-              let toArrow = relview[prop];
-              if (relview[prop] === "") toArrow = reltypeview.data[prop];
-              if (toArrow === "None") toArrow = "";
-              myDiagram.model.setDataProperty(data, prop, toArrow);           
-          }          
-          if (prop === 'toArrowColor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        const previousRouting = keepValue(gjsLink?.data?.routing, relview?.routing, reltypeview?.data?.routing, "Normal");
+        const previousCurve = keepValue(gjsLink?.data?.curve, relview?.curve, reltypeview?.data?.curve, "None");
+        const relviewProps = [
+          'template',
+          'template2',
+          'strokecolor',
+          'strokewidth',
+          'textcolor',
+          'textscale',
+          'dash',
+          'routing',
+          'curve',
+          'fromArrow',
+          'toArrow',
+          'fromArrowColor',
+          'toArrowColor'
+        ];
+        relviewProps.forEach((prop) => {
+          let nextValue = keepValue(
+            selRel?.[prop],
+            gjsLink?.[prop],
+            gjsLink?.data?.[prop],
+            relview?.[prop],
+            relview?.data?.[prop]
+          );
+          if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
+            nextValue = '';
+          }
+          if (prop === 'textscale' && nextValue !== undefined && nextValue !== null && nextValue !== '') {
+            nextValue = Number(nextValue);
+          }
+          if (nextValue !== undefined) {
+            try {
+              relview[prop] = nextValue;
+            } catch (_) {}
+            try {
+              if (relview?.data) relview.data[prop] = nextValue;
+            } catch (_) {}
+          }
+        });
+        relviewProps.forEach((prop) => {
+          let nextValue = relview[prop];
+          if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
+            nextValue = '';
+          }
+          if ((nextValue === undefined || nextValue === null || nextValue === '') && reltypeview?.data) {
+            nextValue = reltypeview.data[prop];
+            if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
+              nextValue = '';
+            }
+          }
+          if (nextValue !== undefined && nextValue !== null) {
+            myDiagram.model.setDataProperty(data, prop, nextValue);
+          }
+        });
+        const nextRouting = keepValue(relview?.routing, data?.routing, reltypeview?.data?.routing, "Normal");
+        const nextCurve = keepValue(relview?.curve, data?.curve, reltypeview?.data?.curve, "None");
+        if (nextRouting !== previousRouting || nextCurve !== previousCurve) {
+          try { relview.points = []; } catch (_) {}
+          try { if (relview?.data) relview.data.points = []; } catch (_) {}
+          try { myDiagram.model.setDataProperty(data, 'points', []); } catch (_) {}
+          try { data.points = []; } catch (_) {}
+          try { gjsLink.points = new go.List<go.Point>(); } catch (_) {}
+          try { gjsLink.clearPoints?.(); } catch (_) {}
+          try { gjsLink.updateRoute?.(); } catch (_) {}
         }
+        try { gjsLink.updateTargetBindings?.(); } catch {}
+        try { gjsLink.invalidateRoute?.(); } catch {}
+        try { myDiagram?.updateAllTargetBindings?.(); } catch {}
+        try { myDiagram?.requestUpdate?.(); } catch {}
       }
       const jsnRelview = new jsn.jsnRelshipView(relview);
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
-        let data = mn;
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        const data = safeClone(mn);
+        console.warn('[RELSHIPVIEW_SAVE]', {
+          id: data?.id,
+          textcolor: data?.textcolor,
+          fromArrow: data?.fromArrow,
+          toArrow: data?.toArrow,
+          toArrowColor: data?.toArrowColor,
+          curve: data?.curve
+        });
+        dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        pushPhDataRelshipviewUpdate(data)
       });    
       break;
     }
@@ -1098,8 +1906,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
           modifiedObjTypeviews.push(jsnObjtypeview);
           modifiedObjTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -1152,7 +1959,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
-            let data = mn;
+            const data = safeClone(mn);
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -1174,16 +1981,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
             modifiedRelTypeviews.push(jsnReltypeview);
             modifiedRelTypeviews.map(mn => {
-              let data = mn;
-              myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-            })
+                  const data = safeClone(mn);
+                  myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                })
           }
         }
         relview = uic.updateRelationshipView(relview);
         const jsnRelview = new jsn.jsnRelshipView(relview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
-          let data = mn;
+          const data = safeClone(mn);
           myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
         myDiagram.clearSelection();
@@ -1220,8 +2027,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           // Get the selected relship type
           const relTypename = (selectedOption) && selectedOption; // Get the selected relship typename
           let reltype: akm.cxRelationshipType;
-          if (relTypename === constants.types.AKM_REFERS_TO)
-            reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_REFERS_TO);
+          if (relTypename === constants.types.AKM_CONTAINS)
+            reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
           else
             reltype = myMetis.findRelationshipTypeByName2(relTypename, fromType, toType);
           if (!reltype) continue;

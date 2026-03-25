@@ -129,6 +129,7 @@ const page = (props: any) => {
               </div> */}
               <div className="menu-bar mb-1"> 
               <ProjectMenuBar {...props}
+                dispatch={dispatch}
                 expanded={expanded} setExpanded={setExpanded}
                 focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
                 refresh={refresh} setRefresh={setRefresh}

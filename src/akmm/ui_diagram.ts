@@ -18,6 +18,56 @@ import * as gjs from './ui_gojs';
 import * as constants from './constants';
 
 const $ = go.GraphObject.make;
+// Option 1: lanes touch; separators are the lane borders themselves.
+const POOL_LANE_GAP = 0;
+const POOL_HEADER_WIDTH = 34;
+const LANE_HEADER_WIDTH = 36;
+// Additional padding on top of the Placeholder padding in the Pool template.
+// Set to 0 so lanes align tightly with the pool header separator.
+const POOL_LANE_SIDE_PADDING = 0;
+// Must match the Pool template's internal Table margin in `poolTop(...)`.
+const POOL_TEMPLATE_MARGIN = 0;
+const LANE_LAYOUT_LEFT_INSET = 48;
+const LANE_LAYOUT_TOP_INSET = 18;
+
+function asMargin(padding: any): go.Margin {
+    if (padding instanceof go.Margin) return padding;
+    if (typeof padding === "number") return new go.Margin(padding, padding, padding, padding);
+    // Fallback (unknown/undefined) -> no padding.
+    return new go.Margin(0, 0, 0, 0);
+}
+
+function snapCoord(n: number): number {
+    // Reduce stroke anti-aliasing artifacts by keeping borders on whole pixels.
+    return Math.round(n);
+}
+
+function snapSize(n: number): number {
+    // Sizes benefit from ceilling so content never pokes outside the outer stroke.
+    return Math.ceil(n);
+}
+
+function snapSizeEven(n: number): number {
+    // Pool uses locationSpot Center by default; keeping sizes even avoids half-pixel borders.
+    return Math.ceil(n / 2) * 2;
+}
+const GROUP_LAYOUT_PADDING = 15;
+
+function shouldPersistLinkPoints(routing: string | undefined | null): boolean {
+    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
+const uidTemplates = {
+    "default":          uit.textAndIconTemplate,
+    "ActivityNode":     uit.activityNodeTemplate,
+    "EventNode":        uit.eventNodeTemplate,
+    "GatewayNode":      uit.gatewayNodeTemplate,
+    "DataObjectNode":   uit.dataObjectNodeTemplate,
+    "textAndIcon":      uit.textAndIconTemplate,
+    "textAndFigure":    uit.textAndFigureTemplate,
+}
+
+
 
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
@@ -472,10 +522,32 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('417 myMetis', myMetis);
     const objviewRef = gjsNode.key;
     let objectview: akm.cxObjectView = myMetis.findObjectView(objviewRef);
-    let object: akm.cxObject = myMetis.findObject(objectview.objectRef);
-    const objtypeRef = gjsNode.objtypeRef;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    let object: akm.cxObject = null;
+    if (objectview?.objectRef) {
+        object = myMetis.findObject(objectview.objectRef);
+    }
+    if (!object) {
+        object = gjsNode?.object || myMetis.findObject(gjsNode?.objRef);
+    }
+    const objtypeRef =
+        gjsNode?.objtypeRef ||
+        object?.type?.id ||
+        object?.typeRef ||
+        objectview?.object?.type?.id ||
+        objectview?.object?.typeRef;
     let objecttype: akm.cxObjectType = myMetis.findObjectType(objtypeRef);
-    const objecttypeview = objecttype?.typeview;
+    if (!objecttype) {
+        objecttype =
+            gjsNode?.objecttype ||
+            object?.type ||
+            objectview?.object?.type ||
+            myMetis.findObjectTypeByName(object?.typeName) ||
+            myMetis.findObjectTypeByName(objectview?.object?.typeName);
+    }
+    const objecttypeview = objecttype?.typeview || objectview?.typeview || object?.type?.typeview;
     let supertypes = objecttype?.supertypes;
     const icon = uit.findImage(gjsNode.icon);
 
@@ -489,6 +561,7 @@ export function editObject(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
             objecttype: objecttype,
             objecttypeview: objecttypeview,
             supertypes: supertypes,
+            allowPorts:  objecttype?.allowPorts ?? false,
             includeInherited: false,
             includeConnected: false,
             relship:     null,
@@ -593,6 +666,20 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     myDiagram.handleOpenModal(node, modalContext);
 }
 
+export function askForTemplate(context: any) {
+    const myDiagram = context.myDiagram;
+    const modalContext = {
+        what:       "askForTemplate",
+        title:      context.title,
+        icon:       null,
+        case:       context.case,
+        myContext:  context,
+        myDiagram:  myDiagram
+    }
+    if (debug) console.log('606 ui_diagram: modalContext', modalContext);
+    myDiagram.handleOpenModal(null, modalContext);
+}
+
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
     if (debug) console.log('597 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
@@ -601,21 +688,41 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
     let objectview = myModelview.findObjectView(key);
-    if (objectview) objectview.viewkind = gjsNode.viewkind;
+    if (!objectview) {
+        objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
+    }
+    if (objectview) objectview.viewkind = gjsNode.viewkind || objectview.viewkind;
     let object = objectview?.object;
-    if (!object) object = myModel.findObject(gjsNode?.objRef);
+    if (!object) object = gjsNode?.object || myModel.findObject(gjsNode?.objRef);
     let objecttype = object?.type;
-    objecttype = myMetis.findObjectType(objecttype?.id);
+    objecttype =
+        myMetis.findObjectType(objecttype?.id || object?.typeRef || objectview?.object?.typeRef) ||
+        gjsNode?.objecttype ||
+        objecttype ||
+        myMetis.findObjectTypeByName(object?.typeName) ||
+        myMetis.findObjectTypeByName(objectview?.object?.typeName);
     let goNode = myGoModel.findNode(key);
+    if (!goNode) {
+        goNode = gjsNode;
+    }
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
     const icon = uit.findImage(goNode?.icon);
+    const iconpath = uit.findImage(goNode?.iconpath);
+    const icon1 = uit.findImage(goNode?.icon1);
+    const icon2 = uit.findImage(goNode?.icon2);
+    const icon3 = uit.findImage(goNode?.icon3);
     if (!object)
         object = myModel.findObject(goNode?.objRef);
     if (!objectview)
         objectview = myModelview.findObjectView(goNode?.objviewRef);
     if (!objecttype)
-        objecttype = myMetamodel.findObjectType(goNode?.objtypeRef);
+        objecttype =
+            myMetamodel.findObjectType(goNode?.objtypeRef || goNode?.object?.typeRef) ||
+            goNode?.objecttype ||
+            object?.type ||
+            myMetis.findObjectTypeByName(goNode?.object?.typeName) ||
+            myMetis.findObjectTypeByName(object?.typeName);
     const objecttypeview = objecttype?.typeview;
     // if (objectview)
     // updateNodeAndView(gjsNode, goNode, objectview, myDiagram);
@@ -640,7 +747,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       myContext:  myContext,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-    myDiagram.handleOpenModal(gjsNode, modalContext);
+    myDiagram.handleOpenModal(objectview || gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -1311,7 +1418,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
 } 
 
 export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
-    let reltypeNames = [constants.types.AKM_REFERS_TO];
+    let reltypeNames = [constants.types.AKM_CONTAINS];
     const myMetamodel = myMetis.currentMetamodel;
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel;
@@ -2369,33 +2476,33 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
         if (objtype && objtype.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
-        let reltype;
-        if (reltypes) { // Check if reltype is specified
-            // get reltype from comma separated list
-            const reltypename = reltypes.split(',')[0];        
-            try {
-                reltype = myMetamodel.findRelationshipTypeByName(reltypename);
-            } catch {
-                reltype = myMetis.findRelationshipTypeByName(reltypename);
-            }
+        // Parse reltypes as array of allowed type names (or IDs)
+        let allowedRelTypes: string[] = [];
+        let allowAll = false;
+        if (reltypes && reltypes.trim() !== '' && reltypes !== 'All') {
+            allowedRelTypes = reltypes.split(',').map(s => s.trim()).filter(Boolean);
+        } else {
+            allowAll = true;
         }
-        // Find all relationships of object sorted by name, type name and toObj name
         let useinp = (reldir === 'in');
         for (let i=0; i<2; i++) {
             let rels: akm.cxRelationship[];
             if (i == 0) rels = object.inputrels;
             if (i == 1) rels = object.outputrels;
             if (rels) {
-                let cnt = 0;
-                for (let i=0; i<rels.length; i++) {
-                    let rel = rels[i];
+                for (let j=0; j<rels.length; j++) {
+                    let rel = rels[j];
                     if (!rel)
                         continue;
                     if (rel.markedAsDeleted)
                         continue;
                     rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                    if (reltype) {
-                        if (rel?.type.id !== reltype?.id)
+                    // Only follow if type is allowed
+                    if (!allowAll) {
+                        // Accept match by name or id
+                        const relTypeName = rel?.type?.name;
+                        const relTypeId = rel?.type?.id;
+                        if (!allowedRelTypes.includes(relTypeName) && !allowedRelTypes.includes(relTypeId))
                             continue;
                     }
                     let toObj;
@@ -2414,7 +2521,7 @@ export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm
                         const relviews = modelview.findRelationshipViewsByRel2(rel, objview, oview);
                         if (relviews.length > 0)
                             viewCollection.addRelshipView(relviews[0]);
-                    }                                                                              
+                    }
                 }
             }
         }
@@ -2566,116 +2673,86 @@ function addConnectedSubModelObjects(object: akm.cxObject, myMetis: akm.cxMetis)
 }
 
 export function setGroupLayoutParameters(groupLayout: string): go.Layout {
-if (false) {
-    let layout = null;
+    let layout: go.Layout = null;
+    
     switch (groupLayout) {
+        case 'Tree':
         case 'TreeLayout':
             layout = new go.TreeLayout({ 
                 isOngoing: false,
-                treeStyle: go.TreeLayout.StyleRootOnly, 
+                treeStyle: go.TreeLayout.StyleRootOnly,
                 angle: 0,
                 layerSpacing: 100,
                 nodeSpacing: 50,
+                setsPortSpot: false,
+                setsChildPortSpot: false,
+                alternateSetsPortSpot: false,
+                alternateSetsChildPortSpot: false,
                 sorting: go.TreeLayout.SortingAscending,
+                alternateSorting: go.TreeLayout.SortingDescending,
                 arrangement: go.TreeLayout.ArrangementFixedRoots,        
-                alignment: go.TreeLayout.AlignmentStart, // AlignmentStart, CenterChildren;
+                alignment: go.TreeLayout.AlignmentStart,
             });
             break;
+            
+        case 'ForceDirected':
         case 'ForceDirectedLayout':
             layout = new go.ForceDirectedLayout({
                 isOngoing: false,
                 defaultSpringLength: 30,
-                defaultElectricalCharge: 100,
-                defaultGravitationalMass: 100,
                 defaultSpringStiffness: 0.05,
                 defaultElectricalCharge: 100,
                 defaultGravitationalMass: 100,
-                defaultSpringLength: 30,
-                defaultSpringStiffness: 0.05,
-                isFixedAngle: false,
-                isFixedNodeMass: false,
-                isInitial: true,
-                isOngoing: fal
             });
             break;
+            
+        case 'Circular':
         case 'CircularLayout':
             layout = new go.CircularLayout({
                 isOngoing: false,
-                radius: 100,
+                radius: NaN,
                 spacing: 10,
-                arrangement: go.CircularLayout.ArrangementFixedRoots,
-                sorting: go.CircularLayout.SortingAscending,
-                startAngle: 0,
+                startAngle: 1.0,
                 sweepAngle: 360,
-                direction: go.CircularLayout.DirectionClockwise,
-                nodeDiameterFormula: go.CircularLayout.Circular,
-                spacingFormula: go.CircularLayout.Circular,
-                arrangementSpacing: new go.Size(0, 0),
-                arrangementOrigin: new go.Point(0, 0),
-                nodeDiameter: 100,
-                nodeSpacing: 10,
+                arrangement: go.CircularLayout.ConstantSpacing,
+                // sorting: go.CircularLayout.Ascending,
+                direction: go.CircularLayout.Clockwise,
             });
             break;
-        case 'GridLayout':
-            layout = new go.GridLayout({
-                isOngoing: false,
-                wrappingColumn: 1,
-                spacing: new go.Size(0, 0),
-                alignment: go.GridLayout.Position,
-            });           
-            break;
+            
+        case 'LaneLayout':
+        case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
+                isInitial: false,
                 direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
+                layerSpacing: 80,
+                columnSpacing: 40,
                 setsPortSpots: false,
-                isRealtime: false,
                 cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
                 initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
                 aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
                 packOption: go.LayeredDigraphLayout.PackStraighten,
                 layeringOption: go.LayeredDigraphLayout.LayerOptimalLinkLength,
-                compactionOption: go.LayeredDigraphLayout.CompactionNone,
-                layoutStyle: go.LayeredDigraphLayout.StyleLayered,
-                isOngoing: false,
-                direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
-                setsPortSpots: false,
-                isRealtime: false,
-                cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
-                initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
-                aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
-                packOption: go.LayeredDigraphLayout.PackStraighten,
-                layeringOption: go.LayeredDigraphLayout.LayerOptimalLinkLength,
-                compactionOption: go.LayeredDigraphLayout.CompactionNone,
-                layoutStyle: go.LayeredDigraphLayout.StyleLayered,
             });
             break;
-        case 'ParallelLayout':
-            layout = new go.ParallelLayout({
-                isOngoing: false,
-                direction: 0,
-                layerSpacing: 100,
-                columnSpacing: 50,
-                setsPortSpots: false,
-                isRealtime: false,
-                cycleRemoveOption: go.ParallelLayout.CycleDepthFirst,
-                initializeOption: go.ParallelLayout.InitDepthFirstOut,
-                aggressiveOption: go.ParallelLayout.AggressiveLess,
-                packOption: go.ParallelLayout.PackMedian,
-                layeringOption: go.ParallelLayout.LayerOptimalLinkLength,
-                compactionOption: go.ParallelLayout.CompactionNone,
-                layoutStyle: go.ParallelLayout.StyleLayered,                
-            });
-            break;
+            
+        // case 'ParallelLayout':
+        //     layout = new go.ParallelLayout({
+        //         isOngoing: false,
+        //         angle: 0,
+        //         layerSpacing: 100,
+        //         nodeSpacing: 50,
+        //     });
+        //     break;
+            
+        case 'Grid':
         case 'GridLayout':
             layout = new go.GridLayout({ 
                 isOngoing: false,
                 wrappingColumn: 1,
-                spacing: new go.Size(0, 0),
+                spacing: new go.Size(35, 35),
                 alignment: go.GridLayout.Position,
                 comparer: function(a, b) {
                     const ax = a.location.x;
@@ -2689,20 +2766,539 @@ if (false) {
                     return 0;
                 }
             });
+            break;
+            
+        default:
+            // Default to GridLayout if unknown layout type
+            layout = new go.GridLayout({ 
+                isOngoing: false,
+                wrappingColumn: 1,
+                spacing: new go.Size(35, 35),
+            });
+            break;
     }
+    
     return layout;
-}
-}
+}  
 
-export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any) {
-if (false) {
-    const lay = setGroupLayoutParameters(myGroup.groupLayout); 
-    lay.doLayout(myGroup);
+export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis: akm.cxMetis) {
+    const lay = setGroupLayoutParameters(myGroup.groupLayout);
+    const myModelview = myMetis.currentModelview || myDiagram.myModelView;
+    if (!myModelview) {
+        return;
+    }
+
+    // Find the GoJS group node
+    const groupNode = myDiagram.findNodeForKey(myGroup.id);
+    if (!groupNode) {
+        console.error('Group node not found');
+        return;
+    }
+
+    const isLaneGroup =
+        groupNode?.category === 'Lane' ||
+        groupNode?.category === 'Lane_w_handles' ||
+        groupNode?.data?.category === 'Lane' ||
+        groupNode?.data?.template === 'Lane' ||
+        groupNode?.data?.template === 'Lane_w_handles' ||
+        ((groupNode?.containingGroup instanceof go.Group) &&
+            (myGroup?.groupLayout === 'LaneLayout' || myGroup?.groupLayout === 'LayeredDigraph' || myGroup?.groupLayout === 'LayeredDigraphLayout'));
+    let hasLaneMembers = false;
+    groupNode.memberParts.each((part: go.Part) => {
+        if (hasLaneMembers) return;
+        if (!(part instanceof go.Group)) return;
+        const isLanePart =
+            part?.category === 'Lane' ||
+            part?.category === 'Lane_w_handles' ||
+            part?.data?.category === 'Lane' ||
+            part?.data?.template === 'Lane' ||
+            part?.data?.template === 'Lane_w_handles';
+        if (isLanePart) hasLaneMembers = true;
+    });
+    const isPoolGroup =
+        groupNode?.category === 'Pool' ||
+        groupNode?.data?.category === 'Pool' ||
+        groupNode?.data?.template === 'Pool' ||
+        myGroup?.groupLayout === 'PoolLayout' ||
+        hasLaneMembers;
+    const layoutMode = isPoolGroup ? "pool_structure" : (isLaneGroup ? "lane_content" : "group_content");
+    
+    myDiagram.startTransaction('doGroupLayout');
+    // Keep pool and lane layout responsibilities separate:
+    // pool_structure = stack/size lanes only, lane_content = layout only selected lane members.
+    if (layoutMode === "pool_structure") {
+        try {
+        const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
+            if (!(group instanceof go.Group)) return 28;
+            let maxWidth = 0;
+            const candidateNames = [
+                'LEFT_HEADER',
+                'leftHeader',
+                'poolLeftHeader',
+                'leftLabel',
+                'HEADER_LEFT',
+                'poolHeaderLeft',
+                'POOL_LEFT_HEADER',
+                'poolLeftLabel',
+                'leftHeaderPanel',
+            ];
+            candidateNames.forEach((name) => {
+                try {
+                    const obj = group.findObject(name);
+                    const bounds = obj?.actualBounds;
+                    if (bounds?.width) maxWidth = Math.max(maxWidth, bounds.width);
+                } catch (_) {
+                }
+            });
+            const d: any = group.data;
+            const dataWidth = [d?.leftHeaderWidth, d?.headerWidth, d?.poolHeaderWidth]
+                .find((value) => typeof value === 'number' && !Number.isNaN(value)) || 0;
+            return Math.max(maxWidth, dataWidth, 28);
+        };
+
+        const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
+        groupNode.memberParts.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            const isLanePart =
+                part?.category === 'Lane' ||
+                part?.category === 'Lane_w_handles' ||
+                part?.data?.category === 'Lane' ||
+                part?.data?.template === 'Lane' ||
+                part?.data?.template === 'Lane_w_handles';
+            if (isLanePart) {
+                structuralGroups.push({ group: part, kind: 'lane' });
+                return;
+            }
+            const isPoolPart =
+                part?.category === 'Pool' ||
+                part?.data?.category === 'Pool' ||
+                part?.data?.template === 'Pool';
+            if (isPoolPart) structuralGroups.push({ group: part, kind: 'pool' });
+        });
+        if (!structuralGroups.length) {
+            myDiagram.commitTransaction('doGroupLayout');
+            return;
+        }
+
+        structuralGroups.sort((a, b) => {
+            const ay = typeof a.group.location?.y === 'number' ? a.group.location.y : a.group.actualBounds.y;
+            const by = typeof b.group.location?.y === 'number' ? b.group.location.y : b.group.actualBounds.y;
+            if (ay !== by) return ay - by;
+            const ai = (a.group?.data && typeof a.group.data.laneIndex === 'number') ? a.group.data.laneIndex : NaN;
+            const bi = (b.group?.data && typeof b.group.data.laneIndex === 'number') ? b.group.data.laneIndex : NaN;
+            if (!isNaN(ai) && !isNaN(bi) && ai !== bi) return ai - bi;
+            return 0;
+        });
+
+        const poolLocation = groupNode.location?.copy() || new go.Point(0, 0);
+        const forcedPoolSizes = (myDiagram as any).__forcedPoolLayoutSizes || {};
+        const forcedPoolSize = forcedPoolSizes[String(groupNode.data?.key || myGroup?.id || "")] || null;
+        const isNestedInPool =
+            groupNode.containingGroup instanceof go.Group &&
+            (groupNode.containingGroup.category === 'Pool' ||
+                groupNode.containingGroup.data?.category === 'Pool' ||
+                groupNode.containingGroup.data?.template === 'Pool');
+        const effectiveForcedPoolSize = isNestedInPool ? null : forcedPoolSize;
+        const poolSize = groupNode.data?.size ? go.Size.parse(String(groupNode.data.size)) : null;
+        const poolResizeObject = groupNode.resizeObject || groupNode.placeholder || null;
+        const poolLeftReserve = detectPoolLeftHeaderReserve(groupNode);
+        const poolContentPanel = groupNode.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
+        const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
+        const lanePaddingLeft = 4;
+        const lanePaddingRight = 4;
+        const laneBodyPanelRightMargin = 2;
+        const laneBodyPanelBottomMargin = 2;
+        const poolContentRightPadding = 6;
+        const poolContentBottomPadding = 6;
+        const laneRightVisualInset = laneBodyPanelRightMargin + poolContentRightPadding;
+        const laneTopMargin = 4;
+        const laneBottomMargin = laneBodyPanelBottomMargin + poolContentBottomPadding;
+        const laneSpacing = POOL_LANE_GAP;
+        const minLaneWidth = 120;
+        const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
+        const preservePoolWidths = (myDiagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
+        const preserveWidth =
+            !!preservePoolWidths?.has(String(groupNode.data?.key || myGroup?.id || "")) ||
+            !!effectiveForcedPoolSize;
+        let poolWidth = preserveWidth
+            ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
+            : Math.max(
+                effectiveForcedPoolSize?.width || 0,
+                poolResizeObject?.desiredSize?.width || 0,
+                poolSize?.width || 0,
+                minPoolWidth
+            );
+        const measuredInnerWidth = (() => {
+            if (preserveWidth) return 0;
+            const bounds = (poolContentAnchor || poolContentPanel)?.getDocumentBounds?.();
+            if (bounds?.width && Number.isFinite(bounds.width) && bounds.width > 0) return bounds.width;
+            return 0;
+        })();
+        const laneWidth = Math.max(
+            (measuredInnerWidth > 0 ? measuredInnerWidth : (poolWidth - poolLeftReserve)) - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+            minLaneWidth
+        );
+
+        let currentY = poolLocation.y + laneTopMargin;
+        const laneLayouts: Array<{ group: go.Group; kind: 'lane' | 'pool'; height: number; resizeObject: any }> = [];
+        const nestedPoolsToRelayout: go.Group[] = [];
+        structuralGroups.forEach(({ group, kind }) => {
+            const laneSize = group.data?.size ? go.Size.parse(String(group.data.size)) : null;
+            const resizeObject = group.resizeObject || group.placeholder || group;
+            const laneBounds = group.actualBounds?.copy();
+            const laneHeight =
+                (typeof laneSize?.height === 'number' && Number.isFinite(laneSize.height) && laneSize.height > 0)
+                    ? laneSize.height
+                    : Math.max(
+                        resizeObject?.desiredSize?.height || 0,
+                        laneBounds?.height || 0,
+                        260
+                    );
+            laneLayouts.push({ group, kind, height: laneHeight, resizeObject });
+        });
+
+        const finalPoolWidth = poolWidth;
+        const finalLaneWidth = Math.max(finalPoolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset, minLaneWidth);
+        const finalStructuralRowWidth = Math.max(finalLaneWidth - 2, minLaneWidth);
+
+        laneLayouts.forEach((layout, idx) => {
+            const lane = layout.group;
+            const laneHeight = layout.height || 260;
+            const resizeObject = layout.resizeObject || null;
+            const isLaneGroup = layout.kind === 'lane';
+            const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
+            const laneHeaderWidth =
+                (isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+                    ? laneHeader.actualBounds.width
+                    : 36;
+            const rowWidth = finalStructuralRowWidth;
+            const laneBodyWidth = isLaneGroup ? Math.max(20, rowWidth - laneHeaderWidth) : rowWidth;
+            const laneMain = lane.findObject("LANE_MAIN") as go.GraphObject | null;
+            const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
+            const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+            const laneMainShape = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+            const childPoolShape = !isLaneGroup ? lane.findObject("POOL_SHAPE") as go.GraphObject | null : null;
+            const lanePoint = new go.Point(poolLocation.x + poolLeftReserve + lanePaddingLeft, currentY);
+            lane.location = lanePoint;
+            if (lane.data) {
+                myDiagram.model.setDataProperty(lane.data, "loc", go.Point.stringify(lanePoint));
+                myDiagram.model.setDataProperty(lane.data, "size", `${laneBodyWidth} ${laneHeight}`);
+                if (groupNode.data?.key && lane.data?.group !== groupNode.data.key) {
+                    myDiagram.model.setGroupKeyForNodeData(lane.data, groupNode.data.key);
+                }
+                if (lane.data.laneIndex !== idx) {
+                    myDiagram.model.setDataProperty(lane.data, "laneIndex", idx);
+                }
+            }
+            if (resizeObject) {
+                resizeObject.desiredSize = new go.Size(rowWidth, laneHeight);
+            }
+            if (isLaneGroup && laneMain) {
+                (laneMain as any).desiredSize = new go.Size(rowWidth, laneHeight);
+                (laneMain as any).width = rowWidth;
+                (laneMain as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneMainShape) {
+                (laneMainShape as any).desiredSize = new go.Size(rowWidth, laneHeight);
+                (laneMainShape as any).width = rowWidth;
+                (laneMainShape as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneBodyPanel) {
+                (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+                (laneBodyPanel as any).width = laneBodyWidth;
+                (laneBodyPanel as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneBody) {
+                (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+                (laneBody as any).width = laneBodyWidth;
+                (laneBody as any).height = laneHeight;
+            }
+            if (!isLaneGroup && childPoolShape) {
+                (childPoolShape as any).desiredSize = new go.Size(rowWidth, laneHeight);
+                (childPoolShape as any).width = rowWidth;
+                (childPoolShape as any).height = laneHeight;
+                nestedPoolsToRelayout.push(lane);
+            }
+            try {
+                lane.desiredSize = new go.Size(rowWidth, laneHeight);
+            } catch (_) {
+            }
+            const laneView = myModelview.findObjectView(lane.data?.key);
+            if (laneView) {
+                laneView.loc = go.Point.stringify(lanePoint);
+                laneView.group = groupNode.data?.key || laneView.group;
+                laneView.size = `${laneBodyWidth} ${laneHeight}`;
+                const data = JSON.parse(JSON.stringify(new jsn.jsnObjectView(laneView)));
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+            }
+            currentY += laneHeight;
+            if (idx < laneLayouts.length - 1) currentY += laneSpacing;
+        });
+
+        const totalHeight = (currentY - poolLocation.y) + laneBottomMargin;
+        const finalPoolSize = new go.Size(finalPoolWidth, Math.max(totalHeight, 80));
+        if (poolResizeObject) {
+            poolResizeObject.desiredSize = finalPoolSize;
+        }
+        try {
+            groupNode.desiredSize = finalPoolSize;
+        } catch (_) {
+        }
+        if (groupNode.data) {
+            myDiagram.model.setDataProperty(groupNode.data, "size", go.Size.stringify(finalPoolSize));
+        }
+        myGroup.size = go.Size.stringify(finalPoolSize);
+        const persistedPoolData = JSON.parse(JSON.stringify(new jsn.jsnObjectView(myGroup)));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: persistedPoolData });
+        nestedPoolsToRelayout.forEach((nestedPool) => {
+            const nestedOv = myModelview.findObjectView(nestedPool.data?.key);
+            if (nestedOv?.isGroup) {
+                doGroupLayout(nestedOv, myDiagram, myMetis);
+            }
+        });
+        myDiagram.commitTransaction('doGroupLayout');
+        return;
+        } catch (err) {
+            try {
+                myDiagram.rollbackTransaction();
+            } catch (_) {
+            }
+            throw err;
+        }
+    }
+
+    if (layoutMode === "lane_content") {
+        const body = groupNode.findObject("BODY");
+        const bounds = body ? body.actualBounds : groupNode.actualBounds;
+        (lay as any).arrangementOrigin = new go.Point(
+            bounds.x + LANE_LAYOUT_LEFT_INSET,
+            bounds.y + LANE_LAYOUT_TOP_INSET
+        );
+    }
+    // For LayeredDigraphLayout, find and anchor the first/root node
+    let firstNode: go.Node = null;
+    let originalPos: go.Point = null;
+    
+    if (lay instanceof go.LayeredDigraphLayout) {
+        let minY = Infinity;
+        
+        // Find the topmost node
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                if (node.location.y < minY) {
+                    minY = node.location.y;
+                    firstNode = node;
+                }
+            }
+        });
+        
+        // Store the original position of the first node
+        originalPos = (firstNode !== null) ? firstNode.location.copy() : null;
+    }
+
+    const laneMemberNodes = new go.Set<go.Node>();
+    const laneMemberKeys = new Set<string>();
+    if (layoutMode === "lane_content") {
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node && !(part instanceof go.Group)) {
+                laneMemberNodes.add(part);
+                if (part.data?.key) laneMemberKeys.add(part.data.key);
+            }
+        });
+    }
+    
+    // Assign the layout to the group
+    groupNode.layout = lay;
+    if (layoutMode === "lane_content" && groupNode.layout instanceof go.LayeredDigraphLayout) {
+        groupNode.layout.isOngoing = false;
+        groupNode.layout.isInitial = false;
+    }
+    groupNode.invalidateLayout();
+    if (layoutMode === "lane_content" && groupNode.layout !== null) {
+        // Keep lane "Do Layout" scoped to the selected lane only.
+        groupNode.layout.isValidLayout = false;
+        groupNode.layout.doLayout(groupNode.memberParts);
+    } else {
+        myDiagram.layoutDiagram(true);
+    }
+    // Calculate offset for LayeredDigraphLayout
+    if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos !== null) {
+        const newPos = firstNode.location;
+        const offsetX = originalPos.x - newPos.x;
+        const offsetY = originalPos.y - newPos.y;
+        
+        // Move all nodes by the offset
+        // groupNode.memberParts.each((part: go.Part) => {
+        //     if (part instanceof go.Node) {
+        //         const node = part as go.Node;
+        //         node.location = new go.Point(
+        //             node.location.x + offsetX,
+        //             node.location.y + offsetY
+        //         );
+        //     }
+        // });
+    }
+    
+    // **FIX: Update diagram again to get accurate bounds**
+    myDiagram.updateAllTargetBindings();
+
+    // Ensure nodes are within group bounds
+    const padding = GROUP_LAYOUT_PADDING;
+    const placeholder = groupNode.findObject("PLACEHOLDER");
+    const groupBounds = placeholder ? placeholder.actualBounds : groupNode.actualBounds;
+    const targetLeft = layoutMode === "lane_content"
+        ? groupNode.actualBounds.left + LANE_LAYOUT_LEFT_INSET
+        : groupBounds.left + padding;
+    const targetTop = layoutMode === "lane_content"
+        ? groupNode.actualBounds.top + LANE_LAYOUT_TOP_INSET
+        : groupBounds.top + padding;
+    
+	    // Calculate the bounds of all member nodes
+	    // Avoid Rect.unionRect on potentially frozen/shared Rects; compute bounds manually.
+	    let memberBounds: go.Rect | null = null;
+	    groupNode.memberParts.each((part: go.Part) => {
+	        if (part instanceof go.Node) {
+	            const node = part as go.Node;
+	            const b = node.actualBounds;
+	            if (!memberBounds) {
+	                memberBounds = new go.Rect(b.x, b.y, b.width, b.height);
+	            } else {
+	                const x1 = Math.min(memberBounds.x, b.x);
+	                const y1 = Math.min(memberBounds.y, b.y);
+	                const x2 = Math.max(memberBounds.right, b.right);
+	                const y2 = Math.max(memberBounds.bottom, b.bottom);
+	                memberBounds = new go.Rect(x1, y1, x2 - x1, y2 - y1);
+	            }
+	        }
+	    });
+	    if (!memberBounds) memberBounds = new go.Rect();
+    
+    // Calculate adjustments needed to fit within group
+    let adjustX = 0;
+    let adjustY = 0;
+    
+    const availableWidth = groupBounds.width - (2 * padding);
+    const availableHeight = groupBounds.height - (2 * padding);
+    
+    if (memberBounds.width > availableWidth) {
+        console.warn('Member nodes are wider than group - consider resizing group');
+    }
+    
+    // Adjust X position
+    if (memberBounds.left < targetLeft) {
+        adjustX = targetLeft - memberBounds.left;
+    } else if (memberBounds.right > groupBounds.right - padding) {
+        adjustX = (groupBounds.right - padding) - memberBounds.right;
+    }
+    
+    if (memberBounds.top < targetTop) {
+        adjustY = targetTop - memberBounds.top;
+    } else if (memberBounds.bottom > groupBounds.bottom - padding) {
+        adjustY = (groupBounds.bottom - padding) - memberBounds.bottom;
+    }
+    
+    // Apply adjustments if needed
+    if (adjustX !== 0 || adjustY !== 0) {
+        groupNode.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node) {
+                const node = part as go.Node;
+                const newLoc = new go.Point(
+                    node.location.x + adjustX,
+                    node.location.y + adjustY
+                );
+                node.location = newLoc;
+                myDiagram.model.setDataProperty(node.data, "loc", 
+                    newLoc.x + " " + newLoc.y);
+            }
+        });
+    }
+    
+    // **FIX: Collect member node keys for filtering links**
+    const memberNodeKeys = new Set<string>();
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            memberNodeKeys.add(part.data.key);
+        }
+    });
+    if (layoutMode === "lane_content") {
+        memberNodeKeys.clear();
+        laneMemberKeys.forEach((k) => memberNodeKeys.add(k));
+    }
+    
+    // Update all member objectviews
+    const modifiedObjectViews = [];
+    const nodeParts = layoutMode === "lane_content" ? laneMemberNodes : groupNode.memberParts;
+    nodeParts.each((part: go.Part) => {
+        if (part instanceof go.Node) {
+            const node = part as go.Node;
+            const objview = myModelview.findObjectView(node.data.key);
+            if (objview) {
+                const loc = node.location.x + " " + node.location.y;
+                objview.loc = loc;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);
+            }
+        }
+    });
+    
+    // Dispatch objectview updates
+    modifiedObjectViews.forEach(ov => {
+        let data = JSON.parse(JSON.stringify(ov));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    });
+    
+    // **FIX: Update only links that connect to group members - use relviewRef**
+    const modifiedRelationshipViews = [];
+    myDiagram.links.each((link: go.Link) => {
+        const fromKey = link.data.from;
+        const toKey = link.data.to;
+        
+        // Only update links where at least one end connects to a group member
+        if (memberNodeKeys.has(fromKey) || memberNodeKeys.has(toKey)) {
+            // **KEY FIX: Use relviewRef instead of key**
+            const relviewRef = link.data.relviewRef;
+            if (!relviewRef) {
+                console.warn('Link has no relviewRef:', link.data);
+                return;
+            }
+            
+            const relview = myModelview.findRelationshipView(relviewRef);
+            if (relview) {
+                // Get the link's route points
+                const points = link.points;
+                const pointsArray = [];
+                points.each((pt: go.Point) => {
+                    pointsArray.push(pt.x + " " + pt.y);
+                });
+                
+                // Store the path as a string
+                const newPath = pointsArray.join(" ");
+                relview.path = newPath;
+                
+                // Update the model
+                myDiagram.model.setDataProperty(link.data, "path", newPath);
+                // Keep relview points JSON-serializable (avoid GoJS List circular refs).
+                relview.points = pointsArray;
+                const jsnRelView = new jsn.jsnRelshipView(relview);
+                modifiedRelationshipViews.push(jsnRelView);
+            } else {
+                console.warn('RelationshipView not found for relviewRef:', relviewRef);
+            }
+        }
+    });
+    
+    // **FIX: Dispatch relationshipview updates**
+    modifiedRelationshipViews.forEach(rv => {
+        let data = JSON.parse(JSON.stringify(rv));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
+      
     const jsnGroup = new jsn.jsnObjectView(myGroup);
-    let data = jsnGroup;
-    data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-}
+    let data = JSON.parse(JSON.stringify(jsnGroup));
+    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+    
+    myDiagram.commitTransaction('doGroupLayout');
 }
 
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
@@ -2757,31 +3353,52 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
 
 export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relview: akm.cxRelationshipView, myDiagram: any) {
     myDiagram.startTransaction('updateLink');
-    const myModelview = myDiagram.myModelView;
     if (!relview) {
         relview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, gjsLink, "");
     }
     for (let it = myDiagram.links; it?.next();) {
-        const l = it.value;
-        const ldata = l.data;
-        if (ldata.key === goLink.key) {
-            for (let prop in goLink) {
-                if (prop !== 'key') {
-                    if (!(typeof prop === 'object')) {
-                        if (prop === 'category')
-                            continue;
-                        if (gjsLink[prop] !== undefined && gjsLink[prop] !== null && gjsLink[prop] !== "") {
-                            relview[prop] = gjsLink[prop];
-                            ldata[prop]    = gjsLink[prop];
-                            goLink[prop]   = gjsLink[prop];
-                            myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
-                        }
-                    }
-                }
+        const link = it.value;
+        const ldata = link.data;
+        if (ldata?.key !== goLink.key) continue;
+
+        for (const prop in goLink) {
+            if (prop === 'key' || prop === 'category') continue;
+            if (typeof goLink[prop] === 'function') continue;
+            if (gjsLink[prop] === undefined || gjsLink[prop] === null || gjsLink[prop] === "") continue;
+
+            relview[prop] = gjsLink[prop];
+            ldata[prop] = gjsLink[prop];
+            goLink[prop] = gjsLink[prop];
+
+            if (ldata.name === 'flowsTo' || ldata.name === 'isFollowedBy') {
+                // special handling of these links
+                gjsLink[prop] = " ";
+                goLink[prop] = " ";
+                relview[prop] = " ";
+            }
+
+            myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
+        }
+
+        const routing = gjsLink?.routing || ldata?.routing || relview?.routing;
+        if (shouldPersistLinkPoints(routing)) {
+            const points = [];
+            for (let pit = link.points.iterator; pit?.next();) {
+                const point = pit.value;
+                points.push(point.x);
+                points.push(point.y);
+            }
+            relview.points = points;
+        } else {
+            relview.points = [];
+            try {
+                myDiagram.model.setDataProperty(ldata, 'points', []);
+            } catch (_) {
+                ldata.points = [];
             }
         }
+        break;
     }
-    // myDiagram.model.addLinkData(data);
     myDiagram.commitTransaction('updateLink');
     return relview;
 }
@@ -3025,4 +3642,66 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
 
 export function editTraverseDialog() {
     
+}
+
+export function swapDirectionIsAllowed(link, modelview: akm.cxModelView, metamodel: akm.cxMetaModel) {
+    let retval = false;
+    let fromTypeId;
+    let toTypeId;
+    let relshpType = link.relship?.type;
+    fromTypeId = link.relship?.fromObject.type.id;
+    if (!fromTypeId) {
+        let relview = modelview.findRelationshipView(link.relviewRef);
+        if (relview)
+            fromTypeId = relview.fromObjview?.objecttype.id;
+    }
+    toTypeId = link.relship?.toObject.type.id;
+    if (!toTypeId) {
+        let relview = modelview.findRelationshipView(link.relviewRef);
+        if (relview)
+            toTypeId = relview.toObjview?.objecttype.id;
+    }
+
+    // Check if the swap direction is allowed based on your criteria
+    if (fromTypeId && toTypeId) {
+        // Example criteria: both links must be of the same type
+        if (fromTypeId === toTypeId)
+            retval = true;
+    }
+    if (relshpType?.name === 'refersTo')
+            retval = true;
+    return retval;
+}
+
+export function swapDirection(selectedLinks, myMetis: akm.cxMetis, myDiagram) {
+    const myModelview = myMetis.currentModelview;
+    const modifiedRelshipViews = new Array();
+    for (let i=0; i<selectedLinks.length; i++) {
+        const sel = selectedLinks[i];
+        const link = sel.data;
+        const reltype: akm.cxRelationshipType = myMetis.findRelationshipType(link.reltypeRef);
+        const fromTypeId = link.fromNode.objecttype.id;
+        const toTypeId = link.toNode.objecttype.id;
+        let relview: akm.cxRelationshipView;
+        relview = myModelview.findRelationshipView(link.key);
+        if (relview ) {
+            const fromObjview = relview.fromObjview;
+            const toObjview = relview.toObjview;
+            relview.fromObjview = toObjview;
+            relview.toObjview = fromObjview;
+            const jsnRelView = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelView);
+        }
+        let linkfromNode = link.fromNode;
+        let linktoNode = link.toNode;
+        link.fromNode = linktoNode;
+        link.toNode = linkfromNode;
+        myDiagram.model.setDataProperty(link, "from", link.fromNode.key);
+        myDiagram.model.setDataProperty(link, "to", link.toNode.key);
+    }
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
 }

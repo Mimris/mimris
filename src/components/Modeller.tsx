@@ -1,7 +1,7 @@
 // @ts-nocheck
 // modeller
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import { select } from "redux-saga/effects";
@@ -30,21 +30,35 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
 
-const Modeller = (props: any) => {
+const OBJECTS_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleObjects';
+const TYPES_PALETTE_STORAGE_KEY = 'mimris.modeller.visibleTypes';
+function readStoredBoolean(key: string, fallback: boolean) {
+    if (typeof window === 'undefined') return fallback;
+    try {
+        const value = window.localStorage.getItem(key);
+        if (value === null) return fallback;
+        return value === 'true';
+    } catch (_) {
+        return fallback;
+    }
+}
+
+const Modeller = React.forwardRef((props: any, ref) => {
     if (!props.metis) return <> metis not found</>
     if (!props.myMetis?.currentModel) return <> current model not found</>
 
     if (debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
     const [mounted, setMounted] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [showRenameModal, setShowRenameModal] = useState(false);
 
 
     const [refresh, setRefresh] = useState(false)
     const [objectsRefresh, setObjectsRefresh] = useState(false)
     const [activeTab, setActiveTab] = useState();
     const [ofilter, setOfilter] = useState('All')
-    const [visibleObjects, setVisibleObjects] = useState(false) // State to manage objects visibility 
+    const [visibleObjects, setVisibleObjects] = useState(() => readStoredBoolean(OBJECTS_PALETTE_STORAGE_KEY, true)) // State to manage objects visibility 
+    const [visibleTypes, setVisibleTypes] = useState(() => readStoredBoolean(TYPES_PALETTE_STORAGE_KEY, true)) // State to manage types palette visibility
     const [showPasteDialog, setShowPasteDialog] = useState(false); // State to manage paste dialog visibility
     const [jsonInput, setJsonInput] = useState(''); // State to manage JSON input
     // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true)
@@ -58,11 +72,20 @@ const Modeller = (props: any) => {
     const [diagramReady, setDiagramReady] = useState(false);
     const [selectedOption, setSelectedOption] = useState('Sorted alphabetical');
     const [ofilteredArr, setOfilteredArr] = useState([]);
+    const [objColumns, setObjColumns] = useState(1);
+    const [resetPaletteFilterToken, setResetPaletteFilterToken] = useState(0);
+    const [editingModelviewId, setEditingModelviewId] = useState<string | null>(null);
+    const [editingModelviewName, setEditingModelviewName] = useState('');
+    const [pendingRenameModelview, setPendingRenameModelview] = useState<any>(null);
+    const [renameModalName, setRenameModalName] = useState('');
+    const [renameModalDescription, setRenameModalDescription] = useState('');
     let activetabindex = 0; 
 
     const [gojsobjects, setGojsobjects] = useState({ nodeDataArray: [], linkDataArray: [] });
 
     const diagramRef = useRef(null);
+    const dragModelviewIdRef = useRef<string | null>(null);
+    const renameInputRef = useRef<HTMLInputElement | null>(null);
 
     const componentMounted = useRef(true);
 
@@ -78,19 +101,25 @@ const Modeller = (props: any) => {
         focusModel = { id: props.PhData.models[0].id, name: props.PhData.models[0].name };
         focusModelview = { id: props.PhData.models[0].modelviews[0].id, name: props.PhData.models[0].modelviews[0].name };
     }
+
     const models = props.metis?.models
     const model = models?.find((m: any) => m?.id === focusModel?.id)
     if (debug) console.log('71 Modeller: model', model, focusModel, focusModelview);
     const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
     const modelviews = model?.modelviews
     const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id) 
-    const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
+    const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
     const metamodels = props.metis?.metamodels
     const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
     if (debug) console.log('81 Modeller: modelview', model, modelview, modelviews, focusModelview, modelviewindex);
 
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
+    const handleShowRenameModal = () => setShowRenameModal(true);
+    const handleCloseRenameModal = () => {
+        setShowRenameModal(false);
+        setPendingRenameModelview(null);
+        setRenameModalName('');
+        setRenameModalDescription('');
+    };
 
     // const handleVisibleFocusDetails = () => { props.setVisibleFocusDetails(!props.visibleFocusDetails) }
 
@@ -103,6 +132,13 @@ const Modeller = (props: any) => {
         if (debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
         setActiveTab(activetabindex)
     }, [props.phFocus?.focusModelview?.id])
+
+    useEffect(() => {
+        if (editingModelviewId && renameInputRef.current) {
+            renameInputRef.current.focus();
+            renameInputRef.current.select();
+        }
+    }, [editingModelviewId]);
 
     if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
 
@@ -119,20 +155,58 @@ const Modeller = (props: any) => {
     }
 
     // Function to toggle the expanded state
-    const toggleIsExpanded = () => {
-        setIsExpanded(!isExpanded);
-    };
+    // const toggleIsExpanded = () => {
+    //     console.log('123 Modeller: toggleIsExpanded', isExpanded);
+    //     setIsExpanded(!isExpanded);
+    //     if (!isExpanded) {
+    //         setObjColumns(4)
+    //     } else {
+    //         setObjColumns(1)
+    //     }
+    // };
 
     function toggleObjects() {
         setObjectsRefresh(!objectsRefresh)
         setVisibleObjects(!visibleObjects);
     }
 
+    // Toggle both Objects and Types palettes together
+    function togglePalettes() {
+        const bothOpen = visibleObjects && visibleTypes;
+        setObjectsRefresh(!objectsRefresh);
+        setVisibleObjects(!bothOpen);
+        setVisibleTypes(!bothOpen);
+    }
+
+    // Expose imperative methods so parent can control the palettes
+    useImperativeHandle(ref, () => ({
+        isOpen: () => {
+            return Boolean(visibleObjects || visibleTypes);
+        },
+        setVisibleAll: (v: boolean) => {
+            setVisibleObjects(v);
+            setVisibleTypes(v);
+            setObjectsRefresh(!objectsRefresh);
+        },
+        toggleAll: () => {
+            togglePalettes();
+        }
+    }), [visibleObjects, visibleTypes, objectsRefresh]);
+
     useEffect(() => {
         return () => {
             componentMounted.current = false;
         }
     }, []);
+
+    useEffect(() => {
+        if (isExpanded) {
+            setObjColumns(4)
+        } else {
+            setObjColumns(1)
+        }
+    }, [isExpanded]);
+
 
     useEffect(() => {
         if (debug) useEfflog('122 Modeller useEffect 2 [] ');
@@ -146,13 +220,29 @@ const Modeller = (props: any) => {
             setSelectedOption('Sorted alphabetical')
         }
         setMounted(true)
-
-        setVisibleObjects(false);
         const timer = setTimeout(() => {
             setObjectsRefresh(!objectsRefresh)
         }, 250);
         return () => clearTimeout(timer);
     }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(OBJECTS_PALETTE_STORAGE_KEY, String(visibleObjects));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleObjects]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(TYPES_PALETTE_STORAGE_KEY, String(visibleTypes));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }, [visibleTypes]);
 
     useEffect(() => {
         if (debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
@@ -318,6 +408,73 @@ const Modeller = (props: any) => {
         }
     };
 
+    const beginModelviewRename = (mv: any) => {
+        if (!mv?.id) return;
+        setEditingModelviewId(mv.id);
+        setEditingModelviewName(mv.name || '');
+    };
+
+    const cancelModelviewRename = () => {
+        setEditingModelviewId(null);
+        setEditingModelviewName('');
+    };
+
+    const commitModelviewRename = (mv: any) => {
+        if (!mv?.id) {
+            cancelModelviewRename();
+            return;
+        }
+        const nextName = (editingModelviewName || '').trim();
+        if (!nextName || nextName === mv.name) {
+            cancelModelviewRename();
+            return;
+        }
+        setPendingRenameModelview(mv);
+        setRenameModalName(nextName);
+        setRenameModalDescription(mv.description || '');
+        handleShowRenameModal();
+        cancelModelviewRename();
+    };
+
+    const saveModelviewRename = () => {
+        const mv = pendingRenameModelview;
+        const nextName = (renameModalName || '').trim();
+        if (!mv?.id || !nextName) {
+            handleCloseRenameModal();
+            return;
+        }
+        dispatch({
+            type: 'UPDATE_MODELVIEW_PROPERTIES',
+            data: {
+                id: mv.id,
+                name: nextName,
+                description: renameModalDescription,
+                modifiedDate: new Date().toISOString(),
+            }
+        });
+        if (props.phFocus?.focusModelview?.id === mv.id) {
+            dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: mv.id, name: nextName } });
+        }
+        handleCloseRenameModal();
+    };
+
+    const handleModelviewDragStart = (modelviewId: string) => {
+        dragModelviewIdRef.current = modelviewId;
+    };
+
+    const handleModelviewDrop = (targetModelviewId: string) => {
+        const sourceModelviewId = dragModelviewIdRef.current;
+        dragModelviewIdRef.current = null;
+        if (!sourceModelviewId || sourceModelviewId === targetModelviewId) return;
+        dispatch({
+            type: 'REORDER_MODELVIEWS',
+            data: {
+                sourceId: sourceModelviewId,
+                targetId: targetModelviewId,
+            }
+        });
+    };
+
     function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
         let newobj = {};
         for (let i in obj) {
@@ -338,9 +495,13 @@ const Modeller = (props: any) => {
 
     // Objects palette
     const myModel = props.myMetis?.findModel(model.id);
-    let ndArr1 = uib.buildObjectPalette(myModel?.objects, props.myMetis)
-    let ndArr = ndArr1?.map((nd: any) => filterObject(nd))
-    let ldArr = []
+    const { nodeArray, linkArray } = uib.buildObjectPalette(myModel?.objects, myModel?.relships || []);
+
+
+    // Map object IDs to their corresponding GoJS node keys
+    if (debug) console.log('340 Modeller nodeArray, linkArray', nodeArray, linkArray);
+    let ndArr = nodeArray?.map((nd: any) => filterObject(nd))
+    let ldArr = (isExpanded) ? linkArray?.map((ld: any) => filterObject(ld)) : [];
 
     const ndTypes = ndArr?.map((nd: any) => nd.typename)
     const uniqueTypes = [...new Set(ndTypes)].sort();
@@ -417,7 +578,7 @@ const Modeller = (props: any) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
         }
         setObjectsRefresh(!objectsRefresh);
-    }, [selectedOption]);
+    }, [selectedOption, isExpanded]);
 
     // useEffect(() => {
     //     setRefresh(!refresh)
@@ -428,21 +589,61 @@ const Modeller = (props: any) => {
         if (mv && !mv.markedAsDeleted) {
             const strindex = index.toString()
             const data = { id: mv.id, name: mv.name }
-            const data2 = { id: Math.random().toString(36).substring(7), name: strindex + 'name' }
             // GenGojsModel(props, dispatch);
             // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
             return (
-                <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+                <NavItem
+                    key={mv.id || strindex}
+                    className="model-selection"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-bs-html="true"
                     title={
                         `Description: ${modelview?.description}
 
 To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
-                    }>
-                    <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft: "8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
+                    }
+                    draggable
+                    onDragStart={() => handleModelviewDragStart(mv.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleModelviewDrop(mv.id)}
+                    onDragEnd={() => { dragModelviewIdRef.current = null; }}
+                >
+                    <NavLink style={{ paddingTop: "0px", paddingBottom: "6px", paddingLeft: "8px", paddingRight: "8px", border: "solid px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black", cursor: "pointer" }}
                         className={classnames({ active: activeTab == strindex })}
-                        onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+                        onClick={() => {
+                            if (editingModelviewId === mv.id) return;
+                            dispatch({ type: 'SET_FOCUS_MODELVIEW', data });
+                        }}
+                        onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            beginModelviewRename(mv);
+                        }}
                     >
-                        {mv.name}
+                        {editingModelviewId === mv.id ? (
+                            <input
+                                ref={renameInputRef}
+                                type="text"
+                                value={editingModelviewName}
+                                className="form-control form-control-sm"
+                                style={{ minWidth: "120px", paddingTop: "0px", paddingBottom: "0px" }}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => setEditingModelviewName(e.target.value)}
+                                onBlur={() => commitModelviewRename(mv)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        commitModelviewRename(mv);
+                                    } else if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        cancelModelviewRename();
+                                    }
+                                }}
+                            />
+                        ) : (
+                            mv.name
+                        )}
                     </NavLink>
                 </NavItem>
             )
@@ -458,33 +659,46 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
 
     const SelectOTypes = (
         <>
-            <select
-                className="select-field mx-1 text-secondary"
-                style={{ width: "98%" }}
-                // value={uniqueTypes[selectedOption]}
-                onChange={(e) => handleSelectOTypes(e.target.value)}
-            >
-                <option value="In this modelview" key="01">
-                    Filter/Sort
-                </option>
-                <option value="In this modelview" key="02">
-                    Objects in this Modelview *
-                </option>
-                <option value="Sorted alphabetical" key="03">
-                    All Sorted Alphabetical *
-                </option>
-                <option value="Sorted by type" key="04">
-                    All Sorted by Type *
-                </option>
-                {uniqueTypes.map((t: any, index) => (
-                    <option key={index} value={t}>{t}</option>
-                ))}
-            </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 }}>
+                <select
+                    className="select-field mx-1 text-secondary"
+                    style={{ width: "98%" }}
+                    // value={uniqueTypes[selectedOption]}
+                    onChange={(e) => handleSelectOTypes(e.target.value)}
+                >
+                    <option value="In this modelview" key="01">
+                        Filter/Sort
+                    </option>
+                    <option value="In this modelview" key="02">
+                        Objects in this Modelview *
+                    </option>
+                    <option value="Sorted alphabetical" key="03">
+                        All Sorted Alphabetical *
+                    </option>
+                    <option value="Sorted by type" key="04">
+                        All Sorted by Type *
+                    </option>
+                    {uniqueTypes.map((t: any, index) => (
+                        <option key={index} value={t}>{t}</option>
+                    ))}
+                </select>
+                <button
+                    className="btn btn-sm"
+                    style={{ whiteSpace: 'nowrap', paddingLeft: 6, paddingRight: 6, backgroundColor: '#e5e7eb', color: '#111827', border: '1px solid #d1d5db' }}
+                    onClick={() => { setSelectedOption('Sorted alphabetical'); setResetPaletteFilterToken((t) => t + 1); }}
+                >
+                    Clear
+                </button>
+            </div>
         </>
     );
 
     const myMetamodel = myModel.metamodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
+
+    // Types palette (metamodel) — declared early so it is available when the Objects palette
+    // or other UI references it during render. Kept simple and re-uses GoJSPaletteApp.
+    
 
     // Function to export objects and relship to clipboard
     const exportToClipboard = () => {
@@ -518,6 +732,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
+                    noOfCols={isExpanded ? 4 : 1}
+                    resetPaletteFilterToken={resetPaletteFilterToken}
                 />
             </div>
         </>
@@ -582,9 +798,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                        }
                 </button>
             </Nav>
-            <TabContent className=" p-0 m-0 border border-white">
+            <TabContent className=" p-0 m-0 bg-white border border-white">
                 <TabPane className="">
-                    <Row className="m-1 rounded" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}>
+                    <Row className="m-0 rounded" style={{ backgroundColor: "transparent", outline: "0", borderStyle: "none" }}>
                         {/* {(visibleObjects)
                             ? (objectsRefresh)
                                 ? <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div>{objectsTabDiv}</Col></>
@@ -592,7 +808,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             : <><Col className="p-0 m-0 my-0" xs="auto"><div className="btn-horizontal bg-light" style={{ fontSize: "10px" }}></div></Col> </>
 
                         } */}
-                        <Col className="me-2 my-1 p-1 border" xe="auto" >
+                        <Col className="me-1 my-1 p-1 border" xe="auto" >
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
@@ -604,7 +820,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                                     dispatch={props.dispatch}
                                     modelType={props.phFocus.focusTab}
                                     onExportSvgReady={handleExportSvgReady}
-                                    diagramStyle={{ height: "77vh" }}
+                                    diagramStyle={{ height: "83vh" }}
                                 />
                             </div>
                             <div className="smaller-div m-0 p-0">{footerButtonsDiv}</div>
@@ -640,20 +856,24 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     dispatch={props.dispatch}
                     modelType={props.phFocus.focusTab}
                     onExportSvgReady={handleExportSvgReady}
-                    diagramStyle={{ height: "77vh" }}
+                    diagramStyle={{ height: "83vh" }}
                 />
             </div>
         </>
     if (debug) console.log('372 Modeller ', props.modelType)
 
+    /* Types palette inlined where needed to avoid initialization order issues */
+
     const objectsDiv =
         <>
+
             <Col className="p-0 m-0 my-0 " xs="auto">
-                <div className="btn-horizontal bg-light" style={{ fontSize: "14px", minWidth: '14rem'}}>
+                <div className="btn-horizontal bg-light palette-horizontal">
                     {objectsTabDiv}
                 </div>
             </Col>
-            <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
+
+            {/* <button className="btn d-flex justify-content-center align-items-center w-100 bg-secondary my-1" onClick={exportToClipboard} style={{ fontSize: "10px" }}>
                 <i className="fas fa-copy me-2"></i>Copy obj / rel (Json)
             </button>
             <button className="btn me-1 d-flex justify-content-center align-items-center w-100  bg-secondary my-1" onClick={openPasteDialog} style={{ fontSize: "10px"}}>
@@ -674,23 +894,26 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={closePasteDialog}>
+                    <Butto variant="secondary" onClick={closePasteDialog}>
                         Cancel
-                    </Button>
+                    </Butto
                     <Button variant="primary" onClick={handleJsonPaste}>
                         Import
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
         </>
+
+
+    
 
     const modellerDiv = (props.modelType === 'model')
         ? // modelling
-        <div className="modeller-workarea w-100 d-flex flex-col">
+        <div className="modeller-workarea d-flex flex-col" style={{ width: 'calc(99% - 2px)' }}>
             <div className={`modeller--objects me-1 
                 ${visibleObjects
                     ? isExpanded
-                        ? 'col-2'
+                        ? 'col-6'
                         : 'col-1'
                     : 'col-0'} `}
                     style={{ minWidth: visibleObjects ? '228px' : '16px', backgroundColor: "#7b8" }}
@@ -698,22 +921,27 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 <div className="modeller--objects-top d-flex flex-row justify-content-between me-1 p-0"
                     style={{ backgroundColor: "#7b8" }}
                 >
-                    <button
-                        className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
-                        onClick={toggleObjects}
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
-                        {visibleObjects 
-                            ?   <span> &lt;- Objects </span> 
-                            :   <span> <span style={{ whiteSpace: 'nowrap' }}>-&gt;</span>&nbsp; <span style={{ whiteSpace: 'normal', letterSpacing: '0.5em' }}> O b j e c t s</span>
+                    <div className="d-flex align-items-center">
+                        <button
+                            className="btn-sm p-0 m-0 text-left bg-transparent" style={{ backgroundColor: "#7b8", outline: "0", borderStyle: "none" }}
+                            onClick={toggleObjects}
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="List of all the Objects in this Model (This also include object with no Objectviews)&#013;&#013;Drag objects from here to the modelling area to include it in current Objectview">
+                            {visibleObjects 
+                                ? <span className="fs-8 px-1 palette-label"><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i>
+                                    Objects
+                                  </span>
+                                :   
+                                <span> <i className="fa fa-angle-right text-white pull-right-container ps-1"></i><span className="palette-label ms-1 palette-label-spaced"> O b j e c t s</span>
                                 </span>}
-                    </button>
+                        </button>
+                    </div>
                     <button
                         className="btn-sm ps-0 pe-4 m-0 text-left bg-transparent" style={{ backgroundColor: "#a0caca", outline: "0", borderStyle: "none" }}
-                        onClick={toggleIsExpanded}
+                        onClick={() => setIsExpanded(!isExpanded)}
                         data-toggle="tooltip" data-placement="top" title=" &#013;&#013;">
-                        {visibleObjects ? (isExpanded) ? <span> &lt; - &gt; </span> : <span>&lt; -- &gt;</span> : <span></span>}
+                        {visibleObjects ? (isExpanded) ? <span> &lt; -- </span> : <span>-- &gt;</span> : <span></span>}
                     </button>
                 </div>
                 <div className="modeller--objects m-1 " style={{ minWidth: '20px' }} >
@@ -725,9 +953,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     }
                 </div>
             </div>
-            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-8' : 'col-10') : 'col-12'}`}
+            
+            <div className={`modeller--workarea m-0 p-0 ${visibleObjects ? (isExpanded ? 'col-1' : 'col-2') : 'col-12'}`}
                 style={{
-                    minWidth: visibleObjects ? '48%' : '28%',
+                    minWidth: visibleObjects ? '8%' : '28%',
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                     flexGrow: 1
@@ -743,6 +972,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                 </div>
                 <div>
                     {metamodelTabDiv}
+
+    
                 </div>
             </div>
             <div className="">
@@ -751,14 +982,42 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </div>
 
     return (
-        <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
-            {/* {modellerDiv} */}
-            {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
-        </div>
+        <>
+            <Modal show={showRenameModal} onHide={handleCloseRenameModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Modelview</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mb-3">
+                        <label className="form-label mb-1">Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={renameModalName}
+                            onChange={(e) => setRenameModalName(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className="form-label mb-1">Description</label>
+                        <textarea
+                            className="form-control"
+                            rows={3}
+                            value={renameModalDescription}
+                            onChange={(e) => setRenameModalDescription(e.target.value)}
+                        />
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseRenameModal}>Cancel</Button>
+                    <Button variant="primary" onClick={() => saveModelviewRename()}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+            <div className="" style={{ display: 'flex', flexDirection: 'row' }} >
+                {/* {modellerDiv} */}
+                {refresh ? <> {modellerDiv} </> : <>{modellerDiv}</>}
+            </div>
+        </>
     )
-}
+});
 
 export default Modeller;
-
-
-

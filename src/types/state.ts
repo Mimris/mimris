@@ -25,12 +25,11 @@ export interface DomainData {
   name: string;
   description: string;
   presentation: string;
+  ontology: OntologyData;
 }
 
 export interface OntologyData {
   name: string;
-  description: string;
-  presentation: string;
   concepts: Concept[];
   relationships: Relationship[];
 }
@@ -69,7 +68,6 @@ export interface AppState {
   phData: {
     metis: MetisData;
     domain: DomainData | string; // Handle both types as needed
-    ontology: OntologyData;
   };
   phFocus: FocusData;
   phUser: UserData;

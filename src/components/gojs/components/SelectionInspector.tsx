@@ -103,6 +103,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
+    // If category is missing/non-object but we have object refs, treat as object to show form fields
+    if (category !== constants.gojs.C_OBJECT && category !== constants.gojs.C_RELATIONSHIP) {
+      if (selObj?.object || selObj?.objectview || selObj?.isGroup || selObj?.viewkind === 'Container') {
+        category = constants.gojs.C_OBJECT;
+      }
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
@@ -126,10 +132,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let typedescription = "";
     switch (category) {
       case constants.gojs.C_OBJECT:
-        inst1 = myObject;
+        inst1 = myObject || (selObj?.object as akm.cxObject);
         if (inst1)
           inst = inst1;
-        type = myObjectType;
+        type = myObjectType || (inst1?.type as akm.cxObjectType);
         break;
       case constants.gojs.C_RELATIONSHIP:
         let relship = myRelationship;
@@ -140,7 +146,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type1 = type;
         break;
     }
-    if (inst.parentModelRef !== myModel.id) {
+    if (inst && myModel && inst.parentModelRef && inst.parentModelRef !== myModel.id) {
       // readOnly = true;
     }
     // Set chosenType
@@ -248,7 +254,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (category === constants.gojs.C_OBJECT) {
         if (chosenType) {
           try {
-          properties = chosenType.getProperties(false);
+          properties = chosenType.getProperties(true);
           // pointerProps = chosenType.getPointerProperties(false);
           } catch {
             // Do nothing
@@ -847,6 +853,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
+    if (category === constants.gojs.C_OBJECTVIEW) {
+      category = constants.gojs.C_OBJECT;
+    } else if (category === constants.gojs.C_RELSHIPVIEW) {
+      category = constants.gojs.C_RELATIONSHIP;
+    } else if (category === constants.gojs.C_OBJECTTYPEVIEW) {
+      category = constants.gojs.C_OBJECTTYPE;
+    } else if (category === constants.gojs.C_RELSHIPTYPEVIEW) {
+      category = constants.gojs.C_RELSHIPTYPE;
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
@@ -930,20 +945,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editObjectview":
       case "editRelshipview":
       case "editTypeview":
-        if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+        if (category === constants.gojs.C_RELATIONSHIP) {
           item = instview;
           if (what === "editTypeview") {
             item = reltypeview;
           }
-        } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+        } else if (category === constants.gojs.C_RELSHIPTYPE) {
           item = reltypeview?.data;
           item = reltypeview;
-        } else if (selObj.category === constants.gojs.C_OBJECT) {
+        } else if (category === constants.gojs.C_OBJECT) {
           item = instview;
           if (what === "editTypeview") {
             item = objtypeview;
           }
-        } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+        } else if (category === constants.gojs.C_OBJECTTYPE) {
           item = objtypeview?.data;
           item = objtypeview;
         }
@@ -1018,8 +1033,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let required = false;
         let defValue = "";
         let values = [];
-        let val = selObj[k];
-        if (!val) val = "";
+        let val:any = selObj[k];
+        if (val === undefined || val === null) val = "";
         // Handle attributes not to be included in modal
         {
           if (k === 'dash') {
@@ -1041,9 +1056,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'editObjectview':
               if (k === 'grabIsAllowed') {
-                val = selObj[k];
-                break;
+                val = instview[k];
               }
+              if (k === 'groupLayout') {
+                val = instview[k];
+                console.log('1047 groupLayout val', val, instview);
+              }
+              if (k === 'memberscale' || k === 'arrowscale' || k === 'textscale') {
+                const selectedValue = selObj?.[k];
+                val = selectedValue !== undefined && selectedValue !== null && selectedValue !== ""
+                  ? selectedValue
+                  : instview?.[k];
+              }
+              break;             
             case 'editRelshipview':
               // val = selObj[k]; // instview[k];
               break;
@@ -1139,6 +1164,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue = 'None';
               fieldType = 'radio';
             break;
+            case 'groupLayout':
+              // values = ['None', 'Circular','Grid', 'Tree', 'LayeredDigraph', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
+              values = ['None', 'Circular','Grid', 'Tree', 'ForceDirected', 'LaneLayout', 'PoolLayout'];
+              defValue = 'None';
+              fieldType = 'radio';
+              break;
             case 'template':
             case 'template2':
               if (selObj.isGroup) {
@@ -1178,7 +1209,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'figure2':
               if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                values = uit.getFigure2Names();
+                values = uit.getFigureNames();
                 defValue = '';
                 fieldType = 'radio';
               }
@@ -1232,6 +1263,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue = 'black';
               fieldType = 'select';
               break;
+            case 'memberscale':
+            case 'arrowscale':
+            case 'textscale':
+              fieldType = 'number';
+              break;
             default:
               if (!fieldType)
                 fieldType = 'textarea';
@@ -1241,7 +1277,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // Handle fieldtypes
         {
           if (fieldType === 'checkbox') {
-            checked = val;
+            checked = val === true || val === 'true';
           }
           if (fieldType === 'radio') {
             fieldType = 'select';
@@ -1324,6 +1360,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         if (debug) console.log('918 k, val, readonly, disabled', k, val, readonly, disabled);
+        if (what === 'editObjectview' && (k === 'memberscale' || k === 'arrowscale' || k === 'textscale')) {
+          readonly = false;
+          disabled = false;
+          fieldType = 'number';
+        }
         if (readonly) { 
           disabled = true;
           if (fieldType !== "textarea")

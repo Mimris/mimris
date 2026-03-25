@@ -34,7 +34,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   const curmm = metamodels?.find((mm: any) => mm?.id === curmod?.metamodelRef)
 
   // const modelviews = curmod?.modelviews //.map((mv: any) => mv)
-  const curmodview = curmod.modelviews.find((mv: any) => mv.id === ph?.phFocus.focusModelview.id)
+  const curmodview = curmod?.modelviews?.find((mv: any) => mv.id === ph?.phFocus?.focusModelview?.id)
   const objects = curmod?.objects //.map((o: any) => o)
   const focusModel = (reportType === 'task') ? models.find((m: any) => m.id === modelInFocusId) : models.find((m: any) => m.id === ph?.phFocus.focusModel)    // selecting the models array current model or task model (generated from model)
   const focusUser = ph?.phUser?.focusUser
@@ -48,12 +48,12 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
 
   let curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id)
   if (!curobject) curobject = curmodview// if no object selected then use the modelview
-  let curobjectview = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
+  let curobjectview = curmod?.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews?.find((ov: any) => ov.id === focusObjectview?.id)
   if (!curobjectview) curobjectview = curmodview
-  const curobjectviews = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
-  const currelshipviews = curmod.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.relshipviews
-  const currelationships = curmod?.relships.filter((r: any) => currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
-  const parentobjectview = curmodview.objectviews?.find((ov: any) => ov.id === curobjectview?.group) || curmodview
+  const curobjectviews = curmod?.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.objectviews
+  const currelshipviews = curmod?.modelviews?.find((mv: any) => mv.id === focusModelview?.id)?.relshipviews
+  const currelationships = curmod?.relships?.filter((r: any) => currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
+  const parentobjectview = curmodview?.objectviews?.find((ov: any) => ov.id === curobjectview?.group) || curmodview || null
 
   const [selectedId, setSelectedId] = useState(null);
   const [value, setValue] = useState("");
@@ -88,13 +88,14 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
           modifiedFields[key] = formValues[key];
         }
       }
-      if ((formValues as { id: string })['id'] === curmodview.id) {
+      if ((formValues as { id: string })['id'] === curmodview?.id) {
         const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
         // const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
         dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: objData })
       } else {
         const objData = { id: (formValues as { id: string })['id'], ...modifiedFields, modifiedDate: new Date().toISOString() };
-        const objvData = { id: focusObjectview.id, name: formValues['name'], modifiedDate: new Date().toISOString() };
+        // Include all modified fields in objectview data, not just name
+        const objvData = { id: focusObjectview.id, ...modifiedFields, modifiedDate: new Date().toISOString() };
 
         if (debug) console.log('93 Context :', objData, objvData);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objvData })
@@ -168,7 +169,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   // );
 
   // remove duplicate objects
-  const curobjModelviews = curmod.modelviews.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name }))
+  const curobjModelviews = curmod?.modelviews?.filter((cmv: any) => cmv.objectviews?.find(cmvo => (cmvo)) && ({ id: cmv.id, name: cmv.name })) || []
   let parentobject = objects?.find((o: any) => o.id === parentobjectview?.objectRef) || null
   if (debug) console.log('173 Context', parentobjectview);
   if (debug) console.log('174 Context', parentobject);
@@ -185,8 +186,8 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmod: any): any[] {
     return objectviews?.map((objectview) => {
       const object = objects?.find((object) => object.id === objectview.objectRef)
-      const metamodel = metamodels.find((mm) => mm.id === curmod.metamodelRef)
-      const objecttype = metamodel.objecttypes.find((ot: any) => ot.id === object?.typeRef)
+      const metamodel = metamodels?.find((mm) => mm.id === curmod?.metamodelRef)
+      const objecttype = metamodel?.objecttypes?.find((ot: any) => ot.id === object?.typeRef)
       return objecttype
     }) || [];
   }
@@ -424,7 +425,7 @@ const FocusDetails = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repor
   )
 
   return (
-    <div className="context m-0" style={{ maxHeight: '78vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '78vh', overflowY: 'auto' }} >
+    <div className="context m-0" style={{ maxHeight: '82vh', minWidth: '686px', maxWidth: '800px', width: 'auto', height: '84vh', overflowY: 'auto' }} >
       <div className="context-tabs border border-dark rounded bg-transparent mx-1" style={{ height: 'auto' }}>
         {tabsDiv}
       </div>

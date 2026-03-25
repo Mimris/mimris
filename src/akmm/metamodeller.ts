@@ -122,17 +122,6 @@ export class cxMetis {
                     this.addMetamodel(metamodel);
                 }
             }
-            for (let i = len - 1; i >= 0; i--) {
-                const metamodel = metamodels[i];
-                if (!metamodel) continue;
-                if (metamodel.name !== constants.core.AKM_CORE_META)
-                    continue;
-                if (metamodel && metamodel.id) {
-                    this.importMetamodel(metamodel);
-                    this.addMetamodel(metamodel);
-                    this.coreMetamodel = metamodel;
-                }
-            }
         }
         // Handle viewstyles
         const viewstyles: any[] = (importedData) && importedData.viewstyles;
@@ -777,6 +766,22 @@ export class cxMetis {
             });
         }
 
+        let relshiptypes0: any[] = item.relshiptypes0;
+        if (relshiptypes0 && relshiptypes0.length) {
+            relshiptypes0.forEach(reltype0 => {
+                let reltype = this.findRelationshipType(reltype0?.id);
+                if (reltype) {
+                    if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
+                        // && reltype.name !== constants.types.AKM_IS
+                    ) {
+                        if (!reltype) {
+                            this.addRelationshipType(reltype0);
+                        }
+                        metamodel.addRelationshipType0(reltype);
+                    }
+                }
+            });
+        }
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
@@ -786,21 +791,7 @@ export class cxMetis {
                 }
             });
         }
-        let relshiptypes0: any[] = item.relshiptypes0;
-        if (relshiptypes0 && relshiptypes0.length) {
-            relshiptypes0.forEach(reltype0 => {
-                let reltype = this.findRelationshipType(reltype0?.id);
-                if (reltype) {
-                    if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                        && reltype.name !== constants.types.AKM_IS) {
-                        if (!reltype) {
-                            this.addRelationshipType(reltype0);
-                        }
-                        metamodel.addRelationshipType0(reltype);
-                    }
-                }
-            });
-        }
+
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -1016,6 +1007,7 @@ export class cxMetis {
             objtypeview.setMemberscale(Number(item.memberscale));
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
+            objtypeview.setFigure2(item.figure2);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -1026,6 +1018,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGroupLayout(item.groupLayout);
             objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
@@ -1179,6 +1172,14 @@ export class cxMetis {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
                 obj.generatedTypeId = item.generatedTypeId;
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 if (model) {
                     model.addObject(obj);
                 }
@@ -1271,10 +1272,13 @@ export class cxMetis {
                     objview.setTemplate2(item.template2);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.setGrabIsAllowed(item.grabIsAllowed === true || item.grabIsAllowed === "true");
                     objview.setArrowscale(Number(item.arrowscale));
                     objview.setMemberscale(Number(item.memberscale));
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.figure = item.figure;
+                    objview.figure2 = item.figure2;
                     objview.fillcolor = item.fillcolor;
                     objview.fillcolor2 = item.fillcolor2;
                     objview.strokecolor = item.strokecolor;
@@ -1380,8 +1384,12 @@ export class cxMetis {
                                 }
                             }
                         }
+                    } // isFollowedBy
+                    if (relview.name === "isFollowedBy" || relview.name === "follows") {
+                        relview.name = " ";
                     }
                     relview.markedAsDeleted = item.markedAsDeleted;
+                    if (!relview.markedAsDeleted) relview.visible = true;
                     relview.template = item.template;
                     relview.template2 = item.template2;
                     relship.addRelationshipView(relview);
@@ -2813,7 +2821,8 @@ export class cxMetis {
                         // }
                     }
                 }
-                if (reltype.relshipkind === constants.relkinds.GEN) continue;
+                if (reltype.relshipkind === constants.relkinds.GEN) 
+                    continue;
                 if (reltype.isAllowedFromType(fromType, includeGen)) {
                     if (reltype.isAllowedToType(toType, includeGen)) {
                         reltypes.push(reltype);
@@ -3098,22 +3107,28 @@ export class cxMetis {
         return null;
     }
     removeClassInstances(sel: any) {
-        if (sel.objectview) sel.objectview = null;
-        if (sel.object) sel.object = null;
-        if (sel.objecttype) sel.objecttype = null; 
-        if (sel.typeview) sel.typeview = null; 
-        if (sel.leftPorts) sel.leftPorts = null;
-        if (sel.rightPorts) sel.rightPorts = null;
-        if (sel.topPorts) sel.topPorts = null;
-        if (sel.bottomPorts) sel.bottomPorts = null;
-        if (sel.relshipview) sel.relshipview = null;
-        if (sel.relship) sel.relship = null;
-        if (sel.relshiptype) sel.relshiptype = null;
-        if (sel.typeview) sel.typeview = null;
-        if (sel.fromNode) sel.fromNode = null;
-        if (sel.toNode) sel.toNode = null;
-        if (sel.fromObjview) sel.fromObjview = null;
-        if (sel.toObjview) sel.toObjview = null;
+        const clearProp = (key: string) => {
+            try {
+                if (sel && sel[key]) sel[key] = null;
+            } catch (_) {
+                // Some selection objects expose read-only runtime references.
+            }
+        };
+        clearProp('objectview');
+        clearProp('object');
+        clearProp('objecttype');
+        clearProp('typeview');
+        clearProp('leftPorts');
+        clearProp('rightPorts');
+        clearProp('topPorts');
+        clearProp('bottomPorts');
+        clearProp('relshipview');
+        clearProp('relship');
+        clearProp('relshiptype');
+        clearProp('fromNode');
+        clearProp('toNode');
+        clearProp('fromObjview');
+        clearProp('toObjview');
         return sel;
     }
     substituteNodeMapValues(nodemaps: any, from, to) {
@@ -3143,6 +3158,45 @@ export class cxMetis {
             }
         }
         return node;
+    }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
+        }
     }
 }
 
@@ -3610,6 +3664,7 @@ export class cxMetaModel extends cxMetaObject {
     geometries: cxGeometry[] | null;
     containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
+    porttypes: cxPortType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypes: cxRelationshipType[] | null;
@@ -4876,6 +4931,8 @@ export class cxMetaModel extends cxMetaObject {
                 continue;
             if (reltype.name === constants.types.AKM_IS)
                 continue;
+            if (reltype.name === constants.types.AKM_CONTAINS)
+                continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
                 reltypes.push(reltype);
                 continue;
@@ -4898,6 +4955,12 @@ export class cxMetaModel extends cxMetaObject {
                     } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
                     }
+                // } else if (fromObjType.name === constants.types.AKM_CONTAINER) {
+                //     if (toObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                //         if (reltype.name === constants.types.AKM_CONTAINS) {
+                //             reltypes.push(reltype);
+                //         }
+                //     }
                 } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
@@ -6533,14 +6596,21 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     // abstract: boolean;
+    icomStyle: string;
     memberscale: number;
     arrowscale: number;
     viewkind: string;
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6553,14 +6623,21 @@ export class cxObjtypeviewData {
     textscale: number;
     constructor() {
         // this.abstract = false;
+        this.icomStyle = "idef";
         this.memberscale = 1.0;
         this.arrowscale = 1.3;
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
+        this.groupLayout = "";
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.grabIsAllowed = false;
         this.fillcolor = "";
@@ -6584,8 +6661,14 @@ export class cxObjectTypeView extends cxMetaObject {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6604,9 +6687,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef = type?.id;
         this.template = "";
         this.template2 = "";
-        this.figure      = "";
-        this.geometry    = "";
-        this.arrowscale = 1.0;
+        this.figure = "";
+        this.figure2 = "";
+        this.geometry = "";
+        this.groupLayout = "";
         this.memberscale = 1.0;
         this.fillcolor = "white";
         this.fillcolor2 = "white";
@@ -6619,6 +6703,10 @@ export class cxObjectTypeView extends cxMetaObject {
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.data = new cxObjtypeviewData();
         if (type) {
@@ -6629,10 +6717,14 @@ export class cxObjectTypeView extends cxMetaObject {
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
         if (objview) {
+            if (objview['figure2'] == "") objview['figure2'] = objview['figure'];
             let prop: any;
             let data: any = this.data;
             for (prop in data) {
-                if (objview[prop] == undefined || objview[prop] === "") continue;
+                if (prop !== 'groupLayout') {
+                    if (objview[prop] == undefined || objview[prop] === "") 
+                        continue;
+                }
                 data[prop] = objview[prop];
             }
             if (debug) console.log('5580 data', data,);
@@ -6712,6 +6804,12 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.template = template;
         this.template = template;
     }
+    setIcomStyle(icomStyle: string) {
+        this.data.icomStyle = icomStyle || "idef";
+    }
+    getIcomStyle(): string {
+        return this.data?.icomStyle || "idef";
+    }
     getTemplate(): string {
         if (this.data.template)
             return this.data.template;
@@ -6730,11 +6828,18 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template2;
         return "";
     }
+    getFigure(): string {
+        if (this.figure)
+            return this.figure;
+        else if (this.data.figure)
+            return this.data.figure;
+        return "";
+    }
     setFigure(figure: string) {
         this.data.figure = figure;
         this.figure = figure;
     }
-    getFigure(): string {
+    getFigure2(): string {
         if (this.figure2)
             return this.figure;
         else if (this.data.figure2)
@@ -6744,13 +6849,6 @@ export class cxObjectTypeView extends cxMetaObject {
     setFigure2(figure: string) {
         this.data.figure2 = figure;
         this.figure2 = figure;
-    }
-    getFigure2(): string {
-        if (this.figure)
-            return this.figure;
-        else if (this.data.figure)
-            return this.data.figure;
-        return "";
     }
     setGeometry(geometry: string) {
         this.data.geometry = geometry;
@@ -6784,6 +6882,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.data.fillcolor2)
             return this.data.fillcolor2;
         return "white";
+    }
+    getGroupLayout(): string {
+        if (this.groupLayout)
+            return this.groupLayout;
+        else if (this.data.groupLayout)
+            return this.data.groupLayout;
+        return "";
+    }
+    setGroupLayout(layout: string) {
+        this.data.groupLayout = layout;
+        this.groupLayout = layout;
     }
     setTextcolor(color: string) {
         this.data.textcolor = color;
@@ -6875,6 +6984,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.arrowscale;
         return 1.3; // Default  1
     }
+    setIconPath(iconpath: string) {
+        this.data.iconpath = iconpath;
+        this.iconpath = iconpath;
+    }
+    getIconPath(): string {
+        if (this.iconpath)
+            return this.iconpath;
+        // else if (this.data.iconpath)
+        //     return this.data.iconpath;
+        return "";
+    }
     setIcon(icon: string) {
         this.data.icon = icon;
         this.icon = icon;
@@ -6884,6 +7004,39 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.icon;
         // else if (this.data.icon)
         //     return this.data.icon;
+        return "";
+    }
+    setIcon1(icon: string) {
+        this.data.icon1 = icon;
+        this.icon1 = icon;
+    }
+    getIcon1(): string {
+        if (this.icon1)
+            return this.icon1;
+        // else if (this.data.icon1)
+        //     return this.data.icon1;
+        return "";
+    }
+    setIcon2(icon: string) {
+        this.data.icon2 = icon;
+        this.icon2 = icon;
+    }
+    getIcon2(): string {
+        if (this.icon2)
+            return this.icon2;
+        // else if (this.data.icon2)
+        //     return this.data.icon2;
+        return "";
+    }
+    setIcon3(icon: string) {
+        this.data.icon3 = icon;
+        this.icon3 = icon;
+    }
+    getIcon3(): string {
+        if (this.icon3)
+            return this.icon3;
+        // else if (this.data.icon3)
+        //     return this.data.icon3;
         return "";
     }
     setImage(image: string) {
@@ -6911,7 +7064,9 @@ export class cxReltypeviewData {
     arrowscale: number;
     textscale: number;
     dash: string;
+    from: string;
     fromArrow: string;
+    to: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
@@ -7693,6 +7848,7 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findRelationship1(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType, fromPort: cxPort, toPort: cxPort): cxRelationship | null {
+        if (!fromObj || !toObj || !reltype) return null;
         const relships = this.relships;
         if (relships) {
             const len = utils.objExists(relships) ? relships.length : 0;
@@ -7834,6 +7990,45 @@ export class cxModel extends cxMetaObject {
                 if (!oview.object)
                     oview.markedAsDeleted = true;
             }
+        }
+    }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
         }
     }
 }
@@ -8761,7 +8956,8 @@ export class cxRelationship extends cxInstance {
     nameTo: string;
     fromPortid: string;
     toPortid: string;
-    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
+    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, 
+                name: string, description: string, fromPortId: string = "", toPortId: string = "") {
         super(id, name, type, description);
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipviews = null;
@@ -8772,8 +8968,8 @@ export class cxRelationship extends cxInstance {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
-        this.fromPortid = "";
-        this.toPortid = "";
+        this.fromPortid = fromPortId;
+        this.toPortid = toPortId;
         if (!this.typeName) this.typeName = name;
         if (this.type) {
             this.cardinality = this.getCardinality();
@@ -8849,15 +9045,17 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if (this.fromObject && oldFromObj && newFromObj) {
-            oldFromObj.removeOutputrel(this);
-            this.fromObject = newFromObj;
-            newFromObj.addOutputrel(this);
-        }
-        if (this.toObject && oldToObj && newToObj) {
-            oldToObj.removeInputrel(this);
-            this.toObject = newToObj;
-            newToObj.addInputrel(this);
+        if ((newFromObj?.id !== newToObj?.id)  && (oldFromObj?.id !== oldToObj?.id)) {
+            if (this.fromObject && oldFromObj && newFromObj) {
+                oldFromObj.removeOutputrel(this);
+                this.fromObject = newFromObj;
+                newFromObj.addOutputrel(this);
+            }
+            if (this.toObject && oldToObj && newToObj) {
+                oldToObj.removeInputrel(this);
+                this.toObject = newToObj;
+                newToObj.addInputrel(this);
+            }
         }
     }
     getRelationshipViews(): cxRelationshipView[] | null {
@@ -9048,7 +9246,7 @@ export class cxModelView extends cxMetaObject {
         this.focusObjectview = null;
         this.scale = 1.0;
         this.memberscale = constants.params.MEMBERSCALE;
-        this.layout = "ForceDirected";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9067,7 +9265,7 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.layout = "Tree";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9236,9 +9434,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview: cxObjectView = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 if (objview.id === id) {
                     if (!objview.objectRef) {
                         const obj = objview.object;
@@ -9255,9 +9460,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 const obj = objview.object;
                 if (obj?.name === name)
                     return objview;
@@ -9270,9 +9482,16 @@ export class cxModelView extends cxMetaObject {
         let oviews = this.objectviews;
         if (!oviews)
             return null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         for (let i = 0; i < oviews.length; i++) {
             const ov = oviews[i];
-            if (ov.isDeleted())
+            if (isViewDeleted(ov))
                 continue;
             if (ov && obj) {
                 if (ov.object?.id === obj.id) {
@@ -9286,9 +9505,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objecttypeviews) return null;
         let i = 0;
         let obj = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objecttypeviews.length) {
             obj = this.objecttypeviews[i];
-            if (!obj?.isDeleted()) {
+            if (!isViewDeleted(obj)) {
                 if (obj.id === id)
                     return obj;
             }
@@ -9300,9 +9526,20 @@ export class cxModelView extends cxMetaObject {
         if (!relshipviews) return null;
         let i = 0;
         let rv = null;
+        var isViewDeleted = function (view) {
+            if (!view)
+                return false;
+            if (typeof view.isDeleted === 'function')
+                return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted'))
+                return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted'))
+                return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < relshipviews.length) {
             rv = relshipviews[i];
-            if (rv && !rv?.isDeleted()) {
+            if (!isViewDeleted(rv)) {
                 if (rv.id === id)
                     return rv;
             }
@@ -9375,6 +9612,25 @@ export class cxModelView extends cxMetaObject {
         }
         return null;
     }
+
+    findObjectViewsByGroup(group: cxObjectView): cxObjectView[] | null {
+        const objviews = new Array();
+        let oviews = this.objectviews;
+        if (!oviews)
+            return null;
+        for (let i = 0; i < oviews.length; i++) {
+            const ov = oviews[i];
+            if (ov.isDeleted())
+                continue;
+            if (ov && group) {
+                if (ov.group === group.id) {
+                    objviews.push(ov);
+                }
+            }
+        }
+        return objviews;
+    }
+
     getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {
         const relviews = new Array();
         if (fromView && toView) {
@@ -9534,6 +9790,7 @@ export class cxObjectView extends cxMetaObject {
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
+    ports: cxPort[] | null;
 
     groupLayout: string;
     grabIsAllowed: boolean;
@@ -9548,11 +9805,16 @@ export class cxObjectView extends cxMetaObject {
     strokecolor1: string;
 
     figure: string;
+    figure2: string;
     fillcolor: string;
     fillcolor2: string;
     geometry: string;
     group: string;
     icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
     image: string;
     isGroup: boolean;
     isSelected: boolean;
@@ -9583,12 +9845,20 @@ export class cxObjectView extends cxMetaObject {
         this.template2 = "";
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
-        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
         if (true) {
         this.group = "";
-        this.isGroup = false;
+        const baseViewkind =
+            this.typeview?.getViewKind?.() ||
+            this.typeview?.viewkind ||
+            object?.type?.viewkind ||
+            "";
+        const inferredContainer =
+            baseViewkind === constants.viewkinds.CONT ||
+            typeof (object?.type as any)?.isContainer === 'function' && (object?.type as any).isContainer();
+        this.isGroup = inferredContainer;
         this.groupLayout = "";
         this.parent = "";
         this.isExpanded = true;
@@ -9597,13 +9867,14 @@ export class cxObjectView extends cxMetaObject {
         this.visible = true;
         this.readonly = false;
         this.grabIsAllowed = false;
-        this.viewkind = "";
+        this.viewkind = inferredContainer ? constants.viewkinds.CONT : "";
         this.loc = "";
         this.size = "";
         this.scale = 1.0;
         this.template = "";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -9617,7 +9888,12 @@ export class cxObjectView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
+        this.ports = null;
         }
     }
     // Methods
@@ -9706,8 +9982,12 @@ export class cxObjectView extends cxMetaObject {
             const relview0 = this.inputrelviews[0];
             if (relview0 && !relview0.markedAsDeleted)
                 relviews.push(relview0);
+            const fromObjview0 = relview0.fromObjview;
+            const toObjview0 = relview0.toObjview;
             for (let i = 1; i < this.inputrelviews.length; i++) {
                 const relview = this.inputrelviews[i];
+                if (relview.fromObjview.id === fromObjview0.id && relview.toObjview.id === toObjview0.id)
+                    continue;
                 if (!relview.markedAsDeleted) {
                     relviews.push(relview);
                 }
@@ -9865,9 +10145,19 @@ export class cxObjectView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure(): string {
-        if (this.template == undefined)
+        if (this.figure == undefined)
             return "";
-        return this.template;
+        return this.figure;
+    }
+    setFigure2(figure: string) {
+        if (figure == undefined)
+            figure = "";
+        this.figure2 = figure;
+    }
+    getFigure2(): string {
+        if (this.figure2 == undefined)
+            return "";
+        return this.figure2;
     }
     setGrabIsAllowed(flag: boolean) {
         this.grabIsAllowed = flag;
@@ -9898,13 +10188,13 @@ export class cxObjectView extends cxMetaObject {
     }
     setMemberscale(memberscale: number) {
         if (memberscale == undefined || memberscale == null)
-            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.memberscale = memberscale;
     }
     getMemberscale(): number {
         const memberscale = this.memberscale;
         if (memberscale == undefined || memberscale == "" || memberscale == null)
-            return this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            return this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         return this.memberscale;
     }
     setArrowscale(arrowscale: number) {
@@ -9984,6 +10274,78 @@ export class cxObjectView extends cxMetaObject {
             this[k] = "";
         }
     }
+    addPort(port: cxPort) {
+        let ports;
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
+        const len = ports.length;
+        for (let i = 0; i < len; i++) {
+            const p = ports[i];
+            if (p.id === port.id) {
+                // Port is already in list
+                return;
+            }
+            ports.push(port);
+        }
+    }
+    getPorts(): cxPort[] {
+        return this.ports;
+    }
+    getLeftPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRightPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getTopPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getBottomPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRelsConnectedToPort(portId: string): cxRelationship[] {
+        const rels = new Array();
+        const inputrels = this.inputrels;
+        for (let i = 0; i < inputrels?.length; i++) {
+            const rel = inputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        const outputrels = this.outputrels;
+        for (let i = 0; i < outputrels?.length; i++) {
+            const rel = outputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        return rels;
+    }
 }
 
 export class cxRelationshipView extends cxMetaObject {
@@ -10009,7 +10371,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrowColor: string;
     routing: string;
     corner: number;
-    curve: number;
+    curve: string;
     points: any;
     visible: boolean;
     readonly: boolean;
@@ -10033,10 +10395,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
-        this.fromArrowColor = "";
-        this.toArrowColor = "";
+        this.fromArrowColor = "white";
+        this.toArrowColor = "black";
         this.routing = "";
-        this.curve = 0;
+        this.curve = "None";
         this.corner = 0;
         this.points = [];
         this.visible = true;

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector, useDispatch, useStore } from 'react-redux';
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
@@ -24,10 +24,12 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
+const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
 const Page1 = (props: any) => {
 
   const dispatch = useDispatch();
+  const store = useStore();
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -40,12 +42,19 @@ const Page1 = (props: any) => {
   function dispatchLocalStore(locStore: any) {
     // filter out null models and metamodels
     let metis = locStore.phData.metis
+
     const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
     const models = locStore.phData.metis.models.filter((m: any) => m)
     metis = { ...metis, models, metamodels }
+
     const phData = { ...locStore.phData, metis }
-    const focusModel = models.find(m => m.id === focus.focusModel?.id) || models[0]
-    const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+    const storedFocusModelId = typeof window !== 'undefined' ? window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
+    const requestedFocusModelId = storedFocusModelId || locStore?.phFocus?.focusModel?.id || focus.focusModel?.id
+    const focusModel = models.find(m => m.id === requestedFocusModelId) || models[0]
+    const requestedFocusModelviewId =
+      (focusModel?.id === locStore?.phFocus?.focusModel?.id && locStore?.phFocus?.focusModelview?.id)
+      || (focusModel?.id === focus.focusModel?.id && focus.focusModelview?.id)
+    const focusModelview = focusModel.modelviews.find(mv => mv.id === requestedFocusModelviewId) || focusModel.modelviews[0]
     const phFocus = {
       ...locStore.phFocus,
       focusModel: focusModel,
@@ -76,6 +85,16 @@ const Page1 = (props: any) => {
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const focus = useSelector((state: any) => state.phFocus)
+
+  const getPersistedState = () => {
+    const state = store.getState();
+    return {
+      phData: state.phData,
+      phFocus: state.phFocus,
+      phUser: state.phUser,
+      phSource: state.phSource,
+    };
+  }
 
   useEffect(() => {
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
@@ -202,7 +221,7 @@ const Page1 = (props: any) => {
   }, []);
 
   useEffect(() => {
-    const locProps = { ...props, phMymetis: null }
+    const locProps = getPersistedState()
     setMemorySessionState(locProps)
   }, [props.phSource])
   
@@ -242,6 +261,7 @@ const Page1 = (props: any) => {
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             <ProjectMenuBar {...props}
+              dispatch={dispatch}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               refresh={refresh} setRefresh={setRefresh}

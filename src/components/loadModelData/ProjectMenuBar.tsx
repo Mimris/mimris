@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import Link from 'next/link';
 import { useRouter } from 'next/router'; // Add this import
 
+import { InitialState } from '../../reducers/reducer';
 import { ReadModelFromFile } from '../utils/ReadModelFromFile';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import LoadGitHub from './LoadGitHub';
@@ -18,10 +18,11 @@ const debug = false;
 
 export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
-    const dispatch = useDispatch();
+    const dispatch = props.dispatch;
     const router = useRouter(); // Initialize router
     if (!props.phData) return null;
     const project = props.phData.metis;
+    const domain = props.phData.domain;
     const source = props.phSource;
     // const refresh = props.toggleRefresh;
     // const toggleRefresh = props.setRefresh;
@@ -51,6 +52,18 @@ export const ProjectMenuBar = (props: any) => {
     // setIsLeftDropdownOpen(!isLeftDropdownOpen);
     // };
 
+    const loadInitialProject = () => {
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: InitialState.phData });
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: InitialState.phFocus });
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: InitialState.phUser });
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: InitialState.phSource });
+        dispatch({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: crypto.randomUUID(), name: 'InitialState' },
+        });
+        router.push('/modelling');
+    };
+
     function handleItemClick(item: any) {
         // Check if the action is 'Open' or 'New'
         if (item === 'Open' || item === 'New') {
@@ -66,6 +79,7 @@ export const ProjectMenuBar = (props: any) => {
     }
 
     const handleReadProjectFile = (e: any) => {
+        if (!debug) console.log('82 handleReadProjectFile', e);
         ReadModelFromFile(props, dispatch, e);
         dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } });
         // Navigate to the modelling page after file processing
@@ -76,7 +90,8 @@ export const ProjectMenuBar = (props: any) => {
         setProjectname(props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-        if (debug) console.log('57 handleSaveAllToFile', props, projectname, props.phFocus)
+
+        if (!debug) console.log('94 handleSaveAllToFile', props, projectname, props.phFocus)
         SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
     }
 
@@ -134,6 +149,16 @@ export const ProjectMenuBar = (props: any) => {
     //     // } , 20000);
     // };
 
+    // const handleLeftMenuLeave = () => {
+    //     setIsLeftDropdownOpen(false);
+    //     setIsLeftHovered(false);
+    // };
+
+    // const handleRightMenuLeave = () => {
+    //     setIsRightDropdownOpen(false);
+    //     setIsRightHovered(false);
+    // };
+
     const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
         if (
@@ -160,8 +185,9 @@ export const ProjectMenuBar = (props: any) => {
     const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
     const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
     const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
+    
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
-
+    const loadMimrisTemplates = <span className="btn ms-3 bg-light text-dark ps-auto mt-0 pt-1 " onClick={loadInitialProject} data-toggle="tooltip" data-placement="top" title="Load Mimris Modeller templates from Kavca/Equinor GitHub repo" > Mimris templates </span>;
 
     const loadFile = (
         <>
@@ -209,6 +235,8 @@ export const ProjectMenuBar = (props: any) => {
                     return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadNewModelProject}</div>;
                 case 'Open':
                     return <div className="bg-secondary border rounded text-white ps-1"><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadGitHub}</div>;
+                case 'Mimristemplates':
+                    return <div className="bg-light border border-4 rounded "><i className="fa fa-folder fa-lg mx-1 mt-3"></i>{loadMimrisTemplates}</div>;
                 case 'File':
                     return <div className="bg-light border border-4 rounded ">{loadFile}</div>;
                 case 'Save':
@@ -253,6 +281,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropLeftMenuDiv = (isLeftDropdownOpen || isLeftHovered) && (
         <div
+            // onMouseLeave={handleLeftMenuLeave}
             className="bg-light rounded-2"
             style={{
                 whiteSpace: "nowrap",
@@ -295,7 +324,7 @@ export const ProjectMenuBar = (props: any) => {
                 {/* } */}
             </div>
             <ul className="bg-light mx- rounded w-100">
-                {["Open", "New", "File", "Save", "Import", "Metamodel"].map((item) => (
+                {["Open", "New", "Mimristemplates","File", "Save", "Import", "Metamodel"].map((item) => (
                     <MenuItem key={item} item={item} activeItem={activeItem} activeRightItem={activeRightItem} handleItemClick={handleItemClick} />
                 ))}
             </ul>
@@ -329,6 +358,7 @@ export const ProjectMenuBar = (props: any) => {
 
     const dropRightMenuDiv = (isRightDropdownOpen || isRightHovered) &&
         <div className="bg-light "
+            // onMouseLeave={handleRightMenuLeave}
             style={{
                 whiteSpace: "nowrap", position: "absolute", top: "32px", right: "-12px", width: "18rem", height: "100%",
                 backgroundColor: "#b0cfcf", zIndex: "99"

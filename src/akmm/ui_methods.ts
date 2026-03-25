@@ -283,9 +283,10 @@ export function traverseViews(objview: akm.cxObjectView, context: any): boolean 
         }
     }
     let reltype;
+    let reltypename; 
     if (reltypes) { // Check if reltype is specified
         // get reltype from comma separated list
-        const reltypename = reltypes.split(',')[0];        
+        reltypename = reltypes.split(',')[0];        
         try {
             reltype = myMetamodel.findRelationshipTypeByName(reltypename);
         } catch {

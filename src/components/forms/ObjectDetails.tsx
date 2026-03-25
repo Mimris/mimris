@@ -25,6 +25,23 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
   const textareaRef = useRef(null);
   // const [value, setValue] = useState("");
 
+  // Helper function to convert escape sequences to displayable Unicode characters
+  const convertEscapeToUnicode = (value: string): string => {
+    if (!value || typeof value !== 'string') return value;
+    
+    // Handle \uXXXX format (4 hex digits)
+    value = value.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+      return String.fromCodePoint(parseInt(hex, 16));
+    });
+    
+    // Handle \UXXXXXXXX format (8 hex digits for emoji)
+    value = value.replace(/\\U([0-9a-fA-F]{8})/g, (match, hex) => {
+      return String.fromCodePoint(parseInt(hex, 16));
+    });
+    
+    return value;
+  };
+
   const handleInputChange = (event) => {
     console.log('27', event.target.value)
     // setValue(event.target.value);
@@ -147,6 +164,22 @@ const ObjectForm = ({ objectPropertiesMain, formValues, curobject, handleChange,
                   <div>
                     {Ports}
                   </div>
+                );
+                break;
+              case key === 'icon':
+                // Special handling for icon field - convert escape sequences to displayable Unicode
+                const displayIcon = convertEscapeToUnicode(formValues[key] || curobject[key] || '');
+                inputElement = (
+                  <textarea
+                    className="form-control hover-white m-1 "
+                    id={key}
+                    name={key}
+                    value={displayIcon}
+                    onChange={handleInputChange}
+                    style={{ backgroundColor: edit ? '#fff' : '#eee', cursor: edit ? 'auto' : 'not-allowed' }}
+                    ref={textareaRef}
+                    rows={1}
+                  />
                 );
                 break;
               default:

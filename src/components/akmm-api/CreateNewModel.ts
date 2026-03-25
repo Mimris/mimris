@@ -8,76 +8,8 @@ import GenGojsModel from '../GenGojsModel';
 
 const debug = false;
 
-// interface Relationship {
-//   name: string;
-//   description: string;
-//   nameFrom: string;
-//   nameTo: string;
-// }
-
-// interface DomainData {
-//   name: string;
-//   description: string;
-//   presentation: string;
-//   concepts: { name: string; description: string }[];
-//   relationships: Relationship[];
-// }
-// interface Props {
-//   phData: {
-//     metis: {
-//       models: any[];
-//       metamodels: any[];
-//       name: string;
-//       description: string;
-//       currentModelRef: string;
-//       currentModelviewRef: string;
-//       currentMetamodelRef: string;
-//     };
-//     domain: DomainData;
-//     ontology: {
-//       name: string;
-//       description: string;
-//       presentation: string;
-//       concepts: { name: string; description: string }[];
-//       relationships: { name: string; description: string; nameFrom: string; nameTo: string }[];
-//     };
-//   };
-//   phFocus: {
-//     focusModel: { id: string; name: string };
-//     focusModelview: { id: string; name: string };
-//     focusObject: { id: string; name: string };
-//     focusRelship: { id: string; name: string };     
-//     focusObjectview: { id: string; name: string };
-//     focusRelshipview: { id: string; name: string };
-//     focusProj: {
-//       id: string;
-//       name: string;
-//       projectNumber: number;
-//       org: string;
-//       repo: string;
-//       branch: string;   
-//     }
-//   };
-//   phUser: {
-//     focusUser: {
-//       id: string;
-//       name: string;
-//       email: string;
-//     };
-//   };
-//   phTemplate: string;
-//   phSource: string;
-//   lastUpdate: string;
-// }
-
-
 const CreateNewModel = (props: any) => {
   console.log('8 SaveNewModel props', props);
-
-  // const dispatch = useDispatch();
-  // const { buttonLabel, className } = props;
-  // const [modal, setModal] = useState(true);
-  // const toggle = () => setModal(!modal);
 
   const ph = props;
   const models = ph?.phData?.metis?.models;
@@ -174,7 +106,7 @@ const CreateNewModel = (props: any) => {
 
     const coremodel = (metamodelGenerated) && {
       id: uuidv4(),
-      name: '01-CORE_TypeDef',
+      name: '01-TypeDef_CORE',
       description: 'Type Definition model based on CORE_META Metamodel. It includes the EntityTypes and Relationships. The intention of this model is to define the types and relationships between them.', 
       metamodelRef: coremetamodel?.id,
       sourceMetamodelRef: "",
@@ -316,14 +248,12 @@ const CreateNewModel = (props: any) => {
         domain: {
           name: '',
           description: '',
-          presentation: ''
-        },
-        ontology: {
-          name: '',
-          description: '',
           presentation: '',
-          concepts: [],
-          relationships: []
+          ontology: {
+            name: '',
+            concepts: [],
+            relationships: []
+          },
         },
       },
       phFocus: {
@@ -370,7 +300,7 @@ const CreateNewModel = (props: any) => {
             adminmetamodel
         ],
           name: newProjectName,
-          description: 'Modelling based on ' + metamodelGenerated?.name + ' Metamodel',
+          description: 'Mimris Models (POPS, IRTV, BPNM, TYPE)',
           currentModelRef: newmodel.id,
           currentModelviewRef:  newmodel.modelviews[0].id,
           currentMetamodelRef: metamodelGenerated?.id
@@ -379,13 +309,11 @@ const CreateNewModel = (props: any) => {
           name: '',
           description: '',
           presentation: '',
-        },
-        ontology: {
-          name: '',
-          description: '',
-          presentation: '',
-          concepts: [],
-          relationships: []
+          ontology: {
+            name: '',
+            concepts: [],
+            relationships: []
+          },
         },
       },
       phFocus: {

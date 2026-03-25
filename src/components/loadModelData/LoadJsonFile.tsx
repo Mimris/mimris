@@ -110,7 +110,7 @@ const LoadJsonFile = (props: any) => {
   const importFile = async (e) => {
     // Convert the FileList into an array and iterate
     let files = Array.from(e.target.files)
-    if (debug) console.log('125', files);
+    if (!debug) console.log('125', files);
     let filess = files.map(file => {
       if (debug) console.log('126 file', file);
       let reader = new FileReader();
@@ -135,7 +135,7 @@ const LoadJsonFile = (props: any) => {
     });
     if (debug) console.log('120 filess', filess);
     let res = await Promise.all(filess);
-    if (debug) console.log('122 res', res);
+    if (!debug) console.log('122 res', res);
     res.map(r => {
       ReadConvertJSONFromFileToAkm(
         r,

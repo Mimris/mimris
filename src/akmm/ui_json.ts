@@ -889,9 +889,11 @@ export class jsnObjectTypeView {
     name:            string;
     description:     string;
     typeRef:         string;
+    icomStyle:       string;
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    groupLayout:     string;
     grabIsAllowed:   boolean;
     template:        string;
     template2:       string;
@@ -916,12 +918,14 @@ export class jsnObjectTypeView {
         this.name            = objtypeview.name;
         this.description     = "";
         this.typeRef         = objtypeview.typeRef;
+        this.icomStyle       = objtypeview.getIcomStyle();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
         // this.template2       = objtypeview.getTemplate2();
         this.figure          = objtypeview.getFigure();
         this.figure2         = objtypeview.getFigure2();
         this.geometry        = objtypeview.getGeometry();
+        this.groupLayout     = objtypeview.getGroupLayout();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -1678,6 +1682,7 @@ export class jsnObjectView {
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
+    grabIsAllowed:   boolean;
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
@@ -1701,6 +1706,10 @@ export class jsnObjectView {
     textcolor2:      string;
     textscale:       number;
     icon:            string;
+    iconpath:        string;
+    icon1:           string;
+    icon2:           string;
+    icon3:           string;
     image:           string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
@@ -1712,6 +1721,7 @@ export class jsnObjectView {
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
         this.groupLayout     = objview?.groupLayout;
+        this.grabIsAllowed   = objview?.grabIsAllowed;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.isExpanded      = objview?.isExpanded;
@@ -1730,6 +1740,10 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.textcolor2      = objview?.textcolor2;
         this.icon            = objview?.icon;
+        this.iconpath        = objview?.iconpath;
+        this.icon1            = objview?.icon1;
+        this.icon2            = objview?.icon2;
+        this.icon3            = objview?.icon3;
         this.image           = objview?.image;
         this.size            = objview?.size;
         this.scale           = objview?.scale;
@@ -2168,6 +2182,14 @@ export class jsnImportMetis {
             if (objtype) {
                 let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
                 obj.setType(objtype);
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new akm.cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 jsnMetis.addObject(obj);
                 model.addObject(obj);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);
@@ -2187,7 +2209,16 @@ export class jsnImportMetis {
             const fromObj = jsnMetis.findObject(item.fromObjectRef);
             const toObj = jsnMetis.findObject(item.toObjectRef);
             if (reltype && fromObj && toObj) {
-                const rel = new akm.cxRelationship(item.id, item.name, reltype, fromObj, toObj, item.description);
+                const rel = new akm.cxRelationship(
+                    item.id,
+                    reltype,
+                    fromObj,
+                    toObj,
+                    item.name,
+                    item.description,
+                    item.fromPortid || "",
+                    item.toPortid || ""
+                );
                 rel.setType(reltype);
                 jsnMetis.addRelationship(rel);
                 model.addRelationship(rel);
@@ -2211,16 +2242,58 @@ export class jsnImportMetis {
     }
     importObjectView(item: akm.cxObjectView, modelview: akm.cxModelView) {
         if (item.objectRef) {
+            console.warn('[OBJVIEW_IMPORT]', { id: item?.id, fillcolor: item?.fillcolor, fillcolor2: item?.fillcolor2, modelview: modelview?.id });
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
                 const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
+                objview.groupLayout = item.groupLayout;
+                objview.isExpanded = item.isExpanded;
+                objview.isSelected = item.isSelected;
+                objview.loc = item.loc;
+                objview.size = item.size;
+                objview.scale = item.scale;
+                objview.memberscale = item.memberscale;
+                objview.arrowscale = item.arrowscale;
+                objview.viewkind = item.viewkind;
+                objview.markedAsDeleted = item.markedAsDeleted;
+                objview.modified = item.modified;
+                objview.template = item.template ?? "";
+                objview.template2 = item.template2 ?? "";
+                objview.figure = item.figure ?? "";
+                objview.figure2 = item.figure2 ?? "";
+                objview.geometry = item.geometry ?? "";
+                objview.fillcolor = item.fillcolor ?? "";
+                objview.fillcolor2 = item.fillcolor2 ?? "";
+                objview.strokecolor = item.strokecolor ?? "";
+                objview.strokecolor2 = item.strokecolor2 ?? "";
+                objview.strokewidth = item.strokewidth;
+                objview.textcolor = item.textcolor ?? "";
+                objview.textcolor2 = item.textcolor2 ?? "";
+                objview.textscale = item.textscale;
+                objview.icon = item.icon ?? "";
+                objview.iconpath = item.iconpath ?? "";
+                objview.icon1 = item.icon1 ?? "";
+                objview.icon2 = item.icon2 ?? "";
+                objview.icon3 = item.icon3 ?? "";
+                objview.image = item.image ?? "";
                 objview.setObject(object);
                 if (item.typeviewRef) {
                     const objtypeview = jsnMetis.findObjectTypeView(item.typeviewRef);
                     if (objtypeview)
                         objview.setTypeView(objtypeview);
+                }
+                // Object views are constructed with white/black runtime defaults.
+                // When no explicit view override was persisted, let build/render fall back
+                // to the typeview colors instead of keeping those constructor defaults.
+                if (objview.typeview) {
+                    if (objview.fillcolor === "white") objview.fillcolor = "";
+                    if (objview.fillcolor2 === "white") objview.fillcolor2 = "";
+                    if (objview.strokecolor === "black") objview.strokecolor = "";
+                    if (objview.strokecolor2 === "black") objview.strokecolor2 = "";
+                    if (objview.textcolor === "black") objview.textcolor = "";
+                    if (objview.textcolor2 === "black") objview.textcolor2 = "";
                 }
                 // metis.addObjectView(objview);
                 object.addObjectView(objview);
@@ -2239,12 +2312,33 @@ export class jsnImportMetis {
                 const toobjview: any = modelview.findObjectView(item.toObjview.id);
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
+                if (item.fromPortid) relview.fromPortid = item.fromPortid;
+                if (item.toPortid) relview.toPortid = item.toPortid;
                 // relview.setData(item.data);
                 if (item.typeview.id) {
                     const reltypeview = jsnMetis.findRelationshipTypeView(item.typeview.id);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                relview.arrowscale = item.arrowscale;
+                relview.strokecolor = item.strokecolor;
+                relview.strokewidth = item.strokewidth;
+                relview.textcolor = item.textcolor;
+                relview.textscale = item.textscale;
+                relview.dash = item.dash;
+                relview.fromArrow = item.fromArrow;
+                relview.toArrow = item.toArrow;
+                relview.fromArrowColor = item.fromArrowColor;
+                relview.toArrowColor = item.toArrowColor;
+                relview.routing = item.routing;
+                relview.curve = item.curve;
+                relview.corner = item.corner;
+                relview.points = item.points;
+                relview.markedAsDeleted = item.markedAsDeleted;
+                relview.modified = item.modified;
+                relview.visible = item.visible;
                 // metis.addRelationshipView(relview);
                 modelview.addRelationshipView(relview);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);

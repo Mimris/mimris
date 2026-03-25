@@ -8,6 +8,10 @@ export interface SagaStore extends Store {
     sagaTask: Task;
 }
 
+let currentStore: SagaStore | null = null;
+
+export const getCurrentStore = (): SagaStore | null => currentStore;
+
 export const makeStore = (context: Context) => {
     const sagaMiddleware = createSagaMiddleware();
 
@@ -20,6 +24,7 @@ export const makeStore = (context: Context) => {
     };
 
     const store = createStore(reducer, bindMiddleware([sagaMiddleware]));
+    currentStore = store as SagaStore;
 
     (store as SagaStore).sagaTask = sagaMiddleware.run(rootSaga);
 

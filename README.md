@@ -20,6 +20,7 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Authors](#authors)
   - [Tech Stack](#tech-stack)
   - [Features](#features)
+  - [Spec Workflow](#spec-workflow)
   - [Quick Start �](#quick-start-)
   - [Installation](#installation)
     - [Prerequisites](#prerequisites)
@@ -32,7 +33,12 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
     - [Redux Store Structure](#redux-store-structure)
   - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
-  - [Contributing](#contributing)
+  - [📚 Documentation](#-documentation)
+- [\<\<\<\<\<\<\< ours](#-ours)
+    - [Enable GitHub Pages](#enable-github-pages)
+    - [Ensure the default branch is `main`](#ensure-the-default-branch-is-main)
+    - [Preview locally](#preview-locally)
+  - [Contributing 🤝](#contributing-)
   - [License](#license)
 - [Mimris](#mimris)
 - [Develop branch used for deployment of beta versjon](#develop-branch-used-for-deployment-of-beta-versjon)
@@ -113,6 +119,15 @@ Below is shown an example model built using a template generated from the metamo
   - Generated API types from OpenAPI spe
 - Customizable templates & components
 - Web based Cross-platform support (Windows/Linux/macOS)
+
+## Spec Workflow
+
+Mimris now uses a spec-kit workspace under [`.specify/`](/Users/snorrefossland/GitHub/mimris/.specify) for new active feature work.
+
+- Use `.specify/memory/constitution.md` for project-wide engineering rules.
+- Use `.specify/specs/` for active feature specifications, plans, and tasks.
+- Use `docs/` for stable architecture, ADRs, and reference material.
+- Treat `docs/_specs/` as legacy/reference documentation rather than the default place for new feature specs.
 
 ## Quick Start �
 
@@ -243,7 +258,57 @@ export const nodeTemplate = (
 );
 ```
 
-## Contributing
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+## 📚 Documentation
+
+Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
+
+- **Landing page** – https://mimris.github.io/mimris/
+- **Getting started guide** – https://mimris.github.io/mimris/getting-started
+
+<<<<<<< ours
+=======
+### Enable GitHub Pages
+
+1. Commit and push updates to the `docs/` directory (for example, editing `docs/index.md`).
+2. In the GitHub repository, open **Settings → Pages**.
+3. Under **Build and deployment**, select **Source → Deploy from a branch**.
+4. Choose the `main` branch and the `/docs` folder, then click **Save**. GitHub Pages will build the Just the Docs site automatically.
+
+### Ensure the default branch is `main`
+
+If your repository still uses `master` (or another name), rename the branch and update the default in GitHub:
+
+```bash
+git branch -m master main
+git push -u origin main
+```
+
+Then go to **Settings → Branches** and set the default branch to `main`.
+
+### Preview locally
+
+1. Install Ruby (2.7+) and Bundler if they are not already available.
+2. Change into the documentation directory and start Jekyll:
+   ```bash
+   cd docs
+   bundle install
+   bundle exec jekyll serve --livereload
+   ```
+3. Visit <http://localhost:4000> to preview the documentation with live reload while you edit markdown files.
+
+>>>>>>> theirs
+To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
+
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+## Contributing 🤝
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 We welcome contributions under these guidelines:
@@ -335,4 +400,3 @@ There are two main code parts:
  The code also includes functions for setting and updating the focus of the application, refreshing the objects, and handling the state of the application. Overall, the code is used to manage the state and behavior of the modeling application.
 
 AKM client is a collection of functions and components written in TypeScript and React for a modeling application. The functions and components are responsible for handling various tasks such as updating the properties of objects and relationships, handling events on the diagram, toggling tasks, dispatching data to the store, and loading data from local storage. The code also includes functions for setting and updating the focus of the application, refreshing the objects, and handling the state of the application. Overall, the code is used to manage the state and behavior of the modeling application.
-

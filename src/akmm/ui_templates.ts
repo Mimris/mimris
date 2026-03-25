@@ -4530,7 +4530,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 toShortLength: 3, 
                 relinkableFrom: true, 
                 relinkableTo: true, 
-                adjusting: go.Link.Stretch,
+                adjusting: go.Link.End,
                 reshapable: true,
                 resegmentable: true,
             },
@@ -4964,6 +4964,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
@@ -5021,6 +5022,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
@@ -5071,6 +5073,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",
@@ -5123,6 +5126,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
@@ -5166,6 +5170,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
@@ -5206,6 +5211,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             {
                 name: "GROUP",
                 cursor: "",
+                avoidable: false,
                 resizable: true, 
                 minSize: getMinSize(),
                 resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing

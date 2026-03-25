@@ -11546,7 +11546,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.currentPart = draggedPart;
           }
         }
-        return baseDoActivate.call(this);
+        const result = baseDoActivate.call(this);
+        try {
+          const draggedParts = this.draggedParts;
+          for (let it = draggedParts?.iterator; it?.next();) {
+            const part = it.key as go.Part;
+            if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
+            (part.data as any).__dragStartGroup =
+              part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
+                ? String(part.containingGroup.key)
+                : String(part.data.group || "");
+          }
+        } catch (_) {
+        }
+        return result;
       };
 
       // Set the diagram template maps

@@ -1149,6 +1149,45 @@ function ensureNodeIsGroup(diagram, node) {
   node.isSubGraphExpanded = true;
 }
 
+function setGroupMemberVisibilityRecursive(group: go.Group, visible: boolean) {
+  if (!(group instanceof go.Group)) return;
+  try {
+    group.memberParts.each((member: go.Part) => {
+      try { member.visible = visible; } catch (_) { }
+      try { member.updateTargetBindings(); } catch (_) { }
+      if (member instanceof go.Node) {
+        try { member.invalidateConnectedLinks(); } catch (_) { }
+      }
+      if (member instanceof go.Link && visible) {
+        try { member.invalidateRoute(); } catch (_) { }
+        try { member.updateRoute(); } catch (_) { }
+      }
+      if (member instanceof go.Group) {
+        setGroupMemberVisibilityRecursive(member, visible);
+      }
+    });
+  } catch (_) {
+  }
+}
+
+function syncLiveGroupExpandedState(diagram: go.Diagram, group: go.Group, expanded: boolean) {
+  if (!diagram || !(group instanceof go.Group)) return;
+  const data: any = group.data || {};
+  try { group.isSubGraphExpanded = expanded; } catch (_) { }
+  try { diagram.model.setDataProperty(data, "isExpanded", expanded); } catch (_) { data.isExpanded = expanded; }
+  try { diagram.model.setDataProperty(data, "isSubGraphExpanded", expanded); } catch (_) { data.isSubGraphExpanded = expanded; }
+  try {
+    const objview = data?.objectview;
+    if (objview) objview.isExpanded = expanded;
+  } catch (_) { }
+  setGroupMemberVisibilityRecursive(group, expanded);
+  try { group.updateTargetBindings(); } catch (_) { }
+  try { group.updateAdornments(); } catch (_) { }
+  try { group.ensureBounds(); } catch (_) { }
+  try { group.invalidateLayout(); } catch (_) { }
+  try { diagram.requestUpdate(); } catch (_) { }
+}
+
 function setNodeGroup(diagram, node, groupKey) {
   if (!diagram || !node || !node.data) {
     return;
@@ -6736,14 +6775,40 @@ break;
   }
   break;
 }
-	      case "SubGraphCollapsed":
+      case "SubGraphCollapsed":
 	      case "SubGraphExpanded": {
   const affectedPoolKeys = new Set<string>();
-  e.subject.each(function (n) {
+  const expanded = name === "SubGraphExpanded";
+  const affectedParts: go.Part[] = [];
+  if (e.subject instanceof go.Part) {
+    affectedParts.push(e.subject);
+  } else if (e.subject?.iterator) {
+    for (let it = e.subject.iterator; it?.next();) {
+      if (it.value instanceof go.Part) affectedParts.push(it.value);
+    }
+  } else if (typeof e.subject?.each === "function") {
+    e.subject.each((n: go.Part) => {
+      if (n instanceof go.Part) affectedParts.push(n);
+    });
+  }
+  affectedParts.forEach(function (n) {
     const data = n.data;
+    if (n instanceof go.Group) {
+      syncLiveGroupExpandedState(myDiagram, n, expanded);
+      setTimeout(() => {
+        try {
+          const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
+          if (liveGroup instanceof go.Group) {
+            syncLiveGroupExpandedState(myDiagram, liveGroup, expanded);
+            try { liveGroup.invalidateConnectedLinks(); } catch (_) { }
+          }
+        } catch (_) {
+        }
+      }, 0);
+    }
     const objview = data?.objectview;
     if (objview) {
-      objview.isExpanded = data.isExpanded;
+      objview.isExpanded = expanded;
       const jsnObjview = new jsn.jsnObjectView(objview);
       modifiedObjectViews.push(jsnObjview);
     }
@@ -6758,6 +6823,19 @@ break;
   // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
   // and clamp all lane members back into their lane bodies.
   affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+  try {
+    const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+      ? [...(myDiagram.model as any).nodeDataArray]
+      : this.state.nodeDataArray;
+    const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+      ? [...(myDiagram.model as any).linkDataArray]
+      : this.state.linkDataArray;
+    this.setState({
+      nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+      linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+    });
+  } catch (_) {
+  }
   break;
 }
       case "BackgroundSingleClicked": {

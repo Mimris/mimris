@@ -75,7 +75,27 @@ function installSafeNodeCategoryGuard() {
   proto.__safeNodeCategoryGuardInstalled = true;
 }
 
+function installSafeLinkCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeLinkCategoryGuardInstalled) return;
+  const original = proto.setCategoryForLinkData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForLinkData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : constants.gojs.C_LINKEMPLATE));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeLinkCategoryGuardInstalled = true;
+}
+
 installSafeNodeCategoryGuard();
+installSafeLinkCategoryGuard();
 
 function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
@@ -146,6 +166,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
+  private persistReshapedLinkPoints: (e: go.DiagramEvent) => void;
 
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -194,6 +215,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       addConnectedRelOptions: ['All'],
       addConnectedRelChoice: ['All']
     };
+    this.persistReshapedLinkPoints = (e: go.DiagramEvent) => {
+      const diagram = e.diagram;
+      const link = e.subject as go.Link;
+      const linkData: any = link?.data;
+      if (!(diagram instanceof go.Diagram) || !(link instanceof go.Link) || !linkData) return;
+      const relview =
+        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
+        linkData?.relshipview ||
+        null;
+      if (!relview) return;
+      const points: number[] = [];
+      try {
+        for (let it = link.points.iterator; it?.next();) {
+          const point = it.value;
+          points.push(point.x, point.y);
+        }
+      } catch (_) {
+        return;
+      }
+      relview.points = points;
+      try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
+        try { linkData.points = points; } catch (_err) {}
+      }
+      try {
+        const data = JSON.parse(JSON.stringify(new jsn.jsnRelshipView(relview)));
+        diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+      } catch (_) {}
+    };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
@@ -234,6 +283,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkReshaped', this.persistReshapedLinkPoints);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -449,6 +499,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('InitialLayoutCompleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkReshaped', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('LinkReshaped', this.persistReshapedLinkPoints);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -1421,6 +1472,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (run === false) {
           run = true;
           draft.selectedData[propname] = value;
+          if (propname === 'grabIsAllowed') {
+            const nextValue = value === true || value === 'true';
+            try {
+              draft.selectedData[propname] = nextValue;
+            } catch (_) {}
+            try {
+              draft.modalContext.myContext.objectview[propname] = nextValue;
+            } catch (_) {}
+            try {
+              const currentNode: any = this.myMetis?.currentNode;
+              if (currentNode?.objectview) currentNode.objectview[propname] = nextValue;
+              if (currentNode?.data?.objectview) currentNode.data.objectview[propname] = nextValue;
+              if (currentNode?.data) currentNode.data[propname] = nextValue;
+              if (currentNode) currentNode[propname] = nextValue;
+            } catch (_) {}
+          }
         }
       })
     );
@@ -1451,6 +1518,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myMetis.deleteViewsOnly = false;
       myMetis.pasteViewsOnly = false;
     }
+    const baseStandardMouseSelect = go.ClickSelectingTool.prototype.standardMouseSelect;
     const guardedStandardMouseSelect = function () {
       const diagram = this.diagram;
       if (!diagram) return;
@@ -1483,16 +1551,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
       }
-      if (selectablePart instanceof go.Part) {
-        if (diagram.lastInput.shift) {
-          selectablePart.isSelected = true;
-        } else {
+      if (!(selectablePart instanceof go.Part)) {
+        if (!diagram.lastInput.shift) {
           diagram.clearSelection();
-          diagram.select(selectablePart);
         }
-      } else if (!diagram.lastInput.shift) {
-        diagram.clearSelection();
+        return;
       }
+      baseStandardMouseSelect.call(this);
     };
     { // define myDiagram
       myDiagram =
@@ -11397,8 +11462,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.currentPart ||
             diagram.findPartAt(diagram.lastInput.documentPoint, true);
           if (draggedPart instanceof go.Part && draggedPart.canSelect()) {
-            diagram.clearSelection();
-            draggedPart.isSelected = true;
+            if (!draggedPart.isSelected) {
+              draggedPart.isSelected = true;
+            }
             this.currentPart = draggedPart;
           }
         }

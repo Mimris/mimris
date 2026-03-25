@@ -53,7 +53,27 @@ function installSafeNodeCategoryGuard() {
   proto.__safeNodeCategoryGuardInstalled = true;
 }
 
+function installSafeLinkCategoryGuard() {
+  const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
+  if (!proto || proto.__safeLinkCategoryGuardInstalled) return;
+  const original = proto.setCategoryForLinkData;
+  if (typeof original !== 'function') return;
+  proto.setCategoryForLinkData = function (data: any, cat: any) {
+    const safeCategory =
+      typeof cat === 'string' && cat.length > 0
+        ? cat
+        : (typeof data?.template === 'string' && data.template.length > 0
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : 'linkTemplate1'));
+    return original.call(this, data, safeCategory);
+  };
+  proto.__safeLinkCategoryGuardInstalled = true;
+}
+
 installSafeNodeCategoryGuard();
+installSafeLinkCategoryGuard();
 
 function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;

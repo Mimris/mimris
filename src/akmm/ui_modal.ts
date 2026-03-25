@@ -75,6 +75,17 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   const pattern = props.pattern;
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
+  const coerceNumericObjectviewValue = (name: string, rawValue: any) => {
+    if (name !== 'memberscale' && name !== 'arrowscale' && name !== 'textscale') {
+      return rawValue;
+    }
+    if (rawValue === '' || rawValue === null || rawValue === undefined) {
+      return rawValue;
+    }
+    const numericValue = Number(rawValue);
+    return Number.isFinite(numericValue) ? numericValue : rawValue;
+  };
+  const nextObjectviewValue = coerceNumericObjectviewValue(propname, value);
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
     const node = obj; 
@@ -96,7 +107,13 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
     const node = obj; 
-    instview = myMetis.findObjectView(node?.key);
+    instview =
+      context?.myContext?.objectview ||
+      context?.objectview ||
+      myMetis.findObjectView(node?.key) ||
+      myMetis.findObjectView(node?.objviewRef) ||
+      node?.objectview ||
+      node?.data?.objectview;
     myInst = myMetis.findObject(instview?.objectRef);
     if (!myInst) myInst = obj;
     myInstview = instview //myMetis.findObjectView(instview?.id);
@@ -114,9 +131,116 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         myItem = myInst;
     }
     try {
-      myItem[propname] = value;
+      myItem[propname] = propname === 'grabIsAllowed'
+        ? (value === true || value === 'true')
+        : nextObjectviewValue;
     } catch {
       // Do nothing
+    }
+    if (context?.what === "editObjectview" && myInstview) {
+      const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+      const targetObjviewId =
+        myInstview?.id ||
+        context?.myContext?.objectview?.id ||
+        node?.objviewRef ||
+        node?.key;
+      const liveNode =
+        myMetis?.currentNode ||
+        myMetis?.gojsModel?.findNodeByViewId?.(node?.key) ||
+        myMetis?.gojsModel?.findNode?.(node?.key) ||
+        myDiagram?.findNodeForKey?.(node?.key) ||
+        node;
+      const nextValue = propname === 'grabIsAllowed'
+        ? (value === true || value === 'true')
+        : nextObjectviewValue;
+      try {
+        node[propname] = nextValue;
+        liveNode[propname] = nextValue;
+      } catch {
+        // Do nothing
+      }
+      try {
+        if (node?.objectview) node.objectview[propname] = nextValue;
+        if (liveNode?.objectview) liveNode.objectview[propname] = nextValue;
+        if (myInstview) myInstview[propname] = nextValue;
+      } catch {
+        // Do nothing
+      }
+      try {
+        const liveData = liveNode?.data || node?.data;
+        if (liveData) {
+          if (liveData.objectview) {
+            liveData.objectview[propname] = nextValue;
+          }
+          if (myDiagram?.model?.setDataProperty) {
+            myDiagram.model.setDataProperty(liveData, propname, nextValue);
+            if (liveData.objectview) {
+              myDiagram.model.setDataProperty(liveData, 'objectview', liveData.objectview);
+            }
+          } else {
+            liveData[propname] = nextValue;
+          }
+        }
+      } catch {
+        // Do nothing
+      }
+      try {
+        const syncNode = (candidate: any) => {
+          if (!candidate) return;
+          const candidateData = candidate.data || candidate;
+          const matches =
+            candidate?.objviewRef === targetObjviewId ||
+            candidateData?.objviewRef === targetObjviewId ||
+            candidate?.key === targetObjviewId ||
+            candidateData?.key === targetObjviewId ||
+            candidate?.objectview?.id === targetObjviewId ||
+            candidateData?.objectview?.id === targetObjviewId;
+          if (!matches) return;
+          try { candidate[propname] = nextValue; } catch {}
+          try {
+            if (candidate.objectview) candidate.objectview[propname] = nextValue;
+          } catch {}
+          try {
+            if (candidateData.objectview) candidateData.objectview[propname] = nextValue;
+          } catch {}
+          try {
+            if (myDiagram?.model?.setDataProperty && candidateData) {
+              myDiagram.model.setDataProperty(candidateData, propname, nextValue);
+              if (candidateData.objectview) {
+                myDiagram.model.setDataProperty(candidateData, 'objectview', candidateData.objectview);
+              }
+            }
+          } catch {}
+        };
+        try {
+          myDiagram?.nodes?.each?.((part: any) => syncNode(part));
+        } catch {}
+        try {
+          const goNodes = myMetis?.gojsModel?.nodes || [];
+          for (let i = 0; i < goNodes.length; i++) syncNode(goNodes[i]);
+        } catch {}
+      } catch {
+        // Do nothing
+      }
+      try { liveNode.updateTargetBindings?.(); } catch {}
+      try {
+        myDiagram?.updateAllTargetBindings?.(propname);
+        myDiagram?.requestUpdate?.();
+      } catch {
+        // Do nothing
+      }
+      try {
+        const data = safeClone(new jsn.jsnObjectView(myInstview));
+        if (propname === 'grabIsAllowed') {
+          data.grabIsAllowed = nextValue === true || nextValue === 'true';
+        }
+        if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
+          data[propname] = nextValue;
+        }
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      } catch {
+        // Do nothing
+      }
     }
   }
   if (obj.category === constants.gojs.C_OBJECTVIEW) {
@@ -134,7 +258,9 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         // Do nothing
       }
       try {
-        myItem[propname] = value;
+        myItem[propname] = propname === 'grabIsAllowed'
+          ? (value === true || value === 'true')
+          : nextObjectviewValue;
       } catch {
         // Do nothing
       }
@@ -144,13 +270,28 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         myMetis.currentNode;
       try {
         if (goNode) {
-          goNode[propname] = value;
+          goNode[propname] = nextObjectviewValue;
           if (goNode.data) {
             if (myDiagram?.model?.setDataProperty) {
-              myDiagram.model.setDataProperty(goNode.data, propname, value);
+              myDiagram.model.setDataProperty(goNode.data, propname, nextObjectviewValue);
             } else {
-              goNode.data[propname] = value;
+              goNode.data[propname] = nextObjectviewValue;
             }
+          }
+          if (propname === 'grabIsAllowed') {
+            try {
+              goNode.grabIsAllowed = value === true || value === 'true';
+            } catch {}
+            try {
+              if (goNode.data) {
+                const nextGrab = value === true || value === 'true';
+                if (myDiagram?.model?.setDataProperty) {
+                  myDiagram.model.setDataProperty(goNode.data, 'grabIsAllowed', nextGrab);
+                } else {
+                  goNode.data.grabIsAllowed = nextGrab;
+                }
+              }
+            } catch {}
           }
           try { goNode.updateTargetBindings?.(); } catch {}
         }
@@ -165,6 +306,9 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       }
       try {
         const data = safeClone(new jsn.jsnObjectView(objview));
+        if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
+          data[propname] = nextObjectviewValue;
+        }
         myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
       } catch {
         // Do nothing
@@ -1141,8 +1285,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode = myGoModel.findNodeByViewId(selObj.key);
+      const goNode =
+        myGoModel.findNodeByViewId(selObj.key) ||
+        myGoModel.findNode(selObj.key) ||
+        myDiagram.findNodeForKey(selObj.key);
       const objview =
+        modalContext?.myContext?.objectview ||
         myModelview.findObjectView(selObj.key) ||
         goNode?.objectview ||
         goNode?.data?.objectview;
@@ -1167,6 +1315,18 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         return nextValue;
       };
+      const keepBoolean = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue === true || nextValue === false) return nextValue;
+        if (nextValue === 'true') return true;
+        if (nextValue === 'false') return false;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate === true || candidate === false) return candidate;
+          if (candidate === 'true') return true;
+          if (candidate === 'false') return false;
+        }
+        return false;
+      };
       objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;
@@ -1181,7 +1341,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       objview.textcolor = keepValue(selObj.textcolor, objview.textcolor, goNode?.textcolor, goNode?.data?.textcolor);
       objview.textcolor2 = keepValue(selObj.textcolor2, objview.textcolor2, goNode?.textcolor2, goNode?.data?.textcolor2);
       objview.textscale = keepValue(selObj.textscale, objview.textscale, goNode?.textscale, goNode?.data?.textscale);
+      objview.memberscale = keepValue(selObj.memberscale, objview.memberscale, goNode?.memberscale, goNode?.data?.memberscale);
+      objview.arrowscale = keepValue(selObj.arrowscale, objview.arrowscale, goNode?.arrowscale, goNode?.data?.arrowscale);
       objview.groupLayout = selObj.groupLayout;
+      const nextGrabIsAllowed = selObj.grabIsAllowed === true || selObj.grabIsAllowed === 'true';
+      objview.grabIsAllowed = nextGrabIsAllowed;
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
@@ -1196,7 +1360,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       goNode.textcolor = keepValue(selObj.textcolor, goNode.textcolor, objview.textcolor, goNode?.data?.textcolor);
       goNode.textcolor2 = keepValue(selObj.textcolor2, goNode.textcolor2, objview.textcolor2, goNode?.data?.textcolor2);
       goNode.textscale = keepValue(selObj.textscale, goNode.textscale, objview.textscale, goNode?.data?.textscale);
+      goNode.memberscale = keepValue(selObj.memberscale, goNode.memberscale, objview.memberscale, goNode?.data?.memberscale);
+      goNode.arrowscale = keepValue(selObj.arrowscale, goNode.arrowscale, objview.arrowscale, goNode?.data?.arrowscale);
       goNode.groupLayout = selObj.groupLayout;
+      goNode.grabIsAllowed = nextGrabIsAllowed;
+      try { goNode.objectview = objview; } catch {}
+      try {
+        if (goNode.data) {
+          goNode.data.objectview = objview;
+          goNode.data.grabIsAllowed = nextGrabIsAllowed;
+        }
+      } catch {}
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       const diagramNode = myDiagram.findNodeForKey(selObj.key || objview.id || goNode.key);
       const diagramData = diagramNode?.data || goNode?.data;
@@ -1211,6 +1385,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(diagramData, 'textcolor', objview.textcolor);
         myDiagram.model.setDataProperty(diagramData, 'textcolor2', objview.textcolor2);
         myDiagram.model.setDataProperty(diagramData, 'textscale', objview.textscale);
+        myDiagram.model.setDataProperty(diagramData, 'memberscale', objview.memberscale);
+        myDiagram.model.setDataProperty(diagramData, 'arrowscale', objview.arrowscale);
+        myDiagram.model.setDataProperty(diagramData, 'grabIsAllowed', nextGrabIsAllowed);
         try { uic.setObjviewAttributes(diagramData, myDiagram); } catch {}
       }
       const forceNodeVisuals = (part: any, view: any) => {
@@ -1245,13 +1422,20 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         persistedObjview.textcolor = objview.textcolor;
         persistedObjview.textcolor2 = objview.textcolor2;
         persistedObjview.textscale = objview.textscale;
+        persistedObjview.memberscale = objview.memberscale;
+        persistedObjview.arrowscale = objview.arrowscale;
+        persistedObjview.grabIsAllowed = nextGrabIsAllowed;
       }
       if (debug) console.log("editObjectview: ", selObj);
 
       // Do dispatch
       const jsnObjview = new jsn.jsnObjectView(objview);
   let data = safeClone(jsnObjview);
-  console.warn('[OBJVIEW_SAVE]', { id: data?.id, fillcolor: data?.fillcolor, fillcolor2: data?.fillcolor2, strokecolor: data?.strokecolor, name: data?.name });
+  data.grabIsAllowed = nextGrabIsAllowed;
+  data.memberscale = objview.memberscale;
+  data.arrowscale = objview.arrowscale;
+  data.textscale = objview.textscale;
+  console.warn('[OBJVIEW_SAVE]', { id: data?.id, fillcolor: data?.fillcolor, fillcolor2: data?.fillcolor2, strokecolor: data?.strokecolor, grabIsAllowed: data?.grabIsAllowed, name: data?.name });
   dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
   pushPhDataUpdate(data)
       try {

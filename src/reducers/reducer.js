@@ -905,7 +905,7 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (!debug) console.log('866 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
-      console.warn('[OBJVIEW_REDUCER]', { id: action?.data?.id, fillcolor: action?.data?.fillcolor, fillcolor2: action?.data?.fillcolor2, focusModel: state.phFocus?.focusModel?.id, focusModelview: state.phFocus?.focusModelview?.id });
+      // console.warn('[OBJVIEW_REDUCER]', { id: action?.data?.id, fillcolor: action?.data?.fillcolor, fillcolor2: action?.data?.fillcolor2, focusModel: state.phFocus?.focusModel?.id, focusModelview: state.phFocus?.focusModelview?.id });
       let targetModelIndex = curModelIndex;
       let targetModel = curModel;
       let targetModelviewIndex = curModelviewIndex;
@@ -1008,16 +1008,16 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
-      console.warn('[RELSHIPVIEW_REDUCER]', {
-        id: action?.data?.id,
-        textcolor: action?.data?.textcolor,
-        fromArrow: action?.data?.fromArrow,
-        toArrow: action?.data?.toArrow,
-        toArrowColor: action?.data?.toArrowColor,
-        curve: action?.data?.curve,
-        focusModel: state.phFocus?.focusModel?.id,
-        focusModelview: state.phFocus?.focusModelview?.id
-      });
+      //  console.warn('[RELSHIPVIEW_REDUCER]', {
+      //   id: action?.data?.id,
+      //   textcolor: action?.data?.textcolor,
+      //   fromArrow: action?.data?.fromArrow,
+      //   toArrow: action?.data?.toArrow,
+      //   toArrowColor: action?.data?.toArrowColor,
+      //   curve: action?.data?.curve,
+      //   focusModel: state.phFocus?.focusModel?.id,
+      //   focusModelview: state.phFocus?.focusModelview?.id
+      // });
       let targetRelModelIndex = curModelIndex;
       let targetRelModel = curModel;
       let targetRelModelviewIndex = curModelviewIndex;

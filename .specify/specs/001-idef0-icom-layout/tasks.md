@@ -45,6 +45,7 @@
 - [x] T023c Restore explicit ICOM port hookup on groups by fixing pickable port containers and visible port hit areas in `src/akmm/ui_templates.ts`
 - [x] T023d Default `isFollowedBy` and `triggers` relationships to `AvoidsNodes` when no explicit routing is set in `src/components/gojs/GoJSApp.tsx` and `src/akmm/ui_buildmodels.ts`
 - [x] T023e Stop persisting point arrays for auto-routed `Orthogonal` and `AvoidsNodes` links while preserving persisted points for explicit non-orthogonal routes in `src/akmm/ui_templates.ts`, `src/akmm/ui_diagram.ts`, and `src/akmm/ui_gojs.ts`
+- [x] T023f Remove the duplicate `getGroupByLocation` implementation block introduced during merge resolution so `src/akmm/ui_common.ts` stays parseable while preserving the active group-containment behavior
 
 ## Validation Tasks
 

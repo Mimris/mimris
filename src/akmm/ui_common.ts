@@ -14,6 +14,7 @@ import { core } from './constants';
 import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
+import { getCurrentStore } from '../store';
 
 const grabIsAllowed = true;
 const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
@@ -1708,6 +1709,9 @@ export function ensureContainsRelationshipView(
         relview.fromObjview = fromObjview;
         relview.toObjview = toObjview;
         relview.points = [];
+        if (typeof relship.addRelationshipView === 'function') {
+            relship.addRelationshipView(relview);
+        }
         if (typeof fromObjview.addOutputRelview === 'function') {
             fromObjview.addOutputRelview(relview);
         }
@@ -1715,7 +1719,9 @@ export function ensureContainsRelationshipView(
             toObjview.addInputRelview(relview);
         }
         modelview.addRelationshipView(relview);
-        if (myMetis?.relshipviews && !myMetis.relshipviews.find((rv) => rv?.id === relview.id)) {
+        if (typeof myMetis?.addRelationshipView === 'function') {
+            myMetis.addRelationshipView(relview);
+        } else if (myMetis?.relshipviews && !myMetis.relshipviews.find((rv) => rv?.id === relview.id)) {
             myMetis.relshipviews.push(relview);
         }
     }
@@ -1855,6 +1861,13 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 if (fromObjview && toObjview) {
                     relview.setFromObjectView(fromObjview);
                     relview.setToObjectView(toObjview);
+                    const isHiddenContains =
+                        rel?.type?.name === constants.types.AKM_CONTAINS &&
+                        String(toObjview.group || "") === String(fromObjview.id);
+                    relview.visible = !isHiddenContains;
+                    if (isHiddenContains) {
+                        relview.points = [];
+                    }
                     rel.addRelationshipView(relview);
                     if (debug) console.log('1682 relview', relview);
                     modelview.addRelationshipView(relview);
@@ -1865,6 +1878,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                     link.from = link.fromNode?.key;
                     link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
                     link.to = link.toNode?.key;
+                    link.visible = relview.visible !== false;
                     myGoModel.addLink(link);
                     links.push(link);
                     myDiagram.model.addLinkData(link);
@@ -1977,6 +1991,13 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         if (fromObjview && toObjview) {
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
+            const isHiddenContains =
+                relview.relship?.type?.name === constants.types.AKM_CONTAINS &&
+                String(toObjview.group || "") === String(fromObjview.id);
+            relview.visible = !isHiddenContains;
+            if (isHiddenContains) {
+                relview.points = [];
+            }
 
             if (debug) console.log('1789 relview', relview);
             modelview.addRelationshipView(relview);
@@ -1984,6 +2005,7 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
             const myGoModel = myMetis.gojsModel;
             let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
             link.loadLinkContent(myGoModel);
+            link.visible = relview.visible !== false;
             myGoModel.addLink(link);
             if (debug) console.log('1796 relview, link', relview, link);
             // Prepare and do the dispatch
@@ -2491,77 +2513,172 @@ export function onClipboardPasted(selection: any, context: any) {
 // }
 
 export function getGroupByLocation(model: gjs.goModel, loc: string, siz: string, nod: gjs.goObjectNode): gjs.goObjectNode | null {
-    // Return null early on invalid input
-    if (!loc || !siz || !model || !nod) return null;
-
-    const nodeLocParts = (loc || "").trim().split(/\s+/);
-    const nx = parseFloat(nodeLocParts[0]);
-    const ny = parseFloat(nodeLocParts[1]);
-    const nodeSizeParts = (siz || "").trim().split(/\s+/);
-    const nw = parseFloat(nodeSizeParts[0]);
-    const nh = parseFloat(nodeSizeParts[1]);
-
-    if (isNaN(nx) || isNaN(ny) || isNaN(nw) || isNaN(nh)) return null;
-
-    // Deduplicate nodes by key
-    let nodes = model.nodes || [];
-    nodes = utils.removeArrayDuplicatesById(nodes, "key") || [];
-
-    // Node scale (if node already has a scale)
-    const nodeScale = (typeof nod?.scale === 'number' && !isNaN(nod.scale)) ? nod.scale : 1.0;
-
-    // Collect candidate groups that fully contain the node rectangle
-    const groups: { groupId: string; group: gjs.goObjectNode; area: number }[] = [];
-
-    for (let i = 0; i < nodes.length; i++) {
-        const candidate = nodes[i] as gjs.goObjectNode;
-        if (!candidate) continue;
-        if (candidate.key === nod?.key) continue;
-        if (!candidate.isGroup) continue;
-
-        const grpLocParts = (candidate.loc || "").trim().split(/\s+/);
-        const grpSizeParts = (candidate.size || "").trim().split(/\s+/);
-        if (grpLocParts.length < 2 || grpSizeParts.length < 2) continue;
-
-        const gx = parseFloat(grpLocParts[0]);
-        const gy = parseFloat(grpLocParts[1]);
-        const gw = parseFloat(grpSizeParts[0]);
-        const gh = parseFloat(grpSizeParts[1]);
-
-        if ([gx, gy, gw, gh].some(v => isNaN(v))) continue;
-
-        // consider group's scale and memberscale (if present)
-        const grpScaleVal = (typeof candidate.scale === 'number' && !isNaN(candidate.scale)) ? candidate.scale : 1.0;
-        const memberscaleVal = (typeof candidate.memberscale === 'number' && !isNaN(candidate.memberscale)) ? candidate.memberscale : 1.0;
-        const grpScale = grpScaleVal * memberscaleVal;
-
-        // containment test (inclusive)
-        const nodeLeft = nx;
-        const nodeRight = nx + (nw * nodeScale);
-        const nodeTop = ny;
-        const nodeBottom = ny + (nh * nodeScale);
-
-        const grpLeft = gx;
-        const grpRight = gx + (gw * grpScale);
-        const grpTop = gy;
-        const grpBottom = gy + (gh * grpScale);
-
-        if (nodeLeft >= grpLeft && nodeRight <= grpRight && nodeTop >= grpTop && nodeBottom <= grpBottom) {
-            // compute effective area in absolute coordinates to compare groups
-            const effectiveW = gw * grpScale;
-            const effectiveH = gh * grpScale;
-            const area = effectiveW * effectiveH;
-            groups.push({ groupId: candidate.key, group: candidate, area });
+    if (!loc) return;
+    const usesTopLeftLocation = (node: any): boolean => {
+        const category = String(node?.category || node?.data?.category || "");
+        const template = String(node?.template || node?.data?.template || "");
+        return (
+            category === "Pool" ||
+            category === "Lane" ||
+            category === "Lane_w_handles" ||
+            template === "Pool" ||
+            template === "Lane" ||
+            template === "Lane_w_handles"
+        );
+    };
+    const getRectFromLocation = (x: number, y: number, width: number, height: number, topLeft: boolean) => {
+        if (topLeft) {
+            return {
+                left: x,
+                top: y,
+                right: x + width,
+                bottom: y + height,
+            };
+        }
+        return {
+            left: x - width / 2,
+            top: y - height / 2,
+            right: x + width / 2,
+            bottom: y + height / 2,
+        };
+    };
+    const nodeLoc = loc?.split(" ");
+    const nx = parseFloat(nodeLoc[0]);
+    const ny = parseFloat(nodeLoc[1]);
+    const nodeSize = siz?.split(" ");
+    const nw = parseFloat(nodeSize[0]);
+    const nh = parseFloat(nodeSize[1]);
+    const myNode = nod;
+    let nodes = model.nodes;
+    let uniqueSet = utils.removeArrayDuplicatesById(nodes, "key");
+    nodes = uniqueSet;
+    if (debug) console.log('794 nodes, loc, siz, nod', nodes, loc, siz, nod);
+    const nodeScale =
+        typeof nod?.getActualScale === 'function'
+            ? Math.max(0.01, Number(nod.getActualScale(model)) || 1)
+            : Math.max(0.01, Number(nod?.scale) || 1);
+    const childWidth = nw * nodeScale;
+    const childHeight = nh * nodeScale;
+    const childRect = getRectFromLocation(nx, ny, childWidth, childHeight, usesTopLeftLocation(nod));
+    const childLeft = childRect.left;
+    const childTop = childRect.top;
+    const childRight = childRect.right;
+    const childBottom = childRect.bottom;
+    const childCenterX = (childLeft + childRight) / 2;
+    const childCenterY = (childTop + childBottom) / 2;
+    const childArea = Math.max(1, childWidth * childHeight);
+    // Go through all the groups
+    let groups = new Array();
+    for (let i = 0; i < nodes?.length; i++) {
+        const node = nodes[i] as gjs.goObjectNode;
+        if (debug) console.log('798 node', node);
+        if (node.key === nod?.key) continue;
+        if (node.isGroup) {
+            let grpScale =
+                typeof node?.getActualScale === 'function'
+                    ? Math.max(0.01, Number(node.getActualScale(model)) || 1)
+                    : Math.max(0.01, Number(node?.scale) || 1);
+            const myGroup = node;
+            const grpLoc = myGroup.loc?.split(" ");
+            const grpSize = myGroup.size?.split(" ");
+            if (!grpLoc) return;
+            const gx = parseInt(grpLoc[0]);
+            const gy = parseInt(grpLoc[1]);
+            const gw = parseInt(grpSize[0]);
+            const gh = parseInt(grpSize[1]);
+            const groupRect = getRectFromLocation(gx, gy, gw * grpScale, gh * grpScale, usesTopLeftLocation(node));
+            const groupLeft = groupRect.left;
+            const groupTop = groupRect.top;
+            const groupRight = groupRect.right;
+            const groupBottom = groupRect.bottom;
+            // Primary strict containment check (all corners inside)
+            if (
+                (childLeft > groupLeft) // upper left x
+                && (childRight <= groupRight) // upper right x
+                && (childTop > groupTop) // upper left y
+                && (childBottom <= groupBottom) // lower right y
+            ) {
+                groups.push({
+                    "name": node.name,
+                    "groupId": node.key,
+                    "group": node,
+                    "size": gw * grpScale * gh * grpScale,
+                });
+                continue;
+            }
+            // For dragged groups, use visual containment instead of upper-left anchor.
+            // This matches what the user sees after the final drop scale is applied.
+            if (nod?.isGroup) {
+                const centerInside =
+                    childCenterX > groupLeft &&
+                    childCenterX < groupRight &&
+                    childCenterY > groupTop &&
+                    childCenterY < groupBottom;
+                const overlapLeft = Math.max(childLeft, groupLeft);
+                const overlapTop = Math.max(childTop, groupTop);
+                const overlapRight = Math.min(childRight, groupRight);
+                const overlapBottom = Math.min(childBottom, groupBottom);
+                const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+                const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+                const overlapArea = overlapWidth * overlapHeight;
+                const overlapRatio = overlapArea / childArea;
+                if (centerInside || overlapRatio >= 0.45) {
+                    groups.push({
+                        "name": node.name,
+                        "groupId": node.key,
+                        "group": node,
+                        "size": gw * grpScale * gh * grpScale,
+                    });
+                }
+                continue;
+            }
+            // For regular nodes, prefer full containment, then center-inside, then a meaningful overlap.
+            const centerInside =
+                childCenterX > groupLeft &&
+                childCenterX < groupRight &&
+                childCenterY > groupTop &&
+                childCenterY < groupBottom;
+            const overlapLeft = Math.max(childLeft, groupLeft);
+            const overlapTop = Math.max(childTop, groupTop);
+            const overlapRight = Math.min(childRight, groupRight);
+            const overlapBottom = Math.min(childBottom, groupBottom);
+            const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+            const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+            const overlapArea = overlapWidth * overlapHeight;
+            const overlapRatio = overlapArea / childArea;
+            if (
+                centerInside ||
+                overlapRatio >= 0.45 ||
+                (
+                    childLeft >= groupLeft &&
+                    childRight <= groupRight &&
+                    childTop >= groupTop &&
+                    childBottom <= groupBottom
+                )
+            ) {
+                groups.push({
+                    "name": node.name,
+                    "groupId": node.key,
+                    "group": node,
+                    "size": gw * grpScale * gh * grpScale,
+                });
+            }
         }
     }
+    uniqueSet = utils.removeArrayDuplicatesById(groups, "groupId");
+    groups = uniqueSet;
+    groups.sort(function (a, b) {
+        return a.size - b.size;
+    });
 
-    if (groups.length === 0) return null;
-
-    // pick the smallest containing group (by area)
-    groups.sort((a, b) => a.area - b.area);
-    const chosen = groups[0];
-    const groupNode = model.findNode(chosen.groupId);
-    return groupNode || null;
+    if (groups.length > 0) {
+        const grp = groups[0];
+        const group = model.findNode(grp.groupId);
+        if (group) {
+            return group;
+        }
+    }
+    return null;
 }
 
 
@@ -2718,41 +2835,107 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 if (isSwimlaneStructure) {
                     // Keep existing node.group assignments unchanged.
                 } else {
-                // Get potential members of the group
-                const nods = goModel?.nodes;
+                // Get potential members of the group. Snapshot candidates first so membership
+                // changes do not interfere with the iteration order.
+                const liveGroupPart = myDiagram?.findNodeForKey?.(group.key);
+                const storeState = getCurrentStore?.()?.getState?.();
+                let storedGroupObjview: any = null;
+                if (storeState?.phData?.metis?.models) {
+                    outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
+                        const model = storeState.phData.metis.models[mi];
+                        const modelviews = model?.modelviews || [];
+                        for (let mvi = 0; mvi < modelviews.length; mvi++) {
+                            const modelview = modelviews[mvi];
+                            const objectviews = modelview?.objectviews || [];
+                            for (let ovi = 0; ovi < objectviews.length; ovi++) {
+                                const candidate = objectviews[ovi];
+                                if (candidate?.id === group?.key || candidate?.id === group?.objviewRef || candidate?.id === group?.data?.objviewRef) {
+                                    storedGroupObjview = candidate;
+                                    break outer;
+                                }
+                            }
+                        }
+                    }
+                }
+                const groupAllowsGrab = !!(
+                    liveGroupPart?.data?.objectview?.grabIsAllowed ||
+                    liveGroupPart?.objectview?.grabIsAllowed ||
+                    liveGroupPart?.data?.grabIsAllowed ||
+                    storedGroupObjview?.grabIsAllowed ||
+                    group?.objectview?.grabIsAllowed ||
+                    group?.grabIsAllowed ||
+                    group?.data?.grabIsAllowed
+                );
+                try {
+                    console.warn('[LEGACY_GROUP_GRAB_STATE]', {
+                        groupKey: group?.key,
+                        groupName: group?.name,
+                        groupAllowsGrab,
+                        liveGrab: liveGroupPart?.data?.objectview?.grabIsAllowed,
+                        storeGrab: storedGroupObjview?.grabIsAllowed,
+                        modelGrab: group?.objectview?.grabIsAllowed,
+                    });
+                } catch (_) {}
+                const nods = goModel?.nodes || [];
+                const candidateGroups = new Map<string, gjs.goObjectNode | null>();
+                for (let i = 0; i < nods.length; i++) {
+                    const nod = nods[i] as gjs.goObjectNode;
+                    if (!nod || nod.key === group.key || nod.isGroup) continue;
+                    candidateGroups.set(String(nod.key), getGroupByLocation(goModel, nod.loc, nod.size, nod));
+                }
                 for (let i = 0; i < nods.length; i++) {
                     let nod = nods[i] as gjs.goObjectNode;
-                    // if nod is the group, do nothing
-                    if (nod.key === group.key)
-                        continue;
-                    const grp = getGroupByLocation(goModel, nod.loc, nod.size, nod);
-                    if (nod && grp /*?.grabIsAllowed*/) {
+                    if (!nod || nod.key === group.key || nod.isGroup) continue;
+                    const grp = candidateGroups.get(String(nod.key));
+                    if (nod && grp && grp.key === group.key && groupAllowsGrab) {
+                        try {
+                            console.warn('[LEGACY_GROUP_GRAB_CANDIDATE]', {
+                                groupKey: group?.key,
+                                nodeKey: nod?.key,
+                                nodeName: nod?.name,
+                            });
+                        } catch (_) {}
                         if (debug) console.log('960 grp, nod', grp, nod);
-                        // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
+                        if (loc) nod.loc = loc;
                         const n = myDiagram.findNodeForKey(nod.key);
+                        if (liveGroupPart && n) {
+                            try {
+                                const memberSet = new go.Set<go.Part>();
+                                memberSet.add(n);
+                                const added = liveGroupPart.addMembers(memberSet, true);
+                                try {
+                                    console.warn('[LEGACY_GROUP_GRAB_ATTACH]', {
+                                        groupKey: group?.key,
+                                        nodeKey: nod?.key,
+                                        added,
+                                    });
+                                } catch (_) {}
+                            } catch (e) {
+                                if (debug) console.log('966 addMembers e', e);
+                            }
+                        }
                         if (n?.data) {
                             try {
+                                if (myDiagram.model?.setGroupKeyForNodeData) {
+                                    myDiagram.model.setGroupKeyForNodeData(n.data, nod.group);
+                                }
                                 myDiagram.model.setDataProperty(n.data, "group", nod.group);
+                                if (loc) myDiagram.model.setDataProperty(n.data, "loc", nod.loc);
                                 if (debug) console.log('968 n.data', n.data);
                             } catch (e) {
                                 if (debug) console.log('970 e', e);
                             }
                         }
-                        // uid.selectContent(nod, myMetis, myDiagram);
-                    } else {
-                        nod.group = "";
                     }
                     objview = nod.objectview;
                     if (objview) {
                         objview.loc = nod.loc;
                         objview.size = nod.size;
                         objview.modified = true;
-                        if (nod.group)
-                            objview.group = grp.objviewRef;
-                        else
-                            objview.group = "";
+                        if (nod.group && candidateGroups.get(String(nod.key))?.objviewRef)
+                            objview.group = candidateGroups.get(String(nod.key)).objviewRef;
                     }
                 }
                 }
@@ -5075,6 +5258,29 @@ export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram
             relview.visible = !insideGroup;
             if (insideGroup) {
                 relview.points = [];
+            }
+            const liveLink = myDiagram?.findLinkForKey?.(relview.id);
+            if (liveLink) {
+                liveLink.visible = relview.visible !== false;
+                if (insideGroup) {
+                    try {
+                        myDiagram.model?.setDataProperty?.(liveLink.data, "visible", false);
+                        myDiagram.model?.setDataProperty?.(liveLink.data, "points", []);
+                    } catch (_) {}
+                }
+            }
+            if (insideGroup) {
+                try {
+                    myDiagram?.links?.each?.((ll: any) => {
+                        if (ll?.data?.relshipRef === relview.relship?.id) {
+                            ll.visible = false;
+                            try {
+                                myDiagram.model?.setDataProperty?.(ll.data, "visible", false);
+                                myDiagram.model?.setDataProperty?.(ll.data, "points", []);
+                            } catch (_) {}
+                        }
+                    });
+                } catch (_) {}
             }
             modifiedRelviews.push(relview);
         }

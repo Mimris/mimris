@@ -37,6 +37,7 @@ Adjust IDEF0 ICOM marker geometry, label placement, default relship routing, and
 - Use orthogonal routing as the default fallback only when no explicit relview routing exists.
 - Avoid storing point arrays for auto-routed `Orthogonal` and `AvoidsNodes` links so GoJS can recompute current paths.
 - Allow top/bottom labels to wrap to two lines with compact horizontal spacing.
+- Keep `getGroupByLocation` in `src/akmm/ui_common.ts` as a single implementation block after merge resolution so the grouping behavior remains buildable.
 
 ## Files
 

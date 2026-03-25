@@ -89,12 +89,17 @@ function normalizeLinkPortData(linkDataArray: any[] | undefined): any[] {
   });
 }
 
+function isTransientRoutedLink(routing: any): boolean {
+  if (routing === go.Link.Orthogonal || routing === go.Link.AvoidsNodes) return true;
+  const normalized = String(routing || "").trim();
+  return normalized === "Orthogonal" || normalized === "AvoidsNodes";
+}
+
 function sanitizeModifiedLinkDataForReact(link: any): any {
   if (!link || typeof link !== "object") return link;
   const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
   const normalizedToPort = typeof link.toPort === "string" ? link.toPort : "";
-  const routing = String(link.routing || "");
-  const isRoutedLink = routing === "Orthogonal" || routing === "AvoidsNodes";
+  const isRoutedLink = isTransientRoutedLink(link.routing);
   const nextLink: any = {
     ...link,
     fromPort: normalizedFromPort,
@@ -3190,6 +3195,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (goToNode.object) {
                   myDiagram.model.setDataProperty(gjsPart, "object", goToNode.object);
                 }
+                try {
+                  myToNode.n?.findLinksConnected()?.each?.((liveLink: go.Link) => {
+                    if (!(liveLink instanceof go.Link) || !liveLink.data?.key) return;
+                    const liveRelview = myModelview.findRelationshipView(liveLink.data.key);
+                    if (liveRelview) {
+                      liveRelview.points = [];
+                    }
+                    try { myDiagram.model.setDataProperty(liveLink.data, "points", []); } catch (_) {
+                      try { liveLink.data.points = []; } catch (_err) {}
+                    }
+                  });
+                } catch (_) {
+                }
                 // Check if the node has a relationship FROM a group
                 let inputRelviews = movedObjview?.inputrelviews;
                 if (inputRelviews?.length > 0) {
@@ -4018,10 +4036,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               (rview?.fromObjview?.object?.id && rview?.toObjview?.object?.id && rview.fromObjview.object.id === rview.toObjview.object.id);
             const normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
             const normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
-            const liveRouting = String(ldata?.routing || rview?.routing || myModelview?.routing || "");
-            const isRoutedLink =
-              liveRouting === "Orthogonal" ||
-              liveRouting === "AvoidsNodes";
+            const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
+            const isRoutedLink = isTransientRoutedLink(liveRouting);
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
             if (liveFromKey && ldata?.from !== liveFromKey) {
@@ -4057,6 +4073,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (linkTouchesMovedNode && isRoutedLink) {
               try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) { ldata.points = []; }
+              try { link.points = new go.List<go.Point>(); } catch (_) { }
               rview.points = [];
             }
             if (resetRoute) {
@@ -4083,10 +4100,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 relview.fromPortid = normalizedFromPort;
                 relview.toPortid = normalizedToPort;
-                const relviewRouting = String(relview?.routing || rview?.routing || myModelview?.routing || "");
-                const shouldPersistPoints =
-                  relviewRouting !== "Orthogonal" &&
-                  relviewRouting !== "AvoidsNodes";
+                const relviewRouting = relview?.routing || rview?.routing || myModelview?.routing || "";
+                const shouldPersistPoints = !isTransientRoutedLink(relviewRouting);
                 if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints)) {
                   relview.points = [];
                 } else {
@@ -6673,14 +6688,13 @@ break;
   relview.toObjview = toObjview;
   relview.toPortid = toPort;
   relview.fromPortid = fromPort;
-  let points = [];
-  for (let it = gjsLinkData.points.iterator; it?.next();) {
-    const point = it.value;
-    if (debug) console.log('1603 point', point.x, point.y);
-    points.push(point.x)
-    points.push(point.y)
-  }
-  relview.points = gjsLinkData.points;
+  try { myDiagram.model.setDataProperty(gjsLinkData, "from", fromNode); } catch (_) { gjsLinkData.from = fromNode; }
+  try { myDiagram.model.setDataProperty(gjsLinkData, "to", toNode); } catch (_) { gjsLinkData.to = toNode; }
+  try { myDiagram.model.setDataProperty(gjsLinkData, "fromPort", fromPort); } catch (_) { gjsLinkData.fromPort = fromPort; }
+  try { myDiagram.model.setDataProperty(gjsLinkData, "toPort", toPort); } catch (_) { gjsLinkData.toPort = toPort; }
+  try { myDiagram.model.setDataProperty(gjsLinkData, "points", []); } catch (_) { gjsLinkData.points = []; }
+  try { gjsLink.points = new go.List<go.Point>(); } catch (_) { }
+  relview.points = [];
 
   // Update link data
   uid.updateLinkAndView(gjsLinkData, goLink, relview, myDiagram);

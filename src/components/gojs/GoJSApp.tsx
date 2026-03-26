@@ -113,6 +113,58 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
   return nextLink;
 }
 
+function sanitizeObjectViewDispatchData(data: any): any {
+  if (!data || typeof data !== "object") return data;
+  const nextData = { ...data };
+  delete nextData.modified;
+  delete nextData.isSelected;
+  return nextData;
+}
+
+function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
+  if (!instance || typeof dispatch !== "function" || !data?.id) return;
+  if (!(instance as any).__queuedObjectViewDispatches) {
+    (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
+  }
+  const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
+  const prev = queue.get(data.id) || {};
+  queue.set(data.id, { ...prev, ...data });
+  if ((instance as any).__queuedObjectViewDispatchTimer) return;
+  (instance as any).__queuedObjectViewDispatchTimer = setTimeout(() => {
+    const pendingQueue: Map<string, any> = (instance as any).__queuedObjectViewDispatches || new Map();
+    (instance as any).__queuedObjectViewDispatches = new Map();
+    (instance as any).__queuedObjectViewDispatchTimer = null;
+    pendingQueue.forEach((payload) => {
+      try {
+        dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+      } catch (_) {
+      }
+    });
+  }, 0);
+}
+
+function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
+  if (!instance || typeof dispatch !== "function" || !data?.id) return;
+  if (!(instance as any).__queuedRelshipViewDispatches) {
+    (instance as any).__queuedRelshipViewDispatches = new Map<string, any>();
+  }
+  const queue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches;
+  const prev = queue.get(data.id) || {};
+  queue.set(data.id, { ...prev, ...data });
+  if ((instance as any).__queuedRelshipViewDispatchTimer) return;
+  (instance as any).__queuedRelshipViewDispatchTimer = setTimeout(() => {
+    const pendingQueue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches || new Map();
+    (instance as any).__queuedRelshipViewDispatches = new Map();
+    (instance as any).__queuedRelshipViewDispatchTimer = null;
+    pendingQueue.forEach((payload) => {
+      try {
+        dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+      } catch (_) {
+      }
+    });
+  }, 0);
+}
+
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
   const data: any = part.data || {};
@@ -6879,8 +6931,10 @@ break;
     const objview = data?.objectview;
     if (objview) {
       objview.isExpanded = expanded;
-      const jsnObjview = new jsn.jsnObjectView(objview);
-      modifiedObjectViews.push(jsnObjview);
+      uic.addItemToList(modifiedObjectViews, {
+        id: objview?.id,
+        isExpanded: expanded,
+      });
     }
     const category = data?.category || data?.template;
     if (category === 'Lane' || category === 'Lane_w_handles') {
@@ -6940,6 +6994,12 @@ if (true) { // Dispatches to store individual objects/types
   if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
   const dispatchedObjectViewPayloads = new Set<string>();
   const storeState = getCurrentStore?.()?.getState?.();
+  const coalescedObjectViews = new Map<string, any>();
+  modifiedObjectViews.forEach((mn: any) => {
+    if (!mn?.id) return;
+    const prev = coalescedObjectViews.get(mn.id) || {};
+    coalescedObjectViews.set(mn.id, { ...prev, ...mn });
+  });
   const findStoredObjectViewById = (id: string) => {
     const models = storeState?.phData?.metis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
@@ -6954,27 +7014,35 @@ if (true) { // Dispatches to store individual objects/types
     }
     return null;
   };
-  modifiedObjectViews.map(mn => {
-    let data = (mn) && mn
-    if (mn.id) {
-      data = JSON.parse(JSON.stringify(data));
-      const dispatchKey = JSON.stringify(data);
-      if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
-      const storedObjectView = findStoredObjectViewById(data.id);
-      if (storedObjectView) {
-        let hasMeaningfulDiff = false;
-        for (const key of Object.keys(data)) {
-          if (JSON.stringify(storedObjectView?.[key]) !== JSON.stringify(data[key])) {
-            hasMeaningfulDiff = true;
-            break;
+  if (!(this as any).__dispatchingObjectViewUpdates) {
+    (this as any).__dispatchingObjectViewUpdates = true;
+    try {
+      Array.from(coalescedObjectViews.values()).map(mn => {
+        let data = (mn) && mn
+        if (mn.id) {
+          data = sanitizeObjectViewDispatchData(JSON.parse(JSON.stringify(data)));
+          const dispatchKey = JSON.stringify(data);
+          if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
+          const storedObjectView = findStoredObjectViewById(data.id);
+          if (storedObjectView) {
+            const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
+            let hasMeaningfulDiff = false;
+            for (const key of Object.keys(data)) {
+              if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
+                hasMeaningfulDiff = true;
+                break;
+              }
+            }
+            if (!hasMeaningfulDiff) return;
           }
+          dispatchedObjectViewPayloads.add(dispatchKey);
+          queueObjectViewDispatch(this, context.dispatch, data)
         }
-        if (!hasMeaningfulDiff) return;
-      }
-      dispatchedObjectViewPayloads.add(dispatchKey);
-      context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      })
+    } finally {
+      (this as any).__dispatchingObjectViewUpdates = false;
     }
-  })
+  }
 
   modifiedObjectTypes?.map(mn => {
     let data = (mn) && mn
@@ -6996,6 +7064,12 @@ if (true) { // Dispatches to store individual objects/types
 
   if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
   const dispatchedRelshipViewPayloads = new Set<string>();
+  const coalescedRelshipViews = new Map<string, any>();
+  modifiedRelshipViews.forEach((mn: any) => {
+    if (!mn?.id) return;
+    const prev = coalescedRelshipViews.get(mn.id) || {};
+    coalescedRelshipViews.set(mn.id, { ...prev, ...mn });
+  });
   const findStoredRelshipViewById = (id: string) => {
     const models = storeState?.phData?.metis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
@@ -7010,25 +7084,32 @@ if (true) { // Dispatches to store individual objects/types
     }
     return null;
   };
-  modifiedRelshipViews.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    const dispatchKey = JSON.stringify(data);
-    if (dispatchedRelshipViewPayloads.has(dispatchKey)) return;
-    const storedRelshipView = findStoredRelshipViewById(data.id);
-    if (storedRelshipView) {
-      let hasMeaningfulDiff = false;
-      for (const key of Object.keys(data)) {
-        if (JSON.stringify(storedRelshipView?.[key]) !== JSON.stringify(data[key])) {
-          hasMeaningfulDiff = true;
-          break;
+  if (!(this as any).__dispatchingRelshipViewUpdates) {
+    (this as any).__dispatchingRelshipViewUpdates = true;
+    try {
+      Array.from(coalescedRelshipViews.values()).map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        const dispatchKey = JSON.stringify(data);
+        if (dispatchedRelshipViewPayloads.has(dispatchKey)) return;
+        const storedRelshipView = findStoredRelshipViewById(data.id);
+        if (storedRelshipView) {
+          let hasMeaningfulDiff = false;
+          for (const key of Object.keys(data)) {
+            if (JSON.stringify(storedRelshipView?.[key]) !== JSON.stringify(data[key])) {
+              hasMeaningfulDiff = true;
+              break;
+            }
+          }
+          if (!hasMeaningfulDiff) return;
         }
-      }
-      if (!hasMeaningfulDiff) return;
+        dispatchedRelshipViewPayloads.add(dispatchKey);
+        queueRelshipViewDispatch(this, context.dispatch, data)
+      })
+    } finally {
+      (this as any).__dispatchingRelshipViewUpdates = false;
     }
-    dispatchedRelshipViewPayloads.add(dispatchKey);
-    context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-  })
+  }
 
   modifiedRelshipTypes?.map(mn => {
     let data = (mn) && mn

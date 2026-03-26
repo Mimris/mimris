@@ -1775,9 +1775,18 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
 
     if (!isActiveDrag && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+      const skipPostPasteNodeSyncKeys: Set<string> | undefined = (diagram as any)?.__skipNextPostPasteNodeSyncKeys;
       const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
       modifiedNodeData.forEach((node: any) => {
         if (!node?.key) return;
+        const nodeKey = String(node.key);
+        if (skipPostPasteNodeSyncKeys?.has(nodeKey)) {
+          skipPostPasteNodeSyncKeys.delete(nodeKey);
+          if (skipPostPasteNodeSyncKeys.size === 0) {
+            try { delete (diagram as any).__skipNextPostPasteNodeSyncKeys; } catch (_) { }
+          }
+          return;
+        }
         const prev = nodeMap.get(node.key) || {};
         nodeMap.set(node.key, { ...prev, ...node });
       });
@@ -6491,14 +6500,74 @@ break;
       myPastedNode.loc = gjsNode.loc;
       myPastedNode.size = gjsNode.size;
       myPastedNode.gjsKey = gjsNode.key;
-      myPastedNode.group = gjsNode.group;
+      const pastedLiveGroupKey =
+        typeof gjsNode?.group === "string" && gjsNode.group.length > 0
+          ? String(gjsNode.group)
+          : "";
+      const copiedGroupKey =
+        typeof myCopiedNode?.group === "string" && myCopiedNode.group.length > 0
+          ? String(myCopiedNode.group)
+          : "";
+      const copiedObjectviewGroupKey =
+        typeof myCopiedNode?.objectview?.group === "string" && myCopiedNode.objectview.group.length > 0
+          ? String(myCopiedNode.objectview.group)
+          : "";
+      myPastedNode.group = pastedLiveGroupKey || copiedGroupKey || copiedObjectviewGroupKey || "";
       myPastedNode.isGroup = gjsNode.isGroup;
       myPastedNode.objectview.loc = myPastedNode.loc;
       myPastedNode.objectview.size = myPastedNode.size;
+      myPastedNode.objectview.group = myPastedNode.group;
       myPastedNode.objectview.readOnly = readOnly;
       myPastedNode.objecttype = myCopiedNode.objecttype;
-      myPastedNode.goNode = new gjs.goObjectNode(myPastedNode.goNodeId, toGoModel, myPastedNode.objectview);
-      toGoModel.addNode(myPastedNode.goNode);
+      try {
+        myDiagram.model.setDataProperty(gjsNode, "key", myPastedNode.objviewId);
+      } catch (_) {
+        try { gjsNode.key = myPastedNode.objviewId; } catch (_err) { }
+      }
+      try { myDiagram.model.setDataProperty(gjsNode, "objectview", myPastedNode.objectview); } catch (_) { gjsNode.objectview = myPastedNode.objectview; }
+      try { myDiagram.model.setDataProperty(gjsNode, "object", myPastedNode.object); } catch (_) { gjsNode.object = myPastedNode.object; }
+      try { myDiagram.model.setDataProperty(gjsNode, "objecttype", myPastedNode.objecttype); } catch (_) { gjsNode.objecttype = myPastedNode.objecttype; }
+      try { myDiagram.model.setDataProperty(gjsNode, "objviewRef", myPastedNode.objectview?.id); } catch (_) { gjsNode.objviewRef = myPastedNode.objectview?.id; }
+      try { myDiagram.model.setDataProperty(gjsNode, "objRef", myPastedNode.object?.id); } catch (_) { gjsNode.objRef = myPastedNode.object?.id; }
+      try { myDiagram.model.setDataProperty(gjsNode, "objtypeRef", myPastedNode.objecttype?.id); } catch (_) { gjsNode.objtypeRef = myPastedNode.objecttype?.id; }
+      try { myDiagram.model.setDataProperty(gjsNode, "group", myPastedNode.group || ""); } catch (_) { gjsNode.group = myPastedNode.group || ""; }
+      try { myDiagram.model.setDataProperty(gjsNode, "fromNode", null); } catch (_) { gjsNode.fromNode = null; }
+      try { myDiagram.model.setDataProperty(gjsNode, "fromModelview", null); } catch (_) { gjsNode.fromModelview = null; }
+      try { myDiagram.model.setDataProperty(gjsNode, "fromGoModel", null); } catch (_) { gjsNode.fromGoModel = null; }
+      const livePastedPart = it.value as go.Node;
+      if (livePastedPart?.data) {
+        livePastedPart.data.objectview = myPastedNode.objectview;
+        livePastedPart.data.object = myPastedNode.object;
+        livePastedPart.data.objecttype = myPastedNode.objecttype;
+        livePastedPart.data.objviewRef = myPastedNode.objectview?.id;
+        livePastedPart.data.objRef = myPastedNode.object?.id;
+        livePastedPart.data.objtypeRef = myPastedNode.objecttype?.id;
+        livePastedPart.data.group = myPastedNode.group || "";
+        livePastedPart.data.fromNode = null;
+        livePastedPart.data.fromModelview = null;
+        livePastedPart.data.fromGoModel = null;
+      }
+      let existingPastedGoNode = toGoModel.findNode(myPastedNode.goNodeId) || toGoModel.findNodeByViewId?.(myPastedNode.objviewId);
+      if (!existingPastedGoNode && gjsNode?.key) {
+        existingPastedGoNode = toGoModel.findNode(gjsNode.key) || toGoModel.findNodeByViewId?.(gjsNode.key);
+      }
+      if (existingPastedGoNode) {
+        existingPastedGoNode.key = myPastedNode.goNodeId;
+        existingPastedGoNode.loc = myPastedNode.loc;
+        existingPastedGoNode.size = myPastedNode.size;
+        existingPastedGoNode.group = myPastedNode.group;
+        existingPastedGoNode.objectview = myPastedNode.objectview;
+        existingPastedGoNode.object = myPastedNode.object;
+        existingPastedGoNode.objecttype = myPastedNode.objecttype;
+        existingPastedGoNode.objRef = myPastedNode.object?.id;
+        existingPastedGoNode.objviewRef = myPastedNode.objectview?.id;
+        existingPastedGoNode.objtypeRef = myPastedNode.objecttype?.id;
+        myPastedNode.goNode = existingPastedGoNode;
+      } else {
+        myPastedNode.goNode = new gjs.goObjectNode(myPastedNode.goNodeId, toGoModel, myPastedNode.objectview);
+        myPastedNode.goNode.group = myPastedNode.group;
+        toGoModel.addNode(myPastedNode.goNode);
+      }
       toModelview.addObjectView(myPastedNode.objectview);
       myMetis.addObjectView(myPastedNode.objectview);
       myMetis.setGojsModel(toGoModel);
@@ -6596,21 +6665,54 @@ break;
     }
   }
 
-  // Finally handle groups
-  const nodes = toGoModel.nodes;
-  for (let i = 0; i < nodes.length; i++) {
-    const myGoNode = nodes[i];
+  // Finally handle groups for the pasted nodes only.
+  for (let i = 0; i < pastedNodes.length; i++) {
+    const pastedNode = pastedNodes[i];
+    const myGoNode = pastedNode?.goNode || toGoModel.findNode(pastedNode?.goNodeId) || toGoModel.findNodeByViewId?.(pastedNode?.objviewId);
+    if (!myGoNode) continue;
     const myObjectview: akm.cxObjectView = myGoNode.objectview;
+    const liveNodePart = myDiagram.findNodeForKey(myGoNode.key) as go.Node | null;
+    const liveContainingGroupKey =
+      liveNodePart?.containingGroup instanceof go.Group && liveNodePart.containingGroup.key !== undefined && liveNodePart.containingGroup.key !== null
+        ? String(liveNodePart.containingGroup.key)
+        : "";
+    const liveDataGroupKey =
+      typeof liveNodePart?.data?.group === "string" && liveNodePart.data.group.length > 0
+        ? String(liveNodePart.data.group)
+        : "";
+    const persistedGroupKey =
+      typeof myObjectview?.group === "string" && myObjectview.group.length > 0
+        ? String(myObjectview.group)
+        : "";
     // Check if the node (myGoNode) is member of a group
-    const goParentGroup = uic.getGroupByLocation(myGoModel, myGoNode.loc, myGoNode.size, myGoNode);
+    const goParentGroup =
+      (liveContainingGroupKey ? myGoModel.findNode(liveContainingGroupKey) : null) ||
+      (liveDataGroupKey ? myGoModel.findNode(liveDataGroupKey) : null) ||
+      (persistedGroupKey ? myGoModel.findNode(persistedGroupKey) : null) ||
+      uic.getGroupByLocation(myGoModel, myGoNode.loc, myGoNode.size, myGoNode);
     let parentObjview = goParentGroup?.objectview; // The container objectview
     if (!parentObjview) {
       parentObjview = myModelview.findObjectView(goParentGroup?.objviewRef);
     }
     if (goParentGroup && parentObjview) { // the container (group)
       myGoNode.group = goParentGroup.key; // Make the node a member of the group (container)
+      pastedNode.group = goParentGroup.key;
       parentObjview.isExpanded = true;
       myObjectview.group = goParentGroup.key;
+      const liveGroupPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
+      if (liveNodePart instanceof go.Node && liveGroupPart instanceof go.Group) {
+        attachPartToGroup(myDiagram, liveNodePart, liveGroupPart, liveNodePart.data);
+      } else if (liveNodePart?.data) {
+        try {
+          if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+            (myDiagram.model as any).setGroupKeyForNodeData(liveNodePart.data, goParentGroup.key);
+          } else {
+            myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key);
+          }
+        } catch (_) {
+          try { liveNodePart.data.group = goParentGroup.key; } catch (_err) { }
+        }
+      }
       let scale = 1.0;
       if (isGroupLikeNode(myGoNode, myObjectview)) {
         const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
@@ -6620,7 +6722,20 @@ break;
         scale = applyDerivedScaleToPart(myDiagram, myGoNode, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
       }
       myObjectview.scale = scale;
-      myObjectview.loc = myGoNode.loc;
+      const scaledLoc = uic.scaleNodeLocation1(goParentGroup, myGoNode);
+      if (scaledLoc) {
+        myGoNode.loc = scaledLoc;
+        myObjectview.loc = scaledLoc;
+        if (liveNodePart?.data) {
+          try { myDiagram.model.setDataProperty(liveNodePart.data, "loc", scaledLoc); } catch (_) { }
+        }
+      } else {
+        myObjectview.loc = myGoNode.loc;
+      }
+      if (liveNodePart?.data) {
+        try { myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key); } catch (_) { }
+        try { myDiagram.model.setDataProperty(liveNodePart.data, "scale", scale); } catch (_) { }
+      }
     }
   }
   // Dispatch metis
@@ -6628,6 +6743,22 @@ break;
   let data = { metis: jsnMetis }
   data = JSON.parse(JSON.stringify(data));
   myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: shoud not dispatch the whole phData????
+  try {
+    const pastedNodeKeys = new Set<string>();
+    for (let i = 0; i < pastedNodes.length; i++) {
+      const pastedNode = pastedNodes[i];
+      if (pastedNode?.objviewId) pastedNodeKeys.add(String(pastedNode.objviewId));
+      if (pastedNode?.goNodeId) pastedNodeKeys.add(String(pastedNode.goNodeId));
+    }
+    if (pastedNodeKeys.size > 0) {
+      (myDiagram as any).__skipNextPostPasteNodeSyncKeys = pastedNodeKeys;
+    }
+    myDiagram.dispatch({
+      type: 'SET_FOCUS_REFRESH',
+      data: { id: utils.createGuid(), name: 'ClipboardPasted' }
+    });
+  } catch (_) {
+  }
   if (false) {
     // Dispatch modelview
     const modifiedModelviews = new Array();

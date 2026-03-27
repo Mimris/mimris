@@ -1319,13 +1319,27 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (typeof(rel[k]) === 'object')    continue;
         if (typeof(rel[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, reltype))  continue;
+        relship[k] = rel[k];
+        if (k === 'name') {
+          relview.name = rel[k];
+          try {
+            if (goLink) goLink.name = rel[k];
+            if (gjsLink) gjsLink.name = rel[k];
+          } catch (_) {}
+        }
         if (k === constants.props.DRAFT) {
           myDiagram.model.setDataProperty(gjsData, 'name', rel[k]);
         }
         try {
-        myDiagram.model.setDataProperty(gjsData, k, relship[k]);
+        myDiagram.model.setDataProperty(gjsData, k, rel[k]);
         } catch (e) {}
       }
+      try {
+        myDiagram.model.setDataProperty(gjsData, 'relshipview', relview);
+      } catch (e) {}
+      try {
+        myDiagram.model.setDataProperty(gjsData, 'name', relship.name);
+      } catch (e) {}
       // if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
@@ -1345,6 +1359,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'cardinalityFrom', '');
         myDiagram.model.setDataProperty(gjsData, 'cardinalityTo', '');
       }
+      try { gjsLink.updateTargetBindings?.(); } catch {}
+      try { gjsLink.invalidateRoute?.(); } catch {}
+      try {
+        myDiagram?.updateAllTargetBindings?.('name');
+        myDiagram?.requestUpdate?.();
+      } catch {}
       // Dispatch
   const jsnRelship = new jsn.jsnRelationship(relship);
   let dataRel = safeClone(jsnRelship);

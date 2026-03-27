@@ -274,34 +274,43 @@ function makeSwimlaneHeaderIcon() {
 // This is needed because GoJS bindings don't always trigger for emoji after reload
 export function forceUpdateAllIconSources(diagram: any): void {
   if (!diagram || !diagram.nodes) return;
-  
-  console.log("forceUpdateAllIconSources: Starting to update all icon sources in diagram");
-  let updated = 0;
-  
+
   for (let it = diagram.nodes; it?.next();) {
     const node = it.value;
     if (!node || !node.data) continue;
     
     const icon = node.data.icon;
-    if (!icon) continue;
-    
-    // Find the Picture element named "Picture"
-    const pictureElement = node.findObject("Picture");
-    if (pictureElement && pictureElement.source !== undefined) {
-      try {
-        const newSource = getIconSource(icon);
-        if (pictureElement.source !== newSource) {
+    if (!icon) {
+      try { node.updateTargetBindings?.(); } catch (_) {}
+      continue;
+    }
+
+    try {
+      const newSource = getIconSource(icon);
+      const pictureVisible = shouldShowIconPicture(icon);
+      const iconObjectNames = ["Picture", "nodeImage", "SWIMLANE_HEADER_ICON"];
+      for (let i = 0; i < iconObjectNames.length; i++) {
+        const pictureElement = node.findObject(iconObjectNames[i]);
+        if (!pictureElement) continue;
+        if (pictureElement.source !== undefined) {
           pictureElement.source = newSource;
-          console.log("forceUpdateAllIconSources: Updated icon for", node.data.name || node.key, "with value", icon);
-          updated++;
         }
-      } catch (e) {
-        console.error("forceUpdateAllIconSources: Failed to update icon for", node.data.name || node.key, e);
+        if (pictureElement.visible !== undefined) {
+          pictureElement.visible = pictureVisible;
+        }
+        if (pictureElement.opacity !== undefined && iconObjectNames[i] === "SWIMLANE_HEADER_ICON") {
+          pictureElement.opacity = pictureVisible ? 1 : 0;
+        }
       }
+
+      try { node.updateTargetBindings?.(); } catch (_) {}
+    } catch (_) {
+      try { node.updateTargetBindings?.(); } catch (_inner) {}
     }
   }
-  
-  console.log("forceUpdateAllIconSources: Complete. Updated", updated, "icons");
+
+  try { diagram.updateAllTargetBindings?.('icon'); } catch (_) {}
+  try { diagram.requestUpdate?.(); } catch (_) {}
 }
 
 function makeGeometry() {
@@ -4599,7 +4608,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             $(go.TextBlock,  "",
             {
                 isMultiline: false,  // don't allow newlines in text
-                editable: false,
+                editable: true,
                 background: "transparent",
                 segmentIndex: NaN,
                 segmentFraction: 0.5,
@@ -4856,7 +4865,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
           {
             // this is a Link label
             isMultiline: true,  // allow newlines in text
-            editable: false,
+            editable: true,
             background: "transparent",
             segmentIndex: NaN,
             segmentFraction: 0.5,

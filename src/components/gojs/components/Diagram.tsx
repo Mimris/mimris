@@ -642,34 +642,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         console.warn('Change Icon: no icon selected');
         return;
       }
-      
-      console.log('Change Icon: setting icon to', newIcon, 'for node key', currentNode.key);
+
+      const liveNodePart =
+        myDiagram?.findNodeForKey?.(currentNode?.key) ||
+        myDiagram?.findPartForKey?.(currentNode?.key) ||
+        null;
+      const liveNodeData = liveNodePart?.data || currentNode;
+      const goModelNode =
+        myMetis?.gojsModel?.findNodeByViewId?.(liveNodeData?.objviewRef || liveNodeData?.key) ||
+        myMetis?.gojsModel?.findNode?.(liveNodeData?.key) ||
+        null;
       
       // Find the objectview
       let objview = null;
-      if (currentNode.key) {
-        objview = myModelview?.findObjectView(currentNode.key);
+      if (liveNodeData?.key) {
+        objview = myModelview?.findObjectView(liveNodeData.key);
       }
-      if (!objview && currentNode.objectview?.id) {
-        objview = myMetis?.findObjectView(currentNode.objectview.id);
+      if (!objview && liveNodeData?.objectview?.id) {
+        objview = myMetis?.findObjectView(liveNodeData.objectview.id);
       }
-      if (!objview && currentNode.objviewRef) {
-        objview = myMetis?.findObjectView(currentNode.objviewRef);
+      if (!objview && liveNodeData?.objviewRef) {
+        objview = myMetis?.findObjectView(liveNodeData.objviewRef);
       }
       if (!objview) {
-        objview = currentNode.objectview;
+        objview = liveNodeData?.objectview || currentNode?.objectview;
       }
       
       // Start diagram transaction
       myDiagram.startTransaction('change-icon');
       
       // Update the node data in the GoJS model
-      myDiagram.model.setDataProperty(currentNode, 'icon', newIcon);
+      myDiagram.model.setDataProperty(liveNodeData, 'icon', newIcon);
+      try { currentNode.icon = newIcon; } catch (_) {}
+      try { liveNodeData.icon = newIcon; } catch (_) {}
+      try { if (goModelNode) goModelNode.icon = newIcon; } catch (_) {}
+      try { if (goModelNode?.data) goModelNode.data.icon = newIcon; } catch (_) {}
       
       // Update the embedded objectview if present
-      if (currentNode.objectview) {
-        currentNode.objectview.icon = newIcon;
-      }
+      try {
+        if (liveNodeData?.objectview) {
+          liveNodeData.objectview.icon = newIcon;
+          myDiagram.model.setDataProperty(liveNodeData, 'objectview', liveNodeData.objectview);
+        }
+      } catch (_) {}
+      try {
+        if (liveNodePart?.objectview) {
+          liveNodePart.objectview.icon = newIcon;
+        }
+      } catch (_) {}
+      try {
+        if (goModelNode?.objectview) {
+          goModelNode.objectview.icon = newIcon;
+        }
+      } catch (_) {}
       
       // Update the actual objectview object
       if (objview) {
@@ -681,6 +706,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       
       myDiagram.commitTransaction('change-icon');
       
+      try { liveNodePart?.updateTargetBindings?.(); } catch (_) {}
+      try { myDiagram.model.updateTargetBindings?.(liveNodeData); } catch (_) {}
+      try {
+        const picture = liveNodePart?.findObject?.('Picture');
+        if (picture) picture.source = uit.getIconSource(newIcon);
+      } catch (_) {}
+      try {
+        uit.forceUpdateAllIconSources?.(myDiagram);
+      } catch (_) {}
+      
       // Dispatch to Redux to persist the change
       if (objview) {
         const jsnObjview = new jsn.jsnObjectView(objview);
@@ -688,11 +723,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const dispatchFn = myDiagram.dispatch || myMetis?.dispatch || this.props.dispatch;
         if (dispatchFn) {
           dispatchFn({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-          console.log('Change Icon: Dispatched UPDATE_OBJECTVIEW_PROPERTIES');
         }
       }
       
       // Request diagram update
+      try { myDiagram.updateAllTargetBindings?.('icon'); } catch (_) {}
+      try { myDiagram.updateAllTargetBindings?.(); } catch (_) {}
       myDiagram.requestUpdate();
       return;
     }
@@ -6045,6 +6081,72 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return true;
       };
 
+      const persistDeletedRelationshipPart = (diagram: go.Diagram, part: go.Part) => {
+        if (!(part instanceof go.Link)) return false;
+        const data: any = part.data || {};
+        const relview =
+          myMetis.findRelationshipView(data?.relviewRef || data?.key) ||
+          data?.relshipview ||
+          null;
+        const relship =
+          relview?.relship ||
+          myMetis.findRelationship(data?.relshipRef || data?.relRef) ||
+          data?.relship ||
+          null;
+
+        if (!relview && !relship) return false;
+
+        if (relship && !myMetis.deleteViewsOnly) {
+          relship.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnRelationship(relship)));
+            diagram.dispatch?.({ type: 'UPDATE_RELSHIP_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+
+        const relatedViews =
+          myMetis.deleteViewsOnly
+            ? (relview ? [relview] : [])
+            : (relship ? (myMetis.getRelationshipViewsByRelship(relship.id) || []) : (relview ? [relview] : []));
+
+        for (let i = 0; i < relatedViews.length; i++) {
+          const view = relatedViews[i];
+          if (!view) continue;
+          view.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnRelshipView(view)));
+            diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+
+        try {
+          diagram.dispatch?.({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: String(Date.now()), name: 'deleteRelationshipPartDirect' }
+          });
+        } catch (_) { }
+
+        const livePart =
+          diagram.findLinkForKey(data?.key) ||
+          diagram.findPartForKey(data?.key) ||
+          part;
+        const liveLinkData = livePart?.data || data;
+        try {
+          diagram.startTransaction('deleteRelationshipPartDirect');
+          diagram.model.removeLinkData(liveLinkData);
+          try {
+            diagram.remove(livePart);
+          } catch (_) { }
+          diagram.commitTransaction('deleteRelationshipPartDirect');
+        } catch (_) {
+          try {
+            if (diagram.isInTransaction) diagram.rollbackTransaction();
+          } catch (_rollbackErr) { }
+          return false;
+        }
+        return true;
+      };
+
       const handlePartCopy = (diagram: go.Diagram, part: go.Part) => {
         if (!diagram || !part) return;
         if (part instanceof go.Node) {
@@ -8036,7 +8138,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (confirm('Do you really want to delete the current selection?')) {
           myMetis.deleteViewsOnly = false;
           myMetis.currentLink = part.data;
-          diagram.commandHandler.deleteSelection();
+          if (!persistDeletedRelationshipPart(diagram, part)) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
       };
 
@@ -8050,6 +8154,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           let deletedAny = false;
           for (let i = 0; i < selectedParts.length; i++) {
             deletedAny = persistDeletedObjectPart(diagram, selectedParts[i]) || deletedAny;
+            deletedAny = persistDeletedRelationshipPart(diagram, selectedParts[i]) || deletedAny;
           }
           if (!deletedAny) {
             diagram.commandHandler.deleteSelection();
@@ -8992,12 +9097,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // Add delete actions directly to the relationship's context menu
           items.push({
             label: "Delete Relationship",
-            action: (diagram) => {
-              if (!diagram) return;
-              if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
-              myMetis.deleteViewsOnly = false;
-              diagram.commandHandler.deleteSelection();
-            },
+            action: (diagram) => handleLinkDelete(diagram, linkPart),
             enabled: (diagram) => {
               if (!diagram) return false;
               if (!diagram.commandHandler.canDeleteSelection()) return false;
@@ -11155,12 +11255,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const toggleMenuItems: HtmlMenuItem[] = [
         {
           label: "Delete Relationship",
-          action: (diagram) => {
-            if (!diagram) return;
-            if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
-            myMetis.deleteViewsOnly = false;
-            diagram.commandHandler.deleteSelection();
-          },
+          action: (diagram) => handleLinkDelete(diagram, part as go.Link),
           enabled: (diagram) => {
             if (!diagram) return false;
             if (!diagram.commandHandler.canDeleteSelection()) return false;

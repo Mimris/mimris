@@ -2887,7 +2887,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             ),
         $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
             {
-                name: "SHAPE",
+                name: "DRAG_SHAPE",
                 cursor: "move",    
                 fill: "transparent",
                 stroke: "transparent",
@@ -3000,7 +3000,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             ),
         $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
             {
-                name: "SHAPE",
+                name: "DRAG_SHAPE",
                 cursor: "move",    
                 fill: "transparent",
                 stroke: "transparent",
@@ -3100,7 +3100,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             ),
         $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
             {
-                name: "SHAPE",
+                name: "DRAG_SHAPE",
                 cursor: "move",    
                 fill: "transparent",
                 stroke: "transparent",
@@ -3217,6 +3217,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            {
+                selectionObjectName: "SHAPE",
+                resizeObjectName: "SHAPE",
+            },
             {
                 mouseEnter: (e, node) => node.isHighlighted = true,
                 mouseLeave: (e, node) => node.isHighlighted = false,
@@ -3374,6 +3378,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            {
+                selectionObjectName: "SHAPE",
+                resizeObjectName: "SHAPE",
+            },
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -3435,7 +3443,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             new go.Binding("geometryString", "geometry"),
                             new go.Binding("fill", "fillcolor2"),
                             { 
-                                name: "SHAPE", 
+                                name: "GEOMETRY_SHAPE", 
                                 strokeWidth: 2,
                                 stroke: "blue",
                                 fill: "lightyellow",
@@ -3465,6 +3473,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
+            {
+                selectionObjectName: "SHAPE",
+                resizeObjectName: "SHAPE",
+            },
             { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -3528,7 +3540,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         },
                         $(go.Shape, 
                             { 
-                                name: "SHAPE", 
+                                name: "FIGURE_SHAPE", 
                                 strokeWidth: 2,
                                 stroke: "blue",
                                 fill: "lightyellow",

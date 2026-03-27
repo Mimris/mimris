@@ -1449,6 +1449,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (diagramData && myDiagram?.model?.setDataProperty) {
         try { myDiagram.model.setDataProperty(diagramData, 'objectview', objview); } catch {}
         try { diagramData.objectview = objview; } catch {}
+        myDiagram.model.setDataProperty(diagramData, 'viewkind', objview.viewkind);
+        myDiagram.model.setDataProperty(diagramData, 'template', objview.template);
+        myDiagram.model.setDataProperty(diagramData, 'template2', objview.template2);
+        myDiagram.model.setDataProperty(diagramData, 'icon', objview.icon);
+        myDiagram.model.setDataProperty(diagramData, 'figure', objview.figure);
+        myDiagram.model.setDataProperty(diagramData, 'figure2', objview.figure2);
         myDiagram.model.setDataProperty(diagramData, 'fillcolor', objview.fillcolor);
         myDiagram.model.setDataProperty(diagramData, 'fillcolor2', objview.fillcolor2);
         myDiagram.model.setDataProperty(diagramData, 'strokecolor', objview.strokecolor);
@@ -1486,6 +1492,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       myModelview.addObjectView(objview);
       const persistedObjview = myModelview.findObjectView(objview.id);
       if (persistedObjview) {
+        persistedObjview.viewkind = objview.viewkind;
+        persistedObjview.template = objview.template;
+        persistedObjview.template2 = objview.template2;
+        persistedObjview.icon = objview.icon;
+        persistedObjview.figure = objview.figure;
+        persistedObjview.figure2 = objview.figure2;
+        persistedObjview.groupLayout = objview.groupLayout;
+        persistedObjview.isGroup = objview.isGroup;
         persistedObjview.fillcolor = objview.fillcolor;
         persistedObjview.fillcolor2 = objview.fillcolor2;
         persistedObjview.strokecolor = objview.strokecolor;
@@ -1507,7 +1521,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   data.memberscale = objview.memberscale;
   data.arrowscale = objview.arrowscale;
   data.textscale = objview.textscale;
-  console.warn('[OBJVIEW_SAVE]', { id: data?.id, fillcolor: data?.fillcolor, fillcolor2: data?.fillcolor2, strokecolor: data?.strokecolor, grabIsAllowed: data?.grabIsAllowed, name: data?.name });
   dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
   pushPhDataUpdate(data)
       try {

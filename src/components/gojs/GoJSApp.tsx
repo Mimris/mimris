@@ -165,6 +165,38 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
   }, 0);
 }
 
+function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
+  if (!instance || typeof dispatch !== "function") return;
+
+  const objectTimer = (instance as any).__queuedObjectViewDispatchTimer;
+  if (objectTimer) {
+    clearTimeout(objectTimer);
+    (instance as any).__queuedObjectViewDispatchTimer = null;
+  }
+  const pendingObjectQueue: Map<string, any> = (instance as any).__queuedObjectViewDispatches || new Map();
+  (instance as any).__queuedObjectViewDispatches = new Map();
+  pendingObjectQueue.forEach((payload) => {
+    try {
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+    } catch (_) {
+    }
+  });
+
+  const relTimer = (instance as any).__queuedRelshipViewDispatchTimer;
+  if (relTimer) {
+    clearTimeout(relTimer);
+    (instance as any).__queuedRelshipViewDispatchTimer = null;
+  }
+  const pendingRelQueue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches || new Map();
+  (instance as any).__queuedRelshipViewDispatches = new Map();
+  pendingRelQueue.forEach((payload) => {
+    try {
+      dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+    } catch (_) {
+    }
+  });
+}
+
 function getGroupMemberScale(part: go.Group | null | undefined): number {
   if (!(part instanceof go.Group)) return 1.0;
   const data: any = part.data || {};
@@ -1567,6 +1599,12 @@ class GoJSApp extends React.Component<{}, AppState> {
   public componentDidUpdate(prevProps: any) {
     const nextState: any = {};
     let shouldSyncFromProps = false;
+    const diagram = this.state?.myMetis?.myDiagram;
+    const focusModelChanged =
+      this.props.phFocus?.focusModel?.id !== prevProps.phFocus?.focusModel?.id;
+    const focusModelviewChanged =
+      this.props.phFocus?.focusModelview?.id !== prevProps.phFocus?.focusModelview?.id;
+    const metisChanged = this.props.myMetis !== prevProps.myMetis;
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
@@ -1576,15 +1614,42 @@ class GoJSApp extends React.Component<{}, AppState> {
       nextState.linkDataArray = this.props.linkDataArray;
       shouldSyncFromProps = true;
     }
-    if (this.props.myMetis !== prevProps.myMetis) {
+    if (metisChanged) {
       nextState.myMetis = this.props.myMetis;
       shouldSyncFromProps = true;
     }
-    if (this.props.phFocus !== prevProps.phFocus) {
+    if (focusModelChanged || focusModelviewChanged) {
       nextState.phFocus = this.props.phFocus;
       shouldSyncFromProps = true;
     }
+    if (shouldSyncFromProps && (diagram as any)?.__traceDragVibration) {
+      try {
+        console.warn("[VIBRATION_PROP_SYNC]", JSON.stringify({
+          nodeDataChanged: this.props.nodeDataArray !== prevProps.nodeDataArray,
+          linkDataChanged: this.props.linkDataArray !== prevProps.linkDataArray,
+          metisChanged,
+          focusModelChanged,
+          focusModelviewChanged,
+          nextNodeCount: Array.isArray(this.props.nodeDataArray) ? this.props.nodeDataArray.length : -1,
+          prevNodeCount: Array.isArray(prevProps.nodeDataArray) ? prevProps.nodeDataArray.length : -1,
+          nextLinkCount: Array.isArray(this.props.linkDataArray) ? this.props.linkDataArray.length : -1,
+          prevLinkCount: Array.isArray(prevProps.linkDataArray) ? prevProps.linkDataArray.length : -1,
+        }));
+      } catch (_) {
+      }
+    }
     if (shouldSyncFromProps) {
+      const activeTool = diagram?.currentTool;
+      const suppressPropSyncUntil = Number((diagram as any)?.__suppressPropSyncUntil || 0);
+      const suppressPropSync =
+        (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
+        suppressPropSyncUntil > Date.now();
+      if (suppressPropSync) {
+        return;
+      }
+    }
+    if (shouldSyncFromProps) {
+      nextState.skipsDiagramUpdate = false;
       this.setState(nextState);
       return;
     }
@@ -1736,6 +1801,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     const isActiveDrag =
       activeTool instanceof go.DraggingTool &&
       activeTool.isActive === true;
+    const suppressNodeModelSyncUntil = Number((diagram as any)?.__suppressNodeModelSyncUntil || 0);
+    const suppressNodeModelSync = suppressNodeModelSyncUntil > Date.now();
+    const traceDragVibration = Boolean((diagram as any)?.__traceDragVibration);
     const hasMeaningfulModelDataChanges =
       !!modifiedModelData &&
       typeof modifiedModelData === 'object' &&
@@ -1751,6 +1819,23 @@ class GoJSApp extends React.Component<{}, AppState> {
       isActiveDrag &&
       !hasStructuralModelChanges
     ) {
+      if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+        try {
+          const payload = modifiedNodeData.map((node: any) => {
+            const liveNode = diagram?.findNodeForKey?.(node?.key);
+            return {
+              key: node?.key || "",
+              loc: node?.loc || "",
+              group: node?.group || "",
+              scale: node?.scale,
+              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
+              liveDataLoc: liveNode?.data?.loc || "",
+            };
+          });
+          console.warn("[VIBRATION_MODEL_SYNC]", JSON.stringify(payload));
+        } catch (_) {
+        }
+      }
       return;
     }
 
@@ -1774,11 +1859,43 @@ class GoJSApp extends React.Component<{}, AppState> {
       shouldUpdate = true;
     }
 
-    if (!isActiveDrag && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+    if (!isActiveDrag && !suppressNodeModelSync && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+      const tracePostGroupNodeSync = Boolean((diagram as any)?.__tracePostGroupNodeSync);
       const skipPostPasteNodeSyncKeys: Set<string> | undefined = (diagram as any)?.__skipNextPostPasteNodeSyncKeys;
       const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
       modifiedNodeData.forEach((node: any) => {
         if (!node?.key) return;
+        if (tracePostGroupNodeSync) {
+          try {
+            const liveNode = diagram?.findNodeForKey?.(node.key);
+            console.warn("[POST_GROUP_NODE_SYNC]", {
+              key: node.key,
+              loc: node.loc,
+              group: node.group,
+              scale: node.scale,
+              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
+              liveDataLoc: liveNode?.data?.loc,
+              liveGroup: liveNode?.data?.group,
+              liveScale: liveNode?.data?.scale,
+            });
+          } catch (_) {
+          }
+        }
+        if (traceDragVibration) {
+          try {
+            const liveNode = diagram?.findNodeForKey?.(node.key);
+            console.warn("[VIBRATION_MODEL_SYNC]", JSON.stringify({
+              key: node.key,
+              isActiveDrag,
+              loc: node.loc,
+              group: node.group,
+              scale: node.scale,
+              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
+              liveDataLoc: liveNode?.data?.loc,
+            }));
+          } catch (_) {
+          }
+        }
         const nodeKey = String(node.key);
         if (skipPostPasteNodeSyncKeys?.has(nodeKey)) {
           skipPostPasteNodeSyncKeys.delete(nodeKey);
@@ -1815,6 +1932,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.setState({
         nodeDataArray: normalizeNodeCategoryData(nextNodeDataArray),
         linkDataArray: normalizeLinkPortData(nextLinkDataArray),
+        skipsDiagramUpdate: true,
       });
     }
   }
@@ -4487,6 +4605,51 @@ class GoJSApp extends React.Component<{}, AppState> {
         });
         try { myDiagram.updateAllTargetBindings(); } catch (_) { }
         try { myDiagram.requestUpdate(); } catch (_) { }
+        try {
+          const movedAnyGroup = (() => {
+            for (let it = movedSelection?.iterator; it?.next();) {
+              if (it.value instanceof go.Group) return true;
+            }
+            return false;
+          })();
+          if (movedAnyGroup) {
+            (myDiagram as any).__suppressSyncForNextNodeDrag = true;
+          }
+          flushQueuedDiagramDispatches(this, context.dispatch || myDiagram.dispatch || this.state.dispatch);
+        } catch (_) {
+        }
+        try {
+          const movedAnyGroup = (() => {
+            for (let it = movedSelection?.iterator; it?.next();) {
+              if (it.value instanceof go.Group) return true;
+            }
+            return false;
+          })();
+          const postMoveSuppressUntil = Date.now() + (movedAnyGroup ? 2000 : 450);
+          (myDiagram as any).__suppressNodeModelSyncUntil = Date.now() + 180;
+          (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
+          (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
+          if (movedAnyGroup) {
+            (myDiagram as any).__suppressObjectSingleClickUntil = Math.max(
+              Number((myDiagram as any).__suppressObjectSingleClickUntil || 0),
+              postMoveSuppressUntil
+            );
+          }
+          (myDiagram as any).__tracePostGroupNodeSync = true;
+          (myDiagram as any).__traceFirstPostGroupDrag = true;
+          (myDiagram as any).__traceDragVibration = true;
+          window.setTimeout(() => {
+            try { delete (myDiagram as any).__tracePostGroupNodeSync; } catch (_) { }
+            try { delete (myDiagram as any).__traceFirstPostGroupDrag; } catch (_) { }
+            try { delete (myDiagram as any).__traceDragVibration; } catch (_) { }
+          }, 1200);
+        } catch (_) {
+        }
+        try {
+          delete (myDiagram as any).__dragAllowReparent;
+          delete (myDiagram as any).__dragAllowReparentKeys;
+        } catch (_) {
+        }
         break;
       case "SelectionDeleting": {
       // const newNode = myMetis.currentNode;
@@ -6217,7 +6380,13 @@ break;
 }
       case "ObjectSingleClicked": {
   const suppressUntil = Number((myDiagram as any)?.__spacePanSuppressClickUntil || 0);
-  if (suppressUntil > Date.now()) {
+  const suppressObjectSingleClickUntil = Number((myDiagram as any)?.__suppressObjectSingleClickUntil || 0);
+  const activeTool = myDiagram?.currentTool;
+  const suppressObjectSingleClick =
+    suppressUntil > Date.now() ||
+    suppressObjectSingleClickUntil > Date.now() ||
+    (activeTool instanceof go.DraggingTool && activeTool.isActive === true);
+  if (suppressObjectSingleClick) {
     break;
   }
   const clickedPortObject = resolveClickedPortGraphObject(e.subject);

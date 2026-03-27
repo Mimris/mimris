@@ -619,32 +619,44 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
             case 'template2':
-              if (selObj.isGroup) {
-                if (selObj.viewkind === 'Container') {
+              {
+                const effectiveViewkind =
+                  selObj?.viewkind ||
+                  item?.viewkind ||
+                  instview?.viewkind ||
+                  typeview?.viewkind ||
+                  (selObj?.isGroup ? 'Container' : 'Object');
+                const effectiveCategory = selObj?.category || category;
+                const effectiveIsGroup =
+                  selObj?.isGroup === true ||
+                  effectiveViewkind === 'Container';
+              if (effectiveIsGroup) {
+                if (effectiveViewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
               } else {
-                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                if (effectiveCategory === constants.gojs.C_RELATIONSHIP) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                } else if (effectiveCategory === constants.gojs.C_RELSHIPTYPE) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                  if (selObj.viewkind === 'Object') {
+                } else if (effectiveCategory === constants.gojs.C_OBJECT || effectiveCategory === constants.gojs.C_OBJECTTYPE) {
+                  if (effectiveViewkind === 'Object' || !effectiveViewkind) {
                     values = uit.getNodeTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
-                  } else if (selObj.viewkind === 'Container') {
+                  } else if (effectiveViewkind === 'Container') {
                     values = uit.getGroupTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
                   }
                 }
+              }
               }
               break;
             case 'figure':
@@ -902,7 +914,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           objtypeview.template = 'Pool';
           objtypeview.viewkind = 'Container';
         }
-        console.log('96', type, type1, objtypeview, typeview);
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = myObjectType;
@@ -1060,7 +1071,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               if (k === 'groupLayout') {
                 val = instview[k];
-                console.log('1047 groupLayout val', val, instview);
               }
               if (k === 'memberscale' || k === 'arrowscale' || k === 'textscale') {
                 const selectedValue = selObj?.[k];
@@ -1172,32 +1182,44 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
             case 'template2':
-              if (selObj.isGroup) {
-                if (selObj.viewkind === 'Container') {
+              {
+                const effectiveViewkind =
+                  selObj?.viewkind ||
+                  item?.viewkind ||
+                  instview?.viewkind ||
+                  typeview?.viewkind ||
+                  (selObj?.isGroup ? 'Container' : 'Object');
+                const effectiveCategory = selObj?.category || category;
+                const effectiveIsGroup =
+                  selObj?.isGroup === true ||
+                  effectiveViewkind === 'Container';
+              if (effectiveIsGroup) {
+                if (effectiveViewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
               } else {
-                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                if (effectiveCategory === constants.gojs.C_RELATIONSHIP) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                } else if (effectiveCategory === constants.gojs.C_RELSHIPTYPE) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                  if (selObj.viewkind === 'Object') {
+                } else if (effectiveCategory === constants.gojs.C_OBJECT || effectiveCategory === constants.gojs.C_OBJECTTYPE) {
+                  if (effectiveViewkind === 'Object' || !effectiveViewkind) {
                     values = uit.getNodeTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
-                  } else if (selObj.viewkind === 'Container') {
+                  } else if (effectiveViewkind === 'Container') {
                     values = uit.getGroupTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
                   }
                 }
+              }
               }
               break;
             case 'figure':

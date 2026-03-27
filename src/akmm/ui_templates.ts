@@ -139,8 +139,37 @@ export function getCurve(c: string): any {
 }
 
 function shouldPersistLinkPoints(data: any): boolean {
+    const points = data?.points;
+    if (Array.isArray(points) && points.length > 4) return true;
     const routing = data?.routing;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
+function getLinkAdjusting(data: any, fallback: number): number {
+    const points = data?.points;
+    if (Array.isArray(points) && points.length > 4) return go.Link.None;
+    return fallback;
+}
+
+function getEffectiveLinkRouting(data: any, fallback: any): any {
+    const points = data?.points;
+    if (Array.isArray(points) && points.length > 4) return go.Link.Normal;
+    if (typeof data?.routing === "string" && data.routing.trim() !== "") return getRouting(data.routing);
+    if (typeof data?.routing === "number") return data.routing;
+    return fallback;
+}
+
+function normalizeArrowColor(color: any): string {
+    if (typeof color !== 'string') return '';
+    return color.trim();
+}
+
+function getArrowStrokeColor(data: any, arrowSide: 'from' | 'to'): string {
+    const arrowColor = normalizeArrowColor(arrowSide === 'from' ? data?.fromArrowColor : data?.toArrowColor);
+    const lineColor = normalizeArrowColor(data?.strokecolor);
+    if (!arrowColor) return lineColor || 'black';
+    if (arrowColor.toLowerCase() === 'white') return lineColor || 'black';
+    return arrowColor;
 }
 
 export function getGatewayType(t: string): any {
@@ -4525,9 +4554,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                     "";
                 const isContains = typeName === constants.types.AKM_CONTAINS;
                 const isMetamodelling = String((myMetis as any)?.modelType || "") === "Metamodelling";
-                // If the link was explicitly configured (d.routing), honor it.
-                if (typeof d?.routing === "string" && d.routing.trim() !== "") return getRouting(d.routing);
-                if (typeof d?.routing === "number") return d.routing;
+                const explicitRouting = getEffectiveLinkRouting(d, null);
+                if (explicitRouting !== null) return explicitRouting;
                 if (isMetamodelling && isContains) return go.Link.Normal;
                 return go.Link.Orthogonal;
             }).makeTwoWay(),
@@ -4555,6 +4583,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 reshapable: true,
                 resegmentable: true,
             },
+            new go.Binding("adjusting", "", d => getLinkAdjusting(d, go.Link.End)),
             // link route (defaults are overridden by the bindings above when relevant)
             { routing: go.Link.Orthogonal, corner: 10 },  // default relationship routing
             new go.Binding("points").makeTwoWay(),
@@ -4573,7 +4602,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
-            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -4584,7 +4613,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
             }),
@@ -4705,6 +4734,8 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 // isLayoutPositioned: false,  
                 toEndSegmentLength: 20
             },  
+            new go.Binding("routing", "", d => getEffectiveLinkRouting(d, go.Link.AvoidsNodes)).makeTwoWay(),
+            new go.Binding("adjusting", "", d => getLinkAdjusting(d, go.Link.Stretch)),
             new go.Binding("points").makeTwoWay(),
             // link shape
             $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
@@ -4718,7 +4749,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
-            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
@@ -4726,7 +4757,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // cardinality from
@@ -4787,6 +4818,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             toSpot: go.Spot.BottomSide,
             toEndSegmentLength: 20, // fromEndSegmentLength: 40
         },
+        new go.Binding("adjusting", "", d => getLinkAdjusting(d, go.Link.None)),
         new go.Binding("visible", "", linkShouldBeVisible),
         new go.Binding('points').makeTwoWay(),
         $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] },
@@ -4800,12 +4832,12 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         $(go.Shape, { fromArrow: "None", scale: 1, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
-            new go.Binding("stroke", "fromArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
         ),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black', fill: 'white' },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
         ),
         // { segmentOffset: new go.Point(-10, -10) },
         new go.Binding("stroke", "textcolor").makeTwoWay(),
@@ -4833,6 +4865,8 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
           adjusting: go.Link.Stretch,
 	          toEndSegmentLength: 0,
 	        },
+          new go.Binding("routing", "", d => getEffectiveLinkRouting(d, go.Link.Orthogonal)).makeTwoWay(),
+          new go.Binding("adjusting", "", d => getLinkAdjusting(d, go.Link.Stretch)),
 	        new go.Binding("visible", "", linkShouldBeVisible),
 	        new go.Binding('points').makeTwoWay(),
 	        $(go.Shape, { stroke: 'black', strokeWidth: 1 },
@@ -4844,7 +4878,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
 	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
-            new go.Binding("stroke", "toArrowColor", s => s || "black"),
+            new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
           ),
         $(go.Shape,
           { fromArrow: '', scale: 1.5, stroke: 'black', fill: 'white' },
@@ -4856,7 +4890,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             return fallback ? 'BackSlash' : 'StretchedDiamond';
           }),
           new go.Binding('fill', 'fromArrowColor'),
-          new go.Binding('stroke', 'fromArrowColor', s => s || 'black'),
+          new go.Binding('stroke', '', d => getArrowStrokeColor(d, 'from')),
           new go.Binding('segmentOffset', 'isDefault', function (s) {
             return s ? new go.Point(5, 0) : new go.Point(0, 0);
           })

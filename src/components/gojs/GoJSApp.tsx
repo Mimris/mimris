@@ -75,9 +75,11 @@ function normalizeLinkPortData(linkDataArray: any[] | undefined): any[] {
     if (!link || typeof link !== "object") return link;
     const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
     const normalizedToPort = typeof link.toPort === "string" ? link.toPort : "";
+    const normalizedPoints = normalizeLinkPoints(link.points);
     if (
       link.fromPort === normalizedFromPort &&
-      link.toPort === normalizedToPort
+      link.toPort === normalizedToPort &&
+      normalizedPoints === link.points
     ) {
       return link;
     }
@@ -85,6 +87,55 @@ function normalizeLinkPortData(linkDataArray: any[] | undefined): any[] {
       ...link,
       fromPort: normalizedFromPort,
       toPort: normalizedToPort,
+      points: normalizedPoints,
+    };
+  });
+}
+
+function normalizeLinkPoints(points: any): any {
+  if (Array.isArray(points)) return points;
+  const flattened: number[] = [];
+  try {
+    if (points?.iterator) {
+      for (let it = points.iterator; it?.next();) {
+        const point = it.value;
+        if (point && typeof point.x === "number" && typeof point.y === "number") {
+          flattened.push(point.x, point.y);
+        } else if (typeof point === "number") {
+          flattened.push(point);
+        }
+      }
+      return flattened.length > 0 ? flattened : [];
+    }
+  } catch (_) {
+  }
+  return points;
+}
+
+function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, localLinks: any[] | undefined): any[] {
+  if (!Array.isArray(incomingLinks)) return incomingLinks as any;
+  const localMap = new Map((Array.isArray(localLinks) ? localLinks : []).map((link: any) => [link?.key, link]));
+  return incomingLinks.map((incoming: any) => {
+    if (!incoming || typeof incoming !== "object" || !incoming.key) return incoming;
+    const local = localMap.get(incoming.key);
+    if (!local || typeof local !== "object") return incoming;
+    const incomingPoints = normalizeLinkPoints(incoming.points);
+    const localPoints = normalizeLinkPoints(local.points);
+    const incomingHasManualPoints = Array.isArray(incomingPoints) && incomingPoints.length > 4;
+    const localHasManualPoints = Array.isArray(localPoints) && localPoints.length > 4;
+    if (!localHasManualPoints) return incoming;
+    if (incomingHasManualPoints) {
+      const samePointCount = incomingPoints.length === localPoints.length;
+      const samePoints =
+        samePointCount &&
+        incomingPoints.every((value: any, index: number) => value === localPoints[index]);
+      if (samePoints) return incoming;
+    }
+    return {
+      ...incoming,
+      points: localPoints,
+      routing: local.routing || incoming.routing,
+      relshipview: local.relshipview || incoming.relshipview,
     };
   });
 }
@@ -104,10 +155,13 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
     ...link,
     fromPort: normalizedFromPort,
     toPort: normalizedToPort,
+    points: normalizeLinkPoints(link.points),
   };
-  // GoJS incremental link updates can expose transient drop-time route geometry.
-  // Do not mirror `points` into React state for routed links; let the live diagram own that route.
-  if (isRoutedLink) {
+  const hasPersistableManualPoints =
+    Array.isArray(nextLink.points) &&
+    nextLink.points.length > 4;
+  // For routed links, ignore default auto-route geometry, but keep explicit reshaped paths.
+  if (isRoutedLink && !hasPersistableManualPoints) {
     delete nextLink.points;
   }
   return nextLink;
@@ -1611,7 +1665,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       shouldSyncFromProps = true;
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {
-      nextState.linkDataArray = this.props.linkDataArray;
+      nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
+        this.props.linkDataArray,
+        this.state.linkDataArray
+      );
       shouldSyncFromProps = true;
     }
     if (metisChanged) {
@@ -1801,6 +1858,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     const isActiveDrag =
       activeTool instanceof go.DraggingTool &&
       activeTool.isActive === true;
+    const isActiveLinkReshape =
+      activeTool instanceof go.LinkReshapingTool &&
+      activeTool.isActive === true;
+    const isActiveRelink =
+      activeTool instanceof go.RelinkingTool &&
+      activeTool.isActive === true;
     const suppressNodeModelSyncUntil = Number((diagram as any)?.__suppressNodeModelSyncUntil || 0);
     const suppressNodeModelSync = suppressNodeModelSyncUntil > Date.now();
     const traceDragVibration = Boolean((diagram as any)?.__traceDragVibration);
@@ -1816,7 +1879,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       hasMeaningfulModelDataChanges;
 
     if (
-      isActiveDrag &&
+      (isActiveDrag || isActiveLinkReshape || isActiveRelink) &&
       !hasStructuralModelChanges
     ) {
       if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
@@ -1916,10 +1979,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       shouldUpdate = true;
     }
 
-    if (!isActiveDrag && Array.isArray(modifiedLinkData) && modifiedLinkData.length > 0) {
+    if (!isActiveDrag && !isActiveLinkReshape && !isActiveRelink && Array.isArray(modifiedLinkData) && modifiedLinkData.length > 0) {
       const linkMap = new Map((nextLinkDataArray || []).map((link: any) => [link?.key, link]));
       modifiedLinkData.forEach((link: any) => {
         if (!link?.key) return;
+        const normalizedPoints = normalizeLinkPoints(link.points);
+        const hasManualPoints = Array.isArray(normalizedPoints) && normalizedPoints.length > 4;
+        // Manual link paths are persisted through relshipview updates and should not be
+        // continuously re-driven through React state on incidental link mutations such as selection.
+        if (hasManualPoints) return;
         const prev = linkMap.get(link.key) || {};
         const sanitizedLink = sanitizeModifiedLinkDataForReact(link);
         linkMap.set(link.key, { ...prev, ...sanitizedLink });
@@ -6397,6 +6465,30 @@ break;
   let data = sel.data;
   // sel.location = data.loc;
   if (debug) console.log('1313 selected', data, sel);
+  if (data?.category === constants.gojs.C_RELATIONSHIP) {
+    const relview =
+      myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+      myMetis.findRelationshipView(data?.relviewRef || data?.key) ||
+      data?.relshipview;
+    const relship =
+      myModel.findRelationship(data?.relshipRef) ||
+      myMetis.findRelationship(data?.relshipRef) ||
+      relview?.relship;
+    const reltype =
+      relship?.type ||
+      myMetamodel?.findRelationshipType(relship?.typeRef) ||
+      myMetis.findRelationshipType(data?.reltypeRef);
+    if (relview) {
+      context.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data: { id: relview.id, name: relview.name || '' } });
+    }
+    if (relship) {
+      context.dispatch({ type: 'SET_FOCUS_RELSHIP', data: { id: relship.id, name: relship.name || '' } });
+    }
+    if (reltype) {
+      context.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data: { id: reltype.id, name: reltype.name || '' } });
+    }
+    break;
+  }
   let objectview = myModelview.findObjectView(data?.key);
   if (!objectview) objectview = myModelview.findObjectView(data?.fromNode?.key);
   const object = objectview?.object;
@@ -7160,10 +7252,12 @@ break;
   const key = gjsLink.key;
   const link = myDiagram.findLinkForKey(key);
   const goLink = myGoModel.findLink(key);
-  const data = goLink?.data;
+  const data = link?.data || goLink?.data;
   if (debug) console.log('1596 link, data', link, data);
-  let relview = data?.relshipview;
-  relview = myModelview.findRelationshipView(data?.key);
+  let relview = myModelview.findRelationshipView(data?.relviewRef || data?.key);
+  if (!relview) {
+    relview = data?.relshipview;
+  }
   if (relview) {
     const points = [];
     const livePoints = link?.points || gjsLink?.points || data?.points;
@@ -7173,13 +7267,38 @@ break;
       points.push(point.x)
       points.push(point.y)
     }
+    const currentRouting = String(relview?.routing || data?.routing || "").trim();
+    const shouldFreezeManualRoute =
+      points.length > 4 &&
+      (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
+    try { if (data?.relshipview) data.relshipview.points = points; } catch (_) {}
+    try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) {}
+    try {
+      if (goLink) {
+        goLink.points = points;
+        goLink.relshipview = relview;
+        goLink.relviewRef = relview.id;
+        if (goLink.data) {
+          goLink.data.points = points;
+          goLink.data.relshipview = relview;
+          goLink.data.relviewRef = relview.id;
+        }
+      }
+    } catch (_) {}
+    if (shouldFreezeManualRoute) {
+      relview.routing = "Normal";
+      try { myDiagram.model.setDataProperty(data, "routing", "Normal"); } catch (_) {
+        try { data.routing = "Normal"; } catch (_err) {}
+      }
+      try { link.routing = go.Link.Normal; } catch (_) { }
+      try { link.adjusting = go.Link.None; } catch (_) { }
+    }
     try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
     relview.points = points;
     const jsnRelview = new jsn.jsnRelshipView(relview);
     if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
     modifiedRelshipViews.push(jsnRelview);
-
-    uid.updateLinkAndView(data, goLink, relview, myDiagram);
+    try { link?.updateTargetBindings?.(); } catch (_) { }
   }
   break;
 }

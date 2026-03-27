@@ -19,7 +19,8 @@ Functions:
 
 const debug = false;
 
-function shouldPersistLinkPoints(routing: string | undefined | null): boolean {
+function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
+    if (Array.isArray(points) && points.length > 4) return true;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
@@ -1119,7 +1120,7 @@ export class goRelshipLink extends goLink {
                     const data: any = typeview.data;
                     // this.addData(data);
                     this.setName(relview.name);
-                    this.points = shouldPersistLinkPoints(relview.routing) ? relview.points : [];
+                    this.points = shouldPersistLinkPoints(relview.routing, relview.points) ? relview.points : [];
                     for (let prop in viewdata) {
                         if (prop === 'abstract') continue;
                         if (prop === 'class') continue;

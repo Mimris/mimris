@@ -235,6 +235,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return;
       }
       relview.points = points;
+      try { if (linkData?.relshipview) linkData.relshipview.points = points; } catch (_) {}
+      try { if (linkData?.relshipview && linkData.relshipview.id !== relview.id) linkData.relshipview = relview; } catch (_) {}
+      try {
+        const goModel: any = (this as any)?.myGoModel || this.myMetis?.gojsModel;
+        const goLink: any = goModel?.findLink?.(linkData?.key);
+        if (goLink) {
+          goLink.points = points;
+          goLink.relshipview = relview;
+          goLink.relviewRef = relview.id;
+          if (goLink.data) {
+            goLink.data.points = points;
+            goLink.data.relshipview = relview;
+            goLink.data.relviewRef = relview.id;
+          }
+        }
+      } catch (_) {}
+      const shouldFreezeManualRoute =
+        Array.isArray(points) &&
+        points.length > 4 &&
+        (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
+         String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
+      if (shouldFreezeManualRoute) {
+        relview.routing = "Normal";
+        try { diagram.model.setDataProperty(linkData, "routing", "Normal"); } catch (_) {
+          try { linkData.routing = "Normal"; } catch (_err) {}
+        }
+        try { link.routing = go.Link.Normal; } catch (_) {}
+        try { link.adjusting = go.Link.None; } catch (_) {}
+      }
       try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
         try { linkData.points = points; } catch (_err) {}
       }

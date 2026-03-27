@@ -53,7 +53,8 @@ function snapSizeEven(n: number): number {
 }
 const GROUP_LAYOUT_PADDING = 15;
 
-function shouldPersistLinkPoints(routing: string | undefined | null): boolean {
+function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
+    if (Array.isArray(points) && points.length > 4) return true;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
@@ -3356,6 +3357,7 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
     if (!relview) {
         relview = new akm.cxRelationshipView(gjsLink.key, gjsLink.name, gjsLink, "");
     }
+    const hideDefaultName = gjsLink?.name === 'flowsTo' || gjsLink?.name === 'isFollowedBy';
     for (let it = myDiagram.links; it?.next();) {
         const link = it.value;
         const ldata = link.data;
@@ -3370,18 +3372,19 @@ export function updateLinkAndView(gjsLink: any, goLink: gjs.goRelshipLink, relvi
             ldata[prop] = gjsLink[prop];
             goLink[prop] = gjsLink[prop];
 
-            if (ldata.name === 'flowsTo' || ldata.name === 'isFollowedBy') {
-                // special handling of these links
+            if (hideDefaultName && prop === 'name') {
+                // Hide default sequence names without corrupting link routing/state.
                 gjsLink[prop] = " ";
                 goLink[prop] = " ";
                 relview[prop] = " ";
+                ldata[prop] = " ";
             }
 
             myDiagram.model.setDataProperty(ldata, prop, gjsLink[prop]);
         }
 
         const routing = gjsLink?.routing || ldata?.routing || relview?.routing;
-        if (shouldPersistLinkPoints(routing)) {
+        if (shouldPersistLinkPoints(routing, link?.data?.points)) {
             const points = [];
             for (let pit = link.points.iterator; pit?.next();) {
                 const point = pit.value;

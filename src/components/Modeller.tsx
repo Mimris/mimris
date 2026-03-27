@@ -494,7 +494,10 @@ const Modeller = React.forwardRef((props: any, ref) => {
     }
 
     // Objects palette
-    const myModel = props.myMetis?.findModel(model.id);
+    const myModel =
+        (model?.id && props.myMetis?.findModel(model.id)) ||
+        props.myMetis?.currentModel ||
+        model;
     const { nodeArray, linkArray } = uib.buildObjectPalette(myModel?.objects, myModel?.relships || []);
 
 
@@ -693,7 +696,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </>
     );
 
-    const myMetamodel = myModel.metamodel;
+    const myMetamodel = myModel?.metamodel || mmodel;
     const gojsMetamodel = uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified)
 
     // Types palette (metamodel) — declared early so it is available when the Objects palette

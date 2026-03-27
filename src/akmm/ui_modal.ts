@@ -65,6 +65,44 @@ function safeClone<T>(obj: T): T {
   }
 }
 
+function isPersistableRelshipviewProp(prop: string, value: any): boolean {
+  if (!prop || prop === 'class') return false;
+  if (typeof value === 'function') return false;
+  if (value && typeof value === 'object') return false;
+  if (
+    prop === 'id' ||
+    prop === 'key' ||
+    prop === 'data' ||
+    prop === 'relship' ||
+    prop === 'relshipview' ||
+    prop === 'relshipRef' ||
+    prop === 'typeview' ||
+    prop === 'typeviewRef' ||
+    prop === 'fromObjview' ||
+    prop === 'toObjview' ||
+    prop === 'fromobjviewRef' ||
+    prop === 'toobjviewRef' ||
+    prop === 'fromPortid' ||
+    prop === 'toPortid' ||
+    prop === 'points'
+  ) return false;
+  return true;
+}
+
+function normalizeRelshipviewEditableValue(prop: string, value: any): any {
+  if ((prop === 'fromArrow' || prop === 'toArrow') && value === 'None') return '';
+  if (
+    (prop === 'textscale' || prop === 'arrowscale' || prop === 'strokewidth' || prop === 'corner') &&
+    value !== undefined &&
+    value !== null &&
+    value !== ''
+  ) {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : value;
+  }
+  return value;
+}
+
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
   const propname = props.id;
@@ -73,6 +111,38 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 
   const context = props.context;
   const pattern = props.pattern;
+  const persistRelshipviewEdit = (data: any) => {
+    if (!data?.id) return;
+    try {
+      const store = getCurrentStore();
+      const state = store?.getState?.();
+      const currentPhData = state?.phData;
+      if (!currentPhData?.metis) return;
+      const phDataClone = JSON.parse(JSON.stringify(currentPhData));
+      const models = phDataClone?.metis?.models || [];
+      for (let mi = 0; mi < models.length; mi++) {
+        const modelviews = models[mi]?.modelviews || [];
+        for (let mvi = 0; mvi < modelviews.length; mvi++) {
+          const relshipviews = modelviews[mvi]?.relshipviews || [];
+          for (let rvi = 0; rvi < relshipviews.length; rvi++) {
+            if (relshipviews[rvi]?.id === data.id) {
+              Object.assign(relshipviews[rvi], data);
+            }
+          }
+        }
+      }
+      const snapshot = {
+        phData: phDataClone,
+        phFocus: state?.phFocus,
+        phUser: state?.phUser,
+        phSource: state?.phSource,
+      };
+      window?.sessionStorage?.setItem('memorystate', JSON.stringify(snapshot));
+      window?.localStorage?.setItem('memorystate', JSON.stringify(snapshot));
+    } catch (_) {
+      // Do nothing
+    }
+  };
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myTypeview, myItem;
   const coerceNumericObjectviewValue = (name: string, rawValue: any) => {
@@ -388,6 +458,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
           try {
               const data = safeClone(new jsn.jsnRelshipView(myRelview));
               myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+              persistRelshipviewEdit(data);
           } catch {
               // Do nothing
           }
@@ -432,6 +503,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
           try {
               const data = safeClone(new jsn.jsnRelshipView(relview));
               myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+              persistRelshipviewEdit(data);
           } catch {
               // Do nothing
           }
@@ -1724,14 +1796,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
-      const keepValue = (nextValue: any, ...fallbacks: any[]) => {
-        if (nextValue !== undefined && nextValue !== null && nextValue !== "") return nextValue;
-        for (let i = 0; i < fallbacks.length; i++) {
-          const candidate = fallbacks[i];
-          if (candidate !== undefined && candidate !== null && candidate !== "") return candidate;
-        }
-        return nextValue;
-      };
       const selection = myDiagram.selection;
       selection.each(function(sel) {
         const selRel = selectedData;
@@ -1750,11 +1814,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });
       if (gjsLink && relview) {         
         const data = gjsLink.data;
-        const previousRouting = keepValue(gjsLink?.data?.routing, relview?.routing, reltypeview?.data?.routing, "Normal");
-        const previousCurve = keepValue(gjsLink?.data?.curve, relview?.curve, reltypeview?.data?.curve, "None");
-        const relviewProps = [
+        const previousRouting = relview?.routing || data?.routing || reltypeview?.data?.routing || "Normal";
+        const previousCurve = relview?.curve || data?.curve || reltypeview?.data?.curve || "None";
+        const relviewProps = Array.from(new Set([
+          ...Object.keys(reltypeview?.data || {}),
+          ...Object.keys(selRel || {}),
+          'name',
+          'description',
           'template',
           'template2',
+          'arrowscale',
           'strokecolor',
           'strokewidth',
           'textcolor',
@@ -1762,51 +1831,28 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           'dash',
           'routing',
           'curve',
+          'corner',
           'fromArrow',
           'toArrow',
           'fromArrowColor',
-          'toArrowColor'
-        ];
+          'toArrowColor',
+        ].filter((prop) => isPersistableRelshipviewProp(prop, selRel?.[prop]))));
         relviewProps.forEach((prop) => {
-          let nextValue = keepValue(
-            selRel?.[prop],
-            gjsLink?.[prop],
-            gjsLink?.data?.[prop],
-            relview?.[prop],
-            relview?.data?.[prop]
-          );
-          if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
-            nextValue = '';
-          }
-          if (prop === 'textscale' && nextValue !== undefined && nextValue !== null && nextValue !== '') {
-            nextValue = Number(nextValue);
-          }
-          if (nextValue !== undefined) {
-            try {
-              relview[prop] = nextValue;
-            } catch (_) {}
-            try {
-              if (relview?.data) relview.data[prop] = nextValue;
-            } catch (_) {}
-          }
+          const nextValue = normalizeRelshipviewEditableValue(prop, selRel?.[prop]);
+          if (nextValue === undefined) return;
+          try { relview[prop] = nextValue; } catch (_) {}
+          try { if (relview?.data) relview.data[prop] = nextValue; } catch (_) {}
+          try { goLink[prop] = nextValue; } catch (_) {}
+          try { gjsLink[prop] = nextValue; } catch (_) {}
+          try { myDiagram.model.setDataProperty(data, prop, nextValue); } catch (_) {}
         });
         relviewProps.forEach((prop) => {
-          let nextValue = relview[prop];
-          if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
-            nextValue = '';
-          }
-          if ((nextValue === undefined || nextValue === null || nextValue === '') && reltypeview?.data) {
-            nextValue = reltypeview.data[prop];
-            if ((prop === 'fromArrow' || prop === 'toArrow') && nextValue === 'None') {
-              nextValue = '';
-            }
-          }
-          if (nextValue !== undefined && nextValue !== null) {
-            myDiagram.model.setDataProperty(data, prop, nextValue);
-          }
+          const nextValue = normalizeRelshipviewEditableValue(prop, relview?.[prop]);
+          if (nextValue === undefined || nextValue === null) return;
+          try { myDiagram.model.setDataProperty(data, prop, nextValue); } catch (_) {}
         });
-        const nextRouting = keepValue(relview?.routing, data?.routing, reltypeview?.data?.routing, "Normal");
-        const nextCurve = keepValue(relview?.curve, data?.curve, reltypeview?.data?.curve, "None");
+        const nextRouting = relview?.routing || data?.routing || reltypeview?.data?.routing || "Normal";
+        const nextCurve = relview?.curve || data?.curve || reltypeview?.data?.curve || "None";
         if (nextRouting !== previousRouting || nextCurve !== previousCurve) {
           try { relview.points = []; } catch (_) {}
           try { if (relview?.data) relview.data.points = []; } catch (_) {}
@@ -1825,14 +1871,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
         const data = safeClone(mn);
-        console.warn('[RELSHIPVIEW_SAVE]', {
-          id: data?.id,
-          textcolor: data?.textcolor,
-          fromArrow: data?.fromArrow,
-          toArrow: data?.toArrow,
-          toArrowColor: data?.toArrowColor,
-          curve: data?.curve
-        });
         dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         pushPhDataRelshipviewUpdate(data)
       });    

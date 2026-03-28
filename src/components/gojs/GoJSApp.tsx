@@ -112,6 +112,27 @@ function normalizeLinkPoints(points: any): any {
   return points;
 }
 
+function pickBestLinkPoints(...sources: any[]): number[] {
+  let best: number[] = [];
+  for (let i = 0; i < sources.length; i++) {
+    const normalized = normalizeLinkPoints(sources[i]);
+    if (Array.isArray(normalized) && normalized.length > best.length) {
+      best = normalized;
+    }
+  }
+  return best;
+}
+
+function pickFirstNonEmptyLinkPoints(...sources: any[]): number[] {
+  for (let i = 0; i < sources.length; i++) {
+    const normalized = normalizeLinkPoints(sources[i]);
+    if (Array.isArray(normalized) && normalized.length > 0) {
+      return normalized;
+    }
+  }
+  return [];
+}
+
 function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, localLinks: any[] | undefined): any[] {
   if (!Array.isArray(incomingLinks)) return incomingLinks as any;
   const localMap = new Map((Array.isArray(localLinks) ? localLinks : []).map((link: any) => [link?.key, link]));
@@ -130,6 +151,16 @@ function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, l
         samePointCount &&
         incomingPoints.every((value: any, index: number) => value === localPoints[index]);
       if (samePoints) return incoming;
+    }
+    try {
+      console.warn("[MANUAL_MOVE_PROP_SYNC]", JSON.stringify({
+        key: incoming.key,
+        incomingPoints,
+        localPoints,
+        incomingRouting: incoming.routing || "",
+        localRouting: local.routing || "",
+      }));
+    } catch (_) {
     }
     return {
       ...incoming,
@@ -165,6 +196,83 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
     delete nextLink.points;
   }
   return nextLink;
+}
+
+function reanchorManualLinkPoints(link: go.Link, rawPoints: any): number[] | null {
+  const points = normalizeLinkPoints(rawPoints);
+  if (!Array.isArray(points) || points.length < 4) return null;
+  const nextPoints = [...points];
+  const fromNode = link.fromNode;
+  const toNode = link.toNode;
+  const fromPort = (link.fromPort as any) || fromNode?.port || fromNode;
+  const toPort = (link.toPort as any) || toNode?.port || toNode;
+
+  if (fromNode && fromPort && nextPoints.length >= 4) {
+    const currentFrom = new go.Point(nextPoints[0], nextPoints[1]);
+    const nextAfterFrom = new go.Point(nextPoints[2], nextPoints[3]);
+    const anchoredFrom = new go.Point(currentFrom.x, currentFrom.y);
+    try {
+      link.getLinkPointFromPoint(fromNode, fromPort, currentFrom, nextAfterFrom, true, anchoredFrom);
+      const dx = anchoredFrom.x - currentFrom.x;
+      const dy = anchoredFrom.y - currentFrom.y;
+      nextPoints[0] = anchoredFrom.x;
+      nextPoints[1] = anchoredFrom.y;
+      nextPoints[2] += dx;
+      nextPoints[3] += dy;
+    } catch (_) {
+    }
+  }
+
+  if (toNode && toPort && nextPoints.length >= 4) {
+    const last = nextPoints.length - 2;
+    const prev = nextPoints.length - 4;
+    const beforeTo = new go.Point(nextPoints[prev], nextPoints[prev + 1]);
+    const currentTo = new go.Point(nextPoints[last], nextPoints[last + 1]);
+    const anchoredTo = new go.Point(currentTo.x, currentTo.y);
+    try {
+      link.getLinkPointFromPoint(toNode, toPort, currentTo, beforeTo, false, anchoredTo);
+      const dx = anchoredTo.x - currentTo.x;
+      const dy = anchoredTo.y - currentTo.y;
+      nextPoints[last] = anchoredTo.x;
+      nextPoints[last + 1] = anchoredTo.y;
+      nextPoints[prev] += dx;
+      nextPoints[prev + 1] += dy;
+    } catch (_) {
+    }
+  }
+
+  return nextPoints;
+}
+
+function shiftManualLinkEndpointSegments(
+  rawPoints: any,
+  options: {
+    moveFrom?: { dx: number; dy: number } | null;
+    moveTo?: { dx: number; dy: number } | null;
+  }
+): number[] | null {
+  const points = normalizeLinkPoints(rawPoints);
+  if (!Array.isArray(points) || points.length < 4) return null;
+  const nextPoints = [...points];
+  const pointCount = Math.floor(nextPoints.length / 2);
+  if (options.moveFrom && nextPoints.length >= 4) {
+    const { dx, dy } = options.moveFrom;
+    const movedPointCount = Math.max(2, Math.ceil(pointCount / 2));
+    for (let i = 0; i < movedPointCount; i++) {
+      nextPoints[i * 2] += dx;
+      nextPoints[i * 2 + 1] += dy;
+    }
+  }
+  if (options.moveTo && nextPoints.length >= 4) {
+    const { dx, dy } = options.moveTo;
+    const movedPointCount = Math.max(2, Math.ceil(pointCount / 2));
+    for (let i = 0; i < movedPointCount; i++) {
+      const pointIndex = pointCount - 1 - i;
+      nextPoints[pointIndex * 2] += dx;
+      nextPoints[pointIndex * 2 + 1] += dy;
+    }
+  }
+  return nextPoints;
 }
 
 function sanitizeObjectViewDispatchData(data: any): any {
@@ -3065,6 +3173,31 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         return;
       }
+      case "SelectionMoving": {
+        const movedSelection = e.subject;
+        const movedNodeKeys = new Set<string>();
+        for (let it = movedSelection?.iterator; it?.next();) {
+          const part = it.value;
+          if (part instanceof go.Node && part.data?.key) {
+            movedNodeKeys.add(String(part.data.key));
+          }
+        }
+        const liveManualPointsByLinkKey = new Map<string, number[]>();
+        const links = myDiagram.links;
+        for (let it = links.iterator; it?.next();) {
+          const link = it.value;
+          if (!(link instanceof go.Link) || !link.data?.key) continue;
+          const linkTouchesMovedNode =
+            (link.fromNode?.data?.key && movedNodeKeys.has(String(link.fromNode.data.key))) ||
+            (link.toNode?.data?.key && movedNodeKeys.has(String(link.toNode.data.key)));
+          if (!linkTouchesMovedNode) continue;
+          const livePoints = normalizeLinkPoints(link.points || link.data?.points);
+          if (!Array.isArray(livePoints) || livePoints.length <= 4) continue;
+          liveManualPointsByLinkKey.set(String(link.data.key), [...livePoints]);
+        }
+        (myDiagram as any).__manualLinkMovePreview = liveManualPointsByLinkKey;
+        break;
+      }
       case "SelectionMoved": {
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
@@ -4348,10 +4481,29 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         });
         { // links
+          const movedNodeDeltas = new Map<string, { dx: number; dy: number }>();
+          try {
+            for (let it = myParts.iterator; it?.next();) {
+              const part = it.key;
+              const original = it.value?.point;
+              if (!(part instanceof go.Node) || !part.data?.key || !original) continue;
+              const dx = Number(part.location?.x) - Number(original.x);
+              const dy = Number(part.location?.y) - Number(original.y);
+              if (Number.isFinite(dx) && Number.isFinite(dy) && (dx !== 0 || dy !== 0)) {
+                movedNodeDeltas.set(String(part.data.key), { dx, dy });
+              }
+            }
+          } catch (_) {
+          }
           const movedNodeKeys = new Set<string>();
           const movedLinksToClear: go.Link[] = [];
           const movedLinkKeysToRefresh = new Set<string>();
+          const movedManualLinkKeys = new Set<string>();
           const movedSelection = e.subject;
+          const movePreviewPointsByLinkKey: Map<string, number[]> =
+            ((myDiagram as any)?.__manualLinkMovePreview instanceof Map)
+              ? (myDiagram as any).__manualLinkMovePreview
+              : new Map<string, number[]>();
           for (let it = movedSelection?.iterator; it?.next();) {
             const part = it.value;
             if (part instanceof go.Node && part.data?.key) {
@@ -4361,7 +4513,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
             const link = it.value;
-            const rview = myModelview.findRelationshipView(link.data.key);
+            const rview =
+              myModelview.findRelationshipView(link.data?.relviewRef || link.data?.key) ||
+              link.data?.relshipview;
             if (!rview) continue;
             const ldata = link.data;
             let resetRoute = false;
@@ -4380,32 +4534,62 @@ class GoJSApp extends React.Component<{}, AppState> {
             const normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
             const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
             const isRoutedLink = isTransientRoutedLink(liveRouting);
+            const previewPoints =
+              ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
+            const livePoints = pickFirstNonEmptyLinkPoints(
+              previewPoints,
+              link?.points,
+              ldata?.points,
+              rview?.points
+            );
+            const hasManualPoints = Array.isArray(livePoints) && livePoints.length > 4;
+            const preserveManualPathOnMove = hasManualPoints && !isSelfLoop;
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
+            if (linkTouchesMovedNode) {
+              try {
+                console.warn("[MOVE_LINK_STATE]", JSON.stringify({
+                  key: ldata?.key || "",
+                  relviewRef: ldata?.relviewRef || "",
+                  from: ldata?.from || "",
+                  to: ldata?.to || "",
+                  liveFromKey,
+                  liveToKey,
+                  routing: liveRouting,
+                  isSelfLoop,
+                  isRoutedLink,
+                  hasManualPoints,
+                  preserveManualPathOnMove,
+                  pointCount: Array.isArray(livePoints) ? livePoints.length : -1,
+                }));
+              } catch (_) { }
+            }
             if (liveFromKey && ldata?.from !== liveFromKey) {
               try { myDiagram.model.setDataProperty(ldata, "from", liveFromKey); } catch (_) { ldata.from = liveFromKey; }
-              resetRoute = true;
+              if (!preserveManualPathOnMove) resetRoute = true;
             }
             if (liveToKey && ldata?.to !== liveToKey) {
               try { myDiagram.model.setDataProperty(ldata, "to", liveToKey); } catch (_) { ldata.to = liveToKey; }
-              resetRoute = true;
+              if (!preserveManualPathOnMove) resetRoute = true;
             }
             if (ldata?.fromPort !== normalizedFromPort) {
               myDiagram.model.setDataProperty(ldata, "fromPort", normalizedFromPort);
-              resetRoute = true;
+              if (!preserveManualPathOnMove) resetRoute = true;
             }
             if (ldata?.toPort !== normalizedToPort) {
               myDiagram.model.setDataProperty(ldata, "toPort", normalizedToPort);
-              resetRoute = true;
+              if (!preserveManualPathOnMove) resetRoute = true;
             }
             if (movedEndpointInsideSameGroup) {
-              const desiredRouting = getDefaultRoutingForRelshipType(
-                rview?.name || rview?.relship?.name || rview?.typeview?.name,
-                rview?.routing || rview?.typeview?.routing || myModelview?.routing || "Normal"
-              );
-              rview.routing = desiredRouting;
-              try { myDiagram.model.setDataProperty(ldata, "routing", desiredRouting); } catch (_) { }
-              resetRoute = true;
+              if (!preserveManualPathOnMove) {
+                const desiredRouting = getDefaultRoutingForRelshipType(
+                  rview?.name || rview?.relship?.name || rview?.typeview?.name,
+                  rview?.routing || rview?.typeview?.routing || myModelview?.routing || "Normal"
+                );
+                rview.routing = desiredRouting;
+                try { myDiagram.model.setDataProperty(ldata, "routing", desiredRouting); } catch (_) { }
+                resetRoute = true;
+              }
             }
             if (
               isSelfLoop &&
@@ -4413,10 +4597,76 @@ class GoJSApp extends React.Component<{}, AppState> {
             ) {
               resetRoute = true;
             }
-            if (linkTouchesMovedNode && isRoutedLink) {
+            if (linkTouchesMovedNode && isRoutedLink && !preserveManualPathOnMove) {
               try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) { ldata.points = []; }
               try { link.points = new go.List<go.Point>(); } catch (_) { }
               rview.points = [];
+            }
+            if (linkTouchesMovedNode && preserveManualPathOnMove) {
+              const directLivePoints = pickFirstNonEmptyLinkPoints(link?.points, previewPoints);
+              const shiftedPoints =
+                Array.isArray(directLivePoints) && directLivePoints.length > 4
+                  ? directLivePoints
+                  : shiftManualLinkEndpointSegments(
+                      livePoints,
+                      {
+                        moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
+                        moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
+                      }
+                    );
+              const adjustedPoints =
+                (Array.isArray(directLivePoints) && directLivePoints.length > 4)
+                  ? directLivePoints
+                  : (reanchorManualLinkPoints(link, shiftedPoints) || shiftedPoints);
+              if (Array.isArray(adjustedPoints) && adjustedPoints.length > 4) {
+                try {
+                  console.warn("[MANUAL_MOVE_APPLY]", JSON.stringify({
+                    key: ldata?.key || "",
+                    relviewRef: ldata?.relviewRef || "",
+                    before: normalizeLinkPoints(ldata?.points || rview?.points || link?.points),
+                    after: adjustedPoints,
+                    moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
+                    moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
+                  }));
+                } catch (_) { }
+                if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
+                try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
+                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
+                try {
+                  const pointList = new go.List<go.Point>();
+                  for (let i = 0; i + 1 < adjustedPoints.length; i += 2) {
+                    pointList.add(new go.Point(adjustedPoints[i], adjustedPoints[i + 1]));
+                  }
+                  link.points = pointList;
+                } catch (_) { }
+                try { link.routing = go.Link.Normal; } catch (_) { }
+                rview.routing = "Normal";
+                rview.points = adjustedPoints;
+                try {
+                  if (ldata?.relshipview) {
+                    ldata.relshipview.points = adjustedPoints;
+                    ldata.relshipview.routing = "Normal";
+                    if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
+                  }
+                } catch (_) { }
+                try {
+                  const liveGoLink = myGoModel?.findLink?.(ldata?.key);
+                  if (liveGoLink) {
+                    liveGoLink.points = adjustedPoints;
+                    liveGoLink.routing = "Normal";
+                    liveGoLink.relshipview = rview;
+                    liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
+                    if (liveGoLink.data) {
+                      liveGoLink.data.points = adjustedPoints;
+                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.relshipview = rview;
+                      liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
+                    }
+                  }
+                } catch (_) { }
+                try { link.updateTargetBindings(); } catch (_) { }
+                try { myDiagram.requestUpdate(); } catch (_) { }
+              }
             }
             if (resetRoute) {
               movedLinksToClear.push(link);
@@ -4444,15 +4694,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.toPortid = normalizedToPort;
                 const relviewRouting = relview?.routing || rview?.routing || myModelview?.routing || "";
                 const shouldPersistPoints = !isTransientRoutedLink(relviewRouting);
-                if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints)) {
+                if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints && !preserveManualPathOnMove)) {
                   relview.points = [];
                 } else {
-                  const points = [];
-                  for (let it = link.points.iterator; it?.next();) {
-                    const point = it.value;
-                    points.push(point.x)
-                    points.push(point.y)
-                  }
+                  const points = normalizeLinkPoints(ldata?.points || relview?.points || link?.points);
                   relview.points = points;
                 }
                 // myModelview.addRelationshipView(relview);
@@ -4471,7 +4716,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   try { liveLink.toNode?.updateTargetBindings(); } catch (_) { }
                   try { liveLink.fromNode?.invalidateConnectedLinks(); } catch (_) { }
                   try { liveLink.toNode?.invalidateConnectedLinks(); } catch (_) { }
-                  const liveRelview = myModelview.findRelationshipView(linkKey);
+                  const liveRelview =
+                    myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
+                    liveLink.data?.relshipview;
                   const desiredRouting = getDefaultRoutingForRelshipType(
                     liveRelview?.name || liveRelview?.relship?.name || liveRelview?.typeview?.name,
                     liveRelview?.routing || liveRelview?.typeview?.routing || myModelview?.routing || "Normal"
@@ -4483,23 +4730,92 @@ class GoJSApp extends React.Component<{}, AppState> {
                   try { liveLink.updateRoute(); } catch (_) { }
                   try { liveLink.updateTargetBindings(); } catch (_) { }
                 });
-                myDiagram.layoutDiagram(true);
+                if (movedManualLinkKeys.size === 0) {
+                  myDiagram.layoutDiagram(true);
+                }
                 myDiagram.requestUpdate();
+                const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+                  ? [...(myDiagram.model as any).nodeDataArray]
+                  : this.state.nodeDataArray;
+                const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+                  ? [...(myDiagram.model as any).linkDataArray]
+                  : this.state.linkDataArray;
+                this.setState({
+                  nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+                  linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+                  skipsDiagramUpdate: true,
+                });
               } catch (_) {
               }
             };
             try {
-              uid.clearPath(movedLinksToClear, myMetis, myDiagram);
-            } catch (_) {
-            }
-            try {
-              myDiagram.layoutDiagram(true);
+              if (movedManualLinkKeys.size === 0) {
+                myDiagram.layoutDiagram(true);
+              }
               myDiagram.requestUpdate();
+              const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+                ? [...(myDiagram.model as any).nodeDataArray]
+                : this.state.nodeDataArray;
+              const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+                ? [...(myDiagram.model as any).linkDataArray]
+                : this.state.linkDataArray;
+              this.setState({
+                nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+                linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+                skipsDiagramUpdate: true,
+              });
             } catch (_) {
             }
             setTimeout(rerouteMovedLinks, 0);
             setTimeout(rerouteMovedLinks, 50);
           }
+          if (movedManualLinkKeys.size > 0) {
+            try {
+              const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+                ? [...(myDiagram.model as any).nodeDataArray]
+                : this.state.nodeDataArray;
+              const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+                ? [...(myDiagram.model as any).linkDataArray]
+                : this.state.linkDataArray;
+              this.setState({
+                nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+                linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+                skipsDiagramUpdate: true,
+              });
+            } catch (_) {
+            }
+            const persistMovedManualLinks = () => {
+              try {
+                movedManualLinkKeys.forEach((linkKey) => {
+                  const liveLink = myDiagram.findLinkForKey(linkKey);
+                  if (!(liveLink instanceof go.Link) || !liveLink.data) return;
+                  const relview =
+                    myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
+                    liveLink.data?.relshipview;
+                  if (!relview) return;
+                  const livePoints = normalizeLinkPoints(liveLink.data?.points || liveLink.points);
+                  try {
+                    console.warn("[MANUAL_MOVE_PERSIST]", JSON.stringify({
+                      key: linkKey,
+                      relviewRef: liveLink.data?.relviewRef || "",
+                      livePoints,
+                    }));
+                  } catch (_) { }
+                  if (!Array.isArray(livePoints) || livePoints.length <= 4) return;
+                  relview.points = livePoints;
+                  relview.routing = "Normal";
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  let data: any = jsnRelview;
+                  data = JSON.parse(JSON.stringify(data));
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                });
+              } catch (_) {
+              }
+            };
+            setTimeout(persistMovedManualLinks, 0);
+            setTimeout(persistMovedManualLinks, 50);
+          }
+          try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
         }
         // Dispatch relshipviews
         myModelview.relshipviews = utils.removeArrayDuplicates(myModelview.relshipviews);
@@ -7291,7 +7607,7 @@ break;
         try { data.routing = "Normal"; } catch (_err) {}
       }
       try { link.routing = go.Link.Normal; } catch (_) { }
-      try { link.adjusting = go.Link.None; } catch (_) { }
+      try { link.adjusting = go.Link.End; } catch (_) { }
     }
     try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
     relview.points = points;

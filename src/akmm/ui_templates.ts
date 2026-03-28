@@ -147,7 +147,7 @@ function shouldPersistLinkPoints(data: any): boolean {
 
 function getLinkAdjusting(data: any, fallback: number): number {
     const points = data?.points;
-    if (Array.isArray(points) && points.length > 4) return go.Link.None;
+    if (Array.isArray(points) && points.length > 4) return go.Link.End;
     return fallback;
 }
 

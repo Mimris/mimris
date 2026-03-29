@@ -1750,7 +1750,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                }
 	              } catch (_) {
 	              }
-	              if (points.length > 4) {
+	              if (points.length >= 4) {
 	                manualLinkMovePreview.set(String(linkKey), points);
 	              }
 	            });
@@ -1814,6 +1814,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	      override doDeactivate() {
 	        const diagram = this.diagram;
 	        try {
+	          try {
+	            const draggedParts = this.draggedParts;
+	            const manualLinkMovePreview = new Map<string, number[]>();
+	            for (let it = draggedParts?.iterator; it?.next();) {
+	              const part = it.key as go.Part;
+	              if (!(part instanceof go.Node) || !part.data?.key) continue;
+	              part.linksConnected.each((link: go.Link) => {
+	                const linkKey = link?.data?.key;
+	                if (!linkKey) return;
+	                const points: number[] = [];
+	                try {
+	                  for (let pt = link.points.iterator; pt?.next();) {
+	                    const point = pt.value;
+	                    if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                      points.push(point.x, point.y);
+	                    }
+	                  }
+	                } catch (_) {
+	                }
+	                if (points.length >= 4) {
+	                  manualLinkMovePreview.set(String(linkKey), points);
+	                }
+	              });
+	            }
+	            if (manualLinkMovePreview.size > 0) {
+	              (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
+	            }
+	          } catch (_) {
+	          }
 	          try {
 	            if ((diagram as any)?.__manualLinkMovePreview instanceof Map &&
 	                (diagram as any).__manualLinkMovePreview.size === 0) {
@@ -10836,29 +10865,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           } catch (_) {}
         }
 
-        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        const selectedLinks: any[] = [];
         selection?.each((sel: any) => {
           try {
-            if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
-            const linkData = sel.data;
-            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
-            if (!relview) return;
-
-            try {
-              targetDiagram.model.setDataProperty(linkData, "points", []);
-            } catch (_) {
-              linkData.points = [];
+            if ((sel instanceof (go as any).Link) && sel.data?.category === constants.gojs.C_RELATIONSHIP) {
+              selectedLinks.push(sel);
             }
-            relview.points = [];
-            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
           } catch (_) {}
         });
-
-        modifiedRelshipViews.forEach((mn) => {
-          let data: any = mn;
-          data = JSON.parse(JSON.stringify(data));
-          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
-        });
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, targetDiagram);
+        }
       };
 
       const handleSetRelshipRouting = (diagram: go.Diagram, routing: string, linkPart?: go.Link) => {
@@ -10940,29 +10957,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const myModelview = myMetis.currentModelview;
         if (!targetDiagram || !myModelview || !(groupPart instanceof go.Group)) return;
 
-        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        const selectedLinks: any[] = [];
         groupPart.findSubGraphParts().each((subPart: go.Part) => {
           try {
-            if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
-            const linkData = subPart.data;
-            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
-            if (!relview) return;
-
-            try {
-              targetDiagram.model.setDataProperty(linkData, "points", []);
-            } catch (_) {
-              linkData.points = [];
+            if ((subPart instanceof (go as any).Link) && subPart.data?.category === constants.gojs.C_RELATIONSHIP) {
+              selectedLinks.push(subPart);
             }
-            relview.points = [];
-            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
           } catch (_) {}
         });
-
-        modifiedRelshipViews.forEach((mn) => {
-          let data: any = mn;
-          data = JSON.parse(JSON.stringify(data));
-          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
-        });
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, targetDiagram);
+        }
       };
 
       const showSubMenu = (items: HtmlMenuItem[]) => (diagram: go.Diagram, tool: go.ContextMenuTool, source?: HTMLElement) => {

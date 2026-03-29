@@ -3614,6 +3614,7 @@ function getLastNode(selectedNodes, direction):any  {
 
 export function clearPath(selectedLinks, myMetis, myDiagram) {
     const myModelview = myMetis.currentModelview;
+    const myGoModel = myMetis.gojsModel;
     const modifiedRelshipViews = new Array();
     for (let i=0; i<selectedLinks.length; i++) {
         const sel = selectedLinks[i];
@@ -3621,7 +3622,7 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
         const fromLink = link.from;
         const toLink = link.to;
         let relview: akm.cxRelationshipView;
-        relview = myModelview.findRelationshipView(link.key);
+        relview = myModelview.findRelationshipView(link.relviewRef || link.key) || link.relshipview;
         if (relview) {
             const fromObjview = relview.fromObjview;
             const toObjview = relview.toObjview;
@@ -3629,18 +3630,48 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
             link.from = fromLink;
             link.to = toLink;
             myDiagram.model.setDataProperty(link, "points", []);
+            try { myDiagram.model.setDataProperty(link, "routing", relview.routing || "Normal"); } catch (_) {}
             relview.points = [];
             relview.fromObjview = fromObjview;
             relview.toObjview = toObjview;
+            try {
+                if (link.relshipview) {
+                    link.relshipview.points = [];
+                }
+            } catch (_) {}
+            try {
+                const liveLink = myDiagram.findLinkForKey(link.key);
+                if (liveLink) {
+                    liveLink.points = new go.List<go.Point>();
+                    liveLink.invalidateRoute();
+                    liveLink.updateRoute();
+                    liveLink.updateTargetBindings();
+                }
+            } catch (_) {}
+            try {
+                const goLink = myGoModel?.findLink?.(link.key);
+                if (goLink) {
+                    goLink.points = [];
+                    if (goLink.data) {
+                        goLink.data.points = [];
+                        goLink.data.relshipview = relview;
+                    }
+                    goLink.relshipview = relview;
+                }
+            } catch (_) {}
             const jsnRelView = new jsn.jsnRelshipView(relview);
             modifiedRelshipViews.push(jsnRelView);
         }
     };
+    try {
+        delete (myDiagram as any).__manualLinkMovePreview;
+    } catch (_) {}
     modifiedRelshipViews.map(mn => {
         let data = mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     });
+    try { myDiagram.requestUpdate(); } catch (_) {}
 }
 
 export function editTraverseDialog() {

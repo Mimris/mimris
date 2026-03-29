@@ -3191,7 +3191,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             (link.fromNode?.data?.key && movedNodeKeys.has(String(link.fromNode.data.key))) ||
             (link.toNode?.data?.key && movedNodeKeys.has(String(link.toNode.data.key)));
           if (!linkTouchesMovedNode) continue;
-          const livePoints = normalizeLinkPoints(link.points || link.data?.points);
+          const livePoints = pickFirstNonEmptyLinkPoints(link.points, link.data?.points);
           if (!Array.isArray(livePoints) || livePoints.length <= 4) continue;
           liveManualPointsByLinkKey.set(String(link.data.key), [...livePoints]);
         }
@@ -4536,6 +4536,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const isRoutedLink = isTransientRoutedLink(liveRouting);
             const previewPoints =
               ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
+            const persistedPointsBeforeMove = pickFirstNonEmptyLinkPoints(ldata?.points, rview?.points);
             const livePoints = pickFirstNonEmptyLinkPoints(
               previewPoints,
               link?.points,
@@ -4543,7 +4544,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               rview?.points
             );
             const hasManualPoints = Array.isArray(livePoints) && livePoints.length > 4;
-            const preserveManualPathOnMove = hasManualPoints && !isSelfLoop;
+            const hadPersistedManualPath =
+              Array.isArray(persistedPointsBeforeMove) && persistedPointsBeforeMove.length >= 4;
+            const preserveManualPathOnMove = !isSelfLoop && hadPersistedManualPath;
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
             if (linkTouchesMovedNode) {
@@ -4558,6 +4561,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   routing: liveRouting,
                   isSelfLoop,
                   isRoutedLink,
+                  previewPointCount: Array.isArray(previewPoints) ? previewPoints.length : -1,
+                  persistedPointCount: Array.isArray(persistedPointsBeforeMove) ? persistedPointsBeforeMove.length : -1,
                   hasManualPoints,
                   preserveManualPathOnMove,
                   pointCount: Array.isArray(livePoints) ? livePoints.length : -1,
@@ -4597,15 +4602,18 @@ class GoJSApp extends React.Component<{}, AppState> {
             ) {
               resetRoute = true;
             }
+            if (linkTouchesMovedNode && !preserveManualPathOnMove) {
+              resetRoute = true;
+            }
             if (linkTouchesMovedNode && isRoutedLink && !preserveManualPathOnMove) {
               try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) { ldata.points = []; }
               try { link.points = new go.List<go.Point>(); } catch (_) { }
               rview.points = [];
             }
             if (linkTouchesMovedNode && preserveManualPathOnMove) {
-              const directLivePoints = pickFirstNonEmptyLinkPoints(link?.points, previewPoints);
+              const directLivePoints = pickFirstNonEmptyLinkPoints(previewPoints, link?.points);
               const shiftedPoints =
-                Array.isArray(directLivePoints) && directLivePoints.length > 4
+                Array.isArray(directLivePoints) && directLivePoints.length >= 4
                   ? directLivePoints
                   : shiftManualLinkEndpointSegments(
                       livePoints,
@@ -4615,15 +4623,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                     );
               const adjustedPoints =
-                (Array.isArray(directLivePoints) && directLivePoints.length > 4)
+                (Array.isArray(directLivePoints) && directLivePoints.length >= 4)
                   ? directLivePoints
                   : (reanchorManualLinkPoints(link, shiftedPoints) || shiftedPoints);
-              if (Array.isArray(adjustedPoints) && adjustedPoints.length > 4) {
+              if (Array.isArray(adjustedPoints) && adjustedPoints.length >= 4) {
                 try {
                   console.warn("[MANUAL_MOVE_APPLY]", JSON.stringify({
                     key: ldata?.key || "",
                     relviewRef: ldata?.relviewRef || "",
-                    before: normalizeLinkPoints(ldata?.points || rview?.points || link?.points),
+                    before: pickFirstNonEmptyLinkPoints(ldata?.points, rview?.points, link?.points),
                     after: adjustedPoints,
                     moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
                     moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
@@ -4697,7 +4705,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints && !preserveManualPathOnMove)) {
                   relview.points = [];
                 } else {
-                  const points = normalizeLinkPoints(ldata?.points || relview?.points || link?.points);
+                  const points = pickFirstNonEmptyLinkPoints(ldata?.points, relview?.points, link?.points);
                   relview.points = points;
                 }
                 // myModelview.addRelationshipView(relview);
@@ -4793,7 +4801,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
                     liveLink.data?.relshipview;
                   if (!relview) return;
-                  const livePoints = normalizeLinkPoints(liveLink.data?.points || liveLink.points);
+                  const livePoints = pickFirstNonEmptyLinkPoints(liveLink.data?.points, liveLink.points);
                   try {
                     console.warn("[MANUAL_MOVE_PERSIST]", JSON.stringify({
                       key: linkKey,
@@ -4801,7 +4809,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       livePoints,
                     }));
                   } catch (_) { }
-                  if (!Array.isArray(livePoints) || livePoints.length <= 4) return;
+                  if (!Array.isArray(livePoints) || livePoints.length < 4) return;
                   relview.points = livePoints;
                   relview.routing = "Normal";
                   const jsnRelview = new jsn.jsnRelshipView(relview);

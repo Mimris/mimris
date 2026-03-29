@@ -140,20 +140,30 @@ export function getCurve(c: string): any {
 
 function shouldPersistLinkPoints(data: any): boolean {
     const points = data?.points;
-    if (Array.isArray(points) && points.length > 4) return true;
+    if (Array.isArray(points) && points.length >= 4) return true;
     const routing = data?.routing;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
 function getLinkAdjusting(data: any, fallback: number): number {
     const points = data?.points;
-    if (Array.isArray(points) && points.length > 4) return go.Link.End;
+    const isSelfLoop =
+        (data?.from && data?.to && String(data.from) === String(data.to)) ||
+        (data?.fromNode?.key && data?.toNode?.key && String(data.fromNode.key) === String(data.toNode.key));
+    if (Array.isArray(points) && points.length >= 4) {
+        return isSelfLoop ? go.Link.None : go.Link.End;
+    }
+    if (isSelfLoop) return go.Link.None;
     return fallback;
 }
 
 function getEffectiveLinkRouting(data: any, fallback: any): any {
     const points = data?.points;
-    if (Array.isArray(points) && points.length > 4) return go.Link.Normal;
+    const isSelfLoop =
+        (data?.from && data?.to && String(data.from) === String(data.to)) ||
+        (data?.fromNode?.key && data?.toNode?.key && String(data.fromNode.key) === String(data.toNode.key));
+    if (Array.isArray(points) && points.length >= 4) return go.Link.Normal;
+    if (isSelfLoop) return go.Link.Normal;
     if (typeof data?.routing === "string" && data.routing.trim() !== "") return getRouting(data.routing);
     if (typeof data?.routing === "number") return data.routing;
     return fallback;

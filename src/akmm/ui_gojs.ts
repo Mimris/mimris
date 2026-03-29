@@ -20,7 +20,7 @@ Functions:
 const debug = false;
 
 function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
-    if (Array.isArray(points) && points.length > 4) return true;
+    if (Array.isArray(points) && points.length >= 4) return true;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
@@ -1112,6 +1112,11 @@ export class goRelshipLink extends goLink {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
         const modelview = model.modelView;
+        const isSelfLoop =
+            !!this.fromNode &&
+            !!this.toNode &&
+            String(this.fromNode?.key || "") !== "" &&
+            String(this.fromNode?.key || "") === String(this.toNode?.key || "");
         if (debug) console.log('722 typeview, relview: ', typeview, relview);
         if ((relview) && (typeview)) {
             if (!relview.markedAsDeleted) {
@@ -1133,6 +1138,9 @@ export class goRelshipLink extends goLink {
                             // this[prop] = typeview[prop];
                         }
                     }        
+                    if (Array.isArray(this.points) && this.points.length >= 4) {
+                        this.routing = "Normal";
+                    }
                 }
             }
             if (debug) console.log('744 goRelshipLink, typeview, relview: ', this, typeview, relview);
@@ -1152,7 +1160,12 @@ export class goRelshipLink extends goLink {
         //         }
         //     }
         // }
-        this.routing = relview?.routing || modelview.routing;
+        const hasExplicitPoints = Array.isArray(this.points) && this.points.length >= 4;
+        if (hasExplicitPoints || isSelfLoop) {
+            this.routing = "Normal";
+        } else {
+            this.routing = relview?.routing || modelview.routing;
+        }
         this.curve = modelview.linkcurve;
         if (modelview.showCardinality) {
             this.cardinalityFrom = relview.relship?.getCardinalityFrom(); 

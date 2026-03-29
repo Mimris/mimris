@@ -54,7 +54,7 @@ function snapSizeEven(n: number): number {
 const GROUP_LAYOUT_PADDING = 15;
 
 function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
-    if (Array.isArray(points) && points.length > 4) return true;
+    if (Array.isArray(points) && points.length >= 4) return true;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
@@ -3621,22 +3621,27 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
         const link = sel.data;
         const fromLink = link.from;
         const toLink = link.to;
+        const isSelfLoop = String(fromLink || "") !== "" && String(fromLink || "") === String(toLink || "");
         let relview: akm.cxRelationshipView;
         relview = myModelview.findRelationshipView(link.relviewRef || link.key) || link.relshipview;
         if (relview) {
             const fromObjview = relview.fromObjview;
             const toObjview = relview.toObjview;
+            const reltypeName = relview?.relship?.type?.name || link?.relshipview?.relship?.type?.name || "";
             link.points = [];
             link.from = fromLink;
             link.to = toLink;
             myDiagram.model.setDataProperty(link, "points", []);
-            try { myDiagram.model.setDataProperty(link, "routing", relview.routing || "Normal"); } catch (_) {}
+            const resetRouting = uib.getDefaultRoutingForRelshipType(reltypeName, relview.routing || "Normal");
+            try { myDiagram.model.setDataProperty(link, "routing", resetRouting); } catch (_) {}
             relview.points = [];
+            relview.routing = resetRouting;
             relview.fromObjview = fromObjview;
             relview.toObjview = toObjview;
             try {
                 if (link.relshipview) {
                     link.relshipview.points = [];
+                    link.relshipview.routing = resetRouting;
                 }
             } catch (_) {}
             try {
@@ -3652,8 +3657,10 @@ export function clearPath(selectedLinks, myMetis, myDiagram) {
                 const goLink = myGoModel?.findLink?.(link.key);
                 if (goLink) {
                     goLink.points = [];
+                    goLink.routing = resetRouting;
                     if (goLink.data) {
                         goLink.data.points = [];
+                        goLink.data.routing = resetRouting;
                         goLink.data.relshipview = relview;
                     }
                     goLink.relshipview = relview;

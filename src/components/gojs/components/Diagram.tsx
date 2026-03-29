@@ -253,7 +253,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } catch (_) {}
       const shouldFreezeManualRoute =
         Array.isArray(points) &&
-        points.length > 4 &&
+        points.length >= 4 &&
         (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
          String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
       if (shouldFreezeManualRoute) {
@@ -10797,7 +10797,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               relview = myModelview.findRelationshipView(data.relviewRef || data.key);
             }
             if (!relview) continue;
-            relview.points = data.points || [];
+            const livePoints: number[] = [];
+            try {
+              for (let pt = link.points.iterator; pt?.next();) {
+                const point = pt.value;
+                livePoints.push(point.x, point.y);
+              }
+            } catch (_) {}
+            relview.points = livePoints.length > 0 ? livePoints : (data.points || []);
             relview.routing = data.routing;
             relview.curve = data.curve;
             const jsnRelview = new jsn.jsnRelshipView(relview);

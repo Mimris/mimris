@@ -133,6 +133,16 @@ function pickFirstNonEmptyLinkPoints(...sources: any[]): number[] {
   return [];
 }
 
+function hasExplicitSavedLinkPath(...sources: any[]): boolean {
+  for (let i = 0; i < sources.length; i++) {
+    const normalized = normalizeLinkPoints(sources[i]);
+    if (Array.isArray(normalized) && normalized.length >= 4) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, localLinks: any[] | undefined): any[] {
   if (!Array.isArray(incomingLinks)) return incomingLinks as any;
   const localMap = new Map((Array.isArray(localLinks) ? localLinks : []).map((link: any) => [link?.key, link]));
@@ -142,16 +152,10 @@ function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, l
     if (!local || typeof local !== "object") return incoming;
     const incomingPoints = normalizeLinkPoints(incoming.points);
     const localPoints = normalizeLinkPoints(local.points);
-    const incomingHasManualPoints = Array.isArray(incomingPoints) && incomingPoints.length > 4;
-    const localHasManualPoints = Array.isArray(localPoints) && localPoints.length > 4;
+    const incomingHasManualPoints = Array.isArray(incomingPoints) && incomingPoints.length >= 4;
+    const localHasManualPoints = Array.isArray(localPoints) && localPoints.length >= 4;
     if (!localHasManualPoints) return incoming;
-    if (incomingHasManualPoints) {
-      const samePointCount = incomingPoints.length === localPoints.length;
-      const samePoints =
-        samePointCount &&
-        incomingPoints.every((value: any, index: number) => value === localPoints[index]);
-      if (samePoints) return incoming;
-    }
+    if (incomingHasManualPoints) return incoming;
     try {
       console.warn("[MANUAL_MOVE_PROP_SYNC]", JSON.stringify({
         key: incoming.key,
@@ -190,7 +194,7 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
   };
   const hasPersistableManualPoints =
     Array.isArray(nextLink.points) &&
-    nextLink.points.length > 4;
+    nextLink.points.length >= 4;
   // For routed links, ignore default auto-route geometry, but keep explicit reshaped paths.
   if (isRoutedLink && !hasPersistableManualPoints) {
     delete nextLink.points;
@@ -2092,7 +2096,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       modifiedLinkData.forEach((link: any) => {
         if (!link?.key) return;
         const normalizedPoints = normalizeLinkPoints(link.points);
-        const hasManualPoints = Array.isArray(normalizedPoints) && normalizedPoints.length > 4;
+        const hasManualPoints = Array.isArray(normalizedPoints) && normalizedPoints.length >= 4;
         // Manual link paths are persisted through relshipview updates and should not be
         // continuously re-driven through React state on incidental link mutations such as selection.
         if (hasManualPoints) return;
@@ -2856,6 +2860,30 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
 
         if (debug) console.log("End: After Reload:");
+        try {
+          myDiagram.links.each((link: go.Link) => {
+            const data: any = link?.data;
+            const relview =
+              myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+              data?.relshipview;
+            const isSelfLoop =
+              (link.fromNode && link.toNode && link.fromNode === link.toNode) ||
+              (relview?.fromObjview?.id && relview?.toObjview?.id && relview.fromObjview.id === relview.toObjview.id) ||
+              (relview?.fromObjview?.object?.id && relview?.toObjview?.object?.id && relview.fromObjview.object.id === relview.toObjview.object.id);
+            if (!isSelfLoop) return;
+            const linkPoints = pickFirstNonEmptyLinkPoints(link?.points, data?.points);
+            const relviewPoints = normalizeLinkPoints(relview?.points);
+            console.warn("[SELF_LOOP_AFTER_RELOAD]", JSON.stringify({
+              key: data?.key || "",
+              relviewRef: data?.relviewRef || "",
+              linkPointCount: Array.isArray(linkPoints) ? linkPoints.length : -1,
+              relviewPointCount: Array.isArray(relviewPoints) ? relviewPoints.length : -1,
+              linkPoints,
+              relviewPoints,
+              routing: data?.routing || relview?.routing || "",
+            }));
+          });
+        } catch (_) { }
         const reloadPoolKeys = new Set<string>();
         for (let it = myDiagram.nodes; it?.next();) {
           const node = it.value;
@@ -2933,7 +2961,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   linksToRemove.push(link);
                 } else {
                   const points = relview.points;
-                  if (points?.length == 0 || points?.length == 4) {
+                  if (points?.length == 0) {
                     link.points = [];
                     relview.points = [];
                   }
@@ -4499,6 +4527,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const movedLinksToClear: go.Link[] = [];
           const movedLinkKeysToRefresh = new Set<string>();
           const movedManualLinkKeys = new Set<string>();
+          const movedSelfLoopKeysWithPersistedPath = new Set<string>();
           const movedSelection = e.subject;
           const movePreviewPointsByLinkKey: Map<string, number[]> =
             ((myDiagram as any)?.__manualLinkMovePreview instanceof Map)
@@ -4543,12 +4572,80 @@ class GoJSApp extends React.Component<{}, AppState> {
               ldata?.points,
               rview?.points
             );
-            const hasManualPoints = Array.isArray(livePoints) && livePoints.length > 4;
+            const hasManualPoints = Array.isArray(livePoints) && livePoints.length >= 4;
             const hadPersistedManualPath =
               Array.isArray(persistedPointsBeforeMove) && persistedPointsBeforeMove.length >= 4;
-            const preserveManualPathOnMove = !isSelfLoop && hadPersistedManualPath;
+            const preserveSelfLoopPathOnMove = isSelfLoop && hadPersistedManualPath;
+            const preserveManualPathOnMove = (!isSelfLoop && hadPersistedManualPath) || preserveSelfLoopPathOnMove;
+            if (isSelfLoop && hadPersistedManualPath && ldata?.key) {
+              movedSelfLoopKeysWithPersistedPath.add(String(ldata.key));
+            }
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
+            if (linkTouchesMovedNode && isSelfLoop && hadPersistedManualPath) {
+              const selfLoopPoints = pickFirstNonEmptyLinkPoints(link?.points, previewPoints, ldata?.points, rview?.points);
+              if (Array.isArray(selfLoopPoints) && selfLoopPoints.length >= 4) {
+                try {
+                  console.warn("[SELF_LOOP_MOVE_PERSIST]", JSON.stringify({
+                    key: ldata?.key || "",
+                    relviewRef: ldata?.relviewRef || "",
+                    selfLoopPointCount: selfLoopPoints.length,
+                    selfLoopPoints,
+                    routing: ldata?.routing || rview?.routing || "",
+                  }));
+                } catch (_) { }
+                try { myDiagram.model.setDataProperty(ldata, "points", selfLoopPoints); } catch (_) { ldata.points = selfLoopPoints; }
+                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
+                try { link.routing = go.Link.Normal; } catch (_) { }
+                rview.points = selfLoopPoints;
+                rview.routing = "Normal";
+                try {
+                  if (ldata?.relshipview) {
+                    ldata.relshipview.points = selfLoopPoints;
+                    ldata.relshipview.routing = "Normal";
+                    if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
+                  }
+                } catch (_) { }
+                try {
+                  const liveGoLink = myGoModel?.findLink?.(ldata?.key);
+                  if (liveGoLink) {
+                    liveGoLink.points = selfLoopPoints;
+                    liveGoLink.routing = "Normal";
+                    liveGoLink.relshipview = rview;
+                    liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
+                    if (liveGoLink.data) {
+                      liveGoLink.data.points = selfLoopPoints;
+                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.relshipview = rview;
+                      liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
+                    }
+                  }
+                } catch (_) { }
+                if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
+                try {
+                  const jsnRelview = new jsn.jsnRelshipView(rview);
+                  let data: any = jsnRelview;
+                  data = JSON.parse(JSON.stringify(data));
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                } catch (_) { }
+                try {
+                  const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
+                    if (!entry || entry.key !== ldata?.key) return entry;
+                    return {
+                      ...entry,
+                      points: [...selfLoopPoints],
+                      routing: "Normal",
+                      relshipview: rview,
+                      relviewRef: rview?.id || entry.relviewRef,
+                    };
+                  });
+                  this.setState({
+                    linkDataArray: normalizeLinkPortData(nextLinkDataArray),
+                    skipsDiagramUpdate: true,
+                  });
+                } catch (_) { }
+              }
+            }
             if (linkTouchesMovedNode) {
               try {
                 console.warn("[MOVE_LINK_STATE]", JSON.stringify({
@@ -4564,6 +4661,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   previewPointCount: Array.isArray(previewPoints) ? previewPoints.length : -1,
                   persistedPointCount: Array.isArray(persistedPointsBeforeMove) ? persistedPointsBeforeMove.length : -1,
                   hasManualPoints,
+                  preserveSelfLoopPathOnMove,
                   preserveManualPathOnMove,
                   pointCount: Array.isArray(livePoints) ? livePoints.length : -1,
                 }));
@@ -4595,12 +4693,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 try { myDiagram.model.setDataProperty(ldata, "routing", desiredRouting); } catch (_) { }
                 resetRoute = true;
               }
-            }
-            if (
-              isSelfLoop &&
-              linkTouchesMovedNode
-            ) {
-              resetRoute = true;
             }
             if (linkTouchesMovedNode && !preserveManualPathOnMove) {
               resetRoute = true;
@@ -4705,7 +4797,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints && !preserveManualPathOnMove)) {
                   relview.points = [];
                 } else {
-                  const points = pickFirstNonEmptyLinkPoints(ldata?.points, relview?.points, link?.points);
+                  const points = pickFirstNonEmptyLinkPoints(link?.points, ldata?.points, relview?.points);
                   relview.points = points;
                 }
                 // myModelview.addRelationshipView(relview);
@@ -4801,7 +4893,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
                     liveLink.data?.relshipview;
                   if (!relview) return;
-                  const livePoints = pickFirstNonEmptyLinkPoints(liveLink.data?.points, liveLink.points);
+                  const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points);
                   try {
                     console.warn("[MANUAL_MOVE_PERSIST]", JSON.stringify({
                       key: linkKey,
@@ -4822,6 +4914,121 @@ class GoJSApp extends React.Component<{}, AppState> {
             };
             setTimeout(persistMovedManualLinks, 0);
             setTimeout(persistMovedManualLinks, 50);
+          }
+          let persistedTouchedSelfLoop = false;
+          const movedSelfLoopKeys = new Set<string>();
+          try {
+            myDiagram.links.each((liveLink: go.Link) => {
+              if (!(liveLink instanceof go.Link) || !liveLink.data) return;
+              const touchesMovedNode =
+                (liveLink.fromNode?.data?.key && movedNodeKeys.has(String(liveLink.fromNode.data.key))) ||
+                (liveLink.toNode?.data?.key && movedNodeKeys.has(String(liveLink.toNode.data.key)));
+              if (!touchesMovedNode) return;
+              const relview =
+                myModelview.findRelationshipView(liveLink.data?.relviewRef || liveLink.data?.key) ||
+                liveLink.data?.relshipview;
+              const isSelfLoop =
+                (liveLink.fromNode && liveLink.toNode && liveLink.fromNode === liveLink.toNode) ||
+                (relview?.fromObjview?.id && relview?.toObjview?.id && relview.fromObjview.id === relview.toObjview.id) ||
+                (relview?.fromObjview?.object?.id && relview?.toObjview?.object?.id && relview.fromObjview.object.id === relview.toObjview.object.id);
+              if (!isSelfLoop || !relview) return;
+              if (!movedSelfLoopKeysWithPersistedPath.has(String(liveLink.data?.key || ""))) return;
+              const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
+              if (!Array.isArray(livePoints) || livePoints.length < 4) return;
+              if (liveLink.data?.key) movedSelfLoopKeys.add(String(liveLink.data.key));
+              relview.points = livePoints;
+              relview.routing = "Normal";
+              try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
+              try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+              try {
+                if (liveLink.data?.relshipview) {
+                  liveLink.data.relshipview.points = livePoints;
+                  liveLink.data.relshipview.routing = "Normal";
+                  if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
+                }
+              } catch (_) { }
+              try {
+                const goLink = myGoModel?.findLink?.(liveLink.data?.key);
+                if (goLink) {
+                  goLink.points = livePoints;
+                  goLink.routing = "Normal";
+                  goLink.relshipview = relview;
+                  goLink.relviewRef = relview?.id || goLink.relviewRef;
+                  if (goLink.data) {
+                    goLink.data.points = livePoints;
+                    goLink.data.routing = "Normal";
+                    goLink.data.relshipview = relview;
+                    goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
+                  }
+                }
+              } catch (_) { }
+              try {
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                let data: any = jsnRelview;
+                data = JSON.parse(JSON.stringify(data));
+                queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+              } catch (_) { }
+              persistedTouchedSelfLoop = true;
+            });
+          } catch (_) { }
+          if (movedSelfLoopKeys.size > 0) {
+            const persistMovedSelfLoops = () => {
+              try {
+                movedSelfLoopKeys.forEach((linkKey) => {
+                  if (!movedSelfLoopKeysWithPersistedPath.has(String(linkKey))) return;
+                  const liveLink = myDiagram.findLinkForKey(linkKey);
+                  if (!(liveLink instanceof go.Link) || !liveLink.data) return;
+                  const relview =
+                    myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
+                    liveLink.data?.relshipview;
+                  if (!relview) return;
+                  const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
+                  if (!Array.isArray(livePoints) || livePoints.length < 4) return;
+                  relview.points = livePoints;
+                  relview.routing = "Normal";
+                  try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+                  try {
+                    if (liveLink.data?.relshipview) {
+                      liveLink.data.relshipview.points = livePoints;
+                      liveLink.data.relshipview.routing = "Normal";
+                      if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
+                    }
+                  } catch (_) { }
+                  try {
+                    const goLink = myGoModel?.findLink?.(linkKey);
+                    if (goLink) {
+                      goLink.points = livePoints;
+                      goLink.routing = "Normal";
+                      goLink.relshipview = relview;
+                      goLink.relviewRef = relview?.id || goLink.relviewRef;
+                      if (goLink.data) {
+                        goLink.data.points = livePoints;
+                        goLink.data.routing = "Normal";
+                        goLink.data.relshipview = relview;
+                        goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
+                      }
+                    }
+                  } catch (_) { }
+                  try {
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    let data: any = jsnRelview;
+                    data = JSON.parse(JSON.stringify(data));
+                    queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                  } catch (_) { }
+                });
+              } catch (_) { }
+            };
+            setTimeout(persistMovedSelfLoops, 0);
+            setTimeout(persistMovedSelfLoops, 50);
+          }
+          if (persistedTouchedSelfLoop) {
+            try {
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data: any = { metis: jsnMetis };
+              data = JSON.parse(JSON.stringify(data));
+              (context.dispatch || myDiagram.dispatch || this.state.dispatch)?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+            } catch (_) { }
           }
           try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
         }
@@ -7396,6 +7603,13 @@ break;
       if (!linkData) continue;
       const relview = linkData.relshipview;
       if (!relview) continue;
+      const hadExplicitSavedPath =
+        hasExplicitSavedLinkPath(relview?.points, linkData?.points) ||
+        !!linkData?.__manualLinkMovePreview;
+      if (!hadExplicitSavedPath) {
+        relview.points = [];
+        continue;
+      }
       const points = [];
       for (let it = link.points.iterator; it?.next();) {
         const point = it.value;
@@ -7593,7 +7807,7 @@ break;
     }
     const currentRouting = String(relview?.routing || data?.routing || "").trim();
     const shouldFreezeManualRoute =
-      points.length > 4 &&
+      points.length >= 4 &&
       (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
     try { if (data?.relshipview) data.relshipview.points = points; } catch (_) {}
     try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) {}
@@ -7622,6 +7836,22 @@ break;
     const jsnRelview = new jsn.jsnRelshipView(relview);
     if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
     modifiedRelshipViews.push(jsnRelview);
+    try {
+      const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
+        if (!entry || entry.key !== data?.key) return entry;
+        return {
+          ...entry,
+          points: [...points],
+          routing: data?.routing || entry.routing,
+          relshipview: relview,
+          relviewRef: relview?.id || entry.relviewRef,
+        };
+      });
+      this.setState({
+        linkDataArray: normalizeLinkPortData(nextLinkDataArray),
+        skipsDiagramUpdate: true,
+      });
+    } catch (_) {}
     try { link?.updateTargetBindings?.(); } catch (_) { }
   }
   break;

@@ -112,6 +112,32 @@ export function getMinSize(): go.Size {
     return new go.Size(200, 100);
 }
 
+function asBoolean(value: any, fallback = false): boolean {
+    if (typeof value === "boolean") return value;
+    if (value === "" || value === null || value === undefined) return fallback;
+    return Boolean(value);
+}
+
+function sanitizeFigureName(value: any, fallback = ""): string {
+    if (typeof value !== "string") return fallback;
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.toLowerCase() === "transparent") return fallback;
+    return trimmed;
+}
+
+function sanitizeColor(value: any, fallback = "transparent"): string {
+    if (typeof value !== "string") return fallback;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : fallback;
+}
+
+function sanitizeGroupLayout(value: any, obj?: any): go.Layout {
+    if (value instanceof go.Layout) return value;
+    const current = obj?.part?.layout;
+    if (current instanceof go.Layout) return current;
+    return new go.GridLayout();
+}
+
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
@@ -134,7 +160,7 @@ export function getCurve(c: string): any {
     case 'JumpGap': 
         return go.Link.JumpGap;
     default:
-        return "";
+        return go.Link.None;
     }   
 }
 
@@ -284,7 +310,7 @@ function makeGeoIcon() {
             background: "transparent",
         },
         new go.Binding("background", "fillcolor2"),
-        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
         new go.Binding("visible", "icon", shouldShowIconPicture),
     )                                
 }
@@ -304,7 +330,7 @@ function makeSwimlaneHeaderIcon() {
         new go.Binding("source", "icon", getIconSource),
         new go.Binding("background", "fillcolor2"),
         new go.Binding("opacity", "icon", (icon: any) => shouldShowIconPicture(icon) ? 1 : 0),
-        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
         new go.Binding("visible", "icon", shouldShowIconPicture),
     );
 }
@@ -355,42 +381,42 @@ export function forceUpdateAllIconSources(diagram: any): void {
 function makeGeometry() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("geometryString", "geometry"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(20, 20),
             alignment: go.Spot.Right,
         },
-        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
     )
 }
 
 function makeFigure() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
-        new go.Binding("figure", "figure"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("figure", "figure", (v) => sanitizeFigureName(v, "Rectangle")), 
+        new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(20, 20),
             alignment: go.Spot.Right,
         },
-        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
     )
 }
 
 function makeFigure2() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure2", "figure2"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
             desiredSize: new go.Size(20, 20),
             alignment: go.Spot.Right,
         },
-        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
     )
 }
 
@@ -489,7 +515,7 @@ function makeIconImage() {
 function makeGeoImage() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("geometryString", "geometry"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -505,8 +531,8 @@ function makeGeoImage() {
 
 function makeFigureImage() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
-        new go.Binding("figure", "figure"), 
-        new go.Binding("fill", "fillcolor"), 
+        new go.Binding("figure", "figure", (v) => sanitizeFigureName(v, "Rectangle")), 
+        new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -523,7 +549,7 @@ function makeFigureImage() {
 function makeFigure2Image() {
     return $(go.Shape, // a figure (a symbol illustrating what this is all about)         
         new go.Binding("figure2", "figure2"), 
-        new go.Binding("fill", "fillcolor2"), 
+        new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)), 
         {     
             column: 2, 
             margin: new go.Margin(2, 0, 0, 0),
@@ -560,8 +586,8 @@ export function groupTop1(contextMenu: any, notation: string) {
                 fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
                 toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
+            new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         ),
         // Dedicated symmetric geometry for selection/resize bounds.
@@ -595,7 +621,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                     spot1: new go.Spot(0, 0, 2, 2),
                     spot2: new go.Spot(1, 1, -2, -2),
                 },
-                new go.Binding("fill", "fillcolor"),
+                new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
                 new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
             ),
             $(go.Panel, "Vertical",  // position header above the subgraph
@@ -639,7 +665,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                     },
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "textcolor").makeTwoWay(),
-                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                    new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
                 ),
                 $(go.TextBlock, textStyle(),  // the name - closed container
                     {
@@ -676,9 +702,9 @@ export function groupTop1(contextMenu: any, notation: string) {
                         stroke: "transparent",
                         stretch: go.GraphObject.Fill,
                     },
-                    new go.Binding("fill", "fillcolor2"),
+                    new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)),
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-                    new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
+                    new go.Binding('visible', 'isSubGraphExpanded', (v) => asBoolean(v, false)).ofObject(),
                 ),     
                 makeImage("Image"),
             ),
@@ -708,7 +734,7 @@ export function groupTop1(contextMenu: any, notation: string) {
                 stretch: go.GraphObject.Horizontal,
                 name: "name"
             },        
-            new go.Binding("fill", "fillcolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("text", "name").makeTwoWay(),
             new go.Binding("stroke", "textcolor").makeTwoWay(),
             new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
@@ -726,9 +752,9 @@ export function groupTop1(contextMenu: any, notation: string) {
                     cursor: "move",
                     stroke: "transparent",
                 },
-                new go.Binding("fill", "fillcolor2"),
+                new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)),
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
-                new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
+                new go.Binding('visible', 'isSubGraphExpanded', (v) => asBoolean(v, false)).ofObject(),
             ) ,     
             makeImage("Image"),
             $(go.TextBlock, textStyle(), // the typename  --------------------
@@ -797,7 +823,7 @@ export function groupTop2(
                     toLinkableSelfNode: false,
                     toLinkableDuplicates: true,
                 },
-                new go.Binding("fill", "fillcolor"),
+                new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
                 new go.Binding("stroke", "", groupFocusStroke),
                 new go.Binding("strokeWidth", "", groupFocusStrokeWidth),
                 new go.Binding("desiredSize", "size", function (s) {
@@ -861,10 +887,10 @@ export function groupTop2(
                             overflow: go.TextBlock.OverflowEllipsis,
                             name: "name"
                         },
-                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "textcolor").makeTwoWay(),
-                        new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
                     ),
                     $(go.TextBlock, textStyle(),  // the name - closed container
                         {
@@ -881,7 +907,7 @@ export function groupTop2(
                             overflow: go.TextBlock.OverflowEllipsis,
                             name: "name",
                         },
-                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "textcolor").makeTwoWay(),
                         new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
@@ -899,7 +925,7 @@ export function groupTop2(
                         margin: new go.Margin(3, 3, 3, 3),
                         cursor: "move",
                     },
-                    new go.Binding("fill", "fillcolor2"),
+                    new go.Binding("fill", "fillcolor2", (c) => sanitizeColor(c)),
                     new go.Binding("desiredSize", "size", function (s) {
                         const parsed = s instanceof go.Size ? s : go.Size.parse(s || "220 120");
                         return new go.Size(
@@ -1041,10 +1067,10 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name"
                     },        
-                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
-                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                    new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
                     ),
                     $(go.TextBlock, textStyle(),  // the name - closed container
                     {
@@ -1062,7 +1088,7 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name",
                     },        
-                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "strokecolor", s => s || "lightgray").makeTwoWay(),
                     new go.Binding('visible', 'isSubGraphExpanded', 
@@ -1270,7 +1296,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                             overflow: go.TextBlock.OverflowEllipsis,
                             name: "name",
                         },
-                        new go.Binding("fill", "fillcolor"),
+                        new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                         new go.Binding("text", "name").makeTwoWay(),
                         new go.Binding("stroke", "strokecolor").makeTwoWay(),
                     ),
@@ -1410,10 +1436,10 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name",
                     },
-                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "strokecolor").makeTwoWay(),
-                    new go.Binding("visible", "isSubGraphExpanded").ofObject(),
+                    new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
                 ),
                 $(go.TextBlock, textStyle(),
                     {
@@ -1429,7 +1455,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                         overflow: go.TextBlock.OverflowEllipsis,
                         name: "name",
                     },
-                    new go.Binding("fill", "fillcolor"),
+                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("stroke", "strokecolor").makeTwoWay(),
                     new go.Binding("visible", "isSubGraphExpanded", function (e) { return !e; }).ofObject(),
@@ -2890,7 +2916,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate1 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3000,7 +3025,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate2 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock   
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3101,7 +3125,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate3 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3260,7 +3283,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndIcon", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3359,7 +3381,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 },
                                 new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
-                                new go.Binding("template", "template"),
                             ),                                                                
                             $(go.Shape, 
                                 {  // this is the square outer border around the image with tranparent content---------
@@ -3373,7 +3394,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                                 },
                                 // new go.Binding("fill", "fillcolor2"),
                                 new go.Binding("stroke", "strokecolor2"),
-                                new go.Binding("template", "template"),
                             ),             
                             makeIconGlyph({
                                 desiredSize: new go.Size(52, 52),
@@ -3421,7 +3441,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
          
     nodeTemplateMap.add("textAndGeometry", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3487,7 +3506,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         $(go.Shape, 
                             // new go.Binding("fill", "fillcolor"),
                             new go.Binding('stroke', 'strokecolor2'), 
-                            new go.Binding("template", "template"),
                             new go.Binding("geometryString", "geometry"),
                             new go.Binding("fill", "fillcolor2"),
                             { 
@@ -3516,7 +3534,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3599,7 +3616,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                             },
                             new go.Binding('stroke', 'strokecolor2'), 
                             new go.Binding("fill", "fillcolor2"),
-                            new go.Binding("figure", "figure"), 
+                            new go.Binding("figure", "figure", (v) => sanitizeFigureName(v, "Rectangle")), 
                         ),
                     ),
                     // define the panel where the text will appear
@@ -3656,8 +3673,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                         toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                     },
-                    new go.Binding('fill', 'fillcolor'),
-                    new go.Binding("stroke", "strokecolor"),
+                    new go.Binding('fill', 'fillcolor', (c) => sanitizeColor(c)),
+                    new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
                 ),
                 $(go.Shape, "RoundedRectangle",
                     {
@@ -4157,7 +4174,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         desiredSize: new go.Size(59, 59), // outer Shape size 
                     },
                     new go.Binding('stroke', 'strokecolor2'), 
-                    new go.Binding("figure", "figure"), 
+                    new go.Binding("figure", "figure", (v) => sanitizeFigureName(v, "Rectangle")), 
                 ),
 
                 $(go.Shape,  // move area
@@ -4260,7 +4277,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                         desiredSize: new go.Size(30, 30), // outer Shape size 
                     },
                     new go.Binding('stroke', 'strokecolor2'), 
-                    new go.Binding("figure", "figure"), 
+                    new go.Binding("figure", "figure", (v) => sanitizeFigureName(v, "Rectangle")), 
                 ),
                 $(go.Shape,  // move
                     { 
@@ -4611,7 +4628,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             $(go.Shape, { fromArrow: "None"},
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
-            new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("fill", "fromArrowColor", (c) => sanitizeColor(c, "transparent")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
@@ -4622,7 +4639,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("fill", "toArrowColor", (c) => sanitizeColor(c, "white")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
             new go.Binding('strokeWidth', 'strokewidth', function(val) { 
                 return typeof val === 'number' ? val : parseInt(val) || 1; 
@@ -4758,7 +4775,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             $(go.Shape, { fromArrow: "None"},
             { scale: 1.3, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
-            new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("fill", "fromArrowColor", (c) => sanitizeColor(c, "transparent")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
@@ -4766,7 +4783,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             $(go.Shape, { toArrow: "None"},  
             { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("fill", "toArrowColor", (c) => sanitizeColor(c, "white")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
@@ -4841,12 +4858,12 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         ),
         $(go.Shape, { fromArrow: "None", scale: 1, fill: "transparent" },
             new go.Binding("fromArrow", "fromArrow"),
-            new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("fill", "fromArrowColor", (c) => sanitizeColor(c, "transparent")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'from')),
         ),
         $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black', fill: 'white' },
             new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("fill", "toArrowColor", (c) => sanitizeColor(c, "white")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
         ),
         // { segmentOffset: new go.Point(-10, -10) },
@@ -4887,7 +4904,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
           ),
 	        $(go.Shape, { toArrow: 'Triangle', scale: 1.2, fill: 'black', stroke: null },
             new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("fill", "toArrowColor", (c) => sanitizeColor(c, "black")),
             new go.Binding("stroke", "", d => getArrowStrokeColor(d, 'to')),
           ),
         $(go.Shape,
@@ -5104,7 +5121,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             // new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify()),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
@@ -5155,7 +5172,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
             new go.Binding("background", "isHighlighted", function(h) { 
                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
                 }).ofObject(),
@@ -5206,7 +5223,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
 
             { // Tooltips
                 toolTip:
@@ -5250,7 +5267,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
 
             { // Tooltips
                 toolTip:
@@ -5291,7 +5308,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
 
             { // Tooltips
                 toolTip:
@@ -5647,7 +5664,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         // NOTE: `data.size` is the lane BODY size and is bound on `LANE_BODY_SHAPE`.
         // Binding it to the whole Group causes the Group's bounds/selection/drag math to disagree with visuals.
         // the lane header consisting of a Shape and a TextBlock
-        new go.Binding("layout", "groupLayout").makeTwoWay(),
+        new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -5707,7 +5724,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         // NOTE: `data.size` is the lane BODY size and is bound on `LANE_BODY_SHAPE`.
         // Binding it to the whole Group causes the Group's bounds/selection/drag math to disagree with visuals.
         // the lane header consisting of a Shape and a TextBlock
-        new go.Binding("layout", "groupLayout").makeTwoWay(),
+        new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
         { // Tooltip
             toolTip:
             $(go.Adornment, "Auto",
@@ -5749,7 +5766,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             // NOTE: pool size is bound on POOL_SHAPE (in poolTop). Binding size on the Group itself causes
             // resize/selection bounds to include transient member-bounds during drag/drop.
-            new go.Binding("layout", "groupLayout").makeTwoWay(),
+            new go.Binding("layout", "groupLayout", (v, obj) => sanitizeGroupLayout(v, obj)).makeTwoWay(),
             
             { // Tooltip
                 toolTip:

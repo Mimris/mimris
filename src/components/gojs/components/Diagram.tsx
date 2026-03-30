@@ -97,10 +97,47 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;

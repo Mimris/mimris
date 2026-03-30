@@ -69,10 +69,47 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizeLinkPortData(linkDataArray: any[] | undefined): any[] {
   if (!Array.isArray(linkDataArray)) return linkDataArray as any;
   return linkDataArray.map((link) => {
     if (!link || typeof link !== "object") return link;
+    normalizeEmptyBooleanFieldsInPlace(link);
     const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
     const normalizedToPort = typeof link.toPort === "string" ? link.toPort : "";
     const normalizedPoints = normalizeLinkPoints(link.points);
@@ -1551,6 +1588,7 @@ function normalizeNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
@@ -2860,30 +2898,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
 
         if (debug) console.log("End: After Reload:");
-        try {
-          myDiagram.links.each((link: go.Link) => {
-            const data: any = link?.data;
-            const relview =
-              myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
-              data?.relshipview;
-            const isSelfLoop =
-              (link.fromNode && link.toNode && link.fromNode === link.toNode) ||
-              (relview?.fromObjview?.id && relview?.toObjview?.id && relview.fromObjview.id === relview.toObjview.id) ||
-              (relview?.fromObjview?.object?.id && relview?.toObjview?.object?.id && relview.fromObjview.object.id === relview.toObjview.object.id);
-            if (!isSelfLoop) return;
-            const linkPoints = pickFirstNonEmptyLinkPoints(link?.points, data?.points);
-            const relviewPoints = normalizeLinkPoints(relview?.points);
-            console.warn("[SELF_LOOP_AFTER_RELOAD]", JSON.stringify({
-              key: data?.key || "",
-              relviewRef: data?.relviewRef || "",
-              linkPointCount: Array.isArray(linkPoints) ? linkPoints.length : -1,
-              relviewPointCount: Array.isArray(relviewPoints) ? relviewPoints.length : -1,
-              linkPoints,
-              relviewPoints,
-              routing: data?.routing || relview?.routing || "",
-            }));
-          });
-        } catch (_) { }
         const reloadPoolKeys = new Set<string>();
         for (let it = myDiagram.nodes; it?.next();) {
           const node = it.value;

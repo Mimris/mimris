@@ -19,10 +19,47 @@ import { Button } from '../ui/button';
 
 const debug = false;
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizePaletteNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || 'textAndIcon';
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
@@ -30,6 +67,18 @@ function normalizePaletteNodeCategoryData(nodeDataArray: any[] | undefined): any
     return {
       ...node,
       category,
+    };
+  });
+}
+
+function normalizePaletteLinkData(linkDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(linkDataArray)) return linkDataArray as any;
+  return linkDataArray.map((link) => {
+    if (!link || typeof link !== "object") return link;
+    normalizeEmptyBooleanFieldsInPlace(link);
+    return {
+      ...link,
+      category: typeof link?.category === 'string' ? link.category : ''
     };
   });
 }
@@ -103,9 +152,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     if (debug) console.log('47 GoJSPaletteApp', this.props.nodeDataArray, this.props);
     this.state = {
       nodeDataArray: normalizePaletteNodeCategoryData(this.props?.nodeDataArray),
-      linkDataArray: this.props?.linkDataArray,
+      linkDataArray: normalizePaletteLinkData(this.props?.linkDataArray),
       fullNodeDataArray: normalizePaletteNodeCategoryData(this.props?.nodeDataArray),
-      fullLinkDataArray: this.props?.linkDataArray,
+      fullLinkDataArray: normalizePaletteLinkData(this.props?.linkDataArray),
       modelData: {
         canRelink: false
       },
@@ -215,7 +264,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
     if (nodesChanged || linksChanged) {
       const nextNodes = nodesChanged ? normalizePaletteNodeCategoryData(this.props.nodeDataArray ?? []) : this.state.nodeDataArray;
-      const nextLinks = linksChanged ? (this.props.linkDataArray ?? []) : this.state.linkDataArray;
+      const nextLinks = linksChanged ? normalizePaletteLinkData(this.props.linkDataArray ?? []) : this.state.linkDataArray;
       const stateNodesChanged = !arePaletteArraysEquivalent(nextNodes, this.state.nodeDataArray);
       const stateLinksChanged = !arePaletteArraysEquivalent(nextLinks, this.state.linkDataArray);
       const stateFullNodesChanged = !arePaletteArraysEquivalent(nextNodes, this.state.fullNodeDataArray);
@@ -723,10 +772,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         <PaletteWrapper
           divClassName={this.props?.divClassName || 'diagram-component-palette'}
           nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={(this.state.linkDataArray || []).map((link: any) => ({
-            ...link,
-            category: typeof link?.category === 'string' ? link.category : ''
-          }))}
+          linkDataArray={normalizePaletteLinkData(this.state.linkDataArray || [])}
           modelData={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent={this.handleDiagramEvent}

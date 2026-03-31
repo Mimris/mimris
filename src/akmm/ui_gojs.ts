@@ -21,7 +21,7 @@ const debug = false;
 
 function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
     if (Array.isArray(points) && points.length > 4) return true;
-    return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+    return false;
 }
 
 function deriveTypeviewIcon(objview: akm.cxObjectView): string {
@@ -84,7 +84,7 @@ export class goModel {
             if (node instanceof goObjectNode) {
                 let object = node.object;
                 let objecttype = node.objecttype;
-                if (!objecttype)
+                if (!objecttype && object?.typeRef)
                     objecttype = this.metamodel?.findObjectType(object.typeRef);
                 if (objecttype) {
                     const typeviews = this.metamodel?.getObjectTypeViewsByObjectType(objecttype);

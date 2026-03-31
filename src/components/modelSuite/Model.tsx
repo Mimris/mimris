@@ -215,7 +215,7 @@ const Page1 = (props) => {
     });
   };
 
-  const selmods = modelList.filter((m: any) => m?.markedAsDeleted === false)
+  const selmods = modelList.filter((m: any) => m && m?.markedAsDeleted !== true)
 
   const modelindex = models.findIndex((m: any) => m?.id === phFocus.focusModel?.id)
 
@@ -227,7 +227,7 @@ const Page1 = (props) => {
       const data2 = { id: modelview0?.id, name: modelview0?.name };
       return (
         <NavItem
-          key={m.id || strindex}
+          key={`${m.id || 'model'}-${strindex}`}
           className="model-selection"
           data-toggle="tooltip"
           data-placement="top"
@@ -256,6 +256,7 @@ const Page1 = (props) => {
               if (editingModelId === m.id) return;
               dispatch({ type: "SET_FOCUS_MODEL", data });
               dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
+              dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: m.name || 'model-tab' } });
             }}
             onDoubleClick={(e) => {
               e.preventDefault();

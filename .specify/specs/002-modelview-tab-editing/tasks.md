@@ -33,6 +33,10 @@
 
 - [x] T008 Adjust modeller and detail pane sizing so the modelling page keeps a small outer margin without showing a large empty strip below the canvas in `src/components/Modeller.tsx`, `src/components/Modelling.tsx`, `src/components/export/ReportModule.tsx`, and `src/components/FocusDetails.tsx`
 
+## Phase 5: Recovery Robustness
+
+- [x] T008A Harden persisted state recovery so missing `metis`, `focusModelview`, or `modelviews` entries do not crash or falsely block rendering in `src/pages/modelling.tsx`, `src/pages/index.tsx`, `src/components/Modelling.tsx`, and `src/components/Modeller.tsx`
+
 ## Validation Tasks
 
 - [ ] T009 Manually verify inline rename start, save, and cancel behavior on modelview tabs
@@ -42,4 +46,4 @@
 - [ ] T013 Manually verify the modelling page keeps only a small margin around the modeller with no large empty strip below the canvas
 - [ ] T014 Manually verify model tab inline rename start, save, and cancel behavior
 - [ ] T015 Manually verify drag-and-drop model tab reorder persists after refresh/save flow
-- [ ] T016 Run production build verification
+- [x] T016 Run production build verification

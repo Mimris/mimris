@@ -5234,10 +5234,13 @@ export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
 }
 
 export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
+    if (!modelview?.relshipviews || !myMetis) {
+        return;
+    }
     // Sync contains relshipview visibility with current visual group membership.
     const relviews = new Array<akm.cxRelationshipView>();
     const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-    for (let i = 0; i < modelview.relshipviews?.length; i++) {
+    for (let i = 0; i < modelview.relshipviews.length; i++) {
         const relview = modelview.relshipviews[i];
         const relship = relview.relship;
         if (relship && reltype && relship.type && relship.type.name === reltype.name) {

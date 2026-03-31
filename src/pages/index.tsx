@@ -52,7 +52,11 @@ const page = (props: any) => {
 
 
   function dispatchLocalStore(locStore) { 
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+    const metis = locStore?.phData?.metis || {}
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : []
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : []
+    const normalizedPhData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalizedPhData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })

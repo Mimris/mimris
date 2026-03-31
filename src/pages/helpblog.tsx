@@ -189,10 +189,10 @@ export async function getStaticProps() {
     const { data: frontmatter } = matter(markdownWithMeta)
     const result = {
       slug,
-      frontmatter,
+      frontmatter: frontmatter || {},
     }
     return result
-  })
+  }).filter(Boolean)
 
   return {
     props: {

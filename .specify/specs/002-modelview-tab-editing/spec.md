@@ -25,6 +25,7 @@ A modeller working across several models and modelviews wants to rename and reor
 12. **Given** a model tab is being renamed, **When** the user presses `Enter` or leaves the field, **Then** a confirmation modal opens with editable `name` and `description` fields before the change is saved.
 13. **Given** multiple model tabs are visible, **When** the user drags one model tab onto another, **Then** the tab order changes and the persisted `models` array reflects the new order.
 14. **Given** a model is focused elsewhere in the UI, **When** its name is changed from the tab workflow, **Then** the focused model name shown in the rest of the interface updates immediately.
+15. **Given** the application restores persisted modelling state that is missing `focusModelview` or has a focused model with no `modelviews`, **When** the modelling page opens, **Then** the page recovers without throwing and continues rendering the available model data.
 
 ### Edge Cases
 - What happens when the first modelview in the array is the focused tab and is renamed or reordered?
@@ -35,6 +36,7 @@ A modeller working across several models and modelviews wants to rename and reor
 - What happens when a renamed modelview has a long description that should remain untouched?
 - What happens when a renamed model has a long description that should remain untouched?
 - What happens when modeller and detail panes have slightly different heights and the parent modelling wrapper would otherwise show a large empty background area?
+- What happens when persisted local or session recovery data references a modelview that no longer exists, or a model without any `modelviews`?
 
 ## Requirements
 
@@ -56,6 +58,7 @@ A modeller working across several models and modelviews wants to rename and reor
 - **FR-015**: The system MUST support drag-and-drop reordering of model tabs using the persisted `models` array order as the source of truth.
 - **FR-016**: The system MUST ignore no-op drag drops where the source and target model tabs are the same.
 - **FR-017**: The system MUST keep `phFocus.focusModel` synchronized with the saved model name after rename.
+- **FR-018**: The system MUST restore persisted modelling state defensively so missing `metis`, `models`, `focusModelview`, or `modelviews` entries do not crash the modelling page or leave it stuck in a false loading state.
 
 ### Key Entities
 - **Modelview Tab**: The visible tab in the modeller header that selects the active modelview.

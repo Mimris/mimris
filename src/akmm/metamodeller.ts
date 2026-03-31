@@ -9670,11 +9670,20 @@ export class cxModelView extends cxMetaObject {
     }
     repairObjectView(objview: cxObjectView): boolean {
         if (!objview) return false;
-        if (objview.isDeleted()) return false;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (Object.prototype.hasOwnProperty.call(view, 'isDeleted')) return Boolean(view.isDeleted);
+            if (Object.prototype.hasOwnProperty.call(view, 'markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
+        if (isViewDeleted(objview)) return false;
         if (!objview.object) return false;
         if (objview.object?.markedAsDeleted) return false;
         // Validate input relviews
-        const inputrelviews = objview.getInputRelviews();
+        const inputrelviews = typeof (objview as any).getInputRelviews === 'function'
+            ? objview.getInputRelviews()
+            : objview.inputrelviews;
         if (inputrelviews) {
             for (let i = 0; i < inputrelviews.length; i++) {
                 const relview = inputrelviews[i];
@@ -9698,7 +9707,9 @@ export class cxModelView extends cxMetaObject {
             }
         }
         // Repair output relviews
-        const outputrelviews = objview.getOutputRelviews();
+        const outputrelviews = typeof (objview as any).getOutputRelviews === 'function'
+            ? objview.getOutputRelviews()
+            : objview.outputrelviews;
         if (outputrelviews) {
             for (let i = 0; i < outputrelviews.length; i++) {
                 const relview = outputrelviews[i];

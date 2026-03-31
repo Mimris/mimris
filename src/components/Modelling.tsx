@@ -110,9 +110,9 @@ const Modelling = (props: any) => {
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
   if (!curmod) curmod = modelList[0] || null
 
-  const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
+  const modelviews = Array.isArray(curmod?.modelviews) ? curmod.modelviews.filter((mv: any) => mv) : []
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
-  if (!curmodview) curmodview = modelviews[0]
+  if (!curmodview) curmodview = modelviews[0] || null
 
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
@@ -120,8 +120,9 @@ const Modelling = (props: any) => {
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
-  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
-  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+  const targetModelviews = Array.isArray(curtargetmodel?.modelviews) ? curtargetmodel.modelviews.filter((mv: any) => mv) : []
+  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && targetModelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+  const curtargetmodelview = focustargetmodelview || targetModelviews[0] || null
 
   let activetabindex = modelList.findIndex(sm => sm.id === focusModel?.id)
   if (activetabindex < 0) activetabindex = 0;
@@ -306,7 +307,7 @@ const Modelling = (props: any) => {
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
     if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
     setRefresh(prev => !prev)
-  }, [props.phFocus?.focusModelview?.id])
+  }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => {
     const persistedProps = getPersistedState();
@@ -343,7 +344,7 @@ const Modelling = (props: any) => {
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
 
-    const selmods = modelList.filter((m: any) => m?.markedAsDeleted === false)
+    const selmods = modelList.filter((m: any) => m && m?.markedAsDeleted !== true)
     
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
@@ -353,7 +354,7 @@ const Modelling = (props: any) => {
         const data2 = { id: modelview0?.id, name: modelview0?.name };
         return (
           <NavItem
-            key={m.id || strindex}
+            key={`${m.id || 'model'}-${strindex}`}
             className="model-selection"
             data-toggle="tooltip"
             data-placement="top"
@@ -383,6 +384,7 @@ const Modelling = (props: any) => {
                 if (typeof window !== 'undefined') window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, m.id);
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
+                dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: m.name || 'model-tab' } });
               }}
               onDoubleClick={(e) => {
                 e.preventDefault();
@@ -424,6 +426,7 @@ const Modelling = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
+        key={`metamodel-palette-${phFocus?.focusModel?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -613,6 +616,7 @@ const Modelling = (props: any) => {
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "0px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
+                      key={`objects-palette-${phFocus?.focusModel?.id || 'none'}`}
                       myMetis={myMetis}
                       metis={metis}
                       phFocus={phFocus}
@@ -786,7 +790,7 @@ const Modelling = (props: any) => {
         </div>
       </>
 
-    if (!curmod || !curmod.modelviews) {
+    if (!curmod) {
       return <div>Loading model data...</div>;
     }
 

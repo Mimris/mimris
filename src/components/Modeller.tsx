@@ -94,12 +94,14 @@ const Modeller = React.forwardRef((props: any, ref) => {
     let focusModelview;
 
     // Then assign values in the conditional
-    if (props.phFocus?.focusModel.id !== '') {
+    if (props.phFocus?.focusModel?.id !== '') {
         focusModel = props.phFocus?.focusModel;
         focusModelview = props.phFocus?.focusModelview;
     } else {
-        focusModel = { id: props.PhData.models[0].id, name: props.PhData.models[0].name };
-        focusModelview = { id: props.PhData.models[0].modelviews[0].id, name: props.PhData.models[0].modelviews[0].name };
+        const firstModel = props.PhData?.models?.[0];
+        const firstModelview = firstModel?.modelviews?.find((mv: any) => mv);
+        focusModel = firstModel ? { id: firstModel.id, name: firstModel.name } : undefined;
+        focusModelview = firstModelview ? { id: firstModelview.id, name: firstModelview.name } : undefined;
     }
 
     const models = props.metis?.models
@@ -373,10 +375,12 @@ const Modeller = React.forwardRef((props: any, ref) => {
             if (debug) console.log('203 Selector', selObj.name);
             data = { id: id, name: name }
             dispatch({ type: 'SET_FOCUS_MODEL', data: data })
-            const mv = selObj.modelviews[0]
-            const data2 = { id: mv.id, name: mv.name }
-            dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
-            if (debug) console.log('209 Selector', data, data2);
+            const mv = selObj?.modelviews?.find((modelview: any) => modelview)
+            if (mv) {
+                const data2 = { id: mv.id, name: mv.name }
+                dispatch({ type: 'SET_FOCUS_MODELVIEW', data: data2 })
+                if (debug) console.log('209 Selector', data, data2);
+            }
         }
     }
 
@@ -581,7 +585,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
             setGojsobjects({ nodeDataArray: selOfilteredArr, linkDataArray: ldArr });
         }
         setObjectsRefresh(!objectsRefresh);
-    }, [selectedOption, isExpanded]);
+    }, [selectedOption, isExpanded, model?.id, modelview?.id, model?.objects, model?.relships]);
 
     // useEffect(() => {
     //     setRefresh(!refresh)

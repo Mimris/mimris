@@ -43,7 +43,6 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
 
   const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
-  const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
   const [filteredOtNodeDataArray, setFilteredOtNodeDataArray] = useState([])
@@ -102,6 +101,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id);
     // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
     const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
+    if (props.myMetis && props.metis) {
+      props.myMetis.importData(props.metis, true);
+    }
     setSelMetamodelName(mmodel?.name);
     if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, props.phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
@@ -119,12 +121,8 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     setFilteredLinkDataArray(links);
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
-    const timer = setTimeout(() => {
-      setRefreshPalette(prev => !prev);
-      if (debug) console.log('110 Palette useEffect 3', mmodel.name, filteredOtNodeDataArray);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (debug) console.log('110 Palette useEffect 3', mmodel?.name, filteredOtNodeDataArray);
+  }, [focusModel?.id, model?.metamodelRef]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -243,14 +241,8 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     if (debug) console.log('169 Palette', selectedIndex, metamodelList[selectedIndex], selMetamodelName, selmmodel, types, mmodel);
     const { nodes, links } = buildFilterOtNodeDataArray(types, mmodel);
     if (debug) console.log('171 Palette', mmodel.name, nodes, links);
-    const timer = setTimeout(() => {
-
-      setFilteredOtNodeDataArray(nodes);
-      setFilteredLinkDataArray(links);
-      setRefreshPalette(prev => !prev);
-    }, 200);
-
-    return () => clearTimeout(timer);
+    setFilteredOtNodeDataArray(nodes);
+    setFilteredLinkDataArray(links);
   }
 
   const otDiv = (metamodelList && metamodelList.length > 0) && (
@@ -284,13 +276,14 @@ const Palette = React.forwardRef((props: any, ref: any) => {
         {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
-          key={props.myMetis?.currentMetamodel?.id ?? 'palette-default'}
+          key={`${focusModel?.id ?? 'palette-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
           nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
           phFocus={props.phFocus}
           dispatch={props.dispatch}
+          divClassName={props.modelType === 'model' ? 'diagram-component-objects' : 'diagram-component-palette'}
           diagramStyle={{ height: '76vh' }}
           noOfCols={isExpanded ? 4 : 1}
         />
@@ -343,7 +336,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           <button
           className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
           style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
-          onClick={() => { setIsExpanded(!isExpanded); (isExpanded) ? setRefreshPalette(true) : setRefreshPalette(false); }}
+          onClick={() => { setIsExpanded(!isExpanded); }}
           data-toggle="tooltip"
           data-placement="top"
           title="Toggle palette width"
@@ -360,7 +353,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       className="d-flex flex-column px-2"
       style={{ flexGrow: 1 }}
     >
-      {refreshPalette ? <> {gojsappPaletteDiv}</> : <>{gojsappPaletteDiv}</>}
+      {gojsappPaletteDiv}
   </div>
 
   const collapsedPaletteSidebar =

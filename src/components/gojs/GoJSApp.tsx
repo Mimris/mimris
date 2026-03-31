@@ -112,6 +112,11 @@ function normalizeLinkPoints(points: any): any {
   return points;
 }
 
+function hasPersistableManualLinkPoints(points: any): boolean {
+  const normalizedPoints = normalizeLinkPoints(points);
+  return Array.isArray(normalizedPoints) && normalizedPoints.length > 4;
+}
+
 function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, localLinks: any[] | undefined): any[] {
   if (!Array.isArray(incomingLinks)) return incomingLinks as any;
   const localMap = new Map((Array.isArray(localLinks) ? localLinks : []).map((link: any) => [link?.key, link]));
@@ -157,9 +162,7 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
     toPort: normalizedToPort,
     points: normalizeLinkPoints(link.points),
   };
-  const hasPersistableManualPoints =
-    Array.isArray(nextLink.points) &&
-    nextLink.points.length > 4;
+  const hasPersistableManualPoints = hasPersistableManualLinkPoints(nextLink.points);
   // For routed links, ignore default auto-route geometry, but keep explicit reshaped paths.
   if (isRoutedLink && !hasPersistableManualPoints) {
     delete nextLink.points;
@@ -4443,7 +4446,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relview.fromPortid = normalizedFromPort;
                 relview.toPortid = normalizedToPort;
                 const relviewRouting = relview?.routing || rview?.routing || myModelview?.routing || "";
-                const shouldPersistPoints = !isTransientRoutedLink(relviewRouting);
+                const shouldPersistPoints =
+                  !isTransientRoutedLink(relviewRouting) &&
+                  hasPersistableManualLinkPoints(link.points);
                 if (resetRoute || (linkTouchesMovedNode && !shouldPersistPoints)) {
                   relview.points = [];
                 } else {
@@ -7381,18 +7386,22 @@ break;
   }
   break;
 }
-      case "BackgroundSingleClicked": {
-  if (debug) console.log('1615 myMetis', myMetis);
-  uid.clearFocus(myModelview);
-  let data = { id: myModelview.id, name: myModelview.name }
-  data = JSON.parse(JSON.stringify(data));
-  context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-  let data2 = { id: myModel.id, name: myModel.name }
-  data2 = JSON.parse(JSON.stringify(data2));
-  context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
+	      case "BackgroundSingleClicked": {
+	  if (debug) console.log('1615 myMetis', myMetis);
+	  if (myModelview) {
+	    uid.clearFocus(myModelview);
+	    let data = { id: myModelview.id, name: myModelview.name }
+	    data = JSON.parse(JSON.stringify(data));
+	    context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+	  }
+	  if (myModel) {
+	    let data2 = { id: myModel.id, name: myModel.name }
+	    data2 = JSON.parse(JSON.stringify(data2));
+	    context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
+	  }
 
-  break;
-}
+	  break;
+	}
       case "BackgroundDoubleClicked": {
   if (debug) console.log('1619 BackgroundDoubleClicked', e, e.diagram);
   break;

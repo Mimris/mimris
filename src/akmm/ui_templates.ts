@@ -2810,9 +2810,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
         const data = shape?.part?.data || {};
         const raw = data?.strokewidth;
         const baseWidth = typeof raw === 'number' ? raw : parseInt(raw) || 1;
-        if (data?.isFocusPeer && h) return Math.max(baseWidth, 4);
+        // Keep hover purely visual. Changing stroke width on mouse enter changes
+        // node bounds and makes orthogonal relationship routes jump.
+        if (data?.isFocusPeer && h) return Math.max(baseWidth, 3);
         if (data?.isFocusPeer) return Math.max(baseWidth, 3);
-        if (h) return Math.max(baseWidth, 2);
         return baseWidth;
     };
     let nodeTemplate0 =      
@@ -2821,7 +2822,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             mouseEnter: (e, node) => node.isHighlighted = true,
             mouseLeave: (e, node) => node.isHighlighted = false,
         },
-        new go.Binding("stroke", "strokecolor", s => s || "lightgray"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -2880,7 +2880,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate1 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -2990,7 +2989,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate2 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock   
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3091,7 +3089,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     let nodeTemplate3 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3250,7 +3247,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndIcon", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3411,7 +3407,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
          
     nodeTemplateMap.add("textAndGeometry", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3506,7 +3501,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -5888,8 +5882,8 @@ function decodeUnicodeGlyph(value: string): string {
     if (!value) return "";
 
     const normalized = value.trim();
-    const lowerMatch = normalized.match(/^\\u(?:\{([0-9a-fA-F]{1,6})\}|([0-9a-fA-F]{4,6}))$/);
-    const upperMatch = normalized.match(/^\\U(?:\{([0-9a-fA-F]{1,8})\}|([0-9a-fA-F]{6,8}))$/);
+    const lowerMatch = normalized.match(/^(?:\\)?u(?:\{([0-9a-fA-F]{1,6})\}|([0-9a-fA-F]{4,6}))$/i);
+    const upperMatch = normalized.match(/^(?:\\)?U(?:\{([0-9a-fA-F]{1,8})\}|([0-9a-fA-F]{6,8}))$/);
 
     if (lowerMatch || upperMatch) {
         let hex = (lowerMatch && (lowerMatch[1] || lowerMatch[2])) || (upperMatch && (upperMatch[1] || upperMatch[2])) || "";
@@ -5921,8 +5915,8 @@ function decodeUnicodeGlyph(value: string): string {
 export function detectIconFormat(value: string): string {
   if (!value) return 'unknown';
 
-    const unicodeEscapeMatch = value.match(/^\\u(?:\{[0-9a-fA-F]{1,6}\}|[0-9a-fA-F]{4,6})$/);
-    const unicodeEmojiMatch = value.match(/^\\U(?:\{[0-9a-fA-F]{1,8}\}|[0-9a-fA-F]{6,8})$/);
+    const unicodeEscapeMatch = value.match(/^(?:\\)?u(?:\{[0-9a-fA-F]{1,6}\}|[0-9a-fA-F]{4,6})$/i);
+    const unicodeEmojiMatch = value.match(/^(?:\\)?U(?:\{[0-9a-fA-F]{1,8}\}|[0-9a-fA-F]{6,8})$/);
     const figureMatch = value.match(/^[a-zA-Z]+(\/[a-zA-Z0-9_\-]+)+$/);
 
     if (unicodeEscapeMatch || unicodeEmojiMatch) {
@@ -5941,7 +5935,7 @@ export function detectIconFormat(value: string): string {
     }
     if (figureMatch) {
         if (debug) console.log("detectIconFormat - detected as figure/shape", value);
-        return 'unicode';
+        return 'figure';
     }
 
   // Check if it's an SVG data URL
@@ -6114,6 +6108,8 @@ export function makeIconGlyph(
 export function findImage(image: string) {
     if (debug) console.log("458 findImage: ", image);
     if (image == "")
+         return "";
+    if (detectIconFormat(image) === "unicode")
          return "";
     if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);

@@ -40,24 +40,22 @@ const Page1 = (props: any) => {
   const [exportTab, setExportTab] = useState(0);
 
   function dispatchLocalStore(locStore: any) {
-    // filter out null models and metamodels
-    let metis = locStore.phData.metis
-
-    const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
-    const models = locStore.phData.metis.models.filter((m: any) => m)
-    metis = { ...metis, models, metamodels }
-
-    const phData = { ...locStore.phData, metis }
+    const metis = locStore?.phData?.metis || {}
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter((mm: any) => mm) : []
+    const models = Array.isArray(metis.models) ? metis.models.filter((m: any) => m) : []
+    const phData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
+    const storedFocus = locStore?.phFocus || {}
     const storedFocusModelId = typeof window !== 'undefined' ? window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
-    const requestedFocusModelId = storedFocusModelId || locStore?.phFocus?.focusModel?.id || focus.focusModel?.id
+    const requestedFocusModelId = storedFocusModelId || storedFocus?.focusModel?.id || focus.focusModel?.id
     const focusModel = models.find(m => m.id === requestedFocusModelId) || models[0]
+    const modelviews = Array.isArray(focusModel?.modelviews) ? focusModel.modelviews.filter((mv: any) => mv) : []
     const requestedFocusModelviewId =
-      (focusModel?.id === locStore?.phFocus?.focusModel?.id && locStore?.phFocus?.focusModelview?.id)
+      (focusModel?.id === storedFocus?.focusModel?.id && storedFocus?.focusModelview?.id)
       || (focusModel?.id === focus.focusModel?.id && focus.focusModelview?.id)
-    const focusModelview = focusModel.modelviews.find(mv => mv.id === requestedFocusModelviewId) || focusModel.modelviews[0]
+    const focusModelview = modelviews.find((mv: any) => mv.id === requestedFocusModelviewId) || modelviews[0] || null
     const phFocus = {
-      ...locStore.phFocus,
-      focusModel: focusModel,
+      ...storedFocus,
+      focusModel: focusModel || null,
       focusModelview: focusModelview,
     }
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })

@@ -143,7 +143,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public componentDidUpdate(prevProps: DiagramProps) {
-    if (prevProps.noOfCols !== this.props.noOfCols || prevProps.divClassName !== this.props.divClassName) {
+    if (
+      prevProps.noOfCols !== this.props.noOfCols ||
+      prevProps.divClassName !== this.props.divClassName ||
+      prevProps.nodeDataArray !== this.props.nodeDataArray ||
+      prevProps.linkDataArray !== this.props.linkDataArray
+    ) {
       this.updatePalettePresentation();
     }
     if (
@@ -403,7 +408,6 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       paletteNodeTemplate =
         $(go.Node, "Auto",
           new go.Binding("visible"),
-          new go.Binding("stroke", "strokecolor"),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
           new go.Binding("scale", "scale").makeTwoWay(),
@@ -475,12 +479,13 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   const figures = uit.getFigureNames();
                   if (data.icon && figures.includes(data.icon)) return data.icon;
                   if ((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure)) return data.figure;
-                  return "transparent";
+                  return "Rectangle";
                 }),
                 new go.Binding("visible", "", (data) => {
                   const figures = uit.getFigureNames();
-                  // Only show if icon is empty or a valid figure name, or figure is present
-                  return (!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
+                  const hasIconFigure = Boolean(data.icon && figures.includes(data.icon));
+                  const hasFallbackFigure = Boolean((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure));
+                  return hasIconFigure || hasFallbackFigure;
                 }),
               ),
               // Show image only if icon is a valid image URL
@@ -498,7 +503,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 }),
                 new go.Binding("visible", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon);
+                  return Boolean(icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon));
                 }),
               ),
               // Show unicode only if icon is a valid unicode
@@ -517,7 +522,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 new go.Binding("text", "icon", findUnicodeImage),
                 new go.Binding("visible", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode';
+                  return Boolean(icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode');
                 }),
               ),
             ),
@@ -629,7 +634,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     desiredSize: new go.Size(30, 30),
                     margin: new go.Margin(0, 0, 10, 0), // Reduced left margin
                   },
-                  new go.Binding("source", "icon", findImage)
+                  new go.Binding("source", "icon", uit.getIconSource),
+                  new go.Binding("visible", "icon", uit.shouldShowIconPicture)
                 ),
                 // TextBlock for Unicode Icon
                 $(go.TextBlock, textStyle(),
@@ -644,7 +650,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     isMultiline: false,
                     alignment: go.Spot.Center, // Center alignment
                   },
-                  new go.Binding("text", "icon", findGroupUnicodeImage)
+                  new go.Binding("text", "icon", findGroupUnicodeImage),
+                  new go.Binding("visible", "icon", (icon) => !icon || uit.shouldShowUnicodeFallback(icon))
                 ),
               ),
               $(go.TextBlock, textStyle(),  // the name
@@ -672,6 +679,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       if (debug) console.log("3238 findImage: ", image);
       if (image == "")
         return "";
+      if (uit.detectIconFormat(image) === 'unicode')
+        return "";
       if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);
         return image;
@@ -691,25 +700,17 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         if (debug) console.log('3273 Diagram', image, img)
         return img
       } else {
-        return image;
+        return "";
       }
     }
 
     function findUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } 
-      return "";
+      return uit.findUnicodeImage(image);
     }
     function findGroupUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } else if (image === '') {
-       const groupImage = '\\uf07c'
-        return String.fromCharCode(parseInt(groupImage.slice(2), 16)).toLowerCase();
-      } else {
-        return image;
-      }
+      if (!image) return uit.findUnicodeImage('\\uf07c');
+      const glyph = uit.findUnicodeImage(image);
+      return glyph || "";
     }
 
     // Function to specify default text style
@@ -751,6 +752,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       //   style={this.props.diagramStyle}
       // />
       <ReactDiagram
+        key={`${this.props.phFocus?.focusModel?.id || 'no-model'}-${normalizedNodeDataArray?.length || 0}-${this.props.divClassName || 'palette'}`}
         ref={this.diagramRef}
         divClassName={divclassname}
         initDiagram={this.initPalette}

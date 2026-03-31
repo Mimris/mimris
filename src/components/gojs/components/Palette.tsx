@@ -34,6 +34,28 @@ interface DiagramProps {
 }
 
 const debug = false;
+
+function sanitizeColor(value: any, fallback = "transparent"): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : fallback;
+}
+
+function sanitizeCurve(value: any): any {
+  switch (String(value || "").trim()) {
+    case "Bezier":
+      return go.Link.Bezier;
+    case "JumpGap":
+      return go.Link.JumpGap;
+    case "JumpOver":
+      return go.Link.JumpOver;
+    case "None":
+    case "":
+      return go.Link.None;
+    default:
+      return go.Link.None;
+  }
+}
 function installSafeNodeCategoryGuard() {
   const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
   if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
@@ -75,10 +97,47 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || 'textAndIcon';
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
@@ -86,6 +145,19 @@ function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefine
     return {
       ...node,
       category,
+    };
+  });
+}
+
+function normalizePaletteWrapperLinkData(linkDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(linkDataArray)) return linkDataArray as any;
+  return linkDataArray.map((link) => {
+    if (!link || typeof link !== "object") return link;
+    normalizeEmptyBooleanFieldsInPlace(link);
+    const category = link.category || link.template || 'linkTemplate1';
+    return {
+      ...link,
+      category: typeof category === "string" ? category : 'linkTemplate1',
     };
   });
 }
@@ -407,7 +479,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       let paletteNodeTemplate: any;
       paletteNodeTemplate =
         $(go.Node, "Auto",
-          new go.Binding("visible"),
+          new go.Binding("visible", "", (v) => Boolean(v === undefined ? true : v)),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
           new go.Binding("scale", "scale").makeTwoWay(),
@@ -449,7 +521,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               stroke: "black",
               cursor: "grabbing",
             },
-            new go.Binding("fill", "fillcolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("stroke", "", paletteFocusStroke),
             new go.Binding("strokeWidth", "isHighlighted", paletteFocusStrokeWidth).ofObject()
           ),
@@ -483,9 +555,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 }),
                 new go.Binding("visible", "", (data) => {
                   const figures = uit.getFigureNames();
-                  const hasIconFigure = Boolean(data.icon && figures.includes(data.icon));
-                  const hasFallbackFigure = Boolean((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure));
-                  return hasIconFigure || hasFallbackFigure;
+                  // Only show if icon is empty or a valid figure name, or figure is present
+                  return Boolean(!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
                 }),
               ),
               // Show image only if icon is a valid image URL
@@ -565,11 +636,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             corner: 0,
             selectable: false
           },
-          new go.Binding("curve", "curve"),
+          new go.Binding("curve", "curve", sanitizeCurve),
           new go.Binding("points", "points"),
           $(go.Shape,
             { strokeWidth: 1.4, stroke: "#555" },
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "#555")),
             new go.Binding("strokeWidth", "strokewidth", (w: any) => {
               const width = typeof w === 'string' ? parseFloat(w) : w;
               return width && !isNaN(width) ? width : 1.4;
@@ -577,11 +648,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape,
             { fromArrow: "", stroke: null },
             new go.Binding("fromArrow", "fromArrow", arrowConverter),
-            new go.Binding("fill", "strokecolor")),
+            new go.Binding("fill", "strokecolor", (c) => sanitizeColor(c, "#555"))),
           $(go.Shape,
             { toArrow: "Standard", stroke: null },
             new go.Binding("toArrow", "toArrow", arrowConverter),
-            new go.Binding("fill", "strokecolor")),
+            new go.Binding("fill", "strokecolor", (c) => sanitizeColor(c, "#555"))),
           $(go.TextBlock,
             {
               segmentOffset: new go.Point(0, -10),
@@ -603,8 +674,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
+            new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
             new go.Binding("strokeWidth", "strokewidth")
           ),
 
@@ -727,6 +798,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ? 'diagram-component-target'
         : 'diagram-component-palette'
     const normalizedNodeDataArray = normalizePaletteWrapperNodeCategoryData(this.props?.nodeDataArray);
+    const normalizedLinkDataArray = normalizePaletteWrapperLinkData(this.props?.linkDataArray);
 
     if (debug) console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
@@ -757,7 +829,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         divClassName={divclassname}
         initDiagram={this.initPalette}
         nodeDataArray={normalizedNodeDataArray}
-        linkDataArray={this.props?.linkDataArray}
+        linkDataArray={normalizedLinkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         //   onSelectionChange   = {this.props.onModelChange}

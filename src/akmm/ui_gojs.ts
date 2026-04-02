@@ -1139,7 +1139,7 @@ export class goRelshipLink extends goLink {
                         }
                     }        
                     if (Array.isArray(this.points) && this.points.length >= 4) {
-                        this.routing = "Normal";
+                        this.routing = relview?.routing || "Normal";
                     }
                 }
             }
@@ -1161,7 +1161,9 @@ export class goRelshipLink extends goLink {
         //     }
         // }
         const hasExplicitPoints = Array.isArray(this.points) && this.points.length >= 4;
-        if (hasExplicitPoints || isSelfLoop) {
+        if (hasExplicitPoints) {
+            this.routing = relview?.routing || "Normal";
+        } else if (isSelfLoop) {
             this.routing = "Normal";
         } else {
             this.routing = relview?.routing || modelview.routing;

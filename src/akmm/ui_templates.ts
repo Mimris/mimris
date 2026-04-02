@@ -133,6 +133,12 @@ function sanitizeColor(value: any, fallback = "transparent"): string {
 
 function sanitizeGroupLayout(value: any, obj?: any): go.Layout {
     if (value instanceof go.Layout) return value;
+    if (typeof value === "string" && value.trim() !== "") {
+        try {
+            return uid.setGroupLayoutParameters(value.trim());
+        } catch (_) {
+        }
+    }
     const current = obj?.part?.layout;
     if (current instanceof go.Layout) return current;
     return new go.GridLayout();
@@ -188,7 +194,11 @@ function getEffectiveLinkRouting(data: any, fallback: any): any {
     const isSelfLoop =
         (data?.from && data?.to && String(data.from) === String(data.to)) ||
         (data?.fromNode?.key && data?.toNode?.key && String(data.fromNode.key) === String(data.toNode.key));
-    if (Array.isArray(points) && points.length >= 4) return go.Link.Normal;
+    if (Array.isArray(points) && points.length >= 4) {
+        if (typeof data?.routing === "string" && data.routing.trim() !== "") return getRouting(data.routing);
+        if (typeof data?.routing === "number") return data.routing;
+        return go.Link.Normal;
+    }
     if (isSelfLoop) return go.Link.Normal;
     if (typeof data?.routing === "string" && data.routing.trim() !== "") return getRouting(data.routing);
     if (typeof data?.routing === "number") return data.routing;
@@ -1368,7 +1378,8 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
             {
                 name: "POOL_SHAPE",
                 isPanelMain: true,
-                cursor: "alias",
+                cursor: "move",
+                pickable: false,
                 fill: "white",
                 strokeWidth: 2,
                 strokeCap: "square",
@@ -1474,6 +1485,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     row: 0,
                     column: 1,
                     stretch: go.GraphObject.Fill,
+                    pickable: false,
                 },
                 // NOTE: this panel must not size itself based on lane member bounds; otherwise the pool border
                 // will "jump" as lane contents are dragged/dropped. The main shape determines content size and
@@ -1511,6 +1523,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                         {
                             name: "POOL_CONTENT_ANCHOR",
                             stretch: go.GraphObject.Fill,
+                            pickable: false,
                             // Keep lane content flush to the left/top separator while leaving a tiny
                             // right/bottom inset so the pool border remains visible.
                             padding: new go.Margin(0, 4, 4, 0),

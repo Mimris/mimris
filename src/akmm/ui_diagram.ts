@@ -2730,7 +2730,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
                 direction: 0,
                 layerSpacing: 80,
                 columnSpacing: 40,
-                setsPortSpots: false,
+                setsPortSpots: true,
                 cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
                 initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
                 aggressiveOption: go.LayeredDigraphLayout.AggressiveLess,
@@ -3100,6 +3100,7 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
 
     const laneMemberNodes = new go.Set<go.Node>();
     const laneMemberKeys = new Set<string>();
+    const layoutMemberKeys = new Set<string>();
     if (layoutMode === "lane_content") {
         groupNode.memberParts.each((part: go.Part) => {
             if (part instanceof go.Node && !(part instanceof go.Group)) {
@@ -3108,6 +3109,49 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             }
         });
     }
+    groupNode.memberParts.each((part: go.Part) => {
+        if (part instanceof go.Node && part.data?.key) {
+            layoutMemberKeys.add(String(part.data.key));
+        }
+    });
+
+    const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+    const shouldResetLinkForLayout = (link: go.Link): boolean => {
+        if (!(link instanceof go.Link)) return false;
+        const data = link.data;
+        if (!data || data.category !== constants.gojs.C_RELATIONSHIP) return false;
+        const fromKey = String(link.fromNode?.data?.key || data.from || "");
+        const toKey = String(link.toNode?.data?.key || data.to || "");
+        if (layoutMode === "lane_content") {
+            return laneMemberKeys.has(fromKey) && laneMemberKeys.has(toKey);
+        }
+        return layoutMemberKeys.has(fromKey) || layoutMemberKeys.has(toKey);
+    };
+
+    myDiagram.links.each((link: go.Link) => {
+        if (!shouldResetLinkForLayout(link)) return;
+        const data = link.data;
+        const relview =
+            myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+            data?.relshipview;
+        if (!relview) return;
+        const fromObjview = relview.fromObjview;
+        const toObjview = relview.toObjview;
+        try { link.points = new go.List<go.Point>(); } catch (_) { }
+        try { myDiagram.model.setDataProperty(data, "points", []); } catch (_) { data.points = []; }
+        relview.points = [];
+        relview.fromObjview = fromObjview;
+        relview.toObjview = toObjview;
+        try {
+            const goLink = myMetis.gojsModel?.findLink?.(data?.key);
+            if (goLink) {
+                goLink.points = [];
+                if (goLink.data) goLink.data.points = [];
+            }
+        } catch (_) {
+        }
+        modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
+    });
     
     // Assign the layout to the group
     groupNode.layout = lay;
@@ -3143,6 +3187,12 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     
     // **FIX: Update diagram again to get accurate bounds**
     myDiagram.updateAllTargetBindings();
+
+    modifiedRelshipViews.forEach((mn) => {
+        let data: any = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
 
     // Ensure nodes are within group bounds
     const padding = GROUP_LAYOUT_PADDING;
@@ -3266,21 +3316,36 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             
             const relview = myModelview.findRelationshipView(relviewRef);
             if (relview) {
-                // Get the link's route points
-                const points = link.points;
-                const pointsArray = [];
-                points.each((pt: go.Point) => {
-                    pointsArray.push(pt.x + " " + pt.y);
-                });
-                
-                // Store the path as a string
-                const newPath = pointsArray.join(" ");
-                relview.path = newPath;
-                
-                // Update the model
-                myDiagram.model.setDataProperty(link.data, "path", newPath);
-                // Keep relview points JSON-serializable (avoid GoJS List circular refs).
-                relview.points = pointsArray;
+                try { link.fromNode?.invalidateConnectedLinks(); } catch (_) {}
+                try { link.toNode?.invalidateConnectedLinks(); } catch (_) {}
+                try { link.invalidateRoute(); } catch (_) {}
+                try { link.updateRoute(); } catch (_) {}
+                try { link.updateTargetBindings(); } catch (_) {}
+
+                const liveRouting = link.data?.routing || relview?.routing || "";
+                const livePoints: number[] = [];
+                try {
+                    link.points.each((pt: go.Point) => {
+                        livePoints.push(pt.x, pt.y);
+                    });
+                } catch (_) {
+                }
+
+                // For default-routed Orthogonal/AvoidsNodes links we should not persist
+                // the auto-generated route as an explicit manual path.
+                const persistPoints = shouldPersistLinkPoints(liveRouting, link.data?.points);
+                if (persistPoints) {
+                    relview.points = livePoints;
+                    try { myDiagram.model.setDataProperty(link.data, "points", livePoints); } catch (_) {
+                        link.data.points = livePoints;
+                    }
+                } else {
+                    relview.points = [];
+                    try { myDiagram.model.setDataProperty(link.data, "points", []); } catch (_) {
+                        link.data.points = [];
+                    }
+                }
+
                 const jsnRelView = new jsn.jsnRelshipView(relview);
                 modifiedRelationshipViews.push(jsnRelView);
             } else {

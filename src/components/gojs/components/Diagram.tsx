@@ -294,11 +294,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
          String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
       if (shouldFreezeManualRoute) {
-        relview.routing = "Normal";
-        try { diagram.model.setDataProperty(linkData, "routing", "Normal"); } catch (_) {
-          try { linkData.routing = "Normal"; } catch (_err) {}
+        const preservedRouting = String(relview?.routing || linkData?.routing || "").trim() || "Orthogonal";
+        relview.routing = preservedRouting;
+        try { diagram.model.setDataProperty(linkData, "routing", preservedRouting); } catch (_) {
+          try { linkData.routing = preservedRouting; } catch (_err) {}
         }
-        try { link.routing = go.Link.Normal; } catch (_) {}
+        try { link.routing = uit.getRouting(preservedRouting); } catch (_) {}
         try { link.adjusting = go.Link.End; } catch (_) {}
       }
       try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
@@ -6989,7 +6990,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
-        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        uid.doGroupLayout(objview, targetDiagram, myMetis);
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }
@@ -7498,7 +7499,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           return;
         }
 
-        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        uid.doGroupLayout(objview, targetDiagram, myMetis);
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }

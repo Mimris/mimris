@@ -18,6 +18,7 @@ import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
+import * as uit from '../../akmm/ui_templates';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
 import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
@@ -218,6 +219,20 @@ function isTransientRoutedLink(routing: any): boolean {
   return normalized === "Orthogonal" || normalized === "AvoidsNodes";
 }
 
+function getPreservedRouting(...sources: any[]): string {
+  for (let i = 0; i < sources.length; i++) {
+    const value = sources[i];
+    if (value === go.Link.Orthogonal) return "Orthogonal";
+    if (value === go.Link.AvoidsNodes) return "AvoidsNodes";
+    if (value === go.Link.Normal) return "Normal";
+    const normalized = String(value || "").trim();
+    if (normalized === "Orthogonal" || normalized === "AvoidsNodes" || normalized === "Normal") {
+      return normalized;
+    }
+  }
+  return "Normal";
+}
+
 function sanitizeModifiedLinkDataForReact(link: any): any {
   if (!link || typeof link !== "object") return link;
   const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
@@ -322,6 +337,36 @@ function sanitizeObjectViewDispatchData(data: any): any {
   delete nextData.modified;
   delete nextData.isSelected;
   return nextData;
+}
+
+function safeJsonCloneForDispatch(value: any): any {
+  const seen = new WeakSet<object>();
+  return JSON.parse(JSON.stringify(value, (_key, current) => {
+    if (typeof current === "function") return undefined;
+    if (!current || typeof current !== "object") return current;
+    if (seen.has(current)) return undefined;
+    seen.add(current);
+    const ctor = current.constructor?.name || "";
+    if (
+      ctor === "Diagram" ||
+      ctor === "AnimationManager" ||
+      ctor === "ToolManager" ||
+      ctor === "DraggingTool" ||
+      ctor === "CommandHandler" ||
+      ctor === "GraphObject" ||
+      ctor === "Part" ||
+      ctor === "Node" ||
+      ctor === "Link" ||
+      ctor === "Group" ||
+      ctor === "Panel" ||
+      ctor === "Shape" ||
+      ctor === "Adornment" ||
+      ctor === "InputEvent"
+    ) {
+      return undefined;
+    }
+    return current;
+  }));
 }
 
 function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
@@ -4576,6 +4621,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             const normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
             const normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
             const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
+            const preservedRouting = getPreservedRouting(
+              ldata?.routing,
+              rview?.routing,
+              rview?.typeview?.routing,
+              myModelview?.routing
+            );
             const isRoutedLink = isTransientRoutedLink(liveRouting);
             const previewPoints =
               ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
@@ -4609,14 +4660,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }));
                 } catch (_) { }
                 try { myDiagram.model.setDataProperty(ldata, "points", selfLoopPoints); } catch (_) { ldata.points = selfLoopPoints; }
-                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
-                try { link.routing = go.Link.Normal; } catch (_) { }
+                try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
+                try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
                 rview.points = selfLoopPoints;
-                rview.routing = "Normal";
+                rview.routing = preservedRouting;
                 try {
                   if (ldata?.relshipview) {
                     ldata.relshipview.points = selfLoopPoints;
-                    ldata.relshipview.routing = "Normal";
+                    ldata.relshipview.routing = preservedRouting;
                     if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
                   }
                 } catch (_) { }
@@ -4624,12 +4675,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const liveGoLink = myGoModel?.findLink?.(ldata?.key);
                   if (liveGoLink) {
                     liveGoLink.points = selfLoopPoints;
-                    liveGoLink.routing = "Normal";
+                    liveGoLink.routing = preservedRouting;
                     liveGoLink.relshipview = rview;
                     liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
                     if (liveGoLink.data) {
                       liveGoLink.data.points = selfLoopPoints;
-                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.routing = preservedRouting;
                       liveGoLink.data.relshipview = rview;
                       liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
                     }
@@ -4648,7 +4699,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     return {
                       ...entry,
                       points: [...selfLoopPoints],
-                      routing: "Normal",
+                      routing: preservedRouting,
                       relshipview: rview,
                       relviewRef: rview?.id || entry.relviewRef,
                     };
@@ -4745,7 +4796,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 } catch (_) { }
                 if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
                 try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
-                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
+                try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
                 try {
                   const pointList = new go.List<go.Point>();
                   for (let i = 0; i + 1 < adjustedPoints.length; i += 2) {
@@ -4753,13 +4804,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                   link.points = pointList;
                 } catch (_) { }
-                try { link.routing = go.Link.Normal; } catch (_) { }
-                rview.routing = "Normal";
+                try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
+                rview.routing = preservedRouting;
                 rview.points = adjustedPoints;
                 try {
                   if (ldata?.relshipview) {
                     ldata.relshipview.points = adjustedPoints;
-                    ldata.relshipview.routing = "Normal";
+                    ldata.relshipview.routing = preservedRouting;
                     if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
                   }
                 } catch (_) { }
@@ -4767,12 +4818,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const liveGoLink = myGoModel?.findLink?.(ldata?.key);
                   if (liveGoLink) {
                     liveGoLink.points = adjustedPoints;
-                    liveGoLink.routing = "Normal";
+                    liveGoLink.routing = preservedRouting;
                     liveGoLink.relshipview = rview;
                     liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
                     if (liveGoLink.data) {
                       liveGoLink.data.points = adjustedPoints;
-                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.routing = preservedRouting;
                       liveGoLink.data.relshipview = rview;
                       liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
                     }
@@ -4917,7 +4968,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   } catch (_) { }
                   if (!Array.isArray(livePoints) || livePoints.length < 4) return;
                   relview.points = livePoints;
-                  relview.routing = "Normal";
+                  relview.routing = getPreservedRouting(
+                    liveLink.data?.routing,
+                    relview?.routing,
+                    relview?.typeview?.routing,
+                    myModelview?.routing
+                  );
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
@@ -4950,14 +5006,20 @@ class GoJSApp extends React.Component<{}, AppState> {
               const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
               if (!Array.isArray(livePoints) || livePoints.length < 4) return;
               if (liveLink.data?.key) movedSelfLoopKeys.add(String(liveLink.data.key));
+              const liveRoutingName = getPreservedRouting(
+                liveLink.data?.routing,
+                relview?.routing,
+                relview?.typeview?.routing,
+                myModelview?.routing
+              );
               relview.points = livePoints;
-              relview.routing = "Normal";
+              relview.routing = liveRoutingName;
               try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
-              try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+              try { myDiagram.model.setDataProperty(liveLink.data, "routing", liveRoutingName); } catch (_) { liveLink.data.routing = liveRoutingName; }
               try {
                 if (liveLink.data?.relshipview) {
                   liveLink.data.relshipview.points = livePoints;
-                  liveLink.data.relshipview.routing = "Normal";
+                  liveLink.data.relshipview.routing = liveRoutingName;
                   if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
                 }
               } catch (_) { }
@@ -4965,12 +5027,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const goLink = myGoModel?.findLink?.(liveLink.data?.key);
                 if (goLink) {
                   goLink.points = livePoints;
-                  goLink.routing = "Normal";
+                  goLink.routing = liveRoutingName;
                   goLink.relshipview = relview;
                   goLink.relviewRef = relview?.id || goLink.relviewRef;
                   if (goLink.data) {
                     goLink.data.points = livePoints;
-                    goLink.data.routing = "Normal";
+                    goLink.data.routing = liveRoutingName;
                     goLink.data.relshipview = relview;
                     goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
                   }
@@ -4998,14 +5060,20 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (!relview) return;
                   const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
                   if (!Array.isArray(livePoints) || livePoints.length < 4) return;
+                  const liveRoutingName = getPreservedRouting(
+                    liveLink.data?.routing,
+                    relview?.routing,
+                    relview?.typeview?.routing,
+                    myModelview?.routing
+                  );
                   relview.points = livePoints;
-                  relview.routing = "Normal";
+                  relview.routing = liveRoutingName;
                   try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
-                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", liveRoutingName); } catch (_) { liveLink.data.routing = liveRoutingName; }
                   try {
                     if (liveLink.data?.relshipview) {
                       liveLink.data.relshipview.points = livePoints;
-                      liveLink.data.relshipview.routing = "Normal";
+                      liveLink.data.relshipview.routing = liveRoutingName;
                       if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
                     }
                   } catch (_) { }
@@ -5013,12 +5081,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const goLink = myGoModel?.findLink?.(linkKey);
                     if (goLink) {
                       goLink.points = livePoints;
-                      goLink.routing = "Normal";
+                      goLink.routing = liveRoutingName;
                       goLink.relshipview = relview;
                       goLink.relviewRef = relview?.id || goLink.relviewRef;
                       if (goLink.data) {
                         goLink.data.points = livePoints;
-                        goLink.data.routing = "Normal";
+                        goLink.data.routing = liveRoutingName;
                         goLink.data.relshipview = relview;
                         goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
                       }
@@ -5062,7 +5130,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          data = safeJsonCloneForDispatch(data);
           myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
         // Auto-relayout affected pools after lane moves.
@@ -5101,8 +5169,19 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (isPool && parentIsPool && part.containingGroup?.data?.key && !movedPoolKeys.has(String(part.containingGroup.data.key))) {
               poolsToRelayout.add(String(part.containingGroup.data.key));
             }
-            if (isLane && pdata?.group && !movedPoolKeys.has(String(pdata.group))) poolsToRelayout.add(pdata.group);
+            // Do not relayout a pool just because a lane was dragged inside it.
+            // Pool relayout here should only happen for structural changes such as
+            // reparenting between pools (tracked via __previousGroup), lane drops, or pool moves/resizes.
             if (isLane && pdata?.__previousGroup && !movedPoolKeys.has(String(pdata.__previousGroup))) poolsToRelayout.add(pdata.__previousGroup);
+            if (
+              isLane &&
+              pdata?.__previousGroup &&
+              pdata?.group &&
+              String(pdata.__previousGroup) !== String(pdata.group) &&
+              !movedPoolKeys.has(String(pdata.group))
+            ) {
+              poolsToRelayout.add(pdata.group);
+            }
             if (isLane && pdata) delete (pdata as any).__previousGroup;
           }
           if (poolsToRelayout.size > 0) {
@@ -6511,7 +6590,7 @@ e.subject.each(function (n) {
       modifiedModelviews.push(jsnModelview);
       modifiedModelviews.map(mn => {
         let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        data = safeJsonCloneForDispatch(data);
         myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
       });
     }
@@ -6738,10 +6817,11 @@ e.subject.each(function (n) {
     node?.containingGroup instanceof go.Group && node.containingGroup.key !== undefined && node.containingGroup.key !== null
       ? node.containingGroup.key
       : (part?.group || part?.data?.group || "");
+  const droppedPartIsGroup = Boolean(part?.isGroup) || isGroupLikeNode(goNode, part);
   let group = containingGroupKey
     ? myGoModel.findNode(containingGroupKey)
     : null;
-  if (!group) {
+  if (!group && !droppedPartIsGroup) {
     group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
   }
   if (group) {
@@ -6781,6 +6861,11 @@ e.subject.each(function (n) {
       const jsnRel = new jsn.jsnRelationship(hasPartRelship);
       modifiedRelships.push(jsnRel);
     }
+  } else {
+    goNode.group = "";
+    goNode.objectview.group = "";
+    try { myDiagram.model.setDataProperty(part, "group", ""); } catch (_) { part.group = ""; }
+    objview.group = "";
   }
   // if (goNode) {
   //   goNode.object = null;
@@ -6904,7 +6989,7 @@ const jsnModelview = new jsn.jsnModelView(myModelview);
 modifiedModelviews.push(jsnModelview);
 modifiedModelviews.map(mn => {
   let data = mn;
-  data = JSON.parse(JSON.stringify(data));
+  data = safeJsonCloneForDispatch(data);
   myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
 });
 if (myDiagram) {
@@ -7572,7 +7657,7 @@ break;
     modifiedModelviews.push(jsnModelview);
     modifiedModelviews.map(mn => {
       let data = mn;
-      data = JSON.parse(JSON.stringify(data));
+      data = safeJsonCloneForDispatch(data);
       myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
     });
     // Dispatch model
@@ -7838,11 +7923,12 @@ break;
       }
     } catch (_) {}
     if (shouldFreezeManualRoute) {
-      relview.routing = "Normal";
-      try { myDiagram.model.setDataProperty(data, "routing", "Normal"); } catch (_) {
-        try { data.routing = "Normal"; } catch (_err) {}
+      const preservedRouting = currentRouting || "Orthogonal";
+      relview.routing = preservedRouting;
+      try { myDiagram.model.setDataProperty(data, "routing", preservedRouting); } catch (_) {
+        try { data.routing = preservedRouting; } catch (_err) {}
       }
-      try { link.routing = go.Link.Normal; } catch (_) { }
+      try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
       try { link.adjusting = go.Link.End; } catch (_) { }
     }
     try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
@@ -8007,7 +8093,7 @@ if (true) { // Dispatches to store individual objects/types
       Array.from(coalescedObjectViews.values()).map(mn => {
         let data = (mn) && mn
         if (mn.id) {
-          data = sanitizeObjectViewDispatchData(JSON.parse(JSON.stringify(data)));
+          data = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch(data));
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
           const storedObjectView = findStoredObjectViewById(data.id);

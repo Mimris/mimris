@@ -615,7 +615,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           String(fromObjview?.id || "") !== "" &&
           String(fromObjview?.id || "") === String(toObjview?.id || "");
         link.routing = hasExplicitPoints
-          ? "Normal"
+          ? (relview?.routing || "Normal")
           : (isSelfLoop
               ? "Normal"
               : getDefaultRoutingForRelshipType(

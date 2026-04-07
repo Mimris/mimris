@@ -429,9 +429,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         (node as any).scale1 = objview.scale;
         myGoModel.addNode(node);
         node.name = objview.name;
-        const object = node.object as akm.cxObject;
+        const object = node.object as akm.cxObject | null;
         let objtype = object?.type as akm.cxObjectType;
-        if (!objtype) objtype = metis.findObjectType(object.typeRef);
+        if (!objtype && object?.typeRef) objtype = metis.findObjectType(object.typeRef);
         if (objtype?.name !== 'EntityType') {
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {

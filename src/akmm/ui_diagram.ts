@@ -2830,9 +2830,18 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
     if (layoutMode === "pool_structure") {
         try {
         const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
-            if (!(group instanceof go.Group)) return 28;
+            if (!(group instanceof go.Group)) return 34;
+            try {
+                const poolHeader = group.findObject("POOL_HEADER_STRIP");
+                const poolHeaderWidth = poolHeader?.actualBounds?.width;
+                if (typeof poolHeaderWidth === "number" && Number.isFinite(poolHeaderWidth) && poolHeaderWidth > 0) {
+                    return poolHeaderWidth;
+                }
+            } catch (_) {
+            }
             let maxWidth = 0;
             const candidateNames = [
+                'POOL_HEADER_STRIP',
                 'LEFT_HEADER',
                 'leftHeader',
                 'poolLeftHeader',
@@ -2854,7 +2863,7 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             const d: any = group.data;
             const dataWidth = [d?.leftHeaderWidth, d?.headerWidth, d?.poolHeaderWidth]
                 .find((value) => typeof value === 'number' && !Number.isNaN(value)) || 0;
-            return Math.max(maxWidth, dataWidth, 28);
+            return Math.max(maxWidth, dataWidth, 34);
         };
 
         const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
@@ -2905,14 +2914,14 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         const poolLeftReserve = detectPoolLeftHeaderReserve(groupNode);
         const poolContentPanel = groupNode.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
         const poolContentAnchor = groupNode.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
-        const lanePaddingLeft = 4;
-        const lanePaddingRight = 4;
-        const laneBodyPanelRightMargin = 2;
-        const laneBodyPanelBottomMargin = 2;
-        const poolContentRightPadding = 6;
-        const poolContentBottomPadding = 6;
+        const lanePaddingLeft = 0;
+        const lanePaddingRight = 0;
+        const laneBodyPanelRightMargin = 0;
+        const laneBodyPanelBottomMargin = 0;
+        const poolContentRightPadding = 0;
+        const poolContentBottomPadding = 0;
         const laneRightVisualInset = laneBodyPanelRightMargin + poolContentRightPadding;
-        const laneTopMargin = 4;
+        const laneTopMargin = 0;
         const laneBottomMargin = laneBodyPanelBottomMargin + poolContentBottomPadding;
         const laneSpacing = POOL_LANE_GAP;
         const minLaneWidth = 120;
@@ -2921,12 +2930,35 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         const preserveWidth =
             !!preservePoolWidths?.has(String(groupNode.data?.key || myGroup?.id || "")) ||
             !!effectiveForcedPoolSize;
+        let measuredLaneStackWidth = 0;
+        structuralGroups.forEach(({ group, kind }) => {
+            const laneSize = group.data?.size ? go.Size.parse(String(group.data.size)) : null;
+            const resizeObject = group.resizeObject || group.placeholder || group;
+            const laneBounds = group.actualBounds?.copy();
+            const baseWidth =
+                (typeof laneSize?.width === 'number' && Number.isFinite(laneSize.width) && laneSize.width > 0)
+                    ? laneSize.width
+                    : Math.max(
+                        resizeObject?.desiredSize?.width || 0,
+                        laneBounds?.width || 0,
+                        120
+                    );
+            if (kind === 'lane') {
+                const laneHeader = group.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+                const laneHeaderWidth =
+                    (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+                        ? laneHeader.actualBounds.width
+                        : 36;
+                measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth + laneHeaderWidth);
+            } else {
+                measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth);
+            }
+        });
         let poolWidth = preserveWidth
             ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
             : Math.max(
                 effectiveForcedPoolSize?.width || 0,
-                poolResizeObject?.desiredSize?.width || 0,
-                poolSize?.width || 0,
+                measuredLaneStackWidth + poolLeftReserve + lanePaddingLeft + lanePaddingRight + laneRightVisualInset,
                 minPoolWidth
             );
         const measuredInnerWidth = (() => {
@@ -2960,7 +2992,7 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
 
         const finalPoolWidth = poolWidth;
         const finalLaneWidth = Math.max(finalPoolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset, minLaneWidth);
-        const finalStructuralRowWidth = Math.max(finalLaneWidth - 2, minLaneWidth);
+        const finalStructuralRowWidth = Math.max(finalLaneWidth, minLaneWidth);
 
         laneLayouts.forEach((layout, idx) => {
             const lane = layout.group;

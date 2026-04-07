@@ -2389,9 +2389,18 @@ class GoJSApp extends React.Component<{}, AppState> {
       const poolNode = myDiagram.findNodeForKey(poolKey);
       if (!(poolNode instanceof go.Group)) return;
       const resolvePoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
-        if (!(group instanceof go.Group)) return 0;
+        if (!(group instanceof go.Group)) return 34;
+        try {
+          const poolHeader = group.findObject("POOL_HEADER_STRIP");
+          const poolHeaderWidth = poolHeader?.actualBounds?.width;
+          if (typeof poolHeaderWidth === "number" && Number.isFinite(poolHeaderWidth) && poolHeaderWidth > 0) {
+            return poolHeaderWidth;
+          }
+        } catch (_) {
+        }
         let maxWidth = 0;
         const candidateNames = [
+          'POOL_HEADER_STRIP',
           'LEFT_HEADER',
           'leftHeader',
           'poolLeftHeader',
@@ -2413,15 +2422,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         const d: any = group.data;
         const dataWidth = [d?.leftHeaderWidth, d?.headerWidth, d?.poolHeaderWidth]
           .find((value) => typeof value === 'number' && !Number.isNaN(value)) || 0;
-        return Math.max(maxWidth, dataWidth, 28);
+        return Math.max(maxWidth, dataWidth, 34);
       };
       const poolSize = parseSizeString(poolNode.data?.size);
       const poolWidth = Number(poolSize?.width) || Number(poolNode.findObject("POOL_SHAPE")?.actualBounds?.width) || 0;
       if (!Number.isFinite(poolWidth) || poolWidth <= 0) return;
       const poolLeftReserve = resolvePoolLeftHeaderReserve(poolNode);
-      const lanePaddingLeft = 4;
-      const lanePaddingRight = 4;
-      const laneRightVisualInset = 6;
+      const lanePaddingLeft = 0;
+      const lanePaddingRight = 0;
+      const laneRightVisualInset = 0;
       const finalLaneWidth = Math.max(
         poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
         120
@@ -2508,21 +2517,12 @@ class GoJSApp extends React.Component<{}, AppState> {
       (myDiagram as any).__isSwimlaneNormalizeInProgress = true;
       try {
         myDiagram.model.startTransaction("normalizeSwimlanePool");
-        // Precompute lane structural/body bounds so we can fix mis-parented nodes that
-        // visually sit in a Lane but are grouped directly to the Pool.
-        const laneInfos: Array<{
-          key: string;
-          lane: go.Group;
-          mainBounds: go.Rect | null;
-          bodyBounds: go.Rect | null;
-          area: number;
-        }> = [];
-        poolNode.memberParts.each((part: go.Part) => {
-          if (!(part instanceof go.Group)) return;
+        const isLaneGroup = (part: go.Part | null | undefined): part is go.Group => {
+          if (!(part instanceof go.Group)) return false;
           const ldata = part.data;
           const c = String(ldata?.category || "");
           const t = String(ldata?.template || "");
-          const isLane =
+          return (
             c === "Lane" ||
             c === "Lane_w_handles" ||
             c === "Lane9" ||
@@ -2532,17 +2532,89 @@ class GoJSApp extends React.Component<{}, AppState> {
             t === "Lane9" ||
             t === "Lane9_legacy" ||
             part.category === "Lane" ||
-            part.category === "Lane_w_handles";
-          if (!isLane) return;
-
-          const laneKey = String(ldata?.key || part.key || "");
-          if (!laneKey) return;
+            part.category === "Lane_w_handles"
+          );
+        };
+        const getLaneInfo = (part: go.Group) => {
+          const laneKey = String(part.data?.key || part.key || "");
+          if (!laneKey) return null;
           const laneMain = (part.findObject("LANE_MAIN_SHAPE") || part.findObject("LANE_MAIN")) as go.GraphObject | null;
           const laneBody = part.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
           const mainBounds = laneMain ? laneMain.getDocumentBounds() : part.actualBounds;
           const bodyBounds = laneBody ? laneBody.getDocumentBounds() : null;
           const area = Math.max(1, mainBounds.width * mainBounds.height);
-          laneInfos.push({ key: laneKey, lane: part, mainBounds, bodyBounds, area });
+          return { key: laneKey, lane: part, mainBounds, bodyBounds, area };
+        };
+        const horizontalAlignmentScore = (a: go.Rect, b: go.Rect): number => {
+          const overlapLeft = Math.max(a.x, b.x);
+          const overlapRight = Math.min(a.right, b.right);
+          const overlap = Math.max(0, overlapRight - overlapLeft);
+          const baseline = Math.max(1, Math.min(a.width, b.width));
+          const xDelta = Math.abs(a.x - b.x);
+          return Math.max(overlap / baseline, xDelta <= 8 ? 1 : 0);
+        };
+        const isVerticallyAdjacent = (candidate: go.Rect, existing: go.Rect): boolean => {
+          const gapAbove = Math.abs(candidate.bottom - existing.y);
+          const gapBelow = Math.abs(existing.bottom - candidate.y);
+          return gapAbove <= 12 || gapBelow <= 12;
+        };
+
+        // Precompute lane structural/body bounds so we can fix mis-parented nodes that
+        // visually sit in a Lane but are grouped directly to the Pool.
+        const laneInfos: Array<{
+          key: string;
+          lane: go.Group;
+          mainBounds: go.Rect | null;
+          bodyBounds: go.Rect | null;
+          area: number;
+        }> = [];
+        const seenLaneKeys = new Set<string>();
+        const registerLaneInfo = (part: go.Group) => {
+          const info = getLaneInfo(part);
+          if (!info || seenLaneKeys.has(info.key)) return;
+          laneInfos.push(info);
+          seenLaneKeys.add(info.key);
+        };
+        poolNode.memberParts.each((part: go.Part) => {
+          if (!isLaneGroup(part)) return;
+          registerLaneInfo(part);
+        });
+
+        if (laneInfos.length > 0) {
+          let expanded = true;
+          while (expanded) {
+            expanded = false;
+            myDiagram.nodes.each((part: go.Part) => {
+              if (!isLaneGroup(part)) return;
+              const info = getLaneInfo(part);
+              if (!info || seenLaneKeys.has(info.key) || !info.mainBounds) return;
+              const groupedToPool = String(part.data?.group || "") === poolKey;
+              const containedByPool = part.containingGroup === poolNode;
+              const matchesSeedLane = laneInfos.some((existing) => {
+                if (!existing.mainBounds) return false;
+                return (
+                  horizontalAlignmentScore(info.mainBounds!, existing.mainBounds) >= 0.85 &&
+                  isVerticallyAdjacent(info.mainBounds!, existing.mainBounds)
+                );
+              });
+              if (!(groupedToPool || containedByPool || matchesSeedLane)) return;
+              registerLaneInfo(part);
+              expanded = true;
+            });
+          }
+        }
+
+        laneInfos.forEach((info) => {
+          const part = info.lane;
+          const laneKey = info.key;
+          const bodyBounds = info.bodyBounds;
+          if (poolKey && part.data?.group !== poolKey) {
+            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+              (myDiagram.model as any).setGroupKeyForNodeData(part.data, poolKey);
+            } else {
+              myDiagram.model.setDataProperty(part.data, "group", poolKey);
+            }
+          }
 
           part.memberParts.each((mp: go.Part) => {
             if (!(mp instanceof go.Node) || mp instanceof go.Group) return;
@@ -2895,6 +2967,24 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
         restoreMetamodelContainsVisibility();
         normalizeMetamodelContainsRouting();
+        try {
+          const poolKeysToNormalize = new Set<string>();
+          myDiagram.nodes.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            if (!isPoolLike(part.data)) return;
+            const poolKey = String(part.data?.key || part.key || "");
+            if (!poolKey) return;
+            poolKeysToNormalize.add(poolKey);
+          });
+          poolKeysToNormalize.forEach((poolKey) => {
+            normalizeSwimlanePool(poolKey);
+            const poolPart = myDiagram.findNodeForKey(poolKey);
+            if (poolPart instanceof go.Group) {
+              relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
+            }
+          });
+        } catch (_) {
+        }
         const activeFocusModelviewId = this.props?.phFocus?.focusModelview?.id || "";
         const focusObjectViewId = this.props?.phFocus?.focusObjectview?.id || "";
         const shouldApplyRealSelection = Boolean(activeFocusModelviewId) && activeFocusModelviewId === myModelview?.id;
@@ -6043,25 +6133,42 @@ const registerPoolFromPart = (part: go.Part | null | undefined) => {
 const relayoutPoolGroupAfterLaneChanges = (
   diagram: go.Diagram | null | undefined,
   poolGroup: go.Group | null | undefined,
-  laneSpacing = 4
+  laneSpacing = 0
 ) => {
   if (!diagram || !(poolGroup instanceof go.Group)) {
     return;
   }
 
   const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
-  poolGroup.memberParts.each((member: go.Part) => {
-    if (!(member instanceof go.Group)) {
-      return;
-    }
+  const seenStructuralKeys = new Set<string>();
+  const registerStructuralGroup = (member: go.Part) => {
+    if (!(member instanceof go.Group) || member === poolGroup) return;
+    const memberKey = String(member.data?.key || member.key || "");
+    if (!memberKey || seenStructuralKeys.has(memberKey)) return;
     if (isLaneLike(member.data)) {
       structuralGroups.push({ group: member, kind: 'lane' });
+      seenStructuralKeys.add(memberKey);
       return;
     }
     if (isPoolLike(member.data)) {
       structuralGroups.push({ group: member, kind: 'pool' });
+      seenStructuralKeys.add(memberKey);
     }
+  };
+  poolGroup.memberParts.each((member: go.Part) => {
+    registerStructuralGroup(member);
   });
+  const poolBounds = poolGroup.actualBounds?.copy();
+  if (poolBounds) {
+    diagram.nodes.each((member: go.Part) => {
+      if (!(member instanceof go.Group) || member === poolGroup) return;
+      const groupedToPool = String(member.data?.group || "") === String(poolGroup.data?.key || "");
+      const containedByPool = member.containingGroup === poolGroup;
+      const overlapsPool = !!member.actualBounds?.intersectsRect?.(poolBounds);
+      if (!(groupedToPool || containedByPool || overlapsPool)) return;
+      registerStructuralGroup(member);
+    });
+  }
 
   if (!structuralGroups.length) {
     return;
@@ -6069,10 +6176,20 @@ const relayoutPoolGroupAfterLaneChanges = (
 
   const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
     if (!(group instanceof go.Group)) {
-      return 0;
+      return 34;
+    }
+    try {
+      const poolHeader = group.findObject("POOL_HEADER_STRIP");
+      const poolHeaderWidth = poolHeader?.actualBounds?.width;
+      if (typeof poolHeaderWidth === "number" && Number.isFinite(poolHeaderWidth) && poolHeaderWidth > 0) {
+        return poolHeaderWidth;
+      }
+    } catch (err) {
+      // ignore lookup issues and continue
     }
     let maxWidth = 0;
     const candidateNames = [
+      'POOL_HEADER_STRIP',
       'LEFT_HEADER',
       'leftHeader',
       'poolLeftHeader',
@@ -6106,7 +6223,7 @@ const relayoutPoolGroupAfterLaneChanges = (
       }
       return 0;
     })();
-    const fallbackReserve = 28;
+    const fallbackReserve = 34;
     return Math.max(maxWidth, dataWidth, fallbackReserve);
   };
 
@@ -6228,20 +6345,48 @@ const relayoutPoolGroupAfterLaneChanges = (
   const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
   const poolContentPanel = poolGroup.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
   const poolContentAnchor = poolGroup.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
-  const lanePaddingLeft = 4;
-  const lanePaddingRight = 4;
-  const laneRightVisualInset = 6;
-  const laneTopMargin = 4;
-  const laneBottomMargin = 6;
+  const lanePaddingLeft = 0;
+  const lanePaddingRight = 0;
+  const laneRightVisualInset = 0;
+  const laneTopMargin = 0;
+  const laneBottomMargin = 0;
   const minLaneWidth = 120;
   const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
   const preservePoolWidths = (diagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
   const preserveWidth =
     !!preservePoolWidths?.has(String(poolGroup.data?.key || "")) ||
     !!effectiveForcedPoolSize;
+  let measuredLaneStackWidth = 0;
+  structuralGroups.forEach(({ group, kind }) => {
+    const laneSizeData = parseSizeString(group?.data?.size);
+    const resizeObject = group.resizeObject || group.placeholder || group;
+    const laneBounds = group.actualBounds?.copy();
+    const baseWidth =
+      (typeof laneSizeData?.width === 'number' && Number.isFinite(laneSizeData.width) && laneSizeData.width > 0)
+        ? laneSizeData.width
+        : Math.max(
+            (typeof resizeObject?.desiredSize?.width === 'number' && Number.isFinite(resizeObject.desiredSize.width) && resizeObject.desiredSize.width > 0) ? resizeObject.desiredSize.width : 0,
+            (typeof laneBounds?.width === 'number' && Number.isFinite(laneBounds.width) && laneBounds.width > 0) ? laneBounds.width : 0,
+            120
+          );
+    if (kind === 'lane') {
+      const laneHeader = group.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+      const laneHeaderWidth =
+        (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+          ? laneHeader.actualBounds.width
+          : 36;
+      measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth + laneHeaderWidth);
+    } else {
+      measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth);
+    }
+  });
   let poolWidth = preserveWidth
     ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
-    : (poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : minPoolWidth);
+    : Math.max(
+        effectiveForcedPoolSize?.width || 0,
+        measuredLaneStackWidth + poolLeftReserve + lanePaddingLeft + lanePaddingRight + laneRightVisualInset,
+        minPoolWidth
+      );
 
   const model = diagram.model;
   const measuredInnerWidth = (() => {
@@ -6384,8 +6529,16 @@ const relayoutPoolGroupAfterLaneChanges = (
       const sizeString = `${laneBodyWidth} ${laneHeight}`;
       if (model && typeof model.setDataProperty === 'function') {
         model.setDataProperty(lane.data, 'size', sizeString);
+        if (poolGroup.data?.key && lane.data.group !== poolGroup.data.key) {
+          if (typeof (model as any).setGroupKeyForNodeData === 'function') {
+            (model as any).setGroupKeyForNodeData(lane.data, poolGroup.data.key);
+          } else {
+            model.setDataProperty(lane.data, 'group', poolGroup.data.key);
+          }
+        }
       } else {
         lane.data.size = sizeString;
+        if (poolGroup.data?.key) lane.data.group = poolGroup.data.key;
       }
     }
     updateGroupObjectView(lane, laneLocationPoint, new go.Size(laneBodyWidth, laneHeight));

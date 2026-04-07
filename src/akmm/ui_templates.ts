@@ -1175,11 +1175,12 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
 const SWIM_HEADER_WIDTH = 34;
 const LANE_HEADER_STRIP_WIDTH = 36;
 // Dark enough to be clearly visible even when the diagram background is white.
-const SWIM_BORDER_FALLBACK = "#000000";
-const SWIM_LANE_EDGE_WIDTH = 2;
+const SWIM_BORDER_FALLBACK = "#1f1f1f";
+const SWIM_SEPARATOR_STROKE = "#000000";
+const SWIM_LANE_EDGE_WIDTH = 4;
 // Visual debugging aid: tint swimlane/pool panels so it is obvious which bounds are structural vs content.
 // Keep this off in normal use; it intentionally overrides data-driven fills.
-const DEBUG_SWIMLANE_BG = true;
+const DEBUG_SWIMLANE_BG = false;
 
 function dbgFill(normal: string, debugFill: string): string {
     return DEBUG_SWIMLANE_BG ? debugFill : normal;
@@ -1235,7 +1236,7 @@ function swimStroke(c: any): string {
     // If the provided stroke is very light, clamp to a visible default.
     // This avoids "missing" borders on white backgrounds when data has light stroke colors.
     const rgb = parseRgbLike(s);
-    if (rgb && relLuminance(rgb) > 0.72) return SWIM_BORDER_FALLBACK;
+    if (rgb && relLuminance(rgb) > 0.55) return SWIM_BORDER_FALLBACK;
     return s;
 }
 
@@ -1253,7 +1254,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 strokeJoin: "miter",
                 stretch: go.GraphObject.Fill,
             },
-            new go.Binding("stroke", "strokecolor", swimStroke),
+            new go.Binding("stroke", "", () => "transparent"),
         ),
         $(go.Panel, "Table",
             {
@@ -1264,6 +1265,21 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 margin: new go.Margin(0),
             },
             $(go.RowColumnDefinition, { column: 0, width: LANE_HEADER_STRIP_WIDTH, sizing: go.RowColumnDefinition.None }),
+            $(go.Shape, "LineH",
+                {
+                    row: 0,
+                    column: 0,
+                    columnSpan: 2,
+                    alignment: go.Spot.TopLeft,
+                    stretch: go.GraphObject.Horizontal,
+                    height: 0,
+                    strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
+                    strokeCap: "square",
+                    pickable: false,
+                    stroke: SWIM_SEPARATOR_STROKE,
+                },
+                new go.Binding("visible", "laneIndex", (idx: any) => Number(idx) > 0),
+            ),
             $(go.Panel, "Spot", // Header strip is a Spot so we can draw a stable border overlay that matches selection/handles.
                 {
                     name: "LANE_HEADER_STRIP",
@@ -1329,7 +1345,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                     // Do not vertically stretch lane body to the pool height. The lane BODY height must be
                     // driven by `LANE_BODY_SHAPE.desiredSize.height` (data.size) so lanes don't overlap.
                     stretch: go.GraphObject.Horizontal,
-                    margin: new go.Margin(0, 2, 2, 0),
+                    margin: new go.Margin(0),
                 },
                 $(go.Shape, "Rectangle",
                     {
@@ -1391,9 +1407,41 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 const s = (c == null) ? "" : String(c).trim();
                 return s === "" ? "white" : s;
             }),
-            // Ensure pool borders are always visible even when `strokecolor` is unset/empty.
-            new go.Binding("stroke", "strokecolor", swimStroke),
+            // Keep the main pool shape structurally transparent; draw the visible swimlane
+            // borders with dedicated overlays so all horizontal/vertical border lines share
+            // the same rendering path and visual weight.
+            new go.Binding("stroke", "", () => "transparent"),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        ),
+        $(go.Shape, "LineH",
+            {
+                alignment: go.Spot.Top,
+                stretch: go.GraphObject.Horizontal,
+                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
+                strokeCap: "square",
+                pickable: false,
+                stroke: SWIM_SEPARATOR_STROKE,
+            },
+        ),
+        $(go.Shape, "LineV",
+            {
+                alignment: go.Spot.Right,
+                stretch: go.GraphObject.Vertical,
+                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
+                strokeCap: "square",
+                pickable: false,
+                stroke: SWIM_SEPARATOR_STROKE,
+            },
+        ),
+        $(go.Shape, "LineH",
+            {
+                alignment: go.Spot.Bottom,
+                stretch: go.GraphObject.Horizontal,
+                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
+                strokeCap: "square",
+                pickable: false,
+                stroke: SWIM_SEPARATOR_STROKE,
+            },
         ),
         $(go.Panel, "Table",
             {
@@ -1524,9 +1572,9 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             name: "POOL_CONTENT_ANCHOR",
                             stretch: go.GraphObject.Fill,
                             pickable: false,
-                            // Keep lane content flush to the left/top separator while leaving a tiny
-                            // right/bottom inset so the pool border remains visible.
-                            padding: new go.Margin(0, 4, 4, 0),
+                            // Keep lane content flush with the pool border so pool edges and
+                            // lane separators share the same visible lines.
+                            padding: new go.Margin(0),
                             alignment: go.Spot.TopLeft,
                         },
                     ),
@@ -1604,9 +1652,20 @@ function addResizeAdornment(groupName: string) {
             const scale = shape?.part?.diagram?.scale || 1;
             return new go.Size(width / scale, height / scale);
         }).ofObject();
+    if (groupName === "Pool" || groupName === "Lane") {
+        return $(go.Adornment, "Spot",
+            $(go.Placeholder),
+            $(go.Shape, { alignment: go.Spot.TopLeft, fill: "lightblue", stroke: "dodgerblue", cursor: "nw-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Top, fill: "lightblue", stroke: "dodgerblue", cursor: "n-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.TopRight, fill: "lightblue", stroke: "dodgerblue", cursor: "ne-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Right, fill: "lightblue", stroke: "dodgerblue", cursor: "e-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.BottomRight, fill: "lightblue", stroke: "dodgerblue", cursor: "se-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Bottom, fill: "lightblue", stroke: "dodgerblue", cursor: "s-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.BottomLeft, fill: "lightblue", stroke: "dodgerblue", cursor: "sw-resize" }, scaledAdornmentSize(8, 8)),
+            $(go.Shape, { alignment: go.Spot.Left, fill: "lightblue", stroke: "dodgerblue", cursor: "w-resize" }, scaledAdornmentSize(8, 8))
+        );
+    }
     if (
-        groupName === "Pool" ||
-        groupName === "Lane" ||
         groupName === "Container1" ||
         groupName === "IDEF0" ||
         groupName === "groupWithPorts" ||
@@ -5644,13 +5703,14 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Horizontal", groupStyle(),
         {
             name: "GROUP",
-            // Keep selection outline + resize handles aligned with the full lane (header + body).
-            selectionObjectName: "LANE_MAIN",
-            resizeObjectName: "LANE_MAIN",
+            // Select/resize the lane body instead of the whole lane wrapper so lane selection
+            // does not draw over shared separator lines or the pool border.
+            selectionObjectName: "BODY",
+            resizeObjectName: "BODY",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
-            padding: new go.Margin(0, 2, 2, 0),
+            padding: new go.Margin(0, 0, 0, 0),
             // Make "loc" represent the top-left of the whole lane (header + body),
             // so pool layout can align lane headers flush to the pool header separator.
             locationObjectName: "LANE_MAIN",
@@ -5704,13 +5764,14 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         $(go.Group, "Horizontal", groupStyle(),
         {
             name: "GROUP",
-            // Keep selection outline + resize handles aligned with the full lane (header + body).
-            selectionObjectName: "LANE_MAIN",
-            resizeObjectName: "LANE_MAIN",
+            // Select/resize the lane body instead of the whole lane wrapper so lane selection
+            // does not draw over shared separator lines or the pool border.
+            selectionObjectName: "BODY",
+            resizeObjectName: "BODY",
             resizable: true, 
             minSize: getMinSize(),
             selectionAdorned: true,
-            padding: new go.Margin(0, 2, 2, 0),
+            padding: new go.Margin(0, 0, 0, 0),
             locationObjectName: "LANE_MAIN",
             locationSpot: go.Spot.TopLeft,
             computesBoundsAfterDrag: true,
@@ -5763,7 +5824,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 minSize: getMinSize(),
                 contextMenu: contextMenu,
                 selectionAdorned: true,
-                padding: new go.Margin(0, 2, 2, 0),
+                padding: new go.Margin(0),
                 // Keep selection/resize aligned with the pool border shape, not with placeholder/member bounds.
                 selectionObjectName: "POOL_SHAPE",
                 resizeObjectName: "POOL_SHAPE",

@@ -39,3 +39,16 @@ tasks:
     done_when:
       - the local project import change is represented as a real spec-kit feature
       - the feature includes requirements, implementation notes, and validation tasks
+
+  - id: SPEC-SHARE-001
+    title: Capture shareable focus links as a feature spec
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - .specify/specs/004-shareable-focus-links/spec.md
+      - .specify/specs/004-shareable-focus-links/plan.md
+      - .specify/specs/004-shareable-focus-links/tasks.md
+    done_when:
+      - the shareable focus-link change is represented as a real spec-kit feature
+      - the feature includes requirements, implementation notes, and validation tasks

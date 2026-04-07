@@ -21,6 +21,7 @@ import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
+import { buildFocusSharePath } from "../components/utils/focusShare";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -243,9 +244,7 @@ const Page1 = (props: any) => {
       setMemoryLocState(sessionData);
     }
 
-    // Construct the URL and open it in a new tab
-    const url = `/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
-      }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`;
+    const url = buildFocusSharePath(focus);
     window.open(url, "_blank");
   };
 

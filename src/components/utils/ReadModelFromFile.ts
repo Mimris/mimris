@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 // import { CONSTRAINT } from "sqlite3";
+import { InitialState } from "../../reducers/reducer";
 import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";
 
@@ -37,10 +38,16 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     e.preventDefault();
     const reader = new FileReader();
     const sourceProps = props?.phData ? props : props?.ph
+    const resetFileInput = () => {
+        if (e?.target) e.target.value = ''
+    }
     reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
     if (!debug) console.log('42 ReadModelFromFile', props, reader.fileName)
-    if (!reader.fileName) return null
+    if (!reader.fileName) {
+        resetFileInput()
+        return null
+    }
     reader.onload = async (e) => {
         const text = (e.target.result)
         if (debug) console.log('46 ReadModelFromFile', text)
@@ -69,6 +76,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const importedProjectMetis = importedfile.phData?.metis || {}
             const importedProjectModels = toArray(importedProjectMetis.models)
             const importedProjectFocus = importedfile.phFocus || {}
+            if (importedProjectModels.length === 0) {
+                alert('No models in this file.')
+                resetFileInput()
+                return
+            }
             const resolvedProjectModel = importedProjectModels.find(model => model?.id === importedProjectFocus?.focusModel?.id)
                 || importedProjectModels[0]
                 || null
@@ -79,6 +91,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const sanitizedProject = {
                 ...importedfile,
                 phData: {
+                    ...InitialState.phData,
                     ...importedfile.phData,
                     metis: {
                         ...importedProjectMetis,
@@ -88,21 +101,27 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 },
                 phFocus: {
                     ...importedProjectFocus,
-                    ...(resolvedProjectModel ? { focusModel: { id: resolvedProjectModel.id, name: resolvedProjectModel.name } } : {}),
-                    ...(resolvedProjectModelview ? { focusModelview: { id: resolvedProjectModelview.id, name: resolvedProjectModelview.name } } : {}),
+                    focusModel: resolvedProjectModel ? { id: resolvedProjectModel.id, name: resolvedProjectModel.name } : null,
+                    focusModelview: resolvedProjectModelview ? { id: resolvedProjectModelview.id, name: resolvedProjectModelview.name } : null,
                 },
             }
-            dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: sanitizedProject.phData })
-            if (sanitizedProject.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: sanitizedProject.phFocus })
-            if (sanitizedProject.phSource) dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: sanitizedProject.phSource })
-            else dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: filename })
-            if (sanitizedProject.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: sanitizedProject.phUser })
+            dispatch({
+                type: 'LOAD_TOSTORE_DATA',
+                data: {
+                    ...InitialState,
+                    phData: sanitizedProject.phData,
+                    phFocus: sanitizedProject.phFocus,
+                    phUser: sanitizedProject.phUser || sourceProps?.phUser || InitialState.phUser,
+                    phSource: sanitizedProject.phSource || filename,
+                    lastUpdate: new Date().toISOString(),
+                }
+            })
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
+            resetFileInput()
             return
         }
 
         if (!importedfile?.phData) {
-            const currentPhData = sourceProps?.phData || {}
             const incomingMetis = importedfile?.metis
                 ? {
                     ...importedfile.metis,
@@ -114,6 +133,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     models: toArray(importedfile.models),
                     metamodels: toArray(importedfile.metamodels),
                 }
+            if (incomingMetis.models?.length === 0) {
+                alert('No models in this file.')
+                resetFileInput()
+                return
+            }
             const resolvedModel = importedfile?.phFocus?.focusModel || importedPrimaryModel || incomingMetis.models?.[0] || null
             const resolvedModelview = importedfile?.phFocus?.focusModelview
                 || resolvedModel?.modelviews?.find(mv => mv)
@@ -121,20 +145,26 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 || null
 
             dispatch({
-                type: 'LOAD_TOSTORE_PHDATA',
+                type: 'LOAD_TOSTORE_DATA',
                 data: {
-                    ...currentPhData,
-                    metis: incomingMetis,
+                    ...InitialState,
+                    phData: {
+                        ...InitialState.phData,
+                        ...(importedfile?.domain ? { domain: importedfile.domain } : {}),
+                        metis: incomingMetis,
+                    },
+                    phFocus: {
+                        ...InitialState.phFocus,
+                        ...(resolvedModel ? { focusModel: { id: resolvedModel.id, name: resolvedModel.name } } : { focusModel: null }),
+                        ...(resolvedModelview ? { focusModelview: { id: resolvedModelview.id, name: resolvedModelview.name } } : { focusModelview: null }),
+                    },
+                    phUser: sourceProps?.phUser || InitialState.phUser,
+                    phSource: filename,
+                    lastUpdate: new Date().toISOString(),
                 }
             })
-            if (resolvedModel) {
-                dispatch({ type: 'SET_FOCUS_MODEL', data: { id: resolvedModel.id, name: resolvedModel.name } })
-            }
-            if (resolvedModelview) {
-                dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: resolvedModelview.id, name: resolvedModelview.name } })
-            }
-            dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: filename })
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
+            resetFileInput()
             return
         }
         
@@ -550,9 +580,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
         if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
         if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)
-        if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
+       if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
         dispatchLocalFile('SET_FOCUS_REFRESH', { id: Math.random().toString(36).substring(7), name: filename })
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
+        resetFileInput()
 
     };
     reader.readAsText(e.target.files[0])

@@ -81,9 +81,9 @@ export const ProjectMenuBar = (props: any) => {
     const handleReadProjectFile = (e: any) => {
         if (!debug) console.log('82 handleReadProjectFile', e);
         ReadModelFromFile(props, dispatch, e);
-        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } });
-        // Navigate to the modelling page after file processing
-        router.push('/modelling');
+        if (router.pathname !== '/modelling') {
+            router.push('/modelling');
+        }
     }
 
     const handleSaveAllToFile = () => {
@@ -107,6 +107,7 @@ export const ProjectMenuBar = (props: any) => {
 
     function handleOpenFile() {
         if (fileInputRef.current) {
+            fileInputRef.current.value = '';
             fileInputRef.current.click();
         }
     }
@@ -197,19 +198,14 @@ export const ProjectMenuBar = (props: any) => {
                 data-placement="top"
                 data-bs-html="true"
                 title="Click here to Open a Project file from local file system"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleOpenFile();
+                }}
             >
                 <i className="fa fa-folder fa-lg pe-2 me-4"></i>Open local file
             </button>
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                    // Handle the selected file here
-                    handleReadProjectFile(e);
-                }}
-            />
         </>
     )
 
@@ -532,6 +528,18 @@ export const ProjectMenuBar = (props: any) => {
 
     return (
         <>
+            <input
+                type="file"
+                ref={fileInputRef}
+                accept=".json"
+                style={{ display: 'none' }}
+                onClick={(event) => {
+                    event.currentTarget.value = '';
+                }}
+                onChange={(e) => {
+                    handleReadProjectFile(e);
+                }}
+            />
             <div
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
                 style={{

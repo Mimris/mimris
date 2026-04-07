@@ -26,3 +26,16 @@ tasks:
     done_when:
       - the IDEF0 ICOM change is represented as a real spec-kit feature
       - the feature includes requirements, implementation notes, and validation tasks
+
+  - id: SPEC-IMPORT-001
+    title: Capture local project import guardrails as a feature spec
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - .specify/specs/003-local-project-import-guardrails/spec.md
+      - .specify/specs/003-local-project-import-guardrails/plan.md
+      - .specify/specs/003-local-project-import-guardrails/tasks.md
+    done_when:
+      - the local project import change is represented as a real spec-kit feature
+      - the feature includes requirements, implementation notes, and validation tasks

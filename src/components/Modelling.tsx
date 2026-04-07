@@ -107,6 +107,7 @@ const Modelling = (props: any) => {
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
   const modelList = models || [];
+  const hasNoModels = Array.isArray(metis?.models) && modelList.length === 0
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
   if (!curmod) curmod = modelList[0] || null
 
@@ -789,6 +790,10 @@ const Modelling = (props: any) => {
           </span>
         </div>
       </>
+
+    if (hasNoModels) {
+      return <div>No models in this file.</div>;
+    }
 
     if (!curmod) {
       return <div>Loading model data...</div>;

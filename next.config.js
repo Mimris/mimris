@@ -1,11 +1,4 @@
-const path = require('path');
-
-module.exports = {
-  webpack: (config) => {
-    config.resolve.alias['gojs/extensions'] = path.resolve(__dirname, 'node_modules/gojs/extensions');
-    return config;
-  },
-};
+module.exports = {};
 
 // const removeImports = require('next-remove-imports')();
 

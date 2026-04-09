@@ -43,6 +43,25 @@ const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
 const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
+const WORKSPACE_SNAPSHOT_META_KEY = '__workspaceUniverse';
+
+const trimPersistedStateForBrowserStorage = (state: any) => {
+  const phUser = state?.phUser || {};
+  const workspaceMeta = phUser?.[WORKSPACE_SNAPSHOT_META_KEY];
+  if (!workspaceMeta) return state;
+
+  return {
+    ...state,
+    phUser: {
+      ...phUser,
+      [WORKSPACE_SNAPSHOT_META_KEY]: {
+        ...workspaceMeta,
+        snapshot: undefined,
+        worldOperation: undefined,
+      },
+    },
+  };
+};
 
 const Modelling = (props: any) => {
 
@@ -97,12 +116,12 @@ const Modelling = (props: any) => {
 
   const getPersistedState = () => {
     const state = store.getState();
-    return {
+    return trimPersistedStateForBrowserStorage({
       phData: state.phData,
       phFocus: state.phFocus,
       phUser: state.phUser,
       phSource: state.phSource,
-    };
+    });
   }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
@@ -133,6 +152,24 @@ const Modelling = (props: any) => {
     myMetisRef.current = new akm.cxMetis();
   }
   const myMetis = myMetisRef.current;
+  if (metis && myMetis?.importData) {
+    myMetis.importData(metis, true);
+    const hydratedModel =
+      (focusModel?.id && myMetis.findModel?.(focusModel.id)) ||
+      myMetis.currentModel ||
+      null;
+    const hydratedModelview =
+      (focusModelview?.id && hydratedModel?.findModelView?.(focusModelview.id)) ||
+      hydratedModel?.modelviews?.find((mv: any) => mv) ||
+      null;
+    const hydratedMetamodel =
+      (hydratedModel?.metamodelRef && myMetis.findMetamodel?.(hydratedModel.metamodelRef)) ||
+      hydratedModel?.metamodel ||
+      null;
+    if (hydratedMetamodel && myMetis.setCurrentMetamodel) myMetis.setCurrentMetamodel(hydratedMetamodel);
+    if (hydratedModel && myMetis.setCurrentModel) myMetis.setCurrentModel(hydratedModel);
+    if (hydratedModelview && myMetis.setCurrentModelview) myMetis.setCurrentModelview(hydratedModelview);
+  }
 
   useEffect(() => {
     if (!debug) console.log('136 Modelling', mmToggle )

@@ -21,7 +21,7 @@ import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
-import { buildFocusSharePath } from "../components/utils/focusShare";
+import { createSnapshotShare } from "../components/utils/focusShare";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -237,15 +237,21 @@ const Page1 = (props: any) => {
     </div>
   )
 
-  const handleExternalLinkClick = () => {
-    // Copy sessionStorage to localStorage
-    const sessionData = sessionStorage.getItem('memorystate');
-    if (sessionData) {
-      setMemoryLocState(sessionData);
+  const handleExternalLinkClick = async () => {
+    const shareWindow = window.open('', "_blank");
+    try {
+      const snapshot = getPersistedState();
+      const url = await createSnapshotShare(snapshot, window.location.origin);
+      if (shareWindow) {
+        shareWindow.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
+    } catch (error) {
+      console.error('Unable to open snapshot share:', error);
+      if (shareWindow) shareWindow.close();
+      alert('Unable to create share link.');
     }
-
-    const url = buildFocusSharePath(focus);
-    window.open(url, "_blank");
   };
 
   const modellingDiv = (mount)

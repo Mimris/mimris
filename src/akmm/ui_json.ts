@@ -967,6 +967,9 @@ export class jsnObjectTypegeo {
         this.modified        = objtypegeo.modified;
     }
 }
+
+// Backward-compatible alias for older call sites that use PascalCase Geo.
+export class jsnObjectTypeGeo extends jsnObjectTypegeo {}
 export class jsnRelshipTypeView {
     id:              string;
     name:            string;

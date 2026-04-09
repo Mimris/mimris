@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Link from 'next/link';
 import SelectContext from '../components/utils/SelectContext'
-import { buildFocusShareAbsoluteUrl } from '../components/utils/focusShare';
+import { createSnapshotShare } from '../components/utils/focusShare';
 
 const debug = false
 
@@ -39,7 +39,13 @@ const ContextView = (props: any) => {
   };
 
   const copyToClipboard = async () => {
-    const focusUrl = buildFocusShareAbsoluteUrl(phFocus, window.location.origin);
+    const snapshot = {
+      phData: props.ph?.phData || {},
+      phFocus: props.ph?.phFocus || {},
+      phUser: props.ph?.phUser || {},
+      phSource: props.ph?.phSource || '',
+    };
+    const focusUrl = await createSnapshotShare(snapshot, window.location.origin);
     if (debug) console.log('42 focus', focusUrl);
     await navigator.clipboard.writeText(focusUrl);
   }

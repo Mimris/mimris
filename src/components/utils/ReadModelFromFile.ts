@@ -4,6 +4,7 @@
 import { InitialState } from "../../reducers/reducer";
 import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";
+import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from "./workspaceUniverseAdapter";
 
 const debug = false
 
@@ -55,6 +56,25 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         const filename = reader.fileName
         if (importedfile.project) console.log('ReadModelFromFile.ts: The imported file contains .project', importedfile)
         if (importedfile.project) importedfile = importedfile.project
+
+        if (isWorkspaceUniverseSnapshot(importedfile)) {
+            const adaptedState = buildMimrisStateFromWorkspaceSnapshot(importedfile, {
+                sourceName: filename,
+                sourcePath: filename,
+            })
+            if (!adaptedState?.phData?.metis?.models?.length) {
+                alert('No models in this file.')
+                resetFileInput()
+                return
+            }
+            dispatch({
+                type: 'LOAD_TOSTORE_DATA',
+                data: adaptedState,
+            })
+            dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
+            resetFileInput()
+            return
+        }
 
         const toArray = (value) => {
             if (Array.isArray(value)) return value.filter(Boolean)

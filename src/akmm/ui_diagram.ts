@@ -58,18 +58,6 @@ function shouldPersistLinkPoints(routing: string | undefined | null, points?: an
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
-const uidTemplates = {
-    "default":          uit.textAndIconTemplate,
-    "ActivityNode":     uit.activityNodeTemplate,
-    "EventNode":        uit.eventNodeTemplate,
-    "GatewayNode":      uit.gatewayNodeTemplate,
-    "DataObjectNode":   uit.dataObjectNodeTemplate,
-    "textAndIcon":      uit.textAndIconTemplate,
-    "textAndFigure":    uit.textAndFigureTemplate,
-}
-
-
-
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
         modelview.focusObjectview = objview;

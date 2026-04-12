@@ -1172,12 +1172,15 @@ export function groupTop3(contextMenu: any, notation: string, textscale: number)
     );
 }
 
-const SWIM_HEADER_WIDTH = 34;
+const SWIM_HEADER_WIDTH = 36;
 const LANE_HEADER_STRIP_WIDTH = 36;
 // Dark enough to be clearly visible even when the diagram background is white.
 const SWIM_BORDER_FALLBACK = "#1f1f1f";
 const SWIM_SEPARATOR_STROKE = "#000000";
 const SWIM_LANE_EDGE_WIDTH = 4;
+const SWIM_SEPARATOR_WIDTH = 3;
+const POOL_OUTER_BORDER_WIDTH = SWIM_SEPARATOR_WIDTH;
+const LANE_SEPARATOR_WIDTH = SWIM_SEPARATOR_WIDTH;
 // Visual debugging aid: tint swimlane/pool panels so it is obvious which bounds are structural vs content.
 // Keep this off in normal use; it intentionally overrides data-driven fills.
 const DEBUG_SWIMLANE_BG = false;
@@ -1265,21 +1268,6 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 margin: new go.Margin(0),
             },
             $(go.RowColumnDefinition, { column: 0, width: LANE_HEADER_STRIP_WIDTH, sizing: go.RowColumnDefinition.None }),
-            $(go.Shape, "LineH",
-                {
-                    row: 0,
-                    column: 0,
-                    columnSpan: 2,
-                    alignment: go.Spot.TopLeft,
-                    stretch: go.GraphObject.Horizontal,
-                    height: 0,
-                    strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
-                    strokeCap: "square",
-                    pickable: false,
-                    stroke: SWIM_SEPARATOR_STROKE,
-                },
-                new go.Binding("visible", "laneIndex", (idx: any) => Number(idx) > 0),
-            ),
             $(go.Panel, "Spot", // Header strip is a Spot so we can draw a stable border overlay that matches selection/handles.
                 {
                     name: "LANE_HEADER_STRIP",
@@ -1302,7 +1290,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                     {
                         alignment: go.Spot.Right,
                         stretch: go.GraphObject.Vertical,
-                        strokeWidth: 2,
+                        strokeWidth: SWIM_SEPARATOR_WIDTH,
                         strokeCap: "square",
                         pickable: false,
                     },
@@ -1384,12 +1372,27 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 ),
                 $(go.Placeholder, { padding: new go.Margin(0, 0, 0, 0), alignment: go.Spot.TopLeft }),
             ),
+            $(go.Shape, "Rectangle",
+                {
+                    row: 0,
+                    column: 0,
+                    columnSpan: 2,
+                    alignment: go.Spot.TopLeft,
+                    alignmentFocus: go.Spot.TopLeft,
+                    stretch: go.GraphObject.Horizontal,
+                    height: LANE_SEPARATOR_WIDTH,
+                    pickable: false,
+                    fill: SWIM_SEPARATOR_STROKE,
+                    stroke: "transparent",
+                },
+                new go.Binding("visible", "laneIndex", (i: any) => Number(i) > 0),
+            ),
         ),
     );
 }
 
 export function poolTop(contextMenu: any, notation: string, textscale: number) {
-    return $(go.Panel, "Auto",
+    return $(go.Panel, "Spot",
         $(go.Shape, "Rectangle",
             {
                 name: "POOL_SHAPE",
@@ -1397,7 +1400,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 cursor: "move",
                 pickable: false,
                 fill: "white",
-                strokeWidth: 2,
+                strokeWidth: SWIM_SEPARATOR_WIDTH,
                 strokeCap: "square",
                 strokeJoin: "miter",
                 minSize: new go.Size(200, 100),
@@ -1407,47 +1410,15 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                 const s = (c == null) ? "" : String(c).trim();
                 return s === "" ? "white" : s;
             }),
-            // Keep the main pool shape structurally transparent; draw the visible swimlane
-            // borders with dedicated overlays so all horizontal/vertical border lines share
-            // the same rendering path and visual weight.
             new go.Binding("stroke", "", () => "transparent"),
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-        ),
-        $(go.Shape, "LineH",
-            {
-                alignment: go.Spot.Top,
-                stretch: go.GraphObject.Horizontal,
-                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
-                strokeCap: "square",
-                pickable: false,
-                stroke: SWIM_SEPARATOR_STROKE,
-            },
-        ),
-        $(go.Shape, "LineV",
-            {
-                alignment: go.Spot.Right,
-                stretch: go.GraphObject.Vertical,
-                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
-                strokeCap: "square",
-                pickable: false,
-                stroke: SWIM_SEPARATOR_STROKE,
-            },
-        ),
-        $(go.Shape, "LineH",
-            {
-                alignment: go.Spot.Bottom,
-                stretch: go.GraphObject.Horizontal,
-                strokeWidth: SWIM_LANE_EDGE_WIDTH + 2,
-                strokeCap: "square",
-                pickable: false,
-                stroke: SWIM_SEPARATOR_STROKE,
-            },
         ),
         $(go.Panel, "Table",
             {
                 stretch: go.GraphObject.Fill,
                 // Ensure the whole table is anchored to the pool shape, not centered within it.
                 alignment: go.Spot.TopLeft,
+                alignmentFocus: go.Spot.TopLeft,
                 defaultAlignment: go.Spot.TopLeft,
                 // Keep pool header + lanes flush to the pool border (no gap).
                 margin: new go.Margin(0),
@@ -1466,58 +1437,66 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     width: SWIM_HEADER_WIDTH,
                     desiredSize: new go.Size(SWIM_HEADER_WIDTH, 100),
                     stretch: go.GraphObject.Fill,
+                    // Keep the pool header flush with the lane stack so the header top and
+                    // bottom edges align with the corresponding lane-owned border lines.
+                    margin: new go.Margin(0),
                     contextMenu: contextMenu,
                     cursor: "move",
                 },
                 new go.Binding("desiredSize", "size", (s: any) => {
                     const parsed = go.Size.parse(typeof s === "string" ? s : "");
                     const height = Number(parsed?.height);
-                    return new go.Size(SWIM_HEADER_WIDTH, Number.isFinite(height) && height > 0 ? height : 100);
+                    return new go.Size(
+                        SWIM_HEADER_WIDTH,
+                        Number.isFinite(height) && height > 0 ? height : 100,
+                    );
                 }),
                 $(go.Shape, "Rectangle", {
                     fill: dbgFill("#f3f3f3", "rgba(160, 90, 255, 0.10)"),
-                    strokeWidth: 2,
+                    strokeWidth: 0,
                     stretch: go.GraphObject.Fill,
                 },
-                new go.Binding("stroke", "strokecolor", swimStroke),
+                new go.Binding("stroke", "", () => "transparent"),
                 ),
-                $(go.TextBlock, textStyle(),
-                    {
-                        angle: 270,
-                        scale: textscale,
-                        isMultiline: false,
-                        maxLines: 1,
-                        editable: true,
-                        font: "Bold 14pt Sans-Serif",
-                        alignment: go.Spot.Center,
-                        margin: new go.Margin(0, 0, 0, 0),
-                        wrap: go.TextBlock.None,
-                        overflow: go.TextBlock.OverflowEllipsis,
-                        name: "name",
-                    },
-                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
-                    new go.Binding("text", "name").makeTwoWay(),
-                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
-                    new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
+                $(go.Panel, "Horizontal",
+                    { angle: 270, alignment: go.Spot.Center },
+                    $(go.TextBlock, textStyle(),
+                        {
+                            scale: textscale,
+                            isMultiline: false,
+                            maxLines: 1,
+                            editable: true,
+                            font: "Bold 14pt Sans-Serif",
+                            margin: new go.Margin(0, 0, 0, 0),
+                            wrap: go.TextBlock.None,
+                            overflow: go.TextBlock.OverflowEllipsis,
+                            name: "name",
+                        },
+                        new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
+                        new go.Binding("text", "name").makeTwoWay(),
+                        new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                        new go.Binding("visible", "isSubGraphExpanded", (v) => asBoolean(v, false)).ofObject(),
+                    ),
                 ),
-                $(go.TextBlock, textStyle(),
-                    {
-                        angle: 270,
-                        scale: textscale,
-                        isMultiline: false,
-                        maxLines: 1,
-                        editable: true,
-                        font: "Bold 14pt Sans-Serif",
-                        alignment: go.Spot.Center,
-                        margin: new go.Margin(0, 0, 0, 0),
-                        wrap: go.TextBlock.None,
-                        overflow: go.TextBlock.OverflowEllipsis,
-                        name: "name",
-                    },
-                    new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
-                    new go.Binding("text", "name").makeTwoWay(),
-                    new go.Binding("stroke", "strokecolor").makeTwoWay(),
-                    new go.Binding("visible", "isSubGraphExpanded", function (e) { return !e; }).ofObject(),
+                $(go.Panel, "Horizontal",
+                    { angle: 270, alignment: go.Spot.Center },
+                    $(go.TextBlock, textStyle(),
+                        {
+                            scale: textscale,
+                            isMultiline: false,
+                            maxLines: 1,
+                            editable: true,
+                            font: "Bold 14pt Sans-Serif",
+                            margin: new go.Margin(0, 0, 0, 0),
+                            wrap: go.TextBlock.None,
+                            overflow: go.TextBlock.OverflowEllipsis,
+                            name: "name",
+                        },
+                        new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
+                        new go.Binding("text", "name").makeTwoWay(),
+                        new go.Binding("stroke", "strokecolor").makeTwoWay(),
+                        new go.Binding("visible", "isSubGraphExpanded", function (e) { return !e; }).ofObject(),
+                    ),
                 ),
                 makeZoomInvariantExpanderButton(1.0, {
                     width: 22,
@@ -1580,6 +1559,32 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                     ),
                 ),
             ),
+        ),
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Right,
+                // Anchor the strip by its right edge so it stays fully inside the pool
+                // bounds and remains visible across zoom levels.
+                alignmentFocus: go.Spot.Right,
+                stretch: go.GraphObject.Vertical,
+                width: POOL_OUTER_BORDER_WIDTH,
+                pickable: false,
+                fill: SWIM_SEPARATOR_STROKE,
+                stroke: "transparent",
+            },
+        ),
+        $(go.Shape, "Rectangle",
+            {
+                alignment: go.Spot.Bottom,
+                // Anchor the strip by its bottom edge so it stays fully inside the pool
+                // bounds and remains visible across zoom levels.
+                alignmentFocus: go.Spot.Bottom,
+                stretch: go.GraphObject.Horizontal,
+                height: POOL_OUTER_BORDER_WIDTH,
+                pickable: false,
+                fill: SWIM_SEPARATOR_STROKE,
+                stroke: "transparent",
+            },
         ),
     );
 }

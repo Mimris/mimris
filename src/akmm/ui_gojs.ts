@@ -84,7 +84,7 @@ export class goModel {
             if (node instanceof goObjectNode) {
                 let object = node.object;
                 let objecttype = node.objecttype;
-                if (!objecttype)
+                if (!objecttype && object?.typeRef)
                     objecttype = this.metamodel?.findObjectType(object.typeRef);
                 if (objecttype) {
                     const typeviews = this.metamodel?.getObjectTypeViewsByObjectType(objecttype);
@@ -187,7 +187,7 @@ export class goModel {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node: goObjectTypeNode = this.nodes[i] as goObjectTypeNode;
-                if (node.objecttype.id === objtypeId) {
+                if (node.objecttype?.id === objtypeId) {
                     retval = node;
                     break;
                 }

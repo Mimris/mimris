@@ -31,11 +31,9 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 - Normalize legacy top-level `metis`, `executionModel`, and flat `focus*` fields into the new canonical sections at load time.
 - Allow Mimris to own only the world-model and shared-focus fields it truly edits while preserving the rest of the snapshot.
 - Keep the future server-file integration aligned to the same canonical topology rather than a Mimris-only wrapper.
-- Canonical scoped modelling sources now live at:
-  - `world.worldModel.metis`
-  - `originWorld.foundationModels.typeDefinition.metis`
-  - `originWorld.foundationModels.templateDefinition.metis`
-- Mimris must treat `world.worldModel.metis` as the preferred active source and use legacy top-level `metis` only as a final compatibility fallback.
+- Canonical active modelling source is `world.worldModel.metis`.
+- Shared variants should be sourced from separate universes, while legacy top-level `metis` remains compatibility fallback-only ingestion.
+- Query-driven `/model` loads must gate the modelling surface on the requested URL payload, using the explicit route parameters as the first-render source of truth so the initial local template does not flash before the remote snapshot arrives.
 
 ## Migration Matrix
 
@@ -77,10 +75,8 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 4. Fill defaults for missing sections.
    - The loader should always ensure `worldDefinition`, `worldModel`, `operationalModel`, `focus`, and `workspace` exist.
    - The loader should default the active metis scope in this order:
-     1. `world.worldModel.metis`
-     2. `originWorld.foundationModels.typeDefinition.metis`
-     3. `originWorld.foundationModels.templateDefinition.metis`
-     4. legacy top-level `metis`
+      1. `world.worldModel.metis`
+      2. legacy top-level `metis`
 
 5. Preserve unknown fields.
    - Unrecognized top-level or nested fields should survive normalization so future or app-specific data is not dropped.
@@ -92,10 +88,8 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 
 2. Mimris-owned sections for save should be limited to:
    - `worldDefinition.domain` if domain editing is enabled
-   - one selected scoped metis source:
-     - `world.worldModel.metis`
-     - `originWorld.foundationModels.typeDefinition.metis`
-     - `originWorld.foundationModels.templateDefinition.metis`
+    - one selected scoped metis source:
+       - `world.worldModel.metis`
    - `focus.project`
    - `focus.worldModel.*`
    - optional `focus.document.doc`
@@ -152,6 +146,7 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 4. Switch save flows to merge-preserving canonical writes.
 5. Remove legacy selector fallbacks only after both Mimris and Mimris AI Workspace are aligned.
 6. Keep the UI selector limited to the three canonical sources and do not surface legacy top-level `metis` as a primary option.
+7. Keep compatibility fallback indicators internal to diagnostics and avoid persistent legacy status banners in the mini-model route.
 
 ## Files
 
@@ -166,3 +161,4 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 - Verify legacy flat Mimris snapshots can normalize into the new topology without losing modelling state.
 - Verify a merged save preserves unknown fields from a workbench-origin snapshot.
 - Verify shared links can target the new universe-level focus contract.
+- Verify `/model?...` loads do not briefly paint the initial local template before the requested remote or shared snapshot resolves.

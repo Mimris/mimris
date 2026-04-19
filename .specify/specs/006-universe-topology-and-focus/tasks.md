@@ -19,6 +19,7 @@
 
 - [x] T007 Add canonical universe normalization helpers in Mimris
 - [x] T008 Update Mimris adapters to read/write canonical scoped metis sources and universe-level `focus`
+- [x] T008A Prevent `/model` query-driven loads from rendering the initial local template before the requested snapshot resolves
 - [ ] T009 Add server-file read/write against the canonical universe snapshot format
 - [ ] T010 Align the same spec-kit method and canonical contract planning in `mimris-ai-workspace`
 

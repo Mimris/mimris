@@ -17,6 +17,10 @@ This jump makes placement feel inaccurate because the object lands somewhere oth
 - Persisted object-view location must match the rendered node location after the drop transaction.
 - Existing group assignment, pool/lane handling, and optional auto drop layout behavior must continue to work.
 - Drop layout may use the document drop point as contextual input, but only explicit auto-layout settings may reposition dropped nodes.
+- Palette rendering must use the same fixed GoJS scale for object-type and object palettes, including when Mimris is embedded in a smaller iframe.
+- Palette scale must not depend on iframe viewport height or content-fit autoscaling.
+- Development iframe links to Mimris documentation must use the local dev origin; production must continue to use the published GitHub Pages URL.
+- The document viewport metadata must be deterministic with one standard viewport declaration so top-level and iframe rendering use the same CSS pixel scale.
 
 ## Acceptance Scenarios
 
@@ -41,3 +45,4 @@ This jump makes placement feel inaccurate because the object lands somewhere oth
 - Run the automated test suite.
 - Run the production build.
 - Verify the drag/drop behavior visually when browser automation or manual browser access is available.
+- Verify object-type and object palettes render at matching visual scale in normal page and iframe contexts.

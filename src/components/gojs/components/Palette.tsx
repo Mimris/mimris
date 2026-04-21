@@ -34,6 +34,7 @@ interface DiagramProps {
 }
 
 const debug = false;
+const PALETTE_SCALE = 1.05;
 
 function sanitizeColor(value: any, fallback = "transparent"): string {
   if (typeof value !== "string") return fallback;
@@ -291,16 +292,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       }
     }
 
-    const isObjectsPalette = this.props.divClassName === 'diagram-component-objects';
-    if (isObjectsPalette) {
-      const collapsedScale = 1.15;
-      const expandedScale = 1.15;
-      const desiredScale = cols <= 1 ? collapsedScale : expandedScale;
-      if (Math.abs(palette.scale - desiredScale) > 0.01) {
-        palette.scale = desiredScale;
-      }
-    } else if (Math.abs(palette.scale - 1) < 0.01) {
-      palette.scale = 1.05;
+    if (Math.abs(palette.scale - PALETTE_SCALE) > 0.01) {
+      palette.scale = PALETTE_SCALE;
     }
 
     if (layoutChanged) {
@@ -443,11 +436,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           {
             initialContentAlignment: go.Spot.Top,
             contentAlignment: go.Spot.Top,
-            initialAutoScale: go.Diagram.Uniform,  // scale to show all of the content
+            initialAutoScale: go.Diagram.None,
             // "animationManager.isEnabled": false, // disable animations
             // "undoManager.isEnabled": true,  // enable undo & redo
             // "toolManager.hoverDelay": 10,  // how quickly tooltips are shown
-           
+
             maxSelectionCount: 160,
             layout: $(go.GridLayout,
               {

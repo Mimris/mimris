@@ -1892,8 +1892,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (shouldSyncFromProps) {
       const activeTool = diagram?.currentTool;
+      const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
+      const dragInProgress =
+        Boolean((diagram as any)?.__dragInProgress) ||
+        dragInProgressUntil > Date.now();
       const suppressPropSyncUntil = Number((diagram as any)?.__suppressPropSyncUntil || 0);
       const suppressPropSync =
+        dragInProgress ||
         (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
         suppressPropSyncUntil > Date.now();
       if (suppressPropSync) {
@@ -2053,6 +2058,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     const isActiveDrag =
       activeTool instanceof go.DraggingTool &&
       activeTool.isActive === true;
+    const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
+    const dragInProgress =
+      Boolean((diagram as any)?.__dragInProgress) ||
+      dragInProgressUntil > Date.now();
     const isActiveLinkReshape =
       activeTool instanceof go.LinkReshapingTool &&
       activeTool.isActive === true;
@@ -2074,7 +2083,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       hasMeaningfulModelDataChanges;
 
     if (
-      (isActiveDrag || isActiveLinkReshape || isActiveRelink) &&
+      (isActiveDrag || dragInProgress || isActiveLinkReshape || isActiveRelink) &&
       !hasStructuralModelChanges
     ) {
       if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
@@ -3351,6 +3360,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionMoving": {
+        try {
+          (myDiagram as any).__dragInProgress = true;
+          (myDiagram as any).__dragInProgressUntil = Date.now() + 450;
+        } catch (_) {
+        }
         const movedSelection = e.subject;
         const movedNodeKeys = new Set<string>();
         for (let it = movedSelection?.iterator; it?.next();) {
@@ -5430,6 +5444,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         try {
           delete (myDiagram as any).__dragAllowReparent;
           delete (myDiagram as any).__dragAllowReparentKeys;
+        } catch (_) {
+        }
+        try {
+          (myDiagram as any).__dragInProgress = false;
+          (myDiagram as any).__dragInProgressUntil = Date.now() + 250;
         } catch (_) {
         }
         break;

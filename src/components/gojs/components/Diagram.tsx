@@ -592,8 +592,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
     const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
+    const selectedData = node ? { ...node, __touchedExplicitProps: {} } : node;
     this.setState({
-      selectedData: node,
+      selectedData: selectedData,
       modalContext: modalContext,
       selectedOption: null,
       showModal: !isChangeIconModal && !isSetGroupImageModal,
@@ -1578,6 +1579,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ...(draft.selectedData || {}),
             [propname]: value,
           };
+          if (fieldType === 'select' || fieldType === 'checkbox') {
+            nextSelectedData.__touchedExplicitProps = {
+              ...(nextSelectedData.__touchedExplicitProps || {}),
+              [propname]: true,
+            };
+          }
           draft.selectedData = nextSelectedData;
           if (propname === 'grabIsAllowed') {
             const nextValue = value === true || value === 'true';
@@ -1589,6 +1596,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             } catch (_) {}
             try {
               draft.modalContext.myContext.objectview[propname] = nextValue;
+            } catch (_) {}
+            try {
+              if (fieldType === 'select' || fieldType === 'checkbox') {
+                draft.modalContext.myContext.__touchedExplicitProps = {
+                  ...(draft.modalContext.myContext.__touchedExplicitProps || {}),
+                  [propname]: true,
+                };
+              }
             } catch (_) {}
             try {
               const currentNode: any = this.myMetis?.currentNode;

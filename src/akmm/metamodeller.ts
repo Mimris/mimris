@@ -1254,6 +1254,49 @@ export class cxMetis {
             }
         }
     }
+    sanitizeObjectViewAfterImport(objview: cxObjectView, source: any) {
+        if (!objview) return;
+        const optionalFields = [
+            'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+            'group', 'groupLayout', 'icomStyle',
+            'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor1', 'strokecolor2', 'strokewidth',
+            'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+            'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+            'size', 'scale', 'loc'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(objview[prop])) {
+                    delete objview[prop];
+                }
+            }
+        }
+    }
+    sanitizeRelshipViewAfterImport(relview: cxRelationshipView, source: any) {
+        if (!relview) return;
+        const optionalFields = [
+            'template', 'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+            'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+            'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor', 'points'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(relview[prop])) {
+                    delete relview[prop];
+                }
+            }
+        }
+    }
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
             const objview = this.findObjectView(item.id);
@@ -1312,6 +1355,7 @@ export class cxMetis {
                         }
                     }
                     objview.viewkind = item.viewkind;
+                    this.sanitizeObjectViewAfterImport(objview, item);
                     if (debug) console.log('1201 objview.markedAsDeleted', objview.markedAsDeleted, objview);
                     object.addObjectView(objview);
                     if (debug) console.log('1203 item, objview', item, objview);
@@ -1392,6 +1436,7 @@ export class cxMetis {
                     if (!relview.markedAsDeleted) relview.visible = true;
                     relview.template = item.template;
                     relview.template2 = item.template2;
+                    this.sanitizeRelshipViewAfterImport(relview, item);
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
                 }

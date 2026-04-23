@@ -379,106 +379,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       diagram.addModelChangedListener(this.props.onModelChange);
 
-      // Guard against stale loc writes while a node is actively being dragged.
-      try {
-        const modelAny: any = diagram.model as any;
-        if (modelAny && !modelAny.__dragLocGuardInstalled && typeof modelAny.setDataProperty === 'function') {
-          const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
-          modelAny.__originalSetDataProperty = originalSetDataProperty;
-          modelAny.setDataProperty = (data: any, prop: string, value: any) => {
-            try {
-              if ((prop === 'loc' || prop === 'size') && data && data.key != null) {
-                const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
-                const dragActive =
-                  Boolean((diagram as any)?.__dragInProgress) ||
-                  dragInProgressUntil > Date.now() ||
-                  (diagram.currentTool instanceof go.DraggingTool && diagram.currentTool.isActive === true);
-                const activeResizingTool =
-                  diagram.currentTool instanceof go.ResizingTool
-                    ? (diagram.currentTool as go.ResizingTool)
-                    : (diagram.toolManager?.resizingTool as go.ResizingTool | null);
-                const resizeActive =
-                  Boolean(activeResizingTool && activeResizingTool.isActive === true);
-                if (prop === 'loc' && dragActive) {
-                  const draggingTool = diagram.currentTool instanceof go.DraggingTool
-                    ? (diagram.currentTool as go.DraggingTool)
-                    : (diagram.toolManager?.draggingTool as go.DraggingTool | null);
-                  let isDraggedNode = false;
-                  try {
-                    const dragged = draggingTool?.draggedParts;
-                    for (let it = dragged?.iterator; it?.next();) {
-                      const p = it.key as go.Part;
-                      if (p instanceof go.Node && !(p instanceof go.Group) && String(p.data?.key || '') === String(data.key)) {
-                        isDraggedNode = true;
-                        break;
-                      }
-                    }
-                  } catch (_) {
-                  }
-                  if (isDraggedNode) {
-                    const liveNode = diagram.findNodeForKey(data.key);
-                    if (liveNode instanceof go.Node) {
-                      const toPoint = (raw: any): go.Point | null => {
-                        if (raw instanceof go.Point) return raw;
-                        if (typeof raw === 'string') {
-                          try { return go.Point.parse(raw); } catch (_) { return null; }
-                        }
-                        if (raw && typeof raw.x === 'number' && typeof raw.y === 'number') {
-                          return new go.Point(raw.x, raw.y);
-                        }
-                        return null;
-                      };
-                      const incoming = toPoint(value);
-                      const live = liveNode.location;
-                      if (incoming && live) {
-                        const dx = Math.abs(incoming.x - live.x);
-                        const dy = Math.abs(incoming.y - live.y);
-                        if (dx > 2 || dy > 2) return;
-                      }
-                    }
-                  }
-                }
-                if (prop === 'size' && resizeActive) {
-                  const resizedPart = activeResizingTool?.adornedObject?.part;
-                  const isResizedNode =
-                    resizedPart instanceof go.Node &&
-                    String(resizedPart.data?.key || '') === String(data.key);
-                  if (isResizedNode) {
-                    const liveNode = diagram.findNodeForKey(data.key);
-                    if (liveNode instanceof go.Node) {
-                      const toSize = (raw: any): go.Size | null => {
-                        if (raw instanceof go.Size) return raw;
-                        if (typeof raw === 'string') {
-                          try { return go.Size.parse(raw); } catch (_) { return null; }
-                        }
-                        if (raw && typeof raw.width === 'number' && typeof raw.height === 'number') {
-                          return new go.Size(raw.width, raw.height);
-                        }
-                        return null;
-                      };
-                      const incoming = toSize(value);
-                      const resizeObj: any = (liveNode as any).resizeObject || liveNode.findObject?.('SHAPE') || liveNode.findObject?.('BODY');
-                      const live = resizeObj?.desiredSize && Number.isFinite(resizeObj.desiredSize.width) && Number.isFinite(resizeObj.desiredSize.height)
-                        ? resizeObj.desiredSize
-                        : new go.Size(liveNode.actualBounds.width, liveNode.actualBounds.height);
-                      if (incoming && live) {
-                        const dw = Math.abs(incoming.width - live.width);
-                        const dh = Math.abs(incoming.height - live.height);
-                        if (dw > 2 || dh > 2) return;
-                      }
-                    }
-                  }
-                }
-              }
-            } catch (_) {
-            }
-            return originalSetDataProperty(data, prop, value);
-          };
-          modelAny.__dragLocGuardInstalled = true;
-        }
-      } catch (_) {
-      }
-
       const diagramDiv = diagram.div;
       const diagramDoc = diagramDiv?.ownerDocument;
       const setPanCursor = () => {
@@ -682,16 +582,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       diagram.removeChangedListener(this.props.onModelChange);
 
-      try {
-        const modelAny: any = diagram.model as any;
-        if (modelAny?.__dragLocGuardInstalled && typeof modelAny.__originalSetDataProperty === 'function') {
-          modelAny.setDataProperty = modelAny.__originalSetDataProperty;
-          delete modelAny.__originalSetDataProperty;
-          delete modelAny.__dragLocGuardInstalled;
-        }
-      } catch (_) {
-      }
-
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(null, false); // Pass false to indicate that the diagram is not ready
       }
@@ -702,9 +592,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
     const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
-    const selectedData = node ? { ...node, __touchedExplicitProps: {} } : node;
     this.setState({
-      selectedData: selectedData,
+      selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
       showModal: !isChangeIconModal && !isSetGroupImageModal,
@@ -1689,12 +1578,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ...(draft.selectedData || {}),
             [propname]: value,
           };
-          if (fieldType === 'select' || fieldType === 'checkbox') {
-            nextSelectedData.__touchedExplicitProps = {
-              ...(nextSelectedData.__touchedExplicitProps || {}),
-              [propname]: true,
-            };
-          }
           draft.selectedData = nextSelectedData;
           if (propname === 'grabIsAllowed') {
             const nextValue = value === true || value === 'true';
@@ -1706,14 +1589,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             } catch (_) {}
             try {
               draft.modalContext.myContext.objectview[propname] = nextValue;
-            } catch (_) {}
-            try {
-              if (fieldType === 'select' || fieldType === 'checkbox') {
-                draft.modalContext.myContext.__touchedExplicitProps = {
-                  ...(draft.modalContext.myContext.__touchedExplicitProps || {}),
-                  [propname]: true,
-                };
-              }
             } catch (_) {}
             try {
               const currentNode: any = this.myMetis?.currentNode;
@@ -1867,12 +1742,258 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        );
 	    }
 
-      // Drag behavior uses the default GoJS DraggingTool; regrouping/containment is
-      // handled by lane drop handlers and SelectionMoved persistence paths.
+	    // Enforce lane membership on Shift-drag completion. Without this, nodes can be dragged across
+	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
+	    // clamp/snap back into the source lane.
+	    class SwimlaneDraggingTool extends go.DraggingTool {
+	      override doActivate() {
+	        const diagram = this.diagram;
+	        const draggedParts = this.draggedParts;
+	        let ordinaryNodeDrag = false;
+	        if (draggedParts) {
+	          for (let it = draggedParts.iterator; it?.next();) {
+	            const part: go.Part = it.key;
+	            if (part instanceof go.Node && !(part instanceof go.Group)) {
+	              ordinaryNodeDrag = true;
+	              break;
+	            }
+	          }
+	        }
+	        if (diagram && ordinaryNodeDrag) {
+	          try {
+	            (diagram as any).__suppressObjectSingleClickUntil = Date.now() + 1200;
+	          } catch (_) { }
+	        }
+	        super.doActivate();
+	      }
 
-      // Use the default DraggingTool for stable pointer-following behavior.
-      // Lane/group membership is still enforced by drop handlers and SelectionMoved persistence.
-      myDiagram.toolManager.draggingTool = new go.DraggingTool();
+	      override doMouseMove() {
+	        const diagram = this.diagram;
+	        try {
+	          const draggedParts = this.draggedParts;
+	          const manualLinkMovePreview = new Map<string, number[]>();
+	          for (let it = draggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Node) || !part.data?.key) continue;
+	            part.linksConnected.each((link: go.Link) => {
+	              const linkKey = link?.data?.key;
+	              if (!linkKey) return;
+	              const points: number[] = [];
+	              try {
+	                for (let pt = link.points.iterator; pt?.next();) {
+	                  const point = pt.value;
+	                  if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                    points.push(point.x, point.y);
+	                  }
+	                }
+	              } catch (_) {
+	              }
+	              if (points.length >= 4) {
+	                manualLinkMovePreview.set(String(linkKey), points);
+	              }
+	            });
+	          }
+	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
+	        } catch (_) {
+	        }
+	        try {
+	          if ((diagram as any)?.__traceDragVibration) {
+	            const now = Date.now();
+	            const lastTrace = Number((diagram as any).__traceDragVibrationLastAt || 0);
+	            if (now - lastTrace > 120) {
+	              let sample: any = null;
+	              const draggedParts = this.draggedParts;
+	              for (let it = draggedParts?.iterator; it?.next();) {
+	                const part = it.key as go.Part;
+	                if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
+	                sample = {
+	                  key: part.data?.key || "",
+	                  loc: `${part.location.x} ${part.location.y}`,
+	                  dataLoc: part.data?.loc || "",
+	                  selectionCount: diagram?.selection?.count || 0,
+	                  currentPartKey: (this.currentPart as any)?.data?.key || "",
+	                  draggedKeys: [] as string[],
+	                };
+	                for (let jt = draggedParts?.iterator; jt?.next();) {
+	                  const draggedPart = jt.key as go.Part;
+	                  const draggedKey = draggedPart?.data?.key;
+	                  if (draggedKey != null) sample.draggedKeys.push(String(draggedKey));
+	                }
+	                break;
+	              }
+	              if (sample) {
+	                let sameKeyCount = 0;
+	                let sameObjviewCount = 0;
+	                let sameObjRefCount = 0;
+	                try {
+	                  diagram?.nodes?.each((n: go.Node) => {
+	                    const nkey = String(n?.data?.key || "");
+	                    const nobjview = String(n?.data?.objviewRef || n?.data?.objectview?.id || "");
+	                    const nobjref = String(n?.data?.objRef || n?.data?.object?.id || "");
+	                    if (nkey && nkey === sample.key) sameKeyCount++;
+	                    if (sample.key && nobjview && nobjview === sample.key) sameObjviewCount++;
+	                    if (sample.key && nobjref && nobjref === sample.key) sameObjRefCount++;
+	                  });
+	                } catch (_) {
+	                }
+	                sample.sameKeyCount = sameKeyCount;
+	                sample.sameObjviewCount = sameObjviewCount;
+	                sample.sameObjRefCount = sameObjRefCount;
+	                (diagram as any).__traceDragVibrationLastAt = now;
+	                console.warn("[DRAG_LIVE_STATE]", JSON.stringify(sample));
+	              }
+	            }
+	          }
+	        } catch (_) {
+	        }
+	        super.doMouseMove();
+	      }
+
+	      override doDeactivate() {
+	        const diagram = this.diagram;
+	        try {
+	          try {
+	            const draggedParts = this.draggedParts;
+	            const manualLinkMovePreview = new Map<string, number[]>();
+	            for (let it = draggedParts?.iterator; it?.next();) {
+	              const part = it.key as go.Part;
+	              if (!(part instanceof go.Node) || !part.data?.key) continue;
+	              part.linksConnected.each((link: go.Link) => {
+	                const linkKey = link?.data?.key;
+	                if (!linkKey) return;
+	                const points: number[] = [];
+	                try {
+	                  for (let pt = link.points.iterator; pt?.next();) {
+	                    const point = pt.value;
+	                    if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                      points.push(point.x, point.y);
+	                    }
+	                  }
+	                } catch (_) {
+	                }
+	                if (points.length >= 4) {
+	                  manualLinkMovePreview.set(String(linkKey), points);
+	                }
+	              });
+	            }
+	            if (manualLinkMovePreview.size > 0) {
+	              (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
+	            }
+	          } catch (_) {
+	          }
+	          try {
+	            if ((diagram as any)?.__manualLinkMovePreview instanceof Map &&
+	                (diagram as any).__manualLinkMovePreview.size === 0) {
+	              delete (diagram as any).__manualLinkMovePreview;
+	            }
+	          } catch (_) { }
+	          if (diagram) {
+	            try {
+	              (diagram as any).__suppressObjectSingleClickUntil = Math.max(
+	                Number((diagram as any).__suppressObjectSingleClickUntil || 0),
+	                Date.now() + 250
+	              );
+	            } catch (_) { }
+	          }
+	          const allowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
+	          const allowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
+	          if (diagram && (allowGlobal || (allowKeys && allowKeys.size > 0))) {
+	            const dropPt = diagram.lastInput?.documentPoint;
+	            const dragged = this.draggedParts;
+	            if (dropPt && dragged) {
+	              diagram.commit((d: go.Diagram) => {
+	                const laneBodyBounds = (g: go.Group): go.Rect | null => {
+	                  const body =
+	                    (g.findObject("LANE_BODY_SHAPE") ||
+	                      g.findObject("BODY")) as go.GraphObject | null;
+	                  return body ? body.getDocumentBounds() : null;
+	                };
+	                const findLaneAtPoint = (pt: go.Point): go.Group | null => {
+	                  let best: { area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const r = laneBodyBounds(n);
+	                    if (!r || !r.containsPoint(pt)) return;
+	                    const area = Math.max(1, r.width * r.height);
+	                    if (!best || area < best.area) best = { area, lane: n };
+	                  });
+	                  return best ? best.lane : null;
+	                };
+	                const findLaneByOverlap = (part: go.Node): go.Group | null => {
+	                  const nb = part.actualBounds;
+	                  let best: { overlap: number; area: number; lane: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    if (!cat.startsWith("Lane")) return;
+	                    const gb = laneBodyBounds(n);
+	                    if (!gb) return;
+	                    const ix1 = Math.max(nb.x, gb.x);
+	                    const iy1 = Math.max(nb.y, gb.y);
+	                    const ix2 = Math.min(nb.right, gb.right);
+	                    const iy2 = Math.min(nb.bottom, gb.bottom);
+	                    const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+	                    if (overlap <= 0) return;
+	                    const area = Math.max(1, gb.width * gb.height);
+	                    if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
+	                      best = { overlap, area, lane: n };
+	                    }
+	                  });
+	                  return best ? best.lane : null;
+	                };
+
+	                const targetLane = findLaneAtPoint(dropPt) || ((): go.Group | null => {
+	                  // If drop point is in header strip, overlap tends to still pick the correct lane.
+	                  // Use the first moved node as probe.
+	                  for (let it = dragged.iterator; it?.next();) {
+	                    const p: go.Part = it.key;
+	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findLaneByOverlap(p);
+	                  }
+	                  return null;
+	                })();
+	                const targetKey = targetLane ? String(targetLane.data?.key || targetLane.key || "") : "";
+
+	                for (let it = dragged.iterator; it?.next();) {
+	                  const part: go.Part = it.key;
+	                  if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                  const k = part.data?.key;
+	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
+	                  if (!allowed) continue;
+
+	                  if (!targetLane || !targetKey) continue;
+
+	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+	                  if (cur === targetKey) continue;
+
+	                  // Force a real reparent in the Diagram so `containingGroup` updates immediately.
+	                  const oldGrp = part.containingGroup;
+	                  if (oldGrp && oldGrp !== targetLane) {
+	                    const s = new go.Set<go.Part>();
+	                    s.add(part);
+	                    oldGrp.removeMembers(s, true);
+	                  }
+	                  if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                    (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
+	                  } else {
+	                    d.model.setDataProperty(part.data, "group", targetKey);
+	                  }
+	                  targetLane.addMembers(new go.Set<go.Part>().add(part), true);
+	                }
+	              }, "SwimlaneShiftReparent");
+	            }
+	          }
+	        } catch {
+	          // Best-effort only; never block drag completion.
+	        }
+		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
+		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
+		        super.doDeactivate();
+		      }
+		    }
+
+	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
       myDiagram.toolManager.clickSelectingTool.standardMouseSelect = guardedStandardMouseSelect;
 
 	    // when the user clicks on the background of the Diagram, remove all highlighting
@@ -3999,38 +4120,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return o.diagram.commandHandler.canPasteSelection();
             }),
-          // makeButton("----------",
-          //   function (e: any, obj: any) {
-          //     console.log('TEST');
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return o.diagram.commandHandler.canPasteSelection();
-          //   }),
-          // makeButton("New Model",
-          //   function (e: any, obj: any) {
-          //     uid.newModel(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("New Modelview",
-          //   function (e: any, obj: any) {
-          //     uid.newModelview(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
           makeButton("Set Modelview as Template",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -4042,34 +4131,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return false;
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
-          // makeButton("Delete Model",
-          //   function (e: any, obj: any) {
-          //     uid.deleteModel(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     let cnt = 0;
-          //     const models = myMetis.models;
-          //     for (let i = 0; i < models.length; i++) {
-          //       const model = models[i];
-          //       if (model.markedAsDeleted)
-          //         continue;
-          //       cnt++;
-          //     }
-          //     if (cnt > 1)
-          //       return true;
-          //     else
-          //       return false;
-          //   }),
           makeButton("Delete Current Modelview",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current modelview?')) {
-                const model = myMetis.currentModel as akm.cxModel;
                 const modelView = myMetis.currentModelview as akm.cxModelView;
                 uid.deleteModelview(modelView, myMetis, myDiagram);
               }
@@ -4086,10 +4151,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   continue;
                 cnt++;
               }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
+              return cnt > 1;
             }),
           makeButton("New Target Model",
             function (e: any, obj: any) {
@@ -4117,24 +4179,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              const metamodel = myMetis.currentTargetMetamodel;
-              if (metamodel)
-                return true;
-              else
-                return false;
+              return myMetis.modelType !== 'Metamodelling' && !!myMetis.currentTargetMetamodel;
             }),
           makeButton("Set Target Model",
             function (e: any, obj: any) {
-              const context = {
-                "myMetis": myMetis,
-                "myMetamodel": myMetis.currentMetamodel,
-                "myModel": myMetis.currentModel,
-                "myModelview": myMetis.currentModelview,
-                "myTargetMetamodel": myMetis.currentTargetMetamodel,
-                "myDiagram": e.diagram
-              }
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Target Model",
@@ -4147,192 +4195,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return false;
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
-          // makeButton("----------",
-          //   function (e: any, obj: any) {
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Edit Model Suite",
-          //   function (e: any, obj: any) {
-          //     const currentName = myMetis.name;
-          //     const modelSuiteName = prompt("Enter the name of the Model Suite:", currentName);
-          //     if (modelSuiteName?.length > 0) {
-          //       myMetis.name = modelSuiteName;
-          //     }
-          //     const currentDescr = myMetis.description;
-          //     const modelSuiteDescr = prompt("Enter Model Suite description:", currentDescr);
-          //     if (modelSuiteDescr?.length > 0) {
-          //       myMetis.description = modelSuiteDescr;
-          //     }
-
-          //     const myMetamodel = myMetis.currentMetamodel;
-          //     const objtype = myMetamodel.findObjectTypeByName("Datatype");
-          //     if (objtype) {
-          //       if (confirm("Allow generate current metamodel: (OK = Yes))"))
-          //         myMetis.allowGenerateCurrentMetamodel = true;
-          //       else
-          //         myMetis.allowGenerateCurrentMetamodel = false;
-          //     }
-          //     const project = {
-          //       // "id":           myMetis.id, // ToDo: add id to project
-          //       "name": myMetis.name,
-          //       "description": myMetis.description,
-          //       "allowGenerateCurrentMetamodel": myMetis.allowGenerateCurrentMetamodel
-          //     }
-          //     const modifiedProjects = new Array();  // metis-objektet i phData
-          //     modifiedProjects.push(project);
-          //     modifiedProjects?.map(mn => {
-          //       let data = (mn) && mn
-          //       data = JSON.parse(JSON.stringify(data));
-          //       e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-          //     });
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Edit Metamodel",
-          //   function (e: any, obj: any) {
-          //     const currentMetamodel = myMetis.currentMetamodel;
-          //     const currentName = currentMetamodel.name;
-          //     const modelName = prompt("Enter Metamodel name:", currentName);
-          //     if (modelName?.length > 0) {
-          //       currentMetamodel.name = modelName;
-          //     }
-          //     const currentDescr = currentMetamodel.description;
-          //     const modelDescr = prompt("Enter Metamodel description:", currentDescr);
-          //     if (modelDescr?.length > 0) {
-          //       currentMetamodel.description = modelDescr;
-          //     }
-          //     if (currentName !== modelName)
-          //       currentMetamodel.id = utils.createGuid();
-          //     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-          //     let data = { metis: jsnMetis }
-          //     data = JSON.parse(JSON.stringify(data));
-          //     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: dispatch only name
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return true;
-          //     }
-          //   }),
-          // makeButton("Edit Model",
-          //   function (e: any, obj: any) {
-          //     const currentModel = myMetis.currentModel;
-          //     const currentName = currentModel.name;
-          //     const modelName = prompt("Enter Model name:", currentName);
-          //     if (modelName?.length > 0) {
-          //       currentModel.name = modelName;
-          //     }
-          //     const currentDescr = currentModel.description;
-          //     const modelDescr = prompt("Enter Model description:", currentDescr);
-          //     if (modelDescr?.length > 0) {
-          //       currentModel.description = modelDescr;
-          //     }
-          //     const jsnModel = new jsn.jsnModel(currentModel, true);
-          //     const modifiedModels = new Array();
-          //     modifiedModels.push(jsnModel);
-          //     modifiedModels?.map(mn => {
-          //       let data = (mn) && mn
-          //       data = JSON.parse(JSON.stringify(data));
-          //       e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-          //     })
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Edit Modelview",
-          //   function (e: any, obj: any) {
-          //     if (true) {
-          //       const currentModelview = myMetis.currentModelview;
-          //       let currentName = currentModelview.name;
-          //       const modelviewName = prompt("Enter Modelview name:", currentName);
-          //       if (modelviewName?.length > 0) {
-          //         currentModelview.name = modelviewName;
-          //       }
-          //       const currentDescr = currentModelview.description;
-          //       const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
-          //       if (modelviewDescr?.length > 0) {
-          //         currentModelview.description = modelviewDescr;
-          //       }
-          //       const jsnModelview = new jsn.jsnModelView(currentModelview);
-          //       const modifiedModelviews = new Array();
-          //       modifiedModelviews.push(jsnModelview);
-          //       modifiedModelviews?.map(mn => {
-          //         let data = (mn) && mn
-          //         data = JSON.parse(JSON.stringify(data));
-          //         e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-          //       })
-          //     } else {
-          //       // ToDo: implement a correct edit of modelview
-          //       // Need a working "uid.editModelview"
-          //       const currentModelview = myMetis.currentModelview;
-          //       const adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-          //       if (adminModel) {
-          //         let adminModelview = adminModel.modelviews[0];
-          //         if (adminModelview)
-          //           adminModelview = myMetis.findModelView(adminModelview.id);
-          //         const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
-          //         if (modelviewType) {
-          //           for (let i = 0; i < adminModel?.objects?.length; i++) {
-          //             const obj = adminModel.objects[i];
-          //             if (!obj || obj.type?.id !== modelviewType.id)
-          //               continue;
-          //             if (obj['modelviewId'] === currentModelview.id) {
-          //               if (obj) {
-          //                 const objview = obj.objectviews[0];
-          //                 const node = new gjs.goObjectNode(objview?.id, myGoModel, objview);
-          //                 uid.editObject(node, myMetis, myDiagram);
-          //               }
-          //             }
-          //           }
-          //         }
-          //       }
-          //     }
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Open/Close All Groups",
-          //   function (e: any, obj: any) {
-          //     const open = confirm("Open (OK) or Close all Groups?", "true");
-          //     uid.openCloseAllGroups(myDiagram, open);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
           makeButton("Update Project from AdminModel",
             function (e: any, obj: any) {
               let adminModel = myMetis.adminModel;
@@ -4341,28 +4204,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              }
               const adminModel = myMetis.adminModel;
               const currentModel = myMetis.currentModel;
-              if (currentModel.id === adminModel.id)
-                return true;
-              else
-                return false;
+              return myMetis.modelType !== 'Metamodelling' && currentModel.id === adminModel.id;
             }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Select all objects of type",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
               const myGoModel = myMetis.gojsModel;
               const typename = prompt("Enter object type name", "");
               const objects = myModel.getObjectsByTypename(typename, false);
@@ -4392,14 +4246,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Select by Object Name",
             function (e: any, obj: any) {
               const value = prompt('Enter name ', "");
-              const name = new RegExp(value, "i");
               const results = myDiagram.findNodesByExample(
                 { name: value });
               const it = results.iterator;
@@ -4410,9 +4261,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Add Missing Relationship Views",
             function (e: any, obj: any) {
@@ -4425,9 +4274,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Unhide Hidden Relationship Views",
             function (e: any, obj: any) {
@@ -4436,9 +4283,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Toggle Show Relationship Names",
             function (e: any, obj: any) {
@@ -4464,18 +4309,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) {
               uid.deleteInvisibleObjects(myMetis, myDiagram);
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Undelete Selection",
             function (e: any, obj: any) {
@@ -4523,10 +4364,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              const node = o.part.data;
-              if (myDiagram.selection.count > 0)
-                return true;
-              return false;
+              return myDiagram.selection.count > 0;
             }),
           // makeButton("----------",
           //   function (e: any, obj: any) {
@@ -5771,11 +5609,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.openCloseAllGroups(targetDiagram, open);
       };
 
+      const isMetamodelDiagramContext = (diagram?: go.Diagram) => {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram) return myMetis.modelType === 'Metamodelling';
+        try {
+          for (let it = targetDiagram.nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node?.data;
+            if (data?.objecttype || data?.category === constants.gojs.C_OBJECTTYPE) return true;
+          }
+        } catch (_) {
+        }
+        return myMetis.modelType === 'Metamodelling';
+      };
+
       const applyLayoutScheme = (diagram: go.Diagram, layoutName: string) => {
         const targetDiagram = diagram || myDiagram;
         if (!targetDiagram) return;
         const normalized = layoutName;
-        const isMetamodelling = myMetis.modelType === 'Metamodelling';
+        const isMetamodelling = isMetamodelDiagramContext(targetDiagram);
         if (isMetamodelling) {
           const myMetamodel = myMetis.currentMetamodel;
           if (myMetamodel) myMetamodel.layout = normalized;
@@ -10592,11 +10444,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleDoLayout = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;
         const myModelview = myMetis.currentModelview;
-        if (!myModelview) return;
-        targetDiagram.modelview = myModelview;
+        const isMetamodelling = isMetamodelDiagramContext(targetDiagram);
+        // Regression checklist:
+        // 1) Set layout A -> Do Layout -> move node -> no snap-back.
+        // 2) Set layout B -> Do Layout -> move node -> no snap-back.
+        // 3) Reload -> move node -> no snap-back.
         let layout = "";
         const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
-        if (myMetis.modelType === 'Modelling') {
+        if (!isMetamodelling) {
+          if (!myModelview) return;
+          targetDiagram.modelview = myModelview;
           targetDiagram.selection.each(function (sel) {
             const link = sel.data;
             if (link.category === constants.gojs.C_RELATIONSHIP) {
@@ -10622,20 +10479,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myModelview.clearRelviewPoints();
           const myGoModel = myMetis.gojsModel;
           layout = myGoModel.modelView?.layout;
-        } else if (myMetis.modelType === 'Metamodelling') {
+        } else {
           const myMetamodel = myMetis.currentMetamodel;
+          if (!myMetamodel) return;
           layout = myMetamodel.layout;
         }
         setLayout(targetDiagram, layout);
-        const nodes = targetDiagram.nodes;
-        for (let it = nodes.iterator; it?.next();) {
-          const node = it.value;
-          const data = node.data;
-          let objview = data.objectview;
-          if (!objview)
-            objview = myModelview.findObjectView(data.objviewRef);
-          if (objview) {
-            objview.loc = data.loc;
+        if (isMetamodelling) {
+          const myMetamodel = myMetis.currentMetamodel;
+          const objtypegeos = [];
+          const nodes = targetDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node.data;
+            const objtype = data?.objecttype;
+            if (!objtype) continue;
+            const loc = data?.loc || `${Math.round(node.location.x)} ${Math.round(node.location.y)}`;
+            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+            if (!objtypegeo) {
+              objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, data?.size || '');
+              myMetamodel.addObjtypeGeo(objtypegeo);
+              myMetis.addObjtypeGeo(objtypegeo);
+            }
+            objtypegeo.loc = loc;
+            objtypegeo.size = data?.size || objtypegeo.size;
+            const jsnObjtypegeo = new jsn.jsnObjectTypegeo(objtypegeo);
+            objtypegeos.push(jsnObjtypegeo);
+          }
+          objtypegeos.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+          });
+        } else {
+          const nodes = targetDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node.data;
+            let objview = data.objectview;
+            if (!objview)
+              objview = myModelview.findObjectView(data.objviewRef);
+            if (objview) {
+              objview.loc = data.loc;
+            }
           }
         }
         modifiedRelshipViews.map(mn => {
@@ -10651,7 +10537,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const handleSaveLayout = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;
-        if (myMetis.modelType === 'Metamodelling') {
+        if (isMetamodelDiagramContext(targetDiagram)) {
           const myMetamodel = myMetis.currentMetamodel;
           if (!myMetamodel) return;
           const nodes = targetDiagram.nodes;
@@ -10661,12 +10547,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const data = node.data;
             const objtype = data.objecttype;
             if (!objtype) continue;
-            const objtypegeo = objtype.typegeo;
-            if (!objtypegeo) continue;
-            objtypegeo.loc = data.loc;
-            objtypegeo.size = data.size;
-            objtypegeo.scale = data.scale;
-            const jsnObjtypegeo = new jsn.jsnObjectTypeGeo(objtypegeo);
+            const loc = data?.loc || `${Math.round(node.location.x)} ${Math.round(node.location.y)}`;
+            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+            if (!objtypegeo) {
+              objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, data?.size || '');
+              myMetamodel.addObjtypeGeo(objtypegeo);
+              myMetis.addObjtypeGeo(objtypegeo);
+            }
+            objtypegeo.loc = loc;
+            objtypegeo.size = data?.size || objtypegeo.size;
+            const jsnObjtypegeo = new jsn.jsnObjectTypegeo(objtypegeo);
             objtypegeos.push(jsnObjtypegeo);
           }
           objtypegeos.map(mn => {
@@ -11041,7 +10931,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         ...globalLayoutOptions.map(option => ({
           label: option.label,
           action: (diagram: go.Diagram) => handleSetLayoutScheme(diagram, option.value),
-          visible: () => !isMetamodellingMode(),
+          visible: () => true,
         })),
         {
           separator: true,
@@ -11184,7 +11074,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         {
           label: "Do Layout",
           action: (diagram) => handleDoLayout(diagram),
-          visible: () => !isMetamodellingMode(),
+          visible: () => true,
         },
         {
           label: "Save Layout",
@@ -11545,6 +11435,106 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Define template maps
     {
+	      // Keep nodes inside their lane/group unless Shift is held while dragging.
+	      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
+	        const grp = part.containingGroup;
+	        if (!grp) return pt;
+	        const dataGroupKey =
+	          typeof part.data?.group === "string" && part.data.group.length > 0
+	            ? String(part.data.group)
+	            : "";
+	        const containingGroupKey =
+	          grp.key !== undefined && grp.key !== null
+	            ? String(grp.key)
+	            : "";
+	        // After some container moves, a top-level node can briefly retain a stale
+	        // containingGroup even though its persisted `group` is already empty.
+	        // Do not clamp that first drag against the old container.
+	        if (!dataGroupKey || dataGroupKey !== containingGroupKey) {
+	          try {
+	            if ((part.diagram as any)?.__traceFirstPostGroupDrag) {
+	              console.warn("[FIRST_DRAG_CLAMP_BYPASS]", {
+	                key: part.data?.key,
+	                dataGroup: dataGroupKey,
+	                containingGroup: containingGroupKey,
+	                loc: part.data?.loc,
+	              });
+	            }
+	          } catch (_) {
+	          }
+	          return pt;
+	        }
+	        // If Shift is held at any point during this drag, remember that so mouse-up handlers
+	        // can allow regrouping even if Shift is released just before drop.
+	        const diagram = part.diagram;
+	        if (diagram?.lastInput?.shift) {
+	          (diagram as any).__dragAllowReparent = true;
+	          const k = part.data?.key;
+	          if (k != null) {
+	            const s: Set<string> = ((diagram as any).__dragAllowReparentKeys ||= new Set<string>());
+	            s.add(String(k));
+	          }
+	          return pt;
+	        }
+	        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
+	        // their container group is also moving, bounds can be temporarily stale and members will
+	        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
+	        // is in the current selection (i.e., is being dragged).
+	        if (diagram) {
+	          let g: go.Group | null = grp;
+	          while (g) {
+	            if (diagram.selection.contains(g)) return pt;
+            g = g.containingGroup;
+          }
+        }
+	        const back =
+	          grp.findObject("LANE_BODY_SHAPE") ||
+	          grp.findObject("BODY") ||
+	          grp.resizeObject;
+	        if (!back) return pt;
+	        const r = back.getDocumentBounds();
+	        const dragObject =
+	          (part instanceof go.Group
+	            ? part.findObject("SHAPE") ||
+	              part.findObject("BODY") ||
+	              part.resizeObject ||
+	              part.selectionObject
+	            : null) || part;
+	        const b = dragObject.getDocumentBounds ? dragObject.getDocumentBounds() : part.actualBounds;
+	        const loc = part.location;
+	        const offsetX = loc.x - b.x;
+	        const offsetY = loc.y - b.y;
+	        const minX = r.x + offsetX + 2;
+	        const maxX = r.right - (b.width - offsetX) - 2;
+	        const minY = r.y + offsetY + 2;
+	        const maxY = r.bottom - (b.height - offsetY) - 2;
+	        const x = Math.max(minX, Math.min(pt.x, maxX));
+	        const y = Math.max(minY, Math.min(pt.y, maxY));
+	        try {
+	          if ((part.diagram as any)?.__traceFirstPostGroupDrag) {
+	            console.warn("[FIRST_DRAG_CLAMP]", {
+	              key: part.data?.key,
+	              dataGroup: dataGroupKey,
+	              containingGroup: containingGroupKey,
+	              requested: `${pt.x} ${pt.y}`,
+	              clamped: `${x} ${y}`,
+	              loc: part.data?.loc,
+	            });
+	          }
+	        } catch (_) {
+	        }
+	        return new go.Point(x, y);
+	      };
+
+      const getGroupBodyBounds = (grp: go.Group) => {
+        const back =
+          grp.findObject("SHAPE") ||
+          grp.findObject("LANE_BODY_SHAPE") ||
+          grp.findObject("BODY") ||
+          grp.resizeObject;
+        if (!back) return null;
+        return back.getDocumentBounds();
+      };
 
       // Define link template map
       var linkTemplateMap = new go.Map<string, go.Link>();
@@ -11584,9 +11574,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const part = it.value;
         if (!(part instanceof go.Node)) continue;
         if (key === "LinkLabel") continue;
-        // Keep regular node dragging unconstrained here; lane/group membership is
-        // enforced by drop handlers and SelectionMoved persistence.
-        part.dragComputation = (_part: go.Part, pt: go.Point) => pt;
+        part.dragComputation = stayInGroup;
       }
 
       for (let it = groupTemplateMap.iterator; it.next();) {
@@ -11602,19 +11590,120 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const draggingTool = myDiagram.toolManager.draggingTool;
       const baseDoActivate = draggingTool.doActivate;
 	      draggingTool.doActivate = function () {
-          const diagram = this.diagram;
-          if (diagram?.lastInput?.shift) {
-            const draggedPart =
-              this.currentPart ||
-              diagram.findPartAt(diagram.lastInput.documentPoint, true);
-            if (draggedPart instanceof go.Part && draggedPart.canSelect()) {
-              if (!draggedPart.isSelected) {
-                draggedPart.isSelected = true;
-              }
-              this.currentPart = draggedPart;
+	        const diagram = this.diagram;
+        const isVisuallyInsideGroup = (part: go.Part, grp: go.Group): boolean => {
+          const back =
+            grp.findObject("LANE_BODY_SHAPE") ||
+            grp.findObject("BODY") ||
+            grp.resizeObject;
+          const groupBounds = back ? back.getDocumentBounds() : grp.actualBounds;
+          const partBounds = part.actualBounds;
+          if (!groupBounds || !partBounds) return false;
+          if (groupBounds.containsRect(partBounds)) return true;
+          const center = partBounds.center;
+          if (groupBounds.containsPoint(center)) return true;
+          const overlapLeft = Math.max(partBounds.x, groupBounds.x);
+          const overlapTop = Math.max(partBounds.y, groupBounds.y);
+          const overlapRight = Math.min(partBounds.right, groupBounds.right);
+          const overlapBottom = Math.min(partBounds.bottom, groupBounds.bottom);
+          const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+          const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+          const overlapArea = overlapWidth * overlapHeight;
+          const partArea = Math.max(1, partBounds.width * partBounds.height);
+          return (overlapArea / partArea) >= 0.45;
+        };
+        if (diagram?.lastInput?.shift) {
+          const draggedPart =
+            this.currentPart ||
+            diagram.findPartAt(diagram.lastInput.documentPoint, true);
+          if (draggedPart instanceof go.Part && draggedPart.canSelect()) {
+            if (!draggedPart.isSelected) {
+              draggedPart.isSelected = true;
             }
+            this.currentPart = draggedPart;
           }
-          return baseDoActivate.call(this);
+        }
+	        const result = baseDoActivate.call(this);
+	        try {
+	          const tracePostGroupDrag = Boolean((diagram as any)?.__traceFirstPostGroupDrag);
+	          const draggedParts = this.draggedParts;
+	          let activatedOrdinaryNodeDrag = false;
+	          for (let it = draggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
+	            activatedOrdinaryNodeDrag = true;
+	            const staleGroup = part.containingGroup;
+            if (staleGroup instanceof go.Group && !isVisuallyInsideGroup(part, staleGroup)) {
+              try {
+                if (typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
+                  (diagram.model as any).setGroupKeyForNodeData(part.data, undefined);
+                } else {
+                  diagram.model.setDataProperty(part.data, "group", "");
+                }
+              } catch (_) {
+              }
+              try { diagram.model.setDataProperty(part.data, "group", ""); } catch (_) { }
+	              try { part.data.group = ""; } catch (_) { }
+	              try { part.containingGroup = null; } catch (_) { }
+	            }
+	            if (tracePostGroupDrag) {
+	              try {
+	                console.warn("[FIRST_DRAG_ACTIVATE]", {
+	                  key: part.data?.key,
+	                  dataGroup: part.data?.group || "",
+	                  containingGroup:
+	                    part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
+	                      ? String(part.containingGroup.key)
+	                      : "",
+	                  loc: part.data?.loc,
+	                });
+	              } catch (_) {
+	              }
+	            }
+	            (part.data as any).__dragStartGroup =
+	              part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
+	                ? String(part.containingGroup.key)
+	                : String(part.data.group || "");
+	          }
+	          if (activatedOrdinaryNodeDrag && (diagram as any).__suppressSyncForNextNodeDrag) {
+	            (diagram as any).__suppressNodeModelSyncUntil = Date.now() + 2000;
+	            (diagram as any).__suppressPropSyncUntil = Date.now() + 2000;
+	            try {
+	              for (let it = draggedParts?.iterator; it?.next();) {
+	                const part = it.key as go.Part;
+	                if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                [
+	                  "Selection",
+	                  "Tool",
+	                  "Resize",
+	                  "Resizing",
+	                  "Rotate",
+	                  "LinkReshaping",
+	                  "RelinkingFrom",
+	                  "RelinkingTo",
+	                  "Relinking",
+	                ].forEach((name) => {
+	                  try { part.removeAdornment(name); } catch (_) { }
+	                });
+	                try { part.updateAdornments(); } catch (_) { }
+	              }
+	              try { diagram.requestUpdate(); } catch (_) { }
+	            } catch (_) {
+	            }
+	            delete (diagram as any).__suppressSyncForNextNodeDrag;
+	          }
+	          if (activatedOrdinaryNodeDrag) {
+	            try {
+	              (diagram as any).__traceDragVibration = true;
+	              window.setTimeout(() => {
+	                try { delete (diagram as any).__traceDragVibration; } catch (_) { }
+	              }, 1500);
+	            } catch (_) {
+	            }
+	          }
+	        } catch (_) {
+	        }
+	        return result;
 	      };
 
       // Set the diagram template maps
@@ -11762,26 +11851,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     function setLayout(myDiagram, layout) {
       switch (layout) {
         case 'Circular':
-          myDiagram.layout = $(go.CircularLayout);
+          myDiagram.layout = $(go.CircularLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Grid':
-          myDiagram.layout = $(go.GridLayout);
+          myDiagram.layout = $(go.GridLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Tree':
-          myDiagram.layout = $(go.TreeLayout);
+          myDiagram.layout = $(go.TreeLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'ForceDirected':
-          myDiagram.layout = $(go.ForceDirectedLayout);
+          myDiagram.layout = $(go.ForceDirectedLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'LayeredDigraph':
-          myDiagram.layout = $(go.LayeredDigraphLayout);
+          myDiagram.layout = $(go.LayeredDigraphLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Manual':
           myDiagram.layout.isInitial = false;
           myDiagram.layout.isOngoing = false;
           break;
       }
-      myDiagram.layoutDiagram();
+      // Always run selected layout once, then keep manual node movement stable.
+      // Without forcing here, layouts with isInitial/isOngoing=false may not execute.
+      myDiagram.layoutDiagram(true);
     }
 
     function clearInstance(inst: any) {

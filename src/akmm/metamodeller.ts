@@ -1038,6 +1038,13 @@ export class cxMetis {
                 objtypegeo.setLoc(item.loc);
                 objtypegeo.setSize(item.size);
                 metamodel.addObjtypeGeo(objtypegeo);
+            } else {
+                // Import new geos as concrete cxObjtypeGeo instances so layout positions
+                // created during runtime survive a subsequent reload/import.
+                objtypegeo = new cxObjtypeGeo(item.id, metamodel, type, item.loc, item.size);
+                objtypegeo.setMarkedAsDeleted(Boolean(item.markedAsDeleted));
+                this.addObjtypeGeo(objtypegeo);
+                metamodel.addObjtypeGeo(objtypegeo);
             }
         }
     }

@@ -1192,6 +1192,19 @@ function getNodeTypeRef(node) {
   );
 }
 
+function isMetamodelSelection(myMetis: any, selection: any) {
+  if (myMetis?.modelType === 'Metamodelling') return true;
+  try {
+    for (let it = selection?.iterator; it?.next();) {
+      const part = it.value;
+      const data = part?.data;
+      if (data?.objecttype || data?.category === constants.gojs.C_OBJECTTYPE) return true;
+    }
+  } catch (_) {
+  }
+  return false;
+}
+
 function getNodeKey(node) {
   if (!node) {
     return undefined;
@@ -1677,6 +1690,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);
     // ...existing code...
+    this._ownDiagram = null;
   }
 
   openConnectedObjectsDialog = (mode = 'select', context: any = null) => {
@@ -1892,19 +1906,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (shouldSyncFromProps) {
       const activeTool = diagram?.currentTool;
-      const resizingTool = diagram?.toolManager?.resizingTool;
-      const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
-      const dragInProgress =
-        Boolean((diagram as any)?.__dragInProgress) ||
-        dragInProgressUntil > Date.now();
-      const isActiveResize =
-        (activeTool instanceof go.ResizingTool && activeTool.isActive === true) ||
-        (resizingTool instanceof go.ResizingTool && resizingTool.isActive === true);
       const suppressPropSyncUntil = Number((diagram as any)?.__suppressPropSyncUntil || 0);
       const suppressPropSync =
-        dragInProgress ||
         (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
-        isActiveResize ||
         suppressPropSyncUntil > Date.now();
       if (suppressPropSync) {
         return;
@@ -1913,6 +1917,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (shouldSyncFromProps) {
       nextState.skipsDiagramUpdate = false;
       this.setState(nextState);
+      // Auto-layout metamodel when nodeDataArray changes and all nodes are unpositioned
+      const incomingNodes = this.props.nodeDataArray;
+      if (
+        Array.isArray(incomingNodes) &&
+        incomingNodes.length > 1 &&
+        incomingNodes.some((n) => n?.objecttype) &&
+        incomingNodes.every((n) => !n?.loc)
+      ) {
+        setTimeout(() => this._applyMetamodelAutoLayoutIfNeeded(this._ownDiagram), 200);
+      }
       return;
     }
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
@@ -2060,17 +2074,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedModelData = obj.modelData;
     const diagram = this.state?.myMetis?.myDiagram;
     const activeTool = diagram?.currentTool;
-    const resizingTool = diagram?.toolManager?.resizingTool;
     const isActiveDrag =
       activeTool instanceof go.DraggingTool &&
       activeTool.isActive === true;
-    const isActiveResize =
-      (activeTool instanceof go.ResizingTool && activeTool.isActive === true) ||
-      (resizingTool instanceof go.ResizingTool && resizingTool.isActive === true);
-    const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
-    const dragInProgress =
-      Boolean((diagram as any)?.__dragInProgress) ||
-      dragInProgressUntil > Date.now();
     const isActiveLinkReshape =
       activeTool instanceof go.LinkReshapingTool &&
       activeTool.isActive === true;
@@ -2091,23 +2097,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0) ||
       hasMeaningfulModelDataChanges;
 
-    if (isActiveResize) {
-      if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
-        try {
-          const payload = modifiedNodeData.map((node: any) => ({
-            key: node?.key || "",
-            size: node?.size || "",
-            loc: node?.loc || "",
-          }));
-          console.warn("[VIBRATION_RESIZE_SYNC]", JSON.stringify(payload));
-        } catch (_) {
-        }
-      }
-      return;
-    }
-
     if (
-      (isActiveDrag || dragInProgress || isActiveLinkReshape || isActiveRelink) &&
+      (isActiveDrag || isActiveLinkReshape || isActiveRelink) &&
       !hasStructuralModelChanges
     ) {
       if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
@@ -2330,10 +2321,110 @@ class GoJSApp extends React.Component<{}, AppState> {
    * On ChangedSelection, find the corresponding data and set the selectedData state.
    * @param e a GoJS DiagramEvent
    */
+  _applyMetamodelAutoLayoutIfNeeded(diagram) {
+    if (!(diagram instanceof go.Diagram)) return;
+    const myMetis = this.state?.myMetis;
+    // Only auto-layout when all nodes have no saved position (stacked at origin)
+    let count = 0;
+    let allAtOrigin = true;
+    for (let it = diagram.nodes.iterator; it.next();) {
+      count++;
+      const loc = it.value.data?.loc;
+      if (loc && loc !== '') { allAtOrigin = false; break; }
+    }
+    if (!allAtOrigin || count <= 1) return;
+    const preferredLayout = myMetis?.currentMetamodel?.layout || 'LayeredDigraph';
+    switch (preferredLayout) {
+      case 'Circular':
+        diagram.layout = new go.CircularLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Grid':
+        diagram.layout = new go.GridLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Tree':
+        diagram.layout = new go.TreeLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'ForceDirected':
+        diagram.layout = new go.ForceDirectedLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Manual': {
+        const layout = diagram.layout;
+        if (layout) {
+          layout.isInitial = false;
+          layout.isOngoing = false;
+        }
+        break;
+      }
+      case 'LayeredDigraph':
+      default:
+        diagram.layout = new go.LayeredDigraphLayout({
+          isInitial: false,
+          isOngoing: false,
+          direction: 0,
+          layerSpacing: 80,
+          columnSpacing: 40,
+          setsPortSpots: false,
+        });
+        break;
+    }
+    diagram.layoutDiagram(true);
+    diagram.zoomToFit();
+    // Persist the computed positions to objtypegeos so parent re-renders don't reset the layout
+    this._saveMetamodelAutoLayoutPositions(diagram);
+  }
+
+  _saveMetamodelAutoLayoutPositions(diagram) {
+    const myMetis = this.state?.myMetis;
+    const dispatch = this.state?.dispatch;
+    if (!myMetis || !dispatch) return;
+    const myMetamodel = myMetis.currentMetamodel;
+    if (!myMetamodel) return;
+    let updatedAnyGeo = false;
+    for (let it = diagram.nodes.iterator; it.next();) {
+      const node = it.value;
+      const data = node.data;
+      const objtype = data?.objecttype;
+      if (!objtype) continue;
+      // Prefer data.loc (two-way binding), fall back to live location
+      const pt = node.location;
+      const loc = (data.loc && data.loc !== '')
+        ? data.loc
+        : `${Math.round(pt.x)} ${Math.round(pt.y)}`;
+      if (!loc) continue;
+      let geo = myMetamodel.findObjtypeGeoByType(objtype);
+      if (!geo) {
+        geo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, '');
+        myMetamodel.addObjtypeGeo(geo);
+        myMetis.addObjtypeGeo(geo);
+      } else {
+        geo.loc = loc;
+      }
+      const jsnGeo = new jsn.jsnObjectTypegeo(geo);
+      const geoData = JSON.parse(JSON.stringify(jsnGeo));
+      dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data: geoData });
+      updatedAnyGeo = true;
+    }
+    if (updatedAnyGeo) {
+      try {
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        let data = { metis: jsnMetis };
+        data = JSON.parse(JSON.stringify(data));
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+      } catch (_) {
+      }
+    }
+  }
+
   public handleDiagramEvent(e: go.DiagramEvent) {
     const dispatch = this.state.dispatch;
     const name = e.name;
     const myDiagram = e.diagram;
+    // Capture this GoJSApp's own diagram reference (used for auto-layout)
+    if (!this._ownDiagram && myDiagram) this._ownDiagram = myDiagram;
+    // Auto-layout metamodel on first diagram load when no positions are saved
+    if (name === 'InitialLayoutCompleted') {
+      this._applyMetamodelAutoLayoutIfNeeded(myDiagram);
+    }
     const myMetis = this.state.myMetis;
     myMetis.relinked = false;
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
@@ -3384,11 +3475,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
       case "SelectionMoving": {
-        try {
-          (myDiagram as any).__dragInProgress = true;
-          (myDiagram as any).__dragInProgressUntil = Date.now() + 450;
-        } catch (_) {
-        }
         const movedSelection = e.subject;
         const movedNodeKeys = new Set<string>();
         for (let it = movedSelection?.iterator; it?.next();) {
@@ -3414,6 +3500,55 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "SelectionMoved": {
+        // Metamodelling: persist dragged objecttype node positions to objtypegeos
+        const isMetamodelMove = isMetamodelSelection(myMetis, e.subject);
+        if (isMetamodelMove) {
+          const currentMetamodel = myMetis.currentMetamodel;
+          if (currentMetamodel) {
+            let updatedAnyGeo = false;
+            for (let it = e.subject?.iterator; it?.next();) {
+              const part = it.value;
+              if (!(part instanceof go.Node)) continue;
+              const data = part.data || {};
+              const typeRef =
+                data?.objecttype?.id ||
+                getNodeTypeRef(part) ||
+                data?.objtypeRef ||
+                data?.typeRef ||
+                undefined;
+              const objtype =
+                data?.objecttype ||
+                (typeRef ? currentMetamodel.findObjectType(typeRef) : null) ||
+                (typeRef ? myMetis.findObjectType(typeRef) : null);
+              if (!objtype) continue;
+              const loc = `${Math.round(part.location.x)} ${Math.round(part.location.y)}`;
+              // Update data.loc so GoJS stays in sync
+              try { myDiagram.model.setDataProperty(data, 'loc', loc); } catch (_) {}
+              let geo = currentMetamodel.findObjtypeGeoByType(objtype);
+              if (!geo) {
+                geo = new akm.cxObjtypeGeo(utils.createGuid(), currentMetamodel, objtype, loc, '');
+                currentMetamodel.addObjtypeGeo(geo);
+                myMetis.addObjtypeGeo(geo);
+              } else {
+                geo.loc = loc;
+              }
+              const jsnGeo = new jsn.jsnObjectTypegeo(geo);
+              const geoData = JSON.parse(JSON.stringify(jsnGeo));
+              dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data: geoData });
+              updatedAnyGeo = true;
+            }
+            if (updatedAnyGeo) {
+              try {
+                const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+                let data = { metis: jsnMetis };
+                data = JSON.parse(JSON.stringify(data));
+                dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+              } catch (_) {
+              }
+            }
+          }
+          break;
+        }
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
         const selectionShiftPressed = Boolean(myDiagram?.lastInput?.shift);
@@ -5468,11 +5603,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         try {
           delete (myDiagram as any).__dragAllowReparent;
           delete (myDiagram as any).__dragAllowReparentKeys;
-        } catch (_) {
-        }
-        try {
-          (myDiagram as any).__dragInProgress = false;
-          (myDiagram as any).__dragInProgressUntil = Date.now() + 250;
         } catch (_) {
         }
         break;

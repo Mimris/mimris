@@ -1892,14 +1892,19 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (shouldSyncFromProps) {
       const activeTool = diagram?.currentTool;
+      const resizingTool = diagram?.toolManager?.resizingTool;
       const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
       const dragInProgress =
         Boolean((diagram as any)?.__dragInProgress) ||
         dragInProgressUntil > Date.now();
+      const isActiveResize =
+        (activeTool instanceof go.ResizingTool && activeTool.isActive === true) ||
+        (resizingTool instanceof go.ResizingTool && resizingTool.isActive === true);
       const suppressPropSyncUntil = Number((diagram as any)?.__suppressPropSyncUntil || 0);
       const suppressPropSync =
         dragInProgress ||
         (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
+        isActiveResize ||
         suppressPropSyncUntil > Date.now();
       if (suppressPropSync) {
         return;
@@ -2055,9 +2060,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedModelData = obj.modelData;
     const diagram = this.state?.myMetis?.myDiagram;
     const activeTool = diagram?.currentTool;
+    const resizingTool = diagram?.toolManager?.resizingTool;
     const isActiveDrag =
       activeTool instanceof go.DraggingTool &&
       activeTool.isActive === true;
+    const isActiveResize =
+      (activeTool instanceof go.ResizingTool && activeTool.isActive === true) ||
+      (resizingTool instanceof go.ResizingTool && resizingTool.isActive === true);
     const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
     const dragInProgress =
       Boolean((diagram as any)?.__dragInProgress) ||
@@ -2081,6 +2090,21 @@ class GoJSApp extends React.Component<{}, AppState> {
       (Array.isArray(insertedLinkKeys) && insertedLinkKeys.length > 0) ||
       (Array.isArray(removedLinkKeys) && removedLinkKeys.length > 0) ||
       hasMeaningfulModelDataChanges;
+
+    if (isActiveResize) {
+      if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
+        try {
+          const payload = modifiedNodeData.map((node: any) => ({
+            key: node?.key || "",
+            size: node?.size || "",
+            loc: node?.loc || "",
+          }));
+          console.warn("[VIBRATION_RESIZE_SYNC]", JSON.stringify(payload));
+        } catch (_) {
+        }
+      }
+      return;
+    }
 
     if (
       (isActiveDrag || dragInProgress || isActiveLinkReshape || isActiveRelink) &&

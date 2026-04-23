@@ -387,13 +387,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modelAny.__originalSetDataProperty = originalSetDataProperty;
           modelAny.setDataProperty = (data: any, prop: string, value: any) => {
             try {
-              if (prop === 'loc' && data && data.key != null) {
+              if ((prop === 'loc' || prop === 'size') && data && data.key != null) {
                 const dragInProgressUntil = Number((diagram as any)?.__dragInProgressUntil || 0);
                 const dragActive =
                   Boolean((diagram as any)?.__dragInProgress) ||
                   dragInProgressUntil > Date.now() ||
                   (diagram.currentTool instanceof go.DraggingTool && diagram.currentTool.isActive === true);
-                if (dragActive) {
+                const activeResizingTool =
+                  diagram.currentTool instanceof go.ResizingTool
+                    ? (diagram.currentTool as go.ResizingTool)
+                    : (diagram.toolManager?.resizingTool as go.ResizingTool | null);
+                const resizeActive =
+                  Boolean(activeResizingTool && activeResizingTool.isActive === true);
+                if (prop === 'loc' && dragActive) {
                   const draggingTool = diagram.currentTool instanceof go.DraggingTool
                     ? (diagram.currentTool as go.DraggingTool)
                     : (diagram.toolManager?.draggingTool as go.DraggingTool | null);
@@ -428,6 +434,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         const dx = Math.abs(incoming.x - live.x);
                         const dy = Math.abs(incoming.y - live.y);
                         if (dx > 2 || dy > 2) return;
+                      }
+                    }
+                  }
+                }
+                if (prop === 'size' && resizeActive) {
+                  const resizedPart = activeResizingTool?.adornedObject?.part;
+                  const isResizedNode =
+                    resizedPart instanceof go.Node &&
+                    String(resizedPart.data?.key || '') === String(data.key);
+                  if (isResizedNode) {
+                    const liveNode = diagram.findNodeForKey(data.key);
+                    if (liveNode instanceof go.Node) {
+                      const toSize = (raw: any): go.Size | null => {
+                        if (raw instanceof go.Size) return raw;
+                        if (typeof raw === 'string') {
+                          try { return go.Size.parse(raw); } catch (_) { return null; }
+                        }
+                        if (raw && typeof raw.width === 'number' && typeof raw.height === 'number') {
+                          return new go.Size(raw.width, raw.height);
+                        }
+                        return null;
+                      };
+                      const incoming = toSize(value);
+                      const resizeObj: any = (liveNode as any).resizeObject || liveNode.findObject?.('SHAPE') || liveNode.findObject?.('BODY');
+                      const live = resizeObj?.desiredSize && Number.isFinite(resizeObj.desiredSize.width) && Number.isFinite(resizeObj.desiredSize.height)
+                        ? resizeObj.desiredSize
+                        : new go.Size(liveNode.actualBounds.width, liveNode.actualBounds.height);
+                      if (incoming && live) {
+                        const dw = Math.abs(incoming.width - live.width);
+                        const dh = Math.abs(incoming.height - live.height);
+                        if (dw > 2 || dh > 2) return;
                       }
                     }
                   }

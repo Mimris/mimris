@@ -55,6 +55,165 @@ const booleanAsCheckbox = true;
 
 
 
+function ObjectTypePropertiesEditor({ objecttype, metamodel, myMetis }) {
+  const getRows = () => {
+    const props = objecttype?.getProperties?.(false) || objecttype?.properties || [];
+    return (Array.isArray(props) ? props : [])
+      .filter(p => {
+        if (!p || !p.id || p.markedAsDeleted) return false;
+        // Only include properties that are registered in the metamodel flat list.
+        // This excludes ghost entries (system-field artifacts) that were bulk-copied
+        // from stored jsnObjectType fields but never went through addProperty().
+        const inMetamodel = metamodel?.findProperty?.(p.id);
+        const inMetis = myMetis?.findProperty?.(p.id);
+        return !!(inMetamodel || inMetis);
+      })
+      .map(p => ({
+        id: p.id,
+        name: p.name || '',
+        description: p.description || '',
+        datatypeRef: p.datatypeRef || p.datatype?.id || '',
+      }));
+  };
+  const [rows, setRows] = React.useState(getRows);
+
+  const datatypes = React.useMemo(() => {
+    const dts = metamodel?.getDatatypes?.() || myMetis?.getDatatypes?.() || [];
+    return (Array.isArray(dts) ? dts : []).filter(dt => !dt.markedAsDeleted);
+  }, [metamodel, myMetis]);
+
+  const syncToLive = (newRows) => {
+    if (!objecttype) return;
+    if (!objecttype.properties) objecttype.properties = [];
+    const updated = newRows.map(row => {
+      let prop = objecttype.properties.find(p => p.id === row.id);
+      if (!prop) {
+        prop = new akm.cxProperty(row.id, row.name, row.description);
+      }
+      prop.name = row.name;
+      prop.description = row.description;
+      const dt = datatypes.find(d => d.id === row.datatypeRef);
+      if (dt) { prop.datatype = dt; prop.datatypeRef = dt.id; }
+      else { prop.datatypeRef = row.datatypeRef || ''; }
+      return prop;
+    });
+    objecttype.properties = updated;
+    // Ensure new props appear in both metamodel and myMetis flat properties lists
+    // so they pass the findProperty filter in getRows()
+    if (metamodel && Array.isArray(metamodel.properties)) {
+      updated.forEach(p => {
+        if (!metamodel.properties.find(mp => mp.id === p.id)) {
+          metamodel.properties.push(p);
+        }
+      });
+    }
+    if (myMetis && Array.isArray(myMetis.properties)) {
+      updated.forEach(p => {
+        if (!myMetis.properties.find(mp => mp.id === p.id)) {
+          myMetis.properties.push(p);
+        }
+      });
+    }
+  };
+
+  const handleChange = (id, field, value) => {
+    const newRows = rows.map(r => r.id === id ? { ...r, [field]: value } : r);
+    setRows(newRows);
+    syncToLive(newRows);
+  };
+
+  const handleAdd = () => {
+    const newId = utils.createGuid();
+    const defaultDtRef = datatypes.length > 0 ? datatypes[0].id : '';
+    const newRow = { id: newId, name: 'New Property', description: '', datatypeRef: defaultDtRef };
+    const newRows = [...rows, newRow];
+    setRows(newRows);
+    syncToLive(newRows);
+  };
+
+  const handleDelete = (id) => {
+    const newRows = rows.filter(r => r.id !== id);
+    setRows(newRows);
+    // Mark as deleted in live array (keeps it for serialisation diff if needed)
+    if (objecttype?.properties) {
+      const liveProps = objecttype.properties;
+      objecttype.properties = liveProps.filter(p => p.id !== id);
+      const deleted = liveProps.find(p => p.id === id);
+      if (deleted) deleted.markedAsDeleted = true;
+    }
+  };
+
+  return (
+    <div style={{ padding: '6px 4px 2px 4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+        <strong style={{ marginRight: '8px' }}>Properties</strong>
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-secondary"
+          style={{ padding: '0 8px', lineHeight: '1.4' }}
+          onClick={handleAdd}
+        >+ Add</button>
+      </div>
+      <table className="table table-sm table-bordered mb-0" style={{ fontSize: '0.82em' }}>
+        <thead className="thead-light">
+          <tr>
+            <th style={{ width: '30%' }}>Name</th>
+            <th style={{ width: '35%' }}>Description</th>
+            <th style={{ width: '25%' }}>Datatype</th>
+            <th style={{ width: '10%' }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && (
+            <tr><td colSpan={4} className="text-muted text-center" style={{ padding: '4px' }}>No properties defined</td></tr>
+          )}
+          {rows.map(row => (
+            <tr key={row.id}>
+              <td style={{ padding: '2px 4px' }}>
+                <input
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.name}
+                  onChange={e => handleChange(row.id, 'name', e.target.value)}
+                />
+              </td>
+              <td style={{ padding: '2px 4px' }}>
+                <input
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.description}
+                  onChange={e => handleChange(row.id, 'description', e.target.value)}
+                />
+              </td>
+              <td style={{ padding: '2px 4px' }}>
+                <select
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.datatypeRef}
+                  onChange={e => handleChange(row.id, 'datatypeRef', e.target.value)}
+                >
+                  <option value="">– none –</option>
+                  {datatypes.map(dt => (
+                    <option key={dt.id} value={dt.id}>{dt.name}</option>
+                  ))}
+                </select>
+              </td>
+              <td style={{ padding: '2px 4px', textAlign: 'center' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger"
+                  style={{ padding: '0 6px', lineHeight: '1.4' }}
+                  onClick={() => handleDelete(row.id)}
+                >✕</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -844,7 +1003,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const what = context1.what;
     const myMetis = this.props.myMetis as akm.cxMetis;
     const modalContext = context1.myContext;
-    const myContext = modalContext.myContext;
     const readOnly = context1.readOnly;
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
@@ -949,6 +1107,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let test = null;
     // For each 'what' set correct item 
     switch (what) {
+      case "editObjectType":
+        item = type;
+        test = type;
+        break;
       case "editModelview":
         item = modelview;
         test = item;
@@ -1416,6 +1578,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
         
+    }
+    if (what === 'editObjectType' && type) {
+      dets.push(
+        <tr key="__properties-editor">
+          <td colSpan={3} style={{ padding: 0 }}>
+            <ObjectTypePropertiesEditor
+              objecttype={type}
+              metamodel={modalContext?.metamodel || myMetis?.currentMetamodel}
+              myMetis={myMetis}
+            />
+          </td>
+        </tr>
+      );
     }
     return dets;
   }

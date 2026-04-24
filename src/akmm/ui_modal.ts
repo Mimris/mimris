@@ -162,7 +162,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     inst = node.objecttype;
     typeview = node.typeview;
 
-    if (context?.what === "editType") {
+    if (context?.what === "editType" || context?.what === "editObjectType") {
       myItem = inst;
     } else if (context?.what === "editTypeview") {
         myItem = typeview; 
@@ -1235,25 +1235,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
   switch(what) {
     case "editObjectType": {
-      // To be done !!!
-
       // selObj is a node representing an objecttype
       const selObj = selectedData;
       const node = myDiagram.findNodeForKey(selObj.key);
       if (node) node.isSelected = true;
-      let type = selObj.objecttype;
-      type = myMetis.findObjectType(type.id);
-      const data = node.data;
+      let type = selObj.objecttype || modalContext?.myContext?.objecttype;
+      type = myMetis.findObjectType(type?.id) || type;
+      if (!type) break;
+      const data = node?.data;
       for (let k in type) {
         if (k === 'id') continue;
         if (typeof(type[k]) === 'object')    continue;
         if (typeof(type[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))    continue;
         type[k] = selObj[k];
-        myDiagram.model.setDataProperty(data, k, type[k]);
+        if (node) myDiagram.model.setDataProperty(data, k, type[k]);
       }
       if (node) node.isSelected = false;
-      // Do the dispatches
+      // Do the dispatches — jsnObjectType includes mutated .properties
       const jsnObjtype = new jsn.jsnObjectType(type, true);
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {

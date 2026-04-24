@@ -654,12 +654,26 @@ export function editPort(port: any, myMetis: akm.cxMetis, myDiagram: any) {
 
 export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node?.icon);
+    const objecttype = myMetis.findObjectType(node?.objecttype?.id || node?.objtypeRef) || node?.objecttype;
+    const objecttypeview = objecttype?.typeview;
+    const myContext = {
+        objecttype:      objecttype,
+        objecttypeview:  objecttypeview,
+        relship:         null,
+        relshipview:     null,
+        relshiptype:     null,
+        relshiptypeview: null,
+        model:           myMetis.currentModel,
+        modelview:       myMetis.currentModelview,
+        metamodel:       myMetis.currentMetamodel,
+    };
     const modalContext = {
       what:       "editObjectType",
       title:      "Edit Object Type",
       icon:       icon,
       myMetis:    myMetis,
-      myDiagram:  myDiagram
+      myDiagram:  myDiagram,
+      myContext:  myContext,
     }
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
@@ -791,18 +805,33 @@ export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram
     const myModelview = myMetis.currentModelview;
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
-    let objectview = myModelview.findObjectView(key);
-    objectview.viewkind = gjsNode.viewkind;
+    let objectview = myModelview?.findObjectView(key);
     let object = objectview?.object;
-    if (!object) object = myMetis.findObject(gjsNode?.objRef);
-    let objecttype = object?.type;
-    objecttype = myMetis.findObjectType(objecttype?.id);
-    let objecttypeview = objecttype?.typeview;
-    objecttypeview.viewkind = gjsNode.viewkind;
-    let goNode = myGoModel.findNode(key);
+    let objecttype = null;
+    let objecttypeview = null;
+
+    if (gjsNode?.category === constants.gojs.C_OBJECTTYPE) {
+        objecttype = myMetis.findObjectType(gjsNode?.objecttype?.id || gjsNode?.objtypeRef) || gjsNode?.objecttype;
+        objecttypeview =
+            myMetis.findObjectTypeView(objecttype?.typeview?.id || gjsNode?.typeviewRef) ||
+            objecttype?.typeview ||
+            gjsNode?.objecttypeview ||
+            null;
+    } else {
+        if (objectview) objectview.viewkind = gjsNode.viewkind;
+        if (!object) object = myMetis.findObject(gjsNode?.objRef);
+        objecttype = myMetis.findObjectType(object?.type?.id);
+        objecttypeview =
+            myMetis.findObjectTypeView(objecttype?.typeview?.id || objectview?.typeviewRef) ||
+            objecttype?.typeview ||
+            null;
+    }
+
+    if (objecttypeview) objecttypeview.viewkind = gjsNode.viewkind;
+    let goNode = myGoModel.findNode(key) || gjsNode;
     myMetis.currentNode = goNode;
     myMetis.myDiagram = myDiagram;
-    const icon = uit.findImage(goNode.icon);
+    const icon = uit.findImage(goNode?.icon || gjsNode?.icon);
     const myContext = {
         object:     object,
         objectview: objectview,

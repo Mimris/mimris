@@ -2782,16 +2782,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               const icon = uit.findImage(node.icon);
+              const objecttype = myMetis.findObjectType(node.objecttype?.id || node.objtypeRef) || node.objecttype;
+              const objecttypeview = objecttype?.typeview;
+              const myContext = {
+                objecttype:      objecttype,
+                objecttypeview:  objecttypeview,
+                relship:         null,
+                relshipview:     null,
+                relshiptype:     null,
+                relshiptypeview: null,
+                model:           myMetis.currentModel,
+                modelview:       myMetis.currentModelview,
+                metamodel:       myMetis.currentMetamodel,
+              };
               const modalContext = {
-                what: "editObjectType",
-                title: "Edit Object Type",
-                icon: icon,
-                myDiagram: myDiagram
-              }
+                what:      "editObjectType",
+                title:     "Edit Object Type",
+                icon:      icon,
+                myDiagram: myDiagram,
+                myContext: myContext,
+              };
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node, modalContext);
-              // 
             },
             function (o: any) {
               const node = o.part.data;
@@ -8112,6 +8125,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
         const data: any = part.data || {};
+
+        // Metamodel window: objecttype nodes only expose "Edit Object Type" and "Edit Object Typeview"
+        if (data.category === constants.gojs.C_OBJECTTYPE) {
+          return [
+            {
+              label: "Edit Object Type",
+              action: (diagram) => {
+                const node = part.data;
+                if (!node) return;
+                const icon = uit.findImage(node.icon);
+                const objecttype = myMetis.findObjectType(node.objecttype?.id || node.objtypeRef) || node.objecttype;
+                const objecttypeview = objecttype?.typeview;
+                const myContext = {
+                  objecttype:      objecttype,
+                  objecttypeview:  objecttypeview,
+                  relship:         null,
+                  relshipview:     null,
+                  relshiptype:     null,
+                  relshiptypeview: null,
+                  model:           myMetis.currentModel,
+                  modelview:       myMetis.currentModelview,
+                  metamodel:       myMetis.currentMetamodel,
+                };
+                const modalContext = {
+                  what:      "editObjectType",
+                  title:     "Edit Object Type",
+                  icon:      icon,
+                  myDiagram: diagram || myDiagram,
+                  myContext: myContext,
+                };
+                myMetis.currentNode = node;
+                myMetis.myDiagram = diagram || myDiagram;
+                (diagram || myDiagram).handleOpenModal(node, modalContext);
+              },
+            },
+            {
+              label: "Edit Object Typeview",
+              action: (diagram) => {
+                const node = part.data;
+                if (!node) return;
+                uid.editObjectTypeview(node, myMetis, diagram || myDiagram, false);
+              },
+            },
+          ];
+        }
+
         const isObject =
           data.category === constants.gojs.C_OBJECT ||
           !!data.object ||
@@ -9260,7 +9319,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // allow showing a special, minimal menu. In particular, when right-clicking the
         // node's icon (a go.Picture), show a small menu containing only 'Change Icon'.
         let items: HtmlMenuItem[] | null = null;
-        try {
+        // Objecttype nodes always use buildNodeMenuItems (no icon shortcut)
+        if ((targetPart.data || {}).category === constants.gojs.C_OBJECTTYPE) {
+          items = buildNodeMenuItems(targetPart);
+        }
+        if (!items) try {
           // Skip special icon-only handling for groups; only consider icon-menu for node/object parts
           if (graphObj && !(targetPart instanceof go.Group)) {
             try {

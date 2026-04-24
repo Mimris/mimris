@@ -2452,7 +2452,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModel": myModel,
       "myModelview": myModelview,
       "myGoModel": myMetis.gojsModel,
-      // "myGoMetamodel": myGoMetamodel,
+      "myGoMetamodel": (myDiagram as any)?.myGoMetamodel || null,
       "myDiagram": myDiagram,
       "dispatch": dispatch,
       "pasted": pasted,
@@ -6809,6 +6809,49 @@ e.subject.each(function (n) {
     }
   }
   const gjsNode = node?.data || partData;
+  const isMetamodelTypeDrop = partData?.type === constants.types.OBJECTTYPE_ID;
+
+  if (isMetamodelTypeDrop) {
+    try {
+      myDiagram.model.setDataProperty(partData, 'category', constants.gojs.C_OBJECTTYPE);
+      myDiagram.model.setDataProperty(partData, 'type', constants.types.OBJECTTYPE_ID);
+    } catch (_) {
+      partData.category = constants.gojs.C_OBJECTTYPE;
+      partData.type = constants.types.OBJECTTYPE_ID;
+    }
+    if (!partData.name || String(partData.name).trim() === '') {
+      partData.name = 'New Object Type';
+    }
+    if (!partData.viewkind) {
+      partData.viewkind = constants.viewkinds.OBJ;
+    }
+    if (!partData.size || partData.size === '') {
+      partData.size = '160 70';
+    }
+
+    const otype = uic.createObjectType(partData, context);
+    if (otype) {
+      otype.typename = constants.types.OBJECTTYPE_NAME;
+      const jsnObjtype = new jsn.jsnObjectType(otype, true);
+      modifiedObjectTypes.push(jsnObjtype);
+
+      const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
+      modifiedObjectTypeViews.push(jsnObjtypeView);
+
+      const loc = partData.loc;
+      const size = partData.size;
+      const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
+      const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
+      modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+
+      partData.objecttype = otype;
+      partData.objtypeRef = otype.id;
+      partData.typeview = otype.typeview;
+      uid.editObjectType(partData, myMetis, myDiagram);
+    }
+    return;
+  }
+
   let type: akm.cxObjectType = partData.objecttype;
   let typeview: akm.cxObjectTypeView = partData.typeview;
   let objview: akm.cxObjectView;
@@ -7218,6 +7261,11 @@ e.subject.each(function (n) {
       const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
       const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
       modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+
+      part.objecttype = otype;
+      part.objtypeRef = otype.id;
+      part.typeview = otype.typeview;
+      uid.editObjectType(part, myMetis, myDiagram);
     }
   } else // object
   {
@@ -8110,10 +8158,14 @@ break;
   ensureNodeRefs(gjsToNode, context.toObjView);
   // Handle relationship types
   if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
+    if (!gjsFromNode || !gjsToNode) {
+      try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
+      break;
+    }
     gjsData.category = constants.gojs.C_RELSHIPTYPE;
     if (debug) console.log('1523 link', fromNode, toNode);
     // link.category = constants.gojs.C_RELSHIPTYPE;
-    const reltype = uic.createRelationshipType(gjsFromNode.data, gjsToNode.data, gjsData, context);
+    const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
     if (reltype) {
       if (debug) console.log('1527 reltype', reltype);
       const jsnType = new jsn.jsnRelationshipType(reltype, true);
@@ -8124,18 +8176,14 @@ break;
         const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
         modifiedRelshipTypeViews.push(jsnTypeView);
         if (debug) console.log('1535 jsnTypeView', jsnTypeView);
-        const myGoModel = myMetis.gojsModel;
-        let goLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
-        goLink.fromNode = gjsFromNode.data;
-        goLink.toNode = gjsToNode.data
-        goLink.loadLinkContent(myGoModel);
-        myGoModel.addLink(goLink);
-        goLink.name = reltype.name;
-        if (debug) console.log('1543 goLink, myGoModel, reltype', goLink, myGoModel, reltype);
-        const gjsLink = myDiagram.findLinkForKey(goLink.key);
-        myDiagram.model.addLinkData(gjsLink);
-        if (debug) console.log('1546 lnk, reltype', gjsLink, reltype);
-        myDiagram.model.setDataProperty(gjsLink.data, 'name', reltype.name);
+        const linkData = link?.data || gjsData;
+        if (debug) console.log('1546 lnk, reltype', linkData, reltype);
+        myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
+        myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
+        myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
+        myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
+        myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
+        uid.editRelationshipType(linkData, myMetis, myDiagram);
       }
     }
     myDiagram.requestUpdate();

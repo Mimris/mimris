@@ -681,6 +681,42 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
     myDiagram.handleOpenModal(node, modalContext);
 }
 
+export function editRelationshipType(link: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const relshiptype =
+        myMetis.findRelationshipType(link?.relshiptype?.id || link?.reltype?.id || link?.reltypeRef) ||
+        link?.relshiptype ||
+        link?.reltype ||
+        null;
+    const relshiptypeview =
+        myMetis.findRelationshipTypeView(link?.typeview?.id || relshiptype?.typeview?.id || link?.typeviewRef) ||
+        relshiptype?.typeview ||
+        link?.typeview ||
+        null;
+    const myContext = {
+        object:          null,
+        objectview:      null,
+        objecttype:      null,
+        objecttypeview:  null,
+        relship:         null,
+        relshipview:     null,
+        relshiptype:     relshiptype,
+        relshiptypeview: relshiptypeview,
+        model:           myMetis.currentModel,
+        modelview:       myMetis.currentModelview,
+        metamodel:       myMetis.currentMetamodel,
+    };
+    const modalContext = {
+      what:       "editRelationshipType",
+      title:      "Edit Relationship Type",
+      icon:       null,
+      myDiagram:  myDiagram,
+      myContext:  myContext,
+    }
+    myMetis.currentLink = link;
+    myMetis.myDiagram = myDiagram;
+    myDiagram.handleOpenModal(link, modalContext);
+}
+
 export function askForTemplate(context: any) {
     const myDiagram = context.myDiagram;
     const modalContext = {

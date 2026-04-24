@@ -3662,15 +3662,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship Type",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const modalContext = {
-                what: "editRelationshipType",
-                title: "Edit Relationship Type",
-                myDiagram: myDiagram
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
+              uid.editRelationshipType(link, myMetis, myDiagram);
             },
             function (o: any) {
               const link = o.part.data;

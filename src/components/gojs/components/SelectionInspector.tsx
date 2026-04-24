@@ -1042,8 +1042,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (myObjectTypeView)
       myObjectTypeView.viewkind = myObjectTypeView.data.viewkind;
     if (!myRelationshipType) {
-      myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
-      myRelationshipTypeView = myRelationshipType?.typeview;
+      myRelationshipType =
+        myMetis.findRelationshipType(
+          selObj?.reltypeRef || selObj?.relshiptype?.id || selObj?.reltype?.id
+        ) as akm.cxRelationshipType;
+      if (!myRelationshipType) {
+        myRelationshipType = (selObj?.relshiptype || selObj?.reltype) as akm.cxRelationshipType;
+      }
+      myRelationshipTypeView =
+        myMetis.findRelationshipTypeView(
+          selObj?.typeviewRef || myRelationshipType?.typeview?.id || selObj?.typeview?.id
+        ) as akm.cxRelationshipTypeView;
+      if (!myRelationshipTypeView) {
+        myRelationshipTypeView =
+          (myRelationshipType?.typeview || selObj?.typeview) as akm.cxRelationshipTypeView;
+      }
     }
     let inst: akm.cxObject | akm.cxRelationship;
     let instview: akm.cxObjectView | akm.cxRelationshipView;
@@ -1108,6 +1121,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // For each 'what' set correct item 
     switch (what) {
       case "editObjectType":
+        item = type;
+        test = type;
+        break;
+      case "editRelationshipType":
         item = type;
         test = type;
         break;

@@ -393,18 +393,25 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {
     const link = obj;
-    inst = link.reltype;
-    typeview = link.reltype.typeview;
+    inst =
+      link?.reltype ||
+      link?.relshiptype ||
+      myMetis.findRelationshipType(link?.reltypeRef || link?.relshiptype?.id);
+    typeview =
+      inst?.typeview ||
+      link?.typeview ||
+      myMetis.findRelationshipTypeView(link?.typeviewRef || inst?.typeview?.id);
+    myTypeview = typeview;
 
-    if (context?.what === "editType") {
+    if (context?.what === "editType" || context?.what === "editRelationshipType") {
       myItem = inst;
     } else if (context?.what === "editTypeview") {
-        myItem = typeview; 
-        myTypeview = myMetis.findRelationshipTypeView(typeview?.id);    
+        myItem = typeview;
+        myTypeview = myMetis.findRelationshipTypeView(typeview?.id) || typeview;
     } 
     try {
-      myItem[propname] = value;
-      myTypeview[propname] = value;
+      if (myItem) myItem[propname] = value;
+      if (context?.what === "editTypeview" && myTypeview) myTypeview[propname] = value;
     } catch {
       // Do nothing
     }
@@ -1269,11 +1276,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let link = myDiagram.findLinkForKey(rel.key);
       if (!link)
           break;
-      let type = rel.type;
+      let type = rel.type || rel.relshiptype || rel.reltype;
       const data = link.data;
-      type = link.relshiptype;
-      if (!type) type = data.relshiptype;
-      type = myMetis.findRelationshipType(type?.id);
+      type = link.relshiptype || link.reltype || data.relshiptype || data.reltype || type;
+      type = myMetis.findRelationshipType(type?.id) || type;
       const reltypeview = type?.typeview;
       if (type) {
         const cardinalityFrom = type.getCardinalityFrom();
@@ -1294,6 +1300,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         type[k] = selObj[k];
         myDiagram.model.setDataProperty(link.data, k, type[k]);
       }
+      try {
+        myDiagram.model.setDataProperty(link.data, 'reltype', type);
+        myDiagram.model.setDataProperty(link.data, 'relshiptype', type);
+      } catch (_) {}
       // Do the dispatches
       const jsnReltype = new jsn.jsnRelationshipType(type, true);
       modifiedReltypes.push(jsnReltype);

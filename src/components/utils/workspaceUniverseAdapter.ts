@@ -9,8 +9,6 @@ export const METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION = "origin-template-foundatio
 const DEFAULT_METIS_SCOPE = METIS_SCOPE_WORLD_MODEL;
 const METIS_SCOPES = new Set([
   METIS_SCOPE_WORLD_MODEL,
-  METIS_SCOPE_ORIGIN_TYPE_FOUNDATION,
-  METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION,
 ]);
 const METIS_SCOPE_LABELS = {
   [METIS_SCOPE_WORLD_MODEL]: "World Model",
@@ -21,8 +19,8 @@ const METIS_SCOPE_LABELS = {
 const createId = (prefix: string) => {
   const randomValue =
     typeof globalThis !== "undefined" &&
-    globalThis.crypto &&
-    typeof globalThis.crypto.randomUUID === "function"
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function"
       ? globalThis.crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   return `${prefix}-${randomValue}`;
@@ -39,11 +37,22 @@ const toArray = (value: any) => {
 };
 
 const asRecord = (value: any) => (value && typeof value === "object" ? value : {});
+const pickFirstRecord = (...values: any[]) => {
+  for (const value of values) {
+    if (value && typeof value === "object") return value;
+  }
+  return {};
+};
 
 const readScope = (value: any) => {
   if (value === "current" || value === "next") return METIS_SCOPE_WORLD_MODEL;
-  if (value === "type-definition") return METIS_SCOPE_ORIGIN_TYPE_FOUNDATION;
-  if (value === "template") return METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION;
+  if (value === "type-definition") return METIS_SCOPE_WORLD_MODEL;
+  if (value === "typeDefinition") return METIS_SCOPE_WORLD_MODEL;
+  if (value === "template") return METIS_SCOPE_WORLD_MODEL;
+  if (value === "templateDefinition") return METIS_SCOPE_WORLD_MODEL;
+  if (value === METIS_SCOPE_ORIGIN_TYPE_FOUNDATION) return METIS_SCOPE_WORLD_MODEL;
+  if (value === METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION) return METIS_SCOPE_WORLD_MODEL;
+  if (value === "worldModel") return METIS_SCOPE_WORLD_MODEL;
   return typeof value === "string" && METIS_SCOPES.has(value) ? value : DEFAULT_METIS_SCOPE;
 };
 
@@ -52,6 +61,13 @@ export const normalizeMetisScope = (value: any) => readScope(value);
 const isMetisRecord = (value: any) => {
   const record = asRecord(value);
   return Array.isArray(record.metamodels) || Array.isArray(record.models);
+};
+
+const resolveMetisNode = (value: any) => {
+  const record = asRecord(value);
+  if (isMetisRecord(record)) return record;
+  if (isMetisRecord(record.metis)) return record.metis;
+  return null;
 };
 
 const normalizeMetisRecord = (value: any) => {
@@ -67,26 +83,17 @@ const normalizeMetisRecord = (value: any) => {
 
 const getMetisCandidates = (snapshot: any) => {
   const canonical = readUniverseSnapshot(snapshot);
-  const originWorld = asRecord(canonical.originWorld);
-  const foundationModels = asRecord(originWorld.foundationModels);
   const world = asRecord(canonical.world);
 
-  const worldModelCandidate =
-    asRecord(asRecord(world.worldModel).metis) ||
-    asRecord(asRecord(canonical.worldModel).metis);
-  const typeFoundationCandidate =
-    asRecord(asRecord(asRecord(foundationModels.typeDefinition).metis)) ||
-    asRecord(asRecord(asRecord(canonical.origin).typeDefinition).metis);
-  const templateFoundationCandidate =
-    asRecord(asRecord(asRecord(foundationModels.templateDefinition).metis)) ||
-    asRecord(asRecord(asRecord(canonical.origin).template).metis);
+  const worldModelCandidate = pickFirstRecord(
+    resolveMetisNode(world.worldModel),
+    resolveMetisNode(canonical.worldModel),
+  );
   const legacyCandidate = asRecord(canonical.metis);
 
   return {
     canonical,
     worldModelCandidate,
-    typeFoundationCandidate,
-    templateFoundationCandidate,
     legacyCandidate,
   };
 };
@@ -94,27 +101,11 @@ const getMetisCandidates = (snapshot: any) => {
 const resolveDefaultMetisSource = (snapshot: any) => {
   const {
     worldModelCandidate,
-    typeFoundationCandidate,
-    templateFoundationCandidate,
     legacyCandidate,
   } = getMetisCandidates(snapshot);
 
   if (isMetisRecord(worldModelCandidate)) {
     return { scope: METIS_SCOPE_WORLD_MODEL, metis: normalizeMetisRecord(worldModelCandidate), source: "world.worldModel.metis" };
-  }
-  if (isMetisRecord(typeFoundationCandidate)) {
-    return {
-      scope: METIS_SCOPE_ORIGIN_TYPE_FOUNDATION,
-      metis: normalizeMetisRecord(typeFoundationCandidate),
-      source: "originWorld.foundationModels.typeDefinition.metis",
-    };
-  }
-  if (isMetisRecord(templateFoundationCandidate)) {
-    return {
-      scope: METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION,
-      metis: normalizeMetisRecord(templateFoundationCandidate),
-      source: "originWorld.foundationModels.templateDefinition.metis",
-    };
   }
   if (isMetisRecord(legacyCandidate)) {
     return { scope: METIS_SCOPE_WORLD_MODEL, metis: normalizeMetisRecord(legacyCandidate), source: "metis" };
@@ -124,8 +115,6 @@ const resolveDefaultMetisSource = (snapshot: any) => {
 
 export const getMetisScopeOptions = () => [
   { value: METIS_SCOPE_WORLD_MODEL, label: METIS_SCOPE_LABELS[METIS_SCOPE_WORLD_MODEL] },
-  { value: METIS_SCOPE_ORIGIN_TYPE_FOUNDATION, label: METIS_SCOPE_LABELS[METIS_SCOPE_ORIGIN_TYPE_FOUNDATION] },
-  { value: METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION, label: METIS_SCOPE_LABELS[METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION] },
 ];
 
 export const getMetisScopeLabel = (scope: string) =>
@@ -191,6 +180,7 @@ export const isWorkspaceUniverseSnapshot = (value: any) => {
   if (value.phData) return false;
   return Boolean(
     value.snapshot ||
+    value.world ||
     value.worldOperation ||
     value.worldDefinition ||
     value.worldModel ||
@@ -205,6 +195,7 @@ export const readUniverseSnapshot = (raw: any) => {
   const record = asRecord(raw);
   const nestedSnapshot = asRecord(record.snapshot);
   if (
+    nestedSnapshot.world ||
     nestedSnapshot.worldDefinition ||
     nestedSnapshot.worldModel ||
     nestedSnapshot.worldOperation ||
@@ -247,40 +238,23 @@ export const resolveActiveMetisScope = (snapshot: any) => {
   const canonical = readUniverseSnapshot(snapshot);
   const workspace = asRecord(canonical.workspace);
   const requestedScope = readScope(workspace.activeMetisScope);
-  const { worldModelCandidate, typeFoundationCandidate, templateFoundationCandidate } = getMetisCandidates(canonical);
+  const { worldModelCandidate } = getMetisCandidates(canonical);
 
   if (requestedScope === METIS_SCOPE_WORLD_MODEL && isMetisRecord(worldModelCandidate)) return requestedScope;
-  if (requestedScope === METIS_SCOPE_ORIGIN_TYPE_FOUNDATION && isMetisRecord(typeFoundationCandidate)) return requestedScope;
-  if (requestedScope === METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION && isMetisRecord(templateFoundationCandidate)) return requestedScope;
 
   return resolveDefaultMetisSource(canonical).scope;
 };
 
 export const readMetisForScope = (snapshot: any, scope?: string) => {
   const requestedScope = readScope(scope || resolveActiveMetisScope(snapshot));
-  const {
-    worldModelCandidate,
-    typeFoundationCandidate,
-    templateFoundationCandidate,
-  } = getMetisCandidates(snapshot);
-
-  const scopedCandidate =
-    requestedScope === METIS_SCOPE_ORIGIN_TYPE_FOUNDATION
-      ? typeFoundationCandidate
-      : requestedScope === METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION
-        ? templateFoundationCandidate
-        : worldModelCandidate;
+  const { worldModelCandidate } = getMetisCandidates(snapshot);
+  const scopedCandidate = worldModelCandidate;
 
   if (isMetisRecord(scopedCandidate)) {
     return {
       scope: requestedScope,
       metis: normalizeMetisRecord(scopedCandidate),
-      source:
-        requestedScope === METIS_SCOPE_ORIGIN_TYPE_FOUNDATION
-          ? "originWorld.foundationModels.typeDefinition.metis"
-          : requestedScope === METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION
-            ? "originWorld.foundationModels.templateDefinition.metis"
-            : "world.worldModel.metis",
+      source: "world.worldModel.metis",
     };
   }
 
@@ -289,7 +263,7 @@ export const readMetisForScope = (snapshot: any, scope?: string) => {
 
 export const writeMetisForScope = (snapshot: any, scope: string, metis: any) => {
   const canonical = readUniverseSnapshot(snapshot);
-  const resolvedScope = readScope(scope);
+  const resolvedScope = METIS_SCOPE_WORLD_MODEL;
   const nextMetis = normalizeMetisRecord(metis);
   const nextSnapshot: any = {
     ...canonical,
@@ -299,32 +273,8 @@ export const writeMetisForScope = (snapshot: any, scope: string, metis: any) => 
     },
   };
 
-  if (resolvedScope === METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION) {
-    nextSnapshot.originWorld = {
-      ...asRecord(canonical.originWorld),
-      foundationModels: {
-        ...asRecord(asRecord(canonical.originWorld).foundationModels),
-        templateDefinition: {
-          ...asRecord(asRecord(asRecord(canonical.originWorld).foundationModels).templateDefinition),
-          metis: nextMetis,
-        },
-      },
-    };
-    return nextSnapshot;
-  }
-
-  if (resolvedScope === METIS_SCOPE_ORIGIN_TYPE_FOUNDATION) {
-    nextSnapshot.originWorld = {
-      ...asRecord(canonical.originWorld),
-      foundationModels: {
-        ...asRecord(asRecord(canonical.originWorld).foundationModels),
-        typeDefinition: {
-          ...asRecord(asRecord(asRecord(canonical.originWorld).foundationModels).typeDefinition),
-          metis: nextMetis,
-        },
-      },
-    };
-    return nextSnapshot;
+  if ("metis" in nextSnapshot) {
+    delete nextSnapshot.metis;
   }
 
   nextSnapshot.world = {

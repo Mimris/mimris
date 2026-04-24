@@ -38,10 +38,10 @@ function installSafeNodeCategoryGuard() {
       typeof cat === 'string' && cat.length > 0
         ? cat
         : (typeof data?.template === 'string' && data.template.length > 0
-            ? data.template
-            : (typeof data?.category === 'string' && data.category.length > 0
-                ? data.category
-                : constants.gojs.C_NODETEMPLATE));
+          ? data.template
+          : (typeof data?.category === 'string' && data.category.length > 0
+            ? data.category
+            : constants.gojs.C_NODETEMPLATE));
     return original.call(this, data, safeCategory);
   };
   proto.__safeNodeCategoryGuardInstalled = true;
@@ -57,10 +57,10 @@ function installSafeLinkCategoryGuard() {
       typeof cat === 'string' && cat.length > 0
         ? cat
         : (typeof data?.template === 'string' && data.template.length > 0
-            ? data.template
-            : (typeof data?.category === 'string' && data.category.length > 0
-                ? data.category
-                : constants.gojs.C_LINKEMPLATE));
+          ? data.template
+          : (typeof data?.category === 'string' && data.category.length > 0
+            ? data.category
+            : constants.gojs.C_LINKEMPLATE));
     return original.call(this, data, safeCategory);
   };
   proto.__safeLinkCategoryGuardInstalled = true;
@@ -1811,7 +1811,24 @@ class GoJSApp extends React.Component<{}, AppState> {
     const metisChanged = this.props.myMetis !== prevProps.myMetis;
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
-      nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
+      const preserveDroppedNodeKeys: Set<string> | undefined = (diagram as any)?.__preserveExternalDropNodeKeys;
+      const preserveDroppedNodeKeysUntil = Number((diagram as any)?.__preserveExternalDropNodeKeysUntil || 0);
+      if (preserveDroppedNodeKeys && preserveDroppedNodeKeys.size > 0 && preserveDroppedNodeKeysUntil > Date.now()) {
+        const incomingNodes = Array.isArray(this.props.nodeDataArray) ? this.props.nodeDataArray : [];
+        const localNodes = Array.isArray(this.state.nodeDataArray) ? this.state.nodeDataArray : [];
+        const localNodeMap = new Map(localNodes.map((node: any) => [String(node?.key), node]));
+        nextState.nodeDataArray = normalizeNodeCategoryData(incomingNodes.map((node: any) => {
+          const nodeKey = String(node?.key ?? "");
+          if (!nodeKey || !preserveDroppedNodeKeys.has(nodeKey)) return node;
+          return localNodeMap.get(nodeKey) || node;
+        }));
+      } else {
+        nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
+        if (preserveDroppedNodeKeysUntil <= Date.now()) {
+          try { delete (diagram as any).__preserveExternalDropNodeKeys; } catch (_) { }
+          try { delete (diagram as any).__preserveExternalDropNodeKeysUntil; } catch (_) { }
+        }
+      }
       shouldSyncFromProps = true;
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {
@@ -1937,7 +1954,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         } else if (data) {
           myDiagram.model.removeLinkData(data);
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     const args = {
       data: previewData,
@@ -1965,27 +1982,27 @@ class GoJSApp extends React.Component<{}, AppState> {
           );
           const nextCurve = createdRelview?.curve || createdRelview?.typeview?.linkcurve || "None";
           const nextCorner = createdRelview?.corner ?? createdRelview?.typeview?.corner ?? 10;
-          try { myDiagram.clearSelection(); } catch (_) {}
-          try { myDiagram.model.setDataProperty(nextLink.data, "template", "linkTemplate1"); } catch (_) {}
-          try { myDiagram.model.setDataProperty(nextLink.data, "routing", nextRouting); } catch (_) {}
-          try { myDiagram.model.setDataProperty(nextLink.data, "curve", nextCurve); } catch (_) {}
-          try { myDiagram.model.setDataProperty(nextLink.data, "corner", nextCorner); } catch (_) {}
-          try { myDiagram.model.setDataProperty(nextLink.data, "points", []); } catch (_) {}
-          try { nextLink.points = new go.List<go.Point>(); } catch (_) {}
-          try { nextLink.invalidateRoute(); } catch (_) {}
-          try { nextLink.updateRoute(); } catch (_) {}
-          try { nextLink.updateTargetBindings(); } catch (_) {}
-          try { myDiagram.layoutDiagram(true); } catch (_) {}
-          try { myDiagram.requestUpdate(); } catch (_) {}
-          try { myDiagram.select(nextLink); } catch (_) {}
+          try { myDiagram.clearSelection(); } catch (_) { }
+          try { myDiagram.model.setDataProperty(nextLink.data, "template", "linkTemplate1"); } catch (_) { }
+          try { myDiagram.model.setDataProperty(nextLink.data, "routing", nextRouting); } catch (_) { }
+          try { myDiagram.model.setDataProperty(nextLink.data, "curve", nextCurve); } catch (_) { }
+          try { myDiagram.model.setDataProperty(nextLink.data, "corner", nextCorner); } catch (_) { }
+          try { myDiagram.model.setDataProperty(nextLink.data, "points", []); } catch (_) { }
+          try { nextLink.points = new go.List<go.Point>(); } catch (_) { }
+          try { nextLink.invalidateRoute(); } catch (_) { }
+          try { nextLink.updateRoute(); } catch (_) { }
+          try { nextLink.updateTargetBindings(); } catch (_) { }
+          try { myDiagram.layoutDiagram(true); } catch (_) { }
+          try { myDiagram.requestUpdate(); } catch (_) { }
+          try { myDiagram.select(nextLink); } catch (_) { }
         };
         rerouteFinalLink();
         setTimeout(rerouteFinalLink, 0);
         setTimeout(rerouteFinalLink, 50);
       }
-      try { myDiagram.layoutDiagram(true); } catch (_) {}
-      try { myDiagram.requestUpdate(); } catch (_) {}
-    } catch (_) {}
+      try { myDiagram.layoutDiagram(true); } catch (_) { }
+      try { myDiagram.requestUpdate(); } catch (_) { }
+    } catch (_) { }
     this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
   }
 
@@ -2075,6 +2092,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!isActiveDrag && !suppressNodeModelSync && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
       const tracePostGroupNodeSync = Boolean((diagram as any)?.__tracePostGroupNodeSync);
       const skipPostPasteNodeSyncKeys: Set<string> | undefined = (diagram as any)?.__skipNextPostPasteNodeSyncKeys;
+      const skipExternalDropNodeSyncKeys: Set<string> | undefined = (diagram as any)?.__skipNextExternalDropNodeSyncKeys;
       const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
       modifiedNodeData.forEach((node: any) => {
         if (!node?.key) return;
@@ -2114,6 +2132,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           skipPostPasteNodeSyncKeys.delete(nodeKey);
           if (skipPostPasteNodeSyncKeys.size === 0) {
             try { delete (diagram as any).__skipNextPostPasteNodeSyncKeys; } catch (_) { }
+          }
+          return;
+        }
+        if (skipExternalDropNodeSyncKeys?.has(nodeKey)) {
+          skipExternalDropNodeSyncKeys.delete(nodeKey);
+          if (skipExternalDropNodeSyncKeys.size === 0) {
+            try { delete (diagram as any).__skipNextExternalDropNodeSyncKeys; } catch (_) { }
           }
           return;
         }
@@ -2451,11 +2476,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       try { myDiagram.requestUpdate(); } catch (_) { }
     };
 
-	    const normalizeSwimlanePool = (poolKey: string) => {
-	      if (!poolKey) return;
-	      if ((myDiagram as any).__isSwimlaneNormalizeInProgress) return;
-	      const poolNode = myDiagram.findNodeForKey(poolKey);
-	      if (!(poolNode instanceof go.Group)) return;
+    const normalizeSwimlanePool = (poolKey: string) => {
+      if (!poolKey) return;
+      if ((myDiagram as any).__isSwimlaneNormalizeInProgress) return;
+      const poolNode = myDiagram.findNodeForKey(poolKey);
+      if (!(poolNode instanceof go.Group)) return;
       const pdata = poolNode.data;
       const isPool = pdata?.category === "Pool" || pdata?.template === "Pool" || poolNode.category === "Pool";
       if (!isPool) return;
@@ -2532,7 +2557,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
         // Fix nodes that are direct Pool members but clearly inside a Lane: assign them to the smallest
         // containing lane (usually the row they are in), then clamp into the lane body.
-	        if (laneInfos.length > 0) {
+        if (laneInfos.length > 0) {
           // Sort smallest-first to pick the most specific lane if bounds overlap.
           laneInfos.sort((a, b) => a.area - b.area);
           poolNode.memberParts.each((part: go.Part) => {
@@ -2566,37 +2591,37 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myDiagram.model.setDataProperty(d, "loc", `${part.location.x} ${part.location.y}`);
               }
             }
-	          });
-	        }
-	        const normalizedViews = new Set<string>();
-	        const dispatchNormalizedObjectView = (part: go.Part | null | undefined) => {
-	          if (!(part instanceof go.Node) || !part.data?.key) return;
-	          const key = String(part.data.key);
-	          if (normalizedViews.has(key)) return;
-	          let objview =
-	            myModelview.findObjectView(key) ||
-	            myMetis.findObjectView(key) ||
-	            part.data.objectview;
-	          if (!objview) return;
-	          if (typeof part.data.loc === "string") objview.loc = part.data.loc;
-	          if (typeof part.data.size === "string") objview.size = part.data.size;
-	          if (typeof part.data.group === "string") objview.group = part.data.group;
-	          const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
-	          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-	          normalizedViews.add(key);
-	        };
-	        dispatchNormalizedObjectView(poolNode);
-	        laneInfos.forEach((info) => dispatchNormalizedObjectView(info.lane));
-	        poolNode.memberParts.each((part: go.Part) => {
-	          if (part instanceof go.Node && !(part instanceof go.Group)) {
-	            dispatchNormalizedObjectView(part);
-	          }
-	        });
-	        myDiagram.model.commitTransaction("normalizeSwimlanePool");
-	      } finally {
-	        (myDiagram as any).__isSwimlaneNormalizeInProgress = false;
-	      }
-	    };
+          });
+        }
+        const normalizedViews = new Set<string>();
+        const dispatchNormalizedObjectView = (part: go.Part | null | undefined) => {
+          if (!(part instanceof go.Node) || !part.data?.key) return;
+          const key = String(part.data.key);
+          if (normalizedViews.has(key)) return;
+          let objview =
+            myModelview.findObjectView(key) ||
+            myMetis.findObjectView(key) ||
+            part.data.objectview;
+          if (!objview) return;
+          if (typeof part.data.loc === "string") objview.loc = part.data.loc;
+          if (typeof part.data.size === "string") objview.size = part.data.size;
+          if (typeof part.data.group === "string") objview.group = part.data.group;
+          const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+          normalizedViews.add(key);
+        };
+        dispatchNormalizedObjectView(poolNode);
+        laneInfos.forEach((info) => dispatchNormalizedObjectView(info.lane));
+        poolNode.memberParts.each((part: go.Part) => {
+          if (part instanceof go.Node && !(part instanceof go.Group)) {
+            dispatchNormalizedObjectView(part);
+          }
+        });
+        myDiagram.model.commitTransaction("normalizeSwimlanePool");
+      } finally {
+        (myDiagram as any).__isSwimlaneNormalizeInProgress = false;
+      }
+    };
     const resolveContainingGroup = (nodePart: go.Part): gjs.goObjectNode | null => {
       if (!(nodePart instanceof go.Node) || nodePart instanceof go.Group) return null;
       const nodeBounds = nodePart.actualBounds;
@@ -2702,133 +2727,138 @@ class GoJSApp extends React.Component<{}, AppState> {
     // Swimlane rule: "contains" membership relationships (Lane -> member) are structural and should
     // remain hidden when the member is actually grouped into that Lane. Some code paths were
     // resetting relview.visible=true after moves; this helper re-applies the hide rule deterministically.
-	    const applySwimlaneContainsVisibility = () => {
-	      if (!myDiagram) return;
+    const applySwimlaneContainsVisibility = () => {
+      if (!myDiagram) return;
 
-	      const isSwimlaneGroupKey = (k: any): boolean => {
-	        if (!k) return false;
-	        const n = myDiagram.findNodeForKey(k);
-	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-	        return c === "Pool" || c.startsWith("Lane");
-	      };
-	      // Only apply this rule in actual swimlane diagrams. In other diagrams (e.g. Metamodelling),
-	      // "contains" can be a meaningful relationship that users expect to see.
-	      let isSwimlaneDiagram = false;
-	      myDiagram.nodes.each((n: go.Node) => {
-	        if (isSwimlaneDiagram) return;
-	        if (!(n instanceof go.Group)) return;
-	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-	        if (c === "Pool" || c.startsWith("Lane")) isSwimlaneDiagram = true;
-	      });
-	      if (!isSwimlaneDiagram) return;
+      const isSwimlaneGroupKey = (k: any): boolean => {
+        if (!k) return false;
+        const n = myDiagram.findNodeForKey(k);
+        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+        return c === "Pool" || c.startsWith("Lane");
+      };
+      // Only apply this rule in actual swimlane diagrams. In other diagrams (e.g. Metamodelling),
+      // "contains" can be a meaningful relationship that users expect to see.
+      let isSwimlaneDiagram = false;
+      myDiagram.nodes.each((n: go.Node) => {
+        if (isSwimlaneDiagram) return;
+        if (!(n instanceof go.Group)) return;
+        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+        if (c === "Pool" || c.startsWith("Lane")) isSwimlaneDiagram = true;
+      });
+      if (!isSwimlaneDiagram) return;
 
-	      myDiagram.links.each((l: go.Link) => {
-	        const d: any = l.data;
-	        if (!d) return;
+      myDiagram.links.each((l: go.Link) => {
+        const d: any = l.data;
+        if (!d) return;
         const typeName =
           d?.typename ||
           d?.name ||
           d?.relship?.type?.name ||
           d?.relshipview?.relship?.type?.name ||
           "";
-	        // Only touch membership links.
-	        if (typeName !== constants.types.AKM_CONTAINS) return;
+        // Only touch membership links.
+        if (typeName !== constants.types.AKM_CONTAINS) return;
 
-	        const fromKey = d.from;
-	        const toKey = d.to;
-	        const fromIsSwim = isSwimlaneGroupKey(fromKey);
-	        const toIsSwim = isSwimlaneGroupKey(toKey);
-	        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
-	        const hide = fromIsSwim || toIsSwim;
-	        if (hide) {
-	          // Force-hide at the data level so it stays hidden across refreshes.
-	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
-	        }
-	        l.updateTargetBindings();
-	      });
-	    };
+        const fromKey = d.from;
+        const toKey = d.to;
+        const fromIsSwim = isSwimlaneGroupKey(fromKey);
+        const toIsSwim = isSwimlaneGroupKey(toKey);
+        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
+        const hide = fromIsSwim || toIsSwim;
+        if (hide) {
+          // Force-hide at the data level so it stays hidden across refreshes.
+          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
+        }
+        l.updateTargetBindings();
+      });
+    };
 
-	    // In metamodelling views, "contains" is often meaningful (Metamodel -> EntityType, etc).
-	    // Past swimlane fixes may have persisted `link.data.visible = false` for AKM_CONTAINS links.
-	    // Restore those links to visible in Metamodelling mode unless they involve Pool/Lane groups.
-	    const restoreMetamodelContainsVisibility = () => {
-	      if (!myDiagram) return;
-	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
-	      const isSwimlaneNodeKey = (k: any): boolean => {
-	        if (!k) return false;
-	        const n = myDiagram.findNodeForKey(k);
-	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-	        return c === "Pool" || c.startsWith("Lane");
-	      };
-	      myDiagram.links.each((l: go.Link) => {
-	        const d: any = l.data;
-	        if (!d) return;
-	        const typeName =
-	          d?.typename ||
-	          d?.name ||
-	          d?.relship?.type?.name ||
-	          d?.relshipview?.relship?.type?.name ||
-	          "";
-	        if (typeName !== constants.types.AKM_CONTAINS) return;
-	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
-	        if (d.visible === false) myDiagram.model.setDataProperty(d, "visible", true);
-	        l.updateTargetBindings();
-	      });
-	    };
+    // In metamodelling views, "contains" is often meaningful (Metamodel -> EntityType, etc).
+    // Past swimlane fixes may have persisted `link.data.visible = false` for AKM_CONTAINS links.
+    // Restore those links to visible in Metamodelling mode unless they involve Pool/Lane groups.
+    const restoreMetamodelContainsVisibility = () => {
+      if (!myDiagram) return;
+      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+      const isSwimlaneNodeKey = (k: any): boolean => {
+        if (!k) return false;
+        const n = myDiagram.findNodeForKey(k);
+        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+        return c === "Pool" || c.startsWith("Lane");
+      };
+      myDiagram.links.each((l: go.Link) => {
+        const d: any = l.data;
+        if (!d) return;
+        const typeName =
+          d?.typename ||
+          d?.name ||
+          d?.relship?.type?.name ||
+          d?.relshipview?.relship?.type?.name ||
+          "";
+        if (typeName !== constants.types.AKM_CONTAINS) return;
+        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+        if (d.visible === false) myDiagram.model.setDataProperty(d, "visible", true);
+        l.updateTargetBindings();
+      });
+    };
 
-	    // In Metamodelling views, we want metamodel "contains" to use the template defaults
-	    // (straight lines). If routing/curve were previously persisted as "Orthogonal", clear them.
-	    const normalizeMetamodelContainsRouting = () => {
-	      if (!myDiagram) return;
-	      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
-	      const isSwimlaneNodeKey = (k: any): boolean => {
-	        if (!k) return false;
-	        const n = myDiagram.findNodeForKey(k);
-	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
-	        return c === "Pool" || c.startsWith("Lane");
-	      };
-	      myDiagram.links.each((l: go.Link) => {
-	        const d: any = l.data;
-	        if (!d) return;
-	        const typeName =
-	          d?.typename ||
-	          d?.name ||
-	          d?.relship?.type?.name ||
-	          d?.relshipview?.relship?.type?.name ||
-	          "";
-	        if (typeName !== constants.types.AKM_CONTAINS) return;
-	        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
+    // In Metamodelling views, we want metamodel "contains" to use the template defaults
+    // (straight lines). If routing/curve were previously persisted as "Orthogonal", clear them.
+    const normalizeMetamodelContainsRouting = () => {
+      if (!myDiagram) return;
+      if (String((myMetis as any)?.modelType || "") !== "Metamodelling") return;
+      const isSwimlaneNodeKey = (k: any): boolean => {
+        if (!k) return false;
+        const n = myDiagram.findNodeForKey(k);
+        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
+        return c === "Pool" || c.startsWith("Lane");
+      };
+      myDiagram.links.each((l: go.Link) => {
+        const d: any = l.data;
+        if (!d) return;
+        const typeName =
+          d?.typename ||
+          d?.name ||
+          d?.relship?.type?.name ||
+          d?.relshipview?.relship?.type?.name ||
+          "";
+        if (typeName !== constants.types.AKM_CONTAINS) return;
+        if (isSwimlaneNodeKey(d.from) || isSwimlaneNodeKey(d.to)) return;
 
-	        // Clear default-looking persisted routing so our metamodel defaults can apply.
-	        if (typeof d.routing === "string" && d.routing.trim() === "Orthogonal") {
-	          myDiagram.model.setDataProperty(d, "routing", "");
-	        }
-	        if (typeof d.curve === "string" && d.curve.trim() !== "") {
-	          myDiagram.model.setDataProperty(d, "curve", "");
-	        }
-	        if (d.corner != null) {
-	          myDiagram.model.setDataProperty(d, "corner", "");
-	        }
+        // Clear default-looking persisted routing so our metamodel defaults can apply.
+        if (typeof d.routing === "string" && d.routing.trim() === "Orthogonal") {
+          myDiagram.model.setDataProperty(d, "routing", "");
+        }
+        if (typeof d.curve === "string" && d.curve.trim() !== "") {
+          myDiagram.model.setDataProperty(d, "curve", "");
+        }
+        if (d.corner != null) {
+          myDiagram.model.setDataProperty(d, "corner", "");
+        }
 
-	        const relview = d.relshipview || myModelview.findRelationshipView(d.key);
-	        if (relview) {
-	          if (String((relview as any).routing || "").trim() === "Orthogonal") (relview as any).routing = "";
-	          if (String((relview as any).curve || "").trim() !== "") (relview as any).curve = "";
-	          if ((relview as any).corner != null) (relview as any).corner = "";
-	          try {
-	            const jsnRelview = new jsn.jsnRelshipView(relview);
-	            let rvData: any = jsnRelview;
-	            rvData = JSON.parse(JSON.stringify(rvData));
-	            myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: rvData });
-	          } catch (_) { }
-	        }
+        const relview = d.relshipview || myModelview?.findRelationshipView?.(d.key);
+        if (relview) {
+          if (String((relview as any).routing || "").trim() === "Orthogonal") (relview as any).routing = "";
+          if (String((relview as any).curve || "").trim() !== "") (relview as any).curve = "";
+          if ((relview as any).corner != null) (relview as any).corner = "";
+          try {
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            let rvData: any = jsnRelview;
+            rvData = JSON.parse(JSON.stringify(rvData));
+            myDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: rvData });
+          } catch (_) { }
+        }
 
-	        l.updateTargetBindings();
-	      });
-	    };
+        l.updateTargetBindings();
+      });
+    };
 
     switch (name) {
-	      case "InitialLayoutCompleted": {
+      case "InitialLayoutCompleted": {
+        if (!myModelview || !myModel) {
+          if (debug) console.warn("InitialLayoutCompleted skipped: missing model or modelview", { hasModel: Boolean(myModel), hasModelview: Boolean(myModelview) });
+          applySwimlaneContainsVisibility();
+          break;
+        }
         if (debug) console.log("Begin: After Reload:");
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
@@ -2923,6 +2953,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         const links = myDiagram.model.linkDataArray;
         if (links.length > 0) {
           const modelview = myMetis.currentModelview;
+          if (!modelview) {
+            applySwimlaneContainsVisibility();
+            break;
+          }
           const objviews = modelview.objectviews;
           const nodes = myDiagram.nodes;
           // Fix nodes (scale, loc and size, ++)
@@ -3306,8 +3340,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               : "";
           const liveContainingGroupKey =
             it.key?.containingGroup instanceof go.Group &&
-            it.key.containingGroup.key !== undefined &&
-            it.key.containingGroup.key !== null
+              it.key.containingGroup.key !== undefined &&
+              it.key.containingGroup.key !== null
               ? String(it.key.containingGroup.key)
               : "";
           let groupKey = dragStartGroupKey || liveContainingGroupKey || String(it.key.data.group || objectview.group || "");
@@ -3720,7 +3754,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       liveRelview.points = [];
                     }
                     try { myDiagram.model.setDataProperty(liveLink.data, "points", []); } catch (_) {
-                      try { liveLink.data.points = []; } catch (_err) {}
+                      try { liveLink.data.points = []; } catch (_err) { }
                     }
                   });
                 } catch (_) {
@@ -4722,12 +4756,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 Array.isArray(directLivePoints) && directLivePoints.length >= 4
                   ? directLivePoints
                   : shiftManualLinkEndpointSegments(
-                      livePoints,
-                      {
-                        moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
-                        moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
-                      }
-                    );
+                    livePoints,
+                    {
+                      moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
+                      moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
+                    }
+                  );
               const adjustedPoints =
                 (Array.isArray(directLivePoints) && directLivePoints.length >= 4)
                   ? directLivePoints
@@ -5044,7 +5078,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               (context.dispatch || myDiagram.dispatch || this.state.dispatch)?.({ type: 'LOAD_TOSTORE_PHDATA', data });
             } catch (_) { }
           }
-          try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
+          try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) { }
         }
         // Dispatch relshipviews
         myModelview.relshipviews = utils.removeArrayDuplicates(myModelview.relshipviews);
@@ -5265,2990 +5299,3080 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         break;
       case "SelectionDeleting": {
-      // const newNode = myMetis.currentNode;
-      const deletedFlag = true;
-      let renameTypes = false;
-      const selection = e.subject;
-      const data = selection.first().data;
-      const isMetamodel = this.isMetamodelType(data.category);
-      const nodeDataToForceRemove: any[] = [];
-      const linkDataToForceRemove: any[] = [];
-      if (isMetamodel) {
-        if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
-          renameTypes = true;
-        }
-        // If an object type, identify connected relationship types
-        const reltypes = [];
-        for (let it = selection?.iterator; it?.next();) {
-          const sel = it.value;
-          const data = sel.data;
-          if (data.markedAsDeleted) continue;
-          if (data.category === constants.gojs.C_OBJECTTYPE) {
-            const objtype = myMetis.findObjectType(data.objecttype?.id);
-            if (objtype) {
-              const inputReltypes = objtype.inputreltypes;
-              for (let i = 0; i < inputReltypes?.length; i++) {
-                const reltype = inputReltypes[i];
-                if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
-              }
-              const outputReltypes = objtype.outputreltypes;
-              for (let i = 0; i < outputReltypes?.length; i++) {
-                const reltype = outputReltypes[i];
-                if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
-              }
-            }
+        // const newNode = myMetis.currentNode;
+        const deletedFlag = true;
+        let renameTypes = false;
+        const selection = e.subject;
+        const data = selection.first().data;
+        const isMetamodel = this.isMetamodelType(data.category);
+        const nodeDataToForceRemove: any[] = [];
+        const linkDataToForceRemove: any[] = [];
+        if (isMetamodel) {
+          if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
+            renameTypes = true;
           }
-          else if (data.category === constants.gojs.C_RELSHIPTYPE) {
-            const reltype = myMetis.findRelationshipType(data.reltype?.id);
-            if (reltype) {
-              if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
-            }
-          }
-        }
-        // Handle relationship types
-        for (let it = selection?.iterator; it?.next();) {
-          const sel = it.value;
-          const data = sel.data;
-          const key = data.key;
-          const typename = data.type;
-          if (data.category === constants.gojs.C_RELSHIPTYPE) {
-            const defRelType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
-            const reltype = myMetis.findRelationshipType(data.reltype?.id);
-            if (reltype) {
-              // Check if reltype instances exist
-              const rels = myMetis.getRelationshipsByType(reltype, false);
-              if (rels.length > 0) {
-                if (renameTypes) {
-                  for (let i = 0; i < rels.length; i++) {
-                    const rel = rels[i];
-                    rel.type = defRelType;
-                    rel.typeview = defRelType.typeview;
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    modifiedRelships.push(jsnRel);
-                  }
-                } else { // delete the corresponding relationships
-                  for (let i = 0; i < rels.length; i++) {
-                    const rel = rels[i];
-                    rel.markedAsDeleted = deletedFlag;
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    modifiedRelships.push(jsnRel);
-                  }
+          // If an object type, identify connected relationship types
+          const reltypes = [];
+          for (let it = selection?.iterator; it?.next();) {
+            const sel = it.value;
+            const data = sel.data;
+            if (data.markedAsDeleted) continue;
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              const objtype = myMetis.findObjectType(data.objecttype?.id);
+              if (objtype) {
+                const inputReltypes = objtype.inputreltypes;
+                for (let i = 0; i < inputReltypes?.length; i++) {
+                  const reltype = inputReltypes[i];
+                  if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
+                }
+                const outputReltypes = objtype.outputreltypes;
+                for (let i = 0; i < outputReltypes?.length; i++) {
+                  const reltype = outputReltypes[i];
+                  if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
                 }
               }
-              reltype.markedAsDeleted = deletedFlag;
-              uic.deleteRelationshipType(reltype, deletedFlag);
-              let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
-              if (reltypeview) {
-                reltypeview.markedAsDeleted = deletedFlag;
-                const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
-                modifiedRelshipTypeViews.push(jsnReltypeView);
+            }
+            else if (data.category === constants.gojs.C_RELSHIPTYPE) {
+              const reltype = myMetis.findRelationshipType(data.reltype?.id);
+              if (reltype) {
+                if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
               }
-              const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
-              modifiedRelshipTypes.push(jsnReltype);
             }
           }
-        }
-        // Handle objecttypes
-        let count = 0;
-        for (let it = selection?.iterator; it?.next();) {
-          count++;
-          const sel = it.value;
-          const data = sel.data;
-          const key = data.key;
-          const typename = data.type;
-          if (data.category === constants.gojs.C_OBJECTTYPE) {
-            const defObjType = myMetis.findObjectTypeByName('Generic');
-            const objtype = myMetis.findObjectType(data.objecttype?.id);
-            if (objtype) {
-              // Check if objtype instances exist
-              const objects = myMetis.getObjectsByType(objtype, true);
-              if (objects.length > 0) {
-                if (renameTypes) {
-                  for (let i = 0; i < objects.length; i++) {
-                    const obj = objects[i];
-                    obj.type = defObjType;
-                    obj.typeview = defObjType.typeview;
-                    const jsnObj = new jsn.jsnObject(obj);
-                    modifiedObjects.push(jsnObj);
-                  }
-                } else { // delete the corresponding objects
-                  for (let i = 0; i < objects.length; i++) {
-                    const obj = objects[i];
-                    obj.markedAsDeleted = deletedFlag;
-                    const jsnObj = new jsn.jsnObject(obj);
-                    modifiedObjects.push(jsnObj);
+          // Handle relationship types
+          for (let it = selection?.iterator; it?.next();) {
+            const sel = it.value;
+            const data = sel.data;
+            const key = data.key;
+            const typename = data.type;
+            if (data.category === constants.gojs.C_RELSHIPTYPE) {
+              const defRelType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
+              const reltype = myMetis.findRelationshipType(data.reltype?.id);
+              if (reltype) {
+                // Check if reltype instances exist
+                const rels = myMetis.getRelationshipsByType(reltype, false);
+                if (rels.length > 0) {
+                  if (renameTypes) {
+                    for (let i = 0; i < rels.length; i++) {
+                      const rel = rels[i];
+                      rel.type = defRelType;
+                      rel.typeview = defRelType.typeview;
+                      const jsnRel = new jsn.jsnRelationship(rel);
+                      modifiedRelships.push(jsnRel);
+                    }
+                  } else { // delete the corresponding relationships
+                    for (let i = 0; i < rels.length; i++) {
+                      const rel = rels[i];
+                      rel.markedAsDeleted = deletedFlag;
+                      const jsnRel = new jsn.jsnRelationship(rel);
+                      modifiedRelships.push(jsnRel);
+                    }
                   }
                 }
+                reltype.markedAsDeleted = deletedFlag;
+                uic.deleteRelationshipType(reltype, deletedFlag);
+                let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
+                if (reltypeview) {
+                  reltypeview.markedAsDeleted = deletedFlag;
+                  const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
+                  modifiedRelshipTypeViews.push(jsnReltypeView);
+                }
+                const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
+                modifiedRelshipTypes.push(jsnReltype);
               }
-              let objtypeview = objtype.typeview as akm.cxObjectTypeView;
-              if (objtypeview) {
-                objtypeview.markedAsDeleted = deletedFlag;
-                const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
-                modifiedObjectTypeViews.push(jsnObjtypeview);
+            }
+          }
+          // Handle objecttypes
+          let count = 0;
+          for (let it = selection?.iterator; it?.next();) {
+            count++;
+            const sel = it.value;
+            const data = sel.data;
+            const key = data.key;
+            const typename = data.type;
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              const defObjType = myMetis.findObjectTypeByName('Generic');
+              const objtype = myMetis.findObjectType(data.objecttype?.id);
+              if (objtype) {
+                // Check if objtype instances exist
+                const objects = myMetis.getObjectsByType(objtype, true);
+                if (objects.length > 0) {
+                  if (renameTypes) {
+                    for (let i = 0; i < objects.length; i++) {
+                      const obj = objects[i];
+                      obj.type = defObjType;
+                      obj.typeview = defObjType.typeview;
+                      const jsnObj = new jsn.jsnObject(obj);
+                      modifiedObjects.push(jsnObj);
+                    }
+                  } else { // delete the corresponding objects
+                    for (let i = 0; i < objects.length; i++) {
+                      const obj = objects[i];
+                      obj.markedAsDeleted = deletedFlag;
+                      const jsnObj = new jsn.jsnObject(obj);
+                      modifiedObjects.push(jsnObj);
+                    }
+                  }
+                }
+                let objtypeview = objtype.typeview as akm.cxObjectTypeView;
+                if (objtypeview) {
+                  objtypeview.markedAsDeleted = deletedFlag;
+                  const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
+                  modifiedObjectTypeViews.push(jsnObjtypeview);
+                }
+                const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
+                if (geo) {
+                  geo.markedAsDeleted = deletedFlag;
+                  const jsnObjtypegeo = new jsn.jsnObjectTypegeo(geo);
+                  modifiedObjectTypeGeos.push(jsnObjtypegeo);
+                }
+                objtype.markedAsDeleted = deletedFlag;
+                const jsnObjtype = new jsn.jsnObjectType(objtype);
+                modifiedObjectTypes.push(jsnObjtype);
               }
-              const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
-              if (geo) {
-                geo.markedAsDeleted = deletedFlag;
-                const jsnObjtypegeo = new jsn.jsnObjectTypegeo(geo);
-                modifiedObjectTypeGeos.push(jsnObjtypegeo);
-              }
-              objtype.markedAsDeleted = deletedFlag;
-              const jsnObjtype = new jsn.jsnObjectType(objtype);
-              modifiedObjectTypes.push(jsnObjtype);
             }
           }
-        }
-        try {
-          delete (myDiagram as any).__dragAllowReparent;
-          delete (myDiagram as any).__dragAllowReparentKeys;
-        } catch (_) {
-        }
-      }
-      if (isMetamodel) {
-        uic.purgeModelDeletions(myMetis, myDiagram);
-        return;
-      }
-      if (!isMetamodel) {
-      // Handle relationships
-      for (let it = selection?.iterator; it?.next();) {
-        const sel = it.value;
-        const data = sel.data;
-        const key = data.key;
-        if (data.category === constants.gojs.C_RELATIONSHIP) {
-          const relview = myModelview.findRelationshipView(key);
-          if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
-            relview.markedAsDeleted = deletedFlag;
-            const relship = relview.relship;
-            if (myMetis.deleteViewsOnly)
-              relship.markedAsDeleted = false;
-            else
-              relship.markedAsDeleted = deletedFlag;
-            const jsnRelship = new jsn.jsnRelationship(relship);
-            modifiedRelships.push(jsnRelship);
-            const jsnRelview = new jsn.jsnRelshipView(relview);
-            modifiedRelshipViews.push(jsnRelview);
-            linkDataToForceRemove.push(data);
-          }
-        }
-      }
-      // Handle relationship views marked as deleted in the modelview
-      const relshipviews = myModelview.relshipviews;
-      for (let i = 0; i < relshipviews.length; i++) {
-        const relview = relshipviews[i];
-        if (relview.markedAsDeleted) {
-          let fromView = relview.fromObjview;
-          let toView = relview.toObjview;
-          if (fromView && fromView.isGroup) {
-            toView.group = "";
-            const jsnObjview = new jsn.jsnObjectView(toView);
-            modifiedObjectViews.push(jsnObjview);
-          }
-          toView = relview.toObjview;
-          const gjsData = myDiagram.findLinkForKey(relview.id);
-          if (gjsData)
-            uic.deleteLink(gjsData, true, context);
-        }
-        const jsnRelview = new jsn.jsnRelshipView(relview);
-        modifiedRelshipViews.push(jsnRelview);
-      }
-      // Handle objects
-      for (let it = selection?.iterator; it?.next();) {
-        const sel = it.value;
-        const data = sel.data;
-        const isPersistedObjectNode =
-          sel instanceof go.Node &&
-          data?.category !== constants.gojs.C_OBJECTTYPE &&
-          data?.category !== constants.gojs.C_RELATIONSHIP &&
-          (
-            data?.category === constants.gojs.C_OBJECT ||
-            data?.objectview ||
-            data?.objviewRef ||
-            data?.object ||
-            data?.objRef
-          );
-        if (isPersistedObjectNode) {
-          const key = data.key;
-          const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
-          const objview =
-            myModelview.findObjectView(myNode?.key || key) ||
-            myMetis.findObjectView(data?.objviewRef || key) ||
-            data?.objectview;
-          const object =
-            objview?.object ||
-            myNode?.object ||
-            data?.object ||
-            myModel.findObject(objview?.objectRef || data?.objRef);
-          if (objview) {
-            objview.markedAsDeleted = true;
-            const jsnObjview = new jsn.jsnObjectView(objview);
-            modifiedObjectViews.push(jsnObjview);
-          }
-          if (object) {
-            object.markedAsDeleted = !myMetis.deleteViewsOnly;
-            const jsnObject = new jsn.jsnObject(object);
-            modifiedObjects.push(jsnObject);
-          }
-          nodeDataToForceRemove.push(data);
-        }
-      }
-    }
-    for (let i = 0; i < modifiedObjectViews.length; i++) {
-      const objview = modifiedObjectViews[i];
-      if (objview.markedAsDeleted) {
-        const myNode =
-          this.getNode(context.myGoModel, objview.id) ||
-          context.myGoModel?.findNodeByViewId?.(objview.id) ||
-          context.myGoModel?.findNode?.(objview.id);
-        if (myNode) {
-          uic.deleteNode(myNode, deletedFlag, context);
-          continue;
-        }
-        const liveDiagramNode =
-          myDiagram.findNodeForKey(objview.id) ||
-          myDiagram.findPartForKey(objview.id);
-        if (liveDiagramNode) {
-          try { myDiagram.remove(liveDiagramNode); } catch (_) { }
-        }
-      }
-    }
-    for (let i = 0; i < linkDataToForceRemove.length; i++) {
-      const linkData = linkDataToForceRemove[i];
-      try {
-        const liveLinkData = myDiagram.findLinkForKey(linkData?.key)?.data || linkData;
-        myDiagram.model.removeLinkData(liveLinkData);
-      } catch (_) { }
-    }
-    for (let i = 0; i < nodeDataToForceRemove.length; i++) {
-      const nodeData = nodeDataToForceRemove[i];
-      try {
-        const liveNodeData = myDiagram.findNodeForKey(nodeData?.key)?.data || nodeData;
-        myDiagram.model.removeNodeData(liveNodeData);
-      } catch (_) { }
-    }
-    break;
-  }
-      case 'ExternalObjectsDropped': {
-    const droppedRelLinks: go.ObjectData[] = [];
-    const droppedNodesForLayout: go.Node[] = [];
-    const poolNodes: go.Node[] = [];
-    const poolKeys: Array<string | number> = [];
-        const affectedPoolKeys = new Set<string | number>();
-  const registerPoolKey = (group: go.Group | null | undefined) => {
-    if (!(group instanceof go.Group)) {
-      return;
-    }
-    const poolKey = getNodeKey(group);
-    if (poolKey === undefined || poolKey === null) {
-      return;
-    }
-    if (!affectedPoolKeys.has(poolKey)) {
-      affectedPoolKeys.add(poolKey);
-    }
-  };
-        let shouldZoomToFitAfterDrop = false;
-let lanesDroppedIntoPool = false;
-const nodeIterator = e.subject.iterator;
-while (nodeIterator?.next()) {
-  const part = nodeIterator.value;
-  if (part instanceof go.Node) {
-    droppedNodesForLayout.push(part);
-  }
-}
-if (droppedNodesForLayout.length) {
-  const primaryDiagram = e.diagram || myDiagram;
-  const dropPoint =
-    primaryDiagram?.lastInput?.documentPoint?.copy() ||
-    myDiagram?.lastInput?.documentPoint?.copy() ||
-    null;
-
-  const modelData = (myDiagram?.model as any)?.modelData ?? {};
-  const dropOverrides = modelData?.dropLayout && typeof modelData.dropLayout === 'object'
-    ? modelData.dropLayout
-    : undefined;
-  const presetName = dropOverrides?.preset ?? myModelview?.layout;
-  const layoutConfig = deriveDropLayoutConfig(presetName, dropOverrides);
-
-  const metadata = layoutConfig?.metadata || {};
-  const poolTypeIds = Array.isArray(metadata.poolTypeIds) ? metadata.poolTypeIds : [];
-  const laneTypeIds = Array.isArray(metadata.laneTypeIds) ? metadata.laneTypeIds : [];
-  const containerTypeIds = Array.isArray(metadata.containerTypeIds) ? metadata.containerTypeIds : [];
-  if (myDiagram) {
-    const shouldCommitGrouping = !myDiagram.isInTransaction;
-    if (shouldCommitGrouping) {
-      myDiagram.startTransaction('assign-drop-groups');
-    }
-    try {
-      const laneNodes: go.Node[] = [];
-      const containerNodes: go.Node[] = [];
-      const otherNodes: go.Node[] = [];
-
-      for (let i = 0; i < droppedNodesForLayout.length; i++) {
-        // if (droppedNodesForLayout.length < 2) return; // No need to group a single node and try to avoid existing nodes, let the user handle that
-        const node = droppedNodesForLayout[i];
-        const typeRef = getNodeTypeRef(node);
-        const data: any = node?.data || {};
-        const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
-        const templateName = (data.template || data.category || '').toString().toLowerCase();
-        const name = (data.name || '').toString().toLowerCase();
-        const isPool =
-          (typeRef && poolTypeIds.includes(typeRef)) ||
-          viewkind === 'pool' ||
-          templateName.includes('pool') ||
-          name.includes('pool');
-        if (isPool) {
-          poolNodes.push(node);
-          shouldZoomToFitAfterDrop = true;
-          registerPoolKey(node instanceof go.Group ? node : node.containingGroup);
-          continue;
-        }
-        const isLane =
-          (typeRef && laneTypeIds.includes(typeRef)) ||
-          viewkind === 'lane' ||
-          templateName.includes('lane') ||
-          name.includes('lane');
-        if (isLane) {
-          laneNodes.push(node);
-          lanesDroppedIntoPool = true;
-          continue;
-        }
-        const isContainer =
-          (typeRef && containerTypeIds.includes(typeRef)) ||
-          viewkind === 'container' ||
-          templateName.includes('container');
-        if (isContainer) {
-          containerNodes.push(node);
-          continue;
-        }
-        otherNodes.push(node);
-      }
-
-      if (poolNodes.length) {
-        const uniquePoolKeys = new Set<string | number>();
-        for (let i = 0; i < poolNodes.length; i++) {
-          const poolNode = poolNodes[i];
-          ensureNodeIsGroup(myDiagram, poolNode);
-          const poolKey = getNodeKey(poolNode);
-          if (poolKey !== undefined && poolKey !== null && !uniquePoolKeys.has(poolKey)) {
-            uniquePoolKeys.add(poolKey);
-            poolKeys.push(poolKey);
-            registerPoolKey(myDiagram.findNodeForKey(poolKey) as go.Group | null);
-          }
-        }
-
-        if (poolKeys.length) {
-          for (let i = 0; i < laneNodes.length; i++) {
-            const laneNode = laneNodes[i];
-            ensureNodeIsGroup(myDiagram, laneNode);
-            const existing = getGroupKeyFromData(laneNode?.data);
-            const poolKey = poolKeys[i % poolKeys.length];
-            if (existing === null || existing === undefined) {
-              setNodeGroup(myDiagram, laneNode, poolKey);
-            }
-            ensureInitialGroupSize(
-              myDiagram,
-              laneNode,
-              laneNode?.data,
-              getSizeOptionsForType('lane')
-            );
-            const targetPool = myDiagram.findNodeForKey(poolKey);
-            registerPoolKey(targetPool as go.Group | null);
-            lanesDroppedIntoPool = true;
-          }
-
-          const laneKeys: Array<string | number> = [];
-          const laneKeySet = new Set<string | number>();
-          for (let i = 0; i < laneNodes.length; i++) {
-            const laneKey = getNodeKey(laneNodes[i]);
-            if (laneKey !== undefined && laneKey !== null && !laneKeySet.has(laneKey)) {
-              laneKeySet.add(laneKey);
-              laneKeys.push(laneKey);
-            }
-          }
-
-          for (let i = 0; i < containerNodes.length; i++) {
-            const containerNode = containerNodes[i];
-            ensureNodeIsGroup(myDiagram, containerNode);
-            const existing = getGroupKeyFromData(containerNode?.data);
-            if (existing !== null && existing !== undefined) {
-              continue;
-            }
-            const poolKey = poolKeys[i % poolKeys.length];
-            setNodeGroup(myDiagram, containerNode, poolKey);
-          }
-
-          for (let i = 0; i < otherNodes.length; i++) {
-            const node = otherNodes[i];
-            const existing = getGroupKeyFromData(node?.data);
-            if (existing !== null && existing !== undefined) {
-              continue;
-            }
-            let assignedKey = null;
-            if (laneKeys.length) {
-              assignedKey = laneKeys[i % laneKeys.length];
-            } else if (poolKeys.length) {
-              assignedKey = poolKeys[i % poolKeys.length];
-            }
-            if (assignedKey !== null && assignedKey !== undefined) {
-              setNodeGroup(myDiagram, node, assignedKey);
-            }
-          }
-        }
-      }
-    } finally {
-      if (shouldCommitGrouping && myDiagram.isInTransaction) {
-        myDiagram.commitTransaction('assign-drop-groups');
-      }
-    }
-  }
-
-  const buckets = new Map< // Map to hold node buckets for layout
-    string,
-    { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
-  >();
-
-  for (let i = 0; i < droppedNodesForLayout.length; i++) {
-    const node = droppedNodesForLayout[i];
-    const containingGroup = node?.containingGroup instanceof go.Group ? node.containingGroup : null;
-    const nodeCenter = node?.actualBounds?.center || null;
-    const pointGroup =
-      resolveDeepestDropTargetGroup(myDiagram, node, dropPoint || null) ||
-      resolveDeepestDropTargetGroup(myDiagram, node, nodeCenter);
-    let resolvedTargetGroup = containingGroup;
-    if (pointGroup instanceof go.Group) {
-      if (
-        !containingGroup ||
-        containingGroup === pointGroup ||
-        isAncestorGroupKey(myDiagram, containingGroup.key, pointGroup.key)
-      ) {
-        resolvedTargetGroup = pointGroup;
-      }
-    }
-    const dataGroupKey = getGroupKeyFromData(node?.data);
-    const groupKey =
-      resolvedTargetGroup
-        ? getNodeKey(resolvedTargetGroup)
-        : (dataGroupKey !== null && dataGroupKey !== undefined ? dataGroupKey : null);
-    const bucketKey = groupKey === null ? '__drop-root__' : String(groupKey);
-    if (!buckets.has(bucketKey)) {
-      const groupPart =
-        resolvedTargetGroup ||
-        (groupKey !== null && myDiagram
-          ? myDiagram.findNodeForKey(groupKey)
-          : null);
-      buckets.set(bucketKey, {
-        nodes: [],
-        targetGroup: groupPart instanceof go.Group ? groupPart : null,
-        groupKey: groupKey,
-      });
-    }
-    const bucket = buckets.get(bucketKey);
-    if (bucket) {
-      if (
-        bucket.targetGroup instanceof go.Group &&
-        node.containingGroup !== bucket.targetGroup
-      ) {
-        const memberSet = new go.Set<go.Part>();
-        memberSet.add(node);
-        bucket.targetGroup.addMembers(memberSet, true);
-        setNodeGroup(myDiagram, node, bucket.targetGroup.key);
-      }
-      bucket.nodes.push(node);
-    }
-  }
-
-  const bucketList = Array.from(buckets.values());
-  const groupsForFollowUp = new Set<go.Group>();
-  bucketList.sort((a, b) => {
-    const aRoot = a.groupKey === null || a.groupKey === undefined;
-    const bRoot = b.groupKey === null || b.groupKey === undefined;
-    if (aRoot && !bRoot) return -1;
-    if (!aRoot && bRoot) return 1;
-    return 0;
-  });
-
-  for (let i = 0; i < bucketList.length; i++) {
-    const bucket = bucketList[i];
-    if (!bucket.nodes.length) continue;
-    let bucketDropPoint: go.Point | null = null;
-    if (bucket.targetGroup && bucket.targetGroup.actualBounds) {
-      const bounds = bucket.targetGroup.actualBounds;
-      if (bounds && bounds.center) {
-        bucketDropPoint = bounds.center.copy();
-      }
-    }
-    if (!bucketDropPoint && dropPoint) {
-      bucketDropPoint = dropPoint.copy ? dropPoint.copy() : dropPoint;
-    }
-    // Only apply automated drop layout if explicitly enabled by the model or layout config.
-    // Default behaviour is to NOT change node positions automatically on drop so the user
-    // can choose when to run layouts.
-    const modelData: any = myDiagram?.model?.modelData || {};
-    const autoApplyFromModel = modelData?.autoApplyDropLayout === true || modelData?.autoApply === true;
-    const autoApplyFromLayout = (layoutConfig as any)?.autoApply === true || (layoutConfig as any)?.autoApplyDrop === true;
-    const autoApplyLayout = Boolean(autoApplyFromModel || autoApplyFromLayout);
-    if (autoApplyLayout) {
-      applyDropLayout({
-        diagram: myDiagram,
-        parts: bucket.nodes,
-        dropPoint: bucketDropPoint,
-        config: layoutConfig,
-        targetGroup: bucket.targetGroup,
-      });
-    }
-    if (bucket.targetGroup instanceof go.Group) {
-      for (let j = 0; j < bucket.nodes.length; j++) {
-        const node = bucket.nodes[j];
-        const nodeData: any = node?.data || {};
-        const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
-        if (isGroupLikeNode(node, nodeData)) {
-          resizeGroupToHalfParent(myDiagram, nodeData, node, bucket.targetGroup);
-        }
-        const nextScale = applyDerivedScaleToPart(myDiagram, node, bucket.targetGroup, currentObjview);
-        if (currentObjview) {
-          const nextObjview = new jsn.jsnObjectView(currentObjview);
-          nextObjview.group = String(bucket.groupKey ?? "");
-          nextObjview.scale = nextScale;
-          if (nodeData) {
-            nodeData.objectview = nextObjview;
-            myDiagram.model.setDataProperty(nodeData, "objectview", nextObjview);
-          }
-          uic.addItemToList(modifiedObjectViews, nextObjview);
-        }
-      }
-      groupsForFollowUp.add(bucket.targetGroup);
-      const container = bucket.targetGroup.containingGroup;
-      if (container instanceof go.Group) {
-        groupsForFollowUp.add(container);
-      }
-    } else {
-      for (let j = 0; j < bucket.nodes.length; j++) {
-        const node = bucket.nodes[j];
-        if (!(node instanceof go.Group)) continue;
-        const nodeData: any = node?.data || {};
-        const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
-        applyDerivedScaleToPart(myDiagram, node, null, currentObjview);
-        if (currentObjview) {
-          const nextObjview = new jsn.jsnObjectView(currentObjview);
-          nextObjview.group = "";
-          nextObjview.scale = 1.0;
-          if (nodeData) {
-            nodeData.objectview = nextObjview;
-            myDiagram.model.setDataProperty(nodeData, "objectview", nextObjview);
-          }
-          uic.addItemToList(modifiedObjectViews, nextObjview);
-        }
-      }
-    }
-  }
-
-  // Only apply follow-up group layouts if auto-apply is enabled.
-  if (Boolean(((myDiagram?.model as any)?.modelData?.autoApplyDropLayout === true) || ((layoutConfig as any)?.autoApply === true))) {
-    groupsForFollowUp.forEach(group => {
-      if (!isPoolLike(group.data)) {
-        applyDropLayoutToGroup(myDiagram, group);
-      }
-      if (group.containingGroup instanceof go.Group && !isPoolLike(group.containingGroup.data)) {
-        applyDropLayoutToGroup(myDiagram, group.containingGroup);
-      }
-    });
-  }
-
-}
-
-const applyGroupTemplateToDiagram = (part: go.Node | null, template: string | null) => {
-  if (!myDiagram || !part || !template) return;
-  myDiagram.startTransaction('apply-drop-group-template');
-  try {
-    const data = part.data;
-    if (!data) return;
-    data.isGroup = true;
-    data.viewkind = constants.viewkinds.CONT;
-    data.template = template;
-    if (typeof myDiagram.model.setCategoryForNodeData === 'function') {
-      myDiagram.model.setCategoryForNodeData(data, template);
-    } else {
-      myDiagram.model.setDataProperty(data, 'category', template);
-    }
-    refreshGroupPartRendering(myDiagram, part, data);
-  } finally {
-    myDiagram.commitTransaction('apply-drop-group-template');
-  }
-  try {
-    myDiagram.layoutDiagram(true);
-  } catch (_) {
-    try { myDiagram.requestUpdate(); } catch (_) { }
-  }
-};
-const clearGroupTemplateFromDiagram = (part: go.Node | null) => {
-  if (!myDiagram || !part) return;
-  myDiagram.startTransaction('revert-drop-to-node');
-  try {
-    const data = part.data;
-    if (!data) return;
-    data.isGroup = false;
-    data.viewkind = constants.viewkinds.OBJ;
-    data.template = data.template || constants.gojs.C_NODETEMPLATE;
-    myDiagram.model.setCategoryForNodeData(data, data.template || constants.gojs.C_NODETEMPLATE);
-    refreshGroupPartRendering(myDiagram, part, data);
-  } finally {
-    myDiagram.commitTransaction('revert-drop-to-node');
-  }
-  myDiagram.layoutDiagram(true);
-};
-const isPoolLike = (data: any): boolean => {
-  if (!data) return false;
-  const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
-  const templateName = (data.template || data.category || '').toString().toLowerCase();
-  const name = (data.name || '').toString().toLowerCase();
-  const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
-  return [viewkind, templateName, name, typeName].some((val) => val.includes('pool'));
-};
-const isLaneLike = (data: any): boolean => {
-  if (!data) return false;
-  const explicitFlag = Boolean(data.isLane === true || data.lane === true || data.laneGroup === true);
-  if (explicitFlag) {
-    return true;
-  }
-  const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
-  if (viewkind === 'lane' || viewkind === 'swimlane') {
-    return true;
-  }
-  const templateName = (data.template || '').toString().toLowerCase();
-  if (templateName.includes('lane')) {
-    return true;
-  }
-  const categoryName = (data.category || '').toString().toLowerCase();
-  if (categoryName.includes('lane')) {
-    return true;
-  }
-  const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
-  if (typeName.includes('lane')) {
-    return true;
-  }
-  return false;
-};
-const resolvePersistentGroupTemplate = (data: any): string => {
-  if (isPoolLike(data)) return 'Pool';
-  if (isLaneLike(data)) {
-    const raw = String(data?.template || data?.category || '');
-    return raw === 'Lane_w_handles' ? 'Lane_w_handles' : 'Lane';
-  }
-  const raw = String(data?.template || data?.category || '');
-  return raw || 'groupWithPorts';
-};
-const findContainingPool = (part: go.Part | null | undefined): go.Group | null => {
-  let current: go.Group | null = null;
-  if (part instanceof go.Node) {
-    current = part.containingGroup;
-  } else if (part instanceof go.Group) {
-    current = part;
-  }
-  while (current) {
-    if (current.category && current.category.toString().toLowerCase().includes('pool')) {
-      return current;
-    }
-    if (isPoolLike(current.data)) {
-      return current;
-    }
-    current = current.containingGroup;
-  }
-  return null;
-};
-const registerPoolFromPart = (part: go.Part | null | undefined) => {
-  const pool = findContainingPool(part);
-  if (pool) {
-    registerPoolKey(pool);
-  }
-};
-
-const relayoutPoolGroupAfterLaneChanges = (
-  diagram: go.Diagram | null | undefined,
-  poolGroup: go.Group | null | undefined,
-  laneSpacing = 4
-) => {
-  if (!diagram || !(poolGroup instanceof go.Group)) {
-    return;
-  }
-
-  const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
-  poolGroup.memberParts.each((member: go.Part) => {
-    if (!(member instanceof go.Group)) {
-      return;
-    }
-    if (isLaneLike(member.data)) {
-      structuralGroups.push({ group: member, kind: 'lane' });
-      return;
-    }
-    if (isPoolLike(member.data)) {
-      structuralGroups.push({ group: member, kind: 'pool' });
-    }
-  });
-
-  if (!structuralGroups.length) {
-    return;
-  }
-
-  const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
-    if (!(group instanceof go.Group)) {
-      return 0;
-    }
-    let maxWidth = 0;
-    const candidateNames = [
-      'LEFT_HEADER',
-      'leftHeader',
-      'poolLeftHeader',
-      'leftLabel',
-      'HEADER_LEFT',
-      'poolHeaderLeft',
-      'POOL_LEFT_HEADER',
-      'poolLeftLabel',
-      'leftHeaderPanel',
-    ];
-    for (let i = 0; i < candidateNames.length; i++) {
-      try {
-        const obj = group.findObject(candidateNames[i]);
-        const bounds = obj?.actualBounds;
-        if (bounds && bounds.width) {
-          maxWidth = Math.max(maxWidth, bounds.width);
-        }
-      } catch (err) {
-        // ignore lookup issues and continue
-      }
-    }
-    const dataWidth = (() => {
-      const d: any = group.data;
-      if (!d) return 0;
-      const candidates = [d.leftHeaderWidth, d.headerWidth, d.poolHeaderWidth];
-      for (let i = 0; i < candidates.length; i++) {
-        const value = candidates[i];
-        if (typeof value === 'number' && !Number.isNaN(value)) {
-          return value;
-        }
-      }
-      return 0;
-    })();
-    const fallbackReserve = 28;
-    return Math.max(maxWidth, dataWidth, fallbackReserve);
-  };
-
-  const updateGroupObjectView = (
-    group: go.Group | null | undefined,
-    locationPoint: go.Point | null,
-    sizeValue: go.Size | null
-  ) => {
-    if (!(group instanceof go.Group)) {
-      return;
-    }
-    const modelview = myMetis?.currentModelview;
-    if (!modelview) {
-      return;
-    }
-    const data: any = group.data;
-    if (!data) {
-      return;
-    }
-    let objview = data.objectview;
-    if (!objview && data.objviewRef) {
-      objview = modelview.findObjectView(data.objviewRef);
-    }
-    if (!objview && data.key !== undefined) {
-      objview = modelview.findObjectView(data.key);
-    }
-    if (!objview) {
-      return;
-    }
-    if (locationPoint) {
-      const locString = go.Point.stringify(locationPoint);
-      objview.loc = locString;
-    }
-    if (sizeValue) {
-      const sizeString = `${sizeValue.width} ${sizeValue.height}`;
-      objview.size = sizeString;
-    }
-    const marker = objview as any;
-    if (marker && typeof marker.setModified === 'function') {
-      try {
-        marker.setModified();
-      } catch (err) {
-        // ignore if objectview does not support setModified
-      }
-    }
-    try {
-      const jsnObjview = new jsn.jsnObjectView(objview);
-      uic.addItemToList(modifiedObjectViews, jsnObjview);
-    } catch (err) {
-      // ignore serialization issues
-    }
-  };
-
-  const getLaneSortValue = (lane: go.Group): number => {
-    const rawLoc = lane?.data?.loc;
-    if (typeof rawLoc === 'string' && rawLoc.trim().length) {
-      try {
-        const parsed = go.Point.parse(rawLoc);
-        if (parsed) {
-          return parsed.y;
-        }
-      } catch (err) {
-        // ignore parse errors and continue
-      }
-    }
-    if (lane.location) {
-      return lane.location.y;
-    }
-    const bounds = lane.actualBounds;
-    if (bounds) {
-      return bounds.y;
-    }
-    return 0;
-  };
-
-  structuralGroups.sort((a, b) => {
-    const diff = getLaneSortValue(a.group) - getLaneSortValue(b.group);
-    if (Math.abs(diff) < 0.5) {
-      const aKey = getNodeKey(a.group);
-      const bKey = getNodeKey(b.group);
-      if (aKey !== undefined && aKey !== null && bKey !== undefined && bKey !== null) {
-        return String(aKey).localeCompare(String(bKey));
-      }
-    }
-    return diff;
-  });
-
-  let poolLocation = poolGroup.location?.copy() || null;
-  if (!poolLocation) {
-    const rawPoolLoc = typeof poolGroup?.data?.loc === 'string' ? poolGroup.data.loc : '';
-    if (rawPoolLoc && rawPoolLoc.trim().length) {
-      try {
-        poolLocation = go.Point.parse(rawPoolLoc);
-      } catch (err) {
-        poolLocation = null;
-      }
-    }
-  }
-  if (!poolLocation) {
-    poolLocation = new go.Point(0, 0);
-  }
-
-  const forcedPoolSizes = (diagram as any).__forcedPoolLayoutSizes || {};
-  const forcedPoolSize = forcedPoolSizes[String(poolGroup.data?.key || "")] || null;
-  const isNestedInPool = poolGroup.containingGroup instanceof go.Group && isPoolLike(poolGroup.containingGroup.data);
-  const effectiveForcedPoolSize = isNestedInPool ? null : forcedPoolSize;
-  const poolSize = parseSizeString(poolGroup?.data?.size);
-  const poolResizeObject = poolGroup.resizeObject || poolGroup.placeholder || null;
-  const poolWidthCandidates: number[] = [];
-  if (effectiveForcedPoolSize?.width) {
-    poolWidthCandidates.push(effectiveForcedPoolSize.width);
-  }
-  if (poolResizeObject?.desiredSize?.width) {
-    poolWidthCandidates.push(poolResizeObject.desiredSize.width);
-  }
-  if (poolSize?.width) {
-    poolWidthCandidates.push(poolSize.width);
-  }
-  const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
-  const poolContentPanel = poolGroup.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
-  const poolContentAnchor = poolGroup.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
-  const lanePaddingLeft = 4;
-  const lanePaddingRight = 4;
-  const laneRightVisualInset = 6;
-  const laneTopMargin = 4;
-  const laneBottomMargin = 6;
-  const minLaneWidth = 120;
-  const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
-  const preservePoolWidths = (diagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
-  const preserveWidth =
-    !!preservePoolWidths?.has(String(poolGroup.data?.key || "")) ||
-    !!effectiveForcedPoolSize;
-  let poolWidth = preserveWidth
-    ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
-    : (poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : minPoolWidth);
-
-  const model = diagram.model;
-  const measuredInnerWidth = (() => {
-    if (preserveWidth) return 0;
-    const bounds = (poolContentAnchor || poolContentPanel)?.getDocumentBounds?.();
-    if (bounds?.width && Number.isFinite(bounds.width) && bounds.width > 0) return bounds.width;
-    return 0;
-  })();
-  const initialLaneWidthAvailable = Math.max(
-    (measuredInnerWidth > 0 ? measuredInnerWidth : (poolWidth - poolLeftReserve)) - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
-    minLaneWidth
-  );
-
-  const laneLayouts: Array<{
-    group: go.Group;
-    kind: 'lane' | 'pool';
-    height: number;
-    topY: number;
-  }> = [];
-  const nestedPoolsToRelayout: go.Group[] = [];
-
-  structuralGroups.forEach(({ group, kind }) => {
-    const laneSizeData = parseSizeString(group?.data?.size);
-    const resizeObject = group.resizeObject || group.placeholder || group;
-    const laneBounds = group.actualBounds?.copy();
-    const desiredSize = resizeObject?.desiredSize;
-
-    const laneHeight =
-      (typeof laneSizeData?.height === 'number' && Number.isFinite(laneSizeData.height) && laneSizeData.height > 0)
-        ? laneSizeData.height
-        : Math.max(
-            (typeof desiredSize?.height === 'number' && Number.isFinite(desiredSize.height) && desiredSize.height > 0) ? desiredSize.height : 0,
-            (typeof laneBounds?.height === 'number' && Number.isFinite(laneBounds.height) && laneBounds.height > 0) ? laneBounds.height : 0,
-            260
-          );
-
-    laneLayouts.push({
-      group,
-      kind,
-      height: laneHeight,
-      topY: 0,
-    });
-  });
-
-  let currentY = poolLocation.y + laneTopMargin;
-  laneLayouts.forEach((layout, index) => {
-    layout.topY = currentY;
-    currentY += layout.height;
-    if (index < laneLayouts.length - 1) {
-      currentY += laneSpacing;
-    }
-  });
-  currentY += laneBottomMargin;
-
-  const totalHeight = currentY - poolLocation.y;
-  const finalLaneWidthAvailable = Math.max(
-    poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
-    minLaneWidth
-  );
-
-  laneLayouts.forEach((layout) => {
-    const lane = layout.group;
-    const laneHeight = layout.height;
-    const laneTotalWidth = finalLaneWidthAvailable;
-    const isLaneGroup = layout.kind === 'lane';
-    const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
-    const laneHeaderWidth =
-      isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0
-        ? laneHeader.actualBounds.width
-        : 36;
-    const laneBodyWidth = isLaneGroup ? Math.max(20, laneTotalWidth - laneHeaderWidth) : laneTotalWidth;
-    const laneMain = lane.findObject("LANE_MAIN") as go.GraphObject | null;
-    const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
-    const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
-    const laneMainShape = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
-    const childPoolShape = !isLaneGroup ? lane.findObject("POOL_SHAPE") as go.GraphObject | null : null;
-
-    const laneTopLeftX = poolLocation.x + poolLeftReserve + lanePaddingLeft;
-    const laneTopLeft = new go.Point(laneTopLeftX, layout.topY);
-    let laneLocationPoint = laneTopLeft;
-    try {
-      const spot = lane.locationSpot;
-      if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
-        laneLocationPoint = new go.Point(
-          laneTopLeftX + laneTotalWidth / 2,
-          layout.topY + laneHeight / 2
-        );
-      }
-    } catch (err) {
-      laneLocationPoint = laneTopLeft;
-    }
-
-    lane.location = laneLocationPoint;
-    if (lane.data) {
-      const locString = go.Point.stringify(laneLocationPoint);
-      if (model && typeof model.setDataProperty === 'function') {
-        model.setDataProperty(lane.data, 'loc', locString);
-      } else {
-        lane.data.loc = locString;
-      }
-    }
-
-    const newLaneMainSize = new go.Size(laneTotalWidth, laneHeight);
-    const resizeObject = lane.resizeObject || lane.placeholder || lane;
-    if (resizeObject) {
-      resizeObject.desiredSize = newLaneMainSize;
-    }
-    if (isLaneGroup && laneMain) {
-      (laneMain as any).desiredSize = newLaneMainSize;
-      (laneMain as any).width = laneTotalWidth;
-      (laneMain as any).height = laneHeight;
-    }
-    if (isLaneGroup && laneMainShape) {
-      (laneMainShape as any).desiredSize = newLaneMainSize;
-      (laneMainShape as any).width = laneTotalWidth;
-      (laneMainShape as any).height = laneHeight;
-    }
-    if (isLaneGroup && laneBodyPanel) {
-      (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
-      (laneBodyPanel as any).width = laneBodyWidth;
-      (laneBodyPanel as any).height = laneHeight;
-    }
-    if (isLaneGroup && laneBody) {
-      (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
-      (laneBody as any).width = laneBodyWidth;
-      (laneBody as any).height = laneHeight;
-    }
-    if (!isLaneGroup && childPoolShape) {
-      (childPoolShape as any).desiredSize = newLaneMainSize;
-      (childPoolShape as any).width = laneTotalWidth;
-      (childPoolShape as any).height = laneHeight;
-      nestedPoolsToRelayout.push(lane);
-    }
-    try {
-      lane.desiredSize = newLaneMainSize;
-    } catch (err) {
-      // ignore if lane does not support desiredSize assignment
-    }
-    if (lane.data) {
-      const sizeString = `${laneBodyWidth} ${laneHeight}`;
-      if (model && typeof model.setDataProperty === 'function') {
-        model.setDataProperty(lane.data, 'size', sizeString);
-      } else {
-        lane.data.size = sizeString;
-      }
-    }
-    updateGroupObjectView(lane, laneLocationPoint, new go.Size(laneBodyWidth, laneHeight));
-
-    lane.ensureBounds();
-  });
-
-  if (poolResizeObject instanceof go.GraphObject) {
-    const desiredHeight = Math.max(totalHeight, 80);
-    const newPoolSize = new go.Size(poolWidth, desiredHeight);
-    poolResizeObject.desiredSize = newPoolSize;
-    try {
-      poolGroup.desiredSize = newPoolSize;
-    } catch (err) {
-      // ignore if pool group does not allow desiredSize assignment
-    }
-    if (poolGroup.data) {
-      const sizeString = `${poolWidth} ${desiredHeight}`;
-      if (model && typeof model.setDataProperty === 'function') {
-        model.setDataProperty(poolGroup.data, 'size', sizeString);
-      } else {
-        poolGroup.data.size = sizeString;
-      }
-    }
-    updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, newPoolSize);
-  } else {
-    const fallbackPoolSize = new go.Size(poolWidth, totalHeight);
-    try {
-      poolGroup.desiredSize = fallbackPoolSize;
-    } catch (err) {
-      // ignore if pool group does not allow desiredSize assignment
-    }
-    if (poolGroup.data) {
-      const sizeString = `${fallbackPoolSize.width} ${fallbackPoolSize.height}`;
-      if (model && typeof model.setDataProperty === 'function') {
-        model.setDataProperty(poolGroup.data, 'size', sizeString);
-      } else {
-        poolGroup.data.size = sizeString;
-      }
-    }
-    updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, fallbackPoolSize);
-  }
-
-  poolGroup.ensureBounds();
-  nestedPoolsToRelayout.forEach((nestedPool) => {
-    if (nestedPool !== poolGroup) {
-      relayoutPoolGroupAfterLaneChanges(diagram, nestedPool, laneSpacing);
-    }
-  });
-};
-
-e.subject.each(function (n) {
-  const partData = n?.data;
-  if (!partData) {
-    return;
-  }
-  if (n instanceof go.Link) {
-    droppedRelLinks.push(partData);
-    return;
-  }
-  if (!shouldZoomToFitAfterDrop && isPoolLike(partData)) {
-    shouldZoomToFitAfterDrop = true;
-  }
-  if (isLaneLike(partData)) {
-    lanesDroppedIntoPool = true;
-    registerPoolFromPart(n);
-  }
-  const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
-  const diagramNode = n instanceof go.Node ? n : node instanceof go.Node ? node : null;
-  if (isLaneLike(partData) && diagramNode instanceof go.Group) {
-    const targetLane = diagramNode.containingGroup instanceof go.Group && isLaneLike(diagramNode.containingGroup.data)
-      ? diagramNode.containingGroup
-      : null;
-    const targetPool = targetLane?.containingGroup instanceof go.Group && isPoolLike(targetLane.containingGroup.data)
-      ? targetLane.containingGroup
-      : (diagramNode.containingGroup instanceof go.Group && isPoolLike(diagramNode.containingGroup.data)
-        ? diagramNode.containingGroup
-        : null);
-    if (targetPool instanceof go.Group) {
-      const memberSet = new go.Set<go.Part>();
-      memberSet.add(diagramNode);
-      try {
-        targetPool.addMembers(memberSet, true);
-      } catch (_) {
-      }
-      if (diagramNode.data) {
-        try {
-          myDiagram.model.setGroupKeyForNodeData(diagramNode.data, String(targetPool.key));
-        } catch (_) {
-          try { myDiagram.model.setDataProperty(diagramNode.data, 'group', String(targetPool.key)); } catch (_) { }
-        }
-      }
-      affectedPoolKeys.add(String(targetPool.key));
-      lanesDroppedIntoPool = true;
-    }
-  }
-  const gjsNode = node?.data || partData;
-  let type: akm.cxObjectType = partData.objecttype;
-  let typeview: akm.cxObjectTypeView = partData.typeview;
-  let objview: akm.cxObjectView;
-  let objId: string;
-  let object: akm.cxObject;
-  let objName: string;
-  let objDescr: string;
-  if (!type || !typeview) { // An object has been dropped (dragged from object palette)
-    const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
-    if (resolvedType) {
-      type = resolvedType;
-    }
-    if (!type) {
-      return;
-    }
-    typeview = type.typeview || typeview || partData.typeview;
-    if (!typeview && typeof (type as any)?.getDefaultTypeView === 'function') {
-      typeview = (type as any).getDefaultTypeView();
-    }
-    if (!typeview) {
-      return;
-    }
-    objId = partData.objRef;
-    object = myMetis.findObject(objId);
-    if (object) {
-      myModel.addObject(object);
-      const key = partData.key;
-      objview = new akm.cxObjectView(key, partData.name, object, object.description, myModelview);
-      const isContainer = Boolean(
-        partData.viewkind === constants.viewkinds.CONT ||
-        type?.viewkind === constants.viewkinds.CONT ||
-        (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
-      );
-      objview.isGroup = isContainer;
-      objview.viewkind = isContainer ? constants.viewkinds.CONT : constants.viewkinds.OBJ;
-      const templateName = isContainer
-        ? resolvePersistentGroupTemplate(partData)
-        : (partData.template || partData.category || constants.gojs.C_NODETEMPLATE);
-      const typeName = type?.name || objview?.object?.type?.name;
-      partData.isGroup = isContainer;
-      if (isContainer) {
-        partData.viewkind = constants.viewkinds.CONT;
-      } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
-        partData.viewkind = constants.viewkinds.OBJ;
-      }
-      if (diagramNode) {
-        diagramNode.isGroup = isContainer;
-        if (diagramNode.data) {
-          diagramNode.data.isGroup = isContainer;
-        }
-      }
-      if (isContainer) {
-        objview.template = templateName;
-        partData.template = templateName;
-        if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
-          myDiagram.model.setCategoryForNodeData(partData, templateName);
-        } else {
-          partData.category = templateName;
-        }
-        if (diagramNode?.data) {
-          diagramNode.data.template = templateName;
-          diagramNode.data.category = templateName;
-        }
-        ensureInitialGroupSize(
-          myDiagram,
-          diagramNode,
-          partData,
-          getSizeOptionsForType(typeName)
-        );
-      } else {
-        if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
-          myDiagram.model.setCategoryForNodeData(
-            partData,
-            templateName || constants.gojs.C_NODETEMPLATE
-          );
-        } else if (templateName) {
-          partData.category = templateName;
-        }
-        if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
-          diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
-        }
-      }
-      objview.size = isContainer
-        ? getPersistedGroupSize(diagramNode || partData)
-        : partData.size;
-      objview = uic.setObjviewColors(partData, object, objview, typeview, myDiagram);
-      object.addObjectView(objview);
-      myModelview.addObjectView(objview);
-      myModelview.setFocusObjectview(objview);
-      myMetis.addObjectView(objview);
-      let goNode = myGoModel.findNode(key);
-      if (!goNode) {
-        goNode = new gjs.goObjectNode(key, myGoModel, objview);
-        goNode.loadNodeContent(myGoModel);
-        myGoModel.addNode(goNode);
-      }
-      if (isContainer) {
-        applyGroupTemplateToDiagram(diagramNode, templateName);
-      } else {
-        clearGroupTemplateFromDiagram(diagramNode);
-      }
-      // Dispatch modelview
-      const modifiedModelviews = new Array();
-      const jsnModelview = new jsn.jsnModelView(myModelview);
-      modifiedModelviews.push(jsnModelview);
-      modifiedModelviews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
-      });
-    }
-    if (objview && object) {
-      const objvIdName = { id: objview.id, name: objview.name };
-      const objIdName = { id: object.id, name: object.name };
-      myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
-      myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
-    }
-  } else { // An object type has been dropped - create an object
-    // i.e. new object, new objectview, 
-    objName = node?.data?.object?.name
-      || partData.object?.name
-      || partData.name
-      || type?.name;
-    if (!objName || objName?.trim().length === 0) {
-      objName = type?.name || 'Object';
-    }
-    objDescr = node?.data?.object?.description
-      || partData.object?.description
-      || partData.description
-      || type?.description
-      || '';
-    type = myMetis.findObjectType(type?.id);
-    typeview = type?.typeview || typeview || partData.typeview;
-    if (type.name === 'Datatype' && objName === 'Datatype') {
-      let found = true;
-      while (found) {
-        objName = 'datatype' + Math.floor(Math.random() * 100);
-        found = myMetis.findDatatype(objName);
-      }
-      if (!found)
-        objName = prompt("Enter Datatype name;", objName);
-      partData.name = objName;
-    }
-    // Create a new object
-    objId = utils.createGuid();
-    object = new akm.cxObject(objId, objName, type, objDescr);
-    object.parentModelRef = myModel.id;
-    myModel.addObject(object);
-    myMetis.addObject(object);
-    console.log('1241 node, data', node, partData);
-    // Find the objectview
-    objview = myModelview.findObjectView(partData.key);
-    if (!objview) {
-      objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
-      const isContainer = Boolean(
-        partData.viewkind === constants.viewkinds.CONT ||
-        type?.viewkind === constants.viewkinds.CONT ||
-        (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
-      );
-      objview.isGroup = isContainer;
-      const typeName = type?.name || objview?.object?.type?.name;
-      const templateName = isContainer
-        ? resolvePersistentGroupTemplate(partData)
-        : (partData.template || partData.category || constants.gojs.C_NODETEMPLATE);
-      partData.isGroup = isContainer;
-      if (isContainer) {
-        partData.viewkind = constants.viewkinds.CONT;
-      } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
-        partData.viewkind = constants.viewkinds.OBJ;
-      }
-      if (diagramNode) {
-        diagramNode.isGroup = isContainer;
-        if (diagramNode.data) {
-          diagramNode.data.isGroup = isContainer;
-        }
-      }
-      if (isContainer) {
-        objview.template = templateName;
-        partData.template = templateName;
-        if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
-          myDiagram.model.setCategoryForNodeData(partData, templateName);
-        } else {
-          partData.category = templateName;
-        }
-        if (diagramNode?.data) {
-          diagramNode.data.template = templateName;
-          diagramNode.data.category = templateName;
-        }
-        ensureInitialGroupSize(
-          myDiagram,
-          diagramNode,
-          partData,
-          getSizeOptionsForType(typeName)
-        );
-      } else {
-        if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
-          myDiagram.model.setCategoryForNodeData(
-            partData,
-            templateName || constants.gojs.C_NODETEMPLATE
-          );
-        } else if (templateName) {
-          partData.category = templateName;
-        }
-        if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
-          diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
-        }
-      }
-      objview.objectRef = object.id;
-      objview.groupLayout = partData.groupLayout;
-      object.addObjectView(objview);
-      myModelview.addObjectView(objview);
-      myMetis.addObjectView(objview);
-      if (isContainer) {
-        applyGroupTemplateToDiagram(diagramNode, templateName);
-      } else {
-        clearGroupTemplateFromDiagram(diagramNode);
-      }
-    }
-    myModelview.setFocusObjectview(objview);
-  }
-  const syncDroppedPartRefs = (data: any) => {
-    if (!data || !object || !objview) return;
-    const persistentTemplate = objview.isGroup ? resolvePersistentGroupTemplate(objview.template ? objview : data) : '';
-    const setProp = (prop: string, value: any) => {
-      try {
-        myDiagram?.model?.setDataProperty?.(data, prop, value);
-      } catch (_) {
-        try { data[prop] = value; } catch (_) { /* ignore */ }
-      }
-    };
-    setProp('object', object);
-    setProp('objectview', objview);
-    setProp('objRef', object.id);
-    setProp('objviewRef', objview.id);
-    setProp('objecttype', type);
-    setProp('typeview', typeview);
-    if (persistentTemplate) {
-      setProp('template', persistentTemplate);
-      setProp('category', persistentTemplate);
-    }
-    if (data.category === constants.gojs.C_OBJECTTYPE) {
-      setProp('category', data.template || constants.gojs.C_NODETEMPLATE);
-    }
-  };
-
-  syncDroppedPartRefs(partData);
-  if (diagramNode?.data && diagramNode.data !== partData) {
-    syncDroppedPartRefs(diagramNode.data);
-  }
-  let fillcolor = "";
-  let strokecolor = "";
-  let textcolor = "";
-  let part = partData;
-  const templateName = String(part.template || "");
-  const isContainerLike =
-    part.isGroup === true ||
-    part.viewkind === constants.viewkinds.CONT ||
-    type?.viewkind === constants.viewkinds.CONT ||
-    templateName.startsWith("group");
-  if (isContainerLike) {
-    part.isGroup = true;
-    part.viewkind = constants.viewkinds.CONT;
-    part.template = resolvePersistentGroupTemplate(part);
-    part.isExpanded = true;
-    part.isSubGraphExpanded = true;
-    part.scale = Number(part.scale) || Number(part.scale1) || Number(part.objectview?.scale) || 1;
-    if ((!part.name || String(part.name).trim() === "") && (part.typename || type?.name)) {
-      part.name = String(part.typename || type?.name);
-    }
-  }
-  if (!isContainerLike) {
-    part.scale = Number(n.scale);
-  }
-  if (part.size === "" || !part.size) {
-    if (part.isGroup) {
-      part.size = "200 100";
-    } else {
-      part.size = "160 70";
-    }
-  }
-
-  if (object) {
-    fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
-    strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
-    textcolor = object.textcolor ? object.textcolor : part.textcolor;
-  }
-  if (!object) {
-    object = new akm.cxObject(objId, objName, type, objDescr);
-    uic.copyProperties(object, part);
-    object.setModified();
-    myModel.addObject(object);
-    myMetis.addObject(object);
-  }
-  if (!objview || !(objview instanceof akm.cxObjectView)) {
-    objview = new akm.cxObjectView(part.key, part.name, object, part.description, myModelview);
-    const isContainer = Boolean(
-      part.viewkind === constants.viewkinds.CONT ||
-      type?.viewkind === constants.viewkinds.CONT ||
-      (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
-    );
-    objview.isGroup = isContainer;
-    objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
-    objview.loc = part.loc;
-    objview.viewkind = isContainer ? constants.viewkinds.CONT : type.viewkind;
-    objview.scale = Number(part.scale);
-    objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
-    objview.setModified();
-    myModelview.addObjectView(objview);
-    myMetis.addObjectView(objview);
-  } else {
-    objview.loc = part.loc;
-    objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
-  }
-  if (part.isGroup) {
-    objview.isGroup = true;
-    objview.viewkind = constants.viewkinds.CONT;
-    objview.template = resolvePersistentGroupTemplate(part);
-    objview.isExpanded = true;
-    objview.scale = Number(part.scale) || Number(part.scale1) || Number(objview.scale) || 1;
-  }
-  let goNode = myGoModel.findNodeByViewId(objview.id);
-  if (!goNode) {
-    goNode = new gjs.goObjectNode(objview.id, myGoModel, objview);
-    goNode.loadNodeContent(myGoModel);
-    // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
-    myGoModel.addNode(goNode);
-    // myDiagram.model.addNodeData(goNode);
-  }
-  // Check if goNode is member of a group. Prefer the actual GoJS membership/data
-  // resolved during the drop before falling back to geometry.
-  const containingGroupKey =
-    node?.containingGroup instanceof go.Group && node.containingGroup.key !== undefined && node.containingGroup.key !== null
-      ? node.containingGroup.key
-      : (part?.group || part?.data?.group || "");
-  let group = containingGroupKey
-    ? myGoModel.findNode(containingGroupKey)
-    : null;
-  if (!group) {
-    group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
-  }
-  if (group) {
-    const parentgroup = group;
-    goNode.group = parentgroup.key;
-    goNode.objectview.group = parentgroup.objviewRef;
-    myDiagram.model.setDataProperty(part, "group", goNode.group);
-    let nextScale = 1.0;
-    if (isGroupLikeNode(goNode, part)) {
-      const parentPart = myDiagram.findNodeForKey(parentgroup.key) as go.Group | null;
-      resizeGroupToHalfParent(myDiagram, part, node, parentPart);
-      nextScale = applyDerivedScaleToPart(myDiagram, node, parentPart, goNode.objectview, goNode);
-    } else {
-      nextScale = applyDerivedScaleToPart(myDiagram, node, myDiagram.findNodeForKey(parentgroup.key) as go.Group | null, goNode.objectview, goNode);
-    }
-    part.scale = Number(nextScale);
-    gjsNode.scale = part.scale
-    goNode.objectview.scale = part.scale;
-    // Check if the node has a relationship (contains) FROM a group, if not create it
-    const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-    const parenttype = parentgroup.objecttype;
-    const parentObj = parentgroup.object;
-    const childtype = type;
-    const childObj = object;
-    const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
-    if (!myHasPartRelship && parentObj && childObj) {
-      // Create the relationship
-      const relId = utils.createGuid();
-      const relName = constants.types.AKM_CONTAINS;
-      const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
-      hasPartRelship.parentModelRef = myModel.id;
-      myModel.addRelationship(hasPartRelship);
-      parentObj.addOutputrel(hasPartRelship);
-      childObj.addInputrel(hasPartRelship);
-      myMetis.addRelationship(hasPartRelship);
-      // Prepare dispatch
-      const jsnRel = new jsn.jsnRelationship(hasPartRelship);
-      modifiedRelships.push(jsnRel);
-    }
-  }
-  // if (goNode) {
-  //   goNode.object = null;
-  //   goNode.objecttype = null;
-  //   goNode.objectview = null;
-  // }
-  const isLabel = (part.typename === 'Label');
-  if (isLabel) {
-    part.text = "Label";
-  }
-  // Prepare dispatch
-  if (part.type === 'objecttype') {
-    const otype = uic.createObjectType(part, context);
-    if (otype) {
-      otype.typename = constants.types.OBJECTTYPE_NAME;
-      const jsnObjtype = new jsn.jsnObjectType(otype, true);
-      modifiedObjectTypes.push(jsnObjtype);
-
-      const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
-      modifiedObjectTypeViews.push(jsnObjtypeView);
-
-      const loc = part.loc;
-      const size = part.size;
-      const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
-      const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
-      modifiedObjectTypeGeos.push(jsnObjtypeGeo);
-    }
-  } else // object
-  {
-    modifiedObjectViews.push({
-      id: objview?.id,
-      loc: objview?.loc,
-      size: objview?.size,
-      scale: objview?.scale,
-      group: objview?.group,
-      isExpanded: objview?.isExpanded,
-    });
-    const jsnObj = new jsn.jsnObject(object);
-    modifiedObjects.push(jsnObj);
-    const objvIdName = { id: objview.id, name: objview.name };
-    const objIdName = { id: objview.object.id, name: objview.object.name };
-    myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
-    myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
-  }
-  node?.updateTargetBindings();
-  if (part.isGroup) {
-    const droppedPart = (myDiagram.findPartForKey(part.key) || n) as go.Part;
-    const droppedGroup = droppedPart instanceof go.Group ? droppedPart : null;
-    if (droppedGroup) {
-      droppedGroup.isSubGraphExpanded = true;
-    }
-    const d = droppedPart?.data || n?.data;
-    if (d) {
-      const persistedScale = Number(objview?.scale ?? part.scale ?? d.scale ?? 1);
-      myDiagram.model.setDataProperty(d, "isExpanded", true);
-      myDiagram.model.setDataProperty(d, "isSubGraphExpanded", true);
-      myDiagram.model.setDataProperty(d, "scale", persistedScale);
-      myDiagram.model.setDataProperty(d, "scale1", persistedScale);
-    }
-  }
-})
-
-droppedRelLinks.forEach((linkData: any) => {
-  const fromKey = linkData?.from || linkData?.fromNode?.key;
-  const toKey = linkData?.to || linkData?.toNode?.key;
-  if (!fromKey || !toKey) {
-    return;
-  }
-
-  const fromObjview = myModelview?.findObjectView(fromKey);
-  const toObjview = myModelview?.findObjectView(toKey);
-  const fromObject = fromObjview?.object;
-  const toObject = toObjview?.object;
-  if (!fromObjview || !toObjview || !fromObject || !toObject) {
-    return;
-  }
-
-  const fromType = fromObject.type || (fromObject.typeRef ? myMetamodel?.findObjectType(fromObject.typeRef) : null);
-  const toType = toObject.type || (toObject.typeRef ? myMetamodel?.findObjectType(toObject.typeRef) : null);
-  if (!fromType || !toType) {
-    return;
-  }
-
-  let reltype = linkData?.reltype || linkData?.relshiptype;
-  if (!reltype && linkData?.reltypeRef) {
-    reltype = myMetamodel?.findRelationshipType(linkData.reltypeRef) || myMetis.findRelationshipType(linkData.reltypeRef);
-  }
-  const relName = (reltype && reltype.name) || linkData?.name;
-  if (!reltype && relName) {
-    reltype = myMetamodel?.findRelationshipTypeByName2(relName, fromType, toType)
-      || myMetis.findRelationshipTypeByName2(relName, fromType, toType);
-  }
-  if (!reltype) {
-    return;
-  }
-
-  const relContext = {
-    ...context,
-    gjsData: linkData,
-  };
-
-  const args = {
-    data: linkData,
-    metamodel: myMetamodel,
-    typename: reltype.name,
-    fromType,
-    toType,
-    nodeFrom: null,
-    nodeTo: null,
-    fromPort: linkData?.fromPort || linkData?.portFrom,
-    toPort: linkData?.toPort || linkData?.portTo,
-    context: relContext,
-  };
-
-  uic.createRelshipCallback(args);
-});
-
-// Dispatch modelview
-const modifiedModelviews = new Array();
-const jsnModelview = new jsn.jsnModelView(myModelview);
-modifiedModelviews.push(jsnModelview);
-modifiedModelviews.map(mn => {
-  let data = mn;
-  data = JSON.parse(JSON.stringify(data));
-  myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
-});
-if (myDiagram) {
-  const toolManager = myDiagram.toolManager;
-  const activeTool = toolManager.currentTool;
-  if (activeTool && activeTool.isActive) {
-    if (activeTool instanceof go.DraggingTool) {
-      activeTool.stopTool();
-    } else if (typeof activeTool.doCancel === 'function') {
-      activeTool.doCancel();
-    }
-  }
-  const dropDragTool = toolManager.draggingTool;
-  if (dropDragTool && dropDragTool.isActive) {
-    dropDragTool.stopTool();
-  }
-  const dropDraggedParts = dropDragTool?.draggedParts;
-  if (dropDraggedParts?.count > 0) {
-    dropDraggedParts.clear();
-  }
-  const dropCopiedParts = dropDragTool?.copiedParts;
-  if (dropCopiedParts?.count > 0) {
-    dropCopiedParts.clear();
-  }
-}
-if (lanesDroppedIntoPool && myDiagram && affectedPoolKeys.size > 0) {
-  const shouldStart = !myDiagram.isInTransaction;
-  if (shouldStart) {
-    myDiagram.startTransaction('relayout-pools-after-lane-drop');
-  }
-  try {
-    affectedPoolKeys.forEach((poolKey) => {
-      const poolPart = myDiagram.findNodeForKey(poolKey);
-      if (poolPart instanceof go.Group) {
-        if (poolPart.layout) {
-          if (typeof poolPart.layout.invalidateLayout === 'function') {
-            poolPart.layout.invalidateLayout();
-          } else {
-            poolPart.layout.isValidLayout = false;
-          }
-        }
-        relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
-      }
-    });
-  } finally {
-    if (shouldStart && myDiagram.isInTransaction) {
-      myDiagram.commitTransaction('relayout-pools-after-lane-drop');
-    }
-  }
-  try {
-    myDiagram.layoutDiagram(true);
-  } catch (_) {
-    try { myDiagram.requestUpdate(); } catch (_) { }
-  }
-}
-if (shouldZoomToFitAfterDrop && myDiagram) {
-  myDiagram.commandHandler.zoomToFit();
-}
-break;
-      }
-      case "ObjectDoubleClicked": {
-  const clickedPortObject = resolveClickedPortGraphObject(e.subject);
-  if (clickedPortObject) {
-    break;
-  }
-  const suppressUntil = Number((myDiagram as any)?._suppressObjectDoubleClickUntil || 0);
-  if (suppressUntil > Date.now()) {
-    try { (myDiagram as any)._suppressObjectDoubleClickUntil = 0; } catch (_) { }
-    break;
-  }
-  let sel = e.subject.part;
-  const node = sel.data;
-  if (debug) console.log('981 node', node);
-  const category = node.category;
-  switch (category) {
-    case constants.gojs.C_OBJECTTYPE:
-      uid.editObjectType(node, myMetis, myDiagram);
-      break;
-    case constants.gojs.C_OBJECT:
-      if (debug) console.log('988 myMetis', myMetis);
-      uid.editObject(node, myMetis, myDiagram);
-      if (debug) console.log('990 myMetis', myMetis);
-      break;
-  }
-  break;
-}
-      case "ObjectSingleClicked": {
-  const suppressUntil = Number((myDiagram as any)?.__spacePanSuppressClickUntil || 0);
-  const suppressObjectSingleClickUntil = Number((myDiagram as any)?.__suppressObjectSingleClickUntil || 0);
-  const activeTool = myDiagram?.currentTool;
-  const suppressObjectSingleClick =
-    suppressUntil > Date.now() ||
-    suppressObjectSingleClickUntil > Date.now() ||
-    (activeTool instanceof go.DraggingTool && activeTool.isActive === true);
-  if (suppressObjectSingleClick) {
-    break;
-  }
-  const clickedPortObject = resolveClickedPortGraphObject(e.subject);
-  if (clickedPortObject) {
-    break;
-  }
-  const sel = e.subject.part;
-  let data = sel.data;
-  // sel.location = data.loc;
-  if (debug) console.log('1313 selected', data, sel);
-  if (data?.category === constants.gojs.C_RELATIONSHIP) {
-    const relview =
-      myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
-      myMetis.findRelationshipView(data?.relviewRef || data?.key) ||
-      data?.relshipview;
-    const relship =
-      myModel.findRelationship(data?.relshipRef) ||
-      myMetis.findRelationship(data?.relshipRef) ||
-      relview?.relship;
-    const reltype =
-      relship?.type ||
-      myMetamodel?.findRelationshipType(relship?.typeRef) ||
-      myMetis.findRelationshipType(data?.reltypeRef);
-    if (relview) {
-      context.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data: { id: relview.id, name: relview.name || '' } });
-    }
-    if (relship) {
-      context.dispatch({ type: 'SET_FOCUS_RELSHIP', data: { id: relship.id, name: relship.name || '' } });
-    }
-    if (reltype) {
-      context.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data: { id: reltype.id, name: reltype.name || '' } });
-    }
-    break;
-  }
-  let objectview = myModelview.findObjectView(data?.key);
-  if (!objectview) objectview = myModelview.findObjectView(data?.fromNode?.key);
-  const object = objectview?.object;
-  for (let it = myDiagram.nodes; it?.next();) {
-    const n = it.value;
-    const data = n.data;
-    if (data.isSelected) {
-      if (debug) console.log('1319 goNode', data);
-    }
-  }
-  {
-    const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
-    if (debug) console.log('1319 myGoModel, goNode', myGoModel, goNode);
-  }
-  if (objectview && object) {
-    const objvIdName = { id: objectview.id, name: objectview.name };
-    const objIdName = { id: object.id, name: object.name };
-    const objtype = object?.type || myMetamodel?.findObjectType(object?.typeRef);
-    const objtypeIdName = objtype ? { id: objtype.id, name: objtype.name } : { id: '', name: '' };
-
-    if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
-    context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
-    context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
-    context.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data: objtypeIdName });
-  }
-  for (let it = sel.memberParts; it?.next();) {
-    let n = it.value;
-    if (n instanceof go.Link) continue;
-    if (debug) console.log('1079 n', n.data);
-  }
-  break;
-}
-      case "ObjectContextClicked": { // right clicked
-  const sel = e.subject.part;
-  const data = sel.data;
-  // dispatch to focusCollection here ???
-  if (debug) console.log('1316 selected', data, sel);
-  break;
-}
-      case "PartResized": {
-  const affectedPoolKeys = new Set<string>();
-  const resizedPoolKeys = new Set<string>();
-  const resizedParts = new go.Set<go.Part>();
-  const subjectPart = (e.subject as any)?.part || e.subject;
-  if (subjectPart instanceof go.Part) {
-    resizedParts.add(subjectPart);
-  }
-  const selection = e.diagram.selection;
-  for (let it = selection.iterator; it?.next();) {
-    const p = it.value;
-    if (p instanceof go.Part) resizedParts.add(p);
-  }
-  for (let it = resizedParts.iterator; it?.next();) {
-    let n = it.value;
-    if (n.data.isGroup) {
-      let objview: akm.cxObjectView;
-      objview = myModelview.findObjectView(n.data.key);
-      if (!objview)
-        continue;
-      const category = n.data?.category || n.data?.template;
-      if (category === 'Lane' || category === 'Lane_w_handles') {
-        const laneMain = n.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
-        const laneHeader = n.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
-        const laneBody = n.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
-        if (laneBody || laneMain) {
-          const headerWidth = laneHeader ? laneHeader.actualBounds.width : 36;
-          const resizedMain = n.resizeObjectName === "LANE_MAIN";
-          const sourceWidth = resizedMain
-            ? Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth)
-            : (laneBody ? laneBody.actualBounds.width : Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth));
-          const sourceHeight = resizedMain
-            ? (laneMain?.actualBounds.height || 0)
-            : (laneBody ? laneBody.actualBounds.height : (laneMain?.actualBounds.height || 0));
-          const nextBodyWidth = Math.max(20, sourceWidth);
-          const nextBodyHeight = Math.max(20, sourceHeight);
-          if (laneBody) {
-            (laneBody as any).width = nextBodyWidth;
-            (laneBody as any).height = nextBodyHeight;
-          }
-          const bodySize = `${nextBodyWidth} ${nextBodyHeight}`;
-          myDiagram.model.setDataProperty(n.data, "size", bodySize);
-        }
-      } else if (category === 'Pool') {
-        const poolShape = n.findObject("POOL_SHAPE") as go.GraphObject | null;
-        const resizedWidth =
-          (typeof poolShape?.actualBounds?.width === 'number' && Number.isFinite(poolShape.actualBounds.width) && poolShape.actualBounds.width > 0)
-            ? poolShape.actualBounds.width
-            : (typeof n.actualBounds?.width === 'number' && Number.isFinite(n.actualBounds.width) ? n.actualBounds.width : 0);
-        const resizedHeight =
-          (typeof poolShape?.actualBounds?.height === 'number' && Number.isFinite(poolShape.actualBounds.height) && poolShape.actualBounds.height > 0)
-            ? poolShape.actualBounds.height
-            : (typeof n.actualBounds?.height === 'number' && Number.isFinite(n.actualBounds.height) ? n.actualBounds.height : 0);
-        if (resizedWidth > 0 && resizedHeight > 0) {
-          myDiagram.model.setDataProperty(n.data, "size", `${resizedWidth} ${resizedHeight}`);
-          const forcedPoolSizes = (myDiagram as any).__forcedPoolLayoutSizes || {};
-          forcedPoolSizes[String(n.data.key)] = { width: resizedWidth, height: resizedHeight };
-          (myDiagram as any).__forcedPoolLayoutSizes = forcedPoolSizes;
-          syncPoolLaneWidthsToPool(String(n.data.key));
-        }
-      } else {
-        const resizeObject = (n.resizeObject || n.findObject?.("SHAPE") || n.findObject?.("BODY")) as go.GraphObject | null;
-        const resizedWidth =
-          (typeof resizeObject?.desiredSize?.width === 'number' && Number.isFinite(resizeObject.desiredSize.width) && resizeObject.desiredSize.width > 0)
-            ? resizeObject.desiredSize.width
-            : (typeof resizeObject?.actualBounds?.width === 'number' && Number.isFinite(resizeObject.actualBounds.width) && resizeObject.actualBounds.width > 0)
-              ? resizeObject.actualBounds.width
-              : (typeof n.actualBounds?.width === 'number' && Number.isFinite(n.actualBounds.width))
-                ? n.actualBounds.width
-            : 0;
-        const resizedHeight =
-          (typeof resizeObject?.desiredSize?.height === 'number' && Number.isFinite(resizeObject.desiredSize.height) && resizeObject.desiredSize.height > 0)
-            ? resizeObject.desiredSize.height
-            : (typeof resizeObject?.actualBounds?.height === 'number' && Number.isFinite(resizeObject.actualBounds.height) && resizeObject.actualBounds.height > 0)
-              ? resizeObject.actualBounds.height
-              : (typeof n.actualBounds?.height === 'number' && Number.isFinite(n.actualBounds.height))
-                ? n.actualBounds.height
-            : 0;
-        if (resizedWidth > 0 && resizedHeight > 0) {
-          myDiagram.model.setDataProperty(n.data, "size", `${resizedWidth} ${resizedHeight}`);
-        }
-      }
-      objview.loc = n.data.loc;
-      objview.size = n.data.size;
-      let myNode = myGoModel.findNodeByViewId(n.data.key);
-      myNode.size = objview.size;
-      myNode.key = objview.id;
-      if (category === 'Pool') {
-        affectedPoolKeys.add(n.data.key);
-        resizedPoolKeys.add(n.data.key);
-      }
-      const jsnObjview = new jsn.jsnObjectView(objview);
-      uic.addItemToList(modifiedObjectViews, jsnObjview);
-      let children = n.memberParts;
-      for (let it = children.iterator; it?.next();) {
-        let c = it.value;
-        if (c instanceof go.Node) {
-          let data = c.data;
-          const objview = data.objectview;
-          if (objview) {
-            objview.loc = data.loc;
-            objview.size = data.size;
-            const jsnObjview = new jsn.jsnObjectView(objview);
-            uic.addItemToList(modifiedObjectViews, jsnObjview);
-          }
-        }
-      }
-    }
-  }
-  if (resizedPoolKeys.size > 0) {
-    const pendingPoolKeys = new Set<string>((myDiagram as any).__pendingResizedPoolKeys || []);
-    resizedPoolKeys.forEach((key) => pendingPoolKeys.add(String(key)));
-    (myDiagram as any).__pendingResizedPoolKeys = pendingPoolKeys;
-    if ((myDiagram as any).__pendingPoolResizeRelayoutTimer) {
-      clearTimeout((myDiagram as any).__pendingPoolResizeRelayoutTimer);
-    }
-    (myDiagram as any).__pendingPoolResizeRelayoutTimer = setTimeout(() => {
-      delete (myDiagram as any).__pendingPoolResizeRelayoutTimer;
-      const pendingKeys = new Set<string>((myDiagram as any).__pendingResizedPoolKeys || []);
-      delete (myDiagram as any).__pendingResizedPoolKeys;
-      if (pendingKeys.size === 0) return;
-      (myDiagram as any).__preserveResizedPoolWidths = pendingKeys;
-      pendingKeys.forEach((poolKey) => syncPoolLaneWidthsToPool(poolKey));
-      pendingKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
-      delete (myDiagram as any).__preserveResizedPoolWidths;
-    }, 60);
-    if (affectedPoolKeys.size > resizedPoolKeys.size) {
-      const nonResizedAffectedPoolKeys = new Set<string>();
-      affectedPoolKeys.forEach((key) => {
-        if (!resizedPoolKeys.has(key)) nonResizedAffectedPoolKeys.add(key);
-      });
-      relayoutPoolsByKeys(nonResizedAffectedPoolKeys);
-    }
-  } else {
-    if (resizedPoolKeys.size > 0) {
-      (myDiagram as any).__preserveResizedPoolWidths = resizedPoolKeys;
-      resizedPoolKeys.forEach((poolKey) => syncPoolLaneWidthsToPool(poolKey));
-      resizedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
-    }
-    const nonResizedAffectedPoolKeys = new Set<string>();
-    affectedPoolKeys.forEach((key) => {
-      if (!resizedPoolKeys.has(key)) nonResizedAffectedPoolKeys.add(key);
-    });
-    relayoutPoolsByKeys(nonResizedAffectedPoolKeys);
-    if (resizedPoolKeys.size > 0) {
-      delete (myDiagram as any).__preserveResizedPoolWidths;
-    }
-  }
-  break;
-}
-      case 'ClipboardChanged': {
-  const nodes = e.subject;
-  if (debug) console.log('nodes', nodes);
-  break;
-}
-      case 'ClipboardPasted': {
-  const selection = e.subject;
-  let pasteAnotherModelview = false;
-  let pasteViewsOnly = myMetis.pasteViewsOnly;
-  let readOnly = false
-  let fromModel = myModel;
-  let toModel = myModel;
-  let fromGoModel = myMetis.gojsModel;
-  let toGoModel = myMetis.gojsModel;
-  let fromModelview = myModelview;
-  let toModelview = myModelview;
-  let copiedNodes = new Array();
-  let pastedNodes = new Array();
-  // Remember copied nodes
-  let it = selection.iterator;
-  while (it.next()) {
-    if (it.value instanceof go.Node) {
-      let objtype: akm.cxObjectType;
-      // Filter out copied (source) nodes
-      let gjsNode = it.value.data;
-      fromModelview = gjsNode.fromModelview;
-      fromGoModel = gjsNode.fromGoModel;
-      let gjsCopiedNode = gjsNode.fromNode;
-      if (!gjsCopiedNode)
-        continue;
-      let copiedNodeKey = gjsCopiedNode.key;
-      let pastedNodeKey = copiedNodeKey;
-      if (copiedNodeKey?.length == gjsNode.key.length) {
-        pasteAnotherModelview = true;
-        pastedNodeKey = utils.createGuid();
-        gjsNode.key = pastedNodeKey;
-        toModelview = myModelview;
-        toGoModel = myGoModel;
-        // toGoModel = new gjs.goModel(utils.createGuid(), toModelview.name, toModelview);
-      }
-      const myCopiedNode = new akm.cxNode();
-      myCopiedNode.name = gjsNode.name;
-      myCopiedNode.objId = gjsCopiedNode.objid;
-      myCopiedNode.object = myMetis.findObject(myCopiedNode.objId);
-      myCopiedNode.descr = myCopiedNode.object?.description;
-      myCopiedNode.objecttype = myCopiedNode.object?.type;
-      myCopiedNode.objviewId = gjsCopiedNode.objviewid;;
-      myCopiedNode.objectview = fromModelview.findObjectView(myCopiedNode.objviewId);
-      myCopiedNode.gjsKey = copiedNodeKey;
-      myCopiedNode.gjsNode = gjsCopiedNode;
-      myCopiedNode.memberscale = Number(gjsCopiedNode.memberscale);
-      myCopiedNode.loc = gjsCopiedNode.loc;
-      myCopiedNode.size = gjsCopiedNode.size;
-      myCopiedNode.group = gjsCopiedNode.group; // Group key
-      myCopiedNode.isGroup = gjsCopiedNode.isGroup;
-      myCopiedNode.goNodeId = copiedNodeKey;
-      let myCopiedGoNode: gjs.goObjectNode = fromGoModel.findNode(myCopiedNode.goNodeId);
-      myCopiedNode.goNode = myCopiedGoNode;
-      copiedNodes.push(myCopiedNode);
-
-      const myPastedNode = new akm.cxNode();
-      myPastedNode.name = myCopiedNode.name;
-      myPastedNode.objecttype = myCopiedNode.objecttype;
-      if (pasteViewsOnly)
-        myPastedNode.object = myCopiedNode.object;
-      else {
-        myPastedNode.objId = utils.createGuid();
-        myPastedNode.object = new akm.cxObject(myPastedNode.objId, myPastedNode.name, myPastedNode.objecttype, myCopiedNode.descr);
-        // Paste all object attributes
-        uic.copyProperties(myPastedNode.object, myCopiedNode.object);
-        myPastedNode.object.setModified();
-        myModel.addObject(myPastedNode.object);
-        myMetis.addObject(myPastedNode.object);
-      }
-      myPastedNode.objviewId = utils.createGuid();
-      myPastedNode.goNodeId = myPastedNode.objviewId;
-      myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
-        myPastedNode.object, myCopiedNode.descr, toModelview);
-      gjsNode.key = myPastedNode.objviewId;
-      uic.copyObjviewAttributes(myPastedNode.objectview, myCopiedNode.objectview);
-      myPastedNode.loc = gjsNode.loc;
-      myPastedNode.size = gjsNode.size;
-      myPastedNode.gjsKey = gjsNode.key;
-      const pastedLiveGroupKey =
-        typeof gjsNode?.group === "string" && gjsNode.group.length > 0
-          ? String(gjsNode.group)
-          : "";
-      const copiedGroupKey =
-        typeof myCopiedNode?.group === "string" && myCopiedNode.group.length > 0
-          ? String(myCopiedNode.group)
-          : "";
-      const copiedObjectviewGroupKey =
-        typeof myCopiedNode?.objectview?.group === "string" && myCopiedNode.objectview.group.length > 0
-          ? String(myCopiedNode.objectview.group)
-          : "";
-      myPastedNode.group = pastedLiveGroupKey || copiedGroupKey || copiedObjectviewGroupKey || "";
-      myPastedNode.isGroup = gjsNode.isGroup;
-      myPastedNode.objectview.loc = myPastedNode.loc;
-      myPastedNode.objectview.size = myPastedNode.size;
-      myPastedNode.objectview.group = myPastedNode.group;
-      myPastedNode.objectview.readOnly = readOnly;
-      myPastedNode.objecttype = myCopiedNode.objecttype;
-      try {
-        myDiagram.model.setDataProperty(gjsNode, "key", myPastedNode.objviewId);
-      } catch (_) {
-        try { gjsNode.key = myPastedNode.objviewId; } catch (_err) { }
-      }
-      try { myDiagram.model.setDataProperty(gjsNode, "objectview", myPastedNode.objectview); } catch (_) { gjsNode.objectview = myPastedNode.objectview; }
-      try { myDiagram.model.setDataProperty(gjsNode, "object", myPastedNode.object); } catch (_) { gjsNode.object = myPastedNode.object; }
-      try { myDiagram.model.setDataProperty(gjsNode, "objecttype", myPastedNode.objecttype); } catch (_) { gjsNode.objecttype = myPastedNode.objecttype; }
-      try { myDiagram.model.setDataProperty(gjsNode, "objviewRef", myPastedNode.objectview?.id); } catch (_) { gjsNode.objviewRef = myPastedNode.objectview?.id; }
-      try { myDiagram.model.setDataProperty(gjsNode, "objRef", myPastedNode.object?.id); } catch (_) { gjsNode.objRef = myPastedNode.object?.id; }
-      try { myDiagram.model.setDataProperty(gjsNode, "objtypeRef", myPastedNode.objecttype?.id); } catch (_) { gjsNode.objtypeRef = myPastedNode.objecttype?.id; }
-      try { myDiagram.model.setDataProperty(gjsNode, "group", myPastedNode.group || ""); } catch (_) { gjsNode.group = myPastedNode.group || ""; }
-      try { myDiagram.model.setDataProperty(gjsNode, "fromNode", null); } catch (_) { gjsNode.fromNode = null; }
-      try { myDiagram.model.setDataProperty(gjsNode, "fromModelview", null); } catch (_) { gjsNode.fromModelview = null; }
-      try { myDiagram.model.setDataProperty(gjsNode, "fromGoModel", null); } catch (_) { gjsNode.fromGoModel = null; }
-      const livePastedPart = it.value as go.Node;
-      if (livePastedPart?.data) {
-        livePastedPart.data.objectview = myPastedNode.objectview;
-        livePastedPart.data.object = myPastedNode.object;
-        livePastedPart.data.objecttype = myPastedNode.objecttype;
-        livePastedPart.data.objviewRef = myPastedNode.objectview?.id;
-        livePastedPart.data.objRef = myPastedNode.object?.id;
-        livePastedPart.data.objtypeRef = myPastedNode.objecttype?.id;
-        livePastedPart.data.group = myPastedNode.group || "";
-        livePastedPart.data.fromNode = null;
-        livePastedPart.data.fromModelview = null;
-        livePastedPart.data.fromGoModel = null;
-      }
-      let existingPastedGoNode = toGoModel.findNode(myPastedNode.goNodeId) || toGoModel.findNodeByViewId?.(myPastedNode.objviewId);
-      if (!existingPastedGoNode && gjsNode?.key) {
-        existingPastedGoNode = toGoModel.findNode(gjsNode.key) || toGoModel.findNodeByViewId?.(gjsNode.key);
-      }
-      if (existingPastedGoNode) {
-        existingPastedGoNode.key = myPastedNode.goNodeId;
-        existingPastedGoNode.loc = myPastedNode.loc;
-        existingPastedGoNode.size = myPastedNode.size;
-        existingPastedGoNode.group = myPastedNode.group;
-        existingPastedGoNode.objectview = myPastedNode.objectview;
-        existingPastedGoNode.object = myPastedNode.object;
-        existingPastedGoNode.objecttype = myPastedNode.objecttype;
-        existingPastedGoNode.objRef = myPastedNode.object?.id;
-        existingPastedGoNode.objviewRef = myPastedNode.objectview?.id;
-        existingPastedGoNode.objtypeRef = myPastedNode.objecttype?.id;
-        myPastedNode.goNode = existingPastedGoNode;
-      } else {
-        myPastedNode.goNode = new gjs.goObjectNode(myPastedNode.goNodeId, toGoModel, myPastedNode.objectview);
-        myPastedNode.goNode.group = myPastedNode.group;
-        toGoModel.addNode(myPastedNode.goNode);
-      }
-      toModelview.addObjectView(myPastedNode.objectview);
-      myMetis.addObjectView(myPastedNode.objectview);
-      myMetis.setGojsModel(toGoModel);
-      pastedNodes.push(myPastedNode);
-      if (debug) console.log('Checkpoint');
-    }
-  }
-  for (let i = 0; i < copiedNodes.length; i++) {
-    const cNode1 = copiedNodes[i];
-    const cGroup = myMetis.getNodeGroup(cNode1);
-    if (cGroup?.length > 0) { // group key
-      const pNode = myMetis.getNodeByGroup(pastedNodes, cGroup);
-      if (pNode) {
-        pNode.group = "";
-        // Find pnode
-        let childNodeView = toModelview.findObjectViewByName(pNode.name);
-        childNodeView.group = pNode.objviewId;
-      }
-    }
-  }
-
-  // Now handle the relationships
-  let it2 = selection.iterator;
-  while (it2.next()) {
-    let n = it2.value;
-    if (n instanceof go.Node)
-      continue;
-
-    if (it2.value instanceof go.Link) {
-      let gjsLink = it2.value.data; // The copied (source) link (i.e. the relationship)
-      if (!gjsLink.fromLink)
-        continue;
-
-      const copiedRelviewid = gjsLink.fromLink.key;
-      const copiedRelview = myMetis.findRelationshipView(copiedRelviewid);
-
-      let copiedRelship = copiedRelview?.relship;
-      const copiedFromObject = copiedRelship.fromObject;
-      const copiedToObject = copiedRelship.toObject;
-
-      let pastedFromObject = null;
-      let pastedFromObjview = null;
-      for (let i = 0; i < pastedNodes.length; i++) {
-        const node = pastedNodes[i];
-        const objtype = node.objecttype;
-        const objname = node.name;
-        if (objtype && copiedFromObject.name === objname) {
-          if (copiedFromObject.type.id === objtype.id) {
-            pastedFromObject = node.object;
-            pastedFromObjview = node.objectview;
-          }
-        }
-      }
-      let pastedToObject = null;
-      let pastedToObjview = null;
-      for (let i = 0; i < pastedNodes.length; i++) {
-        const node = pastedNodes[i];
-        const objtype = node.objecttype;
-        const objname = node.name;
-        if (objtype && copiedToObject.name === objname) {
-          if (copiedToObject.type.id === objtype.id) {
-            pastedToObject = node.object;
-            pastedToObjview = node.objectview;
-          }
-        }
-      }
-
-      let pastedRelship = new akm.cxRelationship(utils.createGuid(), copiedRelship.type, pastedFromObject, pastedToObject, copiedRelship.name, copiedRelship.description);
-
-      const relviewId = utils.createGuid();
-      gjsLink.key = relviewId;
-      let pastedRelview = new akm.cxRelationshipView(relviewId, copiedRelview.name, pastedRelship, copiedRelview.description);
-      pastedRelview.fromObjview = pastedFromObjview;
-      pastedRelview.toObjview = pastedToObjview;
-      const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
-      uic.copyRelviewAttributes(pastedRelview, copiedRelview);
-
-      // Handle points
-      const points = [];
-      for (let it = gjsLink.points.iterator; it?.next();) {
-        const point = it.value;
-        points.push(point.x)
-        points.push(point.y)
-      }
-      pastedRelview.points = points;
-
-      toGoModel.addLink(pastedLink);
-      toModelview.addRelationshipView(pastedRelview);
-      myMetis.addRelationshipView(pastedRelview);
-      const jsnRelship = new jsn.jsnRelationship(pastedRelship);
-      uic.addItemToList(modifiedRelships, jsnRelship);
-      const jsnRelview = new jsn.jsnRelshipView(pastedRelview);
-      uic.addItemToList(modifiedRelshipViews, jsnRelview);
-
-    }
-  }
-
-  // Finally handle groups for the pasted nodes only.
-  for (let i = 0; i < pastedNodes.length; i++) {
-    const pastedNode = pastedNodes[i];
-    const myGoNode = pastedNode?.goNode || toGoModel.findNode(pastedNode?.goNodeId) || toGoModel.findNodeByViewId?.(pastedNode?.objviewId);
-    if (!myGoNode) continue;
-    const myObjectview: akm.cxObjectView = myGoNode.objectview;
-    const liveNodePart = myDiagram.findNodeForKey(myGoNode.key) as go.Node | null;
-    const liveContainingGroupKey =
-      liveNodePart?.containingGroup instanceof go.Group && liveNodePart.containingGroup.key !== undefined && liveNodePart.containingGroup.key !== null
-        ? String(liveNodePart.containingGroup.key)
-        : "";
-    const liveDataGroupKey =
-      typeof liveNodePart?.data?.group === "string" && liveNodePart.data.group.length > 0
-        ? String(liveNodePart.data.group)
-        : "";
-    const persistedGroupKey =
-      typeof myObjectview?.group === "string" && myObjectview.group.length > 0
-        ? String(myObjectview.group)
-        : "";
-    // Check if the node (myGoNode) is member of a group
-    const goParentGroup =
-      (liveContainingGroupKey ? myGoModel.findNode(liveContainingGroupKey) : null) ||
-      (liveDataGroupKey ? myGoModel.findNode(liveDataGroupKey) : null) ||
-      (persistedGroupKey ? myGoModel.findNode(persistedGroupKey) : null) ||
-      uic.getGroupByLocation(myGoModel, myGoNode.loc, myGoNode.size, myGoNode);
-    let parentObjview = goParentGroup?.objectview; // The container objectview
-    if (!parentObjview) {
-      parentObjview = myModelview.findObjectView(goParentGroup?.objviewRef);
-    }
-    if (goParentGroup && parentObjview) { // the container (group)
-      myGoNode.group = goParentGroup.key; // Make the node a member of the group (container)
-      pastedNode.group = goParentGroup.key;
-      parentObjview.isExpanded = true;
-      myObjectview.group = goParentGroup.key;
-      const liveGroupPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
-      if (liveNodePart instanceof go.Node && liveGroupPart instanceof go.Group) {
-        attachPartToGroup(myDiagram, liveNodePart, liveGroupPart, liveNodePart.data);
-      } else if (liveNodePart?.data) {
-        try {
-          if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
-            (myDiagram.model as any).setGroupKeyForNodeData(liveNodePart.data, goParentGroup.key);
-          } else {
-            myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key);
-          }
-        } catch (_) {
-          try { liveNodePart.data.group = goParentGroup.key; } catch (_err) { }
-        }
-      }
-      let scale = 1.0;
-      if (isGroupLikeNode(myGoNode, myObjectview)) {
-        const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
-        resizeGroupToHalfParent(myDiagram, myGoNode, myGoNode, parentPart);
-        scale = applyDerivedScaleToPart(myDiagram, myGoNode, parentPart, myObjectview, myGoNode);
-      } else {
-        scale = applyDerivedScaleToPart(myDiagram, myGoNode, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
-      }
-      myObjectview.scale = scale;
-      const scaledLoc = uic.scaleNodeLocation1(goParentGroup, myGoNode);
-      if (scaledLoc) {
-        myGoNode.loc = scaledLoc;
-        myObjectview.loc = scaledLoc;
-        if (liveNodePart?.data) {
-          try { myDiagram.model.setDataProperty(liveNodePart.data, "loc", scaledLoc); } catch (_) { }
-        }
-      } else {
-        myObjectview.loc = myGoNode.loc;
-      }
-      if (liveNodePart?.data) {
-        try { myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key); } catch (_) { }
-        try { myDiagram.model.setDataProperty(liveNodePart.data, "scale", scale); } catch (_) { }
-      }
-    }
-  }
-  // Dispatch metis
-  const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-  let data = { metis: jsnMetis }
-  data = JSON.parse(JSON.stringify(data));
-  myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: shoud not dispatch the whole phData????
-  try {
-    const pastedNodeKeys = new Set<string>();
-    for (let i = 0; i < pastedNodes.length; i++) {
-      const pastedNode = pastedNodes[i];
-      if (pastedNode?.objviewId) pastedNodeKeys.add(String(pastedNode.objviewId));
-      if (pastedNode?.goNodeId) pastedNodeKeys.add(String(pastedNode.goNodeId));
-    }
-    if (pastedNodeKeys.size > 0) {
-      (myDiagram as any).__skipNextPostPasteNodeSyncKeys = pastedNodeKeys;
-    }
-    myDiagram.dispatch({
-      type: 'SET_FOCUS_REFRESH',
-      data: { id: utils.createGuid(), name: 'ClipboardPasted' }
-    });
-  } catch (_) {
-  }
-  if (false) {
-    // Dispatch modelview
-    const modifiedModelviews = new Array();
-    const jsnModelview = new jsn.jsnModelView(myModelview);
-    modifiedModelviews.push(jsnModelview);
-    modifiedModelviews.map(mn => {
-      let data = mn;
-      data = JSON.parse(JSON.stringify(data));
-      myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
-    });
-    // Dispatch model
-    const modifiedModels = new Array();
-    const jsnModel = new jsn.jsnModel(myModel);
-    modifiedModels.push(jsnModel);
-    modifiedModels.map(mn => {
-      let data = mn;
-      data = JSON.parse(JSON.stringify(data));
-      myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-    });
-  }
-
-  if (debug) console.log('1770 pastedNodes', pastedNodes);
-  break;
-}      
-      case 'LayoutCompleted': {
-  // Persist node/link positions after layout so positions survive reloads
-  if (true) {
-    const nodes = myDiagram.nodes;
-    for (let it = nodes.iterator; it?.next();) {
-      const node = it.value;
-      const nodeData = node?.data;
-      if (!nodeData) continue;
-      const objectview = nodeData.objectview;
-      if (!objectview) {
-        // Optionally log or handle nodes without objectview
-        // console.warn('Node missing objectview:', node.data);
-        continue;
-      }
-      objectview.loc = nodeData.loc;
-      objectview.size = nodeData.size;
-      if (typeof nodeData.group === "string") objectview.group = nodeData.group;
-      const jsnObjview = new jsn.jsnObjectView(objectview);
-      modifiedObjectViews.push(jsnObjview);
-      myModelview.addObjectView(objectview);
-    }
-    const links = myDiagram.links;
-    for (let it = links.iterator; it?.next();) {
-      const link = it.value;
-      const linkData = link?.data;
-      if (!linkData) continue;
-      const relview = linkData.relshipview;
-      if (!relview) continue;
-      const hadExplicitSavedPath =
-        hasExplicitSavedLinkPath(relview?.points, linkData?.points) ||
-        !!linkData?.__manualLinkMovePreview;
-      if (!hadExplicitSavedPath) {
-        relview.points = [];
-        continue;
-      }
-      const points = [];
-      for (let it = link.points.iterator; it?.next();) {
-        const point = it.value;
-        if (debug) console.log('1603 point', point.x, point.y);
-        points.push(point.x)
-        points.push(point.y)
-      }
-      relview.points = points;
-      const jsnRelview = new jsn.jsnRelshipView(relview);
-      modifiedRelshipViews.push(jsnRelview);
-      myModelview.addRelationshipView(relview);
-    }
-  }
-  break;
-}
-      case 'LinkDrawn': {
-  const link = e.subject;
-  const gjsData = link.data;
-  context.link = link;
-  context.gjsData = gjsData;
-  context.goModel = myGoModel;
-  if (debug) console.log('1498 link', link.data, link.data.from, link.data.to);
-  let gjsFromNode, gjsToNode;
-  const isObjectNode = (n: any) =>
-    !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
-  for (let it = myDiagram.nodes; it?.next();) {
-    const n = it.value;
-    if (n.data?.key === gjsData.from) {
-      gjsFromNode = n.data;
-    }
-    if (n.data?.key === gjsData.to) {
-      gjsToNode = n.data;
-    }
-  }
-  let goFromNode: gjs.goObjectNode;
-  let goToNode: gjs.goObjectNode;
-  let fromObjView: akm.cxObjectView;
-  let toObjView: akm.cxObjectView;
-  if (gjsFromNode) {
-    fromObjView = myModelview.findObjectView(gjsFromNode.key);
-    goFromNode = myGoModel.findNode(gjsFromNode.key);
-    context.goFromNode = goFromNode;
-    context.fromObjView = fromObjView;
-    uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
-  }
-  if (gjsToNode) {
-    toObjView = myModelview.findObjectView(gjsToNode.key);
-    goToNode = myGoModel.findNode(gjsToNode.key);
-    context.goToNode = goToNode;
-    context.toObjView = toObjView;
-    uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
-  }
-  // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
-  const ensureNodeRefs = (gjsNode: any, objview: any) => {
-    if (!gjsNode) return;
-    const setProp = (prop: string, val: any) => {
-      if (val === undefined || val === null) return;
-      try {
-        gjsNode[prop] = val;
-      } catch (_) { /* ignore */ }
-    };
-    if (objview) {
-      setProp('objectview', objview);
-      setProp('objviewRef', objview.id);
-      if (!objview.object && gjsNode.object) {
-        objview.object = gjsNode.object;
-      }
-      setProp('object', objview.object || gjsNode.object);
-      setProp('objRef', objview.object?.id);
-    }
-  };
-  ensureNodeRefs(gjsFromNode, context.fromObjView);
-  ensureNodeRefs(gjsToNode, context.toObjView);
-  // Handle relationship types
-  if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
-    gjsData.category = constants.gojs.C_RELSHIPTYPE;
-    if (debug) console.log('1523 link', fromNode, toNode);
-    // link.category = constants.gojs.C_RELSHIPTYPE;
-    const reltype = uic.createRelationshipType(gjsFromNode.data, gjsToNode.data, gjsData, context);
-    if (reltype) {
-      if (debug) console.log('1527 reltype', reltype);
-      const jsnType = new jsn.jsnRelationshipType(reltype, true);
-      modifiedRelshipTypes.push(jsnType);
-      if (debug) console.log('1530 jsnType', jsnType);
-      const reltypeview = reltype.typeview;
-      if (reltypeview) {
-        const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelshipTypeViews.push(jsnTypeView);
-        if (debug) console.log('1535 jsnTypeView', jsnTypeView);
-        const myGoModel = myMetis.gojsModel;
-        let goLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
-        goLink.fromNode = gjsFromNode.data;
-        goLink.toNode = gjsToNode.data
-        goLink.loadLinkContent(myGoModel);
-        myGoModel.addLink(goLink);
-        goLink.name = reltype.name;
-        if (debug) console.log('1543 goLink, myGoModel, reltype', goLink, myGoModel, reltype);
-        const gjsLink = myDiagram.findLinkForKey(goLink.key);
-        myDiagram.model.addLinkData(gjsLink);
-        if (debug) console.log('1546 lnk, reltype', gjsLink, reltype);
-        myDiagram.model.setDataProperty(gjsLink.data, 'name', reltype.name);
-      }
-    }
-    myDiagram.requestUpdate();
-  }
-  // Handle relationships
-  if (isObjectNode(gjsFromNode)) {
-    // gjsData.category = constants.gojs.C_RELATIONSHIP;
-    context.handleOpenModal = this.handleOpenModal;
-    if (gjsFromNode && gjsToNode) {
-      try {
-        myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
-        myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
-        myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
-        myDiagram.model.setDataProperty(gjsData, 'name', '');
-      } catch (_) {}
-      uic.createRelationship(gjsFromNode, gjsToNode, context);
-    }
-  }
-  myDiagram.requestUpdate();
-  break;
-}
-      case "LinkRelinked": {
-  const gjsLink = e.subject;
-  const key = gjsLink.key;
-  const gjsLinkData = gjsLink.data;
-  const myGoModel = myMetis.gojsModel;
-  const goLink = myGoModel.findLink(key);
-  let fromNode = gjsLinkData.from; // gjsLinkData.fromNode;
-  let fromPort = typeof gjsLinkData.fromPort === "string" ? gjsLinkData.fromPort : "";
-  let toNode = gjsLinkData.to; // gjsLinkData.toNode;
-  let toPort = typeof gjsLinkData.toPort === "string" ? gjsLinkData.toPort : "";
-  let goFromNode = myGoModel.findNode(fromNode);
-  let goToNode = myGoModel.findNode(toNode);
-  const relshipRef = goLink.relshipRef;
-  const relship = myModel.findRelationship(relshipRef);
-  let fromObject = goFromNode.object;
-  if (!fromObject) fromObject = myModel.findObject(goFromNode.objRef);
-  relship.fromObject = fromObject;
-  let toObject = goToNode.object;
-  if (!toObject) toObject = myModel.findObject(goToNode.objRef);
-  relship.toObject = toObject;
-  const relviewRef = goLink.relviewRef;
-  let relview = myModelview.findRelationshipView(relviewRef);
-  if (!relview) relview = myModelview.findRelationshipView(relviewRef);
-  if (!relview)
-    break;
-  let fromObjview = goFromNode.fromObjview;
-  if (!fromObjview) fromObjview = myModelview.findObjectView(goFromNode.objviewRef);
-  relview.fromObjview = fromObjview;
-  let toObjview = goToNode.toObjview;
-  if (!toObjview) toObjview = myModelview.findObjectView(goToNode.objviewRef);
-  relview.toObjview = toObjview;
-  relview.toPortid = toPort;
-  relview.fromPortid = fromPort;
-  try { myDiagram.model.setDataProperty(gjsLinkData, "from", fromNode); } catch (_) { gjsLinkData.from = fromNode; }
-  try { myDiagram.model.setDataProperty(gjsLinkData, "to", toNode); } catch (_) { gjsLinkData.to = toNode; }
-  try { myDiagram.model.setDataProperty(gjsLinkData, "fromPort", fromPort); } catch (_) { gjsLinkData.fromPort = fromPort; }
-  try { myDiagram.model.setDataProperty(gjsLinkData, "toPort", toPort); } catch (_) { gjsLinkData.toPort = toPort; }
-  try { myDiagram.model.setDataProperty(gjsLinkData, "points", []); } catch (_) { gjsLinkData.points = []; }
-  try { gjsLink.points = new go.List<go.Point>(); } catch (_) { }
-  relview.points = [];
-
-  // Update link data
-  uid.updateLinkAndView(gjsLinkData, goLink, relview, myDiagram);
-
-  // Prepare for dispatch
-  const jsnRelship = new jsn.jsnRelationship(relship);
-  modifiedRelships.push(jsnRelship);
-  const jsnRelview = new jsn.jsnRelshipView(relview);
-  modifiedRelshipViews.push(jsnRelview);
-  break;
-}
-      case "LinkReshaped": {
-
-  const myGoModel = myMetis.gojsModel;
-  const gjsLink = e.subject;
-  const key = gjsLink.key;
-  const link = myDiagram.findLinkForKey(key);
-  const goLink = myGoModel.findLink(key);
-  const data = link?.data || goLink?.data;
-  if (debug) console.log('1596 link, data', link, data);
-  let relview = myModelview.findRelationshipView(data?.relviewRef || data?.key);
-  if (!relview) {
-    relview = data?.relshipview;
-  }
-  if (relview) {
-    const points = [];
-    const livePoints = link?.points || gjsLink?.points || data?.points;
-    for (let it = livePoints?.iterator; it?.next();) {
-      const point = it.value;
-      if (debug) console.log('1603 point', point.x, point.y);
-      points.push(point.x)
-      points.push(point.y)
-    }
-    const currentRouting = String(relview?.routing || data?.routing || "").trim();
-    const shouldFreezeManualRoute =
-      points.length >= 4 &&
-      (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
-    try { if (data?.relshipview) data.relshipview.points = points; } catch (_) {}
-    try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) {}
-    try {
-      if (goLink) {
-        goLink.points = points;
-        goLink.relshipview = relview;
-        goLink.relviewRef = relview.id;
-        if (goLink.data) {
-          goLink.data.points = points;
-          goLink.data.relshipview = relview;
-          goLink.data.relviewRef = relview.id;
-        }
-      }
-    } catch (_) {}
-    if (shouldFreezeManualRoute) {
-      relview.routing = "Normal";
-      try { myDiagram.model.setDataProperty(data, "routing", "Normal"); } catch (_) {
-        try { data.routing = "Normal"; } catch (_err) {}
-      }
-      try { link.routing = go.Link.Normal; } catch (_) { }
-      try { link.adjusting = go.Link.End; } catch (_) { }
-    }
-    try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
-    relview.points = points;
-    const jsnRelview = new jsn.jsnRelshipView(relview);
-    if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
-    modifiedRelshipViews.push(jsnRelview);
-    try {
-      const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
-        if (!entry || entry.key !== data?.key) return entry;
-        return {
-          ...entry,
-          points: [...points],
-          routing: data?.routing || entry.routing,
-          relshipview: relview,
-          relviewRef: relview?.id || entry.relviewRef,
-        };
-      });
-      this.setState({
-        linkDataArray: normalizeLinkPortData(nextLinkDataArray),
-        skipsDiagramUpdate: true,
-      });
-    } catch (_) {}
-    try { link?.updateTargetBindings?.(); } catch (_) { }
-  }
-  break;
-}
-      case "SubGraphCollapsed":
-	      case "SubGraphExpanded": {
-  const affectedPoolKeys = new Set<string>();
-  const expanded = name === "SubGraphExpanded";
-  const affectedParts: go.Part[] = [];
-  if (e.subject instanceof go.Part) {
-    affectedParts.push(e.subject);
-  } else if (e.subject?.iterator) {
-    for (let it = e.subject.iterator; it?.next();) {
-      if (it.value instanceof go.Part) affectedParts.push(it.value);
-    }
-  } else if (typeof e.subject?.each === "function") {
-    e.subject.each((n: go.Part) => {
-      if (n instanceof go.Part) affectedParts.push(n);
-    });
-  }
-  affectedParts.forEach(function (n) {
-    const data = n.data;
-    if (n instanceof go.Group) {
-      syncLiveGroupExpandedState(myDiagram, n, expanded);
-      setTimeout(() => {
-        try {
-          const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
-          if (liveGroup instanceof go.Group) {
-            syncLiveGroupExpandedState(myDiagram, liveGroup, expanded);
-            try { liveGroup.invalidateConnectedLinks(); } catch (_) { }
-          }
-        } catch (_) {
-        }
-      }, 0);
-      if (expanded) {
-        setTimeout(() => {
           try {
-            const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
-            if (liveGroup instanceof go.Group) {
-              restoreGroupMemberLocations(myDiagram, liveGroup);
-              setGroupMemberVisibilityRecursive(liveGroup, true);
-              try { liveGroup.ensureBounds(); } catch (_) { }
-              try { myDiagram.requestUpdate(); } catch (_) { }
-            }
+            delete (myDiagram as any).__dragAllowReparent;
+            delete (myDiagram as any).__dragAllowReparentKeys;
           } catch (_) {
           }
-        }, 50);
-      }
-    }
-    const objview = data?.objectview;
-    if (objview) {
-      objview.isExpanded = expanded;
-      uic.addItemToList(modifiedObjectViews, {
-        id: objview?.id,
-        isExpanded: expanded,
-      });
-    }
-    const category = data?.category || data?.template;
-    if (category === 'Lane' || category === 'Lane_w_handles') {
-      if (data?.group) affectedPoolKeys.add(data.group);
-    } else if (category === 'Pool') {
-      if (data?.key) affectedPoolKeys.add(data.key);
-    }
-  });
-  relayoutPoolsByKeys(affectedPoolKeys);
-  // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
-  // and clamp all lane members back into their lane bodies.
-  affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
-  try {
-    const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
-      ? [...(myDiagram.model as any).nodeDataArray]
-      : this.state.nodeDataArray;
-    const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
-      ? [...(myDiagram.model as any).linkDataArray]
-      : this.state.linkDataArray;
-    this.setState({
-      nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
-      linkDataArray: normalizeLinkPortData(liveLinkDataArray),
-    });
-  } catch (_) {
-  }
-  break;
-}
-	      case "BackgroundSingleClicked": {
-	  if (debug) console.log('1615 myMetis', myMetis);
-	  if (myModelview) {
-	    uid.clearFocus(myModelview);
-	    let data = { id: myModelview.id, name: myModelview.name }
-	    data = JSON.parse(JSON.stringify(data));
-	    context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-	  }
-	  if (myModel) {
-	    let data2 = { id: myModel.id, name: myModel.name }
-	    data2 = JSON.parse(JSON.stringify(data2));
-	    context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
-	  }
-
-	  break;
-	}
-      case "BackgroundDoubleClicked": {
-  if (debug) console.log('1619 BackgroundDoubleClicked', e, e.diagram);
-  break;
-}
-      case "ModelChanged": {
-  // if (e.isTransactionFinished) {
-  console.log("Transaction Finished");
-  // }
-}
-      default: {
-  if (debug) console.log('1399 GoJSApp event name: ', name);
-  break;
-}
-    }
-
-// Dispatches
-if (true) { // Dispatches to store individual objects/types
-  if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
-  const dispatchedObjectViewPayloads = new Set<string>();
-  const storeState = getCurrentStore?.()?.getState?.();
-  const coalescedObjectViews = new Map<string, any>();
-  modifiedObjectViews.forEach((mn: any) => {
-    if (!mn?.id) return;
-    const prev = coalescedObjectViews.get(mn.id) || {};
-    coalescedObjectViews.set(mn.id, { ...prev, ...mn });
-  });
-  const findStoredObjectViewById = (id: string) => {
-    const models = storeState?.phData?.metis?.models || [];
-    for (let mi = 0; mi < models.length; mi++) {
-      const modelviews = models[mi]?.modelviews || [];
-      for (let mvi = 0; mvi < modelviews.length; mvi++) {
-        const objectviews = modelviews[mvi]?.objectviews || [];
-        for (let ovi = 0; ovi < objectviews.length; ovi++) {
-          const objectview = objectviews[ovi];
-          if (objectview?.id === id) return objectview;
         }
-      }
-    }
-    return null;
-  };
-  if (!(this as any).__dispatchingObjectViewUpdates) {
-    (this as any).__dispatchingObjectViewUpdates = true;
-    try {
-      Array.from(coalescedObjectViews.values()).map(mn => {
-        let data = (mn) && mn
-        if (mn.id) {
-          data = sanitizeObjectViewDispatchData(JSON.parse(JSON.stringify(data)));
-          const dispatchKey = JSON.stringify(data);
-          if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
-          const storedObjectView = findStoredObjectViewById(data.id);
-          if (storedObjectView) {
-            const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
-            let hasMeaningfulDiff = false;
-            for (const key of Object.keys(data)) {
-              if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
-                hasMeaningfulDiff = true;
-                break;
+        if (isMetamodel) {
+          uic.purgeModelDeletions(myMetis, myDiagram);
+          return;
+        }
+        if (!isMetamodel) {
+          // Handle relationships
+          for (let it = selection?.iterator; it?.next();) {
+            const sel = it.value;
+            const data = sel.data;
+            const key = data.key;
+            if (data.category === constants.gojs.C_RELATIONSHIP) {
+              const relview = myModelview.findRelationshipView(key);
+              if (relview && relview.category === constants.gojs.C_RELSHIPVIEW) {
+                relview.markedAsDeleted = deletedFlag;
+                const relship = relview.relship;
+                if (myMetis.deleteViewsOnly)
+                  relship.markedAsDeleted = false;
+                else
+                  relship.markedAsDeleted = deletedFlag;
+                const jsnRelship = new jsn.jsnRelationship(relship);
+                modifiedRelships.push(jsnRelship);
+                const jsnRelview = new jsn.jsnRelshipView(relview);
+                modifiedRelshipViews.push(jsnRelview);
+                linkDataToForceRemove.push(data);
               }
             }
-            if (!hasMeaningfulDiff) return;
           }
-          dispatchedObjectViewPayloads.add(dispatchKey);
-          queueObjectViewDispatch(this, context.dispatch, data)
-        }
-      })
-    } finally {
-      (this as any).__dispatchingObjectViewUpdates = false;
-    }
-  }
-
-  modifiedObjectTypes?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
-  })
-
-  modifiedObjectTypeViews?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-  })
-
-  modifiedObjectTypeGeos?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
-  })
-
-  if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
-  const dispatchedRelshipViewPayloads = new Set<string>();
-  const coalescedRelshipViews = new Map<string, any>();
-  modifiedRelshipViews.forEach((mn: any) => {
-    if (!mn?.id) return;
-    const prev = coalescedRelshipViews.get(mn.id) || {};
-    coalescedRelshipViews.set(mn.id, { ...prev, ...mn });
-  });
-  const findStoredRelshipViewById = (id: string) => {
-    const models = storeState?.phData?.metis?.models || [];
-    for (let mi = 0; mi < models.length; mi++) {
-      const modelviews = models[mi]?.modelviews || [];
-      for (let mvi = 0; mvi < modelviews.length; mvi++) {
-        const relshipviews = modelviews[mvi]?.relshipviews || [];
-        for (let rvi = 0; rvi < relshipviews.length; rvi++) {
-          const relshipview = relshipviews[rvi];
-          if (relshipview?.id === id) return relshipview;
-        }
-      }
-    }
-    return null;
-  };
-  if (!(this as any).__dispatchingRelshipViewUpdates) {
-    (this as any).__dispatchingRelshipViewUpdates = true;
-    try {
-      Array.from(coalescedRelshipViews.values()).map(mn => {
-        let data = (mn) && mn
-        data = JSON.parse(JSON.stringify(data));
-        const dispatchKey = JSON.stringify(data);
-        if (dispatchedRelshipViewPayloads.has(dispatchKey)) return;
-        const storedRelshipView = findStoredRelshipViewById(data.id);
-        if (storedRelshipView) {
-          let hasMeaningfulDiff = false;
-          for (const key of Object.keys(data)) {
-            if (JSON.stringify(storedRelshipView?.[key]) !== JSON.stringify(data[key])) {
-              hasMeaningfulDiff = true;
-              break;
+          // Handle relationship views marked as deleted in the modelview
+          const relshipviews = myModelview.relshipviews;
+          for (let i = 0; i < relshipviews.length; i++) {
+            const relview = relshipviews[i];
+            if (relview.markedAsDeleted) {
+              let fromView = relview.fromObjview;
+              let toView = relview.toObjview;
+              if (fromView && fromView.isGroup) {
+                toView.group = "";
+                const jsnObjview = new jsn.jsnObjectView(toView);
+                modifiedObjectViews.push(jsnObjview);
+              }
+              toView = relview.toObjview;
+              const gjsData = myDiagram.findLinkForKey(relview.id);
+              if (gjsData)
+                uic.deleteLink(gjsData, true, context);
+            }
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
+          }
+          // Handle objects
+          for (let it = selection?.iterator; it?.next();) {
+            const sel = it.value;
+            const data = sel.data;
+            const isPersistedObjectNode =
+              sel instanceof go.Node &&
+              data?.category !== constants.gojs.C_OBJECTTYPE &&
+              data?.category !== constants.gojs.C_RELATIONSHIP &&
+              (
+                data?.category === constants.gojs.C_OBJECT ||
+                data?.objectview ||
+                data?.objviewRef ||
+                data?.object ||
+                data?.objRef
+              );
+            if (isPersistedObjectNode) {
+              const key = data.key;
+              const myNode = this.getNode(context.myGoModel, key);  // Get nodes !!!
+              const objview =
+                myModelview.findObjectView(myNode?.key || key) ||
+                myMetis.findObjectView(data?.objviewRef || key) ||
+                data?.objectview;
+              const object =
+                objview?.object ||
+                myNode?.object ||
+                data?.object ||
+                myModel.findObject(objview?.objectRef || data?.objRef);
+              if (objview) {
+                objview.markedAsDeleted = true;
+                const jsnObjview = new jsn.jsnObjectView(objview);
+                modifiedObjectViews.push(jsnObjview);
+              }
+              if (object) {
+                object.markedAsDeleted = !myMetis.deleteViewsOnly;
+                const jsnObject = new jsn.jsnObject(object);
+                modifiedObjects.push(jsnObject);
+              }
+              nodeDataToForceRemove.push(data);
             }
           }
-          if (!hasMeaningfulDiff) return;
         }
-        dispatchedRelshipViewPayloads.add(dispatchKey);
-        queueRelshipViewDispatch(this, context.dispatch, data)
-      })
-    } finally {
-      (this as any).__dispatchingRelshipViewUpdates = false;
+        for (let i = 0; i < modifiedObjectViews.length; i++) {
+          const objview = modifiedObjectViews[i];
+          if (objview.markedAsDeleted) {
+            const myNode =
+              this.getNode(context.myGoModel, objview.id) ||
+              context.myGoModel?.findNodeByViewId?.(objview.id) ||
+              context.myGoModel?.findNode?.(objview.id);
+            if (myNode) {
+              uic.deleteNode(myNode, deletedFlag, context);
+              continue;
+            }
+            const liveDiagramNode =
+              myDiagram.findNodeForKey(objview.id) ||
+              myDiagram.findPartForKey(objview.id);
+            if (liveDiagramNode) {
+              try { myDiagram.remove(liveDiagramNode); } catch (_) { }
+            }
+          }
+        }
+        for (let i = 0; i < linkDataToForceRemove.length; i++) {
+          const linkData = linkDataToForceRemove[i];
+          try {
+            const liveLinkData = myDiagram.findLinkForKey(linkData?.key)?.data || linkData;
+            myDiagram.model.removeLinkData(liveLinkData);
+          } catch (_) { }
+        }
+        for (let i = 0; i < nodeDataToForceRemove.length; i++) {
+          const nodeData = nodeDataToForceRemove[i];
+          try {
+            const liveNodeData = myDiagram.findNodeForKey(nodeData?.key)?.data || nodeData;
+            myDiagram.model.removeNodeData(liveNodeData);
+          } catch (_) { }
+        }
+        break;
+      }
+      case 'ExternalObjectsDropped': {
+        const droppedRelLinks: go.ObjectData[] = [];
+        const droppedNodesForLayout: go.Node[] = [];
+        const poolNodes: go.Node[] = [];
+        const poolKeys: Array<string | number> = [];
+        const affectedPoolKeys = new Set<string | number>();
+        const registerPoolKey = (group: go.Group | null | undefined) => {
+          if (!(group instanceof go.Group)) {
+            return;
+          }
+          const poolKey = getNodeKey(group);
+          if (poolKey === undefined || poolKey === null) {
+            return;
+          }
+          if (!affectedPoolKeys.has(poolKey)) {
+            affectedPoolKeys.add(poolKey);
+          }
+        };
+        let shouldZoomToFitAfterDrop = false;
+        let lanesDroppedIntoPool = false;
+        const nodeIterator = e.subject.iterator;
+        while (nodeIterator?.next()) {
+          const part = nodeIterator.value;
+          if (part instanceof go.Node) {
+            droppedNodesForLayout.push(part);
+          }
+        }
+        if (droppedNodesForLayout.length) {
+          const primaryDiagram = e.diagram || myDiagram;
+          const dropPoint =
+            primaryDiagram?.lastInput?.documentPoint?.copy() ||
+            myDiagram?.lastInput?.documentPoint?.copy() ||
+            null;
+
+          const modelData = (myDiagram?.model as any)?.modelData ?? {};
+          const dropOverrides = modelData?.dropLayout && typeof modelData.dropLayout === 'object'
+            ? modelData.dropLayout
+            : undefined;
+          const presetName = dropOverrides?.preset ?? myModelview?.layout;
+          const layoutConfig = deriveDropLayoutConfig(presetName, dropOverrides);
+
+          const metadata = layoutConfig?.metadata || {};
+          const poolTypeIds = Array.isArray(metadata.poolTypeIds) ? metadata.poolTypeIds : [];
+          const laneTypeIds = Array.isArray(metadata.laneTypeIds) ? metadata.laneTypeIds : [];
+          const containerTypeIds = Array.isArray(metadata.containerTypeIds) ? metadata.containerTypeIds : [];
+          if (myDiagram) {
+            const shouldCommitGrouping = !myDiagram.isInTransaction;
+            if (shouldCommitGrouping) {
+              myDiagram.startTransaction('assign-drop-groups');
+            }
+            try {
+              const laneNodes: go.Node[] = [];
+              const containerNodes: go.Node[] = [];
+              const otherNodes: go.Node[] = [];
+
+              for (let i = 0; i < droppedNodesForLayout.length; i++) {
+                // if (droppedNodesForLayout.length < 2) return; // No need to group a single node and try to avoid existing nodes, let the user handle that
+                const node = droppedNodesForLayout[i];
+                const typeRef = getNodeTypeRef(node);
+                const data: any = node?.data || {};
+                const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+                const templateName = (data.template || data.category || '').toString().toLowerCase();
+                const name = (data.name || '').toString().toLowerCase();
+                const isPool =
+                  (typeRef && poolTypeIds.includes(typeRef)) ||
+                  viewkind === 'pool' ||
+                  templateName.includes('pool') ||
+                  name.includes('pool');
+                if (isPool) {
+                  poolNodes.push(node);
+                  shouldZoomToFitAfterDrop = true;
+                  registerPoolKey(node instanceof go.Group ? node : node.containingGroup);
+                  continue;
+                }
+                const isLane =
+                  (typeRef && laneTypeIds.includes(typeRef)) ||
+                  viewkind === 'lane' ||
+                  templateName.includes('lane') ||
+                  name.includes('lane');
+                if (isLane) {
+                  laneNodes.push(node);
+                  lanesDroppedIntoPool = true;
+                  continue;
+                }
+                const isContainer =
+                  (typeRef && containerTypeIds.includes(typeRef)) ||
+                  viewkind === 'container' ||
+                  templateName.includes('container');
+                if (isContainer) {
+                  containerNodes.push(node);
+                  continue;
+                }
+                otherNodes.push(node);
+              }
+
+              if (poolNodes.length) {
+                const uniquePoolKeys = new Set<string | number>();
+                for (let i = 0; i < poolNodes.length; i++) {
+                  const poolNode = poolNodes[i];
+                  ensureNodeIsGroup(myDiagram, poolNode);
+                  const poolKey = getNodeKey(poolNode);
+                  if (poolKey !== undefined && poolKey !== null && !uniquePoolKeys.has(poolKey)) {
+                    uniquePoolKeys.add(poolKey);
+                    poolKeys.push(poolKey);
+                    registerPoolKey(myDiagram.findNodeForKey(poolKey) as go.Group | null);
+                  }
+                }
+
+                if (poolKeys.length) {
+                  for (let i = 0; i < laneNodes.length; i++) {
+                    const laneNode = laneNodes[i];
+                    ensureNodeIsGroup(myDiagram, laneNode);
+                    const existing = getGroupKeyFromData(laneNode?.data);
+                    const poolKey = poolKeys[i % poolKeys.length];
+                    if (existing === null || existing === undefined) {
+                      setNodeGroup(myDiagram, laneNode, poolKey);
+                    }
+                    ensureInitialGroupSize(
+                      myDiagram,
+                      laneNode,
+                      laneNode?.data,
+                      getSizeOptionsForType('lane')
+                    );
+                    const targetPool = myDiagram.findNodeForKey(poolKey);
+                    registerPoolKey(targetPool as go.Group | null);
+                    lanesDroppedIntoPool = true;
+                  }
+
+                  const laneKeys: Array<string | number> = [];
+                  const laneKeySet = new Set<string | number>();
+                  for (let i = 0; i < laneNodes.length; i++) {
+                    const laneKey = getNodeKey(laneNodes[i]);
+                    if (laneKey !== undefined && laneKey !== null && !laneKeySet.has(laneKey)) {
+                      laneKeySet.add(laneKey);
+                      laneKeys.push(laneKey);
+                    }
+                  }
+
+                  for (let i = 0; i < containerNodes.length; i++) {
+                    const containerNode = containerNodes[i];
+                    ensureNodeIsGroup(myDiagram, containerNode);
+                    const existing = getGroupKeyFromData(containerNode?.data);
+                    if (existing !== null && existing !== undefined) {
+                      continue;
+                    }
+                    const poolKey = poolKeys[i % poolKeys.length];
+                    setNodeGroup(myDiagram, containerNode, poolKey);
+                  }
+
+                  for (let i = 0; i < otherNodes.length; i++) {
+                    const node = otherNodes[i];
+                    const existing = getGroupKeyFromData(node?.data);
+                    if (existing !== null && existing !== undefined) {
+                      continue;
+                    }
+                    let assignedKey = null;
+                    if (laneKeys.length) {
+                      assignedKey = laneKeys[i % laneKeys.length];
+                    } else if (poolKeys.length) {
+                      assignedKey = poolKeys[i % poolKeys.length];
+                    }
+                    if (assignedKey !== null && assignedKey !== undefined) {
+                      setNodeGroup(myDiagram, node, assignedKey);
+                    }
+                  }
+                }
+              }
+            } finally {
+              if (shouldCommitGrouping && myDiagram.isInTransaction) {
+                myDiagram.commitTransaction('assign-drop-groups');
+              }
+            }
+          }
+
+          const buckets = new Map< // Map to hold node buckets for layout
+            string,
+            { nodes: go.Node[]; targetGroup: go.Group | null; groupKey: string | number | null }
+          >();
+
+          for (let i = 0; i < droppedNodesForLayout.length; i++) {
+            const node = droppedNodesForLayout[i];
+            const containingGroup = node?.containingGroup instanceof go.Group ? node.containingGroup : null;
+            const nodeCenter = node?.actualBounds?.center || null;
+            const pointGroup =
+              resolveDeepestDropTargetGroup(myDiagram, node, dropPoint || null) ||
+              resolveDeepestDropTargetGroup(myDiagram, node, nodeCenter);
+            let resolvedTargetGroup = containingGroup;
+            if (pointGroup instanceof go.Group) {
+              if (
+                !containingGroup ||
+                containingGroup === pointGroup ||
+                isAncestorGroupKey(myDiagram, containingGroup.key, pointGroup.key)
+              ) {
+                resolvedTargetGroup = pointGroup;
+              }
+            }
+            const dataGroupKey = getGroupKeyFromData(node?.data);
+            const groupKey =
+              resolvedTargetGroup
+                ? getNodeKey(resolvedTargetGroup)
+                : (dataGroupKey !== null && dataGroupKey !== undefined ? dataGroupKey : null);
+            const bucketKey = groupKey === null ? '__drop-root__' : String(groupKey);
+            if (!buckets.has(bucketKey)) {
+              const groupPart =
+                resolvedTargetGroup ||
+                (groupKey !== null && myDiagram
+                  ? myDiagram.findNodeForKey(groupKey)
+                  : null);
+              buckets.set(bucketKey, {
+                nodes: [],
+                targetGroup: groupPart instanceof go.Group ? groupPart : null,
+                groupKey: groupKey,
+              });
+            }
+            const bucket = buckets.get(bucketKey);
+            if (bucket) {
+              if (
+                bucket.targetGroup instanceof go.Group &&
+                node.containingGroup !== bucket.targetGroup
+              ) {
+                const memberSet = new go.Set<go.Part>();
+                memberSet.add(node);
+                bucket.targetGroup.addMembers(memberSet, true);
+                setNodeGroup(myDiagram, node, bucket.targetGroup.key);
+              }
+              bucket.nodes.push(node);
+            }
+          }
+
+          const bucketList = Array.from(buckets.values());
+          const groupsForFollowUp = new Set<go.Group>();
+          bucketList.sort((a, b) => {
+            const aRoot = a.groupKey === null || a.groupKey === undefined;
+            const bRoot = b.groupKey === null || b.groupKey === undefined;
+            if (aRoot && !bRoot) return -1;
+            if (!aRoot && bRoot) return 1;
+            return 0;
+          });
+
+          for (let i = 0; i < bucketList.length; i++) {
+            const bucket = bucketList[i];
+            if (!bucket.nodes.length) continue;
+            let bucketDropPoint: go.Point | null = null;
+            if (bucket.targetGroup && bucket.targetGroup.actualBounds) {
+              const bounds = bucket.targetGroup.actualBounds;
+              if (bounds && bounds.center) {
+                bucketDropPoint = bounds.center.copy();
+              }
+            }
+            if (!bucketDropPoint && dropPoint) {
+              bucketDropPoint = dropPoint.copy ? dropPoint.copy() : dropPoint;
+            }
+            // Only apply automated drop layout if explicitly enabled by the model or layout config.
+            // Default behaviour is to NOT change node positions automatically on drop so the user
+            // can choose when to run layouts.
+            const modelData: any = myDiagram?.model?.modelData || {};
+            const autoApplyFromModel = modelData?.autoApplyDropLayout === true || modelData?.autoApply === true;
+            const autoApplyFromLayout = (layoutConfig as any)?.autoApply === true || (layoutConfig as any)?.autoApplyDrop === true;
+            const autoApplyLayout = Boolean(autoApplyFromModel || autoApplyFromLayout);
+            if (autoApplyLayout) {
+              applyDropLayout({
+                diagram: myDiagram,
+                parts: bucket.nodes,
+                dropPoint: bucketDropPoint,
+                config: layoutConfig,
+                targetGroup: bucket.targetGroup,
+              });
+            }
+            if (bucket.targetGroup instanceof go.Group) {
+              for (let j = 0; j < bucket.nodes.length; j++) {
+                const node = bucket.nodes[j];
+                const nodeData: any = node?.data || {};
+                const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
+                if (isGroupLikeNode(node, nodeData)) {
+                  resizeGroupToHalfParent(myDiagram, nodeData, node, bucket.targetGroup);
+                }
+                const nextScale = applyDerivedScaleToPart(myDiagram, node, bucket.targetGroup, currentObjview);
+                if (currentObjview) {
+                  const nextObjview = new jsn.jsnObjectView(currentObjview);
+                  nextObjview.group = String(bucket.groupKey ?? "");
+                  nextObjview.scale = nextScale;
+                  if (nodeData) {
+                    nodeData.objectview = nextObjview;
+                    myDiagram.model.setDataProperty(nodeData, "objectview", nextObjview);
+                  }
+                  uic.addItemToList(modifiedObjectViews, nextObjview);
+                }
+              }
+              groupsForFollowUp.add(bucket.targetGroup);
+              const container = bucket.targetGroup.containingGroup;
+              if (container instanceof go.Group) {
+                groupsForFollowUp.add(container);
+              }
+            } else {
+              for (let j = 0; j < bucket.nodes.length; j++) {
+                const node = bucket.nodes[j];
+                if (!(node instanceof go.Group)) continue;
+                const nodeData: any = node?.data || {};
+                const currentObjview = nodeData.objectview || myModelview?.findObjectView(nodeData?.key);
+                applyDerivedScaleToPart(myDiagram, node, null, currentObjview);
+                if (currentObjview) {
+                  const nextObjview = new jsn.jsnObjectView(currentObjview);
+                  nextObjview.group = "";
+                  nextObjview.scale = 1.0;
+                  if (nodeData) {
+                    nodeData.objectview = nextObjview;
+                    myDiagram.model.setDataProperty(nodeData, "objectview", nextObjview);
+                  }
+                  uic.addItemToList(modifiedObjectViews, nextObjview);
+                }
+              }
+            }
+          }
+
+          // Only apply follow-up group layouts if auto-apply is enabled.
+          if (Boolean(((myDiagram?.model as any)?.modelData?.autoApplyDropLayout === true) || ((layoutConfig as any)?.autoApply === true))) {
+            groupsForFollowUp.forEach(group => {
+              if (!isPoolLike(group.data)) {
+                applyDropLayoutToGroup(myDiagram, group);
+              }
+              if (group.containingGroup instanceof go.Group && !isPoolLike(group.containingGroup.data)) {
+                applyDropLayoutToGroup(myDiagram, group.containingGroup);
+              }
+            });
+          }
+
+        }
+
+        const applyGroupTemplateToDiagram = (part: go.Node | null, template: string | null) => {
+          if (!myDiagram || !part || !template) return;
+          myDiagram.startTransaction('apply-drop-group-template');
+          try {
+            const data = part.data;
+            if (!data) return;
+            data.isGroup = true;
+            data.viewkind = constants.viewkinds.CONT;
+            data.template = template;
+            if (typeof myDiagram.model.setCategoryForNodeData === 'function') {
+              myDiagram.model.setCategoryForNodeData(data, template);
+            } else {
+              myDiagram.model.setDataProperty(data, 'category', template);
+            }
+            refreshGroupPartRendering(myDiagram, part, data);
+          } finally {
+            myDiagram.commitTransaction('apply-drop-group-template');
+          }
+          try {
+            myDiagram.layoutDiagram(true);
+          } catch (_) {
+            try { myDiagram.requestUpdate(); } catch (_) { }
+          }
+        };
+        const clearGroupTemplateFromDiagram = (part: go.Node | null) => {
+          if (!myDiagram || !part) return;
+          myDiagram.startTransaction('revert-drop-to-node');
+          try {
+            const data = part.data;
+            if (!data) return;
+            data.isGroup = false;
+            data.viewkind = constants.viewkinds.OBJ;
+            data.template = data.template || constants.gojs.C_NODETEMPLATE;
+            myDiagram.model.setCategoryForNodeData(data, data.template || constants.gojs.C_NODETEMPLATE);
+            refreshGroupPartRendering(myDiagram, part, data);
+          } finally {
+            myDiagram.commitTransaction('revert-drop-to-node');
+          }
+          myDiagram.layoutDiagram(true);
+        };
+        const isPoolLike = (data: any): boolean => {
+          if (!data) return false;
+          const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+          const templateName = (data.template || data.category || '').toString().toLowerCase();
+          const name = (data.name || '').toString().toLowerCase();
+          const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
+          return [viewkind, templateName, name, typeName].some((val) => val.includes('pool'));
+        };
+        const isLaneLike = (data: any): boolean => {
+          if (!data) return false;
+          const explicitFlag = Boolean(data.isLane === true || data.lane === true || data.laneGroup === true);
+          if (explicitFlag) {
+            return true;
+          }
+          const viewkind = (data.viewkind || data.viewKind || '').toString().toLowerCase();
+          if (viewkind === 'lane' || viewkind === 'swimlane') {
+            return true;
+          }
+          const templateName = (data.template || '').toString().toLowerCase();
+          if (templateName.includes('lane')) {
+            return true;
+          }
+          const categoryName = (data.category || '').toString().toLowerCase();
+          if (categoryName.includes('lane')) {
+            return true;
+          }
+          const typeName = (data.objecttype?.name || data.objecttype?.typename || '').toString().toLowerCase();
+          if (typeName.includes('lane')) {
+            return true;
+          }
+          return false;
+        };
+        const resolvePersistentGroupTemplate = (data: any): string => {
+          if (isPoolLike(data)) return 'Pool';
+          if (isLaneLike(data)) {
+            const raw = String(data?.template || data?.category || '');
+            return raw === 'Lane_w_handles' ? 'Lane_w_handles' : 'Lane';
+          }
+          const raw = String(data?.template || data?.category || '');
+          return raw || 'groupWithPorts';
+        };
+        const findContainingPool = (part: go.Part | null | undefined): go.Group | null => {
+          let current: go.Group | null = null;
+          if (part instanceof go.Node) {
+            current = part.containingGroup;
+          } else if (part instanceof go.Group) {
+            current = part;
+          }
+          while (current) {
+            if (current.category && current.category.toString().toLowerCase().includes('pool')) {
+              return current;
+            }
+            if (isPoolLike(current.data)) {
+              return current;
+            }
+            current = current.containingGroup;
+          }
+          return null;
+        };
+        const registerPoolFromPart = (part: go.Part | null | undefined) => {
+          const pool = findContainingPool(part);
+          if (pool) {
+            registerPoolKey(pool);
+          }
+        };
+
+        const relayoutPoolGroupAfterLaneChanges = (
+          diagram: go.Diagram | null | undefined,
+          poolGroup: go.Group | null | undefined,
+          laneSpacing = 4
+        ) => {
+          if (!diagram || !(poolGroup instanceof go.Group)) {
+            return;
+          }
+
+          const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
+          poolGroup.memberParts.each((member: go.Part) => {
+            if (!(member instanceof go.Group)) {
+              return;
+            }
+            if (isLaneLike(member.data)) {
+              structuralGroups.push({ group: member, kind: 'lane' });
+              return;
+            }
+            if (isPoolLike(member.data)) {
+              structuralGroups.push({ group: member, kind: 'pool' });
+            }
+          });
+
+          if (!structuralGroups.length) {
+            return;
+          }
+
+          const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
+            if (!(group instanceof go.Group)) {
+              return 0;
+            }
+            let maxWidth = 0;
+            const candidateNames = [
+              'LEFT_HEADER',
+              'leftHeader',
+              'poolLeftHeader',
+              'leftLabel',
+              'HEADER_LEFT',
+              'poolHeaderLeft',
+              'POOL_LEFT_HEADER',
+              'poolLeftLabel',
+              'leftHeaderPanel',
+            ];
+            for (let i = 0; i < candidateNames.length; i++) {
+              try {
+                const obj = group.findObject(candidateNames[i]);
+                const bounds = obj?.actualBounds;
+                if (bounds && bounds.width) {
+                  maxWidth = Math.max(maxWidth, bounds.width);
+                }
+              } catch (err) {
+                // ignore lookup issues and continue
+              }
+            }
+            const dataWidth = (() => {
+              const d: any = group.data;
+              if (!d) return 0;
+              const candidates = [d.leftHeaderWidth, d.headerWidth, d.poolHeaderWidth];
+              for (let i = 0; i < candidates.length; i++) {
+                const value = candidates[i];
+                if (typeof value === 'number' && !Number.isNaN(value)) {
+                  return value;
+                }
+              }
+              return 0;
+            })();
+            const fallbackReserve = 28;
+            return Math.max(maxWidth, dataWidth, fallbackReserve);
+          };
+
+          const updateGroupObjectView = (
+            group: go.Group | null | undefined,
+            locationPoint: go.Point | null,
+            sizeValue: go.Size | null
+          ) => {
+            if (!(group instanceof go.Group)) {
+              return;
+            }
+            const modelview = myMetis?.currentModelview;
+            if (!modelview) {
+              return;
+            }
+            const data: any = group.data;
+            if (!data) {
+              return;
+            }
+            let objview = data.objectview;
+            if (!objview && data.objviewRef) {
+              objview = modelview.findObjectView(data.objviewRef);
+            }
+            if (!objview && data.key !== undefined) {
+              objview = modelview.findObjectView(data.key);
+            }
+            if (!objview) {
+              return;
+            }
+            if (locationPoint) {
+              const locString = go.Point.stringify(locationPoint);
+              objview.loc = locString;
+            }
+            if (sizeValue) {
+              const sizeString = `${sizeValue.width} ${sizeValue.height}`;
+              objview.size = sizeString;
+            }
+            const marker = objview as any;
+            if (marker && typeof marker.setModified === 'function') {
+              try {
+                marker.setModified();
+              } catch (err) {
+                // ignore if objectview does not support setModified
+              }
+            }
+            try {
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              uic.addItemToList(modifiedObjectViews, jsnObjview);
+            } catch (err) {
+              // ignore serialization issues
+            }
+          };
+
+          const getLaneSortValue = (lane: go.Group): number => {
+            const rawLoc = lane?.data?.loc;
+            if (typeof rawLoc === 'string' && rawLoc.trim().length) {
+              try {
+                const parsed = go.Point.parse(rawLoc);
+                if (parsed) {
+                  return parsed.y;
+                }
+              } catch (err) {
+                // ignore parse errors and continue
+              }
+            }
+            if (lane.location) {
+              return lane.location.y;
+            }
+            const bounds = lane.actualBounds;
+            if (bounds) {
+              return bounds.y;
+            }
+            return 0;
+          };
+
+          structuralGroups.sort((a, b) => {
+            const diff = getLaneSortValue(a.group) - getLaneSortValue(b.group);
+            if (Math.abs(diff) < 0.5) {
+              const aKey = getNodeKey(a.group);
+              const bKey = getNodeKey(b.group);
+              if (aKey !== undefined && aKey !== null && bKey !== undefined && bKey !== null) {
+                return String(aKey).localeCompare(String(bKey));
+              }
+            }
+            return diff;
+          });
+
+          let poolLocation = poolGroup.location?.copy() || null;
+          if (!poolLocation) {
+            const rawPoolLoc = typeof poolGroup?.data?.loc === 'string' ? poolGroup.data.loc : '';
+            if (rawPoolLoc && rawPoolLoc.trim().length) {
+              try {
+                poolLocation = go.Point.parse(rawPoolLoc);
+              } catch (err) {
+                poolLocation = null;
+              }
+            }
+          }
+          if (!poolLocation) {
+            poolLocation = new go.Point(0, 0);
+          }
+
+          const forcedPoolSizes = (diagram as any).__forcedPoolLayoutSizes || {};
+          const forcedPoolSize = forcedPoolSizes[String(poolGroup.data?.key || "")] || null;
+          const isNestedInPool = poolGroup.containingGroup instanceof go.Group && isPoolLike(poolGroup.containingGroup.data);
+          const effectiveForcedPoolSize = isNestedInPool ? null : forcedPoolSize;
+          const poolSize = parseSizeString(poolGroup?.data?.size);
+          const poolResizeObject = poolGroup.resizeObject || poolGroup.placeholder || null;
+          const poolWidthCandidates: number[] = [];
+          if (effectiveForcedPoolSize?.width) {
+            poolWidthCandidates.push(effectiveForcedPoolSize.width);
+          }
+          if (poolResizeObject?.desiredSize?.width) {
+            poolWidthCandidates.push(poolResizeObject.desiredSize.width);
+          }
+          if (poolSize?.width) {
+            poolWidthCandidates.push(poolSize.width);
+          }
+          const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
+          const poolContentPanel = poolGroup.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
+          const poolContentAnchor = poolGroup.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
+          const lanePaddingLeft = 4;
+          const lanePaddingRight = 4;
+          const laneRightVisualInset = 6;
+          const laneTopMargin = 4;
+          const laneBottomMargin = 6;
+          const minLaneWidth = 120;
+          const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
+          const preservePoolWidths = (diagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
+          const preserveWidth =
+            !!preservePoolWidths?.has(String(poolGroup.data?.key || "")) ||
+            !!effectiveForcedPoolSize;
+          let poolWidth = preserveWidth
+            ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
+            : (poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : minPoolWidth);
+
+          const model = diagram.model;
+          const measuredInnerWidth = (() => {
+            if (preserveWidth) return 0;
+            const bounds = (poolContentAnchor || poolContentPanel)?.getDocumentBounds?.();
+            if (bounds?.width && Number.isFinite(bounds.width) && bounds.width > 0) return bounds.width;
+            return 0;
+          })();
+          const initialLaneWidthAvailable = Math.max(
+            (measuredInnerWidth > 0 ? measuredInnerWidth : (poolWidth - poolLeftReserve)) - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+            minLaneWidth
+          );
+
+          const laneLayouts: Array<{
+            group: go.Group;
+            kind: 'lane' | 'pool';
+            height: number;
+            topY: number;
+          }> = [];
+          const nestedPoolsToRelayout: go.Group[] = [];
+
+          structuralGroups.forEach(({ group, kind }) => {
+            const laneSizeData = parseSizeString(group?.data?.size);
+            const resizeObject = group.resizeObject || group.placeholder || group;
+            const laneBounds = group.actualBounds?.copy();
+            const desiredSize = resizeObject?.desiredSize;
+
+            const laneHeight =
+              (typeof laneSizeData?.height === 'number' && Number.isFinite(laneSizeData.height) && laneSizeData.height > 0)
+                ? laneSizeData.height
+                : Math.max(
+                  (typeof desiredSize?.height === 'number' && Number.isFinite(desiredSize.height) && desiredSize.height > 0) ? desiredSize.height : 0,
+                  (typeof laneBounds?.height === 'number' && Number.isFinite(laneBounds.height) && laneBounds.height > 0) ? laneBounds.height : 0,
+                  260
+                );
+
+            laneLayouts.push({
+              group,
+              kind,
+              height: laneHeight,
+              topY: 0,
+            });
+          });
+
+          let currentY = poolLocation.y + laneTopMargin;
+          laneLayouts.forEach((layout, index) => {
+            layout.topY = currentY;
+            currentY += layout.height;
+            if (index < laneLayouts.length - 1) {
+              currentY += laneSpacing;
+            }
+          });
+          currentY += laneBottomMargin;
+
+          const totalHeight = currentY - poolLocation.y;
+          const finalLaneWidthAvailable = Math.max(
+            poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+            minLaneWidth
+          );
+
+          laneLayouts.forEach((layout) => {
+            const lane = layout.group;
+            const laneHeight = layout.height;
+            const laneTotalWidth = finalLaneWidthAvailable;
+            const isLaneGroup = layout.kind === 'lane';
+            const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
+            const laneHeaderWidth =
+              isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0
+                ? laneHeader.actualBounds.width
+                : 36;
+            const laneBodyWidth = isLaneGroup ? Math.max(20, laneTotalWidth - laneHeaderWidth) : laneTotalWidth;
+            const laneMain = lane.findObject("LANE_MAIN") as go.GraphObject | null;
+            const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
+            const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+            const laneMainShape = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+            const childPoolShape = !isLaneGroup ? lane.findObject("POOL_SHAPE") as go.GraphObject | null : null;
+
+            const laneTopLeftX = poolLocation.x + poolLeftReserve + lanePaddingLeft;
+            const laneTopLeft = new go.Point(laneTopLeftX, layout.topY);
+            let laneLocationPoint = laneTopLeft;
+            try {
+              const spot = lane.locationSpot;
+              if (spot && typeof spot.equals === 'function' && spot.equals(go.Spot.Center)) {
+                laneLocationPoint = new go.Point(
+                  laneTopLeftX + laneTotalWidth / 2,
+                  layout.topY + laneHeight / 2
+                );
+              }
+            } catch (err) {
+              laneLocationPoint = laneTopLeft;
+            }
+
+            lane.location = laneLocationPoint;
+            if (lane.data) {
+              const locString = go.Point.stringify(laneLocationPoint);
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(lane.data, 'loc', locString);
+              } else {
+                lane.data.loc = locString;
+              }
+            }
+
+            const newLaneMainSize = new go.Size(laneTotalWidth, laneHeight);
+            const resizeObject = lane.resizeObject || lane.placeholder || lane;
+            if (resizeObject) {
+              resizeObject.desiredSize = newLaneMainSize;
+            }
+            if (isLaneGroup && laneMain) {
+              (laneMain as any).desiredSize = newLaneMainSize;
+              (laneMain as any).width = laneTotalWidth;
+              (laneMain as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneMainShape) {
+              (laneMainShape as any).desiredSize = newLaneMainSize;
+              (laneMainShape as any).width = laneTotalWidth;
+              (laneMainShape as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneBodyPanel) {
+              (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+              (laneBodyPanel as any).width = laneBodyWidth;
+              (laneBodyPanel as any).height = laneHeight;
+            }
+            if (isLaneGroup && laneBody) {
+              (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
+              (laneBody as any).width = laneBodyWidth;
+              (laneBody as any).height = laneHeight;
+            }
+            if (!isLaneGroup && childPoolShape) {
+              (childPoolShape as any).desiredSize = newLaneMainSize;
+              (childPoolShape as any).width = laneTotalWidth;
+              (childPoolShape as any).height = laneHeight;
+              nestedPoolsToRelayout.push(lane);
+            }
+            try {
+              lane.desiredSize = newLaneMainSize;
+            } catch (err) {
+              // ignore if lane does not support desiredSize assignment
+            }
+            if (lane.data) {
+              const sizeString = `${laneBodyWidth} ${laneHeight}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(lane.data, 'size', sizeString);
+              } else {
+                lane.data.size = sizeString;
+              }
+            }
+            updateGroupObjectView(lane, laneLocationPoint, new go.Size(laneBodyWidth, laneHeight));
+
+            lane.ensureBounds();
+          });
+
+          if (poolResizeObject instanceof go.GraphObject) {
+            const desiredHeight = Math.max(totalHeight, 80);
+            const newPoolSize = new go.Size(poolWidth, desiredHeight);
+            poolResizeObject.desiredSize = newPoolSize;
+            try {
+              poolGroup.desiredSize = newPoolSize;
+            } catch (err) {
+              // ignore if pool group does not allow desiredSize assignment
+            }
+            if (poolGroup.data) {
+              const sizeString = `${poolWidth} ${desiredHeight}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(poolGroup.data, 'size', sizeString);
+              } else {
+                poolGroup.data.size = sizeString;
+              }
+            }
+            updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, newPoolSize);
+          } else {
+            const fallbackPoolSize = new go.Size(poolWidth, totalHeight);
+            try {
+              poolGroup.desiredSize = fallbackPoolSize;
+            } catch (err) {
+              // ignore if pool group does not allow desiredSize assignment
+            }
+            if (poolGroup.data) {
+              const sizeString = `${fallbackPoolSize.width} ${fallbackPoolSize.height}`;
+              if (model && typeof model.setDataProperty === 'function') {
+                model.setDataProperty(poolGroup.data, 'size', sizeString);
+              } else {
+                poolGroup.data.size = sizeString;
+              }
+            }
+            updateGroupObjectView(poolGroup, poolGroup.location || poolLocation, fallbackPoolSize);
+          }
+
+          poolGroup.ensureBounds();
+          nestedPoolsToRelayout.forEach((nestedPool) => {
+            if (nestedPool !== poolGroup) {
+              relayoutPoolGroupAfterLaneChanges(diagram, nestedPool, laneSpacing);
+            }
+          });
+        };
+
+        e.subject.each(function (n) {
+          const partData = n?.data;
+          if (!partData) {
+            return;
+          }
+          if (n instanceof go.Link) {
+            droppedRelLinks.push(partData);
+            return;
+          }
+          if (!shouldZoomToFitAfterDrop && isPoolLike(partData)) {
+            shouldZoomToFitAfterDrop = true;
+          }
+          if (isLaneLike(partData)) {
+            lanesDroppedIntoPool = true;
+            registerPoolFromPart(n);
+          }
+          const node = partData.key !== undefined ? myDiagram.findNodeForKey(partData.key) : null;
+          const diagramNode = node instanceof go.Node ? node : n instanceof go.Node ? n : null;
+          const resolveDroppedNodeLoc = (): string => {
+            const liveDataLoc = typeof diagramNode?.data?.loc === "string" ? diagramNode.data.loc : "";
+            if (liveDataLoc) {
+              return liveDataLoc;
+            }
+            const liveLocation = diagramNode?.location;
+            if (liveLocation instanceof go.Point && Number.isFinite(liveLocation.x) && Number.isFinite(liveLocation.y)) {
+              return go.Point.stringify(liveLocation);
+            }
+            return typeof partData?.loc === "string" ? partData.loc : "";
+          };
+          const droppedLoc = resolveDroppedNodeLoc();
+          if (droppedLoc) {
+            try {
+              myDiagram?.model?.setDataProperty?.(partData, "loc", droppedLoc);
+            } catch (_) {
+              try { partData.loc = droppedLoc; } catch (_) { /* ignore */ }
+            }
+            if (diagramNode?.data && diagramNode.data !== partData) {
+              try {
+                myDiagram?.model?.setDataProperty?.(diagramNode.data, "loc", droppedLoc);
+              } catch (_) {
+                try { diagramNode.data.loc = droppedLoc; } catch (_) { /* ignore */ }
+              }
+            }
+          }
+          if (isLaneLike(partData) && diagramNode instanceof go.Group) {
+            const targetLane = diagramNode.containingGroup instanceof go.Group && isLaneLike(diagramNode.containingGroup.data)
+              ? diagramNode.containingGroup
+              : null;
+            const targetPool = targetLane?.containingGroup instanceof go.Group && isPoolLike(targetLane.containingGroup.data)
+              ? targetLane.containingGroup
+              : (diagramNode.containingGroup instanceof go.Group && isPoolLike(diagramNode.containingGroup.data)
+                ? diagramNode.containingGroup
+                : null);
+            if (targetPool instanceof go.Group) {
+              const memberSet = new go.Set<go.Part>();
+              memberSet.add(diagramNode);
+              try {
+                targetPool.addMembers(memberSet, true);
+              } catch (_) {
+              }
+              if (diagramNode.data) {
+                try {
+                  myDiagram.model.setGroupKeyForNodeData(diagramNode.data, String(targetPool.key));
+                } catch (_) {
+                  try { myDiagram.model.setDataProperty(diagramNode.data, 'group', String(targetPool.key)); } catch (_) { }
+                }
+              }
+              affectedPoolKeys.add(String(targetPool.key));
+              lanesDroppedIntoPool = true;
+            }
+          }
+          const gjsNode = node?.data || partData;
+          let type: akm.cxObjectType = partData.objecttype;
+          let typeview: akm.cxObjectTypeView = partData.typeview;
+          let objview: akm.cxObjectView;
+          let objId: string;
+          let object: akm.cxObject;
+          let objName: string;
+          let objDescr: string;
+          if (!type || !typeview) { // An object has been dropped (dragged from object palette)
+            const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
+            if (resolvedType) {
+              type = resolvedType;
+            }
+            if (!type) {
+              return;
+            }
+            typeview = type.typeview || typeview || partData.typeview;
+            if (!typeview && typeof (type as any)?.getDefaultTypeView === 'function') {
+              typeview = (type as any).getDefaultTypeView();
+            }
+            if (!typeview) {
+              return;
+            }
+            objId = partData.objRef;
+            object = myMetis.findObject(objId);
+            if (object) {
+              myModel.addObject(object);
+              const key = partData.key;
+              objview = new akm.cxObjectView(key, partData.name, object, object.description, myModelview);
+              const isContainer = Boolean(
+                partData.viewkind === constants.viewkinds.CONT ||
+                type?.viewkind === constants.viewkinds.CONT ||
+                (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+              );
+              objview.isGroup = isContainer;
+              objview.viewkind = isContainer ? constants.viewkinds.CONT : constants.viewkinds.OBJ;
+              const templateName = isContainer
+                ? resolvePersistentGroupTemplate(partData)
+                : (partData.template || partData.category || constants.gojs.C_NODETEMPLATE);
+              const typeName = type?.name || objview?.object?.type?.name;
+              partData.isGroup = isContainer;
+              if (isContainer) {
+                partData.viewkind = constants.viewkinds.CONT;
+              } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
+                partData.viewkind = constants.viewkinds.OBJ;
+              }
+              if (diagramNode) {
+                diagramNode.isGroup = isContainer;
+                if (diagramNode.data) {
+                  diagramNode.data.isGroup = isContainer;
+                }
+              }
+              if (isContainer) {
+                objview.template = templateName;
+                partData.template = templateName;
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(partData, templateName);
+                } else {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data) {
+                  diagramNode.data.template = templateName;
+                  diagramNode.data.category = templateName;
+                }
+                ensureInitialGroupSize(
+                  myDiagram,
+                  diagramNode,
+                  partData,
+                  getSizeOptionsForType(typeName)
+                );
+              } else {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(
+                    partData,
+                    templateName || constants.gojs.C_NODETEMPLATE
+                  );
+                } else if (templateName) {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
+                  diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
+                }
+              }
+              objview.size = isContainer
+                ? getPersistedGroupSize(diagramNode || partData)
+                : partData.size;
+              objview = uic.setObjviewColors(partData, object, objview, typeview, myDiagram);
+              object.addObjectView(objview);
+              myModelview.addObjectView(objview);
+              myModelview.setFocusObjectview(objview);
+              myMetis.addObjectView(objview);
+              let goNode = myGoModel.findNode(key);
+              if (!goNode) {
+                goNode = new gjs.goObjectNode(key, myGoModel, objview);
+                goNode.loadNodeContent(myGoModel);
+                myGoModel.addNode(goNode);
+              }
+              if (isContainer) {
+                applyGroupTemplateToDiagram(diagramNode, templateName);
+              } else {
+                clearGroupTemplateFromDiagram(diagramNode);
+              }
+              // Dispatch modelview
+              const modifiedModelviews = new Array();
+              const jsnModelview = new jsn.jsnModelView(myModelview);
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+              });
+            }
+            if (objview && object) {
+              const objvIdName = { id: objview.id, name: objview.name };
+              const objIdName = { id: object.id, name: object.name };
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+            }
+          } else { // An object type has been dropped - create an object
+            // i.e. new object, new objectview, 
+            objName = node?.data?.object?.name
+              || partData.object?.name
+              || partData.name
+              || type?.name;
+            if (!objName || objName?.trim().length === 0) {
+              objName = type?.name || 'Object';
+            }
+            objDescr = node?.data?.object?.description
+              || partData.object?.description
+              || partData.description
+              || type?.description
+              || '';
+            type = myMetis.findObjectType(type?.id);
+            typeview = type?.typeview || typeview || partData.typeview;
+            if (type.name === 'Datatype' && objName === 'Datatype') {
+              let found = true;
+              while (found) {
+                objName = 'datatype' + Math.floor(Math.random() * 100);
+                found = myMetis.findDatatype(objName);
+              }
+              if (!found)
+                objName = prompt("Enter Datatype name;", objName);
+              partData.name = objName;
+            }
+            // Create a new object
+            objId = utils.createGuid();
+            object = new akm.cxObject(objId, objName, type, objDescr);
+            object.parentModelRef = myModel.id;
+            myModel.addObject(object);
+            myMetis.addObject(object);
+            console.log('1241 node, data', node, partData);
+            // Find the objectview
+            objview = myModelview.findObjectView(partData.key);
+            if (!objview) {
+              objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
+              const isContainer = Boolean(
+                partData.viewkind === constants.viewkinds.CONT ||
+                type?.viewkind === constants.viewkinds.CONT ||
+                (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+              );
+              objview.isGroup = isContainer;
+              const typeName = type?.name || objview?.object?.type?.name;
+              const templateName = isContainer
+                ? resolvePersistentGroupTemplate(partData)
+                : (partData.template || partData.category || constants.gojs.C_NODETEMPLATE);
+              partData.isGroup = isContainer;
+              if (isContainer) {
+                partData.viewkind = constants.viewkinds.CONT;
+              } else if (!partData.viewkind || partData.viewkind === constants.viewkinds.CONT) {
+                partData.viewkind = constants.viewkinds.OBJ;
+              }
+              if (diagramNode) {
+                diagramNode.isGroup = isContainer;
+                if (diagramNode.data) {
+                  diagramNode.data.isGroup = isContainer;
+                }
+              }
+              if (isContainer) {
+                objview.template = templateName;
+                partData.template = templateName;
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(partData, templateName);
+                } else {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data) {
+                  diagramNode.data.template = templateName;
+                  diagramNode.data.category = templateName;
+                }
+                ensureInitialGroupSize(
+                  myDiagram,
+                  diagramNode,
+                  partData,
+                  getSizeOptionsForType(typeName)
+                );
+              } else {
+                if (typeof myDiagram?.model?.setCategoryForNodeData === 'function') {
+                  myDiagram.model.setCategoryForNodeData(
+                    partData,
+                    templateName || constants.gojs.C_NODETEMPLATE
+                  );
+                } else if (templateName) {
+                  partData.category = templateName;
+                }
+                if (diagramNode?.data && (templateName || constants.gojs.C_NODETEMPLATE)) {
+                  diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
+                }
+              }
+              objview.objectRef = object.id;
+              objview.groupLayout = partData.groupLayout;
+              object.addObjectView(objview);
+              myModelview.addObjectView(objview);
+              myMetis.addObjectView(objview);
+              if (isContainer) {
+                applyGroupTemplateToDiagram(diagramNode, templateName);
+              } else {
+                clearGroupTemplateFromDiagram(diagramNode);
+              }
+            }
+            myModelview.setFocusObjectview(objview);
+          }
+          const syncDroppedPartRefs = (data: any) => {
+            if (!data || !object || !objview) return;
+            const persistentTemplate = objview.isGroup ? resolvePersistentGroupTemplate(objview.template ? objview : data) : '';
+            const setProp = (prop: string, value: any) => {
+              try {
+                myDiagram?.model?.setDataProperty?.(data, prop, value);
+              } catch (_) {
+                try { data[prop] = value; } catch (_) { /* ignore */ }
+              }
+            };
+            setProp('object', object);
+            setProp('objectview', objview);
+            setProp('objRef', object.id);
+            setProp('objviewRef', objview.id);
+            setProp('objecttype', type);
+            setProp('typeview', typeview);
+            if (persistentTemplate) {
+              setProp('template', persistentTemplate);
+              setProp('category', persistentTemplate);
+            }
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              setProp('category', data.template || constants.gojs.C_NODETEMPLATE);
+            }
+          };
+
+          syncDroppedPartRefs(partData);
+          if (diagramNode?.data && diagramNode.data !== partData) {
+            syncDroppedPartRefs(diagramNode.data);
+          }
+          let fillcolor = "";
+          let strokecolor = "";
+          let textcolor = "";
+          let part = partData;
+          const templateName = String(part.template || "");
+          const isContainerLike =
+            part.isGroup === true ||
+            part.viewkind === constants.viewkinds.CONT ||
+            type?.viewkind === constants.viewkinds.CONT ||
+            templateName.startsWith("group");
+          if (isContainerLike) {
+            part.isGroup = true;
+            part.viewkind = constants.viewkinds.CONT;
+            part.template = resolvePersistentGroupTemplate(part);
+            part.isExpanded = true;
+            part.isSubGraphExpanded = true;
+            part.scale = Number(part.scale) || Number(part.scale1) || Number(part.objectview?.scale) || 1;
+            if ((!part.name || String(part.name).trim() === "") && (part.typename || type?.name)) {
+              part.name = String(part.typename || type?.name);
+            }
+          }
+          if (!isContainerLike) {
+            part.scale = Number(n.scale);
+          }
+          if (part.size === "" || !part.size) {
+            if (part.isGroup) {
+              part.size = "200 100";
+            } else {
+              part.size = "160 70";
+            }
+          }
+
+          if (object) {
+            fillcolor = object.fillcolor ? object.fillcolor : part.fillcolor;
+            strokecolor = object.strokecolor ? object.strokecolor : part.strokecolor;
+            textcolor = object.textcolor ? object.textcolor : part.textcolor;
+          }
+          if (!object) {
+            object = new akm.cxObject(objId, objName, type, objDescr);
+            uic.copyProperties(object, part);
+            object.setModified();
+            myModel.addObject(object);
+            myMetis.addObject(object);
+          }
+            if (!objview || !(objview instanceof akm.cxObjectView)) {
+            objview = new akm.cxObjectView(part.key, part.name, object, part.description, myModelview);
+            const isContainer = Boolean(
+              part.viewkind === constants.viewkinds.CONT ||
+              type?.viewkind === constants.viewkinds.CONT ||
+              (typeof (type as any)?.isContainer === 'function' && (type as any).isContainer())
+            );
+            objview.isGroup = isContainer;
+            objview = uic.setObjviewColors(part, object, objview, typeview, myDiagram);
+            objview.loc = droppedLoc || part.loc;
+            objview.viewkind = isContainer ? constants.viewkinds.CONT : type.viewkind;
+            objview.scale = Number(part.scale);
+            objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
+            objview.setModified();
+            myModelview.addObjectView(objview);
+            myMetis.addObjectView(objview);
+          } else {
+            objview.loc = droppedLoc || part.loc;
+            objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
+          }
+          if (part.isGroup) {
+            objview.isGroup = true;
+            objview.viewkind = constants.viewkinds.CONT;
+            objview.template = resolvePersistentGroupTemplate(part);
+            objview.isExpanded = true;
+            objview.scale = Number(part.scale) || Number(part.scale1) || Number(objview.scale) || 1;
+          }
+          let goNode = myGoModel.findNodeByViewId(objview.id);
+          if (!goNode) {
+            goNode = new gjs.goObjectNode(objview.id, myGoModel, objview);
+            goNode.loadNodeContent(myGoModel);
+            // uic.updateNode(goNode, typeview, myDiagram, myGoModel);
+            myGoModel.addNode(goNode);
+            // myDiagram.model.addNodeData(goNode);
+          }
+          // Check if goNode is member of a group. Prefer the actual GoJS membership/data
+          // resolved during the drop before falling back to geometry.
+          const containingGroupKey =
+            node?.containingGroup instanceof go.Group && node.containingGroup.key !== undefined && node.containingGroup.key !== null
+              ? node.containingGroup.key
+              : (part?.group || part?.data?.group || "");
+          let group = containingGroupKey
+            ? myGoModel.findNode(containingGroupKey)
+            : null;
+          if (!group) {
+            group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
+          }
+          if (group) {
+            const parentgroup = group;
+            goNode.group = parentgroup.key;
+            goNode.objectview.group = parentgroup.objviewRef;
+            myDiagram.model.setDataProperty(part, "group", goNode.group);
+            let nextScale = 1.0;
+            if (isGroupLikeNode(goNode, part)) {
+              const parentPart = myDiagram.findNodeForKey(parentgroup.key) as go.Group | null;
+              resizeGroupToHalfParent(myDiagram, part, node, parentPart);
+              nextScale = applyDerivedScaleToPart(myDiagram, node, parentPart, goNode.objectview, goNode);
+            } else {
+              nextScale = applyDerivedScaleToPart(myDiagram, node, myDiagram.findNodeForKey(parentgroup.key) as go.Group | null, goNode.objectview, goNode);
+            }
+            part.scale = Number(nextScale);
+            gjsNode.scale = part.scale
+            goNode.objectview.scale = part.scale;
+            // Check if the node has a relationship (contains) FROM a group, if not create it
+            const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
+            const parenttype = parentgroup.objecttype;
+            const parentObj = parentgroup.object;
+            const childtype = type;
+            const childObj = object;
+            const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
+            if (!myHasPartRelship && parentObj && childObj) {
+              // Create the relationship
+              const relId = utils.createGuid();
+              const relName = constants.types.AKM_CONTAINS;
+              const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
+              hasPartRelship.parentModelRef = myModel.id;
+              myModel.addRelationship(hasPartRelship);
+              parentObj.addOutputrel(hasPartRelship);
+              childObj.addInputrel(hasPartRelship);
+              myMetis.addRelationship(hasPartRelship);
+              // Prepare dispatch
+              const jsnRel = new jsn.jsnRelationship(hasPartRelship);
+              modifiedRelships.push(jsnRel);
+            }
+          }
+          // if (goNode) {
+          //   goNode.object = null;
+          //   goNode.objecttype = null;
+          //   goNode.objectview = null;
+          // }
+          const isLabel = (part.typename === 'Label');
+          if (isLabel) {
+            part.text = "Label";
+          }
+          // Prepare dispatch
+          if (part.type === 'objecttype') {
+            const otype = uic.createObjectType(part, context);
+            if (otype) {
+              otype.typename = constants.types.OBJECTTYPE_NAME;
+              const jsnObjtype = new jsn.jsnObjectType(otype, true);
+              modifiedObjectTypes.push(jsnObjtype);
+
+              const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
+              modifiedObjectTypeViews.push(jsnObjtypeView);
+
+              const loc = part.loc;
+              const size = part.size;
+              const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
+              const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
+              modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+            }
+          } else // object
+          {
+            modifiedObjectViews.push({
+              id: objview?.id,
+              loc: objview?.loc,
+              size: objview?.size,
+              scale: objview?.scale,
+              group: objview?.group,
+              isExpanded: objview?.isExpanded,
+            });
+            const jsnObj = new jsn.jsnObject(object);
+            modifiedObjects.push(jsnObj);
+            const objvIdName = { id: objview.id, name: objview.name };
+            const objIdName = { id: objview.object.id, name: objview.object.name };
+            myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+            myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+          }
+          node?.updateTargetBindings();
+          if (part.isGroup) {
+            const droppedPart = (myDiagram.findPartForKey(part.key) || n) as go.Part;
+            const droppedGroup = droppedPart instanceof go.Group ? droppedPart : null;
+            if (droppedGroup) {
+              droppedGroup.isSubGraphExpanded = true;
+            }
+            const d = droppedPart?.data || n?.data;
+            if (d) {
+              const persistedScale = Number(objview?.scale ?? part.scale ?? d.scale ?? 1);
+              myDiagram.model.setDataProperty(d, "isExpanded", true);
+              myDiagram.model.setDataProperty(d, "isSubGraphExpanded", true);
+              myDiagram.model.setDataProperty(d, "scale", persistedScale);
+              myDiagram.model.setDataProperty(d, "scale1", persistedScale);
+            }
+          }
+        })
+
+        droppedRelLinks.forEach((linkData: any) => {
+          const fromKey = linkData?.from || linkData?.fromNode?.key;
+          const toKey = linkData?.to || linkData?.toNode?.key;
+          if (!fromKey || !toKey) {
+            return;
+          }
+
+          const fromObjview = myModelview?.findObjectView(fromKey);
+          const toObjview = myModelview?.findObjectView(toKey);
+          const fromObject = fromObjview?.object;
+          const toObject = toObjview?.object;
+          if (!fromObjview || !toObjview || !fromObject || !toObject) {
+            return;
+          }
+
+          const fromType = fromObject.type || (fromObject.typeRef ? myMetamodel?.findObjectType(fromObject.typeRef) : null);
+          const toType = toObject.type || (toObject.typeRef ? myMetamodel?.findObjectType(toObject.typeRef) : null);
+          if (!fromType || !toType) {
+            return;
+          }
+
+          let reltype = linkData?.reltype || linkData?.relshiptype;
+          if (!reltype && linkData?.reltypeRef) {
+            reltype = myMetamodel?.findRelationshipType(linkData.reltypeRef) || myMetis.findRelationshipType(linkData.reltypeRef);
+          }
+          const relName = (reltype && reltype.name) || linkData?.name;
+          if (!reltype && relName) {
+            reltype = myMetamodel?.findRelationshipTypeByName2(relName, fromType, toType)
+              || myMetis.findRelationshipTypeByName2(relName, fromType, toType);
+          }
+          if (!reltype) {
+            return;
+          }
+
+          const relContext = {
+            ...context,
+            gjsData: linkData,
+          };
+
+          const args = {
+            data: linkData,
+            metamodel: myMetamodel,
+            typename: reltype.name,
+            fromType,
+            toType,
+            nodeFrom: null,
+            nodeTo: null,
+            fromPort: linkData?.fromPort || linkData?.portFrom,
+            toPort: linkData?.toPort || linkData?.portTo,
+            context: relContext,
+          };
+
+          uic.createRelshipCallback(args);
+        });
+
+        // Finalize dropped node persistence from the live diagram state.
+        // The visual drop position is correct at this point; use that as the
+        // source of truth before queued Redux/objectview updates run.
+        droppedNodesForLayout.forEach((droppedNode: go.Node) => {
+          const liveNode =
+            (droppedNode?.data?.key !== undefined ? myDiagram.findNodeForKey(droppedNode.data.key) : null) ||
+            droppedNode;
+          if (!(liveNode instanceof go.Node)) return;
+          const liveData: any = liveNode.data || {};
+          const liveLoc =
+            (typeof liveData.loc === "string" && liveData.loc) ||
+            (liveNode.location instanceof go.Point ? go.Point.stringify(liveNode.location) : "");
+          const liveSize =
+            (typeof liveData.size === "string" && liveData.size) ||
+            (liveNode.actualBounds ? `${liveNode.actualBounds.width} ${liveNode.actualBounds.height}` : "");
+          const liveScale = Number(liveData.scale ?? liveNode.scale ?? 1) || 1;
+          const objectview =
+            liveData.objectview ||
+            myModelview?.findObjectView?.(liveData.key) ||
+            myModelview?.findObjectView?.(liveData.objviewRef);
+          if (!objectview?.id) return;
+          if (liveLoc) {
+            objectview.loc = liveLoc;
+            try { myDiagram.model.setDataProperty(liveData, "loc", liveLoc); } catch (_) { }
+          }
+          if (liveSize) {
+            objectview.size = liveSize;
+          }
+          objectview.scale = liveScale;
+          uic.addItemToList(modifiedObjectViews, {
+            id: objectview.id,
+            loc: objectview.loc,
+            size: objectview.size,
+            scale: objectview.scale,
+            group: objectview.group,
+            isExpanded: objectview.isExpanded,
+          });
+        });
+
+        try {
+          const droppedNodeKeys = new Set<string>();
+          droppedNodesForLayout.forEach((droppedNode: go.Node) => {
+            const liveKey = droppedNode?.data?.key;
+            if (liveKey !== undefined && liveKey !== null) {
+              droppedNodeKeys.add(String(liveKey));
+            }
+          });
+          if (droppedNodeKeys.size > 0) {
+            (myDiagram as any).__skipNextExternalDropNodeSyncKeys = droppedNodeKeys;
+            (myDiagram as any).__preserveExternalDropNodeKeys = new Set(droppedNodeKeys);
+            (myDiagram as any).__preserveExternalDropNodeKeysUntil = Date.now() + 2500;
+            (myDiagram as any).__suppressPropSyncUntil = Math.max(
+              Number((myDiagram as any).__suppressPropSyncUntil || 0),
+              Date.now() + 1200
+            );
+          }
+          const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+            ? [...(myDiagram.model as any).nodeDataArray]
+            : this.state.nodeDataArray;
+          const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+            ? [...(myDiagram.model as any).linkDataArray]
+            : this.state.linkDataArray;
+          this.setState({
+            nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+            linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+            skipsDiagramUpdate: true,
+          });
+        } catch (_) {
+        }
+
+        // Avoid overwriting freshly dropped objectview coordinates with a
+        // whole-modelview snapshot. Individual objectview dispatches below are
+        // the canonical post-drop persistence path.
+        if (myDiagram) {
+          const toolManager = myDiagram.toolManager;
+          const activeTool = toolManager.currentTool;
+          if (activeTool && activeTool.isActive) {
+            if (activeTool instanceof go.DraggingTool) {
+              activeTool.stopTool();
+            } else if (typeof activeTool.doCancel === 'function') {
+              activeTool.doCancel();
+            }
+          }
+          const dropDragTool = toolManager.draggingTool;
+          if (dropDragTool && dropDragTool.isActive) {
+            dropDragTool.stopTool();
+          }
+          const dropDraggedParts = dropDragTool?.draggedParts;
+          if (dropDraggedParts?.count > 0) {
+            dropDraggedParts.clear();
+          }
+          const dropCopiedParts = dropDragTool?.copiedParts;
+          if (dropCopiedParts?.count > 0) {
+            dropCopiedParts.clear();
+          }
+        }
+        if (lanesDroppedIntoPool && myDiagram && affectedPoolKeys.size > 0) {
+          const shouldStart = !myDiagram.isInTransaction;
+          if (shouldStart) {
+            myDiagram.startTransaction('relayout-pools-after-lane-drop');
+          }
+          try {
+            affectedPoolKeys.forEach((poolKey) => {
+              const poolPart = myDiagram.findNodeForKey(poolKey);
+              if (poolPart instanceof go.Group) {
+                if (poolPart.layout) {
+                  if (typeof poolPart.layout.invalidateLayout === 'function') {
+                    poolPart.layout.invalidateLayout();
+                  } else {
+                    poolPart.layout.isValidLayout = false;
+                  }
+                }
+                relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
+              }
+            });
+          } finally {
+            if (shouldStart && myDiagram.isInTransaction) {
+              myDiagram.commitTransaction('relayout-pools-after-lane-drop');
+            }
+          }
+          try {
+            myDiagram.layoutDiagram(true);
+          } catch (_) {
+            try { myDiagram.requestUpdate(); } catch (_) { }
+          }
+        }
+        if (shouldZoomToFitAfterDrop && myDiagram) {
+          myDiagram.commandHandler.zoomToFit();
+        }
+        break;
+      }
+      case "ObjectDoubleClicked": {
+        const clickedPortObject = resolveClickedPortGraphObject(e.subject);
+        if (clickedPortObject) {
+          break;
+        }
+        const suppressUntil = Number((myDiagram as any)?._suppressObjectDoubleClickUntil || 0);
+        if (suppressUntil > Date.now()) {
+          try { (myDiagram as any)._suppressObjectDoubleClickUntil = 0; } catch (_) { }
+          break;
+        }
+        let sel = e.subject.part;
+        const node = sel.data;
+        if (debug) console.log('981 node', node);
+        const category = node.category;
+        switch (category) {
+          case constants.gojs.C_OBJECTTYPE:
+            uid.editObjectType(node, myMetis, myDiagram);
+            break;
+          case constants.gojs.C_OBJECT:
+            if (debug) console.log('988 myMetis', myMetis);
+            uid.editObject(node, myMetis, myDiagram);
+            if (debug) console.log('990 myMetis', myMetis);
+            break;
+        }
+        break;
+      }
+      case "ObjectSingleClicked": {
+        const suppressUntil = Number((myDiagram as any)?.__spacePanSuppressClickUntil || 0);
+        const suppressObjectSingleClickUntil = Number((myDiagram as any)?.__suppressObjectSingleClickUntil || 0);
+        const activeTool = myDiagram?.currentTool;
+        const suppressObjectSingleClick =
+          suppressUntil > Date.now() ||
+          suppressObjectSingleClickUntil > Date.now() ||
+          (activeTool instanceof go.DraggingTool && activeTool.isActive === true);
+        if (suppressObjectSingleClick) {
+          break;
+        }
+        const clickedPortObject = resolveClickedPortGraphObject(e.subject);
+        if (clickedPortObject) {
+          break;
+        }
+        const sel = e.subject.part;
+        let data = sel.data;
+        // sel.location = data.loc;
+        if (debug) console.log('1313 selected', data, sel);
+        if (data?.category === constants.gojs.C_RELATIONSHIP) {
+          const relview =
+            myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+            myMetis.findRelationshipView(data?.relviewRef || data?.key) ||
+            data?.relshipview;
+          const relship =
+            myModel.findRelationship(data?.relshipRef) ||
+            myMetis.findRelationship(data?.relshipRef) ||
+            relview?.relship;
+          const reltype =
+            relship?.type ||
+            myMetamodel?.findRelationshipType(relship?.typeRef) ||
+            myMetis.findRelationshipType(data?.reltypeRef);
+          if (relview) {
+            context.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data: { id: relview.id, name: relview.name || '' } });
+          }
+          if (relship) {
+            context.dispatch({ type: 'SET_FOCUS_RELSHIP', data: { id: relship.id, name: relship.name || '' } });
+          }
+          if (reltype) {
+            context.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data: { id: reltype.id, name: reltype.name || '' } });
+          }
+          break;
+        }
+        let objectview = myModelview.findObjectView(data?.key);
+        if (!objectview) objectview = myModelview.findObjectView(data?.fromNode?.key);
+        const object = objectview?.object;
+        for (let it = myDiagram.nodes; it?.next();) {
+          const n = it.value;
+          const data = n.data;
+          if (data.isSelected) {
+            if (debug) console.log('1319 goNode', data);
+          }
+        }
+        {
+          const goNode: gjs.goObjectNode = myGoModel.findNode(data.key);
+          if (debug) console.log('1319 myGoModel, goNode', myGoModel, goNode);
+        }
+        if (objectview && object) {
+          const objvIdName = { id: objectview.id, name: objectview.name };
+          const objIdName = { id: object.id, name: object.name };
+          const objtype = object?.type || myMetamodel?.findObjectType(object?.typeRef);
+          const objtypeIdName = objtype ? { id: objtype.id, name: objtype.name } : { id: '', name: '' };
+
+          if (debug) console.log('1072 SET_FOCUS_OBJECTVIEW', objvIdName, objIdName)
+          context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+          context.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+          context.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data: objtypeIdName });
+        }
+        for (let it = sel.memberParts; it?.next();) {
+          let n = it.value;
+          if (n instanceof go.Link) continue;
+          if (debug) console.log('1079 n', n.data);
+        }
+        break;
+      }
+      case "ObjectContextClicked": { // right clicked
+        const sel = e.subject.part;
+        const data = sel.data;
+        // dispatch to focusCollection here ???
+        if (debug) console.log('1316 selected', data, sel);
+        break;
+      }
+      case "PartResized": {
+        const affectedPoolKeys = new Set<string>();
+        const resizedPoolKeys = new Set<string>();
+        const resizedParts = new go.Set<go.Part>();
+        const subjectPart = (e.subject as any)?.part || e.subject;
+        if (subjectPart instanceof go.Part) {
+          resizedParts.add(subjectPart);
+        }
+        const selection = e.diagram.selection;
+        for (let it = selection.iterator; it?.next();) {
+          const p = it.value;
+          if (p instanceof go.Part) resizedParts.add(p);
+        }
+        for (let it = resizedParts.iterator; it?.next();) {
+          let n = it.value;
+          if (n.data.isGroup) {
+            let objview: akm.cxObjectView;
+            objview = myModelview.findObjectView(n.data.key);
+            if (!objview)
+              continue;
+            const category = n.data?.category || n.data?.template;
+            if (category === 'Lane' || category === 'Lane_w_handles') {
+              const laneMain = n.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+              const laneHeader = n.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+              const laneBody = n.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+              if (laneBody || laneMain) {
+                const headerWidth = laneHeader ? laneHeader.actualBounds.width : 36;
+                const resizedMain = n.resizeObjectName === "LANE_MAIN";
+                const sourceWidth = resizedMain
+                  ? Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth)
+                  : (laneBody ? laneBody.actualBounds.width : Math.max(20, (laneMain?.actualBounds.width || 0) - headerWidth));
+                const sourceHeight = resizedMain
+                  ? (laneMain?.actualBounds.height || 0)
+                  : (laneBody ? laneBody.actualBounds.height : (laneMain?.actualBounds.height || 0));
+                const nextBodyWidth = Math.max(20, sourceWidth);
+                const nextBodyHeight = Math.max(20, sourceHeight);
+                if (laneBody) {
+                  (laneBody as any).width = nextBodyWidth;
+                  (laneBody as any).height = nextBodyHeight;
+                }
+                const bodySize = `${nextBodyWidth} ${nextBodyHeight}`;
+                myDiagram.model.setDataProperty(n.data, "size", bodySize);
+              }
+            } else if (category === 'Pool') {
+              const poolShape = n.findObject("POOL_SHAPE") as go.GraphObject | null;
+              const resizedWidth =
+                (typeof poolShape?.actualBounds?.width === 'number' && Number.isFinite(poolShape.actualBounds.width) && poolShape.actualBounds.width > 0)
+                  ? poolShape.actualBounds.width
+                  : (typeof n.actualBounds?.width === 'number' && Number.isFinite(n.actualBounds.width) ? n.actualBounds.width : 0);
+              const resizedHeight =
+                (typeof poolShape?.actualBounds?.height === 'number' && Number.isFinite(poolShape.actualBounds.height) && poolShape.actualBounds.height > 0)
+                  ? poolShape.actualBounds.height
+                  : (typeof n.actualBounds?.height === 'number' && Number.isFinite(n.actualBounds.height) ? n.actualBounds.height : 0);
+              if (resizedWidth > 0 && resizedHeight > 0) {
+                myDiagram.model.setDataProperty(n.data, "size", `${resizedWidth} ${resizedHeight}`);
+                const forcedPoolSizes = (myDiagram as any).__forcedPoolLayoutSizes || {};
+                forcedPoolSizes[String(n.data.key)] = { width: resizedWidth, height: resizedHeight };
+                (myDiagram as any).__forcedPoolLayoutSizes = forcedPoolSizes;
+                syncPoolLaneWidthsToPool(String(n.data.key));
+              }
+            } else {
+              const resizeObject = (n.resizeObject || n.findObject?.("SHAPE") || n.findObject?.("BODY")) as go.GraphObject | null;
+              const resizedWidth =
+                (typeof resizeObject?.desiredSize?.width === 'number' && Number.isFinite(resizeObject.desiredSize.width) && resizeObject.desiredSize.width > 0)
+                  ? resizeObject.desiredSize.width
+                  : (typeof resizeObject?.actualBounds?.width === 'number' && Number.isFinite(resizeObject.actualBounds.width) && resizeObject.actualBounds.width > 0)
+                    ? resizeObject.actualBounds.width
+                    : (typeof n.actualBounds?.width === 'number' && Number.isFinite(n.actualBounds.width))
+                      ? n.actualBounds.width
+                      : 0;
+              const resizedHeight =
+                (typeof resizeObject?.desiredSize?.height === 'number' && Number.isFinite(resizeObject.desiredSize.height) && resizeObject.desiredSize.height > 0)
+                  ? resizeObject.desiredSize.height
+                  : (typeof resizeObject?.actualBounds?.height === 'number' && Number.isFinite(resizeObject.actualBounds.height) && resizeObject.actualBounds.height > 0)
+                    ? resizeObject.actualBounds.height
+                    : (typeof n.actualBounds?.height === 'number' && Number.isFinite(n.actualBounds.height))
+                      ? n.actualBounds.height
+                      : 0;
+              if (resizedWidth > 0 && resizedHeight > 0) {
+                myDiagram.model.setDataProperty(n.data, "size", `${resizedWidth} ${resizedHeight}`);
+              }
+            }
+            objview.loc = n.data.loc;
+            objview.size = n.data.size;
+            let myNode = myGoModel.findNodeByViewId(n.data.key);
+            myNode.size = objview.size;
+            myNode.key = objview.id;
+            if (category === 'Pool') {
+              affectedPoolKeys.add(n.data.key);
+              resizedPoolKeys.add(n.data.key);
+            }
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            uic.addItemToList(modifiedObjectViews, jsnObjview);
+            let children = n.memberParts;
+            for (let it = children.iterator; it?.next();) {
+              let c = it.value;
+              if (c instanceof go.Node) {
+                let data = c.data;
+                const objview = data.objectview;
+                if (objview) {
+                  objview.loc = data.loc;
+                  objview.size = data.size;
+                  const jsnObjview = new jsn.jsnObjectView(objview);
+                  uic.addItemToList(modifiedObjectViews, jsnObjview);
+                }
+              }
+            }
+          }
+        }
+        if (resizedPoolKeys.size > 0) {
+          const pendingPoolKeys = new Set<string>((myDiagram as any).__pendingResizedPoolKeys || []);
+          resizedPoolKeys.forEach((key) => pendingPoolKeys.add(String(key)));
+          (myDiagram as any).__pendingResizedPoolKeys = pendingPoolKeys;
+          if ((myDiagram as any).__pendingPoolResizeRelayoutTimer) {
+            clearTimeout((myDiagram as any).__pendingPoolResizeRelayoutTimer);
+          }
+          (myDiagram as any).__pendingPoolResizeRelayoutTimer = setTimeout(() => {
+            delete (myDiagram as any).__pendingPoolResizeRelayoutTimer;
+            const pendingKeys = new Set<string>((myDiagram as any).__pendingResizedPoolKeys || []);
+            delete (myDiagram as any).__pendingResizedPoolKeys;
+            if (pendingKeys.size === 0) return;
+            (myDiagram as any).__preserveResizedPoolWidths = pendingKeys;
+            pendingKeys.forEach((poolKey) => syncPoolLaneWidthsToPool(poolKey));
+            pendingKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+            delete (myDiagram as any).__preserveResizedPoolWidths;
+          }, 60);
+          if (affectedPoolKeys.size > resizedPoolKeys.size) {
+            const nonResizedAffectedPoolKeys = new Set<string>();
+            affectedPoolKeys.forEach((key) => {
+              if (!resizedPoolKeys.has(key)) nonResizedAffectedPoolKeys.add(key);
+            });
+            relayoutPoolsByKeys(nonResizedAffectedPoolKeys);
+          }
+        } else {
+          if (resizedPoolKeys.size > 0) {
+            (myDiagram as any).__preserveResizedPoolWidths = resizedPoolKeys;
+            resizedPoolKeys.forEach((poolKey) => syncPoolLaneWidthsToPool(poolKey));
+            resizedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+          }
+          const nonResizedAffectedPoolKeys = new Set<string>();
+          affectedPoolKeys.forEach((key) => {
+            if (!resizedPoolKeys.has(key)) nonResizedAffectedPoolKeys.add(key);
+          });
+          relayoutPoolsByKeys(nonResizedAffectedPoolKeys);
+          if (resizedPoolKeys.size > 0) {
+            delete (myDiagram as any).__preserveResizedPoolWidths;
+          }
+        }
+        break;
+      }
+      case 'ClipboardChanged': {
+        const nodes = e.subject;
+        if (debug) console.log('nodes', nodes);
+        break;
+      }
+      case 'ClipboardPasted': {
+        const selection = e.subject;
+        let pasteAnotherModelview = false;
+        let pasteViewsOnly = myMetis.pasteViewsOnly;
+        let readOnly = false
+        let fromModel = myModel;
+        let toModel = myModel;
+        let fromGoModel = myMetis.gojsModel;
+        let toGoModel = myMetis.gojsModel;
+        let fromModelview = myModelview;
+        let toModelview = myModelview;
+        let copiedNodes = new Array();
+        let pastedNodes = new Array();
+        // Remember copied nodes
+        let it = selection.iterator;
+        while (it.next()) {
+          if (it.value instanceof go.Node) {
+            let objtype: akm.cxObjectType;
+            // Filter out copied (source) nodes
+            let gjsNode = it.value.data;
+            fromModelview = gjsNode.fromModelview;
+            fromGoModel = gjsNode.fromGoModel;
+            let gjsCopiedNode = gjsNode.fromNode;
+            if (!gjsCopiedNode)
+              continue;
+            let copiedNodeKey = gjsCopiedNode.key;
+            let pastedNodeKey = copiedNodeKey;
+            if (copiedNodeKey?.length == gjsNode.key.length) {
+              pasteAnotherModelview = true;
+              pastedNodeKey = utils.createGuid();
+              gjsNode.key = pastedNodeKey;
+              toModelview = myModelview;
+              toGoModel = myGoModel;
+              // toGoModel = new gjs.goModel(utils.createGuid(), toModelview.name, toModelview);
+            }
+            const myCopiedNode = new akm.cxNode();
+            myCopiedNode.name = gjsNode.name;
+            myCopiedNode.objId = gjsCopiedNode.objid;
+            myCopiedNode.object = myMetis.findObject(myCopiedNode.objId);
+            myCopiedNode.descr = myCopiedNode.object?.description;
+            myCopiedNode.objecttype = myCopiedNode.object?.type;
+            myCopiedNode.objviewId = gjsCopiedNode.objviewid;;
+            myCopiedNode.objectview = fromModelview.findObjectView(myCopiedNode.objviewId);
+            myCopiedNode.gjsKey = copiedNodeKey;
+            myCopiedNode.gjsNode = gjsCopiedNode;
+            myCopiedNode.memberscale = Number(gjsCopiedNode.memberscale);
+            myCopiedNode.loc = gjsCopiedNode.loc;
+            myCopiedNode.size = gjsCopiedNode.size;
+            myCopiedNode.group = gjsCopiedNode.group; // Group key
+            myCopiedNode.isGroup = gjsCopiedNode.isGroup;
+            myCopiedNode.goNodeId = copiedNodeKey;
+            let myCopiedGoNode: gjs.goObjectNode = fromGoModel.findNode(myCopiedNode.goNodeId);
+            myCopiedNode.goNode = myCopiedGoNode;
+            copiedNodes.push(myCopiedNode);
+
+            const myPastedNode = new akm.cxNode();
+            myPastedNode.name = myCopiedNode.name;
+            myPastedNode.objecttype = myCopiedNode.objecttype;
+            if (pasteViewsOnly)
+              myPastedNode.object = myCopiedNode.object;
+            else {
+              myPastedNode.objId = utils.createGuid();
+              myPastedNode.object = new akm.cxObject(myPastedNode.objId, myPastedNode.name, myPastedNode.objecttype, myCopiedNode.descr);
+              // Paste all object attributes
+              uic.copyProperties(myPastedNode.object, myCopiedNode.object);
+              myPastedNode.object.setModified();
+              myModel.addObject(myPastedNode.object);
+              myMetis.addObject(myPastedNode.object);
+            }
+            myPastedNode.objviewId = utils.createGuid();
+            myPastedNode.goNodeId = myPastedNode.objviewId;
+            myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
+              myPastedNode.object, myCopiedNode.descr, toModelview);
+            gjsNode.key = myPastedNode.objviewId;
+            uic.copyObjviewAttributes(myPastedNode.objectview, myCopiedNode.objectview);
+            myPastedNode.loc = gjsNode.loc;
+            myPastedNode.size = gjsNode.size;
+            myPastedNode.gjsKey = gjsNode.key;
+            const pastedLiveGroupKey =
+              typeof gjsNode?.group === "string" && gjsNode.group.length > 0
+                ? String(gjsNode.group)
+                : "";
+            const copiedGroupKey =
+              typeof myCopiedNode?.group === "string" && myCopiedNode.group.length > 0
+                ? String(myCopiedNode.group)
+                : "";
+            const copiedObjectviewGroupKey =
+              typeof myCopiedNode?.objectview?.group === "string" && myCopiedNode.objectview.group.length > 0
+                ? String(myCopiedNode.objectview.group)
+                : "";
+            myPastedNode.group = pastedLiveGroupKey || copiedGroupKey || copiedObjectviewGroupKey || "";
+            myPastedNode.isGroup = gjsNode.isGroup;
+            myPastedNode.objectview.loc = myPastedNode.loc;
+            myPastedNode.objectview.size = myPastedNode.size;
+            myPastedNode.objectview.group = myPastedNode.group;
+            myPastedNode.objectview.readOnly = readOnly;
+            myPastedNode.objecttype = myCopiedNode.objecttype;
+            try {
+              myDiagram.model.setDataProperty(gjsNode, "key", myPastedNode.objviewId);
+            } catch (_) {
+              try { gjsNode.key = myPastedNode.objviewId; } catch (_err) { }
+            }
+            try { myDiagram.model.setDataProperty(gjsNode, "objectview", myPastedNode.objectview); } catch (_) { gjsNode.objectview = myPastedNode.objectview; }
+            try { myDiagram.model.setDataProperty(gjsNode, "object", myPastedNode.object); } catch (_) { gjsNode.object = myPastedNode.object; }
+            try { myDiagram.model.setDataProperty(gjsNode, "objecttype", myPastedNode.objecttype); } catch (_) { gjsNode.objecttype = myPastedNode.objecttype; }
+            try { myDiagram.model.setDataProperty(gjsNode, "objviewRef", myPastedNode.objectview?.id); } catch (_) { gjsNode.objviewRef = myPastedNode.objectview?.id; }
+            try { myDiagram.model.setDataProperty(gjsNode, "objRef", myPastedNode.object?.id); } catch (_) { gjsNode.objRef = myPastedNode.object?.id; }
+            try { myDiagram.model.setDataProperty(gjsNode, "objtypeRef", myPastedNode.objecttype?.id); } catch (_) { gjsNode.objtypeRef = myPastedNode.objecttype?.id; }
+            try { myDiagram.model.setDataProperty(gjsNode, "group", myPastedNode.group || ""); } catch (_) { gjsNode.group = myPastedNode.group || ""; }
+            try { myDiagram.model.setDataProperty(gjsNode, "fromNode", null); } catch (_) { gjsNode.fromNode = null; }
+            try { myDiagram.model.setDataProperty(gjsNode, "fromModelview", null); } catch (_) { gjsNode.fromModelview = null; }
+            try { myDiagram.model.setDataProperty(gjsNode, "fromGoModel", null); } catch (_) { gjsNode.fromGoModel = null; }
+            const livePastedPart = it.value as go.Node;
+            if (livePastedPart?.data) {
+              livePastedPart.data.objectview = myPastedNode.objectview;
+              livePastedPart.data.object = myPastedNode.object;
+              livePastedPart.data.objecttype = myPastedNode.objecttype;
+              livePastedPart.data.objviewRef = myPastedNode.objectview?.id;
+              livePastedPart.data.objRef = myPastedNode.object?.id;
+              livePastedPart.data.objtypeRef = myPastedNode.objecttype?.id;
+              livePastedPart.data.group = myPastedNode.group || "";
+              livePastedPart.data.fromNode = null;
+              livePastedPart.data.fromModelview = null;
+              livePastedPart.data.fromGoModel = null;
+            }
+            let existingPastedGoNode = toGoModel.findNode(myPastedNode.goNodeId) || toGoModel.findNodeByViewId?.(myPastedNode.objviewId);
+            if (!existingPastedGoNode && gjsNode?.key) {
+              existingPastedGoNode = toGoModel.findNode(gjsNode.key) || toGoModel.findNodeByViewId?.(gjsNode.key);
+            }
+            if (existingPastedGoNode) {
+              existingPastedGoNode.key = myPastedNode.goNodeId;
+              existingPastedGoNode.loc = myPastedNode.loc;
+              existingPastedGoNode.size = myPastedNode.size;
+              existingPastedGoNode.group = myPastedNode.group;
+              existingPastedGoNode.objectview = myPastedNode.objectview;
+              existingPastedGoNode.object = myPastedNode.object;
+              existingPastedGoNode.objecttype = myPastedNode.objecttype;
+              existingPastedGoNode.objRef = myPastedNode.object?.id;
+              existingPastedGoNode.objviewRef = myPastedNode.objectview?.id;
+              existingPastedGoNode.objtypeRef = myPastedNode.objecttype?.id;
+              myPastedNode.goNode = existingPastedGoNode;
+            } else {
+              myPastedNode.goNode = new gjs.goObjectNode(myPastedNode.goNodeId, toGoModel, myPastedNode.objectview);
+              myPastedNode.goNode.group = myPastedNode.group;
+              toGoModel.addNode(myPastedNode.goNode);
+            }
+            toModelview.addObjectView(myPastedNode.objectview);
+            myMetis.addObjectView(myPastedNode.objectview);
+            myMetis.setGojsModel(toGoModel);
+            pastedNodes.push(myPastedNode);
+            if (debug) console.log('Checkpoint');
+          }
+        }
+        for (let i = 0; i < copiedNodes.length; i++) {
+          const cNode1 = copiedNodes[i];
+          const cGroup = myMetis.getNodeGroup(cNode1);
+          if (cGroup?.length > 0) { // group key
+            const pNode = myMetis.getNodeByGroup(pastedNodes, cGroup);
+            if (pNode) {
+              pNode.group = "";
+              // Find pnode
+              let childNodeView = toModelview.findObjectViewByName(pNode.name);
+              childNodeView.group = pNode.objviewId;
+            }
+          }
+        }
+
+        // Now handle the relationships
+        let it2 = selection.iterator;
+        while (it2.next()) {
+          let n = it2.value;
+          if (n instanceof go.Node)
+            continue;
+
+          if (it2.value instanceof go.Link) {
+            let gjsLink = it2.value.data; // The copied (source) link (i.e. the relationship)
+            if (!gjsLink.fromLink)
+              continue;
+
+            const copiedRelviewid = gjsLink.fromLink.key;
+            const copiedRelview = myMetis.findRelationshipView(copiedRelviewid);
+
+            let copiedRelship = copiedRelview?.relship;
+            const copiedFromObject = copiedRelship.fromObject;
+            const copiedToObject = copiedRelship.toObject;
+
+            let pastedFromObject = null;
+            let pastedFromObjview = null;
+            for (let i = 0; i < pastedNodes.length; i++) {
+              const node = pastedNodes[i];
+              const objtype = node.objecttype;
+              const objname = node.name;
+              if (objtype && copiedFromObject.name === objname) {
+                if (copiedFromObject.type.id === objtype.id) {
+                  pastedFromObject = node.object;
+                  pastedFromObjview = node.objectview;
+                }
+              }
+            }
+            let pastedToObject = null;
+            let pastedToObjview = null;
+            for (let i = 0; i < pastedNodes.length; i++) {
+              const node = pastedNodes[i];
+              const objtype = node.objecttype;
+              const objname = node.name;
+              if (objtype && copiedToObject.name === objname) {
+                if (copiedToObject.type.id === objtype.id) {
+                  pastedToObject = node.object;
+                  pastedToObjview = node.objectview;
+                }
+              }
+            }
+
+            let pastedRelship = new akm.cxRelationship(utils.createGuid(), copiedRelship.type, pastedFromObject, pastedToObject, copiedRelship.name, copiedRelship.description);
+
+            const relviewId = utils.createGuid();
+            gjsLink.key = relviewId;
+            let pastedRelview = new akm.cxRelationshipView(relviewId, copiedRelview.name, pastedRelship, copiedRelview.description);
+            pastedRelview.fromObjview = pastedFromObjview;
+            pastedRelview.toObjview = pastedToObjview;
+            const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+            uic.copyRelviewAttributes(pastedRelview, copiedRelview);
+
+            // Handle points
+            const points = [];
+            for (let it = gjsLink.points.iterator; it?.next();) {
+              const point = it.value;
+              points.push(point.x)
+              points.push(point.y)
+            }
+            pastedRelview.points = points;
+
+            toGoModel.addLink(pastedLink);
+            toModelview.addRelationshipView(pastedRelview);
+            myMetis.addRelationshipView(pastedRelview);
+            const jsnRelship = new jsn.jsnRelationship(pastedRelship);
+            uic.addItemToList(modifiedRelships, jsnRelship);
+            const jsnRelview = new jsn.jsnRelshipView(pastedRelview);
+            uic.addItemToList(modifiedRelshipViews, jsnRelview);
+
+          }
+        }
+
+        // Finally handle groups for the pasted nodes only.
+        for (let i = 0; i < pastedNodes.length; i++) {
+          const pastedNode = pastedNodes[i];
+          const myGoNode = pastedNode?.goNode || toGoModel.findNode(pastedNode?.goNodeId) || toGoModel.findNodeByViewId?.(pastedNode?.objviewId);
+          if (!myGoNode) continue;
+          const myObjectview: akm.cxObjectView = myGoNode.objectview;
+          const liveNodePart = myDiagram.findNodeForKey(myGoNode.key) as go.Node | null;
+          const liveContainingGroupKey =
+            liveNodePart?.containingGroup instanceof go.Group && liveNodePart.containingGroup.key !== undefined && liveNodePart.containingGroup.key !== null
+              ? String(liveNodePart.containingGroup.key)
+              : "";
+          const liveDataGroupKey =
+            typeof liveNodePart?.data?.group === "string" && liveNodePart.data.group.length > 0
+              ? String(liveNodePart.data.group)
+              : "";
+          const persistedGroupKey =
+            typeof myObjectview?.group === "string" && myObjectview.group.length > 0
+              ? String(myObjectview.group)
+              : "";
+          // Check if the node (myGoNode) is member of a group
+          const goParentGroup =
+            (liveContainingGroupKey ? myGoModel.findNode(liveContainingGroupKey) : null) ||
+            (liveDataGroupKey ? myGoModel.findNode(liveDataGroupKey) : null) ||
+            (persistedGroupKey ? myGoModel.findNode(persistedGroupKey) : null) ||
+            uic.getGroupByLocation(myGoModel, myGoNode.loc, myGoNode.size, myGoNode);
+          let parentObjview = goParentGroup?.objectview; // The container objectview
+          if (!parentObjview) {
+            parentObjview = myModelview.findObjectView(goParentGroup?.objviewRef);
+          }
+          if (goParentGroup && parentObjview) { // the container (group)
+            myGoNode.group = goParentGroup.key; // Make the node a member of the group (container)
+            pastedNode.group = goParentGroup.key;
+            parentObjview.isExpanded = true;
+            myObjectview.group = goParentGroup.key;
+            const liveGroupPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
+            if (liveNodePart instanceof go.Node && liveGroupPart instanceof go.Group) {
+              attachPartToGroup(myDiagram, liveNodePart, liveGroupPart, liveNodePart.data);
+            } else if (liveNodePart?.data) {
+              try {
+                if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+                  (myDiagram.model as any).setGroupKeyForNodeData(liveNodePart.data, goParentGroup.key);
+                } else {
+                  myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key);
+                }
+              } catch (_) {
+                try { liveNodePart.data.group = goParentGroup.key; } catch (_err) { }
+              }
+            }
+            let scale = 1.0;
+            if (isGroupLikeNode(myGoNode, myObjectview)) {
+              const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
+              resizeGroupToHalfParent(myDiagram, myGoNode, myGoNode, parentPart);
+              scale = applyDerivedScaleToPart(myDiagram, myGoNode, parentPart, myObjectview, myGoNode);
+            } else {
+              scale = applyDerivedScaleToPart(myDiagram, myGoNode, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
+            }
+            myObjectview.scale = scale;
+            const scaledLoc = uic.scaleNodeLocation1(goParentGroup, myGoNode);
+            if (scaledLoc) {
+              myGoNode.loc = scaledLoc;
+              myObjectview.loc = scaledLoc;
+              if (liveNodePart?.data) {
+                try { myDiagram.model.setDataProperty(liveNodePart.data, "loc", scaledLoc); } catch (_) { }
+              }
+            } else {
+              myObjectview.loc = myGoNode.loc;
+            }
+            if (liveNodePart?.data) {
+              try { myDiagram.model.setDataProperty(liveNodePart.data, "group", goParentGroup.key); } catch (_) { }
+              try { myDiagram.model.setDataProperty(liveNodePart.data, "scale", scale); } catch (_) { }
+            }
+          }
+        }
+        // Dispatch metis
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        let data = { metis: jsnMetis }
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: shoud not dispatch the whole phData????
+        try {
+          const pastedNodeKeys = new Set<string>();
+          for (let i = 0; i < pastedNodes.length; i++) {
+            const pastedNode = pastedNodes[i];
+            if (pastedNode?.objviewId) pastedNodeKeys.add(String(pastedNode.objviewId));
+            if (pastedNode?.goNodeId) pastedNodeKeys.add(String(pastedNode.goNodeId));
+          }
+          if (pastedNodeKeys.size > 0) {
+            (myDiagram as any).__skipNextPostPasteNodeSyncKeys = pastedNodeKeys;
+          }
+          myDiagram.dispatch({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: utils.createGuid(), name: 'ClipboardPasted' }
+          });
+        } catch (_) {
+        }
+        if (false) {
+          // Dispatch modelview
+          const modifiedModelviews = new Array();
+          const jsnModelview = new jsn.jsnModelView(myModelview);
+          modifiedModelviews.push(jsnModelview);
+          modifiedModelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
+          });
+          // Dispatch model
+          const modifiedModels = new Array();
+          const jsnModel = new jsn.jsnModel(myModel);
+          modifiedModels.push(jsnModel);
+          modifiedModels.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+          });
+        }
+
+        if (debug) console.log('1770 pastedNodes', pastedNodes);
+        break;
+      }
+      case 'LayoutCompleted': {
+        // Persist node/link positions after layout so positions survive reloads
+        if (true) {
+          const nodes = myDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const nodeData = node?.data;
+            if (!nodeData) continue;
+            const objectview = nodeData.objectview;
+            if (!objectview) {
+              // Optionally log or handle nodes without objectview
+              // console.warn('Node missing objectview:', node.data);
+              continue;
+            }
+            objectview.loc = nodeData.loc;
+            objectview.size = nodeData.size;
+            if (typeof nodeData.group === "string") objectview.group = nodeData.group;
+            const jsnObjview = new jsn.jsnObjectView(objectview);
+            modifiedObjectViews.push(jsnObjview);
+            myModelview.addObjectView(objectview);
+          }
+          const links = myDiagram.links;
+          for (let it = links.iterator; it?.next();) {
+            const link = it.value;
+            const linkData = link?.data;
+            if (!linkData) continue;
+            const relview = linkData.relshipview;
+            if (!relview) continue;
+            const hadExplicitSavedPath =
+              hasExplicitSavedLinkPath(relview?.points, linkData?.points) ||
+              !!linkData?.__manualLinkMovePreview;
+            if (!hadExplicitSavedPath) {
+              relview.points = [];
+              continue;
+            }
+            const points = [];
+            for (let it = link.points.iterator; it?.next();) {
+              const point = it.value;
+              if (debug) console.log('1603 point', point.x, point.y);
+              points.push(point.x)
+              points.push(point.y)
+            }
+            relview.points = points;
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
+            myModelview.addRelationshipView(relview);
+          }
+        }
+        break;
+      }
+      case 'LinkDrawn': {
+        const link = e.subject;
+        const gjsData = link.data;
+        context.link = link;
+        context.gjsData = gjsData;
+        context.goModel = myGoModel;
+        if (debug) console.log('1498 link', link.data, link.data.from, link.data.to);
+        let gjsFromNode, gjsToNode;
+        const isObjectNode = (n: any) =>
+          !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
+        for (let it = myDiagram.nodes; it?.next();) {
+          const n = it.value;
+          if (n.data?.key === gjsData.from) {
+            gjsFromNode = n.data;
+          }
+          if (n.data?.key === gjsData.to) {
+            gjsToNode = n.data;
+          }
+        }
+        let goFromNode: gjs.goObjectNode;
+        let goToNode: gjs.goObjectNode;
+        let fromObjView: akm.cxObjectView;
+        let toObjView: akm.cxObjectView;
+        if (gjsFromNode) {
+          fromObjView = myModelview.findObjectView(gjsFromNode.key);
+          goFromNode = myGoModel.findNode(gjsFromNode.key);
+          context.goFromNode = goFromNode;
+          context.fromObjView = fromObjView;
+          uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
+        }
+        if (gjsToNode) {
+          toObjView = myModelview.findObjectView(gjsToNode.key);
+          goToNode = myGoModel.findNode(gjsToNode.key);
+          context.goToNode = goToNode;
+          context.toObjView = toObjView;
+          uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
+        }
+        // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
+        const ensureNodeRefs = (gjsNode: any, objview: any) => {
+          if (!gjsNode) return;
+          const setProp = (prop: string, val: any) => {
+            if (val === undefined || val === null) return;
+            try {
+              gjsNode[prop] = val;
+            } catch (_) { /* ignore */ }
+          };
+          if (objview) {
+            setProp('objectview', objview);
+            setProp('objviewRef', objview.id);
+            if (!objview.object && gjsNode.object) {
+              objview.object = gjsNode.object;
+            }
+            setProp('object', objview.object || gjsNode.object);
+            setProp('objRef', objview.object?.id);
+          }
+        };
+        ensureNodeRefs(gjsFromNode, context.fromObjView);
+        ensureNodeRefs(gjsToNode, context.toObjView);
+        // Handle relationship types
+        if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
+          gjsData.category = constants.gojs.C_RELSHIPTYPE;
+          if (debug) console.log('1523 link', fromNode, toNode);
+          // link.category = constants.gojs.C_RELSHIPTYPE;
+          const reltype = uic.createRelationshipType(gjsFromNode.data, gjsToNode.data, gjsData, context);
+          if (reltype) {
+            if (debug) console.log('1527 reltype', reltype);
+            const jsnType = new jsn.jsnRelationshipType(reltype, true);
+            modifiedRelshipTypes.push(jsnType);
+            if (debug) console.log('1530 jsnType', jsnType);
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+              const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
+              modifiedRelshipTypeViews.push(jsnTypeView);
+              if (debug) console.log('1535 jsnTypeView', jsnTypeView);
+              const myGoModel = myMetis.gojsModel;
+              let goLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
+              goLink.fromNode = gjsFromNode.data;
+              goLink.toNode = gjsToNode.data
+              goLink.loadLinkContent(myGoModel);
+              myGoModel.addLink(goLink);
+              goLink.name = reltype.name;
+              if (debug) console.log('1543 goLink, myGoModel, reltype', goLink, myGoModel, reltype);
+              const gjsLink = myDiagram.findLinkForKey(goLink.key);
+              myDiagram.model.addLinkData(gjsLink);
+              if (debug) console.log('1546 lnk, reltype', gjsLink, reltype);
+              myDiagram.model.setDataProperty(gjsLink.data, 'name', reltype.name);
+            }
+          }
+          myDiagram.requestUpdate();
+        }
+        // Handle relationships
+        if (isObjectNode(gjsFromNode)) {
+          // gjsData.category = constants.gojs.C_RELATIONSHIP;
+          context.handleOpenModal = this.handleOpenModal;
+          if (gjsFromNode && gjsToNode) {
+            try {
+              myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
+              myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
+              myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
+              myDiagram.model.setDataProperty(gjsData, 'name', '');
+            } catch (_) { }
+            uic.createRelationship(gjsFromNode, gjsToNode, context);
+          }
+        }
+        myDiagram.requestUpdate();
+        break;
+      }
+      case "LinkRelinked": {
+        const gjsLink = e.subject;
+        const key = gjsLink.key;
+        const gjsLinkData = gjsLink.data;
+        const myGoModel = myMetis.gojsModel;
+        const goLink = myGoModel.findLink(key);
+        let fromNode = gjsLinkData.from; // gjsLinkData.fromNode;
+        let fromPort = typeof gjsLinkData.fromPort === "string" ? gjsLinkData.fromPort : "";
+        let toNode = gjsLinkData.to; // gjsLinkData.toNode;
+        let toPort = typeof gjsLinkData.toPort === "string" ? gjsLinkData.toPort : "";
+        let goFromNode = myGoModel.findNode(fromNode);
+        let goToNode = myGoModel.findNode(toNode);
+        const relshipRef = goLink.relshipRef;
+        const relship = myModel.findRelationship(relshipRef);
+        let fromObject = goFromNode.object;
+        if (!fromObject) fromObject = myModel.findObject(goFromNode.objRef);
+        relship.fromObject = fromObject;
+        let toObject = goToNode.object;
+        if (!toObject) toObject = myModel.findObject(goToNode.objRef);
+        relship.toObject = toObject;
+        const relviewRef = goLink.relviewRef;
+        let relview = myModelview.findRelationshipView(relviewRef);
+        if (!relview) relview = myModelview.findRelationshipView(relviewRef);
+        if (!relview)
+          break;
+        let fromObjview = goFromNode.fromObjview;
+        if (!fromObjview) fromObjview = myModelview.findObjectView(goFromNode.objviewRef);
+        relview.fromObjview = fromObjview;
+        let toObjview = goToNode.toObjview;
+        if (!toObjview) toObjview = myModelview.findObjectView(goToNode.objviewRef);
+        relview.toObjview = toObjview;
+        relview.toPortid = toPort;
+        relview.fromPortid = fromPort;
+        try { myDiagram.model.setDataProperty(gjsLinkData, "from", fromNode); } catch (_) { gjsLinkData.from = fromNode; }
+        try { myDiagram.model.setDataProperty(gjsLinkData, "to", toNode); } catch (_) { gjsLinkData.to = toNode; }
+        try { myDiagram.model.setDataProperty(gjsLinkData, "fromPort", fromPort); } catch (_) { gjsLinkData.fromPort = fromPort; }
+        try { myDiagram.model.setDataProperty(gjsLinkData, "toPort", toPort); } catch (_) { gjsLinkData.toPort = toPort; }
+        try { myDiagram.model.setDataProperty(gjsLinkData, "points", []); } catch (_) { gjsLinkData.points = []; }
+        try { gjsLink.points = new go.List<go.Point>(); } catch (_) { }
+        relview.points = [];
+
+        // Update link data
+        uid.updateLinkAndView(gjsLinkData, goLink, relview, myDiagram);
+
+        // Prepare for dispatch
+        const jsnRelship = new jsn.jsnRelationship(relship);
+        modifiedRelships.push(jsnRelship);
+        const jsnRelview = new jsn.jsnRelshipView(relview);
+        modifiedRelshipViews.push(jsnRelview);
+        break;
+      }
+      case "LinkReshaped": {
+
+        const myGoModel = myMetis.gojsModel;
+        const gjsLink = e.subject;
+        const key = gjsLink.key;
+        const link = myDiagram.findLinkForKey(key);
+        const goLink = myGoModel.findLink(key);
+        const data = link?.data || goLink?.data;
+        if (debug) console.log('1596 link, data', link, data);
+        let relview = myModelview.findRelationshipView(data?.relviewRef || data?.key);
+        if (!relview) {
+          relview = data?.relshipview;
+        }
+        if (relview) {
+          const points = [];
+          const livePoints = link?.points || gjsLink?.points || data?.points;
+          for (let it = livePoints?.iterator; it?.next();) {
+            const point = it.value;
+            if (debug) console.log('1603 point', point.x, point.y);
+            points.push(point.x)
+            points.push(point.y)
+          }
+          const currentRouting = String(relview?.routing || data?.routing || "").trim();
+          const shouldFreezeManualRoute =
+            points.length >= 4 &&
+            (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
+          try { if (data?.relshipview) data.relshipview.points = points; } catch (_) { }
+          try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) { }
+          try {
+            if (goLink) {
+              goLink.points = points;
+              goLink.relshipview = relview;
+              goLink.relviewRef = relview.id;
+              if (goLink.data) {
+                goLink.data.points = points;
+                goLink.data.relshipview = relview;
+                goLink.data.relviewRef = relview.id;
+              }
+            }
+          } catch (_) { }
+          if (shouldFreezeManualRoute) {
+            relview.routing = "Normal";
+            try { myDiagram.model.setDataProperty(data, "routing", "Normal"); } catch (_) {
+              try { data.routing = "Normal"; } catch (_err) { }
+            }
+            try { link.routing = go.Link.Normal; } catch (_) { }
+            try { link.adjusting = go.Link.End; } catch (_) { }
+          }
+          try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
+          relview.points = points;
+          const jsnRelview = new jsn.jsnRelshipView(relview);
+          if (debug) console.log('1609 relview, jsnRelview', relview, jsnRelview);
+          modifiedRelshipViews.push(jsnRelview);
+          try {
+            const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
+              if (!entry || entry.key !== data?.key) return entry;
+              return {
+                ...entry,
+                points: [...points],
+                routing: data?.routing || entry.routing,
+                relshipview: relview,
+                relviewRef: relview?.id || entry.relviewRef,
+              };
+            });
+            this.setState({
+              linkDataArray: normalizeLinkPortData(nextLinkDataArray),
+              skipsDiagramUpdate: true,
+            });
+          } catch (_) { }
+          try { link?.updateTargetBindings?.(); } catch (_) { }
+        }
+        break;
+      }
+      case "SubGraphCollapsed":
+      case "SubGraphExpanded": {
+        const affectedPoolKeys = new Set<string>();
+        const expanded = name === "SubGraphExpanded";
+        const affectedParts: go.Part[] = [];
+        if (e.subject instanceof go.Part) {
+          affectedParts.push(e.subject);
+        } else if (e.subject?.iterator) {
+          for (let it = e.subject.iterator; it?.next();) {
+            if (it.value instanceof go.Part) affectedParts.push(it.value);
+          }
+        } else if (typeof e.subject?.each === "function") {
+          e.subject.each((n: go.Part) => {
+            if (n instanceof go.Part) affectedParts.push(n);
+          });
+        }
+        affectedParts.forEach(function (n) {
+          const data = n.data;
+          if (n instanceof go.Group) {
+            syncLiveGroupExpandedState(myDiagram, n, expanded);
+            setTimeout(() => {
+              try {
+                const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
+                if (liveGroup instanceof go.Group) {
+                  syncLiveGroupExpandedState(myDiagram, liveGroup, expanded);
+                  try { liveGroup.invalidateConnectedLinks(); } catch (_) { }
+                }
+              } catch (_) {
+              }
+            }, 0);
+            if (expanded) {
+              setTimeout(() => {
+                try {
+                  const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
+                  if (liveGroup instanceof go.Group) {
+                    restoreGroupMemberLocations(myDiagram, liveGroup);
+                    setGroupMemberVisibilityRecursive(liveGroup, true);
+                    try { liveGroup.ensureBounds(); } catch (_) { }
+                    try { myDiagram.requestUpdate(); } catch (_) { }
+                  }
+                } catch (_) {
+                }
+              }, 50);
+            }
+          }
+          const objview = data?.objectview;
+          if (objview) {
+            objview.isExpanded = expanded;
+            uic.addItemToList(modifiedObjectViews, {
+              id: objview?.id,
+              isExpanded: expanded,
+            });
+          }
+          const category = data?.category || data?.template;
+          if (category === 'Lane' || category === 'Lane_w_handles') {
+            if (data?.group) affectedPoolKeys.add(data.group);
+          } else if (category === 'Pool') {
+            if (data?.key) affectedPoolKeys.add(data.key);
+          }
+        });
+        relayoutPoolsByKeys(affectedPoolKeys);
+        // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
+        // and clamp all lane members back into their lane bodies.
+        affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+        try {
+          const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+            ? [...(myDiagram.model as any).nodeDataArray]
+            : this.state.nodeDataArray;
+          const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+            ? [...(myDiagram.model as any).linkDataArray]
+            : this.state.linkDataArray;
+          this.setState({
+            nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+            linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+          });
+        } catch (_) {
+        }
+        break;
+      }
+      case "BackgroundSingleClicked": {
+        if (debug) console.log('1615 myMetis', myMetis);
+        if (myModelview) {
+          uid.clearFocus(myModelview);
+          let data = { id: myModelview.id, name: myModelview.name }
+          data = JSON.parse(JSON.stringify(data));
+          context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+        }
+        if (myModel) {
+          let data2 = { id: myModel.id, name: myModel.name }
+          data2 = JSON.parse(JSON.stringify(data2));
+          context.dispatch({ type: 'SET_FOCUS_OBJECT', data2 })
+        }
+
+        break;
+      }
+      case "BackgroundDoubleClicked": {
+        if (debug) console.log('1619 BackgroundDoubleClicked', e, e.diagram);
+        break;
+      }
+      case "ModelChanged": {
+        // if (e.isTransactionFinished) {
+        console.log("Transaction Finished");
+        // }
+      }
+      default: {
+        if (debug) console.log('1399 GoJSApp event name: ', name);
+        break;
+      }
     }
-  }
 
-  modifiedRelshipTypes?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
-  })
+    // Dispatches
+    if (true) { // Dispatches to store individual objects/types
+      if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
+      const dispatchedObjectViewPayloads = new Set<string>();
+      const storeState = getCurrentStore?.()?.getState?.();
+      const coalescedObjectViews = new Map<string, any>();
+      modifiedObjectViews.forEach((mn: any) => {
+        if (!mn?.id) return;
+        const prev = coalescedObjectViews.get(mn.id) || {};
+        coalescedObjectViews.set(mn.id, { ...prev, ...mn });
+      });
+      const findStoredObjectViewById = (id: string) => {
+        const models = storeState?.phData?.metis?.models || [];
+        for (let mi = 0; mi < models.length; mi++) {
+          const modelviews = models[mi]?.modelviews || [];
+          for (let mvi = 0; mvi < modelviews.length; mvi++) {
+            const objectviews = modelviews[mvi]?.objectviews || [];
+            for (let ovi = 0; ovi < objectviews.length; ovi++) {
+              const objectview = objectviews[ovi];
+              if (objectview?.id === id) return objectview;
+            }
+          }
+        }
+        return null;
+      };
+      if (!(this as any).__dispatchingObjectViewUpdates) {
+        (this as any).__dispatchingObjectViewUpdates = true;
+        try {
+          Array.from(coalescedObjectViews.values()).map(mn => {
+            let data = (mn) && mn
+            if (mn.id) {
+              data = sanitizeObjectViewDispatchData(JSON.parse(JSON.stringify(data)));
+              const dispatchKey = JSON.stringify(data);
+              if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
+              const storedObjectView = findStoredObjectViewById(data.id);
+              if (storedObjectView) {
+                const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
+                let hasMeaningfulDiff = false;
+                for (const key of Object.keys(data)) {
+                  if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
+                    hasMeaningfulDiff = true;
+                    break;
+                  }
+                }
+                if (!hasMeaningfulDiff) return;
+              }
+              dispatchedObjectViewPayloads.add(dispatchKey);
+              queueObjectViewDispatch(this, context.dispatch, data)
+            }
+          })
+        } finally {
+          (this as any).__dispatchingObjectViewUpdates = false;
+        }
+      }
 
-  // if (debug) console.log('1450 modifiedRelshipTypeViews', modifiedRelshipTypeViews);
-  modifiedRelshipTypeViews?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-  })
+      modifiedObjectTypes?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+      })
 
-  modifiedObjects?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-  })
+      modifiedObjectTypeViews?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+      })
 
-  modifiedRelships?.map(mn => {
-    let data = (mn) && mn
-    data = JSON.parse(JSON.stringify(data));
-    context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-  })
-} else {
-  const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-  let data = { metis: jsnMetis }
-  data = JSON.parse(JSON.stringify(data));
-  myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-}
-if (debug) console.log('1704 myMetis', myMetis);
+      modifiedObjectTypeGeos?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+      })
+
+      if (debug) console.log('1955 modifiedRelshipViews', modifiedRelshipViews);
+      const dispatchedRelshipViewPayloads = new Set<string>();
+      const coalescedRelshipViews = new Map<string, any>();
+      modifiedRelshipViews.forEach((mn: any) => {
+        if (!mn?.id) return;
+        const prev = coalescedRelshipViews.get(mn.id) || {};
+        coalescedRelshipViews.set(mn.id, { ...prev, ...mn });
+      });
+      const findStoredRelshipViewById = (id: string) => {
+        const models = storeState?.phData?.metis?.models || [];
+        for (let mi = 0; mi < models.length; mi++) {
+          const modelviews = models[mi]?.modelviews || [];
+          for (let mvi = 0; mvi < modelviews.length; mvi++) {
+            const relshipviews = modelviews[mvi]?.relshipviews || [];
+            for (let rvi = 0; rvi < relshipviews.length; rvi++) {
+              const relshipview = relshipviews[rvi];
+              if (relshipview?.id === id) return relshipview;
+            }
+          }
+        }
+        return null;
+      };
+      if (!(this as any).__dispatchingRelshipViewUpdates) {
+        (this as any).__dispatchingRelshipViewUpdates = true;
+        try {
+          Array.from(coalescedRelshipViews.values()).map(mn => {
+            let data = (mn) && mn
+            data = JSON.parse(JSON.stringify(data));
+            const dispatchKey = JSON.stringify(data);
+            if (dispatchedRelshipViewPayloads.has(dispatchKey)) return;
+            const storedRelshipView = findStoredRelshipViewById(data.id);
+            if (storedRelshipView) {
+              let hasMeaningfulDiff = false;
+              for (const key of Object.keys(data)) {
+                if (JSON.stringify(storedRelshipView?.[key]) !== JSON.stringify(data[key])) {
+                  hasMeaningfulDiff = true;
+                  break;
+                }
+              }
+              if (!hasMeaningfulDiff) return;
+            }
+            dispatchedRelshipViewPayloads.add(dispatchKey);
+            queueRelshipViewDispatch(this, context.dispatch, data)
+          })
+        } finally {
+          (this as any).__dispatchingRelshipViewUpdates = false;
+        }
+      }
+
+      modifiedRelshipTypes?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+      })
+
+      // if (debug) console.log('1450 modifiedRelshipTypeViews', modifiedRelshipTypeViews);
+      modifiedRelshipTypeViews?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+      })
+
+      modifiedObjects?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      })
+
+      modifiedRelships?.map(mn => {
+        let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
+        context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      })
+    } else {
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = { metis: jsnMetis }
+      data = JSON.parse(JSON.stringify(data));
+      myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    }
+    if (debug) console.log('1704 myMetis', myMetis);
   }
 
   public render() {
-  const selectedData = this.state.selectedData;
-  if (debug) console.log('1777 selectedData', selectedData, this.props);
-  let modalContent, inspector, selector, header, category, typename;
-  const modalContext = this.state.modalContext;
-  if (debug) console.log('1780 modalContext ', modalContext);
-  if (modalContext?.what === 'selectDropdown') {
-    let options = ''
-    let comps = ''
-    const { Option } = components
-    const CustomSelectOption = props =>
-    (
-      <Option {...props}>
-        <img className="option-img mr-2" src={props.data.value} />
-        {props.data.label}
-      </Option>
-    )
-    const CustomSelectValue = props => (
-      <div>
-        {/* <i className={`icon icon-${props.data.icon}`} /> */}
-        <img className="option-img mr-2" src={props.data.value} />
-        {props.data.label}
-      </div>
-    )
-    options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
-    comps = null
-    if (debug) console.log('1507 options', options, this.state);
-    const { selectedOption } = this.state;
-    if (debug) console.log('1509 selectedOption', selectedOption, this.state);
+    const selectedData = this.state.selectedData;
+    if (debug) console.log('1777 selectedData', selectedData, this.props);
+    let modalContent, inspector, selector, header, category, typename;
+    const modalContext = this.state.modalContext;
+    if (debug) console.log('1780 modalContext ', modalContext);
+    if (modalContext?.what === 'selectDropdown') {
+      let options = ''
+      let comps = ''
+      const { Option } = components
+      const CustomSelectOption = props =>
+      (
+        <Option {...props}>
+          <img className="option-img mr-2" src={props.data.value} />
+          {props.data.label}
+        </Option>
+      )
+      const CustomSelectValue = props => (
+        <div>
+          {/* <i className={`icon icon-${props.data.icon}`} /> */}
+          <img className="option-img mr-2" src={props.data.value} />
+          {props.data.label}
+        </div>
+      )
+      options = this.state.selectedData.map(o => o && { 'label': o, 'value': o });
+      comps = null
+      if (debug) console.log('1507 options', options, this.state);
+      const { selectedOption } = this.state;
+      if (debug) console.log('1509 selectedOption', selectedOption, this.state);
 
-    const value = (selectedOption) ? selectedOption.value : options[0];
-    const label = (selectedOption) ? selectedOption.label : options[0];
-    if (debug) console.log('1513 selectedOption, value, label ', selectedOption, value, label);
-    header = modalContext.title;
-    modalContent =
-      <div className="modal-selection d-flex justify-content-center">
-        <Select className="modal-select"
-          options={options}
-          components={comps}
-          onChange={value => this.handleSelectDropdownChange(value)}
-        />
-      </div>
-    {/* <option value={option.value}>{label: option.label, option.value}</option>
-        */}
-  } else {
-    if (selectedData !== null) {
-      if (debug) console.log('1527 selectedData', selectedData);
-      inspector =
-        <div className="p-2" style={{ backgroundColor: "#ddd" }}>
-          <p>Selected Object Properties:</p>
-          <SelectionInspector
-            myMetis={this.state.myMetis}
-            selectedData={this.state.selectedData}
-            context={this.state.context}
-            onInputChange={this.handleInputChange}
+      const value = (selectedOption) ? selectedOption.value : options[0];
+      const label = (selectedOption) ? selectedOption.label : options[0];
+      if (debug) console.log('1513 selectedOption, value, label ', selectedOption, value, label);
+      header = modalContext.title;
+      modalContent =
+        <div className="modal-selection d-flex justify-content-center">
+          <Select className="modal-select"
+            options={options}
+            components={comps}
+            onChange={value => this.handleSelectDropdownChange(value)}
           />
         </div>
-    }
-  }
-
-  if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-  if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
-  if (debug) console.log('1837 dataarray:', this.state);
-  if (debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
-  const normalizedLinkDataArray = normalizeLinkPortData(this.state.linkDataArray);
-  return ((this.state) &&
-    <div className="diagramwrapper">
-      <DiagramWrapper
-        nodeDataArray={this.state.nodeDataArray}
-        linkDataArray={normalizedLinkDataArray}
-        modelData={this.state.modelData}
-        modelType={this.state.modelType}
-        skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-        onDiagramEvent={this.handleDiagramEvent}
-        onModelChange={this.handleModelChange}
-        onInputChange={this.handleInputChange}
-        myMetis={this.state.myMetis}
-        dispatch={this.state.dispatch}
-        phFocus={this.props?.phFocus}
-        diagramStyle={this.state.diagramStyle}
-        onExportSvgReady={this.state.onExportSvgReady}
-        onOpenSelectConnectedObjects={(payload) => this.openConnectedObjectsDialog('select', payload)}
-      />
-      {this.renderConnectedObjectsDialog()}
-
-      <Modal className="" isOpen={this.state.showModal}  >
-        {/* <div className="modal-dialog w-100 mt-5">
-            <div className="modal-content"> */}
-        <div className="modal-head">
-          <Button className="modal-button btn-sm float-right m-1" color="link"
-            onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
-          </Button>
-          <ModalHeader className="modal-header" >
-            <span className="text-secondary">{header} </span>
-            <span className="modal-name " >{this.state.selectedData?.name} </span>
-            <span className="modal-objecttype float-right"> {typename} </span>
-          </ModalHeader>
-        </div>
-        <ModalBody >
-          <div className="modal-body1">
-            {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
-            {modalContent}
+      {/* <option value={option.value}>{label: option.label, option.value}</option>
+        */}
+    } else {
+      if (selectedData !== null) {
+        if (debug) console.log('1527 selectedData', selectedData);
+        inspector =
+          <div className="p-2" style={{ backgroundColor: "#ddd" }}>
+            <p>Selected Object Properties:</p>
+            <SelectionInspector
+              myMetis={this.state.myMetis}
+              selectedData={this.state.selectedData}
+              context={this.state.context}
+              onInputChange={this.handleInputChange}
+            />
           </div>
-        </ModalBody>
-        <ModalFooter className="modal-footer">
-          <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-        </ModalFooter>
-        {/* </div>
-          </div> */}
-      </Modal>
-    </div>
+      }
+    }
 
-  );
-}
+    if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
+    if (debug) console.log('1542 dispatch', this.state.myMetis.dispatch);
+    if (debug) console.log('1837 dataarray:', this.state);
+    if (debug) console.log('1838 dataarray:', this.state.nodeDataArray, this.state.linkDataArray);
+    const normalizedLinkDataArray = normalizeLinkPortData(this.state.linkDataArray);
+    return ((this.state) &&
+      <div className="diagramwrapper">
+        <DiagramWrapper
+          nodeDataArray={this.state.nodeDataArray}
+          linkDataArray={normalizedLinkDataArray}
+          modelData={this.state.modelData}
+          modelType={this.state.modelType}
+          skipsDiagramUpdate={this.state.skipsDiagramUpdate}
+          onDiagramEvent={this.handleDiagramEvent}
+          onModelChange={this.handleModelChange}
+          onInputChange={this.handleInputChange}
+          myMetis={this.state.myMetis}
+          dispatch={this.state.dispatch}
+          phFocus={this.props?.phFocus}
+          diagramStyle={this.state.diagramStyle}
+          onExportSvgReady={this.state.onExportSvgReady}
+          onOpenSelectConnectedObjects={(payload) => this.openConnectedObjectsDialog('select', payload)}
+        />
+        {this.renderConnectedObjectsDialog()}
+
+        <Modal className="" isOpen={this.state.showModal}  >
+          {/* <div className="modal-dialog w-100 mt-5">
+            <div className="modal-content"> */}
+          <div className="modal-head">
+            <Button className="modal-button btn-sm float-right m-1" color="link"
+              onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
+            </Button>
+            <ModalHeader className="modal-header" >
+              <span className="text-secondary">{header} </span>
+              <span className="modal-name " >{this.state.selectedData?.name} </span>
+              <span className="modal-objecttype float-right"> {typename} </span>
+            </ModalHeader>
+          </div>
+          <ModalBody >
+            <div className="modal-body1">
+              {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
+              {modalContent}
+            </div>
+          </ModalBody>
+          <ModalFooter className="modal-footer">
+            <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+          </ModalFooter>
+          {/* </div>
+          </div> */}
+        </Modal>
+      </div>
+
+    );
+  }
 }
 
 export default GoJSApp;

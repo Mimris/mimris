@@ -9,7 +9,7 @@ import { buildRemoteUniversePath, getDefaultRemoteUniverseBaseUrl, normalizeRemo
 import { readJsonResponse, readJsonResponseError } from '../utils/httpResponse';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta } from '../utils/workspaceUniverseAdapter';
-import { getMetisScopeLabel, getMetisScopeOptions, normalizeMetisScope, setActiveMetisScope } from '../utils/workspaceMetisResolver.js';
+import { describeMetisAvailability, getMetisScopeLabel, getMetisScopeOptions, normalizeMetisScope, setActiveMetisScope } from '../utils/workspaceMetisResolver.js';
 import { saveRemoteUniverseProject } from '../utils/remoteUniverseProject';
 import LoadGitHub from './LoadGitHub';
 import LoadFile from './LoadFile';
@@ -42,6 +42,8 @@ export const ProjectMenuBar = (props: any) => {
     const source = props.phSource;
     const activeMetisScope = normalizeMetisScope(getWorkspaceSnapshotMeta(props.phUser)?.activeMetisScope);
     const metisScopeOptions = getMetisScopeOptions();
+    const metisAvailability = describeMetisAvailability(getWorkspaceSnapshotMeta(props.phUser)?.snapshot);
+    const availableMetisScopes = metisAvailability.availableScopes as Record<string, boolean>;
     const remoteUniverseBaseUrl =
         props.phFocus?.focusProj?.universeApiBaseUrl ||
         getWorkspaceSnapshotMeta(props.phUser)?.universeApiBaseUrl ||
@@ -55,7 +57,8 @@ export const ProjectMenuBar = (props: any) => {
     const [projectname, setProjectname] = useState(props.phFocus?.focusProj?.name);
     const [remoteUniverseBaseUrlInput, setRemoteUniverseBaseUrlInput] = useState(remoteUniverseBaseUrl);
     const [remoteUniverseIdInput, setRemoteUniverseIdInput] = useState(props.phFocus?.focusProj?.universeId || '');
-    const [remoteUniverseList, setRemoteUniverseList] = useState<Array<{ slug: string; name?: string; kind?: string }>>([]);
+    const [remoteUniverseMetisScope, setRemoteUniverseMetisScope] = useState(activeMetisScope);
+    const [remoteUniverseList, setRemoteUniverseList] = useState<Array<{ slug: string; name?: string; kind?: string; savedAt?: string }>>([]);
     const [remoteUniverseLoading, setRemoteUniverseLoading] = useState(false);
     const [remoteUniverseError, setRemoteUniverseError] = useState('');
 
@@ -152,6 +155,7 @@ export const ProjectMenuBar = (props: any) => {
     const handleOpenServerProject = () => {
         setRemoteUniverseBaseUrlInput(remoteUniverseBaseUrl);
         setRemoteUniverseIdInput(props.phFocus?.focusProj?.universeId || '');
+        setRemoteUniverseMetisScope(activeMetisScope);
         setRemoteUniverseError('');
         setShowRemoteUniverseModal(true);
     }
@@ -185,6 +189,19 @@ export const ProjectMenuBar = (props: any) => {
         }
     };
 
+    const formatRemoteSavedAt = (value?: string) => {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        }).format(date);
+    };
+
     const handleLoadRemoteUniverseOptions = async () => {
         setRemoteUniverseLoading(true);
         setRemoteUniverseError('');
@@ -204,16 +221,42 @@ export const ProjectMenuBar = (props: any) => {
         }
     }
 
+    const loadRemoteUniverseEntries = async () => {
+        const baseUrl = resolveRemoteUniverseBaseUrl();
+        const response = await fetch(`/api/universe/library?baseUrl=${encodeURIComponent(baseUrl)}`);
+        const { payload, text } = await readJsonResponse(response);
+        if (!response.ok || payload?.error || !payload) {
+            throw new Error(readJsonResponseError(response, payload, text, 'Unable to list remote universes.'));
+        }
+        return Array.isArray(payload?.universes) ? payload.universes : [];
+    };
+
+    const resolveRemoteUniverseSlugFromId = async (universeId: string) => {
+        const trimmedId = universeId.trim();
+        if (!trimmedId) return '';
+        const entries = remoteUniverseList.length > 0 ? remoteUniverseList : await loadRemoteUniverseEntries();
+        const match = entries.find((item: any) =>
+            item?.slug === trimmedId || item?.id === trimmedId || item?.universeId === trimmedId,
+        );
+        return typeof match?.slug === 'string' ? match.slug : '';
+    };
+
     useEffect(() => {
         if (!showRemoteUniverseModal) return;
         handleLoadRemoteUniverseOptions();
     }, [showRemoteUniverseModal]);
 
     useEffect(() => {
+        router.prefetch('/model').catch((error) => {
+            if (debug) console.error('Unable to prefetch /model:', error);
+        });
+    }, [router]);
+
+    useEffect(() => {
         setRemoteUniverseBaseUrlInput(remoteUniverseBaseUrl);
     }, [remoteUniverseBaseUrl]);
 
-    const openRemoteUniverseById = () => {
+    const openRemoteUniverseById = async () => {
         const universeId = remoteUniverseIdInput.trim();
         if (!universeId) return;
         let baseUrl = '';
@@ -223,8 +266,19 @@ export const ProjectMenuBar = (props: any) => {
             setRemoteUniverseError(error?.message || 'Invalid remote universe base URL.');
             return;
         }
+        let universeSlug = '';
+        try {
+            universeSlug = await resolveRemoteUniverseSlugFromId(universeId);
+        } catch (error: any) {
+            setRemoteUniverseError(error?.message || 'Unable to resolve remote universe slug.');
+            return;
+        }
+        if (!universeSlug) {
+            setRemoteUniverseError('Unable to resolve remote universe slug for the selected universe id.');
+            return;
+        }
         setShowRemoteUniverseModal(false);
-        router.push(buildRemoteUniversePath(universeId, baseUrl));
+        router.push(buildRemoteUniversePath(universeId, baseUrl, remoteUniverseMetisScope, universeSlug));
     }
 
     const openRemoteUniverseBySlug = (slug: string) => {
@@ -238,6 +292,7 @@ export const ProjectMenuBar = (props: any) => {
         const query = new URLSearchParams({
             universeSlug: slug,
             universeApi: baseUrl,
+            metisScope: normalizeMetisScope(remoteUniverseMetisScope),
         });
         setShowRemoteUniverseModal(false);
         router.push(`/model?${query.toString()}`);
@@ -304,9 +359,9 @@ export const ProjectMenuBar = (props: any) => {
             </Modal.Header>
             <Modal.Body>
                 <div className="container-fluid px-0">
-                    <div className="row g-3 mb-3">
-                        <div className="col-12 col-lg-5">
-                            <div className="border rounded-3 p-3 h-100 bg-light-subtle">
+                    <div className="row g-3 mb-4 align-items-stretch">
+                        <div className="col-12 col-xl-4">
+                            <div className="border rounded-3 p-3 h-100 bg-light-subtle shadow-sm">
                                 <label className="form-label fw-bold mb-2">Universe API</label>
                                 <input
                                     className="form-control"
@@ -314,13 +369,13 @@ export const ProjectMenuBar = (props: any) => {
                                     onChange={(event) => setRemoteUniverseBaseUrlInput(event.target.value)}
                                     placeholder="http://localhost:3001"
                                 />
-                                <div className="small text-muted mt-2">
+                                <div className="small text-muted mt-3" style={{ lineHeight: 1.45 }}>
                                     Remote universes are loaded from this API endpoint. Change it if your shared universe server runs elsewhere.
                                 </div>
                             </div>
                         </div>
-                        <div className="col-12 col-lg-7">
-                            <div className="border rounded-3 p-3 h-100">
+                        <div className="col-12 col-xl-5">
+                            <div className="border rounded-3 p-3 h-100 bg-light-subtle shadow-sm">
                                 <label className="form-label fw-bold mb-2">Open By Universe Id</label>
                                 <div className="row g-2 align-items-start">
                                     <div className="col-12 col-md">
@@ -335,20 +390,53 @@ export const ProjectMenuBar = (props: any) => {
                                         />
                                     </div>
                                     <div className="col-12 col-md-auto">
-                                        <button className="btn btn-primary w-100 px-4" onClick={openRemoteUniverseById}>
+                                        <button className="btn btn-primary w-100 px-4 text-uppercase fw-semibold" onClick={openRemoteUniverseById}>
                                             Open
                                         </button>
                                     </div>
                                 </div>
-                                <div className="small text-muted mt-2">
+                                <div className="small text-muted mt-3" style={{ lineHeight: 1.45 }}>
                                     Paste a known universe id to jump directly to that workspace.
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-12 col-xl-3">
+                            <div className="border rounded-3 p-3 h-100 bg-white shadow-sm">
+                                <label className="form-label fw-bold mb-2">Model To Open</label>
+                                <div className="d-grid gap-2">
+                                    {metisScopeOptions.map((option) => {
+                                        const checked = remoteUniverseMetisScope === option.value;
+                                        return (
+                                            <label
+                                                key={option.value}
+                                                className="d-flex align-items-center gap-2 px-2 py-2 border rounded-2"
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    backgroundColor: checked ? '#e7f1ff' : '#fff',
+                                                    borderColor: checked ? '#4a89c2' : '#d5dbe1',
+                                                }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="remote-universe-metis-scope"
+                                                    className="form-check-input mt-0"
+                                                    checked={checked}
+                                                    onChange={() => setRemoteUniverseMetisScope(normalizeMetisScope(option.value))}
+                                                />
+                                                <span className="small fw-semibold text-dark" style={{ lineHeight: 1.3 }}>{option.label}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <div className="small text-muted mt-3" style={{ lineHeight: 1.45 }}>
+                                    Choose which metis source to open.
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="border rounded-3 overflow-hidden">
-                        <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom bg-light">
+                        <div className="d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-light">
                             <div>
                                 <div className="fw-bold">Remote Universe Library</div>
                                 <div className="small text-muted">Select a published universe from the remote catalog.</div>
@@ -374,24 +462,45 @@ export const ProjectMenuBar = (props: any) => {
                             )}
 
                             {!remoteUniverseLoading && remoteUniverseList.length > 0 && (
-                                <div className="p-3 d-grid gap-2">
+                                <div className="p-3 d-grid gap-3">
                                     {remoteUniverseList.map((item) => (
                                         <button
                                             key={item.slug}
-                                            className="btn btn-light border rounded-3 text-start px-3 py-3"
+                                            type="button"
+                                            className="border rounded-3 text-start w-100"
                                             onClick={() => openRemoteUniverseBySlug(item.slug)}
+                                            style={{
+                                                backgroundColor: "#ffffff",
+                                                borderColor: "#d7dee8",
+                                                padding: "14px 16px",
+                                                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.06)",
+                                            }}
                                         >
-                                            <div className="d-flex justify-content-between align-items-start gap-3">
-                                                <div className="min-w-0">
-                                                    <div className="fw-bold text-dark text-truncate">
+                                            <div className="d-flex justify-content-between align-items-center gap-3">
+                                                <div className="min-w-0" style={{ flex: 1 }}>
+                                                    <div className="fw-bold text-dark" style={{ lineHeight: 1.2 }}>
                                                         {item.name || item.slug}
                                                     </div>
-                                                    <div className="small text-muted text-break">
+                                                    <div className="small text-muted mt-1" style={{ lineHeight: 1.35, wordBreak: 'break-word' }}>
                                                         {item.slug}
                                                         {item.kind ? ` • ${item.kind}` : ''}
+                                                        {remoteUniverseMetisScope ? ` • ${getMetisScopeLabel(remoteUniverseMetisScope)}` : ''}
                                                     </div>
+                                                    {item.savedAt && (
+                                                        <div className="small text-muted mt-1" style={{ lineHeight: 1.35 }}>
+                                                            Last saved {formatRemoteSavedAt(item.savedAt)}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <span className="small fw-semibold text-primary text-nowrap mt-1">
+                                                <span
+                                                    className="small fw-semibold text-primary text-nowrap"
+                                                    style={{
+                                                        border: "1px solid #b8d0e8",
+                                                        borderRadius: "999px",
+                                                        padding: "6px 12px",
+                                                        backgroundColor: "#f3f8fd",
+                                                    }}
+                                                >
                                                     Open
                                                 </span>
                                             </div>
@@ -763,7 +872,11 @@ export const ProjectMenuBar = (props: any) => {
                                 onChange={(event) => handleMetisScopeChange(event.target.value)}
                             >
                                 {metisScopeOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                            disabled={!availableMetisScopes?.[option.value]}
+                                        >
                                         {option.label}
                                     </option>
                                 ))}

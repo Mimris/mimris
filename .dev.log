@@ -1,0 +1,104 @@
+
+> Mimris@1.1.1 dev
+> next dev -p 3000
+
+   ▲ Next.js 15.3.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.9:3000
+
+ ✓ Starting...
+ ✓ Ready in 1390ms
+ ○ Compiling /404 ...
+ ✓ Compiled / in 8.6s (1508 modules)
+ GET /_next/static/webpack/b4fed8c4645b20c0.webpack.hot-update.json 404 in 9813ms
+ GET /_next/static/webpack/54b8e72848ca0f57.webpack.hot-update.json 404 in 8395ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+WARNING: a `go` object on the root object is already defined.  version: 3.0.22, replaced with version: 3.0.22
+ GET /model?universeSlug=coffee-shop&universeApi=http%3A%2F%2Flocalhost%3A3001&metisScope=world-model 200 in 1441ms
+ GET / 200 in 3506ms
+ ○ Compiling /modelling ...
+ ✓ Compiled /modelling in 1311ms (1614 modules)
+ GET /_next/static/webpack/54b8e72848ca0f57.webpack.hot-update.json 404 in 1345ms
+ GET /_next/static/webpack/b4fed8c4645b20c0.webpack.hot-update.json 404 in 1341ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /modelling 200 in 2272ms
+ GET /model?universeSlug=coffee-shop&universeApi=http%3A%2F%2Flocalhost%3A3001&metisScope=world-model 200 in 1401ms
+ GET /modelling 200 in 1233ms
+ GET /model?universeSlug=coffee-shop&universeApi=http%3A%2F%2Flocalhost%3A3001&metisScope=world-model 200 in 1230ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 230ms
+ GET / 200 in 360ms
+ ○ Compiling /api/user ...
+ ✓ Compiled /api/user in 1943ms (360 modules)
+ GET /api/user 304 in 2103ms
+ ✓ Compiled in 4.8s (1530 modules)
+ ○ Compiling /model ...
+ ✓ Compiled /model in 811ms (1534 modules)
+ GET /model?universeSlug=coffee-shop&universeApi=http%3A%2F%2Flocalhost%3A3001&metisScope=world-model 200 in 1839ms
+ ○ Compiling /404 ...
+ ✓ Compiled /404 in 784ms (1538 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1089ms
+ GET /modelling 200 in 669ms
+ ✓ Compiled /api/user in 342ms (332 modules)
+ GET /api/user 304 in 381ms
+ ✓ Compiled in 768ms (1553 modules)
+ GET /modelling 200 in 718ms
+ GET /api/user 304 in 19ms
+ ✓ Compiled in 778ms (1545 modules)
+ ○ Compiling /model ...
+ ✓ Compiled /model in 699ms (1549 modules)
+ GET /model?universeSlug=coffee-shop&universeApi=http%3A%2F%2Flocalhost%3A3001&metisScope=world-model 200 in 1488ms
+ ○ Compiling /404 ...
+ ✓ Compiled /404 in 701ms (1553 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1092ms
+ ✓ Compiled in 474ms (1553 modules)
+ GET /api/user 304 in 39ms
+ ○ Compiling /api/universe/library ...
+ ✓ Compiled /api/universe/library in 898ms (331 modules)
+ GET /api/universe/library?baseUrl=http%3A%2F%2Flocalhost%3A3001 304 in 1721ms
+ ✓ Compiled /api/remote-universe/[slug]/metis/[scope] in 123ms (333 modules)
+ GET /api/remote-universe/coffee-shop/metis/world-model?baseUrl=http%3A%2F%2Flocalhost%3A3001 304 in 200ms
+ GET /modelling 200 in 929ms
+ GET /api/user 304 in 17ms
+ GET /modelling 200 in 249ms
+ GET /api/user 200 in 13ms
+ ✓ Compiled in 6.3s (1547 modules)
+ GET /modelling 200 in 1020ms
+ GET /api/user 304 in 39ms
+ ✓ Compiled in 1526ms (1547 modules)
+ ○ Compiling /api/share ...
+ ✓ Compiled /api/user in 5s (1547 modules)
+ ✓ Compiled (1550 modules)
+ GET /api/user 304 in 1215ms
+ GET /api/user 304 in 1216ms
+ POST /api/share 201 in 2539ms
+ ○ Compiling /model ...
+ ✓ Compiled /model in 672ms (1552 modules)
+ ○ Compiling /api/universe/library ...
+ GET /model?share=4e800ef26e44be83 200 in 2041ms
+ ✓ Compiled /api/universe/library in 2s (1555 modules)
+ GET /api/universe/library?baseUrl=http%3A%2F%2Flocalhost%3A3001 304 in 3270ms
+ ✓ Compiled /api/remote-universe/[slug]/metis/[scope] in 190ms (338 modules)
+ GET /api/remote-universe/coffee-shop/metis/world-model?baseUrl=http%3A%2F%2Flocalhost%3A3001 304 in 281ms
+ GET /api/user 304 in 14ms
+ ✓ Compiled /api/share/[id] in 202ms (340 modules)
+ GET /api/share/4e800ef26e44be83 200 in 259ms
+ POST /api/share 201 in 142ms
+ GET /model?share=64d797686ef6ced5 200 in 820ms
+ GET /api/user 304 in 25ms
+ GET /api/share/64d797686ef6ced5 200 in 74ms
+ GET /api/user 304 in 52ms
+ GET /api/user 304 in 24ms
+ ✓ Compiled in 3.2s (1534 modules)
+ ✓ Compiled in 1896ms (1534 modules)
+ ✓ Compiled /api/user in 257ms (330 modules)
+ GET /api/user 304 in 752ms
+ GET /api/user 304 in 752ms
+ ✓ Compiled /api/share in 127ms (333 modules)
+ POST /api/share 201 in 163ms
+ GET /model?share=bb253beea33dc12d 200 in 876ms
+ GET /api/user 304 in 43ms
+ ✓ Compiled /api/share/[id] in 395ms (335 modules)
+ GET /api/share/bb253beea33dc12d 200 in 568ms
+[?25h

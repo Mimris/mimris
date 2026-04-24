@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { normalizeRemoteUniverseBaseUrl } from '../../../components/utils/remoteUniverse';
 import { buildRemoteResponseError, readRemoteJsonLike } from './remoteResponse';
 
 export const config = {
@@ -73,3 +72,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: message });
   }
 }
+const DEFAULT_REMOTE_UNIVERSE_BASE_URL =
+  process.env.NEXT_PUBLIC_SHARED_UNIVERSE_BASE_URL || 'http://localhost:3001';
+
+const normalizeRemoteUniverseBaseUrl = (value: string | string[] | undefined) => {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const baseUrl = typeof rawValue === 'string' && rawValue.trim() ? rawValue.trim() : DEFAULT_REMOTE_UNIVERSE_BASE_URL;
+  if (!/^https?:\/\//i.test(baseUrl)) {
+    throw new Error('Invalid remote universe base URL.');
+  }
+  return baseUrl.replace(/\/+$/, '');
+};

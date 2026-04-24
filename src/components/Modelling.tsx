@@ -172,7 +172,7 @@ const Modelling = (props: any) => {
   }
 
   useEffect(() => {
-    if (!debug) console.log('136 Modelling', mmToggle )
+    if (!debug) console.log('136 Modelling', mmToggle)
     dispatch({ type: 'TAB', data: (!mmToggle) ? 'metamodel' : 'model' });
     myMetis.modelType = (!mmToggle) ? 'Metamodelling' : 'Modelling';
     if (!debug) console.log('139 Modelling', myMetis.modelType, myMetis)
@@ -383,7 +383,7 @@ const Modelling = (props: any) => {
     if (debug) console.log('256 Modelling', curmod, curmodview);
 
     const selmods = modelList.filter((m: any) => m && m?.markedAsDeleted !== true)
-    
+
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
         const strindex = index.toString();
@@ -490,16 +490,16 @@ const Modelling = (props: any) => {
 
     const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
       ?
-        <TargetMeta // maybe replaced by Palette?
-          // gojsModel={gojsmodel}
-          // gojsMetamodel={gojsmetamodel}
-          // gojsTargetMetamodel={gojstargetmetamodel}
-          myMetis={myMetis}
-          phFocus={phFocus}
-          metis={metis}
-          dispatch={dispatch}
-          modelType='model'
-        />
+      <TargetMeta // maybe replaced by Palette?
+        // gojsModel={gojsmodel}
+        // gojsMetamodel={gojsmetamodel}
+        // gojsTargetMetamodel={gojstargetmetamodel}
+        myMetis={myMetis}
+        phFocus={phFocus}
+        metis={metis}
+        dispatch={dispatch}
+        modelType='model'
+      />
       : <></>;
 
     const metamodellingtabs = (
@@ -590,8 +590,8 @@ const Modelling = (props: any) => {
           <span className="ms-1 me-2 ">
             <button
               className={`btn btn-model-toggle ms-0 me-2 d-flex align-items-center justify-content-center ${mmToggle ? 'active' : ''}`}
-              data-toggle="tooltip"
-              data-placement="top"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
               title="Toggle between Metamodel and Model"
               onClick={() => setMmToggle(!mmToggle)}
               aria-pressed={mmToggle ? 'true' : 'false'}
@@ -610,6 +610,8 @@ const Modelling = (props: any) => {
               if (paletteRef.current && typeof paletteRef.current.setVisibleAll === 'function') paletteRef.current.setVisibleAll(next);
               if (paletteObjRef.current && typeof paletteObjRef.current.setVisibleAll === 'function') paletteObjRef.current.setVisibleAll(next);
             }}
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
             title="Toggle Palettes"
             aria-label="Toggle Palettes"
           >
@@ -765,7 +767,7 @@ const Modelling = (props: any) => {
               data-bs-toggle="tooltip"
               data-bs-placement="top"
               title="Load downloaded Schema from OSDU (Jsonfiles)"
-              // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
+            // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
             >
               {/* <i className="fa fa-house-tsunami fa-lg"></i> */}
               {loadjsonfile}
@@ -823,7 +825,7 @@ const Modelling = (props: any) => {
               </button>
             </div> */}
           <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary"
-            onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} 
+            onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'}
           </span>
         </div>
       </>
@@ -838,32 +840,32 @@ const Modelling = (props: any) => {
 
     return ((mmToggle)
       ? (myMetis) &&
-        <>
-          <div className="diagramtabs pb-0" >
-            {mount && (
-              <>
-                <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
-                  {modellingDiv}
-                </div>
-                <div className="modellingContent mt-1">
-                  {/* {modellingtabs} */}
-                  {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
-                </div>
-              </>
-            )}
-          </div>
-          {projectModalDiv}
-        </>
+      <>
+        <div className="diagramtabs pb-0" >
+          {mount && (
+            <>
+              <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+                {modellingDiv}
+              </div>
+              <div className="modellingContent mt-1">
+                {/* {modellingtabs} */}
+                {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+              </div>
+            </>
+          )}
+        </div>
+        {projectModalDiv}
+      </>
       : <>
-          <div className="diagramtabs pb-0 " >
-            <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
-              {metamodellingDiv}
-            </div>
-            <div className="modellingContent mt-1">
-              {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
-            </div>
+        <div className="diagramtabs pb-0 " >
+          <div className="position-relative float-end" style={{ transform: "scale(0.8)", marginRight: "64px" }}>
+            {metamodellingDiv}
           </div>
-        </>
+          <div className="modellingContent mt-1">
+            {refresh ? <> {metamodellingtabs} </> : <>{metamodellingtabs}</>}
+          </div>
+        </div>
+      </>
     )
   }
 }

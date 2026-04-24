@@ -2270,6 +2270,9 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   private getLink(goModel: any, key: string) {
+    if (!goModel?.links || !key) {
+      return null;
+    }
     const links = goModel.links;
     if (links) {
       for (let i = 0; i < links.length; i++) {
@@ -3399,22 +3402,31 @@ class GoJSApp extends React.Component<{}, AppState> {
           let key = gjsData.key;
           let text = gjsData.nameFrom ? gjsData.nameFrom : gjsData.name;
           let typename = gjsData.typename;
+          const category = gjsData.category;
           // Relationship type
-          if (typename === constants.gojs.C_RELSHIPTYPE) {
-            const myLink = this.getLink(context.myGoMetamodel, key);
+          if (category === constants.gojs.C_RELSHIPTYPE || typename === constants.gojs.C_RELSHIPTYPE) {
+            const myLink = this.getLink(context.myGoMetamodel, key) || sel;
             if (myLink) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
                 typename = text;
                 gjsData.name = text;
               }
-              uic.updateRelationshipType(myLink, "name", text, context);
-              gjsData.name = myLink.name;
-              if (myLink.reltype) {
-                const jsnReltype = new jsn.jsnRelationshipType(myLink.reltype, true);
-                modifiedRelshipTypes.push(jsnReltype);
+              uic.updateRelationshipType(myLink.data || myLink, "name", text, context);
+              const reltype =
+                myMetis.findRelationshipType(myLink?.reltype?.id || myLink?.data?.reltype?.id || gjsData?.reltype?.id || gjsData?.relshiptype?.id || gjsData?.reltypeRef) ||
+                myLink?.reltype ||
+                myLink?.data?.reltype ||
+                gjsData?.reltype ||
+                gjsData?.relshiptype;
+              gjsData.name = reltype?.name || text;
+              if (reltype) {
+                const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
+                let data: any = jsnReltype;
+                data = JSON.parse(JSON.stringify(data));
+                context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data });
               }
-              myDiagram.model?.setDataProperty(myLink.data, "name", myLink.name);
+              myDiagram.model?.setDataProperty(gjsData, "name", gjsData.name);
             }
           }
           else { // Relationship

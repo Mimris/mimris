@@ -1156,6 +1156,36 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
   }
 
+  const applyRelshiptypeUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.metamodels || !data?.id) return;
+    for (let mi = 0; mi < root.metis.metamodels.length; mi++) {
+      const metamodel = root.metis.metamodels[mi];
+      const relshiptypes = metamodel?.relshiptypes || [];
+      for (let rti = 0; rti < relshiptypes.length; rti++) {
+        const relshiptype = relshiptypes[rti];
+        if (relshiptype?.id === data.id) {
+          Object.assign(relshiptype, data);
+          return;
+        }
+      }
+    }
+  }
+
+  const applyRelshiptypeviewUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.metamodels || !data?.id) return;
+    for (let mi = 0; mi < root.metis.metamodels.length; mi++) {
+      const metamodel = root.metis.metamodels[mi];
+      const relshiptypeviews = metamodel?.relshiptypeviews || [];
+      for (let rtvi = 0; rtvi < relshiptypeviews.length; rtvi++) {
+        const relshiptypeview = relshiptypeviews[rtvi];
+        if (relshiptypeview?.id === data.id) {
+          Object.assign(relshiptypeview, data);
+          return;
+        }
+      }
+    }
+  }
+
   const dispatchUpdate = (action: any) => {
     const store = getCurrentStore();
     try { myDiagram?.dispatch?.(action); } catch (_) {}
@@ -1197,6 +1227,36 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const rawLocal = window?.localStorage?.getItem('memorystate');
         const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
         applyRelshipviewUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
+    if (action?.type === 'UPDATE_RELSHIPTYPE_PROPERTIES' && action?.data?.id) {
+      try { applyRelshiptypeUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyRelshiptypeUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyRelshiptypeUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
+    if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
+      try { applyRelshiptypeviewUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyRelshiptypeviewUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyRelshiptypeviewUpdateById(parsedLocal?.phData, action.data);
         window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
       } catch (_) {}
     }
@@ -1269,9 +1329,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editRelationshipType": {
-      // To be done !!!
-      
       // selObj is a link representing a relationship type
+      const selObj = selectedData;
       const rel = selectedData;
       let link = myDiagram.findLinkForKey(rel.key);
       if (!link)
@@ -1309,7 +1368,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedReltypes.push(jsnReltype);
       modifiedReltypes.map(mn => {
         const data = safeClone(mn);
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+        dispatchUpdate({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
       break;
     }

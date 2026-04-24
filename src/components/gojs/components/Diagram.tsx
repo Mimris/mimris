@@ -8938,6 +8938,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const data: any = part.data || {};
         const category = data.category;
         const isRelationship = category === constants.gojs.C_RELATIONSHIP;
+        const isRelshipType = category === constants.gojs.C_RELSHIPTYPE;
+
+        if (isRelshipType) {
+          items.push({
+            label: "Edit Relationship Type",
+            action: (diagram) => {
+              uid.editRelationshipType(data, myMetis, myDiagram);
+            },
+          });
+          items.push({
+            label: "Delete Relationship Type",
+            action: (diagram) => {
+              if (!confirm('Delete this relationship type?')) return;
+              const targetDiagram = diagram || myDiagram;
+              if (targetDiagram) {
+                targetDiagram.select(part);
+                targetDiagram.commandHandler.deleteSelection();
+              }
+            },
+          });
+          return items;
+        }
 
         // if (canEditAttribute(part)) {
         //   items.push({

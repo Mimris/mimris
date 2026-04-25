@@ -382,6 +382,15 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         break;
       }
       case 'ChangedSelection': {
+        if (this.suppressSelectionChange) {
+          break;
+        }
+        const sel = e.subject.first();
+        if (!sel) break;
+        const myDiagram = e.diagram;
+        const node = myDiagram.findNodeForKey(sel.data?.key);
+        if (debug) console.log('122 data', sel.data, sel, sel.data, e);
+        this.applyFocusForNode(myDiagram, node);
         break;
       }
       default:
@@ -765,9 +774,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={normalizePaletteLinkData(this.state.linkDataArray || [])}
           modelData={this.state.modelData}
-          skipsDiagramUpdate={true}
+          skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={() => {}}
+          onModelChange={this.handleModelChange}
           diagramStyle={this.state.diagramStyle}
           noOfCols={this.state.noOfCols}
           onNodeContextMenu={this.handleSelectConnected}

@@ -31,7 +31,3 @@ yarn-error.log*
 
 
 .vercel
-data/shares/*.json
-!data/shares/.gitkeep
-data/workbench/*.json
-!data/workbench/.gitkeep

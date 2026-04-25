@@ -11,6 +11,7 @@ import * as gjs from '../../../akmm/ui_gojs';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uit from '../../../akmm/ui_templates';
 
+import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
 
 // import './Diagram.css';
@@ -66,10 +67,10 @@ function installSafeNodeCategoryGuard() {
       typeof cat === 'string' && cat.length > 0
         ? cat
         : (typeof data?.template === 'string' && data.template.length > 0
-          ? data.template
-          : (typeof data?.category === 'string' && data.category.length > 0
-            ? data.category
-            : 'textAndIcon'));
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : 'textAndIcon'));
     return original.call(this, data, safeCategory);
   };
   proto.__safeNodeCategoryGuardInstalled = true;
@@ -85,10 +86,10 @@ function installSafeLinkCategoryGuard() {
       typeof cat === 'string' && cat.length > 0
         ? cat
         : (typeof data?.template === 'string' && data.template.length > 0
-          ? data.template
-          : (typeof data?.category === 'string' && data.category.length > 0
-            ? data.category
-            : 'linkTemplate1'));
+            ? data.template
+            : (typeof data?.category === 'string' && data.category.length > 0
+                ? data.category
+                : 'linkTemplate1'));
     return original.call(this, data, safeCategory);
   };
   proto.__safeLinkCategoryGuardInstalled = true;
@@ -139,29 +140,12 @@ function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefine
     if (!node || typeof node !== 'object') return node;
     normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || 'textAndIcon';
-    const rawScale = typeof node.scale === 'string' ? parseFloat(node.scale) : node.scale;
-    const safeScale = typeof rawScale === 'number' && Number.isFinite(rawScale) && rawScale > 0 ? rawScale : 1;
-    const safeStroke = sanitizeColor(node.strokecolor, "black");
-    const safeText = sanitizeColor(node.textcolor, "black");
-    const safeFill = sanitizeColor(node.fillcolor);
-    if (
-      typeof category === 'string' &&
-      category.length > 0 &&
-      node.category === category &&
-      node.scale === safeScale &&
-      node.strokecolor === safeStroke &&
-      node.textcolor === safeText &&
-      node.fillcolor === safeFill
-    ) {
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
     }
     return {
       ...node,
       category,
-      scale: safeScale,
-      strokecolor: safeStroke,
-      textcolor: safeText,
-      fillcolor: safeFill,
     };
   });
 }
@@ -182,7 +166,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
    */
-  private diagramRef: React.RefObject<any>;
+  private diagramRef: React.RefObject<ReactDiagram>;
   public myMetis: akm.cxMetis;
   private handleInitialLayout = (e: go.DiagramEvent) => {
     const diagram = e.diagram;
@@ -210,12 +194,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
    */
   public componentDidMount() {
     if (!this.diagramRef.current) return;
-    const palette = this.diagramRef.current.getPalette?.() || this.diagramRef.current.getDiagram?.();
-    if (palette instanceof go.Diagram) {
-      palette.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
-      palette.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
-      this.updatePalettePresentation(palette);
-      this.updateFocusHighlight(palette);
+    const diagram = this.diagramRef.current.getDiagram();
+    if (diagram instanceof go.Diagram) {
+      diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
+      this.updatePalettePresentation(diagram);
+      this.updateFocusHighlight(diagram);
     }
   }
 
@@ -224,10 +208,10 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
    */
   public componentWillUnmount() {
     if (!this.diagramRef.current) return;
-    const palette = this.diagramRef.current.getPalette?.() || this.diagramRef.current.getDiagram?.();
-    if (palette instanceof go.Diagram) {
-      palette.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
-      palette.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
+    const diagram = this.diagramRef.current.getDiagram();
+    if (diagram instanceof go.Diagram) {
+      diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
     }
   }
 
@@ -249,7 +233,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   }
 
   private updateFocusHighlight(diagram?: go.Diagram) {
-    const palette = diagram ?? this.diagramRef.current?.getPalette?.() ?? this.diagramRef.current?.getDiagram?.();
+    const palette = diagram ?? this.diagramRef.current?.getDiagram();
     if (!(palette instanceof go.Diagram)) return;
     const isObjectsPalette = this.props.divClassName === 'diagram-component-objects';
     const focusObjectId = String(this.props?.phFocus?.focusObject?.id || '');
@@ -263,20 +247,20 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       const node = it.value as go.Node;
       const nodeFocusId = isObjectsPalette
         ? String(
-          node?.data?.object?.id ||
-          node?.data?.objRef ||
-          node?.data?.objectRef ||
-          node?.data?.objectview?.object?.id ||
-          node?.data?.objectview?.objectRef ||
-          ''
-        )
+            node?.data?.object?.id ||
+            node?.data?.objRef ||
+            node?.data?.objectRef ||
+            node?.data?.objectview?.object?.id ||
+            node?.data?.objectview?.objectRef ||
+            ''
+          )
         : String(
-          node?.data?.objecttype?.id ||
-          node?.data?.objtypeRef ||
-          node?.data?.typeRef ||
-          node?.data?.key ||
-          ''
-        );
+            node?.data?.objecttype?.id ||
+            node?.data?.objtypeRef ||
+            node?.data?.typeRef ||
+            node?.data?.key ||
+            ''
+          );
       const targetFocusId = isObjectsPalette ? focusObjectId : focusTypeId;
       const matches = Boolean(targetFocusId) && nodeFocusId === targetFocusId;
       try {
@@ -292,7 +276,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   }
 
   private updatePalettePresentation(diagram?: go.Diagram) {
-    const palette = diagram ?? this.diagramRef.current?.getPalette?.() ?? this.diagramRef.current?.getDiagram?.();
+    const palette = diagram ?? this.diagramRef.current?.getDiagram();
     if (!(palette instanceof go.Diagram)) {
       return;
     }
@@ -471,6 +455,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 // comparer: uid.alphabeticalComparer
               }),
 
+            draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             grid: $(go.Panel, "Grid",
               $(go.Shape, "LineH", { stroke: "lightblue", strokeWidth: 0.5 }),
               $(go.Shape, "LineH", { stroke: "blue", strokeWidth: 0.5, interval: 10 }),
@@ -499,8 +484,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             selectionAdorned: true,
             click: function (e, node) {
               // Your click handler logic (optional)
-            },
-            contextMenu: contextMenu || undefined
+            }
           },
           new go.Binding("text", "name"),
           new go.Binding("scale", "scale").makeTwoWay(),
@@ -821,11 +805,22 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     // https://github.com/NorthwoodsSoftware/gojs-react-basic/blob/master/src/components/DiagramWrapper.tsx
 
     return (
-      <ReactPalette
+      // <ReactPalette
+      //   ref={this.diagramRef}
+      //   divClassName={divclassname}
+      //   initDiagram={this.initPalette}
+      //   nodeDataArray={this.props?.nodeDataArray}
+      //   linkDataArray={this.props?.linkDataArray}
+      //   modelData={this.props.modelData}
+      //   onModelChange={this.props.onModelChange}
+      //   skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+      //   style={this.props.diagramStyle}
+      // />
+      <ReactDiagram
         key={`${this.props.phFocus?.focusModel?.id || 'no-model'}-${normalizedNodeDataArray?.length || 0}-${this.props.divClassName || 'palette'}`}
         ref={this.diagramRef}
         divClassName={divclassname}
-        initPalette={this.initPalette}
+        initDiagram={this.initPalette}
         nodeDataArray={normalizedNodeDataArray}
         linkDataArray={normalizedLinkDataArray}
         modelData={this.props.modelData}

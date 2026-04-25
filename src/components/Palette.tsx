@@ -74,13 +74,8 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
   if (!metamodels) return null;
-  const model = models?.find((m: any) => m?.id === focusModel?.id) || models?.[0]
-  const activeMetamodelRef =
-    model?.metamodelRef ||
-    props.metis?.currentMetamodelRef ||
-    props.myMetis?.currentMetamodel?.id ||
-    metamodels?.[0]?.id;
-  const mmodel = metamodels?.find((m: any) => m?.id === activeMetamodelRef) || metamodels?.[0]
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // const mmodelRefs = mmodel?.metamodelRefs;
 
   const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined && m?.name !== 'ADMIN_META')?.map((m: any) => ({ id: m?.id, name: m?.name })); // exclude admin metamodel
@@ -103,14 +98,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   if (debug) console.log('85 Palette', role, task, metamodelList, types, tasks);
 
   useEffect(() => {
-    const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id) || props.metis?.models?.[0];
-    const activeMetamodelRef =
-      model?.metamodelRef ||
-      props.metis?.currentMetamodelRef ||
-      props.myMetis?.currentMetamodel?.id ||
-      props.metis?.metamodels?.[0]?.id;
+    const model = props.metis?.models?.find((m: any) => m?.id === focusModel?.id);
     // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
-    const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === activeMetamodelRef) || props.metis?.metamodels?.[0];
+    const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
     if (props.myMetis && props.metis) {
       props.myMetis.importData(props.metis, true);
     }
@@ -130,9 +120,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     setFilteredOtNodeDataArray(nodes);
     setFilteredLinkDataArray(links);
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
-
+    
     if (debug) console.log('110 Palette useEffect 3', mmodel?.name, filteredOtNodeDataArray);
-  }, [focusModel?.id, model?.metamodelRef, props.metis?.currentMetamodelRef, props.metis?.metamodels?.length]);
+  }, [focusModel?.id, model?.metamodelRef]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -181,10 +171,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   const buildFilterOtNodeDataArray = (types, mmodel) => { // build the palette for the selected metamodel
     if (debug) console.log('118 Palette', mmodel, props.myMetis);
 
-    const curMyMetamodel = props.myMetis?.findMetamodel?.(mmodel?.id) || mmodel;
-    if (!curMyMetamodel) {
-      return { nodes: [], links: [] };
-    }
+    const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
     const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
     const paletteNodes = curPalette?.nodes ?? [];
@@ -211,7 +198,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           : (mmodel.name === 'POPS_META')
             ? ['Container', 'Product', 'Facility', 'Equipment', 'Material', 'Geobody', 'DistributNetwork', 'Organisation', 'Process', 'Event', 'Data', 'Service', 'System', 'Software', 'Device']
             : (mmodel.name === 'BPMN_META')
-              ? ['Pool', 'Lane', 'Start', 'Activity', 'Task', 'Event', 'ParallelGate', 'InclusiveGate', 'ExclusiveGate', 'End', 'DataObject', 'DataStore', 'Container']
+              ? ['Pool', 'Lane', 'Start', 'Activity', 'Task','Event', 'ParallelGate', 'InclusiveGate', 'ExclusiveGate', 'End', 'DataObject', 'DataStore', 'Container']
               : (mmodel.name === 'OSDU_META')
                 ? ['Container', 'OSDUType', 'Property', 'Proxy', 'Array', 'Item']
                 : ['Container']
@@ -279,11 +266,10 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       </select>
     </>
   );
-  const paletteNodeData = filteredOtNodeDataArray;
   const paletteLinkData = isExpanded ? filteredLinkDataArray : [];
 
-  // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
-  const gojsappPaletteTopDiv = (mmodel && paletteNodeData) && // this is the palette with the current metamodel
+    // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
+    const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
     (
       <div className="metamodel-pad pt-2">
         {/* <detail open={openDetail === 'top'} onClick={() => handleToggle('top')} className="metamodel-pad">*/}
@@ -291,7 +277,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
           key={`${focusModel?.id ?? 'palette-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
-          nodeDataArray={paletteNodeData}
+          nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
@@ -301,7 +287,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           diagramStyle={{ height: '76vh' }}
           noOfCols={isExpanded ? 4 : 1}
         />
-        {/* </detail> */}
+      {/* </detail> */}
       </div>
     )
 
@@ -310,17 +296,17 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   let gojsappPaletteDiv = null; // Initialize with a default value
   if (includeMetamodelSelector) {
     gojsappPaletteDiv =
-      <>
-        {otDiv}
-        {gojsappPaletteTopDiv}
-      </>
+    <>
+      {otDiv}
+      {gojsappPaletteTopDiv}
+    </>
   } else {
     gojsappPaletteDiv =
-      <>
-        <div>
-          {gojsappPaletteTopDiv}
-        </div>
-      </>
+    <>
+      <div>
+      {gojsappPaletteTopDiv}
+      </div>
+    </>
   }
 
   const paletteControls = // Palette controls: toggle palette visibility and width
@@ -341,20 +327,20 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           title="Show or hide palette content"
         >
           {visiblePalette
-            ? <span className="fs-8 px-1 palette-label" style={{ whiteSpace: "nowrap", fontSize: "0.82rem" }}><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i>
-              Palette: Obj. Types
-            </span>
-            : <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>}
+          ? <span className="fs-8 px-1 palette-label" style={{ whiteSpace: "nowrap", fontSize: "0.82rem" }}><i className="fa fa-lg fa-angle-left pull-right-container me-1"></i> 
+          Palette: Obj. Types
+          </span>
+          : <i className="fa fa-angle-right text-white pull-right-container ps-1"></i>}
         </button>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", flex: "0 0 auto" }}>
           <button
-            className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
-            style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
-            onClick={() => { setIsExpanded(!isExpanded); }}
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Toggle palette width"
-            disabled={!visiblePalette}
+          className="btn-sm ps-0 pe-2 m-0 text-right bg-transparent h-50"
+          style={{ backgroundColor: "#9cd", outline: "0", borderStyle: "none" }}
+          onClick={() => { setIsExpanded(!isExpanded); }}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Toggle palette width"
+          disabled={!visiblePalette}
           >
             {visiblePalette ? (isExpanded ? <span>&lt; --</span> : <span>-- &gt;</span>) : <span></span>}
           </button>
@@ -368,7 +354,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       style={{ flexGrow: 1 }}
     >
       {gojsappPaletteDiv}
-    </div>
+  </div>
 
   const collapsedPaletteSidebar =
     <div

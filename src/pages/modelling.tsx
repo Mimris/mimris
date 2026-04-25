@@ -223,7 +223,7 @@ const Page1 = (props: any) => {
     const locProps = getPersistedState()
     setMemorySessionState(locProps)
   }, [props.phSource])
-
+  
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
@@ -254,38 +254,10 @@ const Page1 = (props: any) => {
     }
   };
 
-  const handleCopyExternalLinkClick = async () => {
-    try {
-      const snapshot = getPersistedState();
-      const url = await createSnapshotShare(snapshot, window.location.origin);
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const input = document.createElement('textarea');
-        input.value = url;
-        input.setAttribute('readonly', '');
-        input.style.position = 'absolute';
-        input.style.left = '-9999px';
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-      }
-    } catch (error) {
-      console.error('Unable to copy snapshot share:', error);
-      alert('Unable to copy share link.');
-    }
-  };
-
   const modellingDiv = (mount)
     ?
     <div>
-      <Layout
-        user={props.phUser?.focusUser}
-        navbarProps={{
-          metisName: props.phData?.metis?.name || '',
-        }}
-      >
+      <Layout user={props.phUser?.focusUser}>
         <div id="index">
           <div className="wrapper">
             {/* <div className="header" >
@@ -323,31 +295,7 @@ const Page1 = (props: any) => {
             </div>
             <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>
               <button
-                onClick={() => handleCopyExternalLinkClick()}
-                data-bs-toggle="tooltip"
-                data-bs-placement="left"
-                title="copyt and paste the link in a browser or an e-mail to send the model"
-                aria-label="Copy share view link"
-                style={{
-                  position: "absolute",
-                  marginRight: "33px",
-                  marginTop: "8px",
-                  right: "0",
-                  top: "",
-                  color: "lightgray",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer"
-                }}
-              >
-                <i className="fas fa-copy" aria-hidden="true"></i>
-              </button>
-              <button
                 onClick={() => handleExternalLinkClick()}
-                data-bs-toggle="tooltip"
-                data-bs-placement="left"
-                title="Open this model in a new /model share view"
-                aria-label="Open share view"
                 style={{
                   position: "absolute",
                   marginRight: "9px",

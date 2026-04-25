@@ -11821,10 +11821,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const baseDoActivate = draggingTool.doActivate;
 	      draggingTool.doActivate = function () {
 	        const diagram = this.diagram;
-        const copiedParts = this.copiedParts;
-        if (copiedParts && copiedParts.count > 0) {
-          return baseDoActivate.call(this);
-        }
         const isVisuallyInsideGroup = (part: go.Part, grp: go.Group): boolean => {
           const back =
             grp.findObject("LANE_BODY_SHAPE") ||

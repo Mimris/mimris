@@ -3327,15 +3327,18 @@ class GoJSApp extends React.Component<{}, AppState> {
           const goNode = myGoModel.findNode(key);
           let text: string = textvalue;
           const category: string = gjsData.category;
+          const isMetamodelObjectTypeNode =
+            myMetis?.modelType === 'Metamodelling' &&
+            (!!gjsData.objecttype || !!gjsData.objtypeRef);
           // Object type
-          if (category === constants.gojs.C_OBJECTTYPE) {
+          if (category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
             if (gjsData) {
               gjsData.name = text;
               uic.updateObjectType(gjsData, field, text, context);
-              const objtype = myMetis.findObjectType(gjsData.objecttype?.id);
+              const objtype = myMetis.findObjectType(gjsData.objecttype?.id || gjsData.objtypeRef);
               if (objtype) {
                 let data = { id: objtype.id, name: text };
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data });

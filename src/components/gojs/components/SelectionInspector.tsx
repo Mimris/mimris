@@ -1032,11 +1032,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_RELSHIPTYPEVIEW) {
       category = constants.gojs.C_RELSHIPTYPE;
     }
+    if (
+      myMetis?.modelType === 'Metamodelling' &&
+      (!!selObj?.objecttype || !!selObj?.objtypeRef) &&
+      (what === 'editObjectType' || what === 'editTypeview')
+    ) {
+      category = constants.gojs.C_OBJECTTYPE;
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
     if (!myObjectType) {
-      myObjectType = myMetis.findObjectType(selObj?.objtypeRef) as akm.cxObjectType;
+      myObjectType = myMetis.findObjectType(selObj?.objecttype?.id || selObj?.objtypeRef) as akm.cxObjectType;
+      if (!myObjectType) {
+        myObjectType = selObj?.objecttype as akm.cxObjectType;
+      }
       myObjectTypeView = myObjectType?.typeview;
     }
     if (myObjectTypeView)

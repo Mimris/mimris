@@ -2168,6 +2168,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
       // selObj is a node representing an object or an objecttype
       const selObj = selectedData;
+      const isMetamodelObjectTypeNode =
+        myMetis?.modelType === 'Metamodelling' &&
+        (!!selObj?.objecttype || !!selObj?.objtypeRef);
       const node = myDiagram.findNodeForKey(selObj.key);
       if (!node)
         break;
@@ -2181,11 +2184,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       // End fix     
       let data, typeview, objtypeview, reltypeview;
-      if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+      if (selObj.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
         let node = myMetis.currentNode;
         node = myDiagram.findNodeForKey(node.key);
         data = node.data;
-        objtypeview = data.typeview;
+        objtypeview = data.typeview || selObj.typeview || data.objecttype?.typeview;
         typeview = myMetamodel.findObjectTypeView(objtypeview?.id);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;

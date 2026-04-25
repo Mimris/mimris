@@ -8117,9 +8117,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
         const data: any = part.data || {};
+        const isMetamodelObjectTypeNode =
+          myMetis.modelType === 'Metamodelling' &&
+          (!!data.objecttype || !!data.objtypeRef);
 
         // Metamodel window: objecttype nodes only expose "Edit Object Type" and "Edit Object Typeview"
-        if (data.category === constants.gojs.C_OBJECTTYPE) {
+        if (data.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
           return [
             {
               label: "Edit Object Type",
@@ -9334,7 +9337,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // node's icon (a go.Picture), show a small menu containing only 'Change Icon'.
         let items: HtmlMenuItem[] | null = null;
         // Objecttype nodes always use buildNodeMenuItems (no icon shortcut)
-        if ((targetPart.data || {}).category === constants.gojs.C_OBJECTTYPE) {
+        if (
+          (targetPart.data || {}).category === constants.gojs.C_OBJECTTYPE ||
+          (myMetis.modelType === 'Metamodelling' && !!((targetPart.data || {}).objecttype || (targetPart.data || {}).objtypeRef))
+        ) {
           items = buildNodeMenuItems(targetPart);
         }
         if (!items) try {

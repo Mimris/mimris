@@ -845,12 +845,16 @@ export function editObjectTypeview(gjsNode: any, myMetis: akm.cxMetis, myDiagram
     let object = objectview?.object;
     let objecttype = null;
     let objecttypeview = null;
+    const isMetamodelObjectTypeNode =
+        myMetis?.modelType === 'Metamodelling' &&
+        (!!gjsNode?.objecttype || !!gjsNode?.objtypeRef);
 
-    if (gjsNode?.category === constants.gojs.C_OBJECTTYPE) {
+    if (gjsNode?.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
         objecttype = myMetis.findObjectType(gjsNode?.objecttype?.id || gjsNode?.objtypeRef) || gjsNode?.objecttype;
         objecttypeview =
-            myMetis.findObjectTypeView(objecttype?.typeview?.id || gjsNode?.typeviewRef) ||
+            myMetis.findObjectTypeView(objecttype?.typeview?.id || gjsNode?.typeview?.id || gjsNode?.typeviewRef) ||
             objecttype?.typeview ||
+            gjsNode?.typeview ||
             gjsNode?.objecttypeview ||
             null;
     } else {

@@ -9127,6 +9127,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
           });
           items.push({
+            label: "Edit Relationship Typeview",
+            action: (diagram) => {
+              uid.editRelshipTypeview(data, myMetis, diagram || myDiagram, false);
+            },
+          });
+          items.push({
             label: "Delete Relationship Type",
             action: (diagram) => {
               if (!confirm('Delete this relationship type?')) return;

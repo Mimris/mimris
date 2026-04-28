@@ -18,6 +18,7 @@ import * as jsn from '../../akmm/ui_json';
 import * as uic from '../../akmm/ui_common';
 import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
+import * as uit from '../../akmm/ui_templates';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
 import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
@@ -218,6 +219,20 @@ function isTransientRoutedLink(routing: any): boolean {
   return normalized === "Orthogonal" || normalized === "AvoidsNodes";
 }
 
+function getPreservedRouting(...sources: any[]): string {
+  for (let i = 0; i < sources.length; i++) {
+    const value = sources[i];
+    if (value === go.Link.Orthogonal) return "Orthogonal";
+    if (value === go.Link.AvoidsNodes) return "AvoidsNodes";
+    if (value === go.Link.Normal) return "Normal";
+    const normalized = String(value || "").trim();
+    if (normalized === "Orthogonal" || normalized === "AvoidsNodes" || normalized === "Normal") {
+      return normalized;
+    }
+  }
+  return "Normal";
+}
+
 function sanitizeModifiedLinkDataForReact(link: any): any {
   if (!link || typeof link !== "object") return link;
   const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
@@ -322,6 +337,36 @@ function sanitizeObjectViewDispatchData(data: any): any {
   delete nextData.modified;
   delete nextData.isSelected;
   return nextData;
+}
+
+function safeJsonCloneForDispatch(value: any): any {
+  const seen = new WeakSet<object>();
+  return JSON.parse(JSON.stringify(value, (_key, current) => {
+    if (typeof current === "function") return undefined;
+    if (!current || typeof current !== "object") return current;
+    if (seen.has(current)) return undefined;
+    seen.add(current);
+    const ctor = current.constructor?.name || "";
+    if (
+      ctor === "Diagram" ||
+      ctor === "AnimationManager" ||
+      ctor === "ToolManager" ||
+      ctor === "DraggingTool" ||
+      ctor === "CommandHandler" ||
+      ctor === "GraphObject" ||
+      ctor === "Part" ||
+      ctor === "Node" ||
+      ctor === "Link" ||
+      ctor === "Group" ||
+      ctor === "Panel" ||
+      ctor === "Shape" ||
+      ctor === "Adornment" ||
+      ctor === "InputEvent"
+    ) {
+      return undefined;
+    }
+    return current;
+  }));
 }
 
 function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
@@ -1147,6 +1192,19 @@ function getNodeTypeRef(node) {
   );
 }
 
+function isMetamodelSelection(myMetis: any, selection: any) {
+  if (myMetis?.modelType === 'Metamodelling') return true;
+  try {
+    for (let it = selection?.iterator; it?.next();) {
+      const part = it.value;
+      const data = part?.data;
+      if (data?.objecttype || data?.category === constants.gojs.C_OBJECTTYPE) return true;
+    }
+  } catch (_) {
+  }
+  return false;
+}
+
 function getNodeKey(node) {
   if (!node) {
     return undefined;
@@ -1632,6 +1690,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);
     // ...existing code...
+    this._ownDiagram = null;
   }
 
   openConnectedObjectsDialog = (mode = 'select', context: any = null) => {
@@ -1858,6 +1917,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (shouldSyncFromProps) {
       nextState.skipsDiagramUpdate = false;
       this.setState(nextState);
+      // Auto-layout metamodel when nodeDataArray changes and all nodes are unpositioned
+      const incomingNodes = this.props.nodeDataArray;
+      if (
+        Array.isArray(incomingNodes) &&
+        incomingNodes.length > 1 &&
+        incomingNodes.some((n) => n?.objecttype) &&
+        incomingNodes.every((n) => !n?.loc)
+      ) {
+        setTimeout(() => this._applyMetamodelAutoLayoutIfNeeded(this._ownDiagram), 200);
+      }
       return;
     }
     const nextDropLayout = buildDropLayoutOverridesFromMetis(this.props?.myMetis);
@@ -2201,6 +2270,9 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   private getLink(goModel: any, key: string) {
+    if (!goModel?.links || !key) {
+      return null;
+    }
     const links = goModel.links;
     if (links) {
       for (let i = 0; i < links.length; i++) {
@@ -2252,10 +2324,110 @@ class GoJSApp extends React.Component<{}, AppState> {
    * On ChangedSelection, find the corresponding data and set the selectedData state.
    * @param e a GoJS DiagramEvent
    */
+  _applyMetamodelAutoLayoutIfNeeded(diagram) {
+    if (!(diagram instanceof go.Diagram)) return;
+    const myMetis = this.state?.myMetis;
+    // Only auto-layout when all nodes have no saved position (stacked at origin)
+    let count = 0;
+    let allAtOrigin = true;
+    for (let it = diagram.nodes.iterator; it.next();) {
+      count++;
+      const loc = it.value.data?.loc;
+      if (loc && loc !== '') { allAtOrigin = false; break; }
+    }
+    if (!allAtOrigin || count <= 1) return;
+    const preferredLayout = myMetis?.currentMetamodel?.layout || 'LayeredDigraph';
+    switch (preferredLayout) {
+      case 'Circular':
+        diagram.layout = new go.CircularLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Grid':
+        diagram.layout = new go.GridLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Tree':
+        diagram.layout = new go.TreeLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'ForceDirected':
+        diagram.layout = new go.ForceDirectedLayout({ isInitial: false, isOngoing: false });
+        break;
+      case 'Manual': {
+        const layout = diagram.layout;
+        if (layout) {
+          layout.isInitial = false;
+          layout.isOngoing = false;
+        }
+        break;
+      }
+      case 'LayeredDigraph':
+      default:
+        diagram.layout = new go.LayeredDigraphLayout({
+          isInitial: false,
+          isOngoing: false,
+          direction: 0,
+          layerSpacing: 80,
+          columnSpacing: 40,
+          setsPortSpots: false,
+        });
+        break;
+    }
+    diagram.layoutDiagram(true);
+    diagram.zoomToFit();
+    // Persist the computed positions to objtypegeos so parent re-renders don't reset the layout
+    this._saveMetamodelAutoLayoutPositions(diagram);
+  }
+
+  _saveMetamodelAutoLayoutPositions(diagram) {
+    const myMetis = this.state?.myMetis;
+    const dispatch = this.state?.dispatch;
+    if (!myMetis || !dispatch) return;
+    const myMetamodel = myMetis.currentMetamodel;
+    if (!myMetamodel) return;
+    let updatedAnyGeo = false;
+    for (let it = diagram.nodes.iterator; it.next();) {
+      const node = it.value;
+      const data = node.data;
+      const objtype = data?.objecttype;
+      if (!objtype) continue;
+      // Prefer data.loc (two-way binding), fall back to live location
+      const pt = node.location;
+      const loc = (data.loc && data.loc !== '')
+        ? data.loc
+        : `${Math.round(pt.x)} ${Math.round(pt.y)}`;
+      if (!loc) continue;
+      let geo = myMetamodel.findObjtypeGeoByType(objtype);
+      if (!geo) {
+        geo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, '');
+        myMetamodel.addObjtypeGeo(geo);
+        myMetis.addObjtypeGeo(geo);
+      } else {
+        geo.loc = loc;
+      }
+      const jsnGeo = new jsn.jsnObjectTypegeo(geo);
+      const geoData = JSON.parse(JSON.stringify(jsnGeo));
+      dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data: geoData });
+      updatedAnyGeo = true;
+    }
+    if (updatedAnyGeo) {
+      try {
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        let data = { metis: jsnMetis };
+        data = JSON.parse(JSON.stringify(data));
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+      } catch (_) {
+      }
+    }
+  }
+
   public handleDiagramEvent(e: go.DiagramEvent) {
     const dispatch = this.state.dispatch;
     const name = e.name;
     const myDiagram = e.diagram;
+    // Capture this GoJSApp's own diagram reference (used for auto-layout)
+    if (!this._ownDiagram && myDiagram) this._ownDiagram = myDiagram;
+    // Auto-layout metamodel on first diagram load when no positions are saved
+    if (name === 'InitialLayoutCompleted') {
+      this._applyMetamodelAutoLayoutIfNeeded(myDiagram);
+    }
     const myMetis = this.state.myMetis;
     myMetis.relinked = false;
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
@@ -2283,7 +2455,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModel": myModel,
       "myModelview": myModelview,
       "myGoModel": myMetis.gojsModel,
-      // "myGoMetamodel": myGoMetamodel,
+      "myGoMetamodel": (myDiagram as any)?.myGoMetamodel || null,
       "myDiagram": myDiagram,
       "dispatch": dispatch,
       "pasted": pasted,
@@ -2344,9 +2516,18 @@ class GoJSApp extends React.Component<{}, AppState> {
       const poolNode = myDiagram.findNodeForKey(poolKey);
       if (!(poolNode instanceof go.Group)) return;
       const resolvePoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
-        if (!(group instanceof go.Group)) return 0;
+        if (!(group instanceof go.Group)) return 34;
+        try {
+          const poolHeader = group.findObject("POOL_HEADER_STRIP");
+          const poolHeaderWidth = poolHeader?.actualBounds?.width;
+          if (typeof poolHeaderWidth === "number" && Number.isFinite(poolHeaderWidth) && poolHeaderWidth > 0) {
+            return poolHeaderWidth;
+          }
+        } catch (_) {
+        }
         let maxWidth = 0;
         const candidateNames = [
+          'POOL_HEADER_STRIP',
           'LEFT_HEADER',
           'leftHeader',
           'poolLeftHeader',
@@ -2368,15 +2549,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         const d: any = group.data;
         const dataWidth = [d?.leftHeaderWidth, d?.headerWidth, d?.poolHeaderWidth]
           .find((value) => typeof value === 'number' && !Number.isNaN(value)) || 0;
-        return Math.max(maxWidth, dataWidth, 28);
+        return Math.max(maxWidth, dataWidth, 34);
       };
       const poolSize = parseSizeString(poolNode.data?.size);
       const poolWidth = Number(poolSize?.width) || Number(poolNode.findObject("POOL_SHAPE")?.actualBounds?.width) || 0;
       if (!Number.isFinite(poolWidth) || poolWidth <= 0) return;
       const poolLeftReserve = resolvePoolLeftHeaderReserve(poolNode);
-      const lanePaddingLeft = 4;
-      const lanePaddingRight = 4;
-      const laneRightVisualInset = 6;
+      const lanePaddingLeft = 0;
+      const lanePaddingRight = 0;
+      const laneRightVisualInset = 0;
       const finalLaneWidth = Math.max(
         poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
         120
@@ -2463,21 +2644,12 @@ class GoJSApp extends React.Component<{}, AppState> {
       (myDiagram as any).__isSwimlaneNormalizeInProgress = true;
       try {
         myDiagram.model.startTransaction("normalizeSwimlanePool");
-        // Precompute lane structural/body bounds so we can fix mis-parented nodes that
-        // visually sit in a Lane but are grouped directly to the Pool.
-        const laneInfos: Array<{
-          key: string;
-          lane: go.Group;
-          mainBounds: go.Rect | null;
-          bodyBounds: go.Rect | null;
-          area: number;
-        }> = [];
-        poolNode.memberParts.each((part: go.Part) => {
-          if (!(part instanceof go.Group)) return;
+        const isLaneGroup = (part: go.Part | null | undefined): part is go.Group => {
+          if (!(part instanceof go.Group)) return false;
           const ldata = part.data;
           const c = String(ldata?.category || "");
           const t = String(ldata?.template || "");
-          const isLane =
+          return (
             c === "Lane" ||
             c === "Lane_w_handles" ||
             c === "Lane9" ||
@@ -2487,17 +2659,89 @@ class GoJSApp extends React.Component<{}, AppState> {
             t === "Lane9" ||
             t === "Lane9_legacy" ||
             part.category === "Lane" ||
-            part.category === "Lane_w_handles";
-          if (!isLane) return;
-
-          const laneKey = String(ldata?.key || part.key || "");
-          if (!laneKey) return;
+            part.category === "Lane_w_handles"
+          );
+        };
+        const getLaneInfo = (part: go.Group) => {
+          const laneKey = String(part.data?.key || part.key || "");
+          if (!laneKey) return null;
           const laneMain = (part.findObject("LANE_MAIN_SHAPE") || part.findObject("LANE_MAIN")) as go.GraphObject | null;
           const laneBody = part.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
           const mainBounds = laneMain ? laneMain.getDocumentBounds() : part.actualBounds;
           const bodyBounds = laneBody ? laneBody.getDocumentBounds() : null;
           const area = Math.max(1, mainBounds.width * mainBounds.height);
-          laneInfos.push({ key: laneKey, lane: part, mainBounds, bodyBounds, area });
+          return { key: laneKey, lane: part, mainBounds, bodyBounds, area };
+        };
+        const horizontalAlignmentScore = (a: go.Rect, b: go.Rect): number => {
+          const overlapLeft = Math.max(a.x, b.x);
+          const overlapRight = Math.min(a.right, b.right);
+          const overlap = Math.max(0, overlapRight - overlapLeft);
+          const baseline = Math.max(1, Math.min(a.width, b.width));
+          const xDelta = Math.abs(a.x - b.x);
+          return Math.max(overlap / baseline, xDelta <= 8 ? 1 : 0);
+        };
+        const isVerticallyAdjacent = (candidate: go.Rect, existing: go.Rect): boolean => {
+          const gapAbove = Math.abs(candidate.bottom - existing.y);
+          const gapBelow = Math.abs(existing.bottom - candidate.y);
+          return gapAbove <= 12 || gapBelow <= 12;
+        };
+
+        // Precompute lane structural/body bounds so we can fix mis-parented nodes that
+        // visually sit in a Lane but are grouped directly to the Pool.
+        const laneInfos: Array<{
+          key: string;
+          lane: go.Group;
+          mainBounds: go.Rect | null;
+          bodyBounds: go.Rect | null;
+          area: number;
+        }> = [];
+        const seenLaneKeys = new Set<string>();
+        const registerLaneInfo = (part: go.Group) => {
+          const info = getLaneInfo(part);
+          if (!info || seenLaneKeys.has(info.key)) return;
+          laneInfos.push(info);
+          seenLaneKeys.add(info.key);
+        };
+        poolNode.memberParts.each((part: go.Part) => {
+          if (!isLaneGroup(part)) return;
+          registerLaneInfo(part);
+        });
+
+        if (laneInfos.length > 0) {
+          let expanded = true;
+          while (expanded) {
+            expanded = false;
+            myDiagram.nodes.each((part: go.Part) => {
+              if (!isLaneGroup(part)) return;
+              const info = getLaneInfo(part);
+              if (!info || seenLaneKeys.has(info.key) || !info.mainBounds) return;
+              const groupedToPool = String(part.data?.group || "") === poolKey;
+              const containedByPool = part.containingGroup === poolNode;
+              const matchesSeedLane = laneInfos.some((existing) => {
+                if (!existing.mainBounds) return false;
+                return (
+                  horizontalAlignmentScore(info.mainBounds!, existing.mainBounds) >= 0.85 &&
+                  isVerticallyAdjacent(info.mainBounds!, existing.mainBounds)
+                );
+              });
+              if (!(groupedToPool || containedByPool || matchesSeedLane)) return;
+              registerLaneInfo(part);
+              expanded = true;
+            });
+          }
+        }
+
+        laneInfos.forEach((info) => {
+          const part = info.lane;
+          const laneKey = info.key;
+          const bodyBounds = info.bodyBounds;
+          if (poolKey && part.data?.group !== poolKey) {
+            if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
+              (myDiagram.model as any).setGroupKeyForNodeData(part.data, poolKey);
+            } else {
+              myDiagram.model.setDataProperty(part.data, "group", poolKey);
+            }
+          }
 
           part.memberParts.each((mp: go.Part) => {
             if (!(mp instanceof go.Node) || mp instanceof go.Group) return;
@@ -2850,6 +3094,24 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Metamodel diagrams often use "contains" as a meaningful relationship that should be shown.
         restoreMetamodelContainsVisibility();
         normalizeMetamodelContainsRouting();
+        try {
+          const poolKeysToNormalize = new Set<string>();
+          myDiagram.nodes.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            if (!isPoolLike(part.data)) return;
+            const poolKey = String(part.data?.key || part.key || "");
+            if (!poolKey) return;
+            poolKeysToNormalize.add(poolKey);
+          });
+          poolKeysToNormalize.forEach((poolKey) => {
+            normalizeSwimlanePool(poolKey);
+            const poolPart = myDiagram.findNodeForKey(poolKey);
+            if (poolPart instanceof go.Group) {
+              relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
+            }
+          });
+        } catch (_) {
+        }
         const activeFocusModelviewId = this.props?.phFocus?.focusModelview?.id || "";
         const focusObjectViewId = this.props?.phFocus?.focusObjectview?.id || "";
         const shouldApplyRealSelection = Boolean(activeFocusModelviewId) && activeFocusModelviewId === myModelview?.id;
@@ -3065,15 +3327,18 @@ class GoJSApp extends React.Component<{}, AppState> {
           const goNode = myGoModel.findNode(key);
           let text: string = textvalue;
           const category: string = gjsData.category;
+          const isMetamodelObjectTypeNode =
+            myMetis?.modelType === 'Metamodelling' &&
+            (!!gjsData.objecttype || !!gjsData.objtypeRef);
           // Object type
-          if (category === constants.gojs.C_OBJECTTYPE) {
+          if (category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
             if (text === 'Edit name') {
               text = prompt('Enter name');
             }
             if (gjsData) {
               gjsData.name = text;
               uic.updateObjectType(gjsData, field, text, context);
-              const objtype = myMetis.findObjectType(gjsData.objecttype?.id);
+              const objtype = myMetis.findObjectType(gjsData.objecttype?.id || gjsData.objtypeRef);
               if (objtype) {
                 let data = { id: objtype.id, name: text };
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data });
@@ -3140,22 +3405,31 @@ class GoJSApp extends React.Component<{}, AppState> {
           let key = gjsData.key;
           let text = gjsData.nameFrom ? gjsData.nameFrom : gjsData.name;
           let typename = gjsData.typename;
+          const category = gjsData.category;
           // Relationship type
-          if (typename === constants.gojs.C_RELSHIPTYPE) {
-            const myLink = this.getLink(context.myGoMetamodel, key);
+          if (category === constants.gojs.C_RELSHIPTYPE || typename === constants.gojs.C_RELSHIPTYPE) {
+            const myLink = this.getLink(context.myGoMetamodel, key) || sel;
             if (myLink) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
                 typename = text;
                 gjsData.name = text;
               }
-              uic.updateRelationshipType(myLink, "name", text, context);
-              gjsData.name = myLink.name;
-              if (myLink.reltype) {
-                const jsnReltype = new jsn.jsnRelationshipType(myLink.reltype, true);
-                modifiedRelshipTypes.push(jsnReltype);
+              uic.updateRelationshipType(myLink.data || myLink, "name", text, context);
+              const reltype =
+                myMetis.findRelationshipType(myLink?.reltype?.id || myLink?.data?.reltype?.id || gjsData?.reltype?.id || gjsData?.relshiptype?.id || gjsData?.reltypeRef) ||
+                myLink?.reltype ||
+                myLink?.data?.reltype ||
+                gjsData?.reltype ||
+                gjsData?.relshiptype;
+              gjsData.name = reltype?.name || text;
+              if (reltype) {
+                const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
+                let data: any = jsnReltype;
+                data = JSON.parse(JSON.stringify(data));
+                context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data });
               }
-              myDiagram.model?.setDataProperty(myLink.data, "name", myLink.name);
+              myDiagram.model?.setDataProperty(gjsData, "name", gjsData.name);
             }
           }
           else { // Relationship
@@ -3241,6 +3515,55 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       }
       case "SelectionMoved": {
+        // Metamodelling: persist dragged objecttype node positions to objtypegeos
+        const isMetamodelMove = isMetamodelSelection(myMetis, e.subject);
+        if (isMetamodelMove) {
+          const currentMetamodel = myMetis.currentMetamodel;
+          if (currentMetamodel) {
+            let updatedAnyGeo = false;
+            for (let it = e.subject?.iterator; it?.next();) {
+              const part = it.value;
+              if (!(part instanceof go.Node)) continue;
+              const data = part.data || {};
+              const typeRef =
+                data?.objecttype?.id ||
+                getNodeTypeRef(part) ||
+                data?.objtypeRef ||
+                data?.typeRef ||
+                undefined;
+              const objtype =
+                data?.objecttype ||
+                (typeRef ? currentMetamodel.findObjectType(typeRef) : null) ||
+                (typeRef ? myMetis.findObjectType(typeRef) : null);
+              if (!objtype) continue;
+              const loc = `${Math.round(part.location.x)} ${Math.round(part.location.y)}`;
+              // Update data.loc so GoJS stays in sync
+              try { myDiagram.model.setDataProperty(data, 'loc', loc); } catch (_) {}
+              let geo = currentMetamodel.findObjtypeGeoByType(objtype);
+              if (!geo) {
+                geo = new akm.cxObjtypeGeo(utils.createGuid(), currentMetamodel, objtype, loc, '');
+                currentMetamodel.addObjtypeGeo(geo);
+                myMetis.addObjtypeGeo(geo);
+              } else {
+                geo.loc = loc;
+              }
+              const jsnGeo = new jsn.jsnObjectTypegeo(geo);
+              const geoData = JSON.parse(JSON.stringify(jsnGeo));
+              dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data: geoData });
+              updatedAnyGeo = true;
+            }
+            if (updatedAnyGeo) {
+              try {
+                const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+                let data = { metis: jsnMetis };
+                data = JSON.parse(JSON.stringify(data));
+                dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+              } catch (_) {
+              }
+            }
+          }
+          break;
+        }
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
         const selectionShiftPressed = Boolean(myDiagram?.lastInput?.shift);
@@ -4576,6 +4899,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             const normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
             const normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
             const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
+            const preservedRouting = getPreservedRouting(
+              ldata?.routing,
+              rview?.routing,
+              rview?.typeview?.routing,
+              myModelview?.routing
+            );
             const isRoutedLink = isTransientRoutedLink(liveRouting);
             const previewPoints =
               ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
@@ -4609,14 +4938,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }));
                 } catch (_) { }
                 try { myDiagram.model.setDataProperty(ldata, "points", selfLoopPoints); } catch (_) { ldata.points = selfLoopPoints; }
-                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
-                try { link.routing = go.Link.Normal; } catch (_) { }
+                try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
+                try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
                 rview.points = selfLoopPoints;
-                rview.routing = "Normal";
+                rview.routing = preservedRouting;
                 try {
                   if (ldata?.relshipview) {
                     ldata.relshipview.points = selfLoopPoints;
-                    ldata.relshipview.routing = "Normal";
+                    ldata.relshipview.routing = preservedRouting;
                     if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
                   }
                 } catch (_) { }
@@ -4624,12 +4953,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const liveGoLink = myGoModel?.findLink?.(ldata?.key);
                   if (liveGoLink) {
                     liveGoLink.points = selfLoopPoints;
-                    liveGoLink.routing = "Normal";
+                    liveGoLink.routing = preservedRouting;
                     liveGoLink.relshipview = rview;
                     liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
                     if (liveGoLink.data) {
                       liveGoLink.data.points = selfLoopPoints;
-                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.routing = preservedRouting;
                       liveGoLink.data.relshipview = rview;
                       liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
                     }
@@ -4648,7 +4977,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     return {
                       ...entry,
                       points: [...selfLoopPoints],
-                      routing: "Normal",
+                      routing: preservedRouting,
                       relshipview: rview,
                       relviewRef: rview?.id || entry.relviewRef,
                     };
@@ -4745,7 +5074,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 } catch (_) { }
                 if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
                 try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
-                try { myDiagram.model.setDataProperty(ldata, "routing", "Normal"); } catch (_) { ldata.routing = "Normal"; }
+                try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
                 try {
                   const pointList = new go.List<go.Point>();
                   for (let i = 0; i + 1 < adjustedPoints.length; i += 2) {
@@ -4753,13 +5082,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                   link.points = pointList;
                 } catch (_) { }
-                try { link.routing = go.Link.Normal; } catch (_) { }
-                rview.routing = "Normal";
+                try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
+                rview.routing = preservedRouting;
                 rview.points = adjustedPoints;
                 try {
                   if (ldata?.relshipview) {
                     ldata.relshipview.points = adjustedPoints;
-                    ldata.relshipview.routing = "Normal";
+                    ldata.relshipview.routing = preservedRouting;
                     if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
                   }
                 } catch (_) { }
@@ -4767,12 +5096,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const liveGoLink = myGoModel?.findLink?.(ldata?.key);
                   if (liveGoLink) {
                     liveGoLink.points = adjustedPoints;
-                    liveGoLink.routing = "Normal";
+                    liveGoLink.routing = preservedRouting;
                     liveGoLink.relshipview = rview;
                     liveGoLink.relviewRef = rview?.id || liveGoLink.relviewRef;
                     if (liveGoLink.data) {
                       liveGoLink.data.points = adjustedPoints;
-                      liveGoLink.data.routing = "Normal";
+                      liveGoLink.data.routing = preservedRouting;
                       liveGoLink.data.relshipview = rview;
                       liveGoLink.data.relviewRef = rview?.id || liveGoLink.data.relviewRef;
                     }
@@ -4917,7 +5246,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   } catch (_) { }
                   if (!Array.isArray(livePoints) || livePoints.length < 4) return;
                   relview.points = livePoints;
-                  relview.routing = "Normal";
+                  relview.routing = getPreservedRouting(
+                    liveLink.data?.routing,
+                    relview?.routing,
+                    relview?.typeview?.routing,
+                    myModelview?.routing
+                  );
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
@@ -4950,14 +5284,20 @@ class GoJSApp extends React.Component<{}, AppState> {
               const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
               if (!Array.isArray(livePoints) || livePoints.length < 4) return;
               if (liveLink.data?.key) movedSelfLoopKeys.add(String(liveLink.data.key));
+              const liveRoutingName = getPreservedRouting(
+                liveLink.data?.routing,
+                relview?.routing,
+                relview?.typeview?.routing,
+                myModelview?.routing
+              );
               relview.points = livePoints;
-              relview.routing = "Normal";
+              relview.routing = liveRoutingName;
               try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
-              try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+              try { myDiagram.model.setDataProperty(liveLink.data, "routing", liveRoutingName); } catch (_) { liveLink.data.routing = liveRoutingName; }
               try {
                 if (liveLink.data?.relshipview) {
                   liveLink.data.relshipview.points = livePoints;
-                  liveLink.data.relshipview.routing = "Normal";
+                  liveLink.data.relshipview.routing = liveRoutingName;
                   if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
                 }
               } catch (_) { }
@@ -4965,12 +5305,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const goLink = myGoModel?.findLink?.(liveLink.data?.key);
                 if (goLink) {
                   goLink.points = livePoints;
-                  goLink.routing = "Normal";
+                  goLink.routing = liveRoutingName;
                   goLink.relshipview = relview;
                   goLink.relviewRef = relview?.id || goLink.relviewRef;
                   if (goLink.data) {
                     goLink.data.points = livePoints;
-                    goLink.data.routing = "Normal";
+                    goLink.data.routing = liveRoutingName;
                     goLink.data.relshipview = relview;
                     goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
                   }
@@ -4998,14 +5338,20 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (!relview) return;
                   const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points, relview?.points);
                   if (!Array.isArray(livePoints) || livePoints.length < 4) return;
+                  const liveRoutingName = getPreservedRouting(
+                    liveLink.data?.routing,
+                    relview?.routing,
+                    relview?.typeview?.routing,
+                    myModelview?.routing
+                  );
                   relview.points = livePoints;
-                  relview.routing = "Normal";
+                  relview.routing = liveRoutingName;
                   try { myDiagram.model.setDataProperty(liveLink.data, "points", livePoints); } catch (_) { liveLink.data.points = livePoints; }
-                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", "Normal"); } catch (_) { liveLink.data.routing = "Normal"; }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", liveRoutingName); } catch (_) { liveLink.data.routing = liveRoutingName; }
                   try {
                     if (liveLink.data?.relshipview) {
                       liveLink.data.relshipview.points = livePoints;
-                      liveLink.data.relshipview.routing = "Normal";
+                      liveLink.data.relshipview.routing = liveRoutingName;
                       if (liveLink.data.relshipview.id !== relview.id) liveLink.data.relshipview = relview;
                     }
                   } catch (_) { }
@@ -5013,12 +5359,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const goLink = myGoModel?.findLink?.(linkKey);
                     if (goLink) {
                       goLink.points = livePoints;
-                      goLink.routing = "Normal";
+                      goLink.routing = liveRoutingName;
                       goLink.relshipview = relview;
                       goLink.relviewRef = relview?.id || goLink.relviewRef;
                       if (goLink.data) {
                         goLink.data.points = livePoints;
-                        goLink.data.routing = "Normal";
+                        goLink.data.routing = liveRoutingName;
                         goLink.data.relshipview = relview;
                         goLink.data.relviewRef = relview?.id || goLink.data.relviewRef;
                       }
@@ -5062,7 +5408,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         modifiedModelviews.push(jsnModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
-          data = JSON.parse(JSON.stringify(data));
+          data = safeJsonCloneForDispatch(data);
           myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
         // Auto-relayout affected pools after lane moves.
@@ -5101,8 +5447,19 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (isPool && parentIsPool && part.containingGroup?.data?.key && !movedPoolKeys.has(String(part.containingGroup.data.key))) {
               poolsToRelayout.add(String(part.containingGroup.data.key));
             }
-            if (isLane && pdata?.group && !movedPoolKeys.has(String(pdata.group))) poolsToRelayout.add(pdata.group);
+            // Do not relayout a pool just because a lane was dragged inside it.
+            // Pool relayout here should only happen for structural changes such as
+            // reparenting between pools (tracked via __previousGroup), lane drops, or pool moves/resizes.
             if (isLane && pdata?.__previousGroup && !movedPoolKeys.has(String(pdata.__previousGroup))) poolsToRelayout.add(pdata.__previousGroup);
+            if (
+              isLane &&
+              pdata?.__previousGroup &&
+              pdata?.group &&
+              String(pdata.__previousGroup) !== String(pdata.group) &&
+              !movedPoolKeys.has(String(pdata.group))
+            ) {
+              poolsToRelayout.add(pdata.group);
+            }
             if (isLane && pdata) delete (pdata as any).__previousGroup;
           }
           if (poolsToRelayout.size > 0) {
@@ -5964,25 +6321,42 @@ const registerPoolFromPart = (part: go.Part | null | undefined) => {
 const relayoutPoolGroupAfterLaneChanges = (
   diagram: go.Diagram | null | undefined,
   poolGroup: go.Group | null | undefined,
-  laneSpacing = 4
+  laneSpacing = 0
 ) => {
   if (!diagram || !(poolGroup instanceof go.Group)) {
     return;
   }
 
   const structuralGroups: Array<{ group: go.Group; kind: 'lane' | 'pool' }> = [];
-  poolGroup.memberParts.each((member: go.Part) => {
-    if (!(member instanceof go.Group)) {
-      return;
-    }
+  const seenStructuralKeys = new Set<string>();
+  const registerStructuralGroup = (member: go.Part) => {
+    if (!(member instanceof go.Group) || member === poolGroup) return;
+    const memberKey = String(member.data?.key || member.key || "");
+    if (!memberKey || seenStructuralKeys.has(memberKey)) return;
     if (isLaneLike(member.data)) {
       structuralGroups.push({ group: member, kind: 'lane' });
+      seenStructuralKeys.add(memberKey);
       return;
     }
     if (isPoolLike(member.data)) {
       structuralGroups.push({ group: member, kind: 'pool' });
+      seenStructuralKeys.add(memberKey);
     }
+  };
+  poolGroup.memberParts.each((member: go.Part) => {
+    registerStructuralGroup(member);
   });
+  const poolBounds = poolGroup.actualBounds?.copy();
+  if (poolBounds) {
+    diagram.nodes.each((member: go.Part) => {
+      if (!(member instanceof go.Group) || member === poolGroup) return;
+      const groupedToPool = String(member.data?.group || "") === String(poolGroup.data?.key || "");
+      const containedByPool = member.containingGroup === poolGroup;
+      const overlapsPool = !!member.actualBounds?.intersectsRect?.(poolBounds);
+      if (!(groupedToPool || containedByPool || overlapsPool)) return;
+      registerStructuralGroup(member);
+    });
+  }
 
   if (!structuralGroups.length) {
     return;
@@ -5990,10 +6364,20 @@ const relayoutPoolGroupAfterLaneChanges = (
 
   const detectPoolLeftHeaderReserve = (group: go.Group | null | undefined): number => {
     if (!(group instanceof go.Group)) {
-      return 0;
+      return 34;
+    }
+    try {
+      const poolHeader = group.findObject("POOL_HEADER_STRIP");
+      const poolHeaderWidth = poolHeader?.actualBounds?.width;
+      if (typeof poolHeaderWidth === "number" && Number.isFinite(poolHeaderWidth) && poolHeaderWidth > 0) {
+        return poolHeaderWidth;
+      }
+    } catch (err) {
+      // ignore lookup issues and continue
     }
     let maxWidth = 0;
     const candidateNames = [
+      'POOL_HEADER_STRIP',
       'LEFT_HEADER',
       'leftHeader',
       'poolLeftHeader',
@@ -6027,7 +6411,7 @@ const relayoutPoolGroupAfterLaneChanges = (
       }
       return 0;
     })();
-    const fallbackReserve = 28;
+    const fallbackReserve = 34;
     return Math.max(maxWidth, dataWidth, fallbackReserve);
   };
 
@@ -6149,20 +6533,48 @@ const relayoutPoolGroupAfterLaneChanges = (
   const poolLeftReserve = detectPoolLeftHeaderReserve(poolGroup);
   const poolContentPanel = poolGroup.findObject("POOL_CONTENT_PANEL") as go.GraphObject | null;
   const poolContentAnchor = poolGroup.findObject("POOL_CONTENT_ANCHOR") as go.GraphObject | null;
-  const lanePaddingLeft = 4;
-  const lanePaddingRight = 4;
-  const laneRightVisualInset = 6;
-  const laneTopMargin = 4;
-  const laneBottomMargin = 6;
+  const lanePaddingLeft = 0;
+  const lanePaddingRight = 0;
+  const laneRightVisualInset = 0;
+  const laneTopMargin = 0;
+  const laneBottomMargin = 0;
   const minLaneWidth = 120;
   const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
   const preservePoolWidths = (diagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
   const preserveWidth =
     !!preservePoolWidths?.has(String(poolGroup.data?.key || "")) ||
     !!effectiveForcedPoolSize;
+  let measuredLaneStackWidth = 0;
+  structuralGroups.forEach(({ group, kind }) => {
+    const laneSizeData = parseSizeString(group?.data?.size);
+    const resizeObject = group.resizeObject || group.placeholder || group;
+    const laneBounds = group.actualBounds?.copy();
+    const baseWidth =
+      (typeof laneSizeData?.width === 'number' && Number.isFinite(laneSizeData.width) && laneSizeData.width > 0)
+        ? laneSizeData.width
+        : Math.max(
+            (typeof resizeObject?.desiredSize?.width === 'number' && Number.isFinite(resizeObject.desiredSize.width) && resizeObject.desiredSize.width > 0) ? resizeObject.desiredSize.width : 0,
+            (typeof laneBounds?.width === 'number' && Number.isFinite(laneBounds.width) && laneBounds.width > 0) ? laneBounds.width : 0,
+            120
+          );
+    if (kind === 'lane') {
+      const laneHeader = group.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+      const laneHeaderWidth =
+        (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
+          ? laneHeader.actualBounds.width
+          : 36;
+      measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth + laneHeaderWidth);
+    } else {
+      measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth);
+    }
+  });
   let poolWidth = preserveWidth
     ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
-    : (poolWidthCandidates.length ? Math.max(...poolWidthCandidates) : minPoolWidth);
+    : Math.max(
+        effectiveForcedPoolSize?.width || 0,
+        measuredLaneStackWidth + poolLeftReserve + lanePaddingLeft + lanePaddingRight + laneRightVisualInset,
+        minPoolWidth
+      );
 
   const model = diagram.model;
   const measuredInnerWidth = (() => {
@@ -6305,8 +6717,16 @@ const relayoutPoolGroupAfterLaneChanges = (
       const sizeString = `${laneBodyWidth} ${laneHeight}`;
       if (model && typeof model.setDataProperty === 'function') {
         model.setDataProperty(lane.data, 'size', sizeString);
+        if (poolGroup.data?.key && lane.data.group !== poolGroup.data.key) {
+          if (typeof (model as any).setGroupKeyForNodeData === 'function') {
+            (model as any).setGroupKeyForNodeData(lane.data, poolGroup.data.key);
+          } else {
+            model.setDataProperty(lane.data, 'group', poolGroup.data.key);
+          }
+        }
       } else {
         lane.data.size = sizeString;
+        if (poolGroup.data?.key) lane.data.group = poolGroup.data.key;
       }
     }
     updateGroupObjectView(lane, laneLocationPoint, new go.Size(laneBodyWidth, laneHeight));
@@ -6404,6 +6824,49 @@ e.subject.each(function (n) {
     }
   }
   const gjsNode = node?.data || partData;
+  const isMetamodelTypeDrop = partData?.type === constants.types.OBJECTTYPE_ID;
+
+  if (isMetamodelTypeDrop) {
+    try {
+      myDiagram.model.setDataProperty(partData, 'category', constants.gojs.C_OBJECTTYPE);
+      myDiagram.model.setDataProperty(partData, 'type', constants.types.OBJECTTYPE_ID);
+    } catch (_) {
+      partData.category = constants.gojs.C_OBJECTTYPE;
+      partData.type = constants.types.OBJECTTYPE_ID;
+    }
+    if (!partData.name || String(partData.name).trim() === '') {
+      partData.name = 'New Object Type';
+    }
+    if (!partData.viewkind) {
+      partData.viewkind = constants.viewkinds.OBJ;
+    }
+    if (!partData.size || partData.size === '') {
+      partData.size = '160 70';
+    }
+
+    const otype = uic.createObjectType(partData, context);
+    if (otype) {
+      otype.typename = constants.types.OBJECTTYPE_NAME;
+      const jsnObjtype = new jsn.jsnObjectType(otype, true);
+      modifiedObjectTypes.push(jsnObjtype);
+
+      const jsnObjtypeView = new jsn.jsnObjectTypeView(otype.typeview);
+      modifiedObjectTypeViews.push(jsnObjtypeView);
+
+      const loc = partData.loc;
+      const size = partData.size;
+      const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
+      const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
+      modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+
+      partData.objecttype = otype;
+      partData.objtypeRef = otype.id;
+      partData.typeview = otype.typeview;
+      uid.editObjectType(partData, myMetis, myDiagram);
+    }
+    return;
+  }
+
   let type: akm.cxObjectType = partData.objecttype;
   let typeview: akm.cxObjectTypeView = partData.typeview;
   let objview: akm.cxObjectView;
@@ -6511,7 +6974,7 @@ e.subject.each(function (n) {
       modifiedModelviews.push(jsnModelview);
       modifiedModelviews.map(mn => {
         let data = mn;
-        data = JSON.parse(JSON.stringify(data));
+        data = safeJsonCloneForDispatch(data);
         myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
       });
     }
@@ -6738,10 +7201,11 @@ e.subject.each(function (n) {
     node?.containingGroup instanceof go.Group && node.containingGroup.key !== undefined && node.containingGroup.key !== null
       ? node.containingGroup.key
       : (part?.group || part?.data?.group || "");
+  const droppedPartIsGroup = Boolean(part?.isGroup) || isGroupLikeNode(goNode, part);
   let group = containingGroupKey
     ? myGoModel.findNode(containingGroupKey)
     : null;
-  if (!group) {
+  if (!group && !droppedPartIsGroup) {
     group = uic.getGroupByLocation(myGoModel, part.loc, part.size, goNode);
   }
   if (group) {
@@ -6781,6 +7245,11 @@ e.subject.each(function (n) {
       const jsnRel = new jsn.jsnRelationship(hasPartRelship);
       modifiedRelships.push(jsnRel);
     }
+  } else {
+    goNode.group = "";
+    goNode.objectview.group = "";
+    try { myDiagram.model.setDataProperty(part, "group", ""); } catch (_) { part.group = ""; }
+    objview.group = "";
   }
   // if (goNode) {
   //   goNode.object = null;
@@ -6807,6 +7276,11 @@ e.subject.each(function (n) {
       const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
       const jsnObjtypeGeo = new jsn.jsnObjectTypegeo(objtypeGeo);
       modifiedObjectTypeGeos.push(jsnObjtypeGeo);
+
+      part.objecttype = otype;
+      part.objtypeRef = otype.id;
+      part.typeview = otype.typeview;
+      uid.editObjectType(part, myMetis, myDiagram);
     }
   } else // object
   {
@@ -6904,7 +7378,7 @@ const jsnModelview = new jsn.jsnModelView(myModelview);
 modifiedModelviews.push(jsnModelview);
 modifiedModelviews.map(mn => {
   let data = mn;
-  data = JSON.parse(JSON.stringify(data));
+  data = safeJsonCloneForDispatch(data);
   myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
 });
 if (myDiagram) {
@@ -7572,7 +8046,7 @@ break;
     modifiedModelviews.push(jsnModelview);
     modifiedModelviews.map(mn => {
       let data = mn;
-      data = JSON.parse(JSON.stringify(data));
+      data = safeJsonCloneForDispatch(data);
       myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
     });
     // Dispatch model
@@ -7699,10 +8173,14 @@ break;
   ensureNodeRefs(gjsToNode, context.toObjView);
   // Handle relationship types
   if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
+    if (!gjsFromNode || !gjsToNode) {
+      try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
+      break;
+    }
     gjsData.category = constants.gojs.C_RELSHIPTYPE;
     if (debug) console.log('1523 link', fromNode, toNode);
     // link.category = constants.gojs.C_RELSHIPTYPE;
-    const reltype = uic.createRelationshipType(gjsFromNode.data, gjsToNode.data, gjsData, context);
+    const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
     if (reltype) {
       if (debug) console.log('1527 reltype', reltype);
       const jsnType = new jsn.jsnRelationshipType(reltype, true);
@@ -7713,18 +8191,14 @@ break;
         const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
         modifiedRelshipTypeViews.push(jsnTypeView);
         if (debug) console.log('1535 jsnTypeView', jsnTypeView);
-        const myGoModel = myMetis.gojsModel;
-        let goLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
-        goLink.fromNode = gjsFromNode.data;
-        goLink.toNode = gjsToNode.data
-        goLink.loadLinkContent(myGoModel);
-        myGoModel.addLink(goLink);
-        goLink.name = reltype.name;
-        if (debug) console.log('1543 goLink, myGoModel, reltype', goLink, myGoModel, reltype);
-        const gjsLink = myDiagram.findLinkForKey(goLink.key);
-        myDiagram.model.addLinkData(gjsLink);
-        if (debug) console.log('1546 lnk, reltype', gjsLink, reltype);
-        myDiagram.model.setDataProperty(gjsLink.data, 'name', reltype.name);
+        const linkData = link?.data || gjsData;
+        if (debug) console.log('1546 lnk, reltype', linkData, reltype);
+        myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
+        myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
+        myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
+        myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
+        myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
+        uid.editRelationshipType(linkData, myMetis, myDiagram);
       }
     }
     myDiagram.requestUpdate();
@@ -7838,11 +8312,12 @@ break;
       }
     } catch (_) {}
     if (shouldFreezeManualRoute) {
-      relview.routing = "Normal";
-      try { myDiagram.model.setDataProperty(data, "routing", "Normal"); } catch (_) {
-        try { data.routing = "Normal"; } catch (_err) {}
+      const preservedRouting = currentRouting || "Orthogonal";
+      relview.routing = preservedRouting;
+      try { myDiagram.model.setDataProperty(data, "routing", preservedRouting); } catch (_) {
+        try { data.routing = preservedRouting; } catch (_err) {}
       }
-      try { link.routing = go.Link.Normal; } catch (_) { }
+      try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
       try { link.adjusting = go.Link.End; } catch (_) { }
     }
     try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
@@ -8011,7 +8486,7 @@ if (true) { // Dispatches to store individual objects/types
       Array.from(coalescedObjectViews.values()).map(mn => {
         let data = (mn) && mn
         if (mn.id) {
-          data = sanitizeObjectViewDispatchData(JSON.parse(JSON.stringify(data)));
+          data = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch(data));
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
           const storedObjectView = findStoredObjectViewById(data.id);

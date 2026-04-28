@@ -114,6 +114,37 @@ const InitStateJson = StartInitStateJson
 if (debug) console.log('86 InitStateJson', InitStateJson);
 const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
+function mergeAndPruneOptionalEmptyFields(currentItem, patch, optionalFields) {
+  const merged = {
+    ...currentItem,
+    ...patch,
+  };
+  for (let i = 0; i < optionalFields.length; i++) {
+    const prop = optionalFields[i];
+    if (!Object.prototype.hasOwnProperty.call(patch, prop)) {
+      if (merged[prop] === undefined || merged[prop] === null || merged[prop] === '') {
+        delete merged[prop];
+      }
+    }
+  }
+  return merged;
+}
+
+const OPTIONAL_OBJECTVIEW_FIELDS = [
+  'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+  'group', 'groupLayout', 'icomStyle',
+  'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+  'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+  'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+  'size', 'scale'
+];
+
+const OPTIONAL_RELSHIPVIEW_FIELDS = [
+  'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+  'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+  'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
+];
+
 // import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
 // const InitProject = JSON.parse(JSON.stringify(InitProject))
@@ -986,10 +1017,11 @@ function reducer(state = InitialState, action) {
                     ...targetModel?.modelviews[targetModelviewIndex],
                     objectviews: [
                       ...targetModelview?.objectviews?.slice(0, curObjectviewIndex),
-                      {
-                        ...targetModelview.objectviews[curObjectviewIndex],
-                        ...action.data,
-                      },
+                      mergeAndPruneOptionalEmptyFields(
+                        targetModelview.objectviews[curObjectviewIndex],
+                        action.data,
+                        OPTIONAL_OBJECTVIEW_FIELDS
+                      ),
                       ...targetModelview?.objectviews?.slice(curObjectviewIndex + 1, targetModelview?.objectviews.length)
                     ]
                   },
@@ -1097,10 +1129,11 @@ function reducer(state = InitialState, action) {
                     ...targetRelModel?.modelviews[targetRelModelviewIndex],
                     relshipviews: [
                       ...targetRelModelview?.relshipviews?.slice(0, curRelshipviewIndex),
-                      {
-                        ...targetRelModelview?.relshipviews[curRelshipviewIndex],
-                        ...action.data,
-                      },
+                      mergeAndPruneOptionalEmptyFields(
+                        targetRelModelview?.relshipviews[curRelshipviewIndex],
+                        action.data,
+                        OPTIONAL_RELSHIPVIEW_FIELDS
+                      ),
                       ...targetRelModelview?.relshipviews.slice(curRelshipviewIndex + 1, targetRelModelview?.relshipviews?.length)
                     ]
                   },

@@ -173,13 +173,19 @@ const Palette = React.forwardRef((props: any, ref: any) => {
 
     const curMyMetamodel = props.myMetis?.findMetamodel(mmodel?.id)
     if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
-    const curPalette = uib.buildGoPalette(curMyMetamodel, props.myMetis);
+    const curPalette = props.modelType === 'metamodel'
+      ? uib.buildGoMetaPalette()
+      : uib.buildGoPalette(curMyMetamodel, props.myMetis);
     const paletteNodes = curPalette?.nodes ?? [];
     const paletteLinks = curPalette?.links ?? [];
     setTypes(paletteNodes?.map((t: any) => t?.name));
     if (debug) console.log('123 Palette', curPalette?.nodes?.map((t: any) => t?.name), curPalette);
 
     if (debug) console.log('124 Palette', types, curMyMetamodel, curPalette, curPalette?.nodes);
+
+    if (props.modelType === 'metamodel') {
+      return { nodes: paletteNodes, links: paletteLinks };
+    }
 
     let filteredNodes = paletteNodes;
     if (types?.length > 0) {

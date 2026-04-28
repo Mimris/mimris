@@ -615,7 +615,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           String(fromObjview?.id || "") !== "" &&
           String(fromObjview?.id || "") === String(toObjview?.id || "");
         link.routing = hasExplicitPoints
-          ? "Normal"
+          ? (relview?.routing || "Normal")
           : (isSelfLoop
               ? "Normal"
               : getDefaultRoutingForRelshipType(
@@ -644,7 +644,7 @@ export function buildGoMetaPalette() {
   if (debug) console.log('415 buildGoMetaPalette');
   const myGoMetaPalette = new gjs.goModel(utils.createGuid(), 'myMetaPalette', null);
   const nodeArray = new Array();
-  const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
+  const palNode1 = new gjs.paletteNode('01', constants.types.OBJECTTYPE_ID, constants.gojs.C_OBJECTTYPE, "New Object Type", "");
   nodeArray.push(palNode1);
   // const palNode2 = new gjs.paletteNode('02', "container", "Container", "Group", "");
   // palNode2.isGroup = true;

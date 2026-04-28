@@ -272,7 +272,11 @@ export function createMetaContainer(data: any, context: any): any {
 export function createObjectType(data: any, context: any): any {
     const myMetamodel = context.myMetamodel;
     const myMetis = context.myMetis;
-    const myGoModel = context.myGoMetamodel;
+    const myGoModel =
+        context.myGoMetamodel ||
+        context.myGoModel ||
+        context?.myMetis?.gojsModel ||
+        null;
     const myDiagram = context.myDiagram;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         if (debug) console.log('170 createObjectType', data);
@@ -350,7 +354,9 @@ export function createObjectType(data: any, context: any): any {
                             const key = utils.createGuid();
                             data.id = key;
                             let node = new gjs.goObjectTypeNode(key, objtype);
-                            myGoModel.addNode(node);
+                            if (myGoModel) {
+                                myGoModel.addNode(node);
+                            }
                             updateNode(data, objtypeView, myDiagram, myGoModel);
                         }
                     }
@@ -1366,15 +1372,18 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
     const myMetamodel = context.myMetamodel;
     const myGoMetamodel = context.myGoMetamodel;
     const myDiagram = context.myDiagram;
-    let typename = prompt("Enter type name:", "typename");
-    if (debug) console.log('1215 typename', typename, myMetamodel);
-    data.key = utils.createGuid();
-    myDiagram.model.setDataProperty(data, "name", typename);
-    if (data.name == null) {
-        myDiagram.model.removeLinkData(data);
-        if (debug) console.log('1220 data', data);
-        return;
+    let typename = context?.relshipTypeName || data?.name || "New Relationship Type";
+    if (typeof typename === 'string') {
+        typename = typename.trim();
     }
+    if (!typename) {
+        typename = "New Relationship Type";
+    }
+    if (debug) console.log('1215 typename', typename, myMetamodel);
+    if (!data.key) {
+        data.key = utils.createGuid();
+    }
+    myDiagram.model.setDataProperty(data, "name", typename);
     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
     typename = data.name;
     if (debug) console.log('1225 data', data, myGoMetamodel);
@@ -1391,6 +1400,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 reltype2.setModified();
                 reltype2.setRelshipKind(relkind);
                 myDiagram.model.setDataProperty(data, "reltype", reltype2);
+                myDiagram.model.setDataProperty(data, "relshiptype", reltype2);
                 myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
@@ -1428,6 +1438,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 if (reltype) {
                     if (debug) console.log('1273 reltype', reltype);
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
+                    myDiagram.model.setDataProperty(data, "relshiptype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
                     reltype.setFromObjtype(fromObjType);

@@ -162,7 +162,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     inst = node.objecttype;
     typeview = node.typeview;
 
-    if (context?.what === "editType") {
+    if (context?.what === "editType" || context?.what === "editObjectType") {
       myItem = inst;
     } else if (context?.what === "editTypeview") {
         myItem = typeview; 
@@ -191,9 +191,6 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     if (context?.what === "editObjectview") {
         if (myInstview) {
           myItem = myInstview;
-          for (let prop in typeview?.data) {
-            myItem[prop] = obj[prop];
-          }
         }
     } else if (context?.what === "editTypeview") {
         myItem = myInst.type?.typeview; 
@@ -396,18 +393,25 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {
     const link = obj;
-    inst = link.reltype;
-    typeview = link.reltype.typeview;
+    inst =
+      link?.reltype ||
+      link?.relshiptype ||
+      myMetis.findRelationshipType(link?.reltypeRef || link?.relshiptype?.id);
+    typeview =
+      inst?.typeview ||
+      link?.typeview ||
+      myMetis.findRelationshipTypeView(link?.typeviewRef || inst?.typeview?.id);
+    myTypeview = typeview;
 
-    if (context?.what === "editType") {
+    if (context?.what === "editType" || context?.what === "editRelationshipType") {
       myItem = inst;
     } else if (context?.what === "editTypeview") {
-        myItem = typeview; 
-        myTypeview = myMetis.findRelationshipTypeView(typeview?.id);    
+        myItem = typeview;
+        myTypeview = myMetis.findRelationshipTypeView(typeview?.id) || typeview;
     } 
     try {
-      myItem[propname] = value;
-      myTypeview[propname] = value;
+      if (myItem) myItem[propname] = value;
+      if (context?.what === "editTypeview" && myTypeview) myTypeview[propname] = value;
     } catch {
       // Do nothing
     }
@@ -1076,6 +1080,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const objectview = objectviews[ovi];
           if (objectview?.id === data.id) {
             Object.assign(objectview, data);
+            // Clean up optional fields that are not present in data (e.g., removed due to typeview default)
+            const optionalObjectviewFields = [
+              'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+              'group', 'groupLayout', 'icomStyle',
+              'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+              'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+              'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+              'size', 'scale'
+            ];
+            for (let i = 0; i < optionalObjectviewFields.length; i++) {
+              const prop = optionalObjectviewFields[i];
+              if (!(prop in data) && (objectview[prop] === undefined || objectview[prop] === null || objectview[prop] === "")) {
+                delete objectview[prop];
+              }
+            }
             return;
           }
         }
@@ -1096,6 +1115,18 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const relshipview = relshipviews[rvi];
           if (relshipview?.id === data.id) {
             Object.assign(relshipview, data);
+            // Clean up optional fields that are not present in data (e.g., removed due to typeview default)
+            const optionalRelshipviewFields = [
+              'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+              'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+              'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
+            ];
+            for (let i = 0; i < optionalRelshipviewFields.length; i++) {
+              const prop = optionalRelshipviewFields[i];
+              if (!(prop in data) && (relshipview[prop] === undefined || relshipview[prop] === null || relshipview[prop] === "")) {
+                delete relshipview[prop];
+              }
+            }
             return;
           }
           const sameRelship = relshipview?.relshipRef && data?.relshipRef && relshipview.relshipRef === data.relshipRef;
@@ -1110,6 +1141,48 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     if (fallbackMatch) {
       Object.assign(fallbackMatch, data);
+      // Clean up optional fields that are not present in data
+      const optionalRelshipviewFields = [
+        'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+        'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+        'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
+      ];
+      for (let i = 0; i < optionalRelshipviewFields.length; i++) {
+        const prop = optionalRelshipviewFields[i];
+        if (!(prop in data) && (fallbackMatch[prop] === undefined || fallbackMatch[prop] === null || fallbackMatch[prop] === "")) {
+          delete fallbackMatch[prop];
+        }
+      }
+    }
+  }
+
+  const applyRelshiptypeUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.metamodels || !data?.id) return;
+    for (let mi = 0; mi < root.metis.metamodels.length; mi++) {
+      const metamodel = root.metis.metamodels[mi];
+      const relshiptypes = metamodel?.relshiptypes || [];
+      for (let rti = 0; rti < relshiptypes.length; rti++) {
+        const relshiptype = relshiptypes[rti];
+        if (relshiptype?.id === data.id) {
+          Object.assign(relshiptype, data);
+          return;
+        }
+      }
+    }
+  }
+
+  const applyRelshiptypeviewUpdateById = (root: any, data: any) => {
+    if (!root?.metis?.metamodels || !data?.id) return;
+    for (let mi = 0; mi < root.metis.metamodels.length; mi++) {
+      const metamodel = root.metis.metamodels[mi];
+      const relshiptypeviews = metamodel?.relshiptypeviews || [];
+      for (let rtvi = 0; rtvi < relshiptypeviews.length; rtvi++) {
+        const relshiptypeview = relshiptypeviews[rtvi];
+        if (relshiptypeview?.id === data.id) {
+          Object.assign(relshiptypeview, data);
+          return;
+        }
+      }
     }
   }
 
@@ -1157,6 +1230,36 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
       } catch (_) {}
     }
+    if (action?.type === 'UPDATE_RELSHIPTYPE_PROPERTIES' && action?.data?.id) {
+      try { applyRelshiptypeUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyRelshiptypeUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyRelshiptypeUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
+    if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
+      try { applyRelshiptypeviewUpdateById(props?.phData, action.data); } catch (_) {}
+      try {
+        const rawSession = window?.sessionStorage?.getItem('memorystate');
+        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
+        applyRelshiptypeviewUpdateById(parsedSession?.phData, action.data);
+        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
+      } catch (_) {}
+      try {
+        const rawLocal = window?.localStorage?.getItem('memorystate');
+        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
+        applyRelshiptypeviewUpdateById(parsedLocal?.phData, action.data);
+        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
+      } catch (_) {}
+    }
   }
 
   const pushPhDataUpdate = (data: any) => {
@@ -1199,25 +1302,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
   switch(what) {
     case "editObjectType": {
-      // To be done !!!
-
       // selObj is a node representing an objecttype
       const selObj = selectedData;
       const node = myDiagram.findNodeForKey(selObj.key);
       if (node) node.isSelected = true;
-      let type = selObj.objecttype;
-      type = myMetis.findObjectType(type.id);
-      const data = node.data;
+      let type = selObj.objecttype || modalContext?.myContext?.objecttype;
+      type = myMetis.findObjectType(type?.id) || type;
+      if (!type) break;
+      const data = node?.data;
       for (let k in type) {
         if (k === 'id') continue;
         if (typeof(type[k]) === 'object')    continue;
         if (typeof(type[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))    continue;
         type[k] = selObj[k];
-        myDiagram.model.setDataProperty(data, k, type[k]);
+        if (node) myDiagram.model.setDataProperty(data, k, type[k]);
       }
       if (node) node.isSelected = false;
-      // Do the dispatches
+      // Do the dispatches — jsnObjectType includes mutated .properties
       const jsnObjtype = new jsn.jsnObjectType(type, true);
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {
@@ -1227,18 +1329,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
     case "editRelationshipType": {
-      // To be done !!!
-      
       // selObj is a link representing a relationship type
+      const selObj = selectedData;
       const rel = selectedData;
       let link = myDiagram.findLinkForKey(rel.key);
       if (!link)
           break;
-      let type = rel.type;
+      let type = rel.type || rel.relshiptype || rel.reltype;
       const data = link.data;
-      type = link.relshiptype;
-      if (!type) type = data.relshiptype;
-      type = myMetis.findRelationshipType(type?.id);
+      type = link.relshiptype || link.reltype || data.relshiptype || data.reltype || type;
+      type = myMetis.findRelationshipType(type?.id) || type;
       const reltypeview = type?.typeview;
       if (type) {
         const cardinalityFrom = type.getCardinalityFrom();
@@ -1259,12 +1359,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         type[k] = selObj[k];
         myDiagram.model.setDataProperty(link.data, k, type[k]);
       }
+      try {
+        myDiagram.model.setDataProperty(link.data, 'reltype', type);
+        myDiagram.model.setDataProperty(link.data, 'relshiptype', type);
+      } catch (_) {}
       // Do the dispatches
       const jsnReltype = new jsn.jsnRelationshipType(type, true);
       modifiedReltypes.push(jsnReltype);
       modifiedReltypes.map(mn => {
         const data = safeClone(mn);
-        myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+        dispatchUpdate({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
       break;
     }
@@ -1419,41 +1523,121 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         return false;
       };
+      const isUnsetObjectviewValue = (candidate: any) =>
+        candidate === undefined || candidate === null || candidate === "";
+      const sameObjectviewValue = (left: any, right: any) => {
+        if (left === right) return true;
+        if (isUnsetObjectviewValue(left) && isUnsetObjectviewValue(right)) return true;
+        if (left === undefined || left === null || right === undefined || right === null) return false;
+        return String(left) === String(right);
+      };
+      const resolvedTypeview =
+        goNode?.typeview ||
+        goNode?.data?.typeview ||
+        objview?.typeview ||
+        myMetis?.findObjectTypeView?.(objview?.typeviewRef) ||
+        myMetis?.findObject?.(objview?.objectRef || objview?.object?.id)?.type?.typeview;
+      const touchedExplicitProps = {
+        ...(modalContext?.myContext?.__touchedExplicitProps || {}),
+        ...(selObj?.__touchedExplicitProps || {}),
+        ...(modalContext?.myContext?.__touchedSelectProps || {}),
+        ...(selObj?.__touchedSelectProps || {}),
+      };
+      const typeviewValueFor = (prop: string) => {
+        const directValue = resolvedTypeview?.[prop];
+        if (directValue !== undefined) return directValue;
+        return resolvedTypeview?.data?.[prop];
+      };
+      const persistObjectviewValue = (prop: string, nextValue: any, currentValue: any, fallbackValue: any) => {
+        // Rule: only persist if user provided an explicit non-empty override
+        if (isUnsetObjectviewValue(nextValue)) {
+          // User left field empty → don't store it, remove if present
+          return undefined;
+        }
+        if (touchedExplicitProps?.[prop] === true) {
+          // User explicitly touched pulldown/checkbox field; persist explicit choice
+          return nextValue;
+        }
+        if (isUnsetObjectviewValue(currentValue) && !isUnsetObjectviewValue(fallbackValue) && sameObjectviewValue(nextValue, fallbackValue)) {
+          // User set value but it matches typeview default (first-time edit) → don't store it
+          return undefined;
+        }
+        if (!isUnsetObjectviewValue(currentValue) && sameObjectviewValue(nextValue, fallbackValue)) {
+          // User changed value back to match typeview → remove override
+          return undefined;
+        }
+        // User provided explicit override → store it
+        return nextValue;
+      };
+      
+      // Define all persistable visual properties that need filtering
+      const persistableProps = [
+        'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+        'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale'
+      ];
+      const optionalObjectviewProps = [
+        'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+        'group', 'groupLayout', 'icomStyle',
+        'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+        'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+        'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+        'size', 'scale'
+      ];
+      const removeEmptyOptionalObjectviewFields = (view: any) => {
+        if (!view) return;
+        for (let i = 0; i < optionalObjectviewProps.length; i++) {
+          const prop = optionalObjectviewProps[i];
+          if (isUnsetObjectviewValue(view[prop])) {
+            delete view[prop];
+          }
+        }
+      };
+      
+      // First, assign non-filtered properties (schema properties)
       objview.viewkind = selObj.viewkind;
       objview.template = selObj.template;
       objview.template2 = selObj.template2;
       objview.icon = selObj.icon;
       objview.figure = selObj.figure;
       objview.figure2 = selObj.figure2;
-      objview.fillcolor = keepValue(selObj.fillcolor, objview.fillcolor, goNode?.fillcolor, goNode?.data?.fillcolor);
-      objview.fillcolor2 = keepValue(selObj.fillcolor2, objview.fillcolor2, goNode?.fillcolor2, goNode?.data?.fillcolor2);
-      objview.strokecolor = keepValue(selObj.strokecolor, objview.strokecolor, goNode?.strokecolor, goNode?.data?.strokecolor);
-      objview.strokecolor2 = keepValue(selObj.strokecolor2, objview.strokecolor2, goNode?.strokecolor2, goNode?.data?.strokecolor2);
-      objview.strokewidth = keepValue(selObj.strokewidth, objview.strokewidth, goNode?.strokewidth, goNode?.data?.strokewidth);
-      objview.textcolor = keepValue(selObj.textcolor, objview.textcolor, goNode?.textcolor, goNode?.data?.textcolor);
-      objview.textcolor2 = keepValue(selObj.textcolor2, objview.textcolor2, goNode?.textcolor2, goNode?.data?.textcolor2);
-      objview.textscale = keepValue(selObj.textscale, objview.textscale, goNode?.textscale, goNode?.data?.textscale);
-      objview.memberscale = keepValue(selObj.memberscale, objview.memberscale, goNode?.memberscale, goNode?.data?.memberscale);
-      objview.arrowscale = keepValue(selObj.arrowscale, objview.arrowscale, goNode?.arrowscale, goNode?.data?.arrowscale);
       objview.groupLayout = selObj.groupLayout;
       const nextGrabIsAllowed = selObj.grabIsAllowed === true || selObj.grabIsAllowed === 'true';
       objview.grabIsAllowed = nextGrabIsAllowed;
+      
+      // Apply persistence filtering to visual properties
+      for (const prop of persistableProps) {
+        const userValue = selObj[prop];
+        const currentValue = objview[prop];
+        const typeviewValue = typeviewValueFor(prop);
+        const storedValue = persistObjectviewValue(prop, userValue, currentValue, typeviewValue);
+        
+        if (storedValue === undefined) {
+          // Remove field if it should not be stored (empty or matches typeview)
+          delete objview[prop];
+        } else {
+          // Store the override value
+          objview[prop] = storedValue;
+        }
+      }
+      // Cleanup pass: remove legacy empty optional fields from existing objectviews
+      removeEmptyOptionalObjectviewFields(objview);
       goNode.viewkind = selObj.viewkind;
       goNode.template = selObj.template;
       goNode.template2 = selObj.template2;
       goNode.icon = selObj.icon;
       goNode.figure = selObj.figure;
       goNode.figure2 = selObj.figure2;
-      goNode.fillcolor = keepValue(selObj.fillcolor, goNode.fillcolor, objview.fillcolor, goNode?.data?.fillcolor);
-      goNode.fillcolor2 = keepValue(selObj.fillcolor2, goNode.fillcolor2, objview.fillcolor2, goNode?.data?.fillcolor2);
-      goNode.strokecolor = keepValue(selObj.strokecolor, goNode.strokecolor, objview.strokecolor, goNode?.data?.strokecolor);
-      goNode.strokecolor2 = keepValue(selObj.strokecolor2, goNode.strokecolor2, objview.strokecolor2, goNode?.data?.strokecolor2);
-      goNode.strokewidth = keepValue(selObj.strokewidth, goNode.strokewidth, objview.strokewidth, goNode?.data?.strokewidth);
-      goNode.textcolor = keepValue(selObj.textcolor, goNode.textcolor, objview.textcolor, goNode?.data?.textcolor);
-      goNode.textcolor2 = keepValue(selObj.textcolor2, goNode.textcolor2, objview.textcolor2, goNode?.data?.textcolor2);
-      goNode.textscale = keepValue(selObj.textscale, goNode.textscale, objview.textscale, goNode?.data?.textscale);
-      goNode.memberscale = keepValue(selObj.memberscale, goNode.memberscale, objview.memberscale, goNode?.data?.memberscale);
-      goNode.arrowscale = keepValue(selObj.arrowscale, goNode.arrowscale, objview.arrowscale, goNode?.data?.arrowscale);
+      // For goNode rendering, use keepValue with typeview fallback since objview may not have the field
+      goNode.fillcolor = keepValue(objview.fillcolor, typeviewValueFor('fillcolor'), goNode?.data?.fillcolor);
+      goNode.fillcolor2 = keepValue(objview.fillcolor2, typeviewValueFor('fillcolor2'), goNode?.data?.fillcolor2);
+      goNode.strokecolor = keepValue(objview.strokecolor, typeviewValueFor('strokecolor'), goNode?.data?.strokecolor);
+      goNode.strokecolor2 = keepValue(objview.strokecolor2, typeviewValueFor('strokecolor2'), goNode?.data?.strokecolor2);
+      goNode.strokewidth = keepValue(objview.strokewidth, typeviewValueFor('strokewidth'), goNode?.data?.strokewidth);
+      goNode.textcolor = keepValue(objview.textcolor, typeviewValueFor('textcolor'), goNode?.data?.textcolor);
+      goNode.textcolor2 = keepValue(objview.textcolor2, typeviewValueFor('textcolor2'), goNode?.data?.textcolor2);
+      goNode.textscale = keepValue(objview.textscale, typeviewValueFor('textscale'), goNode?.data?.textscale);
+      goNode.memberscale = keepValue(objview.memberscale, typeviewValueFor('memberscale'), goNode?.data?.memberscale);
+      goNode.arrowscale = keepValue(objview.arrowscale, typeviewValueFor('arrowscale'), goNode?.data?.arrowscale);
       goNode.groupLayout = selObj.groupLayout;
       goNode.grabIsAllowed = nextGrabIsAllowed;
       try { goNode.objectview = objview; } catch {}
@@ -1464,6 +1648,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
       } catch {}
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
+      // updateNodeAndView may reapply empty values from selObj; prune again before persisting
+      removeEmptyOptionalObjectviewFields(objview);
       const diagramNode = myDiagram.findNodeForKey(selObj.key || objview.id || goNode.key);
       const diagramData = diagramNode?.data || goNode?.data;
       if (diagramData && myDiagram?.model?.setDataProperty) {
@@ -1475,16 +1661,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(diagramData, 'icon', objview.icon);
         myDiagram.model.setDataProperty(diagramData, 'figure', objview.figure);
         myDiagram.model.setDataProperty(diagramData, 'figure2', objview.figure2);
-        myDiagram.model.setDataProperty(diagramData, 'fillcolor', objview.fillcolor);
-        myDiagram.model.setDataProperty(diagramData, 'fillcolor2', objview.fillcolor2);
-        myDiagram.model.setDataProperty(diagramData, 'strokecolor', objview.strokecolor);
-        myDiagram.model.setDataProperty(diagramData, 'strokecolor2', objview.strokecolor2);
-        myDiagram.model.setDataProperty(diagramData, 'strokewidth', objview.strokewidth);
-        myDiagram.model.setDataProperty(diagramData, 'textcolor', objview.textcolor);
-        myDiagram.model.setDataProperty(diagramData, 'textcolor2', objview.textcolor2);
-        myDiagram.model.setDataProperty(diagramData, 'textscale', objview.textscale);
-        myDiagram.model.setDataProperty(diagramData, 'memberscale', objview.memberscale);
-        myDiagram.model.setDataProperty(diagramData, 'arrowscale', objview.arrowscale);
+        // Use keepValue with typeview fallback for rendering (objview props may be undefined after filtering)
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor', keepValue(objview.fillcolor, typeviewValueFor('fillcolor')));
+        myDiagram.model.setDataProperty(diagramData, 'fillcolor2', keepValue(objview.fillcolor2, typeviewValueFor('fillcolor2')));
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor', keepValue(objview.strokecolor, typeviewValueFor('strokecolor')));
+        myDiagram.model.setDataProperty(diagramData, 'strokecolor2', keepValue(objview.strokecolor2, typeviewValueFor('strokecolor2')));
+        myDiagram.model.setDataProperty(diagramData, 'strokewidth', keepValue(objview.strokewidth, typeviewValueFor('strokewidth')));
+        myDiagram.model.setDataProperty(diagramData, 'textcolor', keepValue(objview.textcolor, typeviewValueFor('textcolor')));
+        myDiagram.model.setDataProperty(diagramData, 'textcolor2', keepValue(objview.textcolor2, typeviewValueFor('textcolor2')));
+        myDiagram.model.setDataProperty(diagramData, 'textscale', keepValue(objview.textscale, typeviewValueFor('textscale')));
+        myDiagram.model.setDataProperty(diagramData, 'memberscale', keepValue(objview.memberscale, typeviewValueFor('memberscale')));
+        myDiagram.model.setDataProperty(diagramData, 'arrowscale', keepValue(objview.arrowscale, typeviewValueFor('arrowscale')));
         myDiagram.model.setDataProperty(diagramData, 'grabIsAllowed', nextGrabIsAllowed);
         try { uic.setObjviewAttributes(diagramData, myDiagram); } catch {}
       }
@@ -1520,17 +1707,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         persistedObjview.figure2 = objview.figure2;
         persistedObjview.groupLayout = objview.groupLayout;
         persistedObjview.isGroup = objview.isGroup;
-        persistedObjview.fillcolor = objview.fillcolor;
-        persistedObjview.fillcolor2 = objview.fillcolor2;
-        persistedObjview.strokecolor = objview.strokecolor;
-        persistedObjview.strokecolor2 = objview.strokecolor2;
-        persistedObjview.strokewidth = objview.strokewidth;
-        persistedObjview.textcolor = objview.textcolor;
-        persistedObjview.textcolor2 = objview.textcolor2;
-        persistedObjview.textscale = objview.textscale;
-        persistedObjview.memberscale = objview.memberscale;
-        persistedObjview.arrowscale = objview.arrowscale;
         persistedObjview.grabIsAllowed = nextGrabIsAllowed;
+        // Apply filtered properties (may be undefined if removed due to typeview default)
+        for (const prop of persistableProps) {
+          if (objview[prop] !== undefined) {
+            persistedObjview[prop] = objview[prop];
+          } else {
+            delete persistedObjview[prop];
+          }
+        }
+        removeEmptyOptionalObjectviewFields(persistedObjview);
       }
       if (debug) console.log("editObjectview: ", selObj);
 
@@ -1538,9 +1724,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const jsnObjview = new jsn.jsnObjectView(objview);
   let data = safeClone(jsnObjview);
   data.grabIsAllowed = nextGrabIsAllowed;
-  data.memberscale = objview.memberscale;
-  data.arrowscale = objview.arrowscale;
-  data.textscale = objview.textscale;
+  if (objview.memberscale !== undefined) data.memberscale = objview.memberscale;
+  else delete data.memberscale;
+  if (objview.arrowscale !== undefined) data.arrowscale = objview.arrowscale;
+  else delete data.arrowscale;
+  if (objview.textscale !== undefined) data.textscale = objview.textscale;
+  else delete data.textscale;
+  removeEmptyOptionalObjectviewFields(data);
   dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
   pushPhDataUpdate(data)
       try {
@@ -1829,6 +2019,52 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let relship = relview.relship;
       const reltype = relship.type;
       const reltypeview = reltype.typeview;
+      const touchedExplicitProps = {
+        ...(modalContext?.myContext?.__touchedExplicitProps || {}),
+        ...(selRel?.__touchedExplicitProps || {}),
+        ...(modalContext?.myContext?.__touchedSelectProps || {}),
+        ...(selRel?.__touchedSelectProps || {}),
+      };
+      const isUnsetRelshipviewValue = (candidate: any) =>
+        candidate === undefined || candidate === null || candidate === "";
+      const sameRelshipviewValue = (left: any, right: any) => {
+        if (left === right) return true;
+        if (isUnsetRelshipviewValue(left) && isUnsetRelshipviewValue(right)) return true;
+        if (left === undefined || left === null || right === undefined || right === null) return false;
+        return String(left) === String(right);
+      };
+      const reltypeviewValueFor = (prop: string) => {
+        const directValue = reltypeview?.[prop];
+        if (directValue !== undefined) return directValue;
+        return reltypeview?.data?.[prop];
+      };
+      const persistRelshipviewValue = (nextValue: any, currentValue: any, fallbackValue: any) => {
+        if (isUnsetRelshipviewValue(nextValue)) return undefined;
+        if (!isUnsetRelshipviewValue(fallbackValue) && sameRelshipviewValue(nextValue, fallbackValue)) return undefined;
+        return nextValue;
+      };
+      const keepRelshipviewValue = (nextValue: any, ...fallbacks: any[]) => {
+        if (nextValue !== undefined && nextValue !== null && nextValue !== "") return nextValue;
+        for (let i = 0; i < fallbacks.length; i++) {
+          const candidate = fallbacks[i];
+          if (candidate !== undefined && candidate !== null && candidate !== "") return candidate;
+        }
+        return nextValue;
+      };
+      const optionalRelshipviewProps = [
+        'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+        'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+        'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
+      ];
+      const removeEmptyOptionalRelshipviewFields = (view: any) => {
+        if (!view) return;
+        for (let i = 0; i < optionalRelshipviewProps.length; i++) {
+          const prop = optionalRelshipviewProps[i];
+          if (isUnsetRelshipviewValue(view[prop])) {
+            delete view[prop];
+          }
+        }
+      };
       const selection = myDiagram.selection;
       selection.each(function(sel) {
         const selRel = selectedData;
@@ -1873,12 +2109,29 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         relviewProps.forEach((prop) => {
           const nextValue = normalizeRelshipviewEditableValue(prop, selRel?.[prop]);
           if (nextValue === undefined) return;
-          try { relview[prop] = nextValue; } catch (_) {}
-          try { if (relview?.data) relview.data[prop] = nextValue; } catch (_) {}
-          try { goLink[prop] = nextValue; } catch (_) {}
-          try { gjsLink[prop] = nextValue; } catch (_) {}
-          try { myDiagram.model.setDataProperty(data, prop, nextValue); } catch (_) {}
+          const currentValue = relview?.[prop];
+          const fallbackValue = reltypeviewValueFor(prop);
+          const shouldFilterByDefault = optionalRelshipviewProps.includes(prop);
+          const storedValue = shouldFilterByDefault
+            ? (touchedExplicitProps?.[prop] === true ? nextValue : persistRelshipviewValue(nextValue, currentValue, fallbackValue))
+            : nextValue;
+          if (storedValue === undefined) {
+            try { delete relview[prop]; } catch (_) {}
+            try { if (relview?.data) delete relview.data[prop]; } catch (_) {}
+            const renderValue = keepRelshipviewValue(undefined, fallbackValue);
+            try { goLink[prop] = renderValue; } catch (_) {}
+            try { gjsLink[prop] = renderValue; } catch (_) {}
+            try { myDiagram.model.setDataProperty(data, prop, renderValue); } catch (_) {}
+            return;
+          }
+          try { relview[prop] = storedValue; } catch (_) {}
+          try { if (relview?.data) relview.data[prop] = storedValue; } catch (_) {}
+          try { goLink[prop] = storedValue; } catch (_) {}
+          try { gjsLink[prop] = storedValue; } catch (_) {}
+          try { myDiagram.model.setDataProperty(data, prop, storedValue); } catch (_) {}
         });
+        removeEmptyOptionalRelshipviewFields(relview);
+        removeEmptyOptionalRelshipviewFields(relview?.data);
         relviewProps.forEach((prop) => {
           const nextValue = normalizeRelshipviewEditableValue(prop, relview?.[prop]);
           if (nextValue === undefined || nextValue === null) return;
@@ -1904,6 +2157,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
         const data = safeClone(mn);
+        removeEmptyOptionalRelshipviewFields(data);
         dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         pushPhDataRelshipviewUpdate(data)
       });    
@@ -1914,6 +2168,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
 
       // selObj is a node representing an object or an objecttype
       const selObj = selectedData;
+      const isMetamodelObjectTypeNode =
+        myMetis?.modelType === 'Metamodelling' &&
+        (!!selObj?.objecttype || !!selObj?.objtypeRef);
       const node = myDiagram.findNodeForKey(selObj.key);
       if (!node)
         break;
@@ -1927,11 +2184,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       // End fix     
       let data, typeview, objtypeview, reltypeview;
-      if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+      if (selObj.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
         let node = myMetis.currentNode;
         node = myDiagram.findNodeForKey(node.key);
         data = node.data;
-        objtypeview = data.typeview;
+        objtypeview = data.typeview || selObj.typeview || data.objecttype?.typeview;
         typeview = myMetamodel.findObjectTypeView(objtypeview?.id);
         for (let prop in objtypeview?.data) {
           if (prop === 'id') continue;

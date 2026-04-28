@@ -857,6 +857,16 @@ function reducer(state = InitialState, action) {
       }
     case UPDATE_MODELVIEW_PROPERTIES:
       if (debug) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action);
+      const sanitizedModelviewData = {
+        ...(action?.data || {}),
+      };
+      // Modelview-level updates should not replace view collections.
+      // Positions and membership are persisted through UPDATE_*VIEW_PROPERTIES,
+      // and replacing arrays here can replay stale snapshots and cause snap-back.
+      delete sanitizedModelviewData.objectviews;
+      delete sanitizedModelviewData.relshipviews;
+      delete sanitizedModelviewData.objecttypeviews;
+      delete sanitizedModelviewData.relshiptypeviews;
       const curmv = curModel?.modelviews?.find(mv => mv.id === action?.data?.id) // current modelview
       let curModviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === action?.data?.id) // current modelview index
       const curmvlength = curModel?.modelviews?.length
@@ -870,7 +880,7 @@ function reducer(state = InitialState, action) {
           focusModelview: state.phFocus?.focusModelview?.id === action?.data?.id
             ? {
               ...state.phFocus.focusModelview,
-              ...action.data,
+              ...sanitizedModelviewData,
             }
             : state.phFocus?.focusModelview,
         },
@@ -886,7 +896,7 @@ function reducer(state = InitialState, action) {
                   ...curModel?.modelviews?.slice(0, curModviewIndex),
                   {
                     ...curModel?.modelviews[curModviewIndex],
-                    ...action.data,
+                    ...sanitizedModelviewData,
                   },
                   ...curModel?.modelviews?.slice(curModviewIndex + 1),
                 ]

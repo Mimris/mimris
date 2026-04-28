@@ -411,7 +411,42 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     } 
     try {
       if (myItem) myItem[propname] = value;
-      if (context?.what === "editTypeview" && myTypeview) myTypeview[propname] = value;
+      if (context?.what === "editTypeview" && myTypeview) {
+        myTypeview[propname] = value;
+        // Also update the data object to keep it consistent
+        if (myTypeview.data) {
+          myTypeview.data[propname] = value;
+        }
+        
+        // Sync the updated typeview back to myMetis so findRelationshipTypeView finds it
+        myMetis.addRelationshipTypeView(myTypeview);
+        
+        // Also sync to metamodel if available
+        const myMetamodel = context?.myContext?.metamodel || myMetis?.currentMetamodel;
+        if (myMetamodel?.addRelationshipTypeView) {
+          myMetamodel.addRelationshipTypeView(myTypeview);
+        }
+        
+        // **FIX: Update the GoJS link data so visual changes are reflected immediately**
+        const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+        const goLink =
+          myMetis?.currentLink ||
+          myMetis?.gojsModel?.findLink?.(link?.key) ||
+          myDiagram?.findLinkForKey?.(link?.key);
+        
+        if (goLink && myDiagram) {
+          try {
+            // Update the link's data property so GoJS bindings trigger
+            if (myDiagram.model?.setDataProperty) {
+              myDiagram.model.setDataProperty(goLink.data, propname, value);
+            } else {
+              goLink.data[propname] = value;
+            }
+          } catch {
+            // Do nothing
+          }
+        }
+      }
     } catch {
       // Do nothing
     }
@@ -2190,16 +2225,24 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         data = node.data;
         objtypeview = data.typeview || selObj.typeview || data.objecttype?.typeview;
         typeview = myMetamodel.findObjectTypeView(objtypeview?.id);
-        for (let prop in objtypeview?.data) {
-          if (prop === 'id') continue;
-          if (prop === 'name') continue;
-          if (prop === 'abstract') continue;
-          if (prop === 'category') continue;
-          if (prop === 'class') continue;
+        
+        // Collect all properties that need to be updated - both from selObj and typeview.data
+        const allObjProps = new Set([...Object.keys(selObj), ...(objtypeview?.data ? Object.keys(objtypeview.data) : [])]);
+        
+        allObjProps.forEach(prop => {
+          if (prop === 'id') return;
+          if (prop === 'name') return;
+          if (prop === 'abstract') return;
+          if (prop === 'category') return;
+          if (prop === 'class') return;
+          
+          // Skip if selObj doesn't have this property (not changed in form)
+          if (selObj[prop] === undefined) return;
+          
           typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
-        }
+        });
         const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
         modifiedObjTypeviews.push(jsnObjtypeview);
         modifiedObjTypeviews.map(mn => {
@@ -2242,6 +2285,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
         data = link.data;
+        
         let reltype = data.reltype;
         reltype = myMetamodel.findRelationshipType(reltype.id);
         if (reltype) {
@@ -2252,36 +2296,20 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           reltypeview = data.typeview;
           typeview = myMetamodel.findRelationshipTypeView(reltypeview.id);
         }
+        
         if (typeview) {
-          typeview.setFromArrow2(selObj.relshipkind);
-          typeview.setToArrow2(selObj.relshipkind);
-          for (let prop in typeview.data) {
-            if (prop === 'key') continue;
-            if (prop === 'category') continue;
-            if (prop === 'abstract') continue;
-            if (prop === 'class') continue;
-            if (prop === 'relshipkind') continue;
-
-            if (prop === 'fromArrow') {
-              let fromArrow = typeview[prop];
-              if (fromArrow === "None") fromArrow = "";
-              myDiagram.model.setDataProperty(data, prop, fromArrow);           
-            }          
-            if (prop === 'toArrow') {
-              let toArrow = typeview[prop];
-              if (toArrow === "None") toArrow = "";
-              myDiagram.model.setDataProperty(data, prop, toArrow);  
-            }         
-            if (prop === 'memberscale') {
-                let scale = typeview[prop];
-                if (typeview[prop] === 'None') scale = 1.0;
-                myDiagram.model.setDataProperty(data, prop, scale);           
-            } else {          
-              typeview[prop] = selObj[prop];
-              typeview.data[prop] = selObj[prop];
-              myDiagram.model.setDataProperty(data, prop, selObj[prop]);
-            }
+          // Set arrows based on relationship kind if specified
+          if (selObj.relshipkind) {
+            typeview.setFromArrow2(selObj.relshipkind);
+            typeview.setToArrow2(selObj.relshipkind);
           }
+          
+          // **FIX: Ensure all properties are synced from typeview to link data**
+          // Most updates happen in handleInputChange, but ensure arrows and special cases are handled
+          if (link.updateLink) {
+            link.updateLink(data, myDiagram);
+          }
+          
           myMetamodel.addRelationshipTypeView(typeview);
           myMetis.addRelationshipTypeView(typeview);
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);

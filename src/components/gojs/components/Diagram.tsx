@@ -149,6 +149,155 @@ function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any
   });
 }
 
+function getDiagramNodeAliases(data: any): string[] {
+  if (!data || typeof data !== 'object') return [];
+  const aliases = [
+    data?.key,
+    data?.objviewRef,
+    data?.objectview?.id,
+    data?.objRef,
+    data?.object?.id,
+    data?.__dragSessionToken,
+  ]
+    .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+    .map((v: any) => String(v));
+  return Array.from(new Set(aliases));
+}
+
+function mergeIncomingDiagramNodeDataWithLiveState(
+  incomingNodes: any[] | undefined,
+  diagram: go.Diagram | null | undefined,
+): any[] {
+  if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
+
+  const liveNodeByAlias = new Map<string, go.Node>();
+  for (let it = diagram.nodes.iterator; it?.next();) {
+    const node = it.value as go.Node;
+    const aliases = getDiagramNodeAliases(node?.data);
+    aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
+  }
+
+  return incomingNodes.map((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object') return incoming;
+    const aliases = getDiagramNodeAliases(incoming);
+    if (aliases.length === 0) return incoming;
+
+    let liveNode: go.Node | undefined;
+    for (let i = 0; i < aliases.length; i++) {
+      const candidate = liveNodeByAlias.get(aliases[i]);
+      if (candidate instanceof go.Node) {
+        liveNode = candidate;
+        break;
+      }
+    }
+    if (!(liveNode instanceof go.Node)) return incoming;
+
+    const liveData: any = liveNode.data || {};
+    const liveLoc = `${liveNode.location.x} ${liveNode.location.y}`;
+    const nextGroup = liveData?.group ?? incoming.group;
+    const nextScale = liveData?.scale ?? incoming.scale;
+    const nextScale1 = liveData?.scale1 ?? incoming.scale1;
+
+    if (
+      String(incoming.loc || '') === String(liveLoc || '') &&
+      String(incoming.group ?? '') === String(nextGroup ?? '') &&
+      Number(incoming.scale ?? 1) === Number(nextScale ?? 1) &&
+      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1)
+    ) {
+      return incoming;
+    }
+
+    return {
+      ...incoming,
+      loc: liveLoc,
+      group: nextGroup,
+      scale: nextScale,
+      scale1: nextScale1,
+    };
+  });
+}
+
+function normalizeLiveLinkPoints(points: any): number[] | undefined {
+  if (!points) return undefined;
+  if (Array.isArray(points)) {
+    if (points.length >= 4) return [...points];
+    return undefined;
+  }
+  const arr: number[] = [];
+  try {
+    const it = points?.iterator;
+    while (it?.next()) {
+      const p = it.value;
+      if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+        arr.push(Number(p.x), Number(p.y));
+      }
+    }
+  } catch (_) {
+  }
+  return arr.length >= 4 ? arr : undefined;
+}
+
+function mergeIncomingDiagramLinkDataWithLiveState(
+  incomingLinks: any[] | undefined,
+  diagram: go.Diagram | null | undefined,
+): any[] {
+  if (!Array.isArray(incomingLinks) || !(diagram instanceof go.Diagram)) return incomingLinks as any;
+
+  const liveByKey = new Map<string, go.Link>();
+  for (let it = diagram.links.iterator; it?.next();) {
+    const link = it.value as go.Link;
+    const ids = [
+      link?.data?.key,
+      link?.key,
+      link?.data?.relviewRef,
+      link?.data?.relshipview?.id,
+    ]
+      .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+      .map((v: any) => String(v));
+    ids.forEach((id) => liveByKey.set(id, link));
+  }
+
+  return incomingLinks.map((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object') return incoming;
+    const ids = [
+      incoming?.key,
+      incoming?.relviewRef,
+      incoming?.relshipview?.id,
+    ]
+      .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+      .map((v: any) => String(v));
+    if (ids.length === 0) return incoming;
+
+    let liveLink: go.Link | undefined;
+    for (let i = 0; i < ids.length; i++) {
+      const candidate = liveByKey.get(ids[i]);
+      if (candidate instanceof go.Link) {
+        liveLink = candidate;
+        break;
+      }
+    }
+    if (!(liveLink instanceof go.Link) || !liveLink.data) return incoming;
+
+    const liveData: any = liveLink.data || {};
+    const livePoints = normalizeLiveLinkPoints(liveLink.points) || normalizeLiveLinkPoints(liveData?.points);
+    const nextFrom = liveData?.from ?? incoming.from;
+    const nextTo = liveData?.to ?? incoming.to;
+    const nextFromPort = liveData?.fromPort ?? incoming.fromPort;
+    const nextToPort = liveData?.toPort ?? incoming.toPort;
+    const nextRouting = liveData?.routing ?? incoming.routing;
+
+    return {
+      ...incoming,
+      from: nextFrom,
+      to: nextTo,
+      fromPort: nextFromPort,
+      toPort: nextToPort,
+      routing: nextRouting,
+      points: livePoints ?? incoming.points,
+    };
+  });
+}
+
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
@@ -334,6 +483,68 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const diagram = this.diagramRef?.current?.getDiagram();
     this.myMetis.dispatch = this.props.dispatch;
     if (diagram instanceof go.Diagram) {
+      const diagramAny: any = diagram as any;
+      if (typeof diagramAny.layoutDiagram === 'function' && !diagramAny.__layoutGuardInstalled) {
+        const originalLayoutDiagram = diagramAny.layoutDiagram.bind(diagramAny);
+        diagramAny.__originalLayoutDiagram = originalLayoutDiagram;
+        diagramAny.layoutDiagram = (force?: boolean) => {
+          try {
+            const suppressUntil = Number(diagramAny.__suppressAutoLayoutUntil || 0);
+            if (suppressUntil > Date.now()) {
+              return;
+            }
+          } catch (_) {
+          }
+          return originalLayoutDiagram(force);
+        };
+        diagramAny.__layoutGuardInstalled = true;
+      }
+      const modelAny: any = diagram.model as any;
+      if (modelAny && typeof modelAny.setDataProperty === 'function' && !modelAny.__locWriteLockGuardInstalled) {
+        const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
+        modelAny.__originalSetDataProperty = originalSetDataProperty;
+        modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          try {
+            if (propname === 'loc' && data) {
+              const lockMap: Map<string, { loc: string; until: number }> | undefined =
+                (diagram as any).__lockMovedNodeLocByKey;
+              if (lockMap instanceof Map && lockMap.size > 0) {
+                const now = Date.now();
+                const ids = [
+                  data?.key,
+                  data?.objviewRef,
+                  data?.objectview?.id,
+                  data?.__dragSessionToken,
+                ].filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+                  .map((v: any) => String(v));
+
+                let lock: { loc: string; until: number } | undefined;
+                ids.forEach((id) => {
+                  const candidate = lockMap.get(id);
+                  if (!candidate) return;
+                  if (!lock || Number(candidate.until || 0) > Number(lock.until || 0)) lock = candidate;
+                });
+
+                if (lock && Number(lock.until || 0) > now) {
+                  const incomingLoc = String(value || '');
+                  const lockedLoc = String(lock.loc || '');
+                  if (incomingLoc && lockedLoc && incomingLoc !== lockedLoc) {
+                    return;
+                  }
+                } else {
+                  ids.forEach((id) => {
+                    const entry = lockMap.get(id);
+                    if (entry && Number(entry.until || 0) <= now) lockMap.delete(id);
+                  });
+                }
+              }
+            }
+          } catch (_) {
+          }
+          return originalSetDataProperty(data, propname, value);
+        };
+        modelAny.__locWriteLockGuardInstalled = true;
+      }
       if (diagram.model?.modelData) {
         (diagram.model.modelData as any)._viewportScale = diagram.scale || 1;
       }
@@ -581,6 +792,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
 
       diagram.removeChangedListener(this.props.onModelChange);
+
+      const diagramAny: any = diagram as any;
+      if (diagramAny?.__layoutGuardInstalled && typeof diagramAny.__originalLayoutDiagram === 'function') {
+        diagramAny.layoutDiagram = diagramAny.__originalLayoutDiagram;
+        delete diagramAny.__originalLayoutDiagram;
+        delete diagramAny.__layoutGuardInstalled;
+      }
+
+      const modelAny: any = diagram.model as any;
+      if (modelAny?.__locWriteLockGuardInstalled && typeof modelAny.__originalSetDataProperty === 'function') {
+        modelAny.setDataProperty = modelAny.__originalSetDataProperty;
+        delete modelAny.__originalSetDataProperty;
+        delete modelAny.__locWriteLockGuardInstalled;
+      }
 
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(null, false); // Pass false to indicate that the diagram is not ready
@@ -1796,56 +2021,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	        } catch (_) {
 	        }
-	        try {
-	          if ((diagram as any)?.__traceDragVibration) {
-	            const now = Date.now();
-	            const lastTrace = Number((diagram as any).__traceDragVibrationLastAt || 0);
-	            if (now - lastTrace > 120) {
-	              let sample: any = null;
-	              const draggedParts = this.draggedParts;
-	              for (let it = draggedParts?.iterator; it?.next();) {
-	                const part = it.key as go.Part;
-	                if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
-	                sample = {
-	                  key: part.data?.key || "",
-	                  loc: `${part.location.x} ${part.location.y}`,
-	                  dataLoc: part.data?.loc || "",
-	                  selectionCount: diagram?.selection?.count || 0,
-	                  currentPartKey: (this.currentPart as any)?.data?.key || "",
-	                  draggedKeys: [] as string[],
-	                };
-	                for (let jt = draggedParts?.iterator; jt?.next();) {
-	                  const draggedPart = jt.key as go.Part;
-	                  const draggedKey = draggedPart?.data?.key;
-	                  if (draggedKey != null) sample.draggedKeys.push(String(draggedKey));
-	                }
-	                break;
-	              }
-	              if (sample) {
-	                let sameKeyCount = 0;
-	                let sameObjviewCount = 0;
-	                let sameObjRefCount = 0;
-	                try {
-	                  diagram?.nodes?.each((n: go.Node) => {
-	                    const nkey = String(n?.data?.key || "");
-	                    const nobjview = String(n?.data?.objviewRef || n?.data?.objectview?.id || "");
-	                    const nobjref = String(n?.data?.objRef || n?.data?.object?.id || "");
-	                    if (nkey && nkey === sample.key) sameKeyCount++;
-	                    if (sample.key && nobjview && nobjview === sample.key) sameObjviewCount++;
-	                    if (sample.key && nobjref && nobjref === sample.key) sameObjRefCount++;
-	                  });
-	                } catch (_) {
-	                }
-	                sample.sameKeyCount = sameKeyCount;
-	                sample.sameObjviewCount = sameObjviewCount;
-	                sample.sameObjRefCount = sameObjRefCount;
-	                (diagram as any).__traceDragVibrationLastAt = now;
-	                console.warn("[DRAG_LIVE_STATE]", JSON.stringify(sample));
-	              }
-	            }
-	          }
-	        } catch (_) {
-	        }
+          // Temporary drag vibration tracing removed.
 	        super.doMouseMove();
 	      }
 
@@ -8951,6 +9127,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
           });
           items.push({
+            label: "Edit Relationship Typeview",
+            action: (diagram) => {
+              uid.editRelshipTypeview(data, myMetis, diagram || myDiagram, false);
+            },
+          });
+          items.push({
             label: "Delete Relationship Type",
             action: (diagram) => {
               if (!confirm('Delete this relationship type?')) return;
@@ -11522,6 +11704,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
 	        const grp = part.containingGroup;
 	        if (!grp) return pt;
+          const grpCat = String(grp.data?.category || grp.data?.template || grp.category || "");
+          const isSwimlaneGroup = grpCat === "Pool" || grpCat === "Lane" || grpCat.startsWith("Lane");
+          // Non-swimlane model groups should not clamp node drag; clamping there can
+          // make nodes appear to jump/snap back after drop.
+          if (!isSwimlaneGroup) {
+            const diagram = part.diagram;
+            if (diagram?.lastInput?.shift) {
+              (diagram as any).__dragAllowReparent = true;
+              const k = part.data?.key;
+              if (k != null) {
+                const s: Set<string> = ((diagram as any).__dragAllowReparentKeys ||= new Set<string>());
+                s.add(String(k));
+              }
+            }
+            return pt;
+          }
 	        const dataGroupKey =
 	          typeof part.data?.group === "string" && part.data.group.length > 0
 	            ? String(part.data.group)
@@ -11534,17 +11732,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        // containingGroup even though its persisted `group` is already empty.
 	        // Do not clamp that first drag against the old container.
 	        if (!dataGroupKey || dataGroupKey !== containingGroupKey) {
-	          try {
-	            if ((part.diagram as any)?.__traceFirstPostGroupDrag) {
-	              console.warn("[FIRST_DRAG_CLAMP_BYPASS]", {
-	                key: part.data?.key,
-	                dataGroup: dataGroupKey,
-	                containingGroup: containingGroupKey,
-	                loc: part.data?.loc,
-	              });
-	            }
-	          } catch (_) {
-	          }
 	          return pt;
 	        }
 	        // If Shift is held at any point during this drag, remember that so mouse-up handlers
@@ -11593,19 +11780,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        const maxY = r.bottom - (b.height - offsetY) - 2;
 	        const x = Math.max(minX, Math.min(pt.x, maxX));
 	        const y = Math.max(minY, Math.min(pt.y, maxY));
-	        try {
-	          if ((part.diagram as any)?.__traceFirstPostGroupDrag) {
-	            console.warn("[FIRST_DRAG_CLAMP]", {
-	              key: part.data?.key,
-	              dataGroup: dataGroupKey,
-	              containingGroup: containingGroupKey,
-	              requested: `${pt.x} ${pt.y}`,
-	              clamped: `${x} ${y}`,
-	              loc: part.data?.loc,
-	            });
-	          }
-	        } catch (_) {
-	        }
 	        return new go.Point(x, y);
 	      };
 
@@ -11707,13 +11881,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
 	        const result = baseDoActivate.call(this);
-	        try {
-	          const tracePostGroupDrag = Boolean((diagram as any)?.__traceFirstPostGroupDrag);
+          try {
 	          const draggedParts = this.draggedParts;
+            const dragSessionToken = utils.createGuid();
 	          let activatedOrdinaryNodeDrag = false;
 	          for (let it = draggedParts?.iterator; it?.next();) {
 	            const part = it.key as go.Part;
 	            if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
+              try {
+                (part.data as any).__dragSessionToken = dragSessionToken;
+                if (typeof (diagram.model as any)?.setDataProperty === "function") {
+                  (diagram.model as any).setDataProperty(part.data, "__dragSessionToken", dragSessionToken);
+                }
+              } catch (_) {
+              }
 	            activatedOrdinaryNodeDrag = true;
 	            const staleGroup = part.containingGroup;
             if (staleGroup instanceof go.Group && !isVisuallyInsideGroup(part, staleGroup)) {
@@ -11728,20 +11909,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               try { diagram.model.setDataProperty(part.data, "group", ""); } catch (_) { }
 	              try { part.data.group = ""; } catch (_) { }
 	              try { part.containingGroup = null; } catch (_) { }
-	            }
-	            if (tracePostGroupDrag) {
-	              try {
-	                console.warn("[FIRST_DRAG_ACTIVATE]", {
-	                  key: part.data?.key,
-	                  dataGroup: part.data?.group || "",
-	                  containingGroup:
-	                    part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
-	                      ? String(part.containingGroup.key)
-	                      : "",
-	                  loc: part.data?.loc,
-	                });
-	              } catch (_) {
-	              }
 	            }
 	            (part.data as any).__dragStartGroup =
 	              part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
@@ -11774,15 +11941,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	            } catch (_) {
 	            }
 	            delete (diagram as any).__suppressSyncForNextNodeDrag;
-	          }
-	          if (activatedOrdinaryNodeDrag) {
-	            try {
-	              (diagram as any).__traceDragVibration = true;
-	              window.setTimeout(() => {
-	                try { delete (diagram as any).__traceDragVibration; } catch (_) { }
-	              }, 1500);
-	            } catch (_) {
-	            }
 	          }
 	        } catch (_) {
 	        }
@@ -12373,13 +12531,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       <div>
         {(() => {
           const normalizedNodeDataArray = normalizeDiagramNodeCategoryData(this.props.nodeDataArray);
+          const diagram = this.diagramRef.current?.getDiagram();
+          const liveMergedNodeDataArray = mergeIncomingDiagramNodeDataWithLiveState(normalizedNodeDataArray, diagram);
+          const liveMergedLinkDataArray = mergeIncomingDiagramLinkDataWithLiveState(this.props.linkDataArray, diagram);
           return (
         <ReactDiagram
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
-          nodeDataArray={normalizedNodeDataArray}
-          linkDataArray={this.props.linkDataArray}
+          nodeDataArray={liveMergedNodeDataArray}
+          linkDataArray={liveMergedLinkDataArray}
           modelData={this.props.modelData}
           // myMetis={this.props.myMetis}
           // modelType={this.props.modelType}

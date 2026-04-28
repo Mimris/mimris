@@ -213,6 +213,151 @@ function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, l
   });
 }
 
+function getNodeIdentityAliases(data: any): string[] {
+  if (!data || typeof data !== 'object') return [];
+  const aliases = [
+    data?.key,
+    data?.objviewRef,
+    data?.objectview?.id,
+    data?.objRef,
+    data?.object?.id,
+    data?.__dragSessionToken,
+  ]
+    .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+    .map((v: any) => String(v));
+  return Array.from(new Set(aliases));
+}
+
+function findLiveNodeByAliases(diagram: go.Diagram | null | undefined, data: any): go.Node | null {
+  if (!(diagram instanceof go.Diagram)) return null;
+  const aliases = getNodeIdentityAliases(data);
+  if (aliases.length === 0) return null;
+  for (let i = 0; i < aliases.length; i++) {
+    const n = diagram.findNodeForKey(aliases[i]);
+    if (n instanceof go.Node) return n;
+  }
+  for (let it = diagram.nodes.iterator; it?.next();) {
+    const node = it.value as go.Node;
+    const liveAliases = getNodeIdentityAliases(node?.data);
+    for (let i = 0; i < aliases.length; i++) {
+      if (liveAliases.includes(aliases[i])) return node;
+    }
+  }
+  return null;
+}
+
+function hasStructuralNodeArrayDiff(incomingNodes: any[] | undefined, currentNodes: any[] | undefined): boolean {
+  const incoming = Array.isArray(incomingNodes) ? incomingNodes : [];
+  const current = Array.isArray(currentNodes) ? currentNodes : [];
+  if (incoming.length !== current.length) return true;
+  const incomingIds = new Set<string>();
+  const currentIds = new Set<string>();
+  incoming.forEach((node: any, index: number) => {
+    const aliases = getNodeIdentityAliases(node);
+    const id = aliases[0] || `incoming:${index}`;
+    incomingIds.add(String(id));
+  });
+  current.forEach((node: any, index: number) => {
+    const aliases = getNodeIdentityAliases(node);
+    const id = aliases[0] || `current:${index}`;
+    currentIds.add(String(id));
+  });
+  if (incomingIds.size !== currentIds.size) return true;
+  for (const id of incomingIds) {
+    if (!currentIds.has(id)) return true;
+  }
+  return false;
+}
+
+function mergeIncomingNodeDataWithLocalState(
+  incomingNodes: any[] | undefined,
+  localNodes: any[] | undefined,
+  diagram?: go.Diagram | null
+): any[] {
+  if (!Array.isArray(incomingNodes)) return incomingNodes as any;
+  const preserveByKey: Map<string, number> | undefined = (diagram as any)?.__preserveIncomingNodeStateByKey;
+
+  const now = Date.now();
+  const localMap = new Map<string, any>();
+  (Array.isArray(localNodes) ? localNodes : []).forEach((node: any) => {
+    if (!node || typeof node !== 'object') return;
+    const ids = getNodeIdentityAliases(node);
+    ids.forEach((id: any) => {
+      localMap.set(String(id), node);
+    });
+  });
+
+  return incomingNodes.map((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object' || incoming.key === undefined || incoming.key === null) return incoming;
+    const incomingIds = getNodeIdentityAliases(incoming);
+    let preserveUntil = 0;
+    let matchedPreserveKey = '';
+    for (let i = 0; i < incomingIds.length; i++) {
+      const id = incomingIds[i];
+      const candidate = Number((preserveByKey instanceof Map ? preserveByKey.get(id) : 0) || 0);
+      if (candidate > preserveUntil) {
+        preserveUntil = candidate;
+        matchedPreserveKey = id;
+      }
+    }
+    const preserveWindowActive = preserveUntil > now;
+    if (!preserveWindowActive) {
+      incomingIds.forEach((id) => {
+        if (preserveByKey instanceof Map && preserveByKey.has(id) && Number(preserveByKey.get(id) || 0) <= now) {
+          preserveByKey.delete(id);
+        }
+      });
+    }
+
+    const liveNode = findLiveNodeByAliases(diagram, incoming);
+    const local =
+      localMap.get(matchedPreserveKey || String(incoming.key)) ||
+      incomingIds.map((id) => localMap.get(id)).find((candidate) => candidate && typeof candidate === 'object');
+
+    // Authoritative live node geometry always wins for the same conceptual node.
+    // If there is no live node, only preserve local geometry during an active drag-protection window.
+    if (!(liveNode instanceof go.Node) && !(preserveWindowActive && local && typeof local === 'object')) {
+      return incoming;
+    }
+
+    const liveData: any = liveNode?.data || local;
+    const liveLoc =
+      liveNode instanceof go.Node
+        ? `${liveNode.location.x} ${liveNode.location.y}`
+        : (typeof liveData?.loc === 'string' && liveData.loc.length > 0 ? liveData.loc : local?.loc);
+    const liveGroup =
+      liveData?.group !== undefined
+        ? liveData.group
+        : local?.group;
+    const liveScale =
+      liveData?.scale !== undefined
+        ? liveData.scale
+        : local?.scale;
+    const liveScale1 =
+      liveData?.scale1 !== undefined
+        ? liveData.scale1
+        : local?.scale1;
+
+    const incomingMatchesLive =
+      (incoming.loc || '') === (liveLoc || '') &&
+      String(incoming.group ?? '') === String(liveGroup ?? '') &&
+      Number(incoming.scale ?? liveScale ?? 1) === Number(liveScale ?? 1);
+
+    if (incomingMatchesLive) {
+      incomingIds.forEach((id) => preserveByKey.delete(id));
+      return incoming;
+    }
+
+    return {
+      ...incoming,
+      loc: liveLoc ?? incoming.loc,
+      group: liveGroup ?? incoming.group,
+      scale: liveScale ?? incoming.scale,
+      scale1: liveScale1 ?? incoming.scale1,
+    };
+  });
+}
+
 function isTransientRoutedLink(routing: any): boolean {
   if (routing === go.Link.Orthogonal || routing === go.Link.AvoidsNodes) return true;
   const normalized = String(routing || "").trim();
@@ -1870,8 +2015,20 @@ class GoJSApp extends React.Component<{}, AppState> {
     const metisChanged = this.props.myMetis !== prevProps.myMetis;
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
-      nextState.nodeDataArray = normalizeNodeCategoryData(this.props.nodeDataArray);
+      const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
+      if (diagram && !structuralNodeDiff) {
+        // Keep live diagram node geometry authoritative when structure is unchanged.
+        // Non-structural prop snapshots can carry stale `loc` and cause snap-back.
+      } else {
+      nextState.nodeDataArray = normalizeNodeCategoryData(
+        mergeIncomingNodeDataWithLocalState(
+          this.props.nodeDataArray,
+          this.state.nodeDataArray,
+          diagram
+        )
+      );
       shouldSyncFromProps = true;
+      }
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {
       nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
@@ -1887,22 +2044,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (focusModelChanged || focusModelviewChanged) {
       nextState.phFocus = this.props.phFocus;
       shouldSyncFromProps = true;
-    }
-    if (shouldSyncFromProps && (diagram as any)?.__traceDragVibration) {
-      try {
-        console.warn("[VIBRATION_PROP_SYNC]", JSON.stringify({
-          nodeDataChanged: this.props.nodeDataArray !== prevProps.nodeDataArray,
-          linkDataChanged: this.props.linkDataArray !== prevProps.linkDataArray,
-          metisChanged,
-          focusModelChanged,
-          focusModelviewChanged,
-          nextNodeCount: Array.isArray(this.props.nodeDataArray) ? this.props.nodeDataArray.length : -1,
-          prevNodeCount: Array.isArray(prevProps.nodeDataArray) ? prevProps.nodeDataArray.length : -1,
-          nextLinkCount: Array.isArray(this.props.linkDataArray) ? this.props.linkDataArray.length : -1,
-          prevLinkCount: Array.isArray(prevProps.linkDataArray) ? prevProps.linkDataArray.length : -1,
-        }));
-      } catch (_) {
-      }
     }
     if (shouldSyncFromProps) {
       const activeTool = diagram?.currentTool;
@@ -2085,7 +2226,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       activeTool.isActive === true;
     const suppressNodeModelSyncUntil = Number((diagram as any)?.__suppressNodeModelSyncUntil || 0);
     const suppressNodeModelSync = suppressNodeModelSyncUntil > Date.now();
-    const traceDragVibration = Boolean((diagram as any)?.__traceDragVibration);
     const hasMeaningfulModelDataChanges =
       !!modifiedModelData &&
       typeof modifiedModelData === 'object' &&
@@ -2101,23 +2241,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       (isActiveDrag || isActiveLinkReshape || isActiveRelink) &&
       !hasStructuralModelChanges
     ) {
-      if (traceDragVibration && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
-        try {
-          const payload = modifiedNodeData.map((node: any) => {
-            const liveNode = diagram?.findNodeForKey?.(node?.key);
-            return {
-              key: node?.key || "",
-              loc: node?.loc || "",
-              group: node?.group || "",
-              scale: node?.scale,
-              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
-              liveDataLoc: liveNode?.data?.loc || "",
-            };
-          });
-          console.warn("[VIBRATION_MODEL_SYNC]", JSON.stringify(payload));
-        } catch (_) {
-        }
-      }
       return;
     }
 
@@ -2142,41 +2265,21 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
 
     if (!isActiveDrag && !suppressNodeModelSync && Array.isArray(modifiedNodeData) && modifiedNodeData.length > 0) {
-      const tracePostGroupNodeSync = Boolean((diagram as any)?.__tracePostGroupNodeSync);
       const skipPostPasteNodeSyncKeys: Set<string> | undefined = (diagram as any)?.__skipNextPostPasteNodeSyncKeys;
+      const preserveByKey: Map<string, number> | undefined = (diagram as any)?.__preserveIncomingNodeStateByKey;
+      const now = Date.now();
       const nodeMap = new Map((nextNodeDataArray || []).map((node: any) => [node?.key, node]));
       modifiedNodeData.forEach((node: any) => {
         if (!node?.key) return;
-        if (tracePostGroupNodeSync) {
-          try {
-            const liveNode = diagram?.findNodeForKey?.(node.key);
-            console.warn("[POST_GROUP_NODE_SYNC]", {
-              key: node.key,
-              loc: node.loc,
-              group: node.group,
-              scale: node.scale,
-              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
-              liveDataLoc: liveNode?.data?.loc,
-              liveGroup: liveNode?.data?.group,
-              liveScale: liveNode?.data?.scale,
-            });
-          } catch (_) {
-          }
-        }
-        if (traceDragVibration) {
-          try {
-            const liveNode = diagram?.findNodeForKey?.(node.key);
-            console.warn("[VIBRATION_MODEL_SYNC]", JSON.stringify({
-              key: node.key,
-              isActiveDrag,
-              loc: node.loc,
-              group: node.group,
-              scale: node.scale,
-              liveLoc: liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : "",
-              liveDataLoc: liveNode?.data?.loc,
-            }));
-          } catch (_) {
-          }
+        const liveNodeForPatch = findLiveNodeByAliases(diagram, node);
+        if (liveNodeForPatch) {
+          node = {
+            ...node,
+            loc: `${liveNodeForPatch.location.x} ${liveNodeForPatch.location.y}`,
+            group: liveNodeForPatch?.data?.group ?? node.group,
+            scale: liveNodeForPatch?.data?.scale ?? node.scale,
+            scale1: liveNodeForPatch?.data?.scale1 ?? node.scale1,
+          };
         }
         const nodeKey = String(node.key);
         if (skipPostPasteNodeSyncKeys?.has(nodeKey)) {
@@ -2185,6 +2288,33 @@ class GoJSApp extends React.Component<{}, AppState> {
             try { delete (diagram as any).__skipNextPostPasteNodeSyncKeys; } catch (_) { }
           }
           return;
+        }
+        if (preserveByKey instanceof Map) {
+          const nodeAliases = getNodeIdentityAliases(node);
+          let preserveUntil = 0;
+          for (let i = 0; i < nodeAliases.length; i++) {
+            const candidate = Number(preserveByKey.get(nodeAliases[i]) || 0);
+            if (candidate > preserveUntil) preserveUntil = candidate;
+          }
+          if (preserveUntil > now) {
+            const liveNode = findLiveNodeByAliases(diagram, node);
+            if (liveNode) {
+              const liveLoc = `${liveNode.location.x} ${liveNode.location.y}`;
+              node = {
+                ...node,
+                loc: liveLoc,
+                group: liveNode?.data?.group ?? node.group,
+                scale: liveNode?.data?.scale ?? node.scale,
+                scale1: liveNode?.data?.scale1 ?? node.scale1,
+              };
+            }
+          } else {
+            nodeAliases.forEach((id) => {
+              if (preserveByKey.has(id) && Number(preserveByKey.get(id) || 0) <= now) {
+                preserveByKey.delete(id);
+              }
+            });
+          }
         }
         const prev = nodeMap.get(node.key) || {};
         nodeMap.set(node.key, { ...prev, ...node });
@@ -4918,8 +5048,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const hasManualPoints = Array.isArray(livePoints) && livePoints.length >= 4;
             const hadPersistedManualPath =
               Array.isArray(persistedPointsBeforeMove) && persistedPointsBeforeMove.length >= 4;
+            const hasManualPathMarker = Boolean(ldata?.__manualPath || rview?.__manualPath);
             const preserveSelfLoopPathOnMove = isSelfLoop && hadPersistedManualPath;
-            const preserveManualPathOnMove = (!isSelfLoop && hadPersistedManualPath) || preserveSelfLoopPathOnMove;
+            const preserveManualPathOnMove = preserveSelfLoopPathOnMove || (!isSelfLoop && hadPersistedManualPath && hasManualPathMarker);
             if (isSelfLoop && hadPersistedManualPath && ldata?.key) {
               movedSelfLoopKeysWithPersistedPath.add(String(ldata.key));
             }
@@ -4928,15 +5059,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (linkTouchesMovedNode && isSelfLoop && hadPersistedManualPath) {
               const selfLoopPoints = pickFirstNonEmptyLinkPoints(link?.points, previewPoints, ldata?.points, rview?.points);
               if (Array.isArray(selfLoopPoints) && selfLoopPoints.length >= 4) {
-                try {
-                  console.warn("[SELF_LOOP_MOVE_PERSIST]", JSON.stringify({
-                    key: ldata?.key || "",
-                    relviewRef: ldata?.relviewRef || "",
-                    selfLoopPointCount: selfLoopPoints.length,
-                    selfLoopPoints,
-                    routing: ldata?.routing || rview?.routing || "",
-                  }));
-                } catch (_) { }
                 try { myDiagram.model.setDataProperty(ldata, "points", selfLoopPoints); } catch (_) { ldata.points = selfLoopPoints; }
                 try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
                 try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
@@ -4988,27 +5110,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   });
                 } catch (_) { }
               }
-            }
-            if (linkTouchesMovedNode) {
-              try {
-                console.warn("[MOVE_LINK_STATE]", JSON.stringify({
-                  key: ldata?.key || "",
-                  relviewRef: ldata?.relviewRef || "",
-                  from: ldata?.from || "",
-                  to: ldata?.to || "",
-                  liveFromKey,
-                  liveToKey,
-                  routing: liveRouting,
-                  isSelfLoop,
-                  isRoutedLink,
-                  previewPointCount: Array.isArray(previewPoints) ? previewPoints.length : -1,
-                  persistedPointCount: Array.isArray(persistedPointsBeforeMove) ? persistedPointsBeforeMove.length : -1,
-                  hasManualPoints,
-                  preserveSelfLoopPathOnMove,
-                  preserveManualPathOnMove,
-                  pointCount: Array.isArray(livePoints) ? livePoints.length : -1,
-                }));
-              } catch (_) { }
             }
             if (liveFromKey && ldata?.from !== liveFromKey) {
               try { myDiagram.model.setDataProperty(ldata, "from", liveFromKey); } catch (_) { ldata.from = liveFromKey; }
@@ -5062,16 +5163,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   ? directLivePoints
                   : (reanchorManualLinkPoints(link, shiftedPoints) || shiftedPoints);
               if (Array.isArray(adjustedPoints) && adjustedPoints.length >= 4) {
-                try {
-                  console.warn("[MANUAL_MOVE_APPLY]", JSON.stringify({
-                    key: ldata?.key || "",
-                    relviewRef: ldata?.relviewRef || "",
-                    before: pickFirstNonEmptyLinkPoints(ldata?.points, rview?.points, link?.points),
-                    after: adjustedPoints,
-                    moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
-                    moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
-                  }));
-                } catch (_) { }
                 if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
                 try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
                 try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
@@ -5114,6 +5205,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (resetRoute) {
               movedLinksToClear.push(link);
               if (ldata?.key) movedLinkKeysToRefresh.add(String(ldata.key));
+              try { myDiagram.model.setDataProperty(ldata, "__manualPath", false); } catch (_) { ldata.__manualPath = false; }
+              try { rview.__manualPath = false; } catch (_) { }
               try { myDiagram.model.setDataProperty(ldata, "points", []); } catch (_) { }
               try { myDiagram.model.setDataProperty(ldata, "visible", rview.visible !== false); } catch (_) { }
               try { link.points = new go.List<go.Point>(); } catch (_) { }
@@ -5173,9 +5266,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                   try { liveLink.updateRoute(); } catch (_) { }
                   try { liveLink.updateTargetBindings(); } catch (_) { }
                 });
-                if (movedManualLinkKeys.size === 0) {
-                  myDiagram.layoutDiagram(true);
-                }
+                // Recompute routes only. Forcing a full layout here can move nodes
+                // back to algorithmic positions immediately after user drag.
                 myDiagram.requestUpdate();
                 const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
                   ? [...(myDiagram.model as any).nodeDataArray]
@@ -5192,9 +5284,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             };
             try {
-              if (movedManualLinkKeys.size === 0) {
-                myDiagram.layoutDiagram(true);
-              }
+              // Keep node positions user-driven on drag; do not trigger full layout.
               myDiagram.requestUpdate();
               const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
                 ? [...(myDiagram.model as any).nodeDataArray]
@@ -5212,6 +5302,80 @@ class GoJSApp extends React.Component<{}, AppState> {
             setTimeout(rerouteMovedLinks, 0);
             setTimeout(rerouteMovedLinks, 50);
           }
+          const rerouteConnectedLinksForMovedNodes = () => {
+            try {
+              const touchedLinkKeys = new Set<string>();
+              for (let it = movedSelection?.iterator; it?.next();) {
+                const part = it.value;
+                if (!(part instanceof go.Node)) continue;
+                try { part.ensureBounds(); } catch (_) { }
+                try { part.updateTargetBindings(); } catch (_) { }
+                try { part.invalidateConnectedLinks(); } catch (_) { }
+                part.findLinksConnected().each((liveLink: go.Link) => {
+                  if (!(liveLink instanceof go.Link) || !liveLink.data) return;
+                  const linkKey = String(liveLink.data?.key || liveLink.key || "");
+                  if (!linkKey || touchedLinkKeys.has(linkKey)) return;
+                  touchedLinkKeys.add(linkKey);
+                  const liveRelview =
+                    myModelview.findRelationshipView(liveLink.data?.relviewRef || linkKey) ||
+                    liveLink.data?.relshipview;
+                  const isSelfLoop =
+                    (liveLink.fromNode && liveLink.toNode && liveLink.fromNode === liveLink.toNode) ||
+                    (liveRelview?.fromObjview?.id && liveRelview?.toObjview?.id && liveRelview.fromObjview.id === liveRelview.toObjview.id);
+                  const keepSelfLoopManualPath =
+                    isSelfLoop && Boolean(liveLink.data?.__manualPath || liveRelview?.__manualPath);
+                  if (keepSelfLoopManualPath) {
+                    try { liveLink.invalidateRoute(); } catch (_) { }
+                    try { liveLink.updateRoute(); } catch (_) { }
+                    return;
+                  }
+                  const liveFromKey = liveLink.fromNode?.data?.key ? String(liveLink.fromNode.data.key) : "";
+                  const liveToKey = liveLink.toNode?.data?.key ? String(liveLink.toNode.data.key) : "";
+                  if (liveFromKey) {
+                    try { myDiagram.model.setDataProperty(liveLink.data, "from", liveFromKey); } catch (_) { liveLink.data.from = liveFromKey; }
+                  }
+                  if (liveToKey) {
+                    try { myDiagram.model.setDataProperty(liveLink.data, "to", liveToKey); } catch (_) { liveLink.data.to = liveToKey; }
+                  }
+                  const desiredRouting = getDefaultRoutingForRelshipType(
+                    liveRelview?.name || liveRelview?.relship?.name || liveRelview?.typeview?.name,
+                    liveRelview?.routing || liveRelview?.typeview?.routing || myModelview?.routing || "Normal"
+                  );
+                  try { myDiagram.model.setDataProperty(liveLink.data, "routing", desiredRouting); } catch (_) { }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "__manualPath", false); } catch (_) { liveLink.data.__manualPath = false; }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "points", []); } catch (_) { liveLink.data.points = []; }
+                  try {
+                    if (liveRelview) {
+                      liveRelview.points = [];
+                      liveRelview.__manualPath = false;
+                      liveRelview.routing = desiredRouting;
+                    }
+                  } catch (_) { }
+                  try { liveLink.points = new go.List<go.Point>(); } catch (_) { }
+                  try { liveLink.invalidateRoute(); } catch (_) { }
+                  try { liveLink.updateRoute(); } catch (_) { }
+                  try { liveLink.updateTargetBindings(); } catch (_) { }
+                });
+              }
+              if (touchedLinkKeys.size > 0) {
+                try { myDiagram.requestUpdate(); } catch (_) { }
+                const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
+                  ? [...(myDiagram.model as any).nodeDataArray]
+                  : this.state.nodeDataArray;
+                const liveLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+                  ? [...(myDiagram.model as any).linkDataArray]
+                  : this.state.linkDataArray;
+                this.setState({
+                  nodeDataArray: normalizeNodeCategoryData(liveNodeDataArray),
+                  linkDataArray: normalizeLinkPortData(liveLinkDataArray),
+                  skipsDiagramUpdate: true,
+                });
+              }
+            } catch (_) {
+            }
+          };
+          setTimeout(rerouteConnectedLinksForMovedNodes, 0);
+          setTimeout(rerouteConnectedLinksForMovedNodes, 60);
           if (movedManualLinkKeys.size > 0) {
             try {
               const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
@@ -5237,13 +5401,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     liveLink.data?.relshipview;
                   if (!relview) return;
                   const livePoints = pickFirstNonEmptyLinkPoints(liveLink.points, liveLink.data?.points);
-                  try {
-                    console.warn("[MANUAL_MOVE_PERSIST]", JSON.stringify({
-                      key: linkKey,
-                      relviewRef: liveLink.data?.relviewRef || "",
-                      livePoints,
-                    }));
-                  } catch (_) { }
                   if (!Array.isArray(livePoints) || livePoints.length < 4) return;
                   relview.points = livePoints;
                   relview.routing = getPreservedRouting(
@@ -5409,6 +5566,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         modifiedModelviews.map(mn => {
           let data = mn;
           data = safeJsonCloneForDispatch(data);
+          // SelectionMoved persists object/relationship view changes through their dedicated
+          // UPDATE_*VIEW_PROPERTIES actions. Re-sending the full modelview snapshot here can
+          // replay stale objectviews/relshipviews arrays and snap nodes back after a drag.
+          delete data.objectviews;
+          delete data.relshipviews;
+          delete data.objecttypeviews;
+          delete data.relshiptypeviews;
           myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
         });
         // Auto-relayout affected pools after lane moves.
@@ -5595,24 +5759,114 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             return false;
           })();
-          const postMoveSuppressUntil = Date.now() + (movedAnyGroup ? 2000 : 450);
+          const preserveIncomingNodeStateByKey: Map<string, number> =
+            (myDiagram as any).__preserveIncomingNodeStateByKey instanceof Map
+              ? (myDiagram as any).__preserveIncomingNodeStateByKey
+              : new Map<string, number>();
+          const lockMovedNodeLocByKey: Map<string, { loc: string; until: number }> =
+            (myDiagram as any).__lockMovedNodeLocByKey instanceof Map
+              ? (myDiagram as any).__lockMovedNodeLocByKey
+              : new Map<string, { loc: string; until: number }>();
+          const desiredMovedNodeLocByKey = new Map<string, { x: number; y: number }>();
+          // Ordinary node drags can still receive delayed Redux/modelview refreshes
+          // after drop; keep the loc replay guard up long enough to avoid snap-back.
+          const postMoveSuppressUntil = Date.now() + 2000;
+          const preserveNodeStateUntil = Date.now() + 5000;
+          const lockNodeLocUntil = Date.now() + 3500;
+          for (let it = movedSelection?.iterator; it?.next();) {
+            const part = it.value;
+            if (part instanceof go.Node && part.data?.key !== undefined && part.data?.key !== null) {
+              const aliases = [
+                part.data?.key,
+                part.data?.objviewRef,
+                part.data?.objectview?.id,
+                part.data?.objRef,
+                part.data?.object?.id,
+                part.data?.__dragSessionToken,
+              ].filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+                .map((v: any) => String(v));
+              aliases.forEach((id) => preserveIncomingNodeStateByKey.set(id, preserveNodeStateUntil));
+              const lockedLoc = `${part.location.x} ${part.location.y}`;
+              aliases.forEach((id) => lockMovedNodeLocByKey.set(id, { loc: lockedLoc, until: lockNodeLocUntil }));
+              // Reinforcement lookup must survive possible node rebind/rekey.
+              aliases.forEach((id) => desiredMovedNodeLocByKey.set(id, { x: part.location.x, y: part.location.y }));
+            }
+          }
+          (myDiagram as any).__preserveIncomingNodeStateByKey = preserveIncomingNodeStateByKey;
+          (myDiagram as any).__lockMovedNodeLocByKey = lockMovedNodeLocByKey;
           (myDiagram as any).__suppressNodeModelSyncUntil = Date.now() + 180;
           (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
+          (myDiagram as any).__suppressAutoLayoutUntil = Date.now() + 5000;
+          const existingWatchdog: any = (myDiagram as any).__movedNodeLockWatchdog;
+          if (existingWatchdog) {
+            try { clearTimeout(existingWatchdog); } catch (_) { }
+            try { delete (myDiagram as any).__movedNodeLockWatchdog; } catch (_) { }
+          }
+          const reinforceMovedNodeLocations = () => {
+            try {
+              const activeTool = myDiagram?.currentTool;
+              if (activeTool instanceof go.DraggingTool && activeTool.isActive === true) return;
+              const dispatchFn = context.dispatch || myDiagram.dispatch || this.state.dispatch;
+              const processedNodeKeys = new Set<string>();
+              desiredMovedNodeLocByKey.forEach((desired, key) => {
+                const livePart = findLiveNodeByAliases(myDiagram, { key }) as go.Node | null;
+                if (!(livePart instanceof go.Node)) return;
+                const liveKey = String(livePart?.data?.key || livePart?.key || "");
+                if (liveKey && processedNodeKeys.has(liveKey)) return;
+                if (liveKey) processedNodeKeys.add(liveKey);
+                const desiredPoint = new go.Point(desired.x, desired.y);
+                const dx = Math.abs((livePart.location?.x ?? desired.x) - desired.x);
+                const dy = Math.abs((livePart.location?.y ?? desired.y) - desired.y);
+                if (dx > 0.5 || dy > 0.5) {
+                  try { livePart.move(desiredPoint); } catch (_) { }
+                }
+                const liveData: any = livePart.data || {};
+                const loc = `${desired.x} ${desired.y}`;
+                try { myDiagram.model.setDataProperty(liveData, 'loc', loc); } catch (_) { liveData.loc = loc; }
+                const ov =
+                  myModelview.findObjectView(liveData?.objviewRef || key) ||
+                  myMetis.findObjectView(liveData?.objviewRef || key) ||
+                  liveData.objectview;
+                if (!ov) return;
+                ov.loc = loc;
+                if (typeof liveData.group === 'string') ov.group = liveData.group;
+                if (liveData.scale !== undefined) ov.scale = liveData.scale;
+                if (dispatchFn && ov.id) {
+                  const payload = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch({
+                    id: ov.id,
+                    loc: ov.loc,
+                    group: ov.group,
+                    scale: ov.scale,
+                  }));
+                  queueObjectViewDispatch(this, dispatchFn, payload);
+                }
+              });
+              try { myDiagram.requestUpdate(); } catch (_) { }
+            } catch (_) {
+            }
+          };
+          const watchdogUntil = Date.now() + 12000;
+          const runMovedNodeWatchdog = () => {
+            try {
+              reinforceMovedNodeLocations();
+            } catch (_) {
+            }
+            if (Date.now() >= watchdogUntil) {
+              try { delete (myDiagram as any).__movedNodeLockWatchdog; } catch (_) { }
+              return;
+            }
+            (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+          };
+          window.setTimeout(reinforceMovedNodeLocations, 0);
+          (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
           if (movedAnyGroup) {
             (myDiagram as any).__suppressObjectSingleClickUntil = Math.max(
               Number((myDiagram as any).__suppressObjectSingleClickUntil || 0),
               postMoveSuppressUntil
             );
           }
-          (myDiagram as any).__tracePostGroupNodeSync = true;
-          (myDiagram as any).__traceFirstPostGroupDrag = true;
-          (myDiagram as any).__traceDragVibration = true;
-          window.setTimeout(() => {
-            try { delete (myDiagram as any).__tracePostGroupNodeSync; } catch (_) { }
-            try { delete (myDiagram as any).__traceFirstPostGroupDrag; } catch (_) { }
-            try { delete (myDiagram as any).__traceDragVibration; } catch (_) { }
-          }, 1200);
+          // Temporary drag tracing removed.
         } catch (_) {
         }
         try {
@@ -8077,7 +8331,12 @@ break;
         // console.warn('Node missing objectview:', node.data);
         continue;
       }
-      objectview.loc = nodeData.loc;
+      // Persist what is actually rendered; `nodeData.loc` can lag after move/layout churn.
+      const liveLoc = node?.location ? `${node.location.x} ${node.location.y}` : nodeData.loc;
+      objectview.loc = liveLoc;
+      if (liveLoc && nodeData.loc !== liveLoc) {
+        try { myDiagram.model.setDataProperty(nodeData, "loc", liveLoc); } catch (_) { nodeData.loc = liveLoc; }
+      }
       objectview.size = nodeData.size;
       if (typeof nodeData.group === "string") objectview.group = nodeData.group;
       const jsnObjview = new jsn.jsnObjectView(objectview);
@@ -8297,6 +8556,7 @@ break;
     const shouldFreezeManualRoute =
       points.length >= 4 &&
       (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
+    const hasManualPath = points.length >= 4;
     try { if (data?.relshipview) data.relshipview.points = points; } catch (_) {}
     try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) {}
     try {
@@ -8320,6 +8580,10 @@ break;
       try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
       try { link.adjusting = go.Link.End; } catch (_) { }
     }
+    try { myDiagram.model.setDataProperty(data, "__manualPath", hasManualPath); } catch (_) {
+      try { data.__manualPath = hasManualPath; } catch (_err) {}
+    }
+    try { relview.__manualPath = hasManualPath; } catch (_) { }
     try { myDiagram.model.setDataProperty(data, "points", points); } catch (_) { }
     relview.points = points;
     const jsnRelview = new jsn.jsnRelshipView(relview);

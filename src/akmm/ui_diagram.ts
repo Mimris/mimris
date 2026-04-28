@@ -889,10 +889,25 @@ export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: 
     if (debug) console.log('682 link, myMetis', link, myMetis);
     myMetis.myDiagram = myDiagram;
     myMetis.currentLink = link;
-    const relship = myMetis.findRelationship(link?.relship?.id);
-    const relshipview = myMetis.findRelationshipView(link?.relshipview?.id);
-    const relshiptype = myMetis.findRelationshipType(relship?.type?.id);
-    const relshiptypeview = relshiptype?.typeview;
+    
+    // Handle both relationship instances and relationship types
+    let relshiptype = null;
+    let relshiptypeview = null;
+    let relship = null;
+    let relshipview = null;
+    
+    // Check if this is a relationship type in Metamodelling mode
+    if (link?.relshiptype || link?.reltypeRef) {
+        relshiptype = myMetis.findRelationshipType(link.relshiptype?.id || link.reltypeRef);
+        relshiptypeview = relshiptype?.typeview;
+    } else {
+        // It's a relationship instance in Modelling mode
+        relship = myMetis.findRelationship(link?.relship?.id);
+        relshipview = myMetis.findRelationshipView(link?.relshipview?.id);
+        relshiptype = myMetis.findRelationshipType(relship?.type?.id);
+        relshiptypeview = relshiptype?.typeview;
+    }
+    
     const myContext = {
         object:     null,
         objectview: null,
@@ -908,7 +923,7 @@ export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: 
     }
     const modalContext = {
       what:       "editTypeview",
-      title:      "Edit Typeview",
+      title:      "Edit Relationship Typeview",
       icon:       null,
       myDiagram:  myDiagram,
       myContext:  myContext,

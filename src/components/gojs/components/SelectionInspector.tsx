@@ -982,7 +982,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         checked={checked}
         pattern={pattern}
         obj={selObj}
-        context={modalContext}
+        context={context1}
         onInputChange={this.props.onInputChange}
         />
       }
@@ -1251,7 +1251,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 val = selObj[k];
                 break;
               } else if (reltypeview) {
-                val = item[k];
+                // Use selObj to show updated values as user types
+                val = selObj[k] !== undefined ? selObj[k] : item[k];
               }
               break;
             case 'editObjectview':
@@ -1595,7 +1596,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           checked={checked}
           pattern={pattern}
           obj={selObj}
-          context={modalContext}
+          context={context1}
           onInputChange={this.props.onInputChange}
         />
       }      

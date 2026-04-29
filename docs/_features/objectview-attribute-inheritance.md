@@ -1,19 +1,19 @@
-# Objectview Attribute Inheritance Pattern
+# Objectview and Relshipview Attribute Inheritance Pattern
 
 ## Overview
 
-Implements a **delta-only storage pattern** for objectview attributes, where visual properties inherit from their typeview by default and are only stored when explicitly overridden by the user.
+Implements a **delta-only storage pattern** for objectview and relshipview attributes, where visual properties inherit from their typeview by default and are only stored when explicitly overridden by the user.
 
 ## Principle
 
-- **Display**: Objectview attributes resolve to `objectview.attribute || typeview.attribute`
-- **Storage**: Only write to `objectview.attributes` when user explicitly changes a value
-- **Reset**: Delete an objectview attribute to restore the typeview default
+- **Display**: View attributes resolve to `view.attribute || typeview.attribute`
+- **Storage**: Only write to view attributes when user explicitly changes a value
+- **Reset**: Delete a view attribute to restore the typeview default
 
 ## Benefits
 
 1. **Data efficiency**: Smaller JSON payloads, reduced redundancy
-2. **Template propagation**: Update typeview → all non-overridden objectviews update automatically
+2. **Template propagation**: Update typeview → all non-overridden views update automatically
 3. **Clear intent**: Stored attributes explicitly signal "user customized this"
 4. **Maintainability**: Single source of truth for defaults
 
@@ -21,11 +21,11 @@ Implements a **delta-only storage pattern** for objectview attributes, where vis
 
 ### 1. Metamodeller Class Methods (src/akmm/metamodeller.ts)
 
-Added to `cxObjectView` class:
+Added to `cxObjectView` and `cxRelationshipView` classes:
 
 ```typescript
 /**
- * Resolve an attribute value: returns objectview value if set, 
+ * Resolve an attribute value: returns view value if set, 
  * otherwise falls back to typeview default.
  */
 resolveAttribute(attrName: string): { value: any; isInherited: boolean }
@@ -56,22 +56,25 @@ Visual attributes filtered:
 - Added `isInherited` prop to InspectorRow interface
 - Inherited values displayed in **italic font** with reduced opacity (0.8)
 - Applies to text inputs, textareas, and select dropdowns
+- Works for both objectviews and relshipviews
 
 ### 4. Modal Dialog Delta Storage (src/akmm/ui_modal.ts)
 
 Helper function `applyDeltaStorage()`:
 
-- Filters objectview data before dispatch to Redux
+- Filters view data before dispatch to Redux
 - Removes attributes that match typeview defaults
 - Removes empty attributes when typeview has a value (allows inheritance)
 
-Applied to all `UPDATE_OBJECTVIEW_PROPERTIES` dispatches.
+Applied to:
+- `UPDATE_OBJECTVIEW_PROPERTIES` dispatches
+- `UPDATE_RELSHIPVIEW_PROPERTIES` dispatches
 
 ### 5. Attribute Resolution in Templates (src/akmm/ui_common.ts)
 
 Updated `setObjviewAttributes()` and `setRelviewAttributes()`:
 
-- Resolve attributes with fallback logic: `objview[attr] || typeview[attr]`
+- Resolve attributes with fallback logic: `view[attr] || typeview[attr]`
 - Apply resolved values to GoJS diagram data
 - Ensures visual rendering reflects inherited values
 
@@ -91,16 +94,17 @@ This means:
 - **Existing redundant data is cleaned up** on next save
 - **All future saves** automatically use minimal storage
 - **No migration needed** - cleanup happens organically
+- **Applies to both objectviews and relshipviews**
 
 ### When User Edits an Attribute
 
-1. **Value matches typeview default**: Attribute is removed from objectview (automatic reset)
-2. **Value differs from typeview**: Attribute is stored in objectview
+1. **Value matches typeview default**: Attribute is removed from view (automatic reset)
+2. **Value differs from typeview**: Attribute is stored in view
 3. **Value is empty and typeview has value**: Attribute removed (inherited)
 
 ### Visual Feedback
 
-- **Normal font**: Value is stored in objectview (overridden)
+- **Normal font**: Value is stored in view (overridden)
 - **Italic font**: Value is inherited from typeview (not stored)
 
 ### Data Structure
@@ -148,21 +152,51 @@ This means:
 }
 ```
 
+**Relshipview Example**:
+```json
+{
+  "relshipview": {
+    "id": "456",
+    "strokecolor": "blue"  // Only custom color stored
+    // arrowscale, textscale inherited from typeview
+  },
+  "typeview": {
+    "strokecolor": "black",
+    "arrowscale": 1.0,
+    "textscale": 1.0
+  }
+}
+```
+
 ## Visual Attributes Affected
 
+### Objectviews
 - Colors: `fillcolor`, `fillcolor2`, `strokecolor`, `strokecolor2`, `textcolor`, `textcolor2`
 - Sizes: `strokewidth`, `textscale`, `memberscale`, `arrowscale`, `scale`
-- Shapes: `icon`, `icon1`, `icon2`, `icon3`, `image`, `figure`, `figure2`, `geometry`
+- Shapes: `icon`, `icon1`, `icon2`, `icon3`, `image`, `figure`, `geometry`
 - Templates: `template`, `template2`, `groupLayout`
+
+### Relshipviews
+- Colors: `strokecolor`, `textcolor`, `fromArrowColor`, `toArrowColor`
+- Sizes: `strokewidth`, `textscale`, `arrowscale`
+- Arrows: `fromArrow`, `toArrow`, `dash`
+- Templates: `template`, `template2`, `routing`, `curve`, `corner`
 
 ## Edge Cases Handled
 
-1. **Typeview attribute deleted**: Objectview overrides persist (become custom attributes)
-2. **Typeview attribute value changes**: Non-overridden objectviews automatically update
+1. **Typeview attribute deleted**: View overrides persist (become custom attributes)
+2. **Typeview attribute value changes**: Non-overridden views automatically update
 3. **User sets value equal to typeview**: Override is removed (automatic optimization)
-4. **Objectviews without typeviews**: All attributes stored normally
+4. **Views without typeviews**: All attributes stored normally
 
 ## Testing
+
+1. **Create objectview/relshipview** from typeview → Verify empty properties not stored in JSON
+2. **Edit view attribute** to match typeview → Verify attribute removed from JSON on save
+3. **Edit view attribute** to differ → Verify only that attribute stored
+4. **Change typeview attribute** → Verify non-overridden views update visually
+5. **Inspect view properties** → Verify inherited values show in italic
+6. **Save model** → Verify JSON file size reduced compared to previous version
 
 To verify implementation:
 

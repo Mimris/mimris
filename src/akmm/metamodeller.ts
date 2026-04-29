@@ -10733,6 +10733,56 @@ export class cxRelationshipView extends cxMetaObject {
     getPoints(): any {
         return this.points;
     }
+    
+    /**
+     * Resolve an attribute value with inheritance from typeview.
+     * Returns the relshipview's value if set, otherwise falls back to typeview default.
+     * @param attrName - Name of the attribute to resolve
+     * @returns Object containing the resolved value and whether it's inherited
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const relviewValue = this[attrName];
+        const typeview = this.typeview;
+        
+        // If relshipview has a value (not undefined, null, or empty string), use it
+        if (relviewValue !== undefined && relviewValue !== null && relviewValue !== "") {
+            return { value: relviewValue, isInherited: false };
+        }
+        
+        // Otherwise, try to get from typeview
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            if (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "") {
+                return { value: typeviewValue, isInherited: true };
+            }
+        }
+        
+        // No value found anywhere
+        return { value: relviewValue, isInherited: false };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage cleanup.
+     * If the new value matches the typeview default, removes the override.
+     * @param attrName - Name of the attribute to set
+     * @param value - Value to set
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.typeview;
+        
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            
+            // If value matches typeview, remove the override (delta storage)
+            if (value === typeviewValue) {
+                delete this[attrName];
+                return;
+            }
+        }
+        
+        // Otherwise, set the value
+        this[attrName] = value;
+    }
 }
 
 export class cxGeometry extends cxMetaObject {

@@ -1591,6 +1591,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           // Value is inherited if objectview has no explicit value and typeview has one
           isInherited = (objviewValue === undefined || objviewValue === null || objviewValue === "") && 
                         (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
+        } else if (what === 'editRelshipview' && instview && typeview) {
+          const relviewValue = instview[k];
+          const typeviewValue = typeview[k];
+          // Value is inherited if relshipview has no explicit value and typeview has one
+          isInherited = (relviewValue === undefined || relviewValue === null || relviewValue === "") && 
+                        (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
         }
         
         row = <InspectorRow

@@ -541,7 +541,12 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
               // Do nothing
           }
           try {
-              const data = safeClone(new jsn.jsnRelshipView(myRelview));
+              let data = safeClone(new jsn.jsnRelshipView(myRelview));
+              // Apply delta-only storage: remove attributes that match typeview defaults
+              const typeview = myRelview?.typeview;
+              if (typeview) {
+                  data = applyDeltaStorage(data, typeview);
+              }
               myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
               persistRelshipviewEdit(data);
           } catch {

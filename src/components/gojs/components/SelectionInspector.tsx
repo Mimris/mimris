@@ -1582,6 +1582,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (fieldType !== "textarea")
             fieldType = "text";
         }
+        
+        // Determine if value is inherited from typeview
+        let isInherited = false;
+        if (what === 'editObjectview' && instview && typeview) {
+          const objviewValue = instview[k];
+          const typeviewValue = typeview[k];
+          // Value is inherited if objectview has no explicit value and typeview has one
+          isInherited = (objviewValue === undefined || objviewValue === null || objviewValue === "") && 
+                        (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
+        } else if (what === 'editRelshipview' && instview && typeview) {
+          const relviewValue = instview[k];
+          const typeviewValue = typeview[k];
+          // Value is inherited if relshipview has no explicit value and typeview has one
+          isInherited = (relviewValue === undefined || relviewValue === null || relviewValue === "") && 
+                        (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
+        }
+        
         row = <InspectorRow
           key={k}
           id={k}
@@ -1597,6 +1614,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           pattern={pattern}
           obj={selObj}
           context={context1}
+          isInherited={isInherited}
           onInputChange={this.props.onInputChange}
         />
       }      

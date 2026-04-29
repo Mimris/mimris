@@ -1678,8 +1678,8 @@ export class jsnModelView {
 export class jsnObjectView {
     id:              string;
     name:            string;
-    description:     string;
-    text:            string;
+    description?:    string;
+    text?:           string;
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
@@ -1689,35 +1689,35 @@ export class jsnObjectView {
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
-    size:            string;
-    scale:           number;
-    memberscale:     number;
-    arrowscale:      string;
+    size?:           string;
+    scale?:          number;
+    memberscale?:    number;
+    arrowscale?:     string;
     viewkind:        string;
     markedAsDeleted: boolean;
     modified:        boolean;
-    template:        string;
-    template2:       string;
-    figure:          string;
-    geometry:        string;
-    fillcolor:       string;
-    fillcolor2:      string;
-    strokecolor:     string;
-    strokecolor2:    string;
-    strokewidth:     number;
-    textcolor:       string;
-    textcolor2:      string;
-    textscale:       number;
-    icon:            string;
-    iconpath:        string;
-    icon1:           string;
-    icon2:           string;
-    icon3:           string;
-    image:           string;
+    template?:       string;
+    template2?:      string;
+    figure?:         string;
+    geometry?:       string;
+    fillcolor?:      string;
+    fillcolor2?:     string;
+    strokecolor?:    string;
+    strokecolor2?:   string;
+    strokewidth?:    number;
+    textcolor?:      string;
+    textcolor2?:     string;
+    textscale?:      number;
+    icon?:           string;
+    iconpath?:       string;
+    icon1?:          string;
+    icon2?:          string;
+    icon3?:          string;
+    image?:          string;
     constructor(objview: akm.cxObjectView) {
+        // Always store core attributes
         this.id              = objview?.id;
         this.name            = objview?.name;
-        this.description     = objview?.description;
         this.objectRef       = objview?.object?.id;
         if (!this.objectRef) 
             this.objectRef   = objview?.objectRef;
@@ -1730,55 +1730,67 @@ export class jsnObjectView {
         this.isExpanded      = objview?.isExpanded;
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
-        this.template        = objview?.template;
-        this.template2       = objview?.template2;
-        this.figure          = objview?.figure;
-        this.figure2        = objview?.figure2;
-        this.geometry        = objview?.geometry;
-        this.fillcolor       = objview?.fillcolor;
-        this.fillcolor2      = objview?.fillcolor2;
-        this.strokecolor     = objview?.strokecolor;
-        this.strokecolor2    = objview?.strokecolor2;
-        this.strokewidth     = objview?.strokewidth;
-        this.textcolor       = objview?.textcolor;
-        this.textcolor2      = objview?.textcolor2;
-        this.icon            = objview?.icon;
-        this.iconpath        = objview?.iconpath;
-        this.icon1            = objview?.icon1;
-        this.icon2            = objview?.icon2;
-        this.icon3            = objview?.icon3;
-        this.image           = objview?.image;
-        this.size            = objview?.size;
-        this.scale           = objview?.scale;
-        this.memberscale     = objview?.memberscale;
-        this.textscale       = objview?.textscale;
-        this.arrowscale      = objview?.arrowscale;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
+
+        // Delta-only storage: only store visual attributes that differ from typeview
+        const typeview = objview?.typeview;
+        const shouldStore = (objviewVal: any, typeviewAttr: string) => {
+            if (objviewVal === undefined || objviewVal === null || objviewVal === '') return false;
+            if (!typeview) return true; // No typeview, store everything
+            const typeviewVal = typeview[typeviewAttr];
+            // Store if different from typeview or if typeview doesn't have this attribute
+            return objviewVal !== typeviewVal;
+        };
+
+        // Apply delta-only logic for visual attributes
+        if (shouldStore(objview?.description, 'description')) this.description = objview.description;
+        if (shouldStore(objview?.template, 'template')) this.template = objview.template;
+        if (shouldStore(objview?.template2, 'template2')) this.template2 = objview.template2;
+        if (shouldStore(objview?.figure, 'figure')) this.figure = objview.figure;
+        if (shouldStore(objview?.geometry, 'geometry')) this.geometry = objview.geometry;
+        if (shouldStore(objview?.fillcolor, 'fillcolor')) this.fillcolor = objview.fillcolor;
+        if (shouldStore(objview?.fillcolor2, 'fillcolor2')) this.fillcolor2 = objview.fillcolor2;
+        if (shouldStore(objview?.strokecolor, 'strokecolor')) this.strokecolor = objview.strokecolor;
+        if (shouldStore(objview?.strokecolor2, 'strokecolor2')) this.strokecolor2 = objview.strokecolor2;
+        if (shouldStore(objview?.strokewidth, 'strokewidth')) this.strokewidth = objview.strokewidth;
+        if (shouldStore(objview?.textcolor, 'textcolor')) this.textcolor = objview.textcolor;
+        if (shouldStore(objview?.textcolor2, 'textcolor2')) this.textcolor2 = objview.textcolor2;
+        if (shouldStore(objview?.textscale, 'textscale')) this.textscale = objview.textscale;
+        if (shouldStore(objview?.icon, 'icon')) this.icon = objview.icon;
+        if (shouldStore(objview?.iconpath, 'iconpath')) this.iconpath = objview.iconpath;
+        if (shouldStore(objview?.icon1, 'icon1')) this.icon1 = objview.icon1;
+        if (shouldStore(objview?.icon2, 'icon2')) this.icon2 = objview.icon2;
+        if (shouldStore(objview?.icon3, 'icon3')) this.icon3 = objview.icon3;
+        if (shouldStore(objview?.image, 'image')) this.image = objview.image;
+        if (shouldStore(objview?.size, 'size')) this.size = objview.size;
+        if (shouldStore(objview?.scale, 'scale')) this.scale = objview.scale;
+        if (shouldStore(objview?.memberscale, 'memberscale')) this.memberscale = objview.memberscale;
+        if (shouldStore(objview?.arrowscale, 'arrowscale')) this.arrowscale = objview.arrowscale;
     }
 }
 export class jsnRelshipView {
     id:              string;
     name:            string;
-    description:     string;
+    description?:    string;
     relshipRef:      string;
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
     fromPortid:      string;
     toPortid:        string;
-    template:        string;
-    template2:       string;
-    arrowscale:      number;
-    strokecolor:     string;
-    strokewidth:     number;
-    textcolor:       string;
-    textscale:       number;
-    dash:            string;
-    fromArrow:       string;
-    toArrow:         string;
-    fromArrowColor:  string;
-    toArrowColor:    string;
+    template?:       string;
+    template2?:      string;
+    arrowscale?:     number;
+    strokecolor?:    string;
+    strokewidth?:    number;
+    textcolor?:      string;
+    textscale?:      number;
+    dash?:           string;
+    fromArrow?:      string;
+    toArrow?:        string;
+    fromArrowColor?: string;
+    toArrowColor?:   string;
     routing:         number;
     corner:          number;
     curve:           string;
@@ -1787,23 +1799,11 @@ export class jsnRelshipView {
     modified:        boolean;
     visible:         boolean;
     constructor(relview: akm.cxRelationshipView) {
+        // Always store core attributes
         this.id              = relview?.id;
         this.name            = relview?.name;
-        this.description     = "";
-        this.relshipRef      = "";
-        this.typeviewRef     = "";
-        this.template        = relview?.template;
-        this.template2       = relview?.template2;
-        this.arrowscale      = relview?.arrowscale;
-        this.strokecolor     = relview?.strokecolor;
-        this.strokewidth     = relview?.strokewidth;
-        this.textcolor       = relview?.textcolor;
-        this.textscale       = relview?.textscale;
-        this.dash            = relview?.dash;
-        this.fromArrow       = relview?.fromArrow;
-        this.toArrow         = relview?.toArrow;
-        this.fromArrowColor  = relview?.fromArrowColor;
-        this.toArrowColor    = relview?.toArrowColor;
+        this.relshipRef      = relview?.relship?.id || "";
+        this.typeviewRef     = relview?.typeview?.id || "";
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
         this.fromPortid      = relview?.fromPortid;
@@ -1815,13 +1815,31 @@ export class jsnRelshipView {
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
         this.visible         = relview?.visible;
-        // Code
-        if (relview?.description)
-            this.description = relview.description;
-        if (relview?.relship)
-            this.relshipRef = relview.relship.id;
-        if (relview?.typeview)
-            this.typeviewRef = relview.typeview.id;
+
+        // Delta-only storage: only store visual attributes that differ from typeview
+        const typeview = relview?.typeview;
+        const shouldStore = (relviewVal: any, typeviewAttr: string) => {
+            if (relviewVal === undefined || relviewVal === null || relviewVal === '') return false;
+            if (!typeview) return true; // No typeview, store everything
+            const typeviewVal = typeview[typeviewAttr];
+            // Store if different from typeview or if typeview doesn't have this attribute
+            return relviewVal !== typeviewVal;
+        };
+
+        // Apply delta-only logic for visual attributes
+        if (relview?.description) this.description = relview.description;
+        if (shouldStore(relview?.template, 'template')) this.template = relview.template;
+        if (shouldStore(relview?.template2, 'template2')) this.template2 = relview.template2;
+        if (shouldStore(relview?.arrowscale, 'arrowscale')) this.arrowscale = relview.arrowscale;
+        if (shouldStore(relview?.strokecolor, 'strokecolor')) this.strokecolor = relview.strokecolor;
+        if (shouldStore(relview?.strokewidth, 'strokewidth')) this.strokewidth = relview.strokewidth;
+        if (shouldStore(relview?.textcolor, 'textcolor')) this.textcolor = relview.textcolor;
+        if (shouldStore(relview?.textscale, 'textscale')) this.textscale = relview.textscale;
+        if (shouldStore(relview?.dash, 'dash')) this.dash = relview.dash;
+        if (shouldStore(relview?.fromArrow, 'fromArrow')) this.fromArrow = relview.fromArrow;
+        if (shouldStore(relview?.toArrow, 'toArrow')) this.toArrow = relview.toArrow;
+        if (shouldStore(relview?.fromArrowColor, 'fromArrowColor')) this.fromArrowColor = relview.fromArrowColor;
+        if (shouldStore(relview?.toArrowColor, 'toArrowColor')) this.toArrowColor = relview.toArrowColor;
     }
 }
 export class jsnImportMetis {

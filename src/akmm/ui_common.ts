@@ -4999,26 +4999,54 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
     const object = data.object;
     const objview = data.objectview;
     const typeview = data.typeview;
+    
+    // Helper function to resolve attribute with fallback to typeview
+    const resolveAttribute = (attrName: string) => {
+        const objviewValue = objview?.[attrName];
+        const typeviewValue = typeview?.data?.[attrName] || typeview?.[attrName];
+        
+        // Return objectview value if explicitly set, otherwise fallback to typeview
+        if (objviewValue !== undefined && objviewValue !== null && objviewValue !== "") {
+            return objviewValue;
+        }
+        return typeviewValue !== undefined ? typeviewValue : "";
+    };
+    
+    // Apply resolved attributes to diagram data
     for (let prop in typeview?.data) {
-        if (objview[prop] && objview[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, objview[prop]);
-        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        const resolvedValue = resolveAttribute(prop);
+        if (resolvedValue !== undefined && resolvedValue !== "") {
+            myDiagram.model.setDataProperty(data, prop, resolvedValue);
         }
     }
+    
     return objview;
 }
 
 export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {
     const relview = data.relshipview;
     const typeview = data.typeview;
+    
+    // Helper function to resolve attribute with fallback to typeview
+    const resolveAttribute = (attrName: string) => {
+        const relviewValue = relview?.[attrName];
+        const typeviewValue = typeview?.data?.[attrName] || typeview?.[attrName];
+        
+        // Return relview value if explicitly set, otherwise fallback to typeview
+        if (relviewValue !== undefined && relviewValue !== null && relviewValue !== "") {
+            return relviewValue;
+        }
+        return typeviewValue !== undefined ? typeviewValue : "";
+    };
+    
+    // Apply resolved attributes to diagram data
     for (let prop in typeview?.data) {
-        if (relview[prop] && relview[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        const resolvedValue = resolveAttribute(prop);
+        if (resolvedValue !== undefined && resolvedValue !== "") {
+            myDiagram.model.setDataProperty(data, prop, resolvedValue);
         }
     }
+    
     return relview;
 }
 

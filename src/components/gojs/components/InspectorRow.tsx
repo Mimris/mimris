@@ -19,6 +19,7 @@ interface InspectorRowProps {
   type: string;
   obj: any;
   context: any;
+  isInherited?: boolean;  // New prop to indicate inherited values
   onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
 
@@ -88,6 +89,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     // -------------- linjen nedenfor må endres til å vise description på denne property
     // f.eks.  this.props.description  
     const propDesc = `Fieldtype : ${this.props.type} \nDescription: ${this.props.description}`;
+    const inheritedStyle = this.props.isInherited ? { fontStyle: 'italic', opacity: 0.8 } : {};
     // ---------------
     if (debug) console.log('74 InspectorRow: this.props', this.props);
     let val = this.props.value;
@@ -104,6 +106,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               disabled={this.props.disabled}
               id={this.props.id}
               value={val}
+              style={inheritedStyle}
               // style={(this.props.id === 'description') ? {  height: "200px" } : {  height: "40px" }}
               // checked={this.props.checked}
               // type={this.props.type}
@@ -136,6 +139,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             disabled={this.props.disabled}
             id={this.props.id}
             value={renderedValue}
+            style={inheritedStyle}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}
           >
@@ -174,6 +178,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               value={isCheckbox ? undefined : renderedValue}
               checked={checked}
               type={this.props.type}
+              style={inheritedStyle}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}
               >

@@ -10101,6 +10101,52 @@ export class cxObjectView extends cxMetaObject {
             return this.image;
         return "";
     }
+    
+    /**
+     * Resolve an attribute value: returns objectview value if set, 
+     * otherwise falls back to typeview default.
+     * @param attrName - The attribute name to resolve
+     * @returns Object with { value, isInherited }
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        
+        // Check if objectview has an explicit value (non-empty, non-null, non-undefined)
+        const objviewValue = this[attrName];
+        const hasObjviewValue = objviewValue !== undefined && 
+                                objviewValue !== null && 
+                                objviewValue !== "";
+        
+        if (hasObjviewValue) {
+            return { value: objviewValue, isInherited: false };
+        }
+        
+        // Fall back to typeview default
+        const typeviewValue = typeview?.[attrName];
+        return { 
+            value: typeviewValue !== undefined ? typeviewValue : "", 
+            isInherited: true 
+        };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage.
+     * If value matches typeview default, removes the override.
+     * @param attrName - The attribute name
+     * @param value - The new value
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        const typeviewDefault = typeview?.[attrName];
+        
+        // If value matches typeview default, clear the override
+        if (value === typeviewDefault || (value === "" && !typeviewDefault)) {
+            this[attrName] = "";  // Clear to allow inheritance
+        } else {
+            this[attrName] = value;  // Store the override
+        }
+    }
+    
     setIsGroup(flag: boolean) {
         this.isGroup = flag;
     }

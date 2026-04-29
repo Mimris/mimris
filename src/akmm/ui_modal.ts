@@ -65,6 +65,42 @@ function safeClone<T>(obj: T): T {
   }
 }
 
+/**
+ * Remove objectview attributes that match typeview defaults (delta-only storage).
+ * @param objviewData - The objectview data to be saved
+ * @param typeview - The typeview containing default values
+ * @returns Filtered objviewData with only overridden attributes
+ */
+function applyDeltaStorage(objviewData: any, typeview: any): any {
+  if (!objviewData || !typeview) return objviewData;
+  
+  const visualAttributes = [
+    'fillcolor', 'fillcolor2', 'strokecolor', 'strokecolor2', 
+    'strokewidth', 'textcolor', 'textcolor2', 'textscale',
+    'memberscale', 'arrowscale', 'icon', 'icon1', 'icon2', 'icon3',
+    'image', 'figure', 'figure2', 'geometry', 'template', 'template2',
+    'groupLayout'
+  ];
+  
+  const result = { ...objviewData };
+  
+  for (const attr of visualAttributes) {
+    const objviewValue = result[attr];
+    const typeviewValue = typeview[attr];
+    
+    // If objectview value matches typeview default, remove it (store only delta)
+    if (objviewValue === typeviewValue) {
+      delete result[attr];
+    } else if ((objviewValue === '' || objviewValue === null || objviewValue === undefined) &&
+               (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== '')) {
+      // If objectview has no value but typeview has one, remove it (will be inherited)
+      delete result[attr];
+    }
+  }
+  
+  return result;
+}
+
 function isPersistableRelshipviewProp(prop: string, value: any): boolean {
   if (!prop || prop === 'class') return false;
   if (typeof value === 'function') return false;
@@ -297,12 +333,17 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         // Do nothing
       }
       try {
-        const data = safeClone(new jsn.jsnObjectView(myInstview));
+        let data = safeClone(new jsn.jsnObjectView(myInstview));
         if (propname === 'grabIsAllowed') {
           data.grabIsAllowed = nextValue === true || nextValue === 'true';
         }
         if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
           data[propname] = nextValue;
+        }
+        // Apply delta-only storage: remove attributes that match typeview defaults
+        const typeview = myInstview?.typeview || myInst?.type?.typeview;
+        if (typeview) {
+          data = applyDeltaStorage(data, typeview);
         }
         myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
       } catch {
@@ -372,9 +413,14 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         // Do nothing
       }
       try {
-        const data = safeClone(new jsn.jsnObjectView(objview));
+        let data = safeClone(new jsn.jsnObjectView(objview));
         if (propname === 'memberscale' || propname === 'arrowscale' || propname === 'textscale') {
           data[propname] = nextObjectviewValue;
+        }
+        // Apply delta-only storage: remove attributes that match typeview defaults
+        const typeview = objview?.typeview || objview?.object?.type?.typeview;
+        if (typeview) {
+          data = applyDeltaStorage(data, typeview);
         }
         myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
       } catch {

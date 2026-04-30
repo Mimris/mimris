@@ -185,7 +185,9 @@ function getLinkAdjusting(data: any, fallback: number): number {
     if (Array.isArray(points) && points.length >= 4) {
         return isSelfLoop ? go.Link.None : go.Link.End;
     }
-    if (isSelfLoop) return go.Link.None;
+    // Allow self-loops to be adjusted/reshaped even without pre-existing points
+    // so users can manually edit their routing path
+    if (isSelfLoop) return go.Link.End;
     return fallback;
 }
 
@@ -199,7 +201,8 @@ function getEffectiveLinkRouting(data: any, fallback: any): any {
         if (typeof data?.routing === "number") return data.routing;
         return go.Link.Normal;
     }
-    if (isSelfLoop) return go.Link.Normal;
+    // Self-loops use Orthogonal routing so they can be resegmented (show editing handles)
+    if (isSelfLoop) return go.Link.Orthogonal;
     if (typeof data?.routing === "string" && data.routing.trim() !== "") return getRouting(data.routing);
     if (typeof data?.routing === "number") return data.routing;
     return fallback;

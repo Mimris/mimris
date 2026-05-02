@@ -2931,6 +2931,13 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 }
                 }
             }
+            // For non-group nodes, ensure objview is set so position changes are dispatched
+            if (!node.isGroup && node.objectview) {
+                objview = node.objectview;
+                objview.loc = toloc;
+                objview.size = node.size;
+                objview.modified = true;
+            }
             if (objview) {
                 const modObjview = new jsn.jsnObjectView(objview);
                 modifiedObjectViews.push(modObjview);

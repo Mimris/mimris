@@ -5889,6 +5889,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           delete (myDiagram as any).__dragAllowReparentKeys;
         } catch (_) {
         }
+        // CRITICAL FIX: Force React to detect goModel.nodes change by creating new array reference
+        // The Modeller component passes myMetis.gojsModel.nodes as nodeDataArray prop.
+        // React only detects changes when the array reference changes, not when objects inside mutate.
+        // Creating a shallow copy triggers componentDidUpdate -> mergeIncomingNodeDataWithLocalState.
+        console.log(`[FIX-DEBUG] Creating new nodes array reference to trigger React update`);
+        if (myGoModel && myGoModel.nodes) {
+          myGoModel.nodes = [...myGoModel.nodes];
+        }
         break;
       case "SelectionDeleting": {
       // const newNode = myMetis.currentNode;

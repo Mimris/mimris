@@ -2025,9 +2025,11 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
+      console.log(`[COMPONENT-DEBUG] nodeDataArray changed, structuralDiff=${structuralNodeDiff}`);
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
         // Non-structural prop snapshots can carry stale `loc` and cause snap-back.
+        console.log(`[COMPONENT-DEBUG] SKIPPING merge - non-structural change, keeping live diagram authoritative`);
       } else {
       nextState.nodeDataArray = normalizeNodeCategoryData(
         mergeIncomingNodeDataWithLocalState(
@@ -2060,7 +2062,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       const suppressPropSync =
         (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
         suppressPropSyncUntil > Date.now();
+      console.log(`[COMPONENT-DEBUG] shouldSyncFromProps=true, suppressPropSync=${suppressPropSync}, suppressUntil=${new Date(suppressPropSyncUntil).toISOString()}, now=${new Date().toISOString()}`);
       if (suppressPropSync) {
+        console.log(`[COMPONENT-DEBUG] SUPPRESSING sync from props due to active drag or lock`);
         return;
       }
     }
@@ -5803,9 +5807,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           (myDiagram as any).__preserveIncomingNodeStateByKey = preserveIncomingNodeStateByKey;
           (myDiagram as any).__lockMovedNodeLocByKey = lockMovedNodeLocByKey;
+          console.log(`[LOCK-DEBUG] Set ${lockMovedNodeLocByKey.size} locks, preserveUntil=${new Date(preserveNodeStateUntil).toISOString()}`);
           (myDiagram as any).__suppressNodeModelSyncUntil = Date.now() + 180;
           (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
+          console.log(`[LOCK-DEBUG] Set suppressPropSyncUntil=${new Date(postMoveSuppressUntil).toISOString()}`);
           (myDiagram as any).__suppressAutoLayoutUntil = Date.now() + 5000;
           const existingWatchdog: any = (myDiagram as any).__movedNodeLockWatchdog;
           if (existingWatchdog) {

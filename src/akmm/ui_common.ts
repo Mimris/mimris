@@ -2937,9 +2937,11 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 objview.loc = toloc;
                 objview.size = node.size;
                 objview.modified = true;
+                console.log(`[MOVE-DEBUG] changeNodeSizeAndPos for ${node.name}: updating objview.loc to ${toloc}`);
             }
             if (objview) {
                 const modObjview = new jsn.jsnObjectView(objview);
+                console.log(`[MOVE-DEBUG] Adding to modifiedObjectViews: id=${modObjview.id}, loc=${modObjview.loc}`);
                 modifiedObjectViews.push(modObjview);
             }
         }

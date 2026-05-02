@@ -349,9 +349,11 @@ function mergeIncomingNodeDataWithLocalState(
           preserveByKey.delete(id);
         }
       });
+      console.log(`[MERGE-DEBUG] Incoming matches live for ${incoming.name || incoming.key}, returning incoming`);
       return incoming;
     }
 
+    console.log(`[MERGE-DEBUG] Merging for ${incoming.name || incoming.key}: incoming.loc=${incoming.loc}, liveLoc=${liveLoc}, preserveWindow=${preserveWindowActive}`);
     return {
       ...incoming,
       loc: liveLoc ?? incoming.loc,
@@ -526,13 +528,16 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
   const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
+  console.log(`[QUEUE-DEBUG] Queued objectview id=${data.id}, loc=${data.loc}`);
   if ((instance as any).__queuedObjectViewDispatchTimer) return;
   (instance as any).__queuedObjectViewDispatchTimer = setTimeout(() => {
     const pendingQueue: Map<string, any> = (instance as any).__queuedObjectViewDispatches || new Map();
     (instance as any).__queuedObjectViewDispatches = new Map();
     (instance as any).__queuedObjectViewDispatchTimer = null;
+    console.log(`[QUEUE-DEBUG] Flushing ${pendingQueue.size} queued dispatches`);
     pendingQueue.forEach((payload) => {
       try {
+        console.log(`[QUEUE-DEBUG] Dispatching UPDATE_OBJECTVIEW_PROPERTIES: id=${payload.id}, loc=${payload.loc}`);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
       } catch (_) {
       }
@@ -8754,17 +8759,23 @@ if (true) { // Dispatches to store individual objects/types
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
           const storedObjectView = findStoredObjectViewById(data.id);
+          console.log(`[DISPATCH-DEBUG] Checking objectview id=${data.id}, loc=${data.loc}, stored.loc=${storedObjectView?.loc}`);
           if (storedObjectView) {
             const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
             let hasMeaningfulDiff = false;
             for (const key of Object.keys(data)) {
               if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
                 hasMeaningfulDiff = true;
+                console.log(`[DISPATCH-DEBUG] Diff found in key=${key}: stored=${JSON.stringify(sanitizedStoredObjectView?.[key])}, new=${JSON.stringify(data[key])}`);
                 break;
               }
             }
-            if (!hasMeaningfulDiff) return;
+            if (!hasMeaningfulDiff) {
+              console.log(`[DISPATCH-DEBUG] SKIPPING dispatch for id=${data.id} - no meaningful diff`);
+              return;
+            }
           }
+          console.log(`[DISPATCH-DEBUG] DISPATCHING objectview id=${data.id}, loc=${data.loc}`);
           dispatchedObjectViewPayloads.add(dispatchKey);
           queueObjectViewDispatch(this, context.dispatch, data)
         }

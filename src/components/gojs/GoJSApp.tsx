@@ -520,7 +520,7 @@ function safeJsonCloneForDispatch(value: any): any {
   }));
 }
 
-function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
+function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
   if (!instance || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedObjectViewDispatches) {
     (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
@@ -529,9 +529,14 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
   console.log(`[QUEUE-DEBUG] Queued objectview id=${data.id}, loc=${data.loc}`);
+  // Store the diagram reference for use in the flush
+  if (diagram && !queue.__diagram) {
+    queue.__diagram = diagram;
+  }
   if ((instance as any).__queuedObjectViewDispatchTimer) return;
   (instance as any).__queuedObjectViewDispatchTimer = setTimeout(() => {
     const pendingQueue: Map<string, any> = (instance as any).__queuedObjectViewDispatches || new Map();
+    const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedObjectViewDispatches = new Map();
     (instance as any).__queuedObjectViewDispatchTimer = null;
     console.log(`[QUEUE-DEBUG] Flushing ${pendingQueue.size} queued dispatches`);
@@ -539,13 +544,63 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
       try {
         console.log(`[QUEUE-DEBUG] Dispatching UPDATE_OBJECTVIEW_PROPERTIES: id=${payload.id}, loc=${payload.loc}`);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-      } catch (_) {
+        
+        console.log(`[QUEUE-DEBUG] After dispatch, checking instance.state...`, !!instance.state, !!instance.state?.myMetis, !!instance.state?.myMetis?.gojsModel, !!instance.state?.myMetis?.gojsModel?.nodes);
+        
+        // CRITICAL: Update myMetis nodes AND their objectviews with new positions
+        // BEFORE calling setState, so React has the correct data to render
+        if (instance.state?.myMetis?.gojsModel?.nodes) {
+          const nodes = instance.state.myMetis.gojsModel.nodes;
+          if (nodes.length > 0) {
+            console.log(`[QUEUE-DEBUG] Sample node keys:`, nodes.slice(0, 3).map((n: any) => ({ id: n.id, key: n.key, objviewRef: n.objviewRef })));
+          }
+          const node = nodes.find((n: any) => n.id === payload.id || n.key === payload.id || n.objviewRef === payload.id);
+          console.log(`[QUEUE-DEBUG] Found node for ${payload.id}:`, !!node);
+          if (node) {
+            console.log(`[QUEUE-DEBUG] Updating node ${payload.id}: ${node.loc} → ${payload.loc}`);
+            if (payload.loc) node.loc = payload.loc;
+            if (payload.size) node.size = payload.size;
+            // Update the underlying objectview as well
+            if (node.objectview) {
+              console.log(`[QUEUE-DEBUG] Updating objectview ${payload.id}: ${node.objectview.loc} → ${payload.loc}`);
+              if (payload.loc) node.objectview.loc = payload.loc;
+              if (payload.size) node.objectview.size = payload.size;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`[QUEUE-DEBUG] ERROR updating node:`, err);
       }
     });
+    // Force React state update to immediately reflect position changes
+    console.log(`[QUEUE-DEBUG] Forcing setState to sync positions immediately`);
+    if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
+      const nodes = instance.state.myMetis.gojsModel.nodes;
+      if (Array.isArray(nodes)) {
+        instance.setState({ nodeDataArray: [...nodes], skipsDiagramUpdate: true });
+      }
+    }
+    
+    // CRITICAL: Also update the GoJS diagram's model directly
+    console.log(`[QUEUE-DEBUG] Checking diagram...`, !!storedDiagram, !!storedDiagram?.model);
+    if (storedDiagram && storedDiagram.model) {
+      console.log(`[QUEUE-DEBUG] Updating GoJS diagram model directly`);
+      storedDiagram.model.commit((m: any) => {
+        pendingQueue.forEach((payload) => {
+          const nodeData = m.findNodeDataForKey(payload.id);
+          console.log(`[QUEUE-DEBUG] findNodeDataForKey(${payload.id}):`, !!nodeData);
+          if (nodeData) {
+            console.log(`[QUEUE-DEBUG] Setting diagram nodeData ${payload.id}: ${nodeData.loc} → ${payload.loc}`);
+            if (payload.loc) m.set(nodeData, 'loc', payload.loc);
+            if (payload.size) m.set(nodeData, 'size', payload.size);
+          }
+        });
+      }, 'update positions from queue');
+    }
   }, 0);
 }
 
-function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
+function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
   if (!instance || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedRelshipViewDispatches) {
     (instance as any).__queuedRelshipViewDispatches = new Map<string, any>();
@@ -553,17 +608,70 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
   const queue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
+  console.log(`[QUEUE-DEBUG-LINK] Queued relshipview id=${data.id}, points=${data.points}`);
+  // Store the diagram reference for use in the flush
+  if (diagram && !queue.__diagram) {
+    queue.__diagram = diagram;
+  }
   if ((instance as any).__queuedRelshipViewDispatchTimer) return;
   (instance as any).__queuedRelshipViewDispatchTimer = setTimeout(() => {
     const pendingQueue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches || new Map();
+    const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedRelshipViewDispatches = new Map();
     (instance as any).__queuedRelshipViewDispatchTimer = null;
+    console.log(`[QUEUE-DEBUG-LINK] Flushing ${pendingQueue.size} queued link dispatches`);
     pendingQueue.forEach((payload) => {
       try {
+        console.log(`[QUEUE-DEBUG-LINK] Dispatching UPDATE_RELSHIPVIEW_PROPERTIES: id=${payload.id}`);
         dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
-      } catch (_) {
+        
+        // CRITICAL: Update myMetis links with new data
+        if (instance.state?.myMetis?.gojsModel?.links) {
+          const links = instance.state.myMetis.gojsModel.links;
+          const link = links.find((l: any) => l.id === payload.id || l.key === payload.id || l.relviewRef === payload.id);
+          console.log(`[QUEUE-DEBUG-LINK] Found link for ${payload.id}:`, !!link);
+          if (link) {
+            console.log(`[QUEUE-DEBUG-LINK] Updating link ${payload.id}`);
+            if (payload.points) link.points = payload.points;
+            if (payload.routing) link.routing = payload.routing;
+            // Update the underlying relshipview as well
+            if (link.relshipview) {
+              console.log(`[QUEUE-DEBUG-LINK] Updating relshipview ${payload.id}`);
+              if (payload.points) link.relshipview.points = payload.points;
+              if (payload.routing) link.relshipview.routing = payload.routing;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`[QUEUE-DEBUG-LINK] ERROR updating link:`, err);
       }
     });
+    
+    // Force React state update
+    console.log(`[QUEUE-DEBUG-LINK] Forcing setState to sync links immediately`);
+    if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
+      const links = instance.state.myMetis.gojsModel.links;
+      if (Array.isArray(links)) {
+        instance.setState({ linkDataArray: [...links], skipsDiagramUpdate: true });
+      }
+    }
+    
+    // Update the GoJS diagram's model directly
+    console.log(`[QUEUE-DEBUG-LINK] Checking diagram...`, !!storedDiagram, !!storedDiagram?.model);
+    if (storedDiagram && storedDiagram.model) {
+      console.log(`[QUEUE-DEBUG-LINK] Updating GoJS diagram model directly`);
+      storedDiagram.model.commit((m: any) => {
+        pendingQueue.forEach((payload) => {
+          const linkData = m.findLinkDataForKey(payload.id);
+          console.log(`[QUEUE-DEBUG-LINK] findLinkDataForKey(${payload.id}):`, !!linkData);
+          if (linkData) {
+            console.log(`[QUEUE-DEBUG-LINK] Setting diagram linkData ${payload.id}`);
+            if (payload.points) m.set(linkData, 'points', payload.points);
+            if (payload.routing) m.set(linkData, 'routing', payload.routing);
+          }
+        });
+      }, 'update link paths from queue');
+    }
   }, 0);
 }
 
@@ -5104,7 +5212,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelview = new jsn.jsnRelshipView(rview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
-                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                 } catch (_) { }
                 try {
                   const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
@@ -5425,7 +5533,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
-                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                 });
               } catch (_) {
               }
@@ -5490,7 +5598,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 let data: any = jsnRelview;
                 data = JSON.parse(JSON.stringify(data));
-                queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
               } catch (_) { }
               persistedTouchedSelfLoop = true;
             });
@@ -5544,7 +5652,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     let data: any = jsnRelview;
                     data = JSON.parse(JSON.stringify(data));
-                    queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                    queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                   } catch (_) { }
                 });
               } catch (_) { }
@@ -5854,7 +5962,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     group: ov.group,
                     scale: ov.scale,
                   }));
-                  queueObjectViewDispatch(this, dispatchFn, payload);
+                  queueObjectViewDispatch(this, dispatchFn, payload, myDiagram);
                 }
               });
               try { myDiagram.requestUpdate(); } catch (_) { }
@@ -8791,7 +8899,7 @@ if (true) { // Dispatches to store individual objects/types
           }
           console.log(`[DISPATCH-DEBUG] DISPATCHING objectview id=${data.id}, loc=${data.loc}`);
           dispatchedObjectViewPayloads.add(dispatchKey);
-          queueObjectViewDispatch(this, context.dispatch, data)
+          queueObjectViewDispatch(this, context.dispatch, data, myDiagram)
         }
       })
     } finally {
@@ -8859,7 +8967,7 @@ if (true) { // Dispatches to store individual objects/types
           if (!hasMeaningfulDiff) return;
         }
         dispatchedRelshipViewPayloads.add(dispatchKey);
-        queueRelshipViewDispatch(this, context.dispatch, data)
+        queueRelshipViewDispatch(this, context.dispatch, data, myDiagram)
       })
     } finally {
       (this as any).__dispatchingRelshipViewUpdates = false;

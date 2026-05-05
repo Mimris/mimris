@@ -817,9 +817,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
     const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
+    
+    // CRITICAL: Store original data so we can revert if user cancels
+    let originalData = null;
+    if (node && node.category === 'Relationship') {
+      const diagram = modalContext?.myDiagram || this.diagramRef.current?.getDiagram();
+      if (diagram) {
+        const link = diagram.findLinkForKey(node.key);
+        if (link) {
+          const data = link.data;
+          originalData = {
+            key: data.key,
+            category: data.category,
+            strokecolor: data.strokecolor,
+            strokewidth: data.strokewidth,
+            textcolor: data.textcolor,
+            dash: data.dash,
+            routing: data.routing,
+            curve: data.curve,
+          };
+          console.log('[DIAGRAM-OPEN] Stored original link data for revert:', originalData);
+        }
+      }
+    }
+    
     this.setState({
       selectedData: node,
-      modalContext: modalContext,
+      modalContext: { ...modalContext, originalData }, // Store original data in modalContext
       selectedOption: null,
       showModal: !isChangeIconModal && !isSetGroupImageModal,
       showChangeIconModal: isChangeIconModal,
@@ -1337,9 +1361,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const myContext = modalContext.myContext;
       let myDiagram = modalContext.myDiagram;
       if (!myDiagram) myDiagram = myContext?.myDiagram;
+      
+      // Revert any immediate visual changes applied during editing
+      const originalData = modalContext.originalData;
+      if (originalData && originalData.category === 'Relationship') {
+        const link = myDiagram.findLinkForKey(originalData.key);
+        if (link) {
+          myDiagram.model.commit((m: any) => {
+            const data = link.data;
+            if (originalData.strokecolor !== undefined) m.set(data, 'strokecolor', originalData.strokecolor);
+            if (originalData.strokewidth !== undefined) m.set(data, 'strokewidth', originalData.strokewidth);
+            if (originalData.textcolor !== undefined) m.set(data, 'textcolor', originalData.textcolor);
+            if (originalData.dash !== undefined) m.set(data, 'dash', originalData.dash);
+            if (originalData.routing !== undefined) m.set(data, 'routing', originalData.routing);
+            if (originalData.curve !== undefined) m.set(data, 'curve', originalData.curve);
+          }, 'revert-on-cancel');
+        }
+      }
+      
       for (let i = 0; i < links?.length; i++) {
-        const link = links[i];
-        myDiagram?.model?.removeLinkData(link);
+        myDiagram?.model?.removeLinkData(links[i]);
       }
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
@@ -1348,6 +1389,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const props = this.props;
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
+    
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
@@ -2179,7 +2221,176 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     this.myMetis.dispatch = this.props.dispatch;
-    myDiagram.dispatch = this.props.dispatch || this.myMetis?.dispatch;
+    
+    // Wrap dispatch to intercept visual property updates and apply them immediately to the GoJS diagram.
+    // This is necessary because updating myMetis.gojsModel doesn't change the array reference,
+    // so React's componentDidUpdate never fires. The wrapper bypasses this by directly updating
+    // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
+    const originalDispatch = this.props.dispatch || this.myMetis?.dispatch;
+    const wrappedDispatch = (action: any) => {
+      // Intercept view property updates for immediate visual feedback
+      if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
+        try {
+          const data = action.data;
+          const nodeData = myDiagram.model.findNodeDataForKey(data.id) || 
+                          Array.from(myDiagram.nodes).find((n: any) => 
+                            n.data?.id === data.id || 
+                            n.data?.objviewRef === data.id ||
+                            n.data?.key === data.id
+                          )?.data;
+          
+          if (nodeData) {
+            // Skip undo/redo and prevent selection changes
+            myDiagram.skipsUndoManager = true;
+            const oldAllowSelect = myDiagram.allowSelect;
+            myDiagram.allowSelect = false;
+            
+            myDiagram.model.commit((m: any) => {
+              if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
+              if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
+              if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
+              if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+            }, null);
+            
+            // Restore settings - but ONLY restore allowSelect if it was true before
+            // If it was already false (e.g., from handleCloseModal), keep it false
+            myDiagram.skipsUndoManager = false;
+            if (oldAllowSelect === true) {
+              myDiagram.allowSelect = true;
+            }
+          }
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying objectview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
+        try {
+          const data = action.data;
+          
+          // CRITICAL: If skipVisualUpdate flag is set, the visual update was already done
+          // in handleCloseModal, so we just forward to Redux for persistence
+          if (action.skipVisualUpdate) {
+            console.log('[Dispatch-Wrapper] skipVisualUpdate=true, forwarding to Redux without visual update');
+            // Remove skipVisualUpdate before forwarding to Redux (Redux doesn't expect it)
+            const { skipVisualUpdate, ...cleanAction } = action;
+            originalDispatch(cleanAction);
+            return;
+          }
+          
+          console.log('[Dispatch-Wrapper] Applying relshipview update for:', data.id);
+          
+          // Check if this id belongs to a node (safety check)
+          const nodeData = myDiagram.model.findNodeDataForKey(data.id);
+          if (nodeData) {
+            console.error('[Dispatch-Wrapper] Error: data.id is a node, not a link');
+            originalDispatch(action);
+            return;
+          }
+          
+          // Try to find the link by key first, then search by various id fields
+          let linkData = myDiagram.model.findLinkDataForKey(data.id);
+          let link = null;
+          
+          if (!linkData) {
+            for (let it = myDiagram.links.iterator; it?.next();) {
+              const l = it.value;
+              const ld = l.data;
+              if (!ld) continue;
+              
+              if (ld.id === data.id || 
+                  ld.key === data.id || 
+                  ld.relviewRef === data.id ||
+                  ld.relshipview?.id === data.id) {
+                linkData = ld;
+                link = l;
+                break;
+              }
+            }
+          }
+          
+          if (linkData) {
+            // Skip undo/redo and prevent selection changes
+            myDiagram.skipsUndoManager = true;
+            const oldAllowSelect = myDiagram.allowSelect;
+            myDiagram.allowSelect = false;
+            
+            myDiagram.model.commit((m: any) => {
+              if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
+              if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
+            }, null);
+            
+            // Restore settings - only restore allowSelect if it was true
+            myDiagram.skipsUndoManager = false;
+            if (oldAllowSelect === true) {
+              myDiagram.allowSelect = true;
+            }
+          }
+          
+          // Forward to Redux for persistence
+          originalDispatch(action);
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying relshipview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_OBJECTTYPEVIEW_PROPERTIES' && action?.data?.id) {
+        // Apply typeview changes to all nodes using that typeview
+        try {
+          const data = action.data;
+          
+          // Skip undo/redo and prevent selection changes
+          myDiagram.skipsUndoManager = true;
+          const oldAllowSelect = myDiagram.allowSelect;
+          myDiagram.allowSelect = false;
+          
+          myDiagram.model.commit((m: any) => {
+            myDiagram.nodes.each((node: any) => {
+              const nodeData = node.data;
+              if (nodeData?.typeviewRef === data.id || nodeData?.objectview?.typeviewRef === data.id) {
+                if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
+                if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
+                if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
+                if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+              }
+            });
+          }, null);
+          
+          // Restore settings
+          myDiagram.skipsUndoManager = false;
+          myDiagram.allowSelect = oldAllowSelect;
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying typeview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
+        // Apply typeview changes to all links using that typeview
+        try {
+          const data = action.data;
+          
+          // Skip undo/redo and prevent selection changes
+          myDiagram.skipsUndoManager = true;
+          const oldAllowSelect = myDiagram.allowSelect;
+          myDiagram.allowSelect = false;
+          
+          myDiagram.model.commit((m: any) => {
+            myDiagram.links.each((link: any) => {
+              const linkData = link.data;
+              if (linkData?.typeviewRef === data.id || linkData?.relshipview?.typeviewRef === data.id) {
+                if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
+                if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
+              }
+            });
+          }, null);
+          
+          // Restore settings
+          myDiagram.skipsUndoManager = false;
+          myDiagram.allowSelect = oldAllowSelect;
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying relship typeview updates:', err);
+        }
+      }
+      
+      // Always forward to Redux for persistence
+      return originalDispatch(action);
+    };
+    
+    myDiagram.dispatch = wrappedDispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.selectedOption = this.state.selectedOption;
@@ -2198,6 +2409,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
     myMetis.myDiagram = myDiagram;
+    
     this.updateZoomInvariantHandles(myDiagram);
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";

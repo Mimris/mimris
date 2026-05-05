@@ -528,7 +528,6 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
   const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
-  console.log(`[QUEUE-DEBUG] Queued objectview id=${data.id}, loc=${data.loc}`);
   // Store the diagram reference for use in the flush
   if (diagram && !queue.__diagram) {
     queue.__diagram = diagram;
@@ -539,41 +538,38 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedObjectViewDispatches = new Map();
     (instance as any).__queuedObjectViewDispatchTimer = null;
-    console.log(`[QUEUE-DEBUG] Flushing ${pendingQueue.size} queued dispatches`);
     pendingQueue.forEach((payload) => {
       try {
-        console.log(`[QUEUE-DEBUG] Dispatching UPDATE_OBJECTVIEW_PROPERTIES: id=${payload.id}, loc=${payload.loc}`);
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-        
-        console.log(`[QUEUE-DEBUG] After dispatch, checking instance.state...`, !!instance.state, !!instance.state?.myMetis, !!instance.state?.myMetis?.gojsModel, !!instance.state?.myMetis?.gojsModel?.nodes);
         
         // CRITICAL: Update myMetis nodes AND their objectviews with new positions
         // BEFORE calling setState, so React has the correct data to render
         if (instance.state?.myMetis?.gojsModel?.nodes) {
           const nodes = instance.state.myMetis.gojsModel.nodes;
-          if (nodes.length > 0) {
-            console.log(`[QUEUE-DEBUG] Sample node keys:`, nodes.slice(0, 3).map((n: any) => ({ id: n.id, key: n.key, objviewRef: n.objviewRef })));
-          }
           const node = nodes.find((n: any) => n.id === payload.id || n.key === payload.id || n.objviewRef === payload.id);
-          console.log(`[QUEUE-DEBUG] Found node for ${payload.id}:`, !!node);
           if (node) {
-            console.log(`[QUEUE-DEBUG] Updating node ${payload.id}: ${node.loc} → ${payload.loc}`);
             if (payload.loc) node.loc = payload.loc;
             if (payload.size) node.size = payload.size;
+            if (payload.fillcolor !== undefined) node.fillcolor = payload.fillcolor;
+            if (payload.strokecolor !== undefined) node.strokecolor = payload.strokecolor;
+            if (payload.strokewidth !== undefined) node.strokewidth = payload.strokewidth;
+            if (payload.icon !== undefined) node.icon = payload.icon;
             // Update the underlying objectview as well
             if (node.objectview) {
-              console.log(`[QUEUE-DEBUG] Updating objectview ${payload.id}: ${node.objectview.loc} → ${payload.loc}`);
               if (payload.loc) node.objectview.loc = payload.loc;
               if (payload.size) node.objectview.size = payload.size;
+              if (payload.fillcolor !== undefined) node.objectview.fillcolor = payload.fillcolor;
+              if (payload.strokecolor !== undefined) node.objectview.strokecolor = payload.strokecolor;
+              if (payload.strokewidth !== undefined) node.objectview.strokewidth = payload.strokewidth;
+              if (payload.icon !== undefined) node.objectview.icon = payload.icon;
             }
           }
         }
       } catch (err) {
-        console.error(`[QUEUE-DEBUG] ERROR updating node:`, err);
+        console.error('Error updating node in queue:', err);
       }
     });
     // Force React state update to immediately reflect position changes
-    console.log(`[QUEUE-DEBUG] Forcing setState to sync positions immediately`);
     if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
       const nodes = instance.state.myMetis.gojsModel.nodes;
       if (Array.isArray(nodes)) {
@@ -582,17 +578,17 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     }
     
     // CRITICAL: Also update the GoJS diagram's model directly
-    console.log(`[QUEUE-DEBUG] Checking diagram...`, !!storedDiagram, !!storedDiagram?.model);
     if (storedDiagram && storedDiagram.model) {
-      console.log(`[QUEUE-DEBUG] Updating GoJS diagram model directly`);
       storedDiagram.model.commit((m: any) => {
         pendingQueue.forEach((payload) => {
           const nodeData = m.findNodeDataForKey(payload.id);
-          console.log(`[QUEUE-DEBUG] findNodeDataForKey(${payload.id}):`, !!nodeData);
           if (nodeData) {
-            console.log(`[QUEUE-DEBUG] Setting diagram nodeData ${payload.id}: ${nodeData.loc} → ${payload.loc}`);
             if (payload.loc) m.set(nodeData, 'loc', payload.loc);
             if (payload.size) m.set(nodeData, 'size', payload.size);
+            if (payload.fillcolor !== undefined) m.set(nodeData, 'fillcolor', payload.fillcolor);
+            if (payload.strokecolor !== undefined) m.set(nodeData, 'strokecolor', payload.strokecolor);
+            if (payload.strokewidth !== undefined) m.set(nodeData, 'strokewidth', payload.strokewidth);
+            if (payload.icon !== undefined) m.set(nodeData, 'icon', payload.icon);
           }
         });
       }, 'update positions from queue');
@@ -608,7 +604,6 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
   const queue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
-  console.log(`[QUEUE-DEBUG-LINK] Queued relshipview id=${data.id}, points=${data.points}`);
   // Store the diagram reference for use in the flush
   if (diagram && !queue.__diagram) {
     queue.__diagram = diagram;
@@ -619,36 +614,34 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedRelshipViewDispatches = new Map();
     (instance as any).__queuedRelshipViewDispatchTimer = null;
-    console.log(`[QUEUE-DEBUG-LINK] Flushing ${pendingQueue.size} queued link dispatches`);
     pendingQueue.forEach((payload) => {
       try {
-        console.log(`[QUEUE-DEBUG-LINK] Dispatching UPDATE_RELSHIPVIEW_PROPERTIES: id=${payload.id}`);
         dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
         
         // CRITICAL: Update myMetis links with new data
         if (instance.state?.myMetis?.gojsModel?.links) {
           const links = instance.state.myMetis.gojsModel.links;
           const link = links.find((l: any) => l.id === payload.id || l.key === payload.id || l.relviewRef === payload.id);
-          console.log(`[QUEUE-DEBUG-LINK] Found link for ${payload.id}:`, !!link);
           if (link) {
-            console.log(`[QUEUE-DEBUG-LINK] Updating link ${payload.id}`);
             if (payload.points) link.points = payload.points;
             if (payload.routing) link.routing = payload.routing;
+            if (payload.strokecolor !== undefined) link.strokecolor = payload.strokecolor;
+            if (payload.strokewidth !== undefined) link.strokewidth = payload.strokewidth;
             // Update the underlying relshipview as well
             if (link.relshipview) {
-              console.log(`[QUEUE-DEBUG-LINK] Updating relshipview ${payload.id}`);
               if (payload.points) link.relshipview.points = payload.points;
               if (payload.routing) link.relshipview.routing = payload.routing;
+              if (payload.strokecolor !== undefined) link.relshipview.strokecolor = payload.strokecolor;
+              if (payload.strokewidth !== undefined) link.relshipview.strokewidth = payload.strokewidth;
             }
           }
         }
       } catch (err) {
-        console.error(`[QUEUE-DEBUG-LINK] ERROR updating link:`, err);
+        console.error('[Queue] Error updating link:', err);
       }
     });
     
     // Force React state update
-    console.log(`[QUEUE-DEBUG-LINK] Forcing setState to sync links immediately`);
     if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
       const links = instance.state.myMetis.gojsModel.links;
       if (Array.isArray(links)) {
@@ -657,17 +650,19 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     }
     
     // Update the GoJS diagram's model directly
-    console.log(`[QUEUE-DEBUG-LINK] Checking diagram...`, !!storedDiagram, !!storedDiagram?.model);
     if (storedDiagram && storedDiagram.model) {
-      console.log(`[QUEUE-DEBUG-LINK] Updating GoJS diagram model directly`);
       storedDiagram.model.commit((m: any) => {
         pendingQueue.forEach((payload) => {
+          // SAFETY CHECK: Make sure this is actually a link, not a node
+          const nodeData = m.findNodeDataForKey(payload.id);
+          if (nodeData) return; // Skip this update
+          
           const linkData = m.findLinkDataForKey(payload.id);
-          console.log(`[QUEUE-DEBUG-LINK] findLinkDataForKey(${payload.id}):`, !!linkData);
           if (linkData) {
-            console.log(`[QUEUE-DEBUG-LINK] Setting diagram linkData ${payload.id}`);
             if (payload.points) m.set(linkData, 'points', payload.points);
             if (payload.routing) m.set(linkData, 'routing', payload.routing);
+            if (payload.strokecolor !== undefined) m.set(linkData, 'strokecolor', payload.strokecolor);
+            if (payload.strokewidth !== undefined) m.set(linkData, 'strokewidth', payload.strokewidth);
           }
         });
       }, 'update link paths from queue');
@@ -2133,11 +2128,44 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
-      console.log(`[COMPONENT-DEBUG] nodeDataArray changed, structuralDiff=${structuralNodeDiff}`);
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
-        // Non-structural prop snapshots can carry stale `loc` and cause snap-back.
-        console.log(`[COMPONENT-DEBUG] SKIPPING merge - non-structural change, keeping live diagram authoritative`);
+        // But still apply visual property changes (fillcolor, strokecolor, etc.)
+        try {
+          const incomingNodes = this.props.nodeDataArray || [];
+          const currentNodes = this.state.nodeDataArray || [];
+          const visualProps = ['fillcolor', 'strokecolor', 'strokewidth', 'icon'];
+          
+          diagram.model.commit((m: any) => {
+            incomingNodes.forEach((incomingNode: any) => {
+              if (!incomingNode || !incomingNode.key) return;
+              const currentNode = currentNodes.find((n: any) => 
+                n?.key === incomingNode.key || 
+                n?.id === incomingNode.id || 
+                n?.objviewRef === incomingNode.objviewRef
+              );
+              
+              // Check if any visual properties changed
+              const hasVisualChange = visualProps.some(prop => 
+                incomingNode[prop] !== undefined && 
+                incomingNode[prop] !== currentNode?.[prop]
+              );
+              
+              if (hasVisualChange) {
+                const nodeData = m.findNodeDataForKey(incomingNode.key);
+                if (nodeData) {
+                  visualProps.forEach(prop => {
+                    if (incomingNode[prop] !== undefined && incomingNode[prop] !== currentNode?.[prop]) {
+                      m.set(nodeData, prop, incomingNode[prop]);
+                    }
+                  });
+                }
+              }
+            });
+          }, 'apply visual property changes');
+        } catch (err) {
+          console.error('Error applying visual updates:', err);
+        }
       } else {
       nextState.nodeDataArray = normalizeNodeCategoryData(
         mergeIncomingNodeDataWithLocalState(
@@ -2150,6 +2178,45 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {
+      // Apply visual property changes to links even if no structural change
+      if (diagram) {
+        try {
+          const incomingLinks = this.props.linkDataArray || [];
+          const currentLinks = this.state.linkDataArray || [];
+          const visualProps = ['strokecolor', 'strokewidth'];
+          
+          diagram.model.commit((m: any) => {
+            incomingLinks.forEach((incomingLink: any) => {
+              if (!incomingLink || !incomingLink.key) return;
+              const currentLink = currentLinks.find((l: any) => 
+                l?.key === incomingLink.key || 
+                l?.id === incomingLink.id || 
+                l?.relviewRef === incomingLink.relviewRef
+              );
+              
+              // Check if any visual properties changed
+              const hasVisualChange = visualProps.some(prop => 
+                incomingLink[prop] !== undefined && 
+                incomingLink[prop] !== currentLink?.[prop]
+              );
+              
+              if (hasVisualChange) {
+                const linkData = m.findLinkDataForKey(incomingLink.key);
+                if (linkData) {
+                  visualProps.forEach(prop => {
+                    if (incomingLink[prop] !== undefined && incomingLink[prop] !== currentLink?.[prop]) {
+                      m.set(linkData, prop, incomingLink[prop]);
+                    }
+                  });
+                }
+              }
+            });
+          }, 'apply link visual property changes');
+        } catch (err) {
+          console.error('Error applying link visual updates:', err);
+        }
+      }
+      
       nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
         this.props.linkDataArray,
         this.state.linkDataArray
@@ -2170,9 +2237,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       const suppressPropSync =
         (activeTool instanceof go.DraggingTool && activeTool.isActive === true) ||
         suppressPropSyncUntil > Date.now();
-      console.log(`[COMPONENT-DEBUG] shouldSyncFromProps=true, suppressPropSync=${suppressPropSync}, suppressUntil=${new Date(suppressPropSyncUntil).toISOString()}, now=${new Date().toISOString()}`);
       if (suppressPropSync) {
-        console.log(`[COMPONENT-DEBUG] SUPPRESSING sync from props due to active drag or lock`);
         return;
       }
     }
@@ -8881,23 +8946,17 @@ if (true) { // Dispatches to store individual objects/types
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
           const storedObjectView = findStoredObjectViewById(data.id);
-          console.log(`[DISPATCH-DEBUG] Checking objectview id=${data.id}, loc=${data.loc}, stored.loc=${storedObjectView?.loc}`);
           if (storedObjectView) {
             const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
             let hasMeaningfulDiff = false;
             for (const key of Object.keys(data)) {
               if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
                 hasMeaningfulDiff = true;
-                console.log(`[DISPATCH-DEBUG] Diff found in key=${key}: stored=${JSON.stringify(sanitizedStoredObjectView?.[key])}, new=${JSON.stringify(data[key])}`);
                 break;
               }
             }
-            if (!hasMeaningfulDiff) {
-              console.log(`[DISPATCH-DEBUG] SKIPPING dispatch for id=${data.id} - no meaningful diff`);
-              return;
-            }
+            if (!hasMeaningfulDiff) return;
           }
-          console.log(`[DISPATCH-DEBUG] DISPATCHING objectview id=${data.id}, loc=${data.loc}`);
           dispatchedObjectViewPayloads.add(dispatchKey);
           queueObjectViewDispatch(this, context.dispatch, data, myDiagram)
         }

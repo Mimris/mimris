@@ -946,7 +946,6 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (!debug) console.log('866 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
-      console.log(`[REDUCER-DEBUG] UPDATE_OBJECTVIEW_PROPERTIES: id=${action?.data?.id}, loc=${action?.data?.loc}`);
       // console.warn('[OBJVIEW_REDUCER]', { id: action?.data?.id, fillcolor: action?.data?.fillcolor, fillcolor2: action?.data?.fillcolor2, focusModel: state.phFocus?.focusModel?.id, focusModelview: state.phFocus?.focusModelview?.id });
       let targetModelIndex = curModelIndex;
       let targetModel = curModel;
@@ -978,13 +977,11 @@ function reducer(state = InitialState, action) {
       const curObjectviewsLength = targetModelview?.objectviews?.length
       if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
 
-      console.log(`[REDUCER-DEBUG] Found objectview at index ${curObjectviewIndex}, current.loc=${curObjectview?.loc}`);
       const mergedObjectview = mergeAndPruneOptionalEmptyFields(
         targetModelview.objectviews[curObjectviewIndex],
         action.data,
         OPTIONAL_OBJECTVIEW_FIELDS
       );
-      console.log(`[REDUCER-DEBUG] After merge: loc=${mergedObjectview?.loc}`);
 
       const retval_UPDATE_OBJECTVIEW_PROPERTIES =
       {

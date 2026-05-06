@@ -135,6 +135,21 @@ export const getMetisScopeOptions = () => [
   { value: METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION, label: METIS_SCOPE_LABELS[METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION] },
 ];
 
+export const describeMetisAvailability = (snapshot) => {
+  const {
+    worldModelCandidate,
+    typeFoundationCandidate,
+    templateFoundationCandidate,
+    legacyCandidate,
+  } = getMetisCandidates(snapshot);
+
+  return {
+    [METIS_SCOPE_WORLD_MODEL]: isMetisRecord(worldModelCandidate) || isMetisRecord(legacyCandidate),
+    [METIS_SCOPE_ORIGIN_TYPE_FOUNDATION]: isMetisRecord(typeFoundationCandidate),
+    [METIS_SCOPE_ORIGIN_TEMPLATE_FOUNDATION]: isMetisRecord(templateFoundationCandidate),
+  };
+};
+
 export const getMetisScopeLabel = (scope) =>
   METIS_SCOPE_LABELS[readScope(scope)] || METIS_SCOPE_LABELS[DEFAULT_METIS_SCOPE];
 

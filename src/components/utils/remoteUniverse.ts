@@ -22,7 +22,27 @@ export const buildRemoteUniversePath = (universeId: string, baseUrl?: string) =>
   return `/model?${query.toString()}`;
 };
 
+export const buildRemoteMetisResourceUri = (universeSlug: string, metisScope?: string, baseUrl?: string) => {
+  const normalizedBaseUrl = normalizeRemoteUniverseBaseUrl(baseUrl);
+  const scopePath = metisScope ? `/${encodeURIComponent(metisScope)}` : "";
+  return `${normalizedBaseUrl}/api/remote-universe/${encodeURIComponent(universeSlug)}/metis${scopePath}`;
+};
+
+export const buildRemoteMetisProxyPath = (universeSlug: string, metisScope?: string, baseUrl?: string) => {
+  const query = new URLSearchParams();
+  query.set("baseUrl", normalizeRemoteUniverseBaseUrl(baseUrl));
+  if (metisScope) {
+    query.set("scope", metisScope);
+  }
+  return `/api/remote-universe/${encodeURIComponent(universeSlug)}/metis?${query.toString()}`;
+};
+
 export const readRemoteUniverseId = (value: any) => {
+  const resolved = toSingleValue(value);
+  return typeof resolved === "string" ? resolved.trim() : "";
+};
+
+export const readRemoteUniverseSlug = (value: any) => {
   const resolved = toSingleValue(value);
   return typeof resolved === "string" ? resolved.trim() : "";
 };

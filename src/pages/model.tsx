@@ -251,7 +251,8 @@ const page = (props: any) => {
                 text,
                 `Remote endpoint returned an error for scope '${options.metisScope}'.`,
             );
-            throw new Error(buildScopedRemoteLoadError(options.metisScope, options.universeSlug, remoteUri, detail));
+            setLoadError(buildScopedRemoteLoadError(options.metisScope, options.universeSlug, remoteUri, detail));
+            return null;
         }
 
         const rawPayload = unwrapRemotePayload(payload.payload);
@@ -574,6 +575,7 @@ const page = (props: any) => {
     return (
         <Layout
             user={props.phUser?.focusUser}
+            hideTopMenu
             navbarProps={{
                 variant: 'mini-model',
                 suiteLabel: headerLabel,

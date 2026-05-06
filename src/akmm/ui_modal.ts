@@ -141,6 +141,14 @@ function normalizeRelshipviewEditableValue(prop: string, value: any): any {
 
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
+  console.log('[UI-MODAL] ==================== handleInputChange CALLED ====================');
+  console.log('[UI-MODAL] props.id (propname):', props.id, 'value:', value);
+  console.log('[UI-MODAL] props.obj.category:', props.obj?.category);
+  console.log('[UI-MODAL] props.obj.key:', props.obj?.key);
+  console.log('[UI-MODAL] props.obj.id:', props.obj?.id);
+  console.log('[UI-MODAL] props.context.what:', props.context?.what);
+  console.log('[UI-MODAL] Is this a strokecolor change for non-relationship?', props.id === 'strokecolor' && props.obj?.category !== 'Relationship');
+  
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
@@ -240,6 +248,20 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     } catch {
       // Do nothing
     }
+    
+    // CRITICAL: Mark this property as explicitly touched by the user
+    // so handleCloseModal knows to persist the change to Redux/localStorage
+    if (context?.what === "editObjectview") {
+        // Store in myMetis since context/obj are frozen
+        if (!myMetis.__editTracking) myMetis.__editTracking = {};
+        const objKey = obj?.key || obj?.id;
+        if (objKey) {
+            if (!myMetis.__editTracking[objKey]) myMetis.__editTracking[objKey] = {};
+            myMetis.__editTracking[objKey][propname] = true;
+            console.log('[UI-MODAL] Marked objectview property as touched:', propname, 'for key:', objKey);
+        }
+    }
+    
     if (context?.what === "editObjectview" && myInstview) {
       const myDiagram = context?.myDiagram || myMetis?.myDiagram;
       const targetObjviewId =
@@ -504,16 +526,43 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       let myRelship: akm.cxRelationship = myRelview?.relship;
       if (!myRelship) myRelship = obj;
       let myTypeview: akm.cxRelationshipTypeView = myRelview?.typeview;
+      console.log('[UI-MODAL] ========== RELATIONSHIP handleInputChange ==========');
+      console.log('[UI-MODAL] propname:', propname, 'value:', value);
+      console.log('[UI-MODAL] context.what:', context?.what);
+      console.log('[UI-MODAL] myRelview.id:', myRelview?.id, 'myRelview[propname] before:', myRelview?.[propname]);
+      
       if (context?.what === "editRelshipview") 
           myItem = myRelview;
       else if (context?.what === "editTypeview") {
           myItem = myTypeview;
       } else // editRelship
           myItem = myRelship;
-      if (myItem) 
+      if (myItem) {
+          console.log('[UI-MODAL] Setting myItem[' + propname + '] =', value);
           myItem[propname] = value;
+          console.log('[UI-MODAL] After set, myItem[' + propname + '] =', myItem[propname]);
+      }
+      
+      // CRITICAL: Mark this property as explicitly touched by the user
+      // so handleCloseModal knows to persist the change to Redux/localStorage
+      if (context?.what === "editRelshipview") {
+          // Store in myMetis since context/obj are frozen
+          if (!myMetis.__editTracking) myMetis.__editTracking = {};
+          const linkKey = obj?.key || obj?.id || link?.key;
+          if (linkKey) {
+              if (!myMetis.__editTracking[linkKey]) myMetis.__editTracking[linkKey] = {};
+              myMetis.__editTracking[linkKey][propname] = true;
+              console.log('[UI-MODAL] Marked relship property as touched:', propname, 'for key:', linkKey);
+          }
+      }
+      
       if (context?.what === "editRelshipview") {
           const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+          
+          // Disable selection changes during the ENTIRE update (including dispatch) to prevent selection box artifacts
+          const oldAllowSelect = myDiagram?.allowSelect;
+          if (myDiagram) myDiagram.allowSelect = false;
+          
           const goLink =
               myMetis.gojsModel?.findLinkByViewId?.(link?.key) ||
               myMetis.gojsModel?.findLink?.(link?.key) ||
@@ -528,6 +577,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
                           goLink.data[propname] = value;
                       }
                   }
+                  
                   try { goLink.updateTargetBindings?.(); } catch {}
                   try { goLink.invalidateRoute?.(); } catch {}
               }
@@ -540,17 +590,37 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
           } catch {
               // Do nothing
           }
+          
+          // CRITICAL: Don't dispatch from handleInputChange for editRelshipview!
+          // The dispatch would get queued and flushed after modal close, causing
+          // unwanted selection box artifacts. handleCloseModal will dispatch
+          // with the final values when user clicks Done.
+          // 
+          // We've already applied the visual change above via setDataProperty,
+          // so the user sees immediate feedback without needing to dispatch.
+          /*
           try {
+              console.log('[UI-MODAL] editRelshipview - preparing dispatch');
+              console.log('[UI-MODAL] myRelview[propname]:', myRelview?.[propname], 'propname:', propname, 'value:', value);
               let data = safeClone(new jsn.jsnRelshipView(myRelview));
+              console.log('[UI-MODAL] data after jsn.jsnRelshipView:', data?.strokecolor, 'data:', data);
               // Apply delta-only storage: remove attributes that match typeview defaults
               const typeview = myRelview?.typeview;
               if (typeview) {
                   data = applyDeltaStorage(data, typeview);
               }
+              console.log('[UI-MODAL] data after applyDeltaStorage:', data?.strokecolor);
+              console.log('[UI-MODAL] Dispatching UPDATE_RELSHIPVIEW_PROPERTIES with data:', data);
               myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
               persistRelshipviewEdit(data);
           } catch {
               // Do nothing
+          }
+          */
+          
+          // Restore selection setting AFTER everything is done
+          if (myDiagram && oldAllowSelect !== undefined) {
+              myDiagram.allowSelect = oldAllowSelect;
           }
       }
   }
@@ -1134,6 +1204,11 @@ function removeClassInstances(selected: any) {
 
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
   const what = modalContext.what;
+  console.log('[UI-MODAL] handleCloseModal START - what:', what);
+  console.log('[UI-MODAL] selectedData:', selectedData);
+  console.log('[UI-MODAL] selectedData.category:', selectedData?.category);
+  console.log('[UI-MODAL] modalContext.case:', modalContext?.case);
+  
   let myDiagram = modalContext.myDiagram;
   if (myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
   const selection = myDiagram.selection;
@@ -1628,6 +1703,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         ...(selObj?.__touchedExplicitProps || {}),
         ...(modalContext?.myContext?.__touchedSelectProps || {}),
         ...(selObj?.__touchedSelectProps || {}),
+        ...(myMetis?.__editTracking?.[selObj?.key] || {}), // From handleInputChange
       };
       const typeviewValueFor = (prop: string) => {
         const directValue = resolvedTypeview?.[prop];
@@ -1841,6 +1917,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       //   data = JSON.parse(JSON.stringify(data));
       //  myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       // })
+      
+      // Clean up tracking data to prevent memory leaks
+      if (myMetis?.__editTracking && selObj?.key) {
+        delete myMetis.__editTracking[selObj.key];
+      }
+      
     return;
     }
 
@@ -2091,12 +2173,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
 
     case "editRelshipview": {
-      // selRel is a link representing a relationship or a relationship view
       const selRel = selectedData;
+      
+      // Store and disable allowSelect to prevent selection artifacts
+      const oldAllowSelect = myDiagram?.allowSelect;
+      try {
+        myDiagram?.clearSelection();
+        if (myDiagram) myDiagram.allowSelect = false;
+      } catch {}
+      
       const gjsLink = myDiagram.findLinkForKey(selRel.key);
-      if (!gjsLink)
-        break;
-      if (gjsLink) gjsLink.isSelected = true;
+      if (!gjsLink) break;
       const gjsData = gjsLink.data;
       const goLink = myGoModel.findLinkByViewId(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
@@ -2110,7 +2197,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         ...(selRel?.__touchedExplicitProps || {}),
         ...(modalContext?.myContext?.__touchedSelectProps || {}),
         ...(selRel?.__touchedSelectProps || {}),
+        ...(myMetis?.__editTracking?.[selRel?.key] || {}),
       };
+      
       const isUnsetRelshipviewValue = (candidate: any) =>
         candidate === undefined || candidate === null || candidate === "";
       const sameRelshipviewValue = (left: any, right: any) => {
@@ -2152,21 +2241,27 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
       };
       const selection = myDiagram.selection;
-      selection.each(function(sel) {
-        const selRel = selectedData;
-        let relview = selRel.relshipview;
-        if (!relview) 
-          relview = myModelview.findRelationshipView(selRel.key);
-        if (relview) {
-          for (let prop in reltypeview?.data) {
-            if (prop === 'class') continue;
-            try {
-              relview[prop] = selRel[prop];
-            } catch {}
+      
+      // Skip updates if user closed modal without editing
+      const hasUserEdits = touchedExplicitProps && Object.keys(touchedExplicitProps).length > 0;
+      
+      if (!hasUserEdits) {
+        // Skip updates when no user edits detected
+      } else {
+        selection.each(function(sel) {
+          const selRel = selectedData;
+          let relview = selRel.relshipview;
+          if (!relview) 
+            relview = myModelview.findRelationshipView(selRel.key);
+          if (relview) {
+            for (let prop in reltypeview?.data) {
+              if (prop === 'class') continue;
+              try { relview[prop] = selRel[prop]; } catch {}
+            }
+            myMetis.addRelationshipView(relview);
           }
-          myMetis.addRelationshipView(relview);
-        }
-      });
+        });
+      }
       if (gjsLink && relview) {         
         const data = gjsLink.data;
         const previousRouting = relview?.routing || data?.routing || reltypeview?.data?.routing || "Normal";
@@ -2192,6 +2287,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           'fromArrowColor',
           'toArrowColor',
         ].filter((prop) => isPersistableRelshipviewProp(prop, selRel?.[prop]))));
+        
+        // CRITICAL: Check if ANY properties actually changed before updating
+        let hasChanges = false;
+        const changedProps: string[] = [];
         relviewProps.forEach((prop) => {
           const nextValue = normalizeRelshipviewEditableValue(prop, selRel?.[prop]);
           if (nextValue === undefined) return;
@@ -2201,34 +2300,60 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const storedValue = shouldFilterByDefault
             ? (touchedExplicitProps?.[prop] === true ? nextValue : persistRelshipviewValue(nextValue, currentValue, fallbackValue))
             : nextValue;
-          if (storedValue === undefined) {
-            try { delete relview[prop]; } catch (_) {}
-            try { if (relview?.data) delete relview.data[prop]; } catch (_) {}
-            const renderValue = keepRelshipviewValue(undefined, fallbackValue);
-            try { goLink[prop] = renderValue; } catch (_) {}
-            try { gjsLink[prop] = renderValue; } catch (_) {}
-            try { myDiagram.model.setDataProperty(data, prop, renderValue); } catch (_) {}
-            return;
+          
+          // Check if this property changed
+          const dataValue = data?.[prop];
+          if (storedValue !== dataValue) {
+            hasChanges = true;
+            changedProps.push(prop);
           }
-          try { relview[prop] = storedValue; } catch (_) {}
-          try { if (relview?.data) relview.data[prop] = storedValue; } catch (_) {}
-          try { goLink[prop] = storedValue; } catch (_) {}
-          try { gjsLink[prop] = storedValue; } catch (_) {}
-          try { myDiagram.model.setDataProperty(data, prop, storedValue); } catch (_) {}
         });
+        
+        // Skip ALL updates if user didn't explicitly edit
+        if (!hasUserEdits) {
+          try {
+            if (myDiagram && oldAllowSelect !== undefined) {
+              myDiagram.allowSelect = oldAllowSelect;
+            }
+          } catch {}
+          break;
+        }
+        
+        // Apply changes to GoJS diagram model
+        myDiagram.model.commit((m: any) => {
+          relviewProps.forEach((prop) => {
+            const nextValue = normalizeRelshipviewEditableValue(prop, selRel?.[prop]);
+            if (nextValue === undefined) return;
+            const currentValue = relview?.[prop];
+            const fallbackValue = reltypeviewValueFor(prop);
+            const shouldFilterByDefault = optionalRelshipviewProps.includes(prop);
+            const storedValue = shouldFilterByDefault
+              ? (touchedExplicitProps?.[prop] === true ? nextValue : persistRelshipviewValue(nextValue, currentValue, fallbackValue))
+              : nextValue;
+            if (storedValue === undefined) {
+              try { delete relview[prop]; } catch (_) {}
+              try { if (relview?.data) delete relview.data[prop]; } catch (_) {}
+              const renderValue = keepRelshipviewValue(undefined, fallbackValue);
+              try { m.set(data, prop, renderValue); } catch (_) {}
+            } else {
+              try { relview[prop] = storedValue; } catch (_) {}
+              try { if (relview?.data) relview.data[prop] = storedValue; } catch (_) {}
+              try { m.set(data, prop, storedValue); } catch (_) {}
+            }
+          });
+        }, 'editRelshipview-close');
+        
         removeEmptyOptionalRelshipviewFields(relview);
         removeEmptyOptionalRelshipviewFields(relview?.data);
-        relviewProps.forEach((prop) => {
-          const nextValue = normalizeRelshipviewEditableValue(prop, relview?.[prop]);
-          if (nextValue === undefined || nextValue === null) return;
-          try { myDiagram.model.setDataProperty(data, prop, nextValue); } catch (_) {}
-        });
+        // NOTE: Properties already set in model.commit() above - no need to set again
         const nextRouting = relview?.routing || data?.routing || reltypeview?.data?.routing || "Normal";
         const nextCurve = relview?.curve || data?.curve || reltypeview?.data?.curve || "None";
         if (nextRouting !== previousRouting || nextCurve !== previousCurve) {
           try { relview.points = []; } catch (_) {}
           try { if (relview?.data) relview.data.points = []; } catch (_) {}
-          try { myDiagram.model.setDataProperty(data, 'points', []); } catch (_) {}
+          myDiagram.model.commit((m: any) => {
+            try { m.set(data, 'points', []); } catch (_) {}
+          }, 'clear-link-points');
           try { data.points = []; } catch (_) {}
           try { gjsLink.points = new go.List<go.Point>(); } catch (_) {}
           try { gjsLink.clearPoints?.(); } catch (_) {}
@@ -2236,17 +2361,73 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         try { gjsLink.updateTargetBindings?.(); } catch {}
         try { gjsLink.invalidateRoute?.(); } catch {}
-        try { myDiagram?.updateAllTargetBindings?.(); } catch {}
         try { myDiagram?.requestUpdate?.(); } catch {}
       }
       const jsnRelview = new jsn.jsnRelshipView(relview);
+      
+      // Restore explicitly edited properties that delta-only storage might filter out
+      const linkKey = selRel?.key;
+      if (linkKey && myMetis?.__editTracking?.[linkKey]) {
+        const explicitEdits = myMetis.__editTracking[linkKey];
+        Object.keys(explicitEdits).forEach((prop) => {
+          if (explicitEdits[prop] === true && relview?.[prop] !== undefined) {
+            jsnRelview[prop] = relview[prop];
+          }
+        });
+      }
+      
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
         const data = safeClone(mn);
         removeEmptyOptionalRelshipviewFields(data);
         dispatchUpdate({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         pushPhDataRelshipviewUpdate(data)
-      });    
+      });
+      
+      // Save to localStorage after Redux reducer completes
+      setTimeout(() => {
+        try {
+          const store = getCurrentStore();
+          const state = store?.getState?.();
+          if (state) {
+            const persistedState = {
+              phData: state.phData,
+              phFocus: state.phFocus,
+              phUser: state.phUser,
+              phSource: state.phSource,
+            };
+            window?.sessionStorage?.setItem('memorystate', JSON.stringify(persistedState));
+            window?.localStorage?.setItem('memorystate', JSON.stringify(persistedState));
+          }
+        } catch (err) {}
+      }, 100);
+      
+      // Clear selection immediately
+      try {
+        myDiagram.clearSelection();
+      } catch {}
+      
+      // Clean up tracking data
+      if (myMetis?.__editTracking && selRel?.key) {
+        delete myMetis.__editTracking[selRel.key];
+      }
+      
+      // Multiple deferred clears to handle async updates
+      const diagram = myDiagram;
+      const restoreAllowSelect = oldAllowSelect;
+      
+      setTimeout(() => { try { diagram?.clearSelection(); } catch {} }, 50);
+      setTimeout(() => { try { diagram?.clearSelection(); } catch {} }, 100);
+      setTimeout(() => { try { diagram?.clearSelection(); } catch {} }, 300);
+      setTimeout(() => {
+        try {
+          diagram?.clearSelection();
+          if (restoreAllowSelect !== undefined) {
+            diagram.allowSelect = restoreAllowSelect;
+          }
+        } catch {}
+      }, 600);
+      
       break;
     }
     case "editTypeview": {   

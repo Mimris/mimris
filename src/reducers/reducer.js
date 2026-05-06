@@ -1010,6 +1010,12 @@ function reducer(state = InitialState, action) {
       const curObjectviewsLength = targetModelview?.objectviews?.length
       if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
 
+      const mergedObjectview = mergeAndPruneOptionalEmptyFields(
+        targetModelview.objectviews[curObjectviewIndex],
+        action.data,
+        OPTIONAL_OBJECTVIEW_FIELDS
+      );
+
       const retval_UPDATE_OBJECTVIEW_PROPERTIES =
       {
         ...state,
@@ -1027,11 +1033,7 @@ function reducer(state = InitialState, action) {
                     ...targetModel?.modelviews[targetModelviewIndex],
                     objectviews: [
                       ...targetModelview?.objectviews?.slice(0, curObjectviewIndex),
-                      mergeAndPruneOptionalEmptyFields(
-                        targetModelview.objectviews[curObjectviewIndex],
-                        action.data,
-                        OPTIONAL_OBJECTVIEW_FIELDS
-                      ),
+                      mergedObjectview,
                       ...targetModelview?.objectviews?.slice(curObjectviewIndex + 1, targetModelview?.objectviews.length)
                     ]
                   },

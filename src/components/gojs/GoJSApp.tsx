@@ -518,7 +518,7 @@ function safeJsonCloneForDispatch(value: any): any {
   }));
 }
 
-function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
+function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
   if (!instance || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedObjectViewDispatches) {
     (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
@@ -526,21 +526,75 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any) {
   const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
+  // Store the diagram reference for use in the flush
+  if (diagram && !queue.__diagram) {
+    queue.__diagram = diagram;
+  }
   if ((instance as any).__queuedObjectViewDispatchTimer) return;
   (instance as any).__queuedObjectViewDispatchTimer = setTimeout(() => {
     const pendingQueue: Map<string, any> = (instance as any).__queuedObjectViewDispatches || new Map();
+    const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedObjectViewDispatches = new Map();
     (instance as any).__queuedObjectViewDispatchTimer = null;
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-      } catch (_) {
+        
+        // CRITICAL: Update myMetis nodes AND their objectviews with new positions
+        // BEFORE calling setState, so React has the correct data to render
+        if (instance.state?.myMetis?.gojsModel?.nodes) {
+          const nodes = instance.state.myMetis.gojsModel.nodes;
+          const node = nodes.find((n: any) => n.id === payload.id || n.key === payload.id || n.objviewRef === payload.id);
+          if (node) {
+            if (payload.loc) node.loc = payload.loc;
+            if (payload.size) node.size = payload.size;
+            if (payload.fillcolor !== undefined) node.fillcolor = payload.fillcolor;
+            if (payload.strokecolor !== undefined) node.strokecolor = payload.strokecolor;
+            if (payload.strokewidth !== undefined) node.strokewidth = payload.strokewidth;
+            if (payload.icon !== undefined) node.icon = payload.icon;
+            // Update the underlying objectview as well
+            if (node.objectview) {
+              if (payload.loc) node.objectview.loc = payload.loc;
+              if (payload.size) node.objectview.size = payload.size;
+              if (payload.fillcolor !== undefined) node.objectview.fillcolor = payload.fillcolor;
+              if (payload.strokecolor !== undefined) node.objectview.strokecolor = payload.strokecolor;
+              if (payload.strokewidth !== undefined) node.objectview.strokewidth = payload.strokewidth;
+              if (payload.icon !== undefined) node.objectview.icon = payload.icon;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error updating node in queue:', err);
       }
     });
+    // Force React state update to immediately reflect position changes
+    if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
+      const nodes = instance.state.myMetis.gojsModel.nodes;
+      if (Array.isArray(nodes)) {
+        instance.setState({ nodeDataArray: [...nodes], skipsDiagramUpdate: true });
+      }
+    }
+    
+    // CRITICAL: Also update the GoJS diagram's model directly
+    if (storedDiagram && storedDiagram.model) {
+      storedDiagram.model.commit((m: any) => {
+        pendingQueue.forEach((payload) => {
+          const nodeData = m.findNodeDataForKey(payload.id);
+          if (nodeData) {
+            if (payload.loc) m.set(nodeData, 'loc', payload.loc);
+            if (payload.size) m.set(nodeData, 'size', payload.size);
+            if (payload.fillcolor !== undefined) m.set(nodeData, 'fillcolor', payload.fillcolor);
+            if (payload.strokecolor !== undefined) m.set(nodeData, 'strokecolor', payload.strokecolor);
+            if (payload.strokewidth !== undefined) m.set(nodeData, 'strokewidth', payload.strokewidth);
+            if (payload.icon !== undefined) m.set(nodeData, 'icon', payload.icon);
+          }
+        });
+      }, 'update positions from queue');
+    }
   }, 0);
 }
 
-function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
+function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
   if (!instance || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedRelshipViewDispatches) {
     (instance as any).__queuedRelshipViewDispatches = new Map<string, any>();
@@ -548,17 +602,69 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any) {
   const queue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches;
   const prev = queue.get(data.id) || {};
   queue.set(data.id, { ...prev, ...data });
+  // Store the diagram reference for use in the flush
+  if (diagram && !queue.__diagram) {
+    queue.__diagram = diagram;
+  }
   if ((instance as any).__queuedRelshipViewDispatchTimer) return;
   (instance as any).__queuedRelshipViewDispatchTimer = setTimeout(() => {
     const pendingQueue: Map<string, any> = (instance as any).__queuedRelshipViewDispatches || new Map();
+    const storedDiagram = pendingQueue.__diagram;
     (instance as any).__queuedRelshipViewDispatches = new Map();
     (instance as any).__queuedRelshipViewDispatchTimer = null;
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
-      } catch (_) {
+        
+        // CRITICAL: Update myMetis links with new data
+        if (instance.state?.myMetis?.gojsModel?.links) {
+          const links = instance.state.myMetis.gojsModel.links;
+          const link = links.find((l: any) => l.id === payload.id || l.key === payload.id || l.relviewRef === payload.id);
+          if (link) {
+            if (payload.points) link.points = payload.points;
+            if (payload.routing) link.routing = payload.routing;
+            if (payload.strokecolor !== undefined) link.strokecolor = payload.strokecolor;
+            if (payload.strokewidth !== undefined) link.strokewidth = payload.strokewidth;
+            // Update the underlying relshipview as well
+            if (link.relshipview) {
+              if (payload.points) link.relshipview.points = payload.points;
+              if (payload.routing) link.relshipview.routing = payload.routing;
+              if (payload.strokecolor !== undefined) link.relshipview.strokecolor = payload.strokecolor;
+              if (payload.strokewidth !== undefined) link.relshipview.strokewidth = payload.strokewidth;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[Queue] Error updating link:', err);
       }
     });
+    
+    // Force React state update
+    if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
+      const links = instance.state.myMetis.gojsModel.links;
+      if (Array.isArray(links)) {
+        instance.setState({ linkDataArray: [...links], skipsDiagramUpdate: true });
+      }
+    }
+    
+    // Update the GoJS diagram's model directly
+    if (storedDiagram && storedDiagram.model) {
+      storedDiagram.model.commit((m: any) => {
+        pendingQueue.forEach((payload) => {
+          // SAFETY CHECK: Make sure this is actually a link, not a node
+          const nodeData = m.findNodeDataForKey(payload.id);
+          if (nodeData) return; // Skip this update
+          
+          const linkData = m.findLinkDataForKey(payload.id);
+          if (linkData) {
+            if (payload.points) m.set(linkData, 'points', payload.points);
+            if (payload.routing) m.set(linkData, 'routing', payload.routing);
+            if (payload.strokecolor !== undefined) m.set(linkData, 'strokecolor', payload.strokecolor);
+            if (payload.strokewidth !== undefined) m.set(linkData, 'strokewidth', payload.strokewidth);
+          }
+        });
+      }, 'update link paths from queue');
+    }
   }, 0);
 }
 
@@ -2022,7 +2128,42 @@ class GoJSApp extends React.Component<{}, AppState> {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
-        // Non-structural prop snapshots can carry stale `loc` and cause snap-back.
+        // But still apply visual property changes (fillcolor, strokecolor, etc.)
+        try {
+          const incomingNodes = this.props.nodeDataArray || [];
+          const currentNodes = this.state.nodeDataArray || [];
+          const visualProps = ['fillcolor', 'strokecolor', 'strokewidth', 'icon'];
+          
+          diagram.model.commit((m: any) => {
+            incomingNodes.forEach((incomingNode: any) => {
+              if (!incomingNode || !incomingNode.key) return;
+              const currentNode = currentNodes.find((n: any) => 
+                n?.key === incomingNode.key || 
+                n?.id === incomingNode.id || 
+                n?.objviewRef === incomingNode.objviewRef
+              );
+              
+              // Check if any visual properties changed
+              const hasVisualChange = visualProps.some(prop => 
+                incomingNode[prop] !== undefined && 
+                incomingNode[prop] !== currentNode?.[prop]
+              );
+              
+              if (hasVisualChange) {
+                const nodeData = m.findNodeDataForKey(incomingNode.key);
+                if (nodeData) {
+                  visualProps.forEach(prop => {
+                    if (incomingNode[prop] !== undefined && incomingNode[prop] !== currentNode?.[prop]) {
+                      m.set(nodeData, prop, incomingNode[prop]);
+                    }
+                  });
+                }
+              }
+            });
+          }, 'apply visual property changes');
+        } catch (err) {
+          console.error('Error applying visual updates:', err);
+        }
       } else {
       nextState.nodeDataArray = normalizeNodeCategoryData(
         mergeIncomingNodeDataWithLocalState(
@@ -2035,6 +2176,45 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
     }
     if (this.props.linkDataArray !== prevProps.linkDataArray) {
+      // Apply visual property changes to links even if no structural change
+      if (diagram) {
+        try {
+          const incomingLinks = this.props.linkDataArray || [];
+          const currentLinks = this.state.linkDataArray || [];
+          const visualProps = ['strokecolor', 'strokewidth'];
+          
+          diagram.model.commit((m: any) => {
+            incomingLinks.forEach((incomingLink: any) => {
+              if (!incomingLink || !incomingLink.key) return;
+              const currentLink = currentLinks.find((l: any) => 
+                l?.key === incomingLink.key || 
+                l?.id === incomingLink.id || 
+                l?.relviewRef === incomingLink.relviewRef
+              );
+              
+              // Check if any visual properties changed
+              const hasVisualChange = visualProps.some(prop => 
+                incomingLink[prop] !== undefined && 
+                incomingLink[prop] !== currentLink?.[prop]
+              );
+              
+              if (hasVisualChange) {
+                const linkData = m.findLinkDataForKey(incomingLink.key);
+                if (linkData) {
+                  visualProps.forEach(prop => {
+                    if (incomingLink[prop] !== undefined && incomingLink[prop] !== currentLink?.[prop]) {
+                      m.set(linkData, prop, incomingLink[prop]);
+                    }
+                  });
+                }
+              }
+            });
+          }, 'apply link visual property changes');
+        } catch (err) {
+          console.error('Error applying link visual updates:', err);
+        }
+      }
+      
       nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
         this.props.linkDataArray,
         this.state.linkDataArray
@@ -5095,7 +5275,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelview = new jsn.jsnRelshipView(rview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
-                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                 } catch (_) { }
                 try {
                   const nextLinkDataArray = (Array.isArray(this.state.linkDataArray) ? this.state.linkDataArray : []).map((entry: any) => {
@@ -5416,7 +5596,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const jsnRelview = new jsn.jsnRelshipView(relview);
                   let data: any = jsnRelview;
                   data = JSON.parse(JSON.stringify(data));
-                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                  queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                 });
               } catch (_) {
               }
@@ -5481,7 +5661,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const jsnRelview = new jsn.jsnRelshipView(relview);
                 let data: any = jsnRelview;
                 data = JSON.parse(JSON.stringify(data));
-                queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
               } catch (_) { }
               persistedTouchedSelfLoop = true;
             });
@@ -5535,7 +5715,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const jsnRelview = new jsn.jsnRelshipView(relview);
                     let data: any = jsnRelview;
                     data = JSON.parse(JSON.stringify(data));
-                    queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data);
+                    queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
                   } catch (_) { }
                 });
               } catch (_) { }
@@ -5798,9 +5978,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           (myDiagram as any).__preserveIncomingNodeStateByKey = preserveIncomingNodeStateByKey;
           (myDiagram as any).__lockMovedNodeLocByKey = lockMovedNodeLocByKey;
+          console.log(`[LOCK-DEBUG] Set ${lockMovedNodeLocByKey.size} locks, preserveUntil=${new Date(preserveNodeStateUntil).toISOString()}`);
           (myDiagram as any).__suppressNodeModelSyncUntil = Date.now() + 180;
           (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
+          console.log(`[LOCK-DEBUG] Set suppressPropSyncUntil=${new Date(postMoveSuppressUntil).toISOString()}`);
           (myDiagram as any).__suppressAutoLayoutUntil = Date.now() + 5000;
           const existingWatchdog: any = (myDiagram as any).__movedNodeLockWatchdog;
           if (existingWatchdog) {
@@ -5843,7 +6025,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     group: ov.group,
                     scale: ov.scale,
                   }));
-                  queueObjectViewDispatch(this, dispatchFn, payload);
+                  queueObjectViewDispatch(this, dispatchFn, payload, myDiagram);
                 }
               });
               try { myDiagram.requestUpdate(); } catch (_) { }
@@ -5877,6 +6059,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           delete (myDiagram as any).__dragAllowReparent;
           delete (myDiagram as any).__dragAllowReparentKeys;
         } catch (_) {
+        }
+        // CRITICAL FIX: Force React to detect goModel.nodes change by creating new array reference
+        // The Modeller component passes myMetis.gojsModel.nodes as nodeDataArray prop.
+        // React only detects changes when the array reference changes, not when objects inside mutate.
+        // Creating a shallow copy triggers componentDidUpdate -> mergeIncomingNodeDataWithLocalState.
+        console.log(`[FIX-DEBUG] Creating new nodes array reference to trigger React update`);
+        if (myGoModel && myGoModel.nodes) {
+          myGoModel.nodes = [...myGoModel.nodes];
         }
         break;
       case "SelectionDeleting": {
@@ -8770,7 +8960,7 @@ if (true) { // Dispatches to store individual objects/types
             if (!hasMeaningfulDiff) return;
           }
           dispatchedObjectViewPayloads.add(dispatchKey);
-          queueObjectViewDispatch(this, context.dispatch, data)
+          queueObjectViewDispatch(this, context.dispatch, data, myDiagram)
         }
       })
     } finally {
@@ -8838,7 +9028,7 @@ if (true) { // Dispatches to store individual objects/types
           if (!hasMeaningfulDiff) return;
         }
         dispatchedRelshipViewPayloads.add(dispatchKey);
-        queueRelshipViewDispatch(this, context.dispatch, data)
+        queueRelshipViewDispatch(this, context.dispatch, data, myDiagram)
       })
     } finally {
       (this as any).__dispatchingRelshipViewUpdates = false;

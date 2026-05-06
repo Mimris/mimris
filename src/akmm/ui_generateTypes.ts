@@ -2002,6 +2002,135 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             myMetis.addRelationshipType(reltype);
          }
     }
+    { // Propagate relationship types from abstract parents to concrete children
+        const objecttypes = targetMetamodel.objecttypes0;
+        const reltypes = targetMetamodel.relshiptypes;
+        const newInheritedReltypes: akm.cxRelationshipType[] = [];
+        
+        // Build map of object type IDs to their abstract status
+        const abstractMap = new Map<string, boolean>();
+        for (let i = 0; i < objecttypes?.length; i++) {
+            const objtype = objecttypes[i];
+            if (objtype) {
+                abstractMap.set(objtype.id, objtype.abstract === true);
+            }
+        }
+        
+        // For each concrete type, find its abstract parents and inherit their incoming relationships
+        for (let i = 0; i < objecttypes?.length; i++) {
+            const concreteType = objecttypes[i];
+            
+            // Skip abstract types - they don't need inherited relationship types
+            if (!concreteType || concreteType.abstract) continue;
+            
+            // Find all "Is" relationships where this type is the child (fromType)
+            const parentIds: string[] = [];
+            for (let j = 0; j < reltypes?.length; j++) {
+                const reltype = reltypes[j];
+                if (reltype.name === constants.types.AKM_IS && 
+                    reltype.relshipkind === constants.relkinds.GEN &&
+                    reltype.fromobjtypeRef === concreteType.id) {
+                    const parentId = reltype.toobjtypeRef;
+                    if (abstractMap.get(parentId) === true) {
+                        parentIds.push(parentId);
+                    }
+                }
+            }
+            
+            // For each abstract parent, find incoming relationship types and clone them
+            for (let p = 0; p < parentIds.length; p++) {
+                const abstractParentId = parentIds[p];
+                const abstractParent = targetMetamodel.findObjectType(abstractParentId);
+                
+                if (!abstractParent) continue;
+                
+                // Find all relationship types that target the abstract parent
+                for (let k = 0; k < reltypes?.length; k++) {
+                    const parentReltype = reltypes[k];
+                    
+                    // Skip "Is" relationships
+                    if (parentReltype.name === constants.types.AKM_IS) continue;
+                    
+                    // Check if this relationship targets the abstract parent
+                    if (parentReltype.toobjtypeRef === abstractParentId) {
+                        const fromType = targetMetamodel.findObjectType(parentReltype.fromobjtypeRef);
+                        
+                        if (!fromType) continue;
+                        
+                        // Check if we already have this relationship type (avoid duplicates)
+                        let alreadyExists = false;
+                        for (let m = 0; m < reltypes?.length; m++) {
+                            const existing = reltypes[m];
+                            if (existing.name === parentReltype.name &&
+                                existing.fromobjtypeRef === parentReltype.fromobjtypeRef &&
+                                existing.toobjtypeRef === concreteType.id) {
+                                alreadyExists = true;
+                                break;
+                            }
+                        }
+                        
+                        // Check new inherited reltypes array too
+                        for (let m = 0; m < newInheritedReltypes.length; m++) {
+                            const existing = newInheritedReltypes[m];
+                            if (existing.name === parentReltype.name &&
+                                existing.fromobjtypeRef === parentReltype.fromobjtypeRef &&
+                                existing.toobjtypeRef === concreteType.id) {
+                                alreadyExists = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!alreadyExists) {
+                            // Create inherited relationship type targeting the concrete child
+                            const inheritedReltype = new akm.cxRelationshipType(
+                                utils.createGuid(),
+                                parentReltype.name,
+                                fromType,
+                                concreteType,
+                                parentReltype.description
+                            );
+                            
+                            // Copy key properties from parent relationship type
+                            inheritedReltype.relshipkind = parentReltype.relshipkind;
+                            inheritedReltype.viewkind = parentReltype.viewkind;
+                            inheritedReltype.cardinality = parentReltype.cardinality;
+                            inheritedReltype.cardinalityFrom = parentReltype.cardinalityFrom;
+                            inheritedReltype.cardinalityTo = parentReltype.cardinalityTo;
+                            inheritedReltype.nameFrom = parentReltype.nameFrom;
+                            inheritedReltype.nameTo = parentReltype.nameTo;
+                            
+                            // Copy typeview reference if exists
+                            if (parentReltype.typeviewRef) {
+                                inheritedReltype.typeviewRef = parentReltype.typeviewRef;
+                                inheritedReltype.typeview = parentReltype.typeview;
+                            }
+                            
+                            // Copy properties if any
+                            if (parentReltype.properties?.length > 0) {
+                                inheritedReltype.properties = [...parentReltype.properties];
+                            }
+                            
+                            newInheritedReltypes.push(inheritedReltype);
+                            if (debug) console.log('Generated inherited reltype:', inheritedReltype.name, 
+                                'from', fromType.name, 'to', concreteType.name, 
+                                '(inherited from abstract parent', abstractParent.name + ')');
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Add all new inherited relationship types to the metamodel
+        for (let i = 0; i < newInheritedReltypes.length; i++) {
+            const reltype = newInheritedReltypes[i];
+            targetMetamodel.addRelationshipType(reltype);
+            myMetis.addRelationshipType(reltype);
+        }
+        
+        if (debug && newInheritedReltypes.length > 0) {
+            console.log('Added', newInheritedReltypes.length, 'inherited relationship types from abstract parents');
+        }
+    }
     uic.repairEntityType(myMetis, targetMetamodel, myDiagram);
     myMetis.addMetamodel(targetMetamodel);
     myMetis.metamodels = [...new Set(myMetis.metamodels)];

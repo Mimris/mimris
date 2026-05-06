@@ -344,7 +344,11 @@ function mergeIncomingNodeDataWithLocalState(
       Number(incoming.scale ?? liveScale ?? 1) === Number(liveScale ?? 1);
 
     if (incomingMatchesLive) {
-      incomingIds.forEach((id) => preserveByKey.delete(id));
+      incomingIds.forEach((id) => {
+        if (preserveByKey instanceof Map) {
+          preserveByKey.delete(id);
+        }
+      });
       return incoming;
     }
 

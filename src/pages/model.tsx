@@ -138,9 +138,19 @@ const page = (props: any) => {
         };
         const models = normalizeModels(normalizedMetis.models);
         const metamodels = normalizeModels(normalizedMetis.metamodels);
-        const firstModel = models[0] || null;
-        const firstModelviews = normalizeModels(firstModel?.modelviews);
-        const firstModelview = firstModelviews[0] || null;
+        const requestedModelRef = readShareQueryValue(normalizedMetis.currentModelRef);
+        const requestedModelviewRef = readShareQueryValue(normalizedMetis.currentModelviewRef);
+        const requestedMetamodelRef = readShareQueryValue(normalizedMetis.currentMetamodelRef);
+        const resolvedModel =
+            models.find((model: any) => model?.id === requestedModelRef || model?.name === requestedModelRef) ||
+            models.find((model: any) => requestedMetamodelRef && model?.metamodelRef === requestedMetamodelRef) ||
+            models[0] ||
+            null;
+        const resolvedModelviews = normalizeModels(resolvedModel?.modelviews);
+        const resolvedModelview =
+            resolvedModelviews.find((modelview: any) => modelview?.id === requestedModelviewRef || modelview?.name === requestedModelviewRef) ||
+            resolvedModelviews[0] ||
+            null;
         const projectName = props.phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
 
         return {
@@ -164,8 +174,8 @@ const page = (props: any) => {
                     universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
                     universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
                 },
-                focusModel: firstModel ? { id: firstModel.id, name: firstModel.name } : null,
-                focusModelview: firstModelview ? { id: firstModelview.id, name: firstModelview.name } : null,
+                focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
+                focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
             },
             phUser: {
                 ...InitialState.phUser,

@@ -4303,8 +4303,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const childObj = goToNode.object;
                   const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
                   const existingRel = parentObj ? myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null) : null;
-                  if (!existingRel) {
-                    // Create only if it does not already exist.
+                  
+                  // Check if metamodel allows "contains" relationship between these specific object types
+                  const parentObjType = parentObj?.type;
+                  const childObjType = childObj?.type;
+                  const isAllowedByMetamodel = 
+                    myHasPartReltype && 
+                    parentObjType && 
+                    childObjType &&
+                    myHasPartReltype.isAllowedFromType(parentObjType, true) &&
+                    myHasPartReltype.isAllowedToType(childObjType, true);
+                  
+                  if (!existingRel && isAllowedByMetamodel) {
+                    // Create only if it does not already exist AND metamodel allows it.
                     const relId = utils.createGuid();
                     const relName = constants.types.AKM_CONTAINS;
                     const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
@@ -4316,6 +4327,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // Prepare dispatch
                     const jsnRel = new jsn.jsnRelationship(hasPartRelship);
                     modifiedRelships.push(jsnRel);
+                  } else if (!existingRel && !isAllowedByMetamodel) {
+                    console.log(`[CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${childObjType?.name}, skipping auto-creation`);
                   }
                 }
                 for (let i = 0; i < inputRelviews?.length; i++) {
@@ -4993,47 +5006,61 @@ class GoJSApp extends React.Component<{}, AppState> {
               });
 
               if (parentObj && candidateObj && containsType) {
-                let nextRel = myModel.findRelationship1(parentObj, candidateObj, containsType, null, null);
-                if (!nextRel) {
-                  nextRel = new akm.cxRelationship(
-                    utils.createGuid(),
-                    containsType,
-                    parentObj,
-                    candidateObj,
-                    constants.types.AKM_CONTAINS,
-                    ""
-                  );
-                  nextRel.parentModelRef = myModel.id;
-                  myModel.addRelationship(nextRel);
-                  parentObj?.addOutputrel(nextRel);
-                  candidateObj?.addInputrel(nextRel);
-                  myMetis.addRelationship(nextRel);
-                }
-                const nextRelview = uic.ensureContainsRelationshipView(
-                  myModelview,
-                  myMetis,
-                  nextRel,
-                  objview,
-                  candidateObjview,
-                  false
-                );
-                if (nextRelview) {
-                  nextRelview.visible = false;
-                  nextRelview.points = [];
-                  const link = myDiagram.findLinkForKey(nextRelview.id);
-                  if (link) {
-                    link.visible = false;
+                // Check if metamodel allows "contains" relationship between these specific object types
+                const parentObjType = parentObj?.type;
+                const candidateObjType = candidateObj?.type;
+                const isAllowedByMetamodel = 
+                  parentObjType && 
+                  candidateObjType &&
+                  containsType.isAllowedFromType(parentObjType, true) &&
+                  containsType.isAllowedToType(candidateObjType, true);
+                
+                if (!isAllowedByMetamodel) {
+                  console.log(`[GRAB-CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${candidateObjType?.name}, skipping auto-creation on grab`);
+                  // Continue without creating the relationship
+                } else {
+                  let nextRel = myModel.findRelationship1(parentObj, candidateObj, containsType, null, null);
+                  if (!nextRel) {
+                    nextRel = new akm.cxRelationship(
+                      utils.createGuid(),
+                      containsType,
+                      parentObj,
+                      candidateObj,
+                      constants.types.AKM_CONTAINS,
+                      ""
+                    );
+                    nextRel.parentModelRef = myModel.id;
+                    myModel.addRelationship(nextRel);
+                    parentObj?.addOutputrel(nextRel);
+                    candidateObj?.addInputrel(nextRel);
+                    myMetis.addRelationship(nextRel);
                   }
-                  myDiagram.links.each((ll: go.Link) => {
-                    if (ll?.data?.relshipRef === nextRel.id) {
-                      ll.visible = false;
+                  const nextRelview = uic.ensureContainsRelationshipView(
+                    myModelview,
+                    myMetis,
+                    nextRel,
+                    objview,
+                    candidateObjview,
+                    false
+                  );
+                  if (nextRelview) {
+                    nextRelview.visible = false;
+                    nextRelview.points = [];
+                    const link = myDiagram.findLinkForKey(nextRelview.id);
+                    if (link) {
+                      link.visible = false;
                     }
-                  });
-                  const jsnRelview = new jsn.jsnRelshipView(nextRelview);
-                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                    myDiagram.links.each((ll: go.Link) => {
+                      if (ll?.data?.relshipRef === nextRel.id) {
+                        ll.visible = false;
+                      }
+                    });
+                    const jsnRelview = new jsn.jsnRelshipView(nextRelview);
+                    uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                  }
+                  const jsnRelship = new jsn.jsnRelationship(nextRel);
+                  uic.addItemToList(modifiedRelships, jsnRelship);
                 }
-                const jsnRelship = new jsn.jsnRelationship(nextRel);
-                uic.addItemToList(modifiedRelships, jsnRelship);
               }
             });
           }
@@ -5194,40 +5221,54 @@ class GoJSApp extends React.Component<{}, AppState> {
               (!previousRel || previousGroup === persistedGroup || !previousParentObjview?.object) &&
               !objectContainsDescendant(movedObj, nextParentObjview.object, containsType)
             ) {
-              let nextRel = myModel.findRelationship1(nextParentObjview.object, movedObj, containsType, null, null);
-              if (!nextRel) {
-                nextRel = new akm.cxRelationship(
-                  utils.createGuid(),
-                  containsType,
-                  nextParentObjview.object,
-                  movedObj,
-                  constants.types.AKM_CONTAINS,
-                  ""
-                );
-                nextRel.parentModelRef = myModel.id;
-                myModel.addRelationship(nextRel);
-                nextParentObjview.object?.addOutputrel(nextRel);
-                movedObj?.addInputrel(nextRel);
-                myMetis.addRelationship(nextRel);
-              }
-              const nextRelview = uic.ensureContainsRelationshipView(
-                myModelview,
-                myMetis,
-                nextRel,
-                nextParentObjview,
-                objview,
-                false
-              );
-              if (nextRelview) {
-                const link = myDiagram.findLinkForKey(nextRelview.id);
-                if (link) {
-                  link.visible = false;
+              // Check if metamodel allows "contains" relationship between these specific object types
+              const parentObjType = nextParentObjview?.object?.type;
+              const movedObjType = movedObj?.type;
+              const isAllowedByMetamodel = 
+                parentObjType && 
+                movedObjType &&
+                containsType.isAllowedFromType(parentObjType, true) &&
+                containsType.isAllowedToType(movedObjType, true);
+              
+              if (!isAllowedByMetamodel) {
+                console.log(`[MOVE-CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${movedObjType?.name}, skipping auto-creation on group change`);
+                // Continue without creating the relationship
+              } else {
+                let nextRel = myModel.findRelationship1(nextParentObjview.object, movedObj, containsType, null, null);
+                if (!nextRel) {
+                  nextRel = new akm.cxRelationship(
+                    utils.createGuid(),
+                    containsType,
+                    nextParentObjview.object,
+                    movedObj,
+                    constants.types.AKM_CONTAINS,
+                    ""
+                  );
+                  nextRel.parentModelRef = myModel.id;
+                  myModel.addRelationship(nextRel);
+                  nextParentObjview.object?.addOutputrel(nextRel);
+                  movedObj?.addInputrel(nextRel);
+                  myMetis.addRelationship(nextRel);
                 }
-                const jsnRelview = new jsn.jsnRelshipView(nextRelview);
-                uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                const nextRelview = uic.ensureContainsRelationshipView(
+                  myModelview,
+                  myMetis,
+                  nextRel,
+                  nextParentObjview,
+                  objview,
+                  false
+                );
+                if (nextRelview) {
+                  const link = myDiagram.findLinkForKey(nextRelview.id);
+                  if (link) {
+                    link.visible = false;
+                  }
+                  const jsnRelview = new jsn.jsnRelshipView(nextRelview);
+                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                }
+                const jsnRelship = new jsn.jsnRelationship(nextRel);
+                uic.addItemToList(modifiedRelships, jsnRelship);
               }
-              const jsnRelship = new jsn.jsnRelationship(nextRel);
-              uic.addItemToList(modifiedRelships, jsnRelship);
             }
             if (movedObj && containsType && nextParentObjview?.object && persistedGroup) {
               const inputRels = [...(movedObj.inputrels || [])];
@@ -7824,8 +7865,19 @@ e.subject.each(function (n) {
     const childtype = type;
     const childObj = object;
     const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
-    if (!myHasPartRelship && parentObj && childObj) {
-      // Create the relationship
+    
+    // Check if metamodel allows "contains" relationship between these specific object types
+    const parentObjType = parentObj?.type;
+    const childObjType = childObj?.type;
+    const isAllowedByMetamodel = 
+      myHasPartReltype && 
+      parentObjType && 
+      childObjType &&
+      myHasPartReltype.isAllowedFromType(parentObjType, true) &&
+      myHasPartReltype.isAllowedToType(childObjType, true);
+    
+    if (!myHasPartRelship && parentObj && childObj && isAllowedByMetamodel) {
+      // Create the relationship only if metamodel allows it
       const relId = utils.createGuid();
       const relName = constants.types.AKM_CONTAINS;
       const hasPartRelship = new akm.cxRelationship(relId, myHasPartReltype, parentObj, childObj, relName, "");
@@ -7837,6 +7889,8 @@ e.subject.each(function (n) {
       // Prepare dispatch
       const jsnRel = new jsn.jsnRelationship(hasPartRelship);
       modifiedRelships.push(jsnRel);
+    } else if (!myHasPartRelship && parentObj && childObj && !isAllowedByMetamodel) {
+      console.log(`[DROP-CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${childObjType?.name}, skipping auto-creation on drop`);
     }
   } else {
     goNode.group = "";

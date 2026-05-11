@@ -70,6 +70,11 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+// Module-level lock storage - survives component state changes, focus changes, etc.
+// These Maps are never cleared by React re-renders or diagram instance changes
+const globalPreserveNodeStateByKey = new Map<string, number>();
+const globalLockMovedNodeLocByKey = new Map<string, { loc: string; until: number }>();
+
 function isBooleanLikeKey(key: string): boolean {
   return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
     key === "visible" ||
@@ -275,7 +280,11 @@ function mergeIncomingNodeDataWithLocalState(
   diagram?: go.Diagram | null
 ): any[] {
   if (!Array.isArray(incomingNodes)) return incomingNodes as any;
-  const preserveByKey: Map<string, number> | undefined = (diagram as any)?.__preserveIncomingNodeStateByKey;
+  
+  // Use GLOBAL lock maps instead of diagram instance properties
+  // This survives React re-renders, focus changes, and state updates
+  const preserveByKey = globalPreserveNodeStateByKey;
+  const lockByKey = globalLockMovedNodeLocByKey;
 
   const now = Date.now();
   const localMap = new Map<string, any>();
@@ -290,6 +299,21 @@ function mergeIncomingNodeDataWithLocalState(
   return incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object' || incoming.key === undefined || incoming.key === null) return incoming;
     const incomingIds = getNodeIdentityAliases(incoming);
+    
+    // Debug: log what we're checking
+    const hasPreserveMap = preserveByKey instanceof Map;
+    const hasLockMap = lockByKey instanceof Map;
+    const preserveCount = hasPreserveMap ? preserveByKey.size : 0;
+    const lockCount = hasLockMap ? lockByKey.size : 0;
+    
+    if (incoming.key && String(incoming.key).includes('05898170')) {
+      console.log(`[MERGE-CHECK] key=${incoming.key}, preserveMap exists: ${hasPreserveMap}, lockMap exists: ${hasLockMap}, preserve count: ${preserveCount}, lock count: ${lockCount}`);
+      if (hasLockMap && lockCount > 0) {
+        console.log(`[MERGE-CHECK] Lock map contents:`, Array.from(lockByKey.entries()).map(([k, v]) => `${k}=${v.loc} (expires ${v.until > now ? 'active' : 'expired'})`));
+      }
+    }
+    
+    // Check for preserve window
     let preserveUntil = 0;
     let matchedPreserveKey = '';
     for (let i = 0; i < incomingIds.length; i++) {
@@ -301,10 +325,35 @@ function mergeIncomingNodeDataWithLocalState(
       }
     }
     const preserveWindowActive = preserveUntil > now;
+    
+    // Check for explicit position lock
+    let lockedPosition: string | null = null;
+    let lockMatchedKey = '';
+    for (let i = 0; i < incomingIds.length; i++) {
+      const id = incomingIds[i];
+      const lockEntry = lockByKey instanceof Map ? lockByKey.get(id) : null;
+      if (lockEntry && lockEntry.until > now) {
+        lockedPosition = lockEntry.loc;
+        lockMatchedKey = id;
+        break;
+      }
+    }
+    
+    // Clean up expired entries
     if (!preserveWindowActive) {
       incomingIds.forEach((id) => {
         if (preserveByKey instanceof Map && preserveByKey.has(id) && Number(preserveByKey.get(id) || 0) <= now) {
           preserveByKey.delete(id);
+        }
+      });
+    }
+    if (!lockedPosition) {
+      incomingIds.forEach((id) => {
+        if (lockByKey instanceof Map && lockByKey.has(id)) {
+          const entry = lockByKey.get(id);
+          if (entry && entry.until <= now) {
+            lockByKey.delete(id);
+          }
         }
       });
     }
@@ -313,6 +362,23 @@ function mergeIncomingNodeDataWithLocalState(
     const local =
       localMap.get(matchedPreserveKey || String(incoming.key)) ||
       incomingIds.map((id) => localMap.get(id)).find((candidate) => candidate && typeof candidate === 'object');
+
+    // If we have an explicit locked position, use it!
+    if (lockedPosition) {
+      console.log(`[MERGE-USE-LOCK] key=${incoming.key} using locked position: ${lockedPosition} (from ${lockMatchedKey}), incoming was: ${incoming.loc}`);
+      
+      const liveGroup = liveNode instanceof go.Node ? liveNode.data?.group : local?.group;
+      const liveScale = liveNode instanceof go.Node ? liveNode.data?.scale : local?.scale;
+      const liveScale1 = liveNode instanceof go.Node ? liveNode.data?.scale1 : local?.scale1;
+      
+      return {
+        ...incoming,
+        loc: lockedPosition,
+        group: liveGroup ?? incoming.group,
+        scale: liveScale ?? incoming.scale,
+        scale1: liveScale1 ?? incoming.scale1,
+      };
+    }
 
     // Authoritative live node geometry always wins for the same conceptual node.
     // If there is no live node, only preserve local geometry during an active drag-protection window.
@@ -325,6 +391,7 @@ function mergeIncomingNodeDataWithLocalState(
       liveNode instanceof go.Node
         ? `${liveNode.location.x} ${liveNode.location.y}`
         : (typeof liveData?.loc === 'string' && liveData.loc.length > 0 ? liveData.loc : local?.loc);
+    
     const liveGroup =
       liveData?.group !== undefined
         ? liveData.group
@@ -351,6 +418,8 @@ function mergeIncomingNodeDataWithLocalState(
       });
       return incoming;
     }
+
+    console.log(`[MERGE-USE-LIVE] key=${incoming.key} using live position: ${liveLoc}, incoming was: ${incoming.loc}`);
 
     return {
       ...incoming,
@@ -1453,7 +1522,8 @@ function isMetamodelSelection(myMetis: any, selection: any) {
     for (let it = selection?.iterator; it?.next();) {
       const part = it.value;
       const data = part?.data;
-      if (data?.objecttype || data?.category === constants.gojs.C_OBJECTTYPE) return true;
+      // Only return true if the object IS an objecttype (category check), not just because it HAS an objecttype property
+      if (data?.category === constants.gojs.C_OBJECTTYPE) return true;
     }
   } catch (_) {
   }
@@ -2126,9 +2196,12 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
+      console.log(`[COMPONENT-UPDATE] nodeDataArray changed, structural diff: ${structuralNodeDiff}, diagram exists: ${!!diagram}`);
+      
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
         // But still apply visual property changes (fillcolor, strokecolor, etc.)
+        console.log('[COMPONENT-UPDATE] No structural change - checking visual props only');
         try {
           const incomingNodes = this.props.nodeDataArray || [];
           const currentNodes = this.state.nodeDataArray || [];
@@ -2165,13 +2238,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           console.error('Error applying visual updates:', err);
         }
       } else {
-      nextState.nodeDataArray = normalizeNodeCategoryData(
-        mergeIncomingNodeDataWithLocalState(
+      console.log('[COMPONENT-UPDATE] Structural change OR no diagram - running MERGE');
+      const mergedNodes = mergeIncomingNodeDataWithLocalState(
           this.props.nodeDataArray,
           this.state.nodeDataArray,
           diagram
-        )
-      );
+        );
+      console.log('[COMPONENT-UPDATE] Merge complete, merged count:', mergedNodes?.length);
+      nextState.nodeDataArray = normalizeNodeCategoryData(mergedNodes);
       shouldSyncFromProps = true;
       }
     }
@@ -2222,6 +2296,20 @@ class GoJSApp extends React.Component<{}, AppState> {
       shouldSyncFromProps = true;
     }
     if (metisChanged) {
+      // Check if there are active position locks - if so, defer myMetis update
+      const now = Date.now();
+      let hasActiveLocks = false;
+      globalLockMovedNodeLocByKey.forEach((lockInfo) => {
+        if (lockInfo.until > now) hasActiveLocks = true;
+      });
+      
+      if (hasActiveLocks) {
+        console.log('[METIS-UPDATE-SUPPRESSED] Active locks present, deferring myMetis update');
+        // Don't update myMetis while positions are locked
+        // The locks will expire and positions will be persisted to Redux already
+        return;
+      }
+      
       nextState.myMetis = this.props.myMetis;
       shouldSyncFromProps = true;
     }
@@ -3803,34 +3891,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         return;
       }
-      case "SelectionMoving": {
-        const movedSelection = e.subject;
-        const movedNodeKeys = new Set<string>();
-        for (let it = movedSelection?.iterator; it?.next();) {
-          const part = it.value;
-          if (part instanceof go.Node && part.data?.key) {
-            movedNodeKeys.add(String(part.data.key));
-          }
-        }
-        const liveManualPointsByLinkKey = new Map<string, number[]>();
-        const links = myDiagram.links;
-        for (let it = links.iterator; it?.next();) {
-          const link = it.value;
-          if (!(link instanceof go.Link) || !link.data?.key) continue;
-          const linkTouchesMovedNode =
-            (link.fromNode?.data?.key && movedNodeKeys.has(String(link.fromNode.data.key))) ||
-            (link.toNode?.data?.key && movedNodeKeys.has(String(link.toNode.data.key)));
-          if (!linkTouchesMovedNode) continue;
-          const livePoints = pickFirstNonEmptyLinkPoints(link.points, link.data?.points);
-          if (!Array.isArray(livePoints) || livePoints.length <= 4) continue;
-          liveManualPointsByLinkKey.set(String(link.data.key), [...livePoints]);
-        }
-        (myDiagram as any).__manualLinkMovePreview = liveManualPointsByLinkKey;
-        break;
-      }
       case "SelectionMoved": {
+        const selectionFirstConstructorName = myDiagram.selection.first().constructor.name;
+        console.log("SelectionMoved event, first selected part constructor: %s", selectionFirstConstructorName);
         // Metamodelling: persist dragged objecttype node positions to objtypegeos
         const isMetamodelMove = isMetamodelSelection(myMetis, e.subject);
+        console.log("isMetamodelMove: %s", isMetamodelMove);
         if (isMetamodelMove) {
           const currentMetamodel = myMetis.currentMetamodel;
           if (currentMetamodel) {
@@ -3973,6 +4039,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
           // the rendered position and cause membership/loc persistence to drift.
           const loc = `${n.location.x} ${n.location.y}`;
+          console.log(`[BUILD-TONODE] key=${n.data.key}, n.location=${loc}, containingGroup=${n.containingGroup ? n.containingGroup.key : 'none'}, data.loc=${n.data.loc}`);
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
           goNode.loc = loc;
@@ -4070,15 +4137,55 @@ class GoJSApp extends React.Component<{}, AppState> {
           for (let j = 0; j < myToNodes.length; j++) {
             const myToNode = myToNodes[j];
             if (myFromNode.key === myToNode.key) {
+              const groupKey = myToNode.n.containingGroup ? myToNode.n.containingGroup.key : 'NONE';
+              const groupName = myToNode.n.containingGroup ? myToNode.n.containingGroup.data?.text : 'none';
+              console.log(`[NODE-MOVE-MATCH] key=${myToNode.key}, fromLoc=${myFromNode.loc}, toLoc=${myToNode.loc}, group=${groupKey}(${groupName})`);
               const myGoNode = myGoModel.findNode(myToNode.key);
               const myObject: akm.cxObject = myFromNode.object;
               const myObjectview: akm.cxObjectView = myFromNode.objectview;
+              
+              if (!myObjectview) {
+                console.error(`[NODE-MOVE-ERROR] No objectview for key=${myToNode.key}, skipping`);
+                continue;
+              }
+              
               myObjectview.loc = myToNode.loc;
               myObjectview.group = myToNode.group;
               myObjectview.scale = myToNode.scale;
               // Move the object
               let goToNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc,
                 myGoModel, myDiagram, myMetis, modifiedObjectViews) as gjs.goObjectNode;
+              
+              // CRITICAL: Update lock from PRE-DRAG to POST-DRAG position
+              // SelectionMoving set lock to protect during drag, now update to final position
+              const liveNode = myDiagram.findNodeForKey(myToNode.key);
+              const actualLoc = liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : myToNode.loc;
+              const liveGroupKey = liveNode?.containingGroup ? liveNode.containingGroup.key : 'NONE';
+              
+              console.log(`[NODE-LOCK-UPDATE-END] key=${myToNode.key} group=${liveGroupKey} updating lock from PRE-DRAG to POST-DRAG position: ${actualLoc}`);
+              
+              // Use GLOBAL lock maps - survives React re-renders and focus changes
+              const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
+              const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
+              
+              const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
+              const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
+              const aliases = [
+                myToNode.key,
+                myToNode.gjsData?.objviewRef,
+                myObjectview?.id,
+                myToNode.gjsData?.objRef,
+                myObject?.id,
+              ].filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+                .map((v: any) => String(v));
+              aliases.forEach((id) => preserveIncomingNodeStateByKey.set(id, preserveNodeStateUntil));
+              const lockedLoc = actualLoc; // Use the ACTUAL live position, not myToNode.loc
+              aliases.forEach((id) => lockMovedNodeLocByKey.set(id, { loc: lockedLoc, until: lockNodeLocUntil }));
+              
+              // Debug: verify locks were set
+              console.log(`[NODE-LOCK-SET] GLOBAL lock map size:`, lockMovedNodeLocByKey.size, 'Aliases:', aliases);
+              console.log(`[NODE-LOCK-VERIFY] Lock entry for key ${myToNode.key}:`, lockMovedNodeLocByKey.get(myToNode.key));
+              
               if (goToNode) {
                 goToNode = myGoModel.findNode(goToNode.key);
                 if (!goToNode instanceof gjs.goObjectNode) {
@@ -4516,12 +4623,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               myGoNode.loc = myToNode.loc;
               myGoNode.group = myToNode.group;
             }
-            if (myGoNode?.object) {
-              const objvIdName = { id: myGoNode.key, name: myGoNode.name };
-              const objIdName = { id: myGoNode.object.id, name: myGoNode.object.name };
-              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
-              myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
-            }
+            // DISABLED: These focus dispatches might trigger unnecessary rebuilds during drag
+            // if (myGoNode?.object) {
+            //   const objvIdName = { id: myGoNode.key, name: myGoNode.name };
+            //   const objIdName = { id: myGoNode.object.id, name: myGoNode.object.name };
+            //   myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
+            //   myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
+            // }
             // Prepare dispatch
             uic.addItemToList(modifiedObjectViews, {
               id: myToNode.objectview?.id,
@@ -4582,6 +4690,27 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.model.setDataProperty(data, "loc", newLoc);
             myDiagram.model.setDataProperty(data, "size", currentGroupSize);
           }
+          
+          // CRITICAL: Update lock from PRE-DRAG to POST-DRAG position
+          // Use GLOBAL lock maps - survives React re-renders and focus changes
+          const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
+          const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
+          
+          const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
+          const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
+          const aliases = [
+            data?.key,
+            data?.objviewRef,
+            objview?.id,
+            data?.objRef,
+            data?.object?.id,
+          ].filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+            .map((v: any) => String(v));
+          aliases.forEach((id) => preserveIncomingNodeStateByKey.set(id, preserveNodeStateUntil));
+          const lockedLoc = newLoc; // Use the newLoc we just set, not sel.location which might change
+          console.log(`[GROUP-LOCK-UPDATE-END] ${data?.key || sel.key}: updating lock to POST-DRAG position: ${lockedLoc}`);
+          aliases.forEach((id) => lockMovedNodeLocByKey.set(id, { loc: lockedLoc, until: lockNodeLocUntil }));
+          
           const isPlainTopLevelGroupMove =
             !isLaneGroup &&
             !shiftPressed &&
@@ -5951,6 +6080,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             (myDiagram as any).__lockMovedNodeLocByKey instanceof Map
               ? (myDiagram as any).__lockMovedNodeLocByKey
               : new Map<string, { loc: string; until: number }>();
+          
           const desiredMovedNodeLocByKey = new Map<string, { x: number; y: number }>();
           // Ordinary node drags can still receive delayed Redux/modelview refreshes
           // after drop; keep the loc replay guard up long enough to avoid snap-back.
@@ -5959,7 +6089,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           const lockNodeLocUntil = Date.now() + 3500;
           for (let it = movedSelection?.iterator; it?.next();) {
             const part = it.value;
+            // Skip groups - they already set their locks during group processing
+            if (part instanceof go.Group) continue;
             if (part instanceof go.Node && part.data?.key !== undefined && part.data?.key !== null) {
+              // Skip nodes that already have locks (set during changeNodeSizeAndPos processing)
+              const hasExistingLock = preserveIncomingNodeStateByKey.has(String(part.data?.key)) ||
+                preserveIncomingNodeStateByKey.has(String(part.data?.objviewRef)) ||
+                preserveIncomingNodeStateByKey.has(String(part.data?.objectview?.id));
+              if (hasExistingLock) continue;
               const aliases = [
                 part.data?.key,
                 part.data?.objviewRef,
@@ -5978,19 +6115,28 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           (myDiagram as any).__preserveIncomingNodeStateByKey = preserveIncomingNodeStateByKey;
           (myDiagram as any).__lockMovedNodeLocByKey = lockMovedNodeLocByKey;
-          console.log(`[LOCK-DEBUG] Set ${lockMovedNodeLocByKey.size} locks, preserveUntil=${new Date(preserveNodeStateUntil).toISOString()}`);
           (myDiagram as any).__suppressNodeModelSyncUntil = Date.now() + 180;
           (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
-          console.log(`[LOCK-DEBUG] Set suppressPropSyncUntil=${new Date(postMoveSuppressUntil).toISOString()}`);
           (myDiagram as any).__suppressAutoLayoutUntil = Date.now() + 5000;
+          
+          // Stop any existing watchdog - including callbacks already queued
           const existingWatchdog: any = (myDiagram as any).__movedNodeLockWatchdog;
           if (existingWatchdog) {
             try { clearTimeout(existingWatchdog); } catch (_) { }
             try { delete (myDiagram as any).__movedNodeLockWatchdog; } catch (_) { }
           }
+          // Increment generation to invalidate old watchdog closures
+          const watchdogGeneration = ((myDiagram as any).__watchdogGeneration || 0) + 1;
+          (myDiagram as any).__watchdogGeneration = watchdogGeneration;
+          
+          // WATCHDOG DISABLED - Testing if it's causing swapback issues
+          // The merge function should be sufficient to protect live positions
+          /*
           const reinforceMovedNodeLocations = () => {
             try {
+              // Stop if this watchdog is from an old generation
+              if ((myDiagram as any).__watchdogGeneration !== watchdogGeneration) return;
               const activeTool = myDiagram?.currentTool;
               if (activeTool instanceof go.DraggingTool && activeTool.isActive === true) return;
               const dispatchFn = context.dispatch || myDiagram.dispatch || this.state.dispatch;
@@ -6018,15 +6164,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 ov.loc = loc;
                 if (typeof liveData.group === 'string') ov.group = liveData.group;
                 if (liveData.scale !== undefined) ov.scale = liveData.scale;
-                if (dispatchFn && ov.id) {
-                  const payload = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch({
-                    id: ov.id,
-                    loc: ov.loc,
-                    group: ov.group,
-                    scale: ov.scale,
-                  }));
-                  queueObjectViewDispatch(this, dispatchFn, payload, myDiagram);
-                }
+                // DON'T dispatch from watchdog - position was already dispatched at end of SelectionMoved.
+                // Dispatching here creates infinite loops as each dispatch triggers re-renders.
               });
               try { myDiagram.requestUpdate(); } catch (_) { }
             } catch (_) {
@@ -6035,6 +6174,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           const watchdogUntil = Date.now() + 12000;
           const runMovedNodeWatchdog = () => {
             try {
+              // Stop if this watchdog is from an old generation
+              if ((myDiagram as any).__watchdogGeneration !== watchdogGeneration) {
+                try { delete (myDiagram as any).__movedNodeLockWatchdog; } catch (_) { }
+                return;
+              }
               reinforceMovedNodeLocations();
             } catch (_) {
             }
@@ -6042,10 +6186,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               try { delete (myDiagram as any).__movedNodeLockWatchdog; } catch (_) { }
               return;
             }
-            (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+            // Only reschedule if still the current generation
+            if ((myDiagram as any).__watchdogGeneration === watchdogGeneration) {
+              (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+            }
           };
           window.setTimeout(reinforceMovedNodeLocations, 0);
           (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+          */
           if (movedAnyGroup) {
             (myDiagram as any).__suppressObjectSingleClickUntil = Math.max(
               Number((myDiagram as any).__suppressObjectSingleClickUntil || 0),
@@ -6060,14 +6208,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           delete (myDiagram as any).__dragAllowReparentKeys;
         } catch (_) {
         }
-        // CRITICAL FIX: Force React to detect goModel.nodes change by creating new array reference
-        // The Modeller component passes myMetis.gojsModel.nodes as nodeDataArray prop.
-        // React only detects changes when the array reference changes, not when objects inside mutate.
-        // Creating a shallow copy triggers componentDidUpdate -> mergeIncomingNodeDataWithLocalState.
-        console.log(`[FIX-DEBUG] Creating new nodes array reference to trigger React update`);
-        if (myGoModel && myGoModel.nodes) {
-          myGoModel.nodes = [...myGoModel.nodes];
-        }
+        // Forced array reference change removed - locks should be sufficient to prevent swapback
+        // The merge function will protect positions via locks when Redux updates arrive naturally
+        // if (myGoModel && myGoModel.nodes) {
+        //   myGoModel.nodes = [...myGoModel.nodes];
+        // }
         break;
       case "SelectionDeleting": {
       // const newNode = myMetis.currentNode;

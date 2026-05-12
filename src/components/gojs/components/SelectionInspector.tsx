@@ -55,6 +55,165 @@ const booleanAsCheckbox = true;
 
 
 
+function ObjectTypePropertiesEditor({ objecttype, metamodel, myMetis }) {
+  const getRows = () => {
+    const props = objecttype?.getProperties?.(false) || objecttype?.properties || [];
+    return (Array.isArray(props) ? props : [])
+      .filter(p => {
+        if (!p || !p.id || p.markedAsDeleted) return false;
+        // Only include properties that are registered in the metamodel flat list.
+        // This excludes ghost entries (system-field artifacts) that were bulk-copied
+        // from stored jsnObjectType fields but never went through addProperty().
+        const inMetamodel = metamodel?.findProperty?.(p.id);
+        const inMetis = myMetis?.findProperty?.(p.id);
+        return !!(inMetamodel || inMetis);
+      })
+      .map(p => ({
+        id: p.id,
+        name: p.name || '',
+        description: p.description || '',
+        datatypeRef: p.datatypeRef || p.datatype?.id || '',
+      }));
+  };
+  const [rows, setRows] = React.useState(getRows);
+
+  const datatypes = React.useMemo(() => {
+    const dts = metamodel?.getDatatypes?.() || myMetis?.getDatatypes?.() || [];
+    return (Array.isArray(dts) ? dts : []).filter(dt => !dt.markedAsDeleted);
+  }, [metamodel, myMetis]);
+
+  const syncToLive = (newRows) => {
+    if (!objecttype) return;
+    if (!objecttype.properties) objecttype.properties = [];
+    const updated = newRows.map(row => {
+      let prop = objecttype.properties.find(p => p.id === row.id);
+      if (!prop) {
+        prop = new akm.cxProperty(row.id, row.name, row.description);
+      }
+      prop.name = row.name;
+      prop.description = row.description;
+      const dt = datatypes.find(d => d.id === row.datatypeRef);
+      if (dt) { prop.datatype = dt; prop.datatypeRef = dt.id; }
+      else { prop.datatypeRef = row.datatypeRef || ''; }
+      return prop;
+    });
+    objecttype.properties = updated;
+    // Ensure new props appear in both metamodel and myMetis flat properties lists
+    // so they pass the findProperty filter in getRows()
+    if (metamodel && Array.isArray(metamodel.properties)) {
+      updated.forEach(p => {
+        if (!metamodel.properties.find(mp => mp.id === p.id)) {
+          metamodel.properties.push(p);
+        }
+      });
+    }
+    if (myMetis && Array.isArray(myMetis.properties)) {
+      updated.forEach(p => {
+        if (!myMetis.properties.find(mp => mp.id === p.id)) {
+          myMetis.properties.push(p);
+        }
+      });
+    }
+  };
+
+  const handleChange = (id, field, value) => {
+    const newRows = rows.map(r => r.id === id ? { ...r, [field]: value } : r);
+    setRows(newRows);
+    syncToLive(newRows);
+  };
+
+  const handleAdd = () => {
+    const newId = utils.createGuid();
+    const defaultDtRef = datatypes.length > 0 ? datatypes[0].id : '';
+    const newRow = { id: newId, name: 'New Property', description: '', datatypeRef: defaultDtRef };
+    const newRows = [...rows, newRow];
+    setRows(newRows);
+    syncToLive(newRows);
+  };
+
+  const handleDelete = (id) => {
+    const newRows = rows.filter(r => r.id !== id);
+    setRows(newRows);
+    // Mark as deleted in live array (keeps it for serialisation diff if needed)
+    if (objecttype?.properties) {
+      const liveProps = objecttype.properties;
+      objecttype.properties = liveProps.filter(p => p.id !== id);
+      const deleted = liveProps.find(p => p.id === id);
+      if (deleted) deleted.markedAsDeleted = true;
+    }
+  };
+
+  return (
+    <div style={{ padding: '6px 4px 2px 4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+        <strong style={{ marginRight: '8px' }}>Properties</strong>
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-secondary"
+          style={{ padding: '0 8px', lineHeight: '1.4' }}
+          onClick={handleAdd}
+        >+ Add</button>
+      </div>
+      <table className="table table-sm table-bordered mb-0" style={{ fontSize: '0.82em' }}>
+        <thead className="thead-light">
+          <tr>
+            <th style={{ width: '30%' }}>Name</th>
+            <th style={{ width: '35%' }}>Description</th>
+            <th style={{ width: '25%' }}>Datatype</th>
+            <th style={{ width: '10%' }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && (
+            <tr><td colSpan={4} className="text-muted text-center" style={{ padding: '4px' }}>No properties defined</td></tr>
+          )}
+          {rows.map(row => (
+            <tr key={row.id}>
+              <td style={{ padding: '2px 4px' }}>
+                <input
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.name}
+                  onChange={e => handleChange(row.id, 'name', e.target.value)}
+                />
+              </td>
+              <td style={{ padding: '2px 4px' }}>
+                <input
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.description}
+                  onChange={e => handleChange(row.id, 'description', e.target.value)}
+                />
+              </td>
+              <td style={{ padding: '2px 4px' }}>
+                <select
+                  className="form-control form-control-sm"
+                  style={{ padding: '1px 4px', height: 'auto' }}
+                  value={row.datatypeRef}
+                  onChange={e => handleChange(row.id, 'datatypeRef', e.target.value)}
+                >
+                  <option value="">– none –</option>
+                  {datatypes.map(dt => (
+                    <option key={dt.id} value={dt.id}>{dt.name}</option>
+                  ))}
+                </select>
+              </td>
+              <td style={{ padding: '2px 4px', textAlign: 'center' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger"
+                  style={{ padding: '0 6px', lineHeight: '1.4' }}
+                  onClick={() => handleDelete(row.id)}
+                >✕</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -619,32 +778,44 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
             case 'template2':
-              if (selObj.isGroup) {
-                if (selObj.viewkind === 'Container') {
+              {
+                const effectiveViewkind =
+                  selObj?.viewkind ||
+                  item?.viewkind ||
+                  instview?.viewkind ||
+                  typeview?.viewkind ||
+                  (selObj?.isGroup ? 'Container' : 'Object');
+                const effectiveCategory = selObj?.category || category;
+                const effectiveIsGroup =
+                  selObj?.isGroup === true ||
+                  effectiveViewkind === 'Container';
+              if (effectiveIsGroup) {
+                if (effectiveViewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
               } else {
-                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                if (effectiveCategory === constants.gojs.C_RELATIONSHIP) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                } else if (effectiveCategory === constants.gojs.C_RELSHIPTYPE) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                  if (selObj.viewkind === 'Object') {
+                } else if (effectiveCategory === constants.gojs.C_OBJECT || effectiveCategory === constants.gojs.C_OBJECTTYPE) {
+                  if (effectiveViewkind === 'Object' || !effectiveViewkind) {
                     values = uit.getNodeTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
-                  } else if (selObj.viewkind === 'Container') {
+                  } else if (effectiveViewkind === 'Container') {
                     values = uit.getGroupTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
                   }
                 }
+              }
               }
               break;
             case 'figure':
@@ -811,7 +982,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         checked={checked}
         pattern={pattern}
         obj={selObj}
-        context={modalContext}
+        context={context1}
         onInputChange={this.props.onInputChange}
         />
       }
@@ -832,7 +1003,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const what = context1.what;
     const myMetis = this.props.myMetis as akm.cxMetis;
     const modalContext = context1.myContext;
-    const myContext = modalContext.myContext;
     const readOnly = context1.readOnly;
     const myMetamodel: akm.cxMetaModel = modalContext.metamodel;
     const myModel: akm.cxModel = modalContext.model;
@@ -862,18 +1032,41 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_RELSHIPTYPEVIEW) {
       category = constants.gojs.C_RELSHIPTYPE;
     }
+    if (
+      myMetis?.modelType === 'Metamodelling' &&
+      (!!selObj?.objecttype || !!selObj?.objtypeRef) &&
+      (what === 'editObjectType' || what === 'editTypeview')
+    ) {
+      category = constants.gojs.C_OBJECTTYPE;
+    }
     if (selObj?.type === 'GraphLinksModel') {
       return;
     }
     if (!myObjectType) {
-      myObjectType = myMetis.findObjectType(selObj?.objtypeRef) as akm.cxObjectType;
+      myObjectType = myMetis.findObjectType(selObj?.objecttype?.id || selObj?.objtypeRef) as akm.cxObjectType;
+      if (!myObjectType) {
+        myObjectType = selObj?.objecttype as akm.cxObjectType;
+      }
       myObjectTypeView = myObjectType?.typeview;
     }
     if (myObjectTypeView)
       myObjectTypeView.viewkind = myObjectTypeView.data.viewkind;
     if (!myRelationshipType) {
-      myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
-      myRelationshipTypeView = myRelationshipType?.typeview;
+      myRelationshipType =
+        myMetis.findRelationshipType(
+          selObj?.reltypeRef || selObj?.relshiptype?.id || selObj?.reltype?.id
+        ) as akm.cxRelationshipType;
+      if (!myRelationshipType) {
+        myRelationshipType = (selObj?.relshiptype || selObj?.reltype) as akm.cxRelationshipType;
+      }
+      myRelationshipTypeView =
+        myMetis.findRelationshipTypeView(
+          selObj?.typeviewRef || myRelationshipType?.typeview?.id || selObj?.typeview?.id
+        ) as akm.cxRelationshipTypeView;
+      if (!myRelationshipTypeView) {
+        myRelationshipTypeView =
+          (myRelationshipType?.typeview || selObj?.typeview) as akm.cxRelationshipTypeView;
+      }
     }
     let inst: akm.cxObject | akm.cxRelationship;
     let instview: akm.cxObjectView | akm.cxRelationshipView;
@@ -902,7 +1095,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           objtypeview.template = 'Pool';
           objtypeview.viewkind = 'Container';
         }
-        console.log('96', type, type1, objtypeview, typeview);
         break;
       case constants.gojs.C_OBJECTTYPE:
         type = myObjectType;
@@ -938,6 +1130,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let test = null;
     // For each 'what' set correct item 
     switch (what) {
+      case "editObjectType":
+        item = type;
+        test = type;
+        break;
+      case "editRelationshipType":
+        item = type;
+        test = type;
+        break;
       case "editModelview":
         item = modelview;
         test = item;
@@ -1051,7 +1251,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 val = selObj[k];
                 break;
               } else if (reltypeview) {
-                val = item[k];
+                // Use selObj to show updated values as user types
+                val = selObj[k] !== undefined ? selObj[k] : item[k];
               }
               break;
             case 'editObjectview':
@@ -1060,7 +1261,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               if (k === 'groupLayout') {
                 val = instview[k];
-                console.log('1047 groupLayout val', val, instview);
               }
               if (k === 'memberscale' || k === 'arrowscale' || k === 'textscale') {
                 const selectedValue = selObj?.[k];
@@ -1172,32 +1372,44 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
             case 'template2':
-              if (selObj.isGroup) {
-                if (selObj.viewkind === 'Container') {
+              {
+                const effectiveViewkind =
+                  selObj?.viewkind ||
+                  item?.viewkind ||
+                  instview?.viewkind ||
+                  typeview?.viewkind ||
+                  (selObj?.isGroup ? 'Container' : 'Object');
+                const effectiveCategory = selObj?.category || category;
+                const effectiveIsGroup =
+                  selObj?.isGroup === true ||
+                  effectiveViewkind === 'Container';
+              if (effectiveIsGroup) {
+                if (effectiveViewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
               } else {
-                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                if (effectiveCategory === constants.gojs.C_RELATIONSHIP) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+                } else if (effectiveCategory === constants.gojs.C_RELSHIPTYPE) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else if (selObj.category === constants.gojs.C_OBJECT || selObj.category === constants.gojs.C_OBJECTTYPE) {
-                  if (selObj.viewkind === 'Object') {
+                } else if (effectiveCategory === constants.gojs.C_OBJECT || effectiveCategory === constants.gojs.C_OBJECTTYPE) {
+                  if (effectiveViewkind === 'Object' || !effectiveViewkind) {
                     values = uit.getNodeTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
-                  } else if (selObj.viewkind === 'Container') {
+                  } else if (effectiveViewkind === 'Container') {
                     values = uit.getGroupTemplateNames();
                     defValue = '';
                     fieldType = 'radio';
                   }
                 }
+              }
               }
               break;
             case 'figure':
@@ -1370,6 +1582,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (fieldType !== "textarea")
             fieldType = "text";
         }
+        
+        // Determine if value is inherited from typeview
+        let isInherited = false;
+        if (what === 'editObjectview' && instview && typeview) {
+          const objviewValue = instview[k];
+          const typeviewValue = typeview[k];
+          // Value is inherited if objectview has no explicit value and typeview has one
+          isInherited = (objviewValue === undefined || objviewValue === null || objviewValue === "") && 
+                        (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
+        } else if (what === 'editRelshipview' && instview && typeview) {
+          const relviewValue = instview[k];
+          const typeviewValue = typeview[k];
+          // Value is inherited if relshipview has no explicit value and typeview has one
+          isInherited = (relviewValue === undefined || relviewValue === null || relviewValue === "") && 
+                        (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
+        }
+        
         row = <InspectorRow
           key={k}
           id={k}
@@ -1384,7 +1613,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           checked={checked}
           pattern={pattern}
           obj={selObj}
-          context={modalContext}
+          context={context1}
+          isInherited={isInherited}
           onInputChange={this.props.onInputChange}
         />
       }      
@@ -1394,6 +1624,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
         
+    }
+    if (what === 'editObjectType' && type) {
+      dets.push(
+        <tr key="__properties-editor">
+          <td colSpan={3} style={{ padding: 0 }}>
+            <ObjectTypePropertiesEditor
+              objecttype={type}
+              metamodel={modalContext?.metamodel || myMetis?.currentMetamodel}
+              myMetis={myMetis}
+            />
+          </td>
+        </tr>
+      );
     }
     return dets;
   }

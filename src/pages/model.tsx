@@ -1,75 +1,626 @@
 import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import useSessionStorage from '../hooks/use-session-storage';
-import useLocalStorage from '../hooks/use-local-storage';
 import Modelling from '../components/Modelling';
-import Page from '../components/page';
-
-const debug = false;
+import Layout from '../components/Layout';
+import { searchGithub } from '../components/githubServices/githubService';
+import { InitialState } from '../reducers/reducer';
+import { normalizeGithubSource, readShareQueryValue } from '../components/utils/focusShare';
+import { readJsonResponse, readJsonResponseError } from '../components/utils/httpResponse';
+import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemoteUniverseBaseUrl, readRemoteUniverseId, readRemoteUniverseSlug } from '../components/utils/remoteUniverse';
+import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
+import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
+import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
 
 const page = (props: any) => {
     const dispatch = useDispatch();
-    const { query } = useRouter();
-    const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
+    const router = useRouter();
+    const { query, isReady } = router;
+    const [hasMounted, setHasMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
+    const [isSavingRemote, setIsSavingRemote] = useState(false);
+    const [saveStatus, setSaveStatus] = useState('');
+    const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
-    
+    const universeName = props.phFocus?.focusProj?.name || '';
+    const metisSuiteName = props.phData?.metis?.name || '';
+    const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
+    const workspaceMeta = getWorkspaceSnapshotMeta(props.phUser);
+    const activeMetisScope = normalizeMetisScope(workspaceMeta?.activeMetisScope);
+    const metisAvailability = describeMetisAvailability(workspaceMeta?.snapshot);
+    const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
-    // Retrieve memorySessionState using the useSessionStorage hook
-    const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []);
-    // console.log('20 MemoryLocState:', memoryLocState); // Debug log
-    const [data, setData] = useState(() => {
-        try {
-            return memoryLocState && typeof memoryLocState === 'string'
-                ? JSON.parse(memoryLocState)
-                : {};
-        } catch (error) {
-            console.error('Error parsing initial memoryLocState:', error);
-            return {};
+    const normalizeModels = (items: any) => Array.isArray(items) ? items.filter(Boolean) : [];
+    const asRecord = (value: any) => (value && typeof value === 'object' ? value : {});
+    const unwrapRemotePayload = (value: any) => {
+        let current = value;
+        for (let index = 0; index < 6; index += 1) {
+            const record = asRecord(current);
+            if (!record || Object.keys(record).length === 0) break;
+            if (isWorkspaceUniverseSnapshot(record)) return record;
+            if (Array.isArray(record.models) || Array.isArray(record.metamodels)) return record;
+            if (record.metis && typeof record.metis === 'object') {
+                current = record.metis;
+                continue;
+            }
+            if (record.payload && typeof record.payload === 'object') {
+                current = record.payload;
+                continue;
+            }
+            return record;
         }
+        return asRecord(current);
+    };
+    const normalizeSnapshotData = (snapshot: any) => ({
+        ...(isWorkspaceUniverseSnapshot(snapshot)
+            ? buildMimrisStateFromWorkspaceSnapshot(snapshot)
+            : {
+                phData: snapshot?.phData || {},
+                phFocus: snapshot?.phFocus || {},
+                phUser: snapshot?.phUser || {},
+                phSource: snapshot?.phSource || '',
+            }),
     });
-
-    useEffect(() => {
-        let parsedMemoryLocState = null;
-
+    const dispatchLoadedState = (snapshot: any) => {
+        const normalized = normalizeSnapshotData(snapshot);
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalized.phData });
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: normalized.phFocus });
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: normalized.phUser });
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: normalized.phSource });
+    };
+    const resolveUniverseIdFromLibrarySlug = async (slug: string, baseUrl: string) => {
+        if (!slug) return '';
         try {
-            // Parse memoryLocState if it's a string
-            parsedMemoryLocState = memoryLocState && typeof memoryLocState === 'string'
-                ? JSON.parse(memoryLocState)
-                : memoryLocState;
-
-            console.log('Parsed memoryLocState:', parsedMemoryLocState); // Debug log
+            const response = await fetch(`/api/universe/library?baseUrl=${encodeURIComponent(baseUrl)}`);
+            const { payload } = await readJsonResponse(response);
+            const universes = Array.isArray(payload?.universes) ? payload.universes : [];
+            const match = universes.find((item: any) => item?.slug === slug);
+            return typeof match?.universeId === 'string'
+                ? match.universeId
+                : typeof match?.id === 'string'
+                    ? match.id
+                    : '';
+        } catch (error) {
+            console.error('Unable to resolve universe id from library slug:', error);
+            return '';
+        }
+    };
+    const buildModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+        const params = new URLSearchParams();
+        const normalizedBaseUrl = options.baseUrl ? normalizeRemoteUniverseBaseUrl(options.baseUrl) : '';
+        if (options.universeId) {
+            params.set('universe', options.universeId);
+        } else if (options.universeSlug) {
+            params.set('universeSlug', options.universeSlug);
+        }
+        if (normalizedBaseUrl) {
+            params.set('universeApi', normalizedBaseUrl);
+        }
+        if (options.metisScope) {
+            params.set('metisScope', normalizeMetisScope(options.metisScope));
+        }
+        return `/model?${params.toString()}`;
+    };
+    const updateModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+        const nextRoute = buildModelRoute(options);
+        const currentPath = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : router.asPath;
+        if (currentPath === nextRoute) return;
+        router.replace(nextRoute, undefined, { shallow: true, scroll: false });
+    };
+    const loadLocalMemoryState = () => {
+        try {
+            const stored = window.localStorage.getItem('memorystate');
+            const parsed = stored ? JSON.parse(stored) : null;
+            if (parsed) {
+                dispatchLoadedState(parsed);
+                return true;
+            }
         } catch (error) {
             console.error('Error parsing memoryLocState:', error);
         }
-
-        if (parsedMemoryLocState) {
-            const newData = {
-                phData: parsedMemoryLocState.phData || {},
-                phFocus: parsedMemoryLocState.phFocus || {},
-                phUser: parsedMemoryLocState.phUser || {},
-                phSource: parsedMemoryLocState.phSource || '',
-            };
-
-            console.log('Constructed newData:', newData); // Debug log
-            setData(newData);
-        } else {
-            console.log('memoryLocState is null, undefined, or invalid'); // Debug log
+        return false;
+    };
+    const resolveLoadError = (response: Response, payload: any, text: string, fallbackMessage: string) =>
+        readJsonResponseError(response, payload, text, fallbackMessage);
+    const buildScopedRemoteLoadError = (scope: string, universeSlug: string, remoteUri: string, detail?: string) => {
+        const prefix = `Unable to load remote model resource '${scope}' for universe '${universeSlug}'.`;
+        if (detail && detail.trim()) {
+            return `${prefix} ${detail.trim()} URI: ${remoteUri}`;
         }
-    }, [memoryLocState]);
+        return `${prefix} URI: ${remoteUri}`;
+    };
+    const buildRemoteMetisState = (metisPayload: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        const resolvedMetisPayload = unwrapRemotePayload(metisPayload);
+        const normalizedMetis = {
+            ...InitialState.phData?.metis,
+            ...resolvedMetisPayload,
+        };
+        const models = normalizeModels(normalizedMetis.models);
+        const metamodels = normalizeModels(normalizedMetis.metamodels);
+        const requestedModelRef = readShareQueryValue(normalizedMetis.currentModelRef);
+        const requestedModelviewRef = readShareQueryValue(normalizedMetis.currentModelviewRef);
+        const requestedMetamodelRef = readShareQueryValue(normalizedMetis.currentMetamodelRef);
+        const resolvedModel =
+            models.find((model: any) => model?.id === requestedModelRef || model?.name === requestedModelRef) ||
+            models.find((model: any) => requestedMetamodelRef && model?.metamodelRef === requestedMetamodelRef) ||
+            models[0] ||
+            null;
+        const resolvedModelviews = normalizeModels(resolvedModel?.modelviews);
+        const resolvedModelview =
+            resolvedModelviews.find((modelview: any) => modelview?.id === requestedModelviewRef || modelview?.name === requestedModelviewRef) ||
+            resolvedModelviews[0] ||
+            null;
+        const projectName = props.phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
 
-    // console.log('47 Data passed to Modelling:', data, props);
+        return {
+            phData: {
+                ...InitialState.phData,
+                ...props.phData,
+                metis: {
+                    ...normalizedMetis,
+                    models,
+                    metamodels,
+                },
+            },
+            phFocus: {
+                ...InitialState.phFocus,
+                ...props.phFocus,
+                focusProj: {
+                    ...InitialState.phFocus.focusProj,
+                    ...props.phFocus?.focusProj,
+                    name: projectName,
+                    file: options.remoteUri || options.universeSlug || options.universeId || '',
+                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
+                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                },
+                focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
+                focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
+            },
+            phUser: {
+                ...InitialState.phUser,
+                ...props.phUser,
+                __workspaceUniverse: {
+                    ...(props.phUser?.__workspaceUniverse || {}),
+                    activeMetisScope: normalizeMetisScope(options.metisScope),
+                    remoteModelUri: options.remoteUri || '',
+                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
+                    universeSlug: options.universeSlug || '',
+                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                },
+            },
+            phSource: options.remoteUri || options.universeSlug || options.universeId || props.phSource,
+        };
+    };
+    const resolveUniverseSlugFromLibraryId = async (universeId: string, baseUrl: string) => {
+        if (!universeId) return '';
+        try {
+            const response = await fetch(`/api/universe/library?baseUrl=${encodeURIComponent(baseUrl)}`);
+            const { payload } = await readJsonResponse(response);
+            const universes = Array.isArray(payload?.universes) ? payload.universes : [];
+            const match = universes.find((item: any) =>
+                item?.id === universeId || item?.universeId === universeId || item?.slug === universeId,
+            );
+            return typeof match?.slug === 'string' ? match.slug : '';
+        } catch (error) {
+            console.error('Unable to resolve universe slug from library id:', error);
+            return '';
+        }
+    };
+    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string }) => {
+        const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
+        const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl));
+        const { payload, text } = await readJsonResponse(response);
+        if (!response.ok || payload?.error || !payload?.payload) {
+            try {
+                const fallbackResponse = await fetch(`/api/universe/library/${encodeURIComponent(options.universeSlug)}?baseUrl=${encodeURIComponent(options.baseUrl)}`);
+                const fallback = await readJsonResponse(fallbackResponse);
+                if (fallbackResponse.ok && fallback.payload && !fallback.payload?.error) {
+                    const fallbackRawPayload = fallback.payload;
+                    const fallbackState = isWorkspaceUniverseSnapshot(fallbackRawPayload)
+                        ? buildMimrisStateFromWorkspaceSnapshot(setActiveMetisScope(fallbackRawPayload, options.metisScope), {
+                            sourceName: fallbackRawPayload?.focus?.project?.name || options.universeSlug,
+                            sourcePath: remoteUri,
+                            universeId: options.universeId,
+                            universeApiBaseUrl: options.baseUrl,
+                        })
+                        : buildRemoteMetisState(fallbackRawPayload, {
+                            universeId: options.universeId,
+                            universeSlug: options.universeSlug,
+                            baseUrl: options.baseUrl,
+                            metisScope: options.metisScope,
+                            remoteUri,
+                        });
+
+                    clearStoredFocusModel();
+                    dispatchLoadedState(fallbackState);
+                    updateModelRoute({
+                        universeId: options.universeId,
+                        universeSlug: options.universeSlug,
+                        baseUrl: options.baseUrl,
+                        metisScope: options.metisScope,
+                    });
+                    dispatch({
+                        type: 'SET_FOCUS_REFRESH',
+                        data: {
+                            id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                                ? crypto.randomUUID()
+                                : `${Date.now()}`,
+                            name: 'Open remote model',
+                        },
+                    });
+                    return fallbackState;
+                }
+            } catch (fallbackError) {
+                console.error('Fallback remote universe load failed:', fallbackError);
+            }
+
+            const detail = resolveLoadError(
+                response,
+                payload,
+                text,
+                `Remote endpoint returned an error for scope '${options.metisScope}'.`,
+            );
+            setLoadError(buildScopedRemoteLoadError(options.metisScope, options.universeSlug, remoteUri, detail));
+            return null;
+        }
+
+        const rawPayload = unwrapRemotePayload(payload.payload);
+        const nextState = isWorkspaceUniverseSnapshot(rawPayload)
+            ? buildMimrisStateFromWorkspaceSnapshot(setActiveMetisScope(rawPayload, options.metisScope), {
+                sourceName: rawPayload?.focus?.project?.name || options.universeSlug,
+                sourcePath: remoteUri,
+                universeId: options.universeId,
+                universeApiBaseUrl: options.baseUrl,
+            })
+            : buildRemoteMetisState(rawPayload, {
+                universeId: options.universeId,
+                universeSlug: options.universeSlug,
+                baseUrl: options.baseUrl,
+                metisScope: options.metisScope,
+                remoteUri,
+            });
+
+        clearStoredFocusModel();
+        dispatchLoadedState(nextState);
+        updateModelRoute({
+            universeId: options.universeId,
+            universeSlug: options.universeSlug,
+            baseUrl: options.baseUrl,
+            metisScope: options.metisScope,
+        });
+        dispatch({
+            type: 'SET_FOCUS_REFRESH',
+            data: {
+                id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                    ? crypto.randomUUID()
+                    : `${Date.now()}`,
+                name: 'Open remote model',
+            },
+        });
+        return nextState;
+    };
+    const canSaveRemote = Boolean(
+        props.phFocus?.focusProj?.universeId ||
+        props.phFocus?.focusProj?.universeApiBaseUrl ||
+        props.phUser?.__workspaceUniverse?.universeId ||
+        props.phUser?.__workspaceUniverse?.universeApiBaseUrl,
+    );
+    const clearStoredFocusModel = () => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+        } catch (error) {
+            console.error('Unable to clear stored focus model:', error);
+        }
+    };
+    const handleSaveToServer = async () => {
+        setIsSavingRemote(true);
+        setSaveStatus('');
+        try {
+            const result = await saveRemoteUniverseProject({
+                phData: props.phData,
+                phFocus: props.phFocus,
+                phSource: props.phSource,
+                phUser: props.phUser,
+            });
+            const adaptedState = buildMimrisStateFromWorkspaceSnapshot(result.snapshot, {
+                sourceName: result.snapshot?.focus?.project?.name || props.phFocus?.focusProj?.name || result.id,
+                sourcePath: result.snapshot?.focus?.project?.file || props.phFocus?.focusProj?.file || result.id,
+                universeId: result.id,
+                universeApiBaseUrl: result.baseUrl,
+            });
+            dispatch({
+                type: 'LOAD_TOSTORE_DATA',
+                data: adaptedState,
+            });
+            dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
+            setSaveStatus('Saved to server');
+        } catch (error: any) {
+            console.error('Error saving remote universe:', error);
+            setSaveStatus(error?.message || 'Unable to save to server');
+        } finally {
+            setIsSavingRemote(false);
+        }
+    };
+
+    const buildSharedData = (rawData: any, shareQuery: any) => {
+        const importedProject = rawData?.phData ? rawData : { phData: rawData };
+        const rawPhData = importedProject?.phData || {};
+        const importedMetis = rawPhData?.metis || {};
+        const models = normalizeModels(importedMetis.models || rawData?.models);
+        const metamodels = normalizeModels(importedMetis.metamodels || rawData?.metamodels);
+        const phData = {
+            ...InitialState.phData,
+            ...rawPhData,
+            ...(rawData?.domain ? { domain: rawData.domain } : {}),
+            metis: {
+                ...InitialState.phData?.metis,
+                ...importedMetis,
+                models,
+                metamodels,
+            },
+        };
+        const requestedModel = readShareQueryValue(shareQuery.model);
+        const requestedModelview = readShareQueryValue(shareQuery.modelview);
+        const resolvedModel = models.find((model: any) => model?.id === requestedModel || model?.name === requestedModel) || models[0] || null;
+        const modelviews = normalizeModels(resolvedModel?.modelviews);
+        const resolvedModelview = modelviews.find((modelview: any) => modelview?.id === requestedModelview || modelview?.name === requestedModelview) || modelviews[0] || null;
+
+        return {
+            phData,
+            phFocus: {
+                ...InitialState.phFocus,
+                ...importedProject?.phFocus,
+                focusProj: {
+                    ...InitialState.phFocus?.focusProj,
+                    ...importedProject?.phFocus?.focusProj,
+                    org: readShareQueryValue(shareQuery.org) || importedProject?.phFocus?.focusProj?.org || null,
+                    repo: readShareQueryValue(shareQuery.repo) || importedProject?.phFocus?.focusProj?.repo || null,
+                    branch: readShareQueryValue(shareQuery.branch) || importedProject?.phFocus?.focusProj?.branch || 'main',
+                    path: readShareQueryValue(shareQuery.path) || importedProject?.phFocus?.focusProj?.path || '',
+                    file: readShareQueryValue(shareQuery.file) || importedProject?.phFocus?.focusProj?.file || '',
+                },
+                focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
+                focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
+            },
+            phUser: importedProject?.phUser || InitialState.phUser,
+            phSource: importedProject?.phSource || readShareQueryValue(shareQuery.file) || InitialState.phSource,
+        };
+    };
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    useEffect(() => {
+        const fetchUsername = async () => {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                const username = typeof data?.username === 'string' && data.username
+                    ? data.username.charAt(0).toUpperCase() + data.username.slice(1)
+                    : 'Guest';
+                dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { ...props.phUser, focusUser: { name: username } } });
+            } catch (error) {
+                console.error('Error fetching username:', error);
+            }
+        };
+
+        fetchUsername();
+    }, []);
+
+    useEffect(() => {
+        if (!hasMounted) return;
+
+        const shareId = readShareQueryValue(query.share);
+        const universeId = readRemoteUniverseId(query.universe);
+        const universeSlug = readShareQueryValue(query.universeSlug);
+        const universeApi = readShareQueryValue(query.universeApi);
+        const requestedMetisScope = normalizeMetisScope(readShareQueryValue(query.metisScope));
+        const projectId = readShareQueryValue(query.project);
+        const org = readShareQueryValue(query.org);
+        const repo = readShareQueryValue(query.repo);
+        const file = readShareQueryValue(query.file);
+
+        const loadModel = async () => {
+            setIsLoading(true);
+            setLoadError('');
+            if (isReady && shareId) {
+                try {
+                    const response = await fetch(`/api/share/${encodeURIComponent(shareId)}`);
+                    const { payload, text } = await readJsonResponse(response);
+                    if (!response.ok || !payload?.snapshot) {
+                        throw new Error(readJsonResponseError(response, payload, text, 'Share not found.'));
+                    }
+                    dispatchLoadedState(payload.snapshot);
+                } catch (error: any) {
+                    console.error('Error loading snapshot share:', error);
+                    setLoadError(error?.message || 'Unable to load shared snapshot.');
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            if (isReady && universeId) {
+                try {
+                    const baseUrl = normalizeRemoteUniverseBaseUrl(universeApi);
+                    const resolvedSlug = universeSlug || await resolveUniverseSlugFromLibraryId(universeId, baseUrl);
+
+                    if (resolvedSlug) {
+                        try {
+                            await loadExplicitRemoteMetisScope({
+                                universeSlug: resolvedSlug,
+                                universeId,
+                                baseUrl,
+                                metisScope: requestedMetisScope,
+                            });
+                            setIsLoading(false);
+                            return;
+                        } catch (error: any) {
+                            setLoadError(error?.message || 'Unable to load remote model resource.');
+                            setIsLoading(false);
+                            return;
+                        }
+                    }
+
+                    setLoadError('Unable to resolve a universe slug for the selected remote model resource.');
+                    setIsLoading(false);
+                    return;
+                } catch (error: any) {
+                    console.error('Error loading remote universe:', error);
+                    setLoadError(error?.message || 'Unable to load remote universe.');
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            if (isReady && universeSlug) {
+                try {
+                    const baseUrl = normalizeRemoteUniverseBaseUrl(universeApi);
+                    const resolvedId = await resolveUniverseIdFromLibrarySlug(universeSlug, baseUrl);
+                    await loadExplicitRemoteMetisScope({
+                        universeSlug,
+                        universeId: resolvedId,
+                        baseUrl,
+                        metisScope: requestedMetisScope,
+                    });
+                } catch (error: any) {
+                    console.error('Error loading remote universe library entry:', error);
+                    setLoadError(error?.message || 'Unable to load remote universe.');
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            if (isReady && projectId) {
+                try {
+                    const response = await fetch(`/api/workbench/${encodeURIComponent(projectId)}`);
+                    const { payload, text } = await readJsonResponse(response);
+                    if (!response.ok || !payload?.snapshot) {
+                        throw new Error(readJsonResponseError(response, payload, text, 'Project not found.'));
+                    }
+                    dispatchLoadedState(
+                        isWorkspaceUniverseSnapshot(payload.snapshot)
+                            ? buildMimrisStateFromWorkspaceSnapshot(payload.snapshot, {
+                                sourceName: payload?.snapshot?.focus?.project?.name || projectId,
+                                sourcePath: payload?.snapshot?.focus?.project?.file || projectId,
+                            })
+                            : payload.snapshot,
+                    );
+                } catch (error: any) {
+                    console.error('Error loading server project:', error);
+                    setLoadError(error?.message || 'Unable to load server project.');
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            if (isReady && org && repo && file) {
+                try {
+                    const path = readShareQueryValue(query.path);
+                    const branch = readShareQueryValue(query.branch) || 'main';
+                    const githubSource = normalizeGithubSource({ org, repo });
+                    const response = await searchGithub(githubSource.repoPath, path, file, branch, 'file');
+                    if (!response?.data) {
+                        throw new Error('Unable to load shared model file.');
+                    }
+                    const nextData = isWorkspaceUniverseSnapshot(response.data)
+                        ? buildMimrisStateFromWorkspaceSnapshot(response.data, {
+                            sourceName: file,
+                            sourcePath: file,
+                        })
+                        : buildSharedData(response.data, query);
+                    dispatchLoadedState(nextData);
+                } catch (error: any) {
+                    console.error('Error loading shared model:', error);
+                    if (!loadLocalMemoryState()) {
+                        setLoadError(error?.message || 'Unable to load shared model file.');
+                    }
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            const hasLocalState = loadLocalMemoryState();
+            if (!hasLocalState) {
+                setLoadError('Unable to load shared model file.');
+            }
+            setIsLoading(false);
+        };
+
+        loadModel();
+    }, [hasMounted, isReady, query]);
+
+    const asPathQuery = typeof router.asPath === 'string' && router.asPath.includes('?')
+        ? router.asPath.slice(router.asPath.indexOf('?') + 1)
+        : '';
+    const asPathParams = new URLSearchParams(asPathQuery);
+    const pendingShareId = asPathParams.get('share') || '';
+    const pendingUniverseId = asPathParams.get('universe') || '';
+    const pendingUniverseSlug = asPathParams.get('universeSlug') || '';
+    const pendingProjectId = asPathParams.get('project') || '';
+    const pendingGithubOrg = asPathParams.get('org') || '';
+    const pendingGithubRepo = asPathParams.get('repo') || '';
+    const pendingGithubFile = asPathParams.get('file') || '';
+    const hasExplicitLoadRequest = Boolean(
+        pendingShareId ||
+        pendingUniverseId ||
+        pendingUniverseSlug ||
+        pendingProjectId ||
+        (pendingGithubOrg && pendingGithubRepo && pendingGithubFile)
+    );
+    const hasRenderableModels = Array.isArray(props.phData?.metis?.models) && props.phData.metis.models.some(Boolean);
+    const waitingForRequestedModel = hasExplicitLoadRequest && (!isReady || isLoading);
+    const shouldRenderModel = hasRenderableModels && !waitingForRequestedModel;
+
+    if ((!hasMounted || waitingForRequestedModel) && !hasRenderableModels) {
+        return <div className="workarea p-3 w-100">Loading shared model...</div>;
+    }
+
+    if (loadError && !hasRenderableModels) {
+        return <div className="workarea p-3 w-100">{loadError}</div>;
+    }
+
     return (
-        <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
-            <Modelling {...data}
-                visibleFocusDetails={false}
-                setVisibleFocusDetails={false}
-                exportTab={false}
-                visiblePalette={false}
-            />
-            {/* <Modelling toggleRefresh={toggleRefresh} /> */}
-        </div>
+        <Layout
+            user={props.phUser?.focusUser}
+            hideTopMenu
+            navbarProps={{
+                variant: 'mini-model',
+                suiteLabel: headerLabel,
+                canSaveToServer: canSaveRemote,
+                isSavingToServer: isSavingRemote,
+                onSaveToServer: handleSaveToServer,
+            }}
+        >
+            <div className="workarea p-1 w-100 position-relative" style={{ backgroundColor: "#bcc" }}>
+                {(isLoading || loadError) && (
+                    <div
+                        className="px-3 py-2 small text-muted d-flex gap-3 align-items-center"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.72)' }}
+                    >
+                        {isLoading && <span>Loading shared model...</span>}
+                        {loadError && <span>{loadError}</span>}
+                    </div>
+                )}
+                {saveStatus && (
+                    <div className="px-3 py-2 small text-muted d-flex gap-3 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.7)' }}>
+                        {saveStatus && <span>{saveStatus}</span>}
+                    </div>
+                )}
+                {shouldRenderModel && (
+                    <Modelling
+                        {...props}
+                        visibleFocusDetails={visibleFocusDetails}
+                        setVisibleFocusDetails={setVisibleFocusDetails}
+                        exportTab={exportTab}
+                        visiblePalette={false}
+                    />
+                )}
+            </div>
+        </Layout>
     )
 };
 
-export default Page(connect(state => state)(page));
+export default connect(state => state)(page);

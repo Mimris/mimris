@@ -97,10 +97,47 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
@@ -108,6 +145,155 @@ function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any
     return {
       ...node,
       category,
+    };
+  });
+}
+
+function getDiagramNodeAliases(data: any): string[] {
+  if (!data || typeof data !== 'object') return [];
+  const aliases = [
+    data?.key,
+    data?.objviewRef,
+    data?.objectview?.id,
+    data?.objRef,
+    data?.object?.id,
+    data?.__dragSessionToken,
+  ]
+    .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+    .map((v: any) => String(v));
+  return Array.from(new Set(aliases));
+}
+
+function mergeIncomingDiagramNodeDataWithLiveState(
+  incomingNodes: any[] | undefined,
+  diagram: go.Diagram | null | undefined,
+): any[] {
+  if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
+
+  const liveNodeByAlias = new Map<string, go.Node>();
+  for (let it = diagram.nodes.iterator; it?.next();) {
+    const node = it.value as go.Node;
+    const aliases = getDiagramNodeAliases(node?.data);
+    aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
+  }
+
+  return incomingNodes.map((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object') return incoming;
+    const aliases = getDiagramNodeAliases(incoming);
+    if (aliases.length === 0) return incoming;
+
+    let liveNode: go.Node | undefined;
+    for (let i = 0; i < aliases.length; i++) {
+      const candidate = liveNodeByAlias.get(aliases[i]);
+      if (candidate instanceof go.Node) {
+        liveNode = candidate;
+        break;
+      }
+    }
+    if (!(liveNode instanceof go.Node)) return incoming;
+
+    const liveData: any = liveNode.data || {};
+    const liveLoc = `${liveNode.location.x} ${liveNode.location.y}`;
+    const nextGroup = liveData?.group ?? incoming.group;
+    const nextScale = liveData?.scale ?? incoming.scale;
+    const nextScale1 = liveData?.scale1 ?? incoming.scale1;
+
+    if (
+      String(incoming.loc || '') === String(liveLoc || '') &&
+      String(incoming.group ?? '') === String(nextGroup ?? '') &&
+      Number(incoming.scale ?? 1) === Number(nextScale ?? 1) &&
+      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1)
+    ) {
+      return incoming;
+    }
+
+    return {
+      ...incoming,
+      loc: liveLoc,
+      group: nextGroup,
+      scale: nextScale,
+      scale1: nextScale1,
+    };
+  });
+}
+
+function normalizeLiveLinkPoints(points: any): number[] | undefined {
+  if (!points) return undefined;
+  if (Array.isArray(points)) {
+    if (points.length >= 4) return [...points];
+    return undefined;
+  }
+  const arr: number[] = [];
+  try {
+    const it = points?.iterator;
+    while (it?.next()) {
+      const p = it.value;
+      if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+        arr.push(Number(p.x), Number(p.y));
+      }
+    }
+  } catch (_) {
+  }
+  return arr.length >= 4 ? arr : undefined;
+}
+
+function mergeIncomingDiagramLinkDataWithLiveState(
+  incomingLinks: any[] | undefined,
+  diagram: go.Diagram | null | undefined,
+): any[] {
+  if (!Array.isArray(incomingLinks) || !(diagram instanceof go.Diagram)) return incomingLinks as any;
+
+  const liveByKey = new Map<string, go.Link>();
+  for (let it = diagram.links.iterator; it?.next();) {
+    const link = it.value as go.Link;
+    const ids = [
+      link?.data?.key,
+      link?.key,
+      link?.data?.relviewRef,
+      link?.data?.relshipview?.id,
+    ]
+      .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+      .map((v: any) => String(v));
+    ids.forEach((id) => liveByKey.set(id, link));
+  }
+
+  return incomingLinks.map((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object') return incoming;
+    const ids = [
+      incoming?.key,
+      incoming?.relviewRef,
+      incoming?.relshipview?.id,
+    ]
+      .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+      .map((v: any) => String(v));
+    if (ids.length === 0) return incoming;
+
+    let liveLink: go.Link | undefined;
+    for (let i = 0; i < ids.length; i++) {
+      const candidate = liveByKey.get(ids[i]);
+      if (candidate instanceof go.Link) {
+        liveLink = candidate;
+        break;
+      }
+    }
+    if (!(liveLink instanceof go.Link) || !liveLink.data) return incoming;
+
+    const liveData: any = liveLink.data || {};
+    const livePoints = normalizeLiveLinkPoints(liveLink.points) || normalizeLiveLinkPoints(liveData?.points);
+    const nextFrom = liveData?.from ?? incoming.from;
+    const nextTo = liveData?.to ?? incoming.to;
+    const nextFromPort = liveData?.fromPort ?? incoming.fromPort;
+    const nextToPort = liveData?.toPort ?? incoming.toPort;
+    const nextRouting = liveData?.routing ?? incoming.routing;
+
+    return {
+      ...incoming,
+      from: nextFrom,
+      to: nextTo,
+      fromPort: nextFromPort,
+      toPort: nextToPort,
+      routing: nextRouting,
+      points: livePoints ?? incoming.points,
     };
   });
 }
@@ -235,6 +421,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return;
       }
       relview.points = points;
+      try { if (linkData?.relshipview) linkData.relshipview.points = points; } catch (_) {}
+      try { if (linkData?.relshipview && linkData.relshipview.id !== relview.id) linkData.relshipview = relview; } catch (_) {}
+      try {
+        const goModel: any = (this as any)?.myGoModel || this.myMetis?.gojsModel;
+        const goLink: any = goModel?.findLink?.(linkData?.key);
+        if (goLink) {
+          goLink.points = points;
+          goLink.relshipview = relview;
+          goLink.relviewRef = relview.id;
+          if (goLink.data) {
+            goLink.data.points = points;
+            goLink.data.relshipview = relview;
+            goLink.data.relviewRef = relview.id;
+          }
+        }
+      } catch (_) {}
+      const shouldFreezeManualRoute =
+        Array.isArray(points) &&
+        points.length >= 4 &&
+        (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
+         String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
+      if (shouldFreezeManualRoute) {
+        const preservedRouting = String(relview?.routing || linkData?.routing || "").trim() || "Orthogonal";
+        relview.routing = preservedRouting;
+        try { diagram.model.setDataProperty(linkData, "routing", preservedRouting); } catch (_) {
+          try { linkData.routing = preservedRouting; } catch (_err) {}
+        }
+        try { link.routing = uit.getRouting(preservedRouting); } catch (_) {}
+        try { link.adjusting = go.Link.End; } catch (_) {}
+      }
       try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
         try { linkData.points = points; } catch (_err) {}
       }
@@ -267,6 +483,68 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const diagram = this.diagramRef?.current?.getDiagram();
     this.myMetis.dispatch = this.props.dispatch;
     if (diagram instanceof go.Diagram) {
+      const diagramAny: any = diagram as any;
+      if (typeof diagramAny.layoutDiagram === 'function' && !diagramAny.__layoutGuardInstalled) {
+        const originalLayoutDiagram = diagramAny.layoutDiagram.bind(diagramAny);
+        diagramAny.__originalLayoutDiagram = originalLayoutDiagram;
+        diagramAny.layoutDiagram = (force?: boolean) => {
+          try {
+            const suppressUntil = Number(diagramAny.__suppressAutoLayoutUntil || 0);
+            if (suppressUntil > Date.now()) {
+              return;
+            }
+          } catch (_) {
+          }
+          return originalLayoutDiagram(force);
+        };
+        diagramAny.__layoutGuardInstalled = true;
+      }
+      const modelAny: any = diagram.model as any;
+      if (modelAny && typeof modelAny.setDataProperty === 'function' && !modelAny.__locWriteLockGuardInstalled) {
+        const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
+        modelAny.__originalSetDataProperty = originalSetDataProperty;
+        modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          try {
+            if (propname === 'loc' && data) {
+              const lockMap: Map<string, { loc: string; until: number }> | undefined =
+                (diagram as any).__lockMovedNodeLocByKey;
+              if (lockMap instanceof Map && lockMap.size > 0) {
+                const now = Date.now();
+                const ids = [
+                  data?.key,
+                  data?.objviewRef,
+                  data?.objectview?.id,
+                  data?.__dragSessionToken,
+                ].filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
+                  .map((v: any) => String(v));
+
+                let lock: { loc: string; until: number } | undefined;
+                ids.forEach((id) => {
+                  const candidate = lockMap.get(id);
+                  if (!candidate) return;
+                  if (!lock || Number(candidate.until || 0) > Number(lock.until || 0)) lock = candidate;
+                });
+
+                if (lock && Number(lock.until || 0) > now) {
+                  const incomingLoc = String(value || '');
+                  const lockedLoc = String(lock.loc || '');
+                  if (incomingLoc && lockedLoc && incomingLoc !== lockedLoc) {
+                    return;
+                  }
+                } else {
+                  ids.forEach((id) => {
+                    const entry = lockMap.get(id);
+                    if (entry && Number(entry.until || 0) <= now) lockMap.delete(id);
+                  });
+                }
+              }
+            }
+          } catch (_) {
+          }
+          return originalSetDataProperty(data, propname, value);
+        };
+        modelAny.__locWriteLockGuardInstalled = true;
+      }
       if (diagram.model?.modelData) {
         (diagram.model.modelData as any)._viewportScale = diagram.scale || 1;
       }
@@ -515,6 +793,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       diagram.removeChangedListener(this.props.onModelChange);
 
+      const diagramAny: any = diagram as any;
+      if (diagramAny?.__layoutGuardInstalled && typeof diagramAny.__originalLayoutDiagram === 'function') {
+        diagramAny.layoutDiagram = diagramAny.__originalLayoutDiagram;
+        delete diagramAny.__originalLayoutDiagram;
+        delete diagramAny.__layoutGuardInstalled;
+      }
+
+      const modelAny: any = diagram.model as any;
+      if (modelAny?.__locWriteLockGuardInstalled && typeof modelAny.__originalSetDataProperty === 'function') {
+        modelAny.setDataProperty = modelAny.__originalSetDataProperty;
+        delete modelAny.__originalSetDataProperty;
+        delete modelAny.__locWriteLockGuardInstalled;
+      }
+
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(null, false); // Pass false to indicate that the diagram is not ready
       }
@@ -525,9 +817,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
     const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
+    
+    // CRITICAL: Store original data so we can revert if user cancels
+    let originalData = null;
+    if (node && node.category === 'Relationship') {
+      const diagram = modalContext?.myDiagram || this.diagramRef.current?.getDiagram();
+      if (diagram) {
+        const link = diagram.findLinkForKey(node.key);
+        if (link) {
+          const data = link.data;
+          originalData = {
+            key: data.key,
+            category: data.category,
+            strokecolor: data.strokecolor,
+            strokewidth: data.strokewidth,
+            textcolor: data.textcolor,
+            dash: data.dash,
+            routing: data.routing,
+            curve: data.curve,
+          };
+          console.log('[DIAGRAM-OPEN] Stored original link data for revert:', originalData);
+        }
+      }
+    }
+    
     this.setState({
       selectedData: node,
-      modalContext: modalContext,
+      modalContext: { ...modalContext, originalData }, // Store original data in modalContext
       selectedOption: null,
       showModal: !isChangeIconModal && !isSetGroupImageModal,
       showChangeIconModal: isChangeIconModal,
@@ -642,34 +958,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         console.warn('Change Icon: no icon selected');
         return;
       }
-      
-      console.log('Change Icon: setting icon to', newIcon, 'for node key', currentNode.key);
+
+      const liveNodePart =
+        myDiagram?.findNodeForKey?.(currentNode?.key) ||
+        myDiagram?.findPartForKey?.(currentNode?.key) ||
+        null;
+      const liveNodeData = liveNodePart?.data || currentNode;
+      const goModelNode =
+        myMetis?.gojsModel?.findNodeByViewId?.(liveNodeData?.objviewRef || liveNodeData?.key) ||
+        myMetis?.gojsModel?.findNode?.(liveNodeData?.key) ||
+        null;
       
       // Find the objectview
       let objview = null;
-      if (currentNode.key) {
-        objview = myModelview?.findObjectView(currentNode.key);
+      if (liveNodeData?.key) {
+        objview = myModelview?.findObjectView(liveNodeData.key);
       }
-      if (!objview && currentNode.objectview?.id) {
-        objview = myMetis?.findObjectView(currentNode.objectview.id);
+      if (!objview && liveNodeData?.objectview?.id) {
+        objview = myMetis?.findObjectView(liveNodeData.objectview.id);
       }
-      if (!objview && currentNode.objviewRef) {
-        objview = myMetis?.findObjectView(currentNode.objviewRef);
+      if (!objview && liveNodeData?.objviewRef) {
+        objview = myMetis?.findObjectView(liveNodeData.objviewRef);
       }
       if (!objview) {
-        objview = currentNode.objectview;
+        objview = liveNodeData?.objectview || currentNode?.objectview;
       }
       
       // Start diagram transaction
       myDiagram.startTransaction('change-icon');
       
       // Update the node data in the GoJS model
-      myDiagram.model.setDataProperty(currentNode, 'icon', newIcon);
+      myDiagram.model.setDataProperty(liveNodeData, 'icon', newIcon);
+      try { currentNode.icon = newIcon; } catch (_) {}
+      try { liveNodeData.icon = newIcon; } catch (_) {}
+      try { if (goModelNode) goModelNode.icon = newIcon; } catch (_) {}
+      try { if (goModelNode?.data) goModelNode.data.icon = newIcon; } catch (_) {}
       
       // Update the embedded objectview if present
-      if (currentNode.objectview) {
-        currentNode.objectview.icon = newIcon;
-      }
+      try {
+        if (liveNodeData?.objectview) {
+          liveNodeData.objectview.icon = newIcon;
+          myDiagram.model.setDataProperty(liveNodeData, 'objectview', liveNodeData.objectview);
+        }
+      } catch (_) {}
+      try {
+        if (liveNodePart?.objectview) {
+          liveNodePart.objectview.icon = newIcon;
+        }
+      } catch (_) {}
+      try {
+        if (goModelNode?.objectview) {
+          goModelNode.objectview.icon = newIcon;
+        }
+      } catch (_) {}
       
       // Update the actual objectview object
       if (objview) {
@@ -681,6 +1022,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       
       myDiagram.commitTransaction('change-icon');
       
+      try { liveNodePart?.updateTargetBindings?.(); } catch (_) {}
+      try { myDiagram.model.updateTargetBindings?.(liveNodeData); } catch (_) {}
+      try {
+        const picture = liveNodePart?.findObject?.('Picture');
+        if (picture) picture.source = uit.getIconSource(newIcon);
+      } catch (_) {}
+      try {
+        uit.forceUpdateAllIconSources?.(myDiagram);
+      } catch (_) {}
+      
       // Dispatch to Redux to persist the change
       if (objview) {
         const jsnObjview = new jsn.jsnObjectView(objview);
@@ -688,11 +1039,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const dispatchFn = myDiagram.dispatch || myMetis?.dispatch || this.props.dispatch;
         if (dispatchFn) {
           dispatchFn({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
-          console.log('Change Icon: Dispatched UPDATE_OBJECTVIEW_PROPERTIES');
         }
       }
       
       // Request diagram update
+      try { myDiagram.updateAllTargetBindings?.('icon'); } catch (_) {}
+      try { myDiagram.updateAllTargetBindings?.(); } catch (_) {}
       myDiagram.requestUpdate();
       return;
     }
@@ -1009,9 +1361,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const myContext = modalContext.myContext;
       let myDiagram = modalContext.myDiagram;
       if (!myDiagram) myDiagram = myContext?.myDiagram;
+      
+      // Revert any immediate visual changes applied during editing
+      const originalData = modalContext.originalData;
+      if (originalData && originalData.category === 'Relationship') {
+        const link = myDiagram.findLinkForKey(originalData.key);
+        if (link) {
+          myDiagram.model.commit((m: any) => {
+            const data = link.data;
+            if (originalData.strokecolor !== undefined) m.set(data, 'strokecolor', originalData.strokecolor);
+            if (originalData.strokewidth !== undefined) m.set(data, 'strokewidth', originalData.strokewidth);
+            if (originalData.textcolor !== undefined) m.set(data, 'textcolor', originalData.textcolor);
+            if (originalData.dash !== undefined) m.set(data, 'dash', originalData.dash);
+            if (originalData.routing !== undefined) m.set(data, 'routing', originalData.routing);
+            if (originalData.curve !== undefined) m.set(data, 'curve', originalData.curve);
+          }, 'revert-on-cancel');
+        }
+      }
+      
       for (let i = 0; i < links?.length; i++) {
-        const link = links[i];
-        myDiagram?.model?.removeLinkData(link);
+        myDiagram?.model?.removeLinkData(links[i]);
       }
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
@@ -1020,6 +1389,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const props = this.props;
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
+    
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
@@ -1471,11 +1841,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       produce((draft: DiagramProps) => {
         if (run === false) {
           run = true;
-          draft.selectedData[propname] = value;
+          const nextSelectedData = {
+            ...(draft.selectedData || {}),
+            [propname]: value,
+          };
+          draft.selectedData = nextSelectedData;
           if (propname === 'grabIsAllowed') {
             const nextValue = value === true || value === 'true';
             try {
-              draft.selectedData[propname] = nextValue;
+              draft.selectedData = {
+                ...(draft.selectedData || {}),
+                [propname]: nextValue,
+              };
             } catch (_) {}
             try {
               draft.modalContext.myContext.objectview[propname] = nextValue;
@@ -1569,6 +1946,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // layout: new go.TreeLayout({ isOngoing: false }),
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
+            "animationManager.isEnabled": false,
             // "initialAutoScale": go.Diagram.UniformToFill,
 
             // "undoManager.isEnabled": true,  // must be set to allow for model change listening
@@ -1584,7 +1962,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
             "draggingTool.dragsTree": false,
-            "draggingTool.isGridSnapEnabled": true,
+            // Continuous dragging is expected in the modeller; grid snapping makes
+            // groups/containers feel delayed and stepwise after they have been dropped.
+            "draggingTool.isGridSnapEnabled": false,
             "linkingTool.portGravity": 50,  // distance from port edge that still snaps to it (bigger = easier linking)
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
@@ -1633,9 +2013,106 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
 	    // clamp/snap back into the source lane.
 	    class SwimlaneDraggingTool extends go.DraggingTool {
+	      override doActivate() {
+	        const diagram = this.diagram;
+	        const draggedParts = this.draggedParts;
+	        let ordinaryNodeDrag = false;
+	        if (draggedParts) {
+	          for (let it = draggedParts.iterator; it?.next();) {
+	            const part: go.Part = it.key;
+	            if (part instanceof go.Node && !(part instanceof go.Group)) {
+	              ordinaryNodeDrag = true;
+	              break;
+	            }
+	          }
+	        }
+	        if (diagram && ordinaryNodeDrag) {
+	          try {
+	            (diagram as any).__suppressObjectSingleClickUntil = Date.now() + 1200;
+	          } catch (_) { }
+	        }
+	        super.doActivate();
+	      }
+
+	      override doMouseMove() {
+	        const diagram = this.diagram;
+	        try {
+	          const draggedParts = this.draggedParts;
+	          const manualLinkMovePreview = new Map<string, number[]>();
+	          for (let it = draggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Node) || !part.data?.key) continue;
+	            part.linksConnected.each((link: go.Link) => {
+	              const linkKey = link?.data?.key;
+	              if (!linkKey) return;
+	              const points: number[] = [];
+	              try {
+	                for (let pt = link.points.iterator; pt?.next();) {
+	                  const point = pt.value;
+	                  if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                    points.push(point.x, point.y);
+	                  }
+	                }
+	              } catch (_) {
+	              }
+	              if (points.length >= 4) {
+	                manualLinkMovePreview.set(String(linkKey), points);
+	              }
+	            });
+	          }
+	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
+	        } catch (_) {
+	        }
+          // Temporary drag vibration tracing removed.
+	        super.doMouseMove();
+	      }
+
 	      override doDeactivate() {
 	        const diagram = this.diagram;
 	        try {
+	          try {
+	            const draggedParts = this.draggedParts;
+	            const manualLinkMovePreview = new Map<string, number[]>();
+	            for (let it = draggedParts?.iterator; it?.next();) {
+	              const part = it.key as go.Part;
+	              if (!(part instanceof go.Node) || !part.data?.key) continue;
+	              part.linksConnected.each((link: go.Link) => {
+	                const linkKey = link?.data?.key;
+	                if (!linkKey) return;
+	                const points: number[] = [];
+	                try {
+	                  for (let pt = link.points.iterator; pt?.next();) {
+	                    const point = pt.value;
+	                    if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                      points.push(point.x, point.y);
+	                    }
+	                  }
+	                } catch (_) {
+	                }
+	                if (points.length >= 4) {
+	                  manualLinkMovePreview.set(String(linkKey), points);
+	                }
+	              });
+	            }
+	            if (manualLinkMovePreview.size > 0) {
+	              (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
+	            }
+	          } catch (_) {
+	          }
+	          try {
+	            if ((diagram as any)?.__manualLinkMovePreview instanceof Map &&
+	                (diagram as any).__manualLinkMovePreview.size === 0) {
+	              delete (diagram as any).__manualLinkMovePreview;
+	            }
+	          } catch (_) { }
+	          if (diagram) {
+	            try {
+	              (diagram as any).__suppressObjectSingleClickUntil = Math.max(
+	                Number((diagram as any).__suppressObjectSingleClickUntil || 0),
+	                Date.now() + 250
+	              );
+	            } catch (_) { }
+	          }
 	          const allowKeys: Set<string> | undefined = (diagram as any)?.__dragAllowReparentKeys;
 	          const allowGlobal: boolean = !!(diagram as any)?.__dragAllowReparent;
 	          if (diagram && (allowGlobal || (allowKeys && allowKeys.size > 0))) {
@@ -1744,7 +2221,176 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     this.myMetis.dispatch = this.props.dispatch;
-    myDiagram.dispatch = this.props.dispatch || this.myMetis?.dispatch;
+    
+    // Wrap dispatch to intercept visual property updates and apply them immediately to the GoJS diagram.
+    // This is necessary because updating myMetis.gojsModel doesn't change the array reference,
+    // so React's componentDidUpdate never fires. The wrapper bypasses this by directly updating
+    // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
+    const originalDispatch = this.props.dispatch || this.myMetis?.dispatch;
+    const wrappedDispatch = (action: any) => {
+      // Intercept view property updates for immediate visual feedback
+      if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
+        try {
+          const data = action.data;
+          const nodeData = myDiagram.model.findNodeDataForKey(data.id) || 
+                          Array.from(myDiagram.nodes).find((n: any) => 
+                            n.data?.id === data.id || 
+                            n.data?.objviewRef === data.id ||
+                            n.data?.key === data.id
+                          )?.data;
+          
+          if (nodeData) {
+            // Skip undo/redo and prevent selection changes
+            myDiagram.skipsUndoManager = true;
+            const oldAllowSelect = myDiagram.allowSelect;
+            myDiagram.allowSelect = false;
+            
+            myDiagram.model.commit((m: any) => {
+              if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
+              if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
+              if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
+              if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+            }, null);
+            
+            // Restore settings - but ONLY restore allowSelect if it was true before
+            // If it was already false (e.g., from handleCloseModal), keep it false
+            myDiagram.skipsUndoManager = false;
+            if (oldAllowSelect === true) {
+              myDiagram.allowSelect = true;
+            }
+          }
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying objectview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
+        try {
+          const data = action.data;
+          
+          // CRITICAL: If skipVisualUpdate flag is set, the visual update was already done
+          // in handleCloseModal, so we just forward to Redux for persistence
+          if (action.skipVisualUpdate) {
+            console.log('[Dispatch-Wrapper] skipVisualUpdate=true, forwarding to Redux without visual update');
+            // Remove skipVisualUpdate before forwarding to Redux (Redux doesn't expect it)
+            const { skipVisualUpdate, ...cleanAction } = action;
+            originalDispatch(cleanAction);
+            return;
+          }
+          
+          console.log('[Dispatch-Wrapper] Applying relshipview update for:', data.id);
+          
+          // Check if this id belongs to a node (safety check)
+          const nodeData = myDiagram.model.findNodeDataForKey(data.id);
+          if (nodeData) {
+            console.error('[Dispatch-Wrapper] Error: data.id is a node, not a link');
+            originalDispatch(action);
+            return;
+          }
+          
+          // Try to find the link by key first, then search by various id fields
+          let linkData = myDiagram.model.findLinkDataForKey(data.id);
+          let link = null;
+          
+          if (!linkData) {
+            for (let it = myDiagram.links.iterator; it?.next();) {
+              const l = it.value;
+              const ld = l.data;
+              if (!ld) continue;
+              
+              if (ld.id === data.id || 
+                  ld.key === data.id || 
+                  ld.relviewRef === data.id ||
+                  ld.relshipview?.id === data.id) {
+                linkData = ld;
+                link = l;
+                break;
+              }
+            }
+          }
+          
+          if (linkData) {
+            // Skip undo/redo and prevent selection changes
+            myDiagram.skipsUndoManager = true;
+            const oldAllowSelect = myDiagram.allowSelect;
+            myDiagram.allowSelect = false;
+            
+            myDiagram.model.commit((m: any) => {
+              if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
+              if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
+            }, null);
+            
+            // Restore settings - only restore allowSelect if it was true
+            myDiagram.skipsUndoManager = false;
+            if (oldAllowSelect === true) {
+              myDiagram.allowSelect = true;
+            }
+          }
+          
+          // Forward to Redux for persistence
+          originalDispatch(action);
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying relshipview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_OBJECTTYPEVIEW_PROPERTIES' && action?.data?.id) {
+        // Apply typeview changes to all nodes using that typeview
+        try {
+          const data = action.data;
+          
+          // Skip undo/redo and prevent selection changes
+          myDiagram.skipsUndoManager = true;
+          const oldAllowSelect = myDiagram.allowSelect;
+          myDiagram.allowSelect = false;
+          
+          myDiagram.model.commit((m: any) => {
+            myDiagram.nodes.each((node: any) => {
+              const nodeData = node.data;
+              if (nodeData?.typeviewRef === data.id || nodeData?.objectview?.typeviewRef === data.id) {
+                if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
+                if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
+                if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
+                if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+              }
+            });
+          }, null);
+          
+          // Restore settings
+          myDiagram.skipsUndoManager = false;
+          myDiagram.allowSelect = oldAllowSelect;
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying typeview updates:', err);
+        }
+      } else if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
+        // Apply typeview changes to all links using that typeview
+        try {
+          const data = action.data;
+          
+          // Skip undo/redo and prevent selection changes
+          myDiagram.skipsUndoManager = true;
+          const oldAllowSelect = myDiagram.allowSelect;
+          myDiagram.allowSelect = false;
+          
+          myDiagram.model.commit((m: any) => {
+            myDiagram.links.each((link: any) => {
+              const linkData = link.data;
+              if (linkData?.typeviewRef === data.id || linkData?.relshipview?.typeviewRef === data.id) {
+                if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
+                if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
+              }
+            });
+          }, null);
+          
+          // Restore settings
+          myDiagram.skipsUndoManager = false;
+          myDiagram.allowSelect = oldAllowSelect;
+        } catch (err) {
+          console.error('[Dispatch-Wrapper] Error applying relship typeview updates:', err);
+        }
+      }
+      
+      // Always forward to Redux for persistence
+      return originalDispatch(action);
+    };
+    
+    myDiagram.dispatch = wrappedDispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.selectedOption = this.state.selectedOption;
@@ -1760,9 +2406,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // use a converter to display information about the diagram model
       );
     myDiagram.grid.visible = true;
-    myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
+    myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
     myMetis.myDiagram = myDiagram;
+    
     this.updateZoomInvariantHandles(myDiagram);
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";
@@ -1777,58 +2424,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       uic.handleContainedObjectViews(myModelview, myDiagram, myMetis);
     }
 
-    const clearStalePortLinkPaths = (diagram: go.Diagram, movedParts: go.Iterable<go.Part> | null | undefined) => {
-      if (!diagram || !movedParts) return;
-      const linksToClear = new go.Set<go.Link>();
-
-      movedParts.each((part: go.Part) => {
-        if (!(part instanceof go.Node)) return;
-        part.linksConnected.each((link: go.Link) => {
-          const linkData: any = link?.data;
-          if (!linkData) return;
-          const fromPort = String(linkData?.fromPort || "");
-          const toPort = String(linkData?.toPort || "");
-          if (!fromPort && !toPort) return;
-          linksToClear.add(link);
-        });
-      });
-
-      if (linksToClear.count === 0) return;
-
-      diagram.commit((d: go.Diagram) => {
-        linksToClear.each((link: go.Link) => {
-          const linkData: any = link?.data;
-          if (!linkData) return;
-          try {
-            d.model.setDataProperty(linkData, "points", []);
-          } catch (_err) {
-            linkData.points = [];
-          }
-          try {
-            link.points = new go.List<go.Point>();
-          } catch (_err) {
-            // ignore
-          }
-
-          const relview =
-            myMetis.findRelationshipView(linkData?.relviewRef) ||
-            linkData?.relshipview ||
-            null;
-          if (relview) {
-            relview.points = [];
-            const jsnRelView = new jsn.jsnRelshipView(relview);
-            let data: any = jsnRelView;
-            data = JSON.parse(JSON.stringify(data));
-            d.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
-          }
-        });
-      }, "clear-stale-port-link-paths");
-    };
-
-    myDiagram.addDiagramListener("SelectionMoved", (e: go.DiagramEvent) => {
-      const movedParts = e.subject as go.Iterable<go.Part>;
-      clearStalePortLinkPaths(myDiagram, movedParts);
-    });
+    // GoJSApp owns link-route persistence on move. Avoid a second SelectionMoved
+    // listener here that can overwrite saved manual paths after drop.
 
 
     // Tooltip functions
@@ -2573,16 +3170,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               const icon = uit.findImage(node.icon);
+              const objecttype = myMetis.findObjectType(node.objecttype?.id || node.objtypeRef) || node.objecttype;
+              const objecttypeview = objecttype?.typeview;
+              const myContext = {
+                objecttype:      objecttype,
+                objecttypeview:  objecttypeview,
+                relship:         null,
+                relshipview:     null,
+                relshiptype:     null,
+                relshiptypeview: null,
+                model:           myMetis.currentModel,
+                modelview:       myMetis.currentModelview,
+                metamodel:       myMetis.currentMetamodel,
+              };
               const modalContext = {
-                what: "editObjectType",
-                title: "Edit Object Type",
-                icon: icon,
-                myDiagram: myDiagram
-              }
+                what:      "editObjectType",
+                title:     "Edit Object Type",
+                icon:      icon,
+                myDiagram: myDiagram,
+                myContext: myContext,
+              };
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node, modalContext);
-              // 
             },
             function (o: any) {
               const node = o.part.data;
@@ -3440,15 +4050,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Relationship Type",
             function (e: any, obj: any) {
               const link = obj.part.data;
-              const modalContext = {
-                what: "editRelationshipType",
-                title: "Edit Relationship Type",
-                myDiagram: myDiagram
-              }
-              myMetis.currentLink = link;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(link, modalContext);
-              // 
+              uid.editRelationshipType(link, myMetis, myDiagram);
             },
             function (o: any) {
               const link = o.part.data;
@@ -3911,38 +4513,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return o.diagram.commandHandler.canPasteSelection();
             }),
-          // makeButton("----------",
-          //   function (e: any, obj: any) {
-          //     console.log('TEST');
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return o.diagram.commandHandler.canPasteSelection();
-          //   }),
-          // makeButton("New Model",
-          //   function (e: any, obj: any) {
-          //     uid.newModel(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("New Modelview",
-          //   function (e: any, obj: any) {
-          //     uid.newModelview(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
           makeButton("Set Modelview as Template",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
@@ -3954,34 +4524,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return false;
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
-          // makeButton("Delete Model",
-          //   function (e: any, obj: any) {
-          //     uid.deleteModel(myMetis, myDiagram);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     let cnt = 0;
-          //     const models = myMetis.models;
-          //     for (let i = 0; i < models.length; i++) {
-          //       const model = models[i];
-          //       if (model.markedAsDeleted)
-          //         continue;
-          //       cnt++;
-          //     }
-          //     if (cnt > 1)
-          //       return true;
-          //     else
-          //       return false;
-          //   }),
           makeButton("Delete Current Modelview",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current modelview?')) {
-                const model = myMetis.currentModel as akm.cxModel;
                 const modelView = myMetis.currentModelview as akm.cxModelView;
                 uid.deleteModelview(modelView, myMetis, myDiagram);
               }
@@ -3998,10 +4544,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   continue;
                 cnt++;
               }
-              if (cnt > 1)
-                return true;
-              else
-                return false;
+              return cnt > 1;
             }),
           makeButton("New Target Model",
             function (e: any, obj: any) {
@@ -4029,24 +4572,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              const metamodel = myMetis.currentTargetMetamodel;
-              if (metamodel)
-                return true;
-              else
-                return false;
+              return myMetis.modelType !== 'Metamodelling' && !!myMetis.currentTargetMetamodel;
             }),
           makeButton("Set Target Model",
             function (e: any, obj: any) {
-              const context = {
-                "myMetis": myMetis,
-                "myMetamodel": myMetis.currentMetamodel,
-                "myModel": myMetis.currentModel,
-                "myModelview": myMetis.currentModelview,
-                "myTargetMetamodel": myMetis.currentTargetMetamodel,
-                "myDiagram": e.diagram
-              }
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Target Model",
@@ -4059,192 +4588,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               return false;
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
             }),
-          // makeButton("----------",
-          //   function (e: any, obj: any) {
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
-          // makeButton("Edit Model Suite",
-          //   function (e: any, obj: any) {
-          //     const currentName = myMetis.name;
-          //     const modelSuiteName = prompt("Enter the name of the Model Suite:", currentName);
-          //     if (modelSuiteName?.length > 0) {
-          //       myMetis.name = modelSuiteName;
-          //     }
-          //     const currentDescr = myMetis.description;
-          //     const modelSuiteDescr = prompt("Enter Model Suite description:", currentDescr);
-          //     if (modelSuiteDescr?.length > 0) {
-          //       myMetis.description = modelSuiteDescr;
-          //     }
-
-          //     const myMetamodel = myMetis.currentMetamodel;
-          //     const objtype = myMetamodel.findObjectTypeByName("Datatype");
-          //     if (objtype) {
-          //       if (confirm("Allow generate current metamodel: (OK = Yes))"))
-          //         myMetis.allowGenerateCurrentMetamodel = true;
-          //       else
-          //         myMetis.allowGenerateCurrentMetamodel = false;
-          //     }
-          //     const project = {
-          //       // "id":           myMetis.id, // ToDo: add id to project
-          //       "name": myMetis.name,
-          //       "description": myMetis.description,
-          //       "allowGenerateCurrentMetamodel": myMetis.allowGenerateCurrentMetamodel
-          //     }
-          //     const modifiedProjects = new Array();  // metis-objektet i phData
-          //     modifiedProjects.push(project);
-          //     modifiedProjects?.map(mn => {
-          //       let data = (mn) && mn
-          //       data = JSON.parse(JSON.stringify(data));
-          //       e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-          //     });
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Edit Metamodel",
-          //   function (e: any, obj: any) {
-          //     const currentMetamodel = myMetis.currentMetamodel;
-          //     const currentName = currentMetamodel.name;
-          //     const modelName = prompt("Enter Metamodel name:", currentName);
-          //     if (modelName?.length > 0) {
-          //       currentMetamodel.name = modelName;
-          //     }
-          //     const currentDescr = currentMetamodel.description;
-          //     const modelDescr = prompt("Enter Metamodel description:", currentDescr);
-          //     if (modelDescr?.length > 0) {
-          //       currentMetamodel.description = modelDescr;
-          //     }
-          //     if (currentName !== modelName)
-          //       currentMetamodel.id = utils.createGuid();
-          //     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-          //     let data = { metis: jsnMetis }
-          //     data = JSON.parse(JSON.stringify(data));
-          //     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data }) // Todo: dispatch only name
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return true;
-          //     }
-          //   }),
-          // makeButton("Edit Model",
-          //   function (e: any, obj: any) {
-          //     const currentModel = myMetis.currentModel;
-          //     const currentName = currentModel.name;
-          //     const modelName = prompt("Enter Model name:", currentName);
-          //     if (modelName?.length > 0) {
-          //       currentModel.name = modelName;
-          //     }
-          //     const currentDescr = currentModel.description;
-          //     const modelDescr = prompt("Enter Model description:", currentDescr);
-          //     if (modelDescr?.length > 0) {
-          //       currentModel.description = modelDescr;
-          //     }
-          //     const jsnModel = new jsn.jsnModel(currentModel, true);
-          //     const modifiedModels = new Array();
-          //     modifiedModels.push(jsnModel);
-          //     modifiedModels?.map(mn => {
-          //       let data = (mn) && mn
-          //       data = JSON.parse(JSON.stringify(data));
-          //       e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-          //     })
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Edit Modelview",
-          //   function (e: any, obj: any) {
-          //     if (true) {
-          //       const currentModelview = myMetis.currentModelview;
-          //       let currentName = currentModelview.name;
-          //       const modelviewName = prompt("Enter Modelview name:", currentName);
-          //       if (modelviewName?.length > 0) {
-          //         currentModelview.name = modelviewName;
-          //       }
-          //       const currentDescr = currentModelview.description;
-          //       const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
-          //       if (modelviewDescr?.length > 0) {
-          //         currentModelview.description = modelviewDescr;
-          //       }
-          //       const jsnModelview = new jsn.jsnModelView(currentModelview);
-          //       const modifiedModelviews = new Array();
-          //       modifiedModelviews.push(jsnModelview);
-          //       modifiedModelviews?.map(mn => {
-          //         let data = (mn) && mn
-          //         data = JSON.parse(JSON.stringify(data));
-          //         e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-          //       })
-          //     } else {
-          //       // ToDo: implement a correct edit of modelview
-          //       // Need a working "uid.editModelview"
-          //       const currentModelview = myMetis.currentModelview;
-          //       const adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-          //       if (adminModel) {
-          //         let adminModelview = adminModel.modelviews[0];
-          //         if (adminModelview)
-          //           adminModelview = myMetis.findModelView(adminModelview.id);
-          //         const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
-          //         if (modelviewType) {
-          //           for (let i = 0; i < adminModel?.objects?.length; i++) {
-          //             const obj = adminModel.objects[i];
-          //             if (!obj || obj.type?.id !== modelviewType.id)
-          //               continue;
-          //             if (obj['modelviewId'] === currentModelview.id) {
-          //               if (obj) {
-          //                 const objview = obj.objectviews[0];
-          //                 const node = new gjs.goObjectNode(objview?.id, myGoModel, objview);
-          //                 uid.editObject(node, myMetis, myDiagram);
-          //               }
-          //             }
-          //           }
-          //         }
-          //       }
-          //     }
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling') {
-          //       return false;
-          //     }
-          //     const adminModel = myMetis.adminModel;
-          //     const currentModel = myMetis.currentModel;
-          //     if (currentModel.id === adminModel.id)
-          //       return false;
-          //     else
-          //       return true;
-          //   }),
-          // makeButton("Open/Close All Groups",
-          //   function (e: any, obj: any) {
-          //     const open = confirm("Open (OK) or Close all Groups?", "true");
-          //     uid.openCloseAllGroups(myDiagram, open);
-          //   },
-          //   function (o: any) {
-          //     if (myMetis.modelType === 'Metamodelling')
-          //       return false;
-          //     return true;
-          //   }),
           makeButton("Update Project from AdminModel",
             function (e: any, obj: any) {
               let adminModel = myMetis.adminModel;
@@ -4253,28 +4597,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling') {
-                return false;
-              }
               const adminModel = myMetis.adminModel;
               const currentModel = myMetis.currentModel;
-              if (currentModel.id === adminModel.id)
-                return true;
-              else
-                return false;
+              return myMetis.modelType !== 'Metamodelling' && currentModel.id === adminModel.id;
             }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Select all objects of type",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
               const myGoModel = myMetis.gojsModel;
               const typename = prompt("Enter object type name", "");
               const objects = myModel.getObjectsByTypename(typename, false);
@@ -4304,14 +4639,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Select by Object Name",
             function (e: any, obj: any) {
               const value = prompt('Enter name ', "");
-              const name = new RegExp(value, "i");
               const results = myDiagram.findNodesByExample(
                 { name: value });
               const it = results.iterator;
@@ -4322,9 +4654,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Add Missing Relationship Views",
             function (e: any, obj: any) {
@@ -4337,9 +4667,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Unhide Hidden Relationship Views",
             function (e: any, obj: any) {
@@ -4348,9 +4676,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Toggle Show Relationship Names",
             function (e: any, obj: any) {
@@ -4376,18 +4702,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return;
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) {
               uid.deleteInvisibleObjects(myMetis, myDiagram);
             },
             function (o: any) {
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true;
+              return myMetis.modelType !== 'Metamodelling';
             }),
           makeButton("Undelete Selection",
             function (e: any, obj: any) {
@@ -4435,10 +4757,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              const node = o.part.data;
-              if (myDiagram.selection.count > 0)
-                return true;
-              return false;
+              return myDiagram.selection.count > 0;
             }),
           // makeButton("----------",
           //   function (e: any, obj: any) {
@@ -5683,11 +6002,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         uid.openCloseAllGroups(targetDiagram, open);
       };
 
+      const isMetamodelDiagramContext = (diagram?: go.Diagram) => {
+        const targetDiagram = diagram || myDiagram;
+        if (!targetDiagram) return myMetis.modelType === 'Metamodelling';
+        try {
+          for (let it = targetDiagram.nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node?.data;
+            if (data?.objecttype || data?.category === constants.gojs.C_OBJECTTYPE) return true;
+          }
+        } catch (_) {
+        }
+        return myMetis.modelType === 'Metamodelling';
+      };
+
       const applyLayoutScheme = (diagram: go.Diagram, layoutName: string) => {
         const targetDiagram = diagram || myDiagram;
         if (!targetDiagram) return;
         const normalized = layoutName;
-        const isMetamodelling = myMetis.modelType === 'Metamodelling';
+        const isMetamodelling = isMetamodelDiagramContext(targetDiagram);
         if (isMetamodelling) {
           const myMetamodel = myMetis.currentMetamodel;
           if (myMetamodel) myMetamodel.layout = normalized;
@@ -5885,6 +6218,136 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const canDelete = diagram.commandHandler.canDeleteSelection();
         restore();
         return canDelete;
+      };
+
+      const persistDeletedObjectPart = (diagram: go.Diagram, part: go.Part) => {
+        if (!(part instanceof go.Node)) return false;
+        const data: any = part.data || {};
+        const objview =
+          myMetis.findObjectView(data?.objviewRef || data?.key) ||
+          myMetis.findObjectView(data?.key) ||
+          data?.objectview ||
+          null;
+        const object =
+          objview?.object ||
+          myMetis.findObject(data?.objRef || objview?.objectRef) ||
+          data?.object ||
+          null;
+
+        if (objview) {
+          objview.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
+            diagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+        if (object) {
+          object.markedAsDeleted = !myMetis.deleteViewsOnly;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnObject(object)));
+            diagram.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+        try {
+          diagram.dispatch?.({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: String(Date.now()), name: 'deleteObjectPartDirect' }
+          });
+        } catch (_) { }
+
+        const livePart =
+          diagram.findNodeForKey(data?.key) ||
+          diagram.findPartForKey(data?.key) ||
+          part;
+        const liveNodeData = livePart?.data || data;
+        try {
+          diagram.startTransaction('deleteObjectPartDirect');
+          if (livePart instanceof go.Group) {
+            try {
+              const subParts = livePart.findSubGraphParts();
+              if (subParts) {
+                diagram.removeParts(subParts, false);
+              }
+            } catch (_) { }
+          }
+          diagram.model.removeNodeData(liveNodeData);
+          try {
+            diagram.remove(livePart);
+          } catch (_) { }
+          diagram.commitTransaction('deleteObjectPartDirect');
+        } catch (_) {
+          try {
+            if (diagram.isInTransaction) diagram.rollbackTransaction();
+          } catch (_rollbackErr) { }
+          return false;
+        }
+        return true;
+      };
+
+      const persistDeletedRelationshipPart = (diagram: go.Diagram, part: go.Part) => {
+        if (!(part instanceof go.Link)) return false;
+        const data: any = part.data || {};
+        const relview =
+          myMetis.findRelationshipView(data?.relviewRef || data?.key) ||
+          data?.relshipview ||
+          null;
+        const relship =
+          relview?.relship ||
+          myMetis.findRelationship(data?.relshipRef || data?.relRef) ||
+          data?.relship ||
+          null;
+
+        if (!relview && !relship) return false;
+
+        if (relship && !myMetis.deleteViewsOnly) {
+          relship.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnRelationship(relship)));
+            diagram.dispatch?.({ type: 'UPDATE_RELSHIP_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+
+        const relatedViews =
+          myMetis.deleteViewsOnly
+            ? (relview ? [relview] : [])
+            : (relship ? (myMetis.getRelationshipViewsByRelship(relship.id) || []) : (relview ? [relview] : []));
+
+        for (let i = 0; i < relatedViews.length; i++) {
+          const view = relatedViews[i];
+          if (!view) continue;
+          view.markedAsDeleted = true;
+          try {
+            const payload = JSON.parse(JSON.stringify(new jsn.jsnRelshipView(view)));
+            diagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+          } catch (_) { }
+        }
+
+        try {
+          diagram.dispatch?.({
+            type: 'SET_FOCUS_REFRESH',
+            data: { id: String(Date.now()), name: 'deleteRelationshipPartDirect' }
+          });
+        } catch (_) { }
+
+        const livePart =
+          diagram.findLinkForKey(data?.key) ||
+          diagram.findPartForKey(data?.key) ||
+          part;
+        const liveLinkData = livePart?.data || data;
+        try {
+          diagram.startTransaction('deleteRelationshipPartDirect');
+          diagram.model.removeLinkData(liveLinkData);
+          try {
+            diagram.remove(livePart);
+          } catch (_) { }
+          diagram.commitTransaction('deleteRelationshipPartDirect');
+        } catch (_) {
+          try {
+            if (diagram.isInTransaction) diagram.rollbackTransaction();
+          } catch (_rollbackErr) { }
+          return false;
+        }
+        return true;
       };
 
       const handlePartCopy = (diagram: go.Diagram, part: go.Part) => {
@@ -6651,7 +7114,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
-        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        uid.doGroupLayout(objview, targetDiagram, myMetis);
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }
@@ -7160,7 +7623,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           return;
         }
 
-        uid.doGroupLayout(objview, targetDiagram, part as go.Group);
+        uid.doGroupLayout(objview, targetDiagram, myMetis);
         handleGroupSaveLayout(targetDiagram, part);
         targetDiagram.requestUpdate();
       }
@@ -7800,7 +8263,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (confirm('Do you really want to delete this object?')) {
           myMetis.deleteViewsOnly = false;
           myMetis.currentNode = part.data;
-          diagram.commandHandler.deleteSelection();
+          if (!persistDeletedObjectPart(diagram, part)) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
         restore();
       };
@@ -7876,7 +8341,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (confirm('Do you really want to delete the current selection?')) {
           myMetis.deleteViewsOnly = false;
           myMetis.currentLink = part.data;
-          diagram.commandHandler.deleteSelection();
+          if (!persistDeletedRelationshipPart(diagram, part)) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
       };
 
@@ -7885,7 +8352,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!diagram.commandHandler.canDeleteSelection()) return;
         if (confirm('Do you really want to delete the current selection?')) {
           myMetis.deleteViewsOnly = false;
-          diagram.commandHandler.deleteSelection();
+          const selectedParts: go.Part[] = [];
+          diagram.selection.each((sel) => selectedParts.push(sel));
+          let deletedAny = false;
+          for (let i = 0; i < selectedParts.length; i++) {
+            deletedAny = persistDeletedObjectPart(diagram, selectedParts[i]) || deletedAny;
+            deletedAny = persistDeletedRelationshipPart(diagram, selectedParts[i]) || deletedAny;
+          }
+          if (!deletedAny) {
+            diagram.commandHandler.deleteSelection();
+          }
         }
       };
 
@@ -8029,6 +8505,55 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
         const items: HtmlMenuItem[] = [];
         const data: any = part.data || {};
+        const isMetamodelObjectTypeNode =
+          myMetis.modelType === 'Metamodelling' &&
+          (!!data.objecttype || !!data.objtypeRef);
+
+        // Metamodel window: objecttype nodes only expose "Edit Object Type" and "Edit Object Typeview"
+        if (data.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
+          return [
+            {
+              label: "Edit Object Type",
+              action: (diagram) => {
+                const node = part.data;
+                if (!node) return;
+                const icon = uit.findImage(node.icon);
+                const objecttype = myMetis.findObjectType(node.objecttype?.id || node.objtypeRef) || node.objecttype;
+                const objecttypeview = objecttype?.typeview;
+                const myContext = {
+                  objecttype:      objecttype,
+                  objecttypeview:  objecttypeview,
+                  relship:         null,
+                  relshipview:     null,
+                  relshiptype:     null,
+                  relshiptypeview: null,
+                  model:           myMetis.currentModel,
+                  modelview:       myMetis.currentModelview,
+                  metamodel:       myMetis.currentMetamodel,
+                };
+                const modalContext = {
+                  what:      "editObjectType",
+                  title:     "Edit Object Type",
+                  icon:      icon,
+                  myDiagram: diagram || myDiagram,
+                  myContext: myContext,
+                };
+                myMetis.currentNode = node;
+                myMetis.myDiagram = diagram || myDiagram;
+                (diagram || myDiagram).handleOpenModal(node, modalContext);
+              },
+            },
+            {
+              label: "Edit Object Typeview",
+              action: (diagram) => {
+                const node = part.data;
+                if (!node) return;
+                uid.editObjectTypeview(node, myMetis, diagram || myDiagram, false);
+              },
+            },
+          ];
+        }
+
         const isObject =
           data.category === constants.gojs.C_OBJECT ||
           !!data.object ||
@@ -8804,6 +9329,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const data: any = part.data || {};
         const category = data.category;
         const isRelationship = category === constants.gojs.C_RELATIONSHIP;
+        const isRelshipType = category === constants.gojs.C_RELSHIPTYPE;
+
+        if (isRelshipType) {
+          items.push({
+            label: "Edit Relationship Type",
+            action: (diagram) => {
+              uid.editRelationshipType(data, myMetis, myDiagram);
+            },
+          });
+          items.push({
+            label: "Edit Relationship Typeview",
+            action: (diagram) => {
+              uid.editRelshipTypeview(data, myMetis, diagram || myDiagram, false);
+            },
+          });
+          items.push({
+            label: "Delete Relationship Type",
+            action: (diagram) => {
+              if (!confirm('Delete this relationship type?')) return;
+              const targetDiagram = diagram || myDiagram;
+              if (targetDiagram) {
+                targetDiagram.select(part);
+                targetDiagram.commandHandler.deleteSelection();
+              }
+            },
+          });
+          return items;
+        }
 
         // if (canEditAttribute(part)) {
         //   items.push({
@@ -8824,12 +9377,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // Add delete actions directly to the relationship's context menu
           items.push({
             label: "Delete Relationship",
-            action: (diagram) => {
-              if (!diagram) return;
-              if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
-              myMetis.deleteViewsOnly = false;
-              diagram.commandHandler.deleteSelection();
-            },
+            action: (diagram) => handleLinkDelete(diagram, linkPart),
             enabled: (diagram) => {
               if (!diagram) return false;
               if (!diagram.commandHandler.canDeleteSelection()) return false;
@@ -9182,7 +9730,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // allow showing a special, minimal menu. In particular, when right-clicking the
         // node's icon (a go.Picture), show a small menu containing only 'Change Icon'.
         let items: HtmlMenuItem[] | null = null;
-        try {
+        // Objecttype nodes always use buildNodeMenuItems (no icon shortcut)
+        if (
+          (targetPart.data || {}).category === constants.gojs.C_OBJECTTYPE ||
+          (myMetis.modelType === 'Metamodelling' && !!((targetPart.data || {}).objecttype || (targetPart.data || {}).objtypeRef))
+        ) {
+          items = buildNodeMenuItems(targetPart);
+        }
+        if (!items) try {
           // Skip special icon-only handling for groups; only consider icon-menu for node/object parts
           if (graphObj && !(targetPart instanceof go.Group)) {
             try {
@@ -10366,11 +10921,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleDoLayout = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;
         const myModelview = myMetis.currentModelview;
-        if (!myModelview) return;
-        targetDiagram.modelview = myModelview;
+        const isMetamodelling = isMetamodelDiagramContext(targetDiagram);
+        // Regression checklist:
+        // 1) Set layout A -> Do Layout -> move node -> no snap-back.
+        // 2) Set layout B -> Do Layout -> move node -> no snap-back.
+        // 3) Reload -> move node -> no snap-back.
         let layout = "";
         const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
-        if (myMetis.modelType === 'Modelling') {
+        if (!isMetamodelling) {
+          if (!myModelview) return;
+          targetDiagram.modelview = myModelview;
           targetDiagram.selection.each(function (sel) {
             const link = sel.data;
             if (link.category === constants.gojs.C_RELATIONSHIP) {
@@ -10396,20 +10956,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myModelview.clearRelviewPoints();
           const myGoModel = myMetis.gojsModel;
           layout = myGoModel.modelView?.layout;
-        } else if (myMetis.modelType === 'Metamodelling') {
+        } else {
           const myMetamodel = myMetis.currentMetamodel;
+          if (!myMetamodel) return;
           layout = myMetamodel.layout;
         }
         setLayout(targetDiagram, layout);
-        const nodes = targetDiagram.nodes;
-        for (let it = nodes.iterator; it?.next();) {
-          const node = it.value;
-          const data = node.data;
-          let objview = data.objectview;
-          if (!objview)
-            objview = myModelview.findObjectView(data.objviewRef);
-          if (objview) {
-            objview.loc = data.loc;
+        if (isMetamodelling) {
+          const myMetamodel = myMetis.currentMetamodel;
+          const objtypegeos = [];
+          const nodes = targetDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node.data;
+            const objtype = data?.objecttype;
+            if (!objtype) continue;
+            const loc = data?.loc || `${Math.round(node.location.x)} ${Math.round(node.location.y)}`;
+            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+            if (!objtypegeo) {
+              objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, data?.size || '');
+              myMetamodel.addObjtypeGeo(objtypegeo);
+              myMetis.addObjtypeGeo(objtypegeo);
+            }
+            objtypegeo.loc = loc;
+            objtypegeo.size = data?.size || objtypegeo.size;
+            const jsnObjtypegeo = new jsn.jsnObjectTypegeo(objtypegeo);
+            objtypegeos.push(jsnObjtypegeo);
+          }
+          objtypegeos.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+          });
+        } else {
+          const nodes = targetDiagram.nodes;
+          for (let it = nodes.iterator; it?.next();) {
+            const node = it.value;
+            const data = node.data;
+            let objview = data.objectview;
+            if (!objview)
+              objview = myModelview.findObjectView(data.objviewRef);
+            if (objview) {
+              objview.loc = data.loc;
+            }
           }
         }
         modifiedRelshipViews.map(mn => {
@@ -10425,7 +11014,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const handleSaveLayout = (diagram: go.Diagram) => {
         const targetDiagram = diagram || myDiagram;
-        if (myMetis.modelType === 'Metamodelling') {
+        if (isMetamodelDiagramContext(targetDiagram)) {
           const myMetamodel = myMetis.currentMetamodel;
           if (!myMetamodel) return;
           const nodes = targetDiagram.nodes;
@@ -10435,12 +11024,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const data = node.data;
             const objtype = data.objecttype;
             if (!objtype) continue;
-            const objtypegeo = objtype.typegeo;
-            if (!objtypegeo) continue;
-            objtypegeo.loc = data.loc;
-            objtypegeo.size = data.size;
-            objtypegeo.scale = data.scale;
-            const jsnObjtypegeo = new jsn.jsnObjectTypeGeo(objtypegeo);
+            const loc = data?.loc || `${Math.round(node.location.x)} ${Math.round(node.location.y)}`;
+            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+            if (!objtypegeo) {
+              objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, loc, data?.size || '');
+              myMetamodel.addObjtypeGeo(objtypegeo);
+              myMetis.addObjtypeGeo(objtypegeo);
+            }
+            objtypegeo.loc = loc;
+            objtypegeo.size = data?.size || objtypegeo.size;
+            const jsnObjtypegeo = new jsn.jsnObjectTypegeo(objtypegeo);
             objtypegeos.push(jsnObjtypegeo);
           }
           objtypegeos.map(mn => {
@@ -10488,7 +11081,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               relview = myModelview.findRelationshipView(data.relviewRef || data.key);
             }
             if (!relview) continue;
-            relview.points = data.points || [];
+            const livePoints: number[] = [];
+            try {
+              for (let pt = link.points.iterator; pt?.next();) {
+                const point = pt.value;
+                livePoints.push(point.x, point.y);
+              }
+            } catch (_) {}
+            relview.points = livePoints.length > 0 ? livePoints : (data.points || []);
             relview.routing = data.routing;
             relview.curve = data.curve;
             const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -10556,29 +11156,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           } catch (_) {}
         }
 
-        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        const selectedLinks: any[] = [];
         selection?.each((sel: any) => {
           try {
-            if (!(sel instanceof (go as any).Link) || sel.data?.category !== constants.gojs.C_RELATIONSHIP) return;
-            const linkData = sel.data;
-            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
-            if (!relview) return;
-
-            try {
-              targetDiagram.model.setDataProperty(linkData, "points", []);
-            } catch (_) {
-              linkData.points = [];
+            if ((sel instanceof (go as any).Link) && sel.data?.category === constants.gojs.C_RELATIONSHIP) {
+              selectedLinks.push(sel);
             }
-            relview.points = [];
-            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
           } catch (_) {}
         });
-
-        modifiedRelshipViews.forEach((mn) => {
-          let data: any = mn;
-          data = JSON.parse(JSON.stringify(data));
-          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
-        });
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, targetDiagram);
+        }
       };
 
       const handleSetRelshipRouting = (diagram: go.Diagram, routing: string, linkPart?: go.Link) => {
@@ -10660,29 +11248,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const myModelview = myMetis.currentModelview;
         if (!targetDiagram || !myModelview || !(groupPart instanceof go.Group)) return;
 
-        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
+        const selectedLinks: any[] = [];
         groupPart.findSubGraphParts().each((subPart: go.Part) => {
           try {
-            if (!(subPart instanceof (go as any).Link) || subPart.data?.category !== constants.gojs.C_RELATIONSHIP) return;
-            const linkData = subPart.data;
-            const relview = myModelview.findRelationshipView(linkData.relviewRef || linkData.key);
-            if (!relview) return;
-
-            try {
-              targetDiagram.model.setDataProperty(linkData, "points", []);
-            } catch (_) {
-              linkData.points = [];
+            if ((subPart instanceof (go as any).Link) && subPart.data?.category === constants.gojs.C_RELATIONSHIP) {
+              selectedLinks.push(subPart);
             }
-            relview.points = [];
-            modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
           } catch (_) {}
         });
-
-        modifiedRelshipViews.forEach((mn) => {
-          let data: any = mn;
-          data = JSON.parse(JSON.stringify(data));
-          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
-        });
+        if (selectedLinks.length > 0) {
+          uid.clearPath(selectedLinks, myMetis, targetDiagram);
+        }
       };
 
       const showSubMenu = (items: HtmlMenuItem[]) => (diagram: go.Diagram, tool: go.ContextMenuTool, source?: HTMLElement) => {
@@ -10832,7 +11408,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         ...globalLayoutOptions.map(option => ({
           label: option.label,
           action: (diagram: go.Diagram) => handleSetLayoutScheme(diagram, option.value),
-          visible: () => !isMetamodellingMode(),
+          visible: () => true,
         })),
         {
           separator: true,
@@ -10975,7 +11551,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         {
           label: "Do Layout",
           action: (diagram) => handleDoLayout(diagram),
-          visible: () => !isMetamodellingMode(),
+          visible: () => true,
         },
         {
           label: "Save Layout",
@@ -10987,12 +11563,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const toggleMenuItems: HtmlMenuItem[] = [
         {
           label: "Delete Relationship",
-          action: (diagram) => {
-            if (!diagram) return;
-            if (!confirm('Do you really want to delete the selected relationship(s)?')) return;
-            myMetis.deleteViewsOnly = false;
-            diagram.commandHandler.deleteSelection();
-          },
+          action: (diagram) => handleLinkDelete(diagram, part as go.Link),
           enabled: (diagram) => {
             if (!diagram) return false;
             if (!diagram.commandHandler.canDeleteSelection()) return false;
@@ -11345,6 +11916,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	      const stayInGroup = (part: go.Part, pt: go.Point, _gridpt: go.Point) => {
 	        const grp = part.containingGroup;
 	        if (!grp) return pt;
+          const grpCat = String(grp.data?.category || grp.data?.template || grp.category || "");
+          const isSwimlaneGroup = grpCat === "Pool" || grpCat === "Lane" || grpCat.startsWith("Lane");
+          // Non-swimlane model groups should not clamp node drag; clamping there can
+          // make nodes appear to jump/snap back after drop.
+          if (!isSwimlaneGroup) {
+            const diagram = part.diagram;
+            if (diagram?.lastInput?.shift) {
+              (diagram as any).__dragAllowReparent = true;
+              const k = part.data?.key;
+              if (k != null) {
+                const s: Set<string> = ((diagram as any).__dragAllowReparentKeys ||= new Set<string>());
+                s.add(String(k));
+              }
+            }
+            return pt;
+          }
+	        const dataGroupKey =
+	          typeof part.data?.group === "string" && part.data.group.length > 0
+	            ? String(part.data.group)
+	            : "";
+	        const containingGroupKey =
+	          grp.key !== undefined && grp.key !== null
+	            ? String(grp.key)
+	            : "";
+	        // After some container moves, a top-level node can briefly retain a stale
+	        // containingGroup even though its persisted `group` is already empty.
+	        // Do not clamp that first drag against the old container.
+	        if (!dataGroupKey || dataGroupKey !== containingGroupKey) {
+	          return pt;
+	        }
 	        // If Shift is held at any point during this drag, remember that so mouse-up handlers
 	        // can allow regrouping even if Shift is released just before drop.
 	        const diagram = part.diagram;
@@ -11450,13 +12051,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const part = it.value;
         if (!(part instanceof go.Group)) continue;
         if (key === "Pool" || key === "Lane" || key.startsWith("Lane")) continue;
-        part.dragComputation = stayInGroup;
+        // Generic containers should drag freely. Use a pass-through computation
+        // instead of clamping to a containing group.
+        part.dragComputation = (_part: go.Part, pt: go.Point) => pt;
       }
 
       const draggingTool = myDiagram.toolManager.draggingTool;
       const baseDoActivate = draggingTool.doActivate;
-      draggingTool.doActivate = function () {
-        const diagram = this.diagram;
+	      draggingTool.doActivate = function () {
+	        const diagram = this.diagram;
+        const isVisuallyInsideGroup = (part: go.Part, grp: go.Group): boolean => {
+          const back =
+            grp.findObject("LANE_BODY_SHAPE") ||
+            grp.findObject("BODY") ||
+            grp.resizeObject;
+          const groupBounds = back ? back.getDocumentBounds() : grp.actualBounds;
+          const partBounds = part.actualBounds;
+          if (!groupBounds || !partBounds) return false;
+          if (groupBounds.containsRect(partBounds)) return true;
+          const center = partBounds.center;
+          if (groupBounds.containsPoint(center)) return true;
+          const overlapLeft = Math.max(partBounds.x, groupBounds.x);
+          const overlapTop = Math.max(partBounds.y, groupBounds.y);
+          const overlapRight = Math.min(partBounds.right, groupBounds.right);
+          const overlapBottom = Math.min(partBounds.bottom, groupBounds.bottom);
+          const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+          const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+          const overlapArea = overlapWidth * overlapHeight;
+          const partArea = Math.max(1, partBounds.width * partBounds.height);
+          return (overlapArea / partArea) >= 0.45;
+        };
         if (diagram?.lastInput?.shift) {
           const draggedPart =
             this.currentPart ||
@@ -11468,8 +12092,72 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.currentPart = draggedPart;
           }
         }
-        return baseDoActivate.call(this);
-      };
+	        const result = baseDoActivate.call(this);
+          try {
+	          const draggedParts = this.draggedParts;
+            const dragSessionToken = utils.createGuid();
+	          let activatedOrdinaryNodeDrag = false;
+	          for (let it = draggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) continue;
+              try {
+                (part.data as any).__dragSessionToken = dragSessionToken;
+                if (typeof (diagram.model as any)?.setDataProperty === "function") {
+                  (diagram.model as any).setDataProperty(part.data, "__dragSessionToken", dragSessionToken);
+                }
+              } catch (_) {
+              }
+	            activatedOrdinaryNodeDrag = true;
+	            const staleGroup = part.containingGroup;
+            if (staleGroup instanceof go.Group && !isVisuallyInsideGroup(part, staleGroup)) {
+              try {
+                if (typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
+                  (diagram.model as any).setGroupKeyForNodeData(part.data, undefined);
+                } else {
+                  diagram.model.setDataProperty(part.data, "group", "");
+                }
+              } catch (_) {
+              }
+              try { diagram.model.setDataProperty(part.data, "group", ""); } catch (_) { }
+	              try { part.data.group = ""; } catch (_) { }
+	              try { part.containingGroup = null; } catch (_) { }
+	            }
+	            (part.data as any).__dragStartGroup =
+	              part.containingGroup instanceof go.Group && part.containingGroup.key !== undefined && part.containingGroup.key !== null
+	                ? String(part.containingGroup.key)
+	                : String(part.data.group || "");
+	          }
+	          if (activatedOrdinaryNodeDrag && (diagram as any).__suppressSyncForNextNodeDrag) {
+	            (diagram as any).__suppressNodeModelSyncUntil = Date.now() + 2000;
+	            (diagram as any).__suppressPropSyncUntil = Date.now() + 2000;
+	            try {
+	              for (let it = draggedParts?.iterator; it?.next();) {
+	                const part = it.key as go.Part;
+	                if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                [
+	                  "Selection",
+	                  "Tool",
+	                  "Resize",
+	                  "Resizing",
+	                  "Rotate",
+	                  "LinkReshaping",
+	                  "RelinkingFrom",
+	                  "RelinkingTo",
+	                  "Relinking",
+	                ].forEach((name) => {
+	                  try { part.removeAdornment(name); } catch (_) { }
+	                });
+	                try { part.updateAdornments(); } catch (_) { }
+	              }
+	              try { diagram.requestUpdate(); } catch (_) { }
+	            } catch (_) {
+	            }
+	            delete (diagram as any).__suppressSyncForNextNodeDrag;
+	          }
+	        } catch (_) {
+	        }
+	        return result;
+	      };
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;
@@ -11616,26 +12304,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     function setLayout(myDiagram, layout) {
       switch (layout) {
         case 'Circular':
-          myDiagram.layout = $(go.CircularLayout);
+          myDiagram.layout = $(go.CircularLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Grid':
-          myDiagram.layout = $(go.GridLayout);
+          myDiagram.layout = $(go.GridLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Tree':
-          myDiagram.layout = $(go.TreeLayout);
+          myDiagram.layout = $(go.TreeLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'ForceDirected':
-          myDiagram.layout = $(go.ForceDirectedLayout);
+          myDiagram.layout = $(go.ForceDirectedLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'LayeredDigraph':
-          myDiagram.layout = $(go.LayeredDigraphLayout);
+          myDiagram.layout = $(go.LayeredDigraphLayout, {
+            isInitial: false,
+            isOngoing: false,
+          });
           break;
         case 'Manual':
           myDiagram.layout.isInitial = false;
           myDiagram.layout.isOngoing = false;
           break;
       }
-      myDiagram.layoutDiagram();
+      // Always run selected layout once, then keep manual node movement stable.
+      // Without forcing here, layouts with isInitial/isOngoing=false may not execute.
+      myDiagram.layoutDiagram(true);
     }
 
     function clearInstance(inst: any) {
@@ -12038,13 +12743,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       <div>
         {(() => {
           const normalizedNodeDataArray = normalizeDiagramNodeCategoryData(this.props.nodeDataArray);
+          const diagram = this.diagramRef.current?.getDiagram();
+          const liveMergedNodeDataArray = mergeIncomingDiagramNodeDataWithLiveState(normalizedNodeDataArray, diagram);
+          const liveMergedLinkDataArray = mergeIncomingDiagramLinkDataWithLiveState(this.props.linkDataArray, diagram);
           return (
         <ReactDiagram
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
-          nodeDataArray={normalizedNodeDataArray}
-          linkDataArray={this.props.linkDataArray}
+          nodeDataArray={liveMergedNodeDataArray}
+          linkDataArray={liveMergedLinkDataArray}
           modelData={this.props.modelData}
           // myMetis={this.props.myMetis}
           // modelType={this.props.modelType}

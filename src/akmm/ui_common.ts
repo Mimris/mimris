@@ -272,7 +272,11 @@ export function createMetaContainer(data: any, context: any): any {
 export function createObjectType(data: any, context: any): any {
     const myMetamodel = context.myMetamodel;
     const myMetis = context.myMetis;
-    const myGoModel = context.myGoMetamodel;
+    const myGoModel =
+        context.myGoMetamodel ||
+        context.myGoModel ||
+        context?.myMetis?.gojsModel ||
+        null;
     const myDiagram = context.myDiagram;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         if (debug) console.log('170 createObjectType', data);
@@ -350,7 +354,9 @@ export function createObjectType(data: any, context: any): any {
                             const key = utils.createGuid();
                             data.id = key;
                             let node = new gjs.goObjectTypeNode(key, objtype);
-                            myGoModel.addNode(node);
+                            if (myGoModel) {
+                                myGoModel.addNode(node);
+                            }
                             updateNode(data, objtypeView, myDiagram, myGoModel);
                         }
                     }
@@ -1366,15 +1372,18 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
     const myMetamodel = context.myMetamodel;
     const myGoMetamodel = context.myGoMetamodel;
     const myDiagram = context.myDiagram;
-    let typename = prompt("Enter type name:", "typename");
-    if (debug) console.log('1215 typename', typename, myMetamodel);
-    data.key = utils.createGuid();
-    myDiagram.model.setDataProperty(data, "name", typename);
-    if (data.name == null) {
-        myDiagram.model.removeLinkData(data);
-        if (debug) console.log('1220 data', data);
-        return;
+    let typename = context?.relshipTypeName || data?.name || "New Relationship Type";
+    if (typeof typename === 'string') {
+        typename = typename.trim();
     }
+    if (!typename) {
+        typename = "New Relationship Type";
+    }
+    if (debug) console.log('1215 typename', typename, myMetamodel);
+    if (!data.key) {
+        data.key = utils.createGuid();
+    }
+    myDiagram.model.setDataProperty(data, "name", typename);
     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
     typename = data.name;
     if (debug) console.log('1225 data', data, myGoMetamodel);
@@ -1391,6 +1400,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 reltype2.setModified();
                 reltype2.setRelshipKind(relkind);
                 myDiagram.model.setDataProperty(data, "reltype", reltype2);
+                myDiagram.model.setDataProperty(data, "relshiptype", reltype2);
                 myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
@@ -1428,6 +1438,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 if (reltype) {
                     if (debug) console.log('1273 reltype', reltype);
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
+                    myDiagram.model.setDataProperty(data, "relshiptype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
                     reltype.setFromObjtype(fromObjType);
@@ -2940,8 +2951,17 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 }
                 }
             }
+            // For non-group nodes, ensure objview is set so position changes are dispatched
+            if (!node.isGroup && node.objectview) {
+                objview = node.objectview;
+                objview.loc = toloc;
+                objview.size = node.size;
+                objview.modified = true;
+                console.log(`[MOVE-DEBUG] changeNodeSizeAndPos for ${node.name}: updating objview.loc to ${toloc}`);
+            }
             if (objview) {
                 const modObjview = new jsn.jsnObjectView(objview);
+                console.log(`[MOVE-DEBUG] Adding to modifiedObjectViews: id=${modObjview.id}, loc=${modObjview.loc}`);
                 modifiedObjectViews.push(modObjview);
             }
         }
@@ -4988,26 +5008,54 @@ export function setObjviewAttributes(data: any, myDiagram: any): akm.cxObjectVie
     const object = data.object;
     const objview = data.objectview;
     const typeview = data.typeview;
+    
+    // Helper function to resolve attribute with fallback to typeview
+    const resolveAttribute = (attrName: string) => {
+        const objviewValue = objview?.[attrName];
+        const typeviewValue = typeview?.data?.[attrName] || typeview?.[attrName];
+        
+        // Return objectview value if explicitly set, otherwise fallback to typeview
+        if (objviewValue !== undefined && objviewValue !== null && objviewValue !== "") {
+            return objviewValue;
+        }
+        return typeviewValue !== undefined ? typeviewValue : "";
+    };
+    
+    // Apply resolved attributes to diagram data
     for (let prop in typeview?.data) {
-        if (objview[prop] && objview[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, objview[prop]);
-        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        const resolvedValue = resolveAttribute(prop);
+        if (resolvedValue !== undefined && resolvedValue !== "") {
+            myDiagram.model.setDataProperty(data, prop, resolvedValue);
         }
     }
+    
     return objview;
 }
 
 export function setRelviewAttributes(data: any, myDiagram: any): akm.cxRelationshipView {
     const relview = data.relshipview;
     const typeview = data.typeview;
+    
+    // Helper function to resolve attribute with fallback to typeview
+    const resolveAttribute = (attrName: string) => {
+        const relviewValue = relview?.[attrName];
+        const typeviewValue = typeview?.data?.[attrName] || typeview?.[attrName];
+        
+        // Return relview value if explicitly set, otherwise fallback to typeview
+        if (relviewValue !== undefined && relviewValue !== null && relviewValue !== "") {
+            return relviewValue;
+        }
+        return typeviewValue !== undefined ? typeviewValue : "";
+    };
+    
+    // Apply resolved attributes to diagram data
     for (let prop in typeview?.data) {
-        if (relview[prop] && relview[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        } else if (typeview?.data[prop] && typeview?.data[prop] !== "") {
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        const resolvedValue = resolveAttribute(prop);
+        if (resolvedValue !== undefined && resolvedValue !== "") {
+            myDiagram.model.setDataProperty(data, prop, resolvedValue);
         }
     }
+    
     return relview;
 }
 
@@ -5234,10 +5282,13 @@ export function updateRecursiveMemberLayout(member: akm.cxObjectView,): void {
 }
 
 export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram: any, myMetis: akm.cxMetis): void {
+    if (!modelview?.relshipviews || !myMetis) {
+        return;
+    }
     // Sync contains relshipview visibility with current visual group membership.
     const relviews = new Array<akm.cxRelationshipView>();
     const reltype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-    for (let i = 0; i < modelview.relshipviews?.length; i++) {
+    for (let i = 0; i < modelview.relshipviews.length; i++) {
         const relview = modelview.relshipviews[i];
         const relship = relview.relship;
         if (relship && reltype && relship.type && relship.type.name === reltype.name) {

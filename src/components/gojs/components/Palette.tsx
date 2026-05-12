@@ -34,6 +34,29 @@ interface DiagramProps {
 }
 
 const debug = false;
+const PALETTE_SCALE = 1.05;
+
+function sanitizeColor(value: any, fallback = "transparent"): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : fallback;
+}
+
+function sanitizeCurve(value: any): any {
+  switch (String(value || "").trim()) {
+    case "Bezier":
+      return go.Link.Bezier;
+    case "JumpGap":
+      return go.Link.JumpGap;
+    case "JumpOver":
+      return go.Link.JumpOver;
+    case "None":
+    case "":
+      return go.Link.None;
+    default:
+      return go.Link.None;
+  }
+}
 function installSafeNodeCategoryGuard() {
   const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
   if (!proto || proto.__safeNodeCategoryGuardInstalled) return;
@@ -75,10 +98,47 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
+function isBooleanLikeKey(key: string): boolean {
+  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
+    key === "visible" ||
+    key === "readOnly" ||
+    key === "markedAsDeleted" ||
+    key === "selectable" ||
+    key === "deletable" ||
+    key === "reshapable" ||
+    key === "resegmentable" ||
+    key === "relinkableFrom" ||
+    key === "relinkableTo" ||
+    key === "avoidable" ||
+    key === "shadowVisible";
+}
+
+function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
+    return value;
+  }
+  Object.keys(value).forEach((key) => {
+    const current = value[key];
+    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
+      value[key] = false;
+      return;
+    }
+    if (current && typeof current === "object") {
+      normalizeEmptyBooleanFieldsInPlace(current, seen);
+    }
+  });
+  return value;
+}
+
 function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
+    normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || 'textAndIcon';
     if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
@@ -86,6 +146,19 @@ function normalizePaletteWrapperNodeCategoryData(nodeDataArray: any[] | undefine
     return {
       ...node,
       category,
+    };
+  });
+}
+
+function normalizePaletteWrapperLinkData(linkDataArray: any[] | undefined): any[] {
+  if (!Array.isArray(linkDataArray)) return linkDataArray as any;
+  return linkDataArray.map((link) => {
+    if (!link || typeof link !== "object") return link;
+    normalizeEmptyBooleanFieldsInPlace(link);
+    const category = link.category || link.template || 'linkTemplate1';
+    return {
+      ...link,
+      category: typeof category === "string" ? category : 'linkTemplate1',
     };
   });
 }
@@ -143,7 +216,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public componentDidUpdate(prevProps: DiagramProps) {
-    if (prevProps.noOfCols !== this.props.noOfCols || prevProps.divClassName !== this.props.divClassName) {
+    if (
+      prevProps.noOfCols !== this.props.noOfCols ||
+      prevProps.divClassName !== this.props.divClassName ||
+      prevProps.nodeDataArray !== this.props.nodeDataArray ||
+      prevProps.linkDataArray !== this.props.linkDataArray
+    ) {
       this.updatePalettePresentation();
     }
     if (
@@ -214,16 +292,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       }
     }
 
-    const isObjectsPalette = this.props.divClassName === 'diagram-component-objects';
-    if (isObjectsPalette) {
-      const collapsedScale = 1.15;
-      const expandedScale = 1.15;
-      const desiredScale = cols <= 1 ? collapsedScale : expandedScale;
-      if (Math.abs(palette.scale - desiredScale) > 0.01) {
-        palette.scale = desiredScale;
-      }
-    } else if (Math.abs(palette.scale - 1) < 0.01) {
-      palette.scale = 1.05;
+    if (Math.abs(palette.scale - PALETTE_SCALE) > 0.01) {
+      palette.scale = PALETTE_SCALE;
     }
 
     if (layoutChanged) {
@@ -366,11 +436,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           {
             initialContentAlignment: go.Spot.Top,
             contentAlignment: go.Spot.Top,
-            initialAutoScale: go.Diagram.Uniform,  // scale to show all of the content
+            initialAutoScale: go.Diagram.None,
             // "animationManager.isEnabled": false, // disable animations
             // "undoManager.isEnabled": true,  // enable undo & redo
             // "toolManager.hoverDelay": 10,  // how quickly tooltips are shown
-           
+
             maxSelectionCount: 160,
             layout: $(go.GridLayout,
               {
@@ -402,8 +472,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       let paletteNodeTemplate: any;
       paletteNodeTemplate =
         $(go.Node, "Auto",
-          new go.Binding("visible"),
-          new go.Binding("stroke", "strokecolor"),
+          new go.Binding("visible", "", (v) => Boolean(v === undefined ? true : v)),
           new go.Binding("layerName", "layer"),
           new go.Binding("deletable"),
           new go.Binding("scale", "scale").makeTwoWay(),
@@ -445,7 +514,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               stroke: "black",
               cursor: "grabbing",
             },
-            new go.Binding("fill", "fillcolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("stroke", "", paletteFocusStroke),
             new go.Binding("strokeWidth", "isHighlighted", paletteFocusStrokeWidth).ofObject()
           ),
@@ -475,12 +544,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   const figures = uit.getFigureNames();
                   if (data.icon && figures.includes(data.icon)) return data.icon;
                   if ((!data.icon || data.icon === "") && data.figure && figures.includes(data.figure)) return data.figure;
-                  return "transparent";
+                  return "Rectangle";
                 }),
                 new go.Binding("visible", "", (data) => {
                   const figures = uit.getFigureNames();
                   // Only show if icon is empty or a valid figure name, or figure is present
-                  return (!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
+                  return Boolean(!data.icon || figures.includes(data.icon) || (data.figure && figures.includes(data.figure)));
                 }),
               ),
               // Show image only if icon is a valid image URL
@@ -498,7 +567,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 }),
                 new go.Binding("visible", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon);
+                  return Boolean(icon && !figures.includes(icon) && uit.shouldShowIconPicture(icon));
                 }),
               ),
               // Show unicode only if icon is a valid unicode
@@ -517,7 +586,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 new go.Binding("text", "icon", findUnicodeImage),
                 new go.Binding("visible", "icon", (icon) => {
                   const figures = uit.getFigureNames();
-                  return icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode';
+                  return Boolean(icon && !figures.includes(icon) && uit.detectIconFormat(icon) === 'unicode');
                 }),
               ),
             ),
@@ -560,11 +629,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             corner: 0,
             selectable: false
           },
-          new go.Binding("curve", "curve"),
+          new go.Binding("curve", "curve", sanitizeCurve),
           new go.Binding("points", "points"),
           $(go.Shape,
             { strokeWidth: 1.4, stroke: "#555" },
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "#555")),
             new go.Binding("strokeWidth", "strokewidth", (w: any) => {
               const width = typeof w === 'string' ? parseFloat(w) : w;
               return width && !isNaN(width) ? width : 1.4;
@@ -572,11 +641,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape,
             { fromArrow: "", stroke: null },
             new go.Binding("fromArrow", "fromArrow", arrowConverter),
-            new go.Binding("fill", "strokecolor")),
+            new go.Binding("fill", "strokecolor", (c) => sanitizeColor(c, "#555"))),
           $(go.Shape,
             { toArrow: "Standard", stroke: null },
             new go.Binding("toArrow", "toArrow", arrowConverter),
-            new go.Binding("fill", "strokecolor")),
+            new go.Binding("fill", "strokecolor", (c) => sanitizeColor(c, "#555"))),
           $(go.TextBlock,
             {
               segmentOffset: new go.Point(0, -10),
@@ -598,8 +667,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
+            new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
             new go.Binding("strokeWidth", "strokewidth")
           ),
 
@@ -629,7 +698,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     desiredSize: new go.Size(30, 30),
                     margin: new go.Margin(0, 0, 10, 0), // Reduced left margin
                   },
-                  new go.Binding("source", "icon", findImage)
+                  new go.Binding("source", "icon", uit.getIconSource),
+                  new go.Binding("visible", "icon", uit.shouldShowIconPicture)
                 ),
                 // TextBlock for Unicode Icon
                 $(go.TextBlock, textStyle(),
@@ -644,7 +714,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     isMultiline: false,
                     alignment: go.Spot.Center, // Center alignment
                   },
-                  new go.Binding("text", "icon", findGroupUnicodeImage)
+                  new go.Binding("text", "icon", findGroupUnicodeImage),
+                  new go.Binding("visible", "icon", (icon) => !icon || uit.shouldShowUnicodeFallback(icon))
                 ),
               ),
               $(go.TextBlock, textStyle(),  // the name
@@ -672,6 +743,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       if (debug) console.log("3238 findImage: ", image);
       if (image == "")
         return "";
+      if (uit.detectIconFormat(image) === 'unicode')
+        return "";
       if (image?.includes('//')) { // this is an http:// or https:// image
         if (debug) console.log('3249 Diagram', image);
         return image;
@@ -691,25 +764,17 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         if (debug) console.log('3273 Diagram', image, img)
         return img
       } else {
-        return image;
+        return "";
       }
     }
 
     function findUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } 
-      return "";
+      return uit.findUnicodeImage(image);
     }
     function findGroupUnicodeImage(image: string) {
-      if (image.includes('\\u')) { // its an awesome font image
-        return String.fromCharCode(parseInt(image.slice(2), 16)).toLowerCase();
-      } else if (image === '') {
-       const groupImage = '\\uf07c'
-        return String.fromCharCode(parseInt(groupImage.slice(2), 16)).toLowerCase();
-      } else {
-        return image;
-      }
+      if (!image) return uit.findUnicodeImage('\\uf07c');
+      const glyph = uit.findUnicodeImage(image);
+      return glyph || "";
     }
 
     // Function to specify default text style
@@ -726,6 +791,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
         ? 'diagram-component-target'
         : 'diagram-component-palette'
     const normalizedNodeDataArray = normalizePaletteWrapperNodeCategoryData(this.props?.nodeDataArray);
+    const normalizedLinkDataArray = normalizePaletteWrapperLinkData(this.props?.linkDataArray);
 
     if (debug) console.log('Figure names:', uit.getFigureNames());
     // const diagramStyle = {
@@ -751,11 +817,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       //   style={this.props.diagramStyle}
       // />
       <ReactDiagram
+        key={`${this.props.phFocus?.focusModel?.id || 'no-model'}-${normalizedNodeDataArray?.length || 0}-${this.props.divClassName || 'palette'}`}
         ref={this.diagramRef}
         divClassName={divclassname}
         initDiagram={this.initPalette}
         nodeDataArray={normalizedNodeDataArray}
-        linkDataArray={this.props?.linkDataArray}
+        linkDataArray={normalizedLinkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         //   onSelectionChange   = {this.props.onModelChange}

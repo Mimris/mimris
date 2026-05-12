@@ -43,6 +43,25 @@ const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
 const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
+const WORKSPACE_SNAPSHOT_META_KEY = '__workspaceUniverse';
+
+const trimPersistedStateForBrowserStorage = (state: any) => {
+  const phUser = state?.phUser || {};
+  const workspaceMeta = phUser?.[WORKSPACE_SNAPSHOT_META_KEY];
+  if (!workspaceMeta) return state;
+
+  return {
+    ...state,
+    phUser: {
+      ...phUser,
+      [WORKSPACE_SNAPSHOT_META_KEY]: {
+        ...workspaceMeta,
+        snapshot: undefined,
+        worldOperation: undefined,
+      },
+    },
+  };
+};
 
 const Modelling = (props: any) => {
 
@@ -57,8 +76,16 @@ const Modelling = (props: any) => {
   const paletteRef = useRef<any>(null); // metamodel palette
   const paletteObjRef = useRef<any>(null); // objects palette (left column)
   const didRestoreStoredFocusModelRef = useRef(false);
+  const dragModelIdRef = useRef<string | null>(null);
+  const renameModelInputRef = useRef<HTMLInputElement | null>(null);
 
   const [refresh, setRefresh] = useState(true);
+  const [showRenameModelModal, setShowRenameModelModal] = useState(false);
+  const [editingModelId, setEditingModelId] = useState<string | null>(null);
+  const [editingModelName, setEditingModelName] = useState('');
+  const [pendingRenameModel, setPendingRenameModel] = useState<any>(null);
+  const [renameModelModalName, setRenameModelModalName] = useState('');
+  const [renameModelModalDescription, setRenameModelModalDescription] = useState('');
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', {});
   const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', '');
@@ -89,21 +116,23 @@ const Modelling = (props: any) => {
 
   const getPersistedState = () => {
     const state = store.getState();
-    return {
+    return trimPersistedStateForBrowserStorage({
       phData: state.phData,
       phFocus: state.phFocus,
       phUser: state.phUser,
       phSource: state.phSource,
-    };
+    });
   }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
+  const modelList = models || [];
+  const hasNoModels = Array.isArray(metis?.models) && modelList.length === 0
   let curmod = (models && focusModel?.id) && models?.find((m: any) => m?.id === focusModel?.id)
-  if (!curmod) curmod = models[0] || null
+  if (!curmod) curmod = modelList[0] || null
 
-  const modelviews = curmod?.modelviews?.filter((mv: any) => mv)
+  const modelviews = Array.isArray(curmod?.modelviews) ? curmod.modelviews.filter((mv: any) => mv) : []
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
-  if (!curmodview) curmodview = modelviews[0]
+  if (!curmodview) curmodview = modelviews[0] || null
 
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
@@ -111,27 +140,36 @@ const Modelling = (props: any) => {
   const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
   const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
-  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
-  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+  const targetModelviews = Array.isArray(curtargetmodel?.modelviews) ? curtargetmodel.modelviews.filter((mv: any) => mv) : []
+  const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && targetModelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
+  const curtargetmodelview = focustargetmodelview || targetModelviews[0] || null
 
-  const sortedmodels = (models) && models.sort((a, b) => {
-    if (a.name.startsWith('_') && !b.name.startsWith('_')) {
-      return 1;
-    } else if (!a.name.startsWith('_') && b.name.startsWith('_')) {
-      return -1;
-    } else if (a.name.endsWith('_SM') && !b.name.endsWith('_SM')) {
-      return 1;
-    } else if (!a.name.endsWith('_SM') && b.name.endsWith('_SM')) {
-      return -1;
-    } else {
-      return a.name.localeCompare(b.name);
-    }
-  })
+  let activetabindex = modelList.findIndex(sm => sm.id === focusModel?.id)
+  if (activetabindex < 0) activetabindex = 0;
 
-  let activetabindex = (sortedmodels.length < 0) ? 0 : sortedmodels.findIndex(sm => sm.id === focusModel?.id) // if no model in focus, set the active tab to 0
-
-  let myMetis = new akm.cxMetis();
-  GenGojsModel(props, myMetis)
+  const myMetisRef = useRef<any>(null);
+  if (!myMetisRef.current) {
+    myMetisRef.current = new akm.cxMetis();
+  }
+  const myMetis = myMetisRef.current;
+  if (metis && myMetis?.importData) {
+    myMetis.importData(metis, true);
+    const hydratedModel =
+      (focusModel?.id && myMetis.findModel?.(focusModel.id)) ||
+      myMetis.currentModel ||
+      null;
+    const hydratedModelview =
+      (focusModelview?.id && hydratedModel?.findModelView?.(focusModelview.id)) ||
+      hydratedModel?.modelviews?.find((mv: any) => mv) ||
+      null;
+    const hydratedMetamodel =
+      (hydratedModel?.metamodelRef && myMetis.findMetamodel?.(hydratedModel.metamodelRef)) ||
+      hydratedModel?.metamodel ||
+      null;
+    if (hydratedMetamodel && myMetis.setCurrentMetamodel) myMetis.setCurrentMetamodel(hydratedMetamodel);
+    if (hydratedModel && myMetis.setCurrentModel) myMetis.setCurrentModel(hydratedModel);
+    if (hydratedModelview && myMetis.setCurrentModelview) myMetis.setCurrentModelview(hydratedModelview);
+  }
 
   useEffect(() => {
     if (!debug) console.log('136 Modelling', mmToggle )
@@ -145,15 +183,25 @@ const Modelling = (props: any) => {
 
 
 
-  useEffect(() => { // Genereate GoJs node model 
-    if (debug) useEfflog('223 Modelling useEffect 1 []', myMetis)
+  useEffect(() => { // Generate GoJS node model when focus changes
+    if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     GenGojsModel(props, myMetis)
-    setRefresh(!refresh)
     setActiveTab(activetabindex)
     setMount(true);
-  }, [])
+  }, [props.phFocus?.focusModel?.id, props.phFocus?.focusModelview?.id, refresh])
+
+  useEffect(() => {
+    setActiveTab(activetabindex);
+  }, [activetabindex]);
+
+  useEffect(() => {
+    if (editingModelId && renameModelInputRef.current) {
+      renameModelInputRef.current.focus();
+      renameModelInputRef.current.select();
+    }
+  }, [editingModelId]);
 
   useEffect(() => {
     if (didRestoreStoredFocusModelRef.current) return;
@@ -195,6 +243,82 @@ const Modelling = (props: any) => {
     props.onSubmit(details);
   };
 
+  const handleShowRenameModelModal = () => setShowRenameModelModal(true);
+
+  const handleCloseRenameModelModal = () => {
+    setShowRenameModelModal(false);
+    setPendingRenameModel(null);
+    setRenameModelModalName('');
+    setRenameModelModalDescription('');
+  };
+
+  const beginModelRename = (model: any) => {
+    if (!model?.id) return;
+    setEditingModelId(model.id);
+    setEditingModelName(model.name || '');
+  };
+
+  const cancelModelRename = () => {
+    setEditingModelId(null);
+    setEditingModelName('');
+  };
+
+  const commitModelRename = (model: any) => {
+    if (!model?.id) {
+      cancelModelRename();
+      return;
+    }
+    const nextName = (editingModelName || '').trim();
+    if (!nextName || nextName === model.name) {
+      cancelModelRename();
+      return;
+    }
+    setPendingRenameModel(model);
+    setRenameModelModalName(nextName);
+    setRenameModelModalDescription(model.description || '');
+    handleShowRenameModelModal();
+    cancelModelRename();
+  };
+
+  const saveModelRename = () => {
+    const model = pendingRenameModel;
+    const nextName = (renameModelModalName || '').trim();
+    if (!model?.id || !nextName) {
+      handleCloseRenameModelModal();
+      return;
+    }
+    dispatch({
+      type: 'UPDATE_MODEL_PROPERTIES',
+      data: {
+        id: model.id,
+        name: nextName,
+        description: renameModelModalDescription,
+        modifiedDate: new Date().toISOString(),
+      }
+    });
+    if (props.phFocus?.focusModel?.id === model.id) {
+      dispatch({ type: 'SET_FOCUS_MODEL', data: { id: model.id, name: nextName } });
+    }
+    handleCloseRenameModelModal();
+  };
+
+  const handleModelDragStart = (modelId: string) => {
+    dragModelIdRef.current = modelId;
+  };
+
+  const handleModelDrop = (targetModelId: string) => {
+    const sourceModelId = dragModelIdRef.current;
+    dragModelIdRef.current = null;
+    if (!sourceModelId || sourceModelId === targetModelId) return;
+    dispatch({
+      type: 'REORDER_MODELS',
+      data: {
+        sourceId: sourceModelId,
+        targetId: targetModelId,
+      }
+    });
+  };
+
   const projectModalDiv = (
     <Modal show={showProjectModal} onHide={handleCloseProjectModal}
       className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
@@ -212,21 +336,16 @@ const Modelling = (props: any) => {
 
   useEffect(() => {
     if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
-    const timer = setTimeout(() => {
-      doRefresh()
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-      // setRefresh(!refresh)
-    }, 50);
+    if (!props.phFocus?.focusRefresh?.id) return;
+    doRefresh();
+    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
   }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
     if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-    const timer = setTimeout(() => {
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
-      setRefresh(!refresh)
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [props.phFocus?.focusModelview?.id])
+    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
+    setRefresh(prev => !prev)
+  }, [props.phFocus?.focusRefresh?.id])
 
   useEffect(() => {
     const persistedProps = getPersistedState();
@@ -239,10 +358,7 @@ const Modelling = (props: any) => {
     const persistedProps = getPersistedState();
     setMemorySessionState(persistedProps)
     setMemoryLocState(persistedProps)
-    const timer = setTimeout(() => {
-      setRefresh(!refresh)
-    }, 1000);
-    return () => clearTimeout(timer);
+    setRefresh(prev => !prev)
   }
 
   // Function to export curmod.objects to clipboard
@@ -266,7 +382,7 @@ const Modelling = (props: any) => {
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
 
-    const selmods = (sortedmodels) ? sortedmodels.filter((m: any) => m?.markedAsDeleted === false) : []
+    const selmods = modelList.filter((m: any) => m && m?.markedAsDeleted !== true)
     
     const modelTabsDiv = (!selmods) ? <></> : selmods.map((m, index) => {
       if (m && !m.markedAsDeleted) {
@@ -276,12 +392,17 @@ const Modelling = (props: any) => {
         const data2 = { id: modelview0?.id, name: modelview0?.name };
         return (
           <NavItem
-            key={strindex}
+            key={`${m.id || 'model'}-${strindex}`}
             className="model-selection"
             data-toggle="tooltip"
             data-placement="top"
             data-bs-html="true"
             title={`Description: ${m?.description}\n\nTo change Model name, right click the background below and select 'Edit Model'.`}
+            draggable
+            onDragStart={() => handleModelDragStart(m.id)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => handleModelDrop(m.id)}
+            onDragEnd={() => { dragModelIdRef.current = null; }}
           >
             <NavLink
               style={{
@@ -293,17 +414,45 @@ const Modelling = (props: any) => {
                 borderBottom: "none",
                 borderColor: "#eee gray white #eee",
                 color: "black",
+                cursor: "pointer",
               }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => {
+                if (editingModelId === m.id) return;
                 if (typeof window !== 'undefined') window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, m.id);
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
-                doRefresh();
-                setActiveTab(index);
+                dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: m.name || 'model-tab' } });
+              }}
+              onDoubleClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                beginModelRename(m);
               }}
             >
-              {(m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name}
+              {editingModelId === m.id ? (
+                <input
+                  ref={renameModelInputRef}
+                  type="text"
+                  value={editingModelName}
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "120px", paddingTop: "0px", paddingBottom: "0px" }}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => setEditingModelName(e.target.value)}
+                  onBlur={() => commitModelRename(m)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      commitModelRename(m);
+                    } else if (e.key === 'Escape') {
+                      e.preventDefault();
+                      cancelModelRename();
+                    }
+                  }}
+                />
+              ) : (
+                (m.name.startsWith('_A')) ? <span className="text-secondary" style={{ scale: "0.8", whiteSpace: "nowrap" }} data-toggle="tooltip" data-placement="top" data-bs-html="_ADMIN_MODEL">_AM</span> : m.name
+              )}
             </NavLink>
           </NavItem>
         );
@@ -315,6 +464,7 @@ const Modelling = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
+        key={`metamodel-palette-${phFocus?.focusModel?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -467,6 +617,35 @@ const Modelling = (props: any) => {
           </button>
           {modelTabsDiv}
         </Nav>
+        <Modal show={showRenameModelModal} onHide={handleCloseRenameModelModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Model</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="mb-3">
+              <label className="form-label">Name</label>
+              <input
+                type="text"
+                className="form-control"
+                value={renameModelModalName}
+                onChange={(e) => setRenameModelModalName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="form-label">Description</label>
+              <textarea
+                className="form-control"
+                rows={4}
+                value={renameModelModalDescription}
+                onChange={(e) => setRenameModelModalDescription(e.target.value)}
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseRenameModelModal}>Cancel</Button>
+            <Button variant="primary" onClick={saveModelRename}>Save</Button>
+          </Modal.Footer>
+        </Modal>
         <TabContent  >
           <TabPane >   {/* Model ---------------------------------------*/}
             <div className="workpad px-1 pt-1 bg-white">
@@ -475,6 +654,7 @@ const Modelling = (props: any) => {
                 <Col className="col1 m-0 p-0 pl-0" xs="auto"> {/* Objects Palette */}
                   <div className="myPalette mt-0 mb-0 pt-0 pb-1" style={{ marginRight: "0px", minHeight: "7vh", backgroundColor: "#7ac", border: "solid 1px black" }}>
                     <Palette // this is the Objects Palette area
+                      key={`objects-palette-${phFocus?.focusModel?.id || 'none'}`}
                       myMetis={myMetis}
                       metis={metis}
                       phFocus={phFocus}
@@ -648,7 +828,11 @@ const Modelling = (props: any) => {
         </div>
       </>
 
-    if (!curmod || !curmod.modelviews) {
+    if (hasNoModels) {
+      return <div>No models in this file.</div>;
+    }
+
+    if (!curmod) {
       return <div>Loading model data...</div>;
     }
 

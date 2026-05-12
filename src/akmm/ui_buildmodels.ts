@@ -11,7 +11,7 @@ import * as constants from './constants';
 
 let includeNoType = false;
 
-function getDefaultRoutingForRelshipType(typeName: string | undefined | null, fallback: string) {
+export function getDefaultRoutingForRelshipType(typeName: string | undefined | null, fallback: string) {
   const normalized = String(typeName || "").trim().toLowerCase();
   if ((normalized === "isfollowedby" || normalized === "triggers") && (!fallback || fallback === "Normal")) {
     return "AvoidsNodes";
@@ -429,9 +429,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         (node as any).scale1 = objview.scale;
         myGoModel.addNode(node);
         node.name = objview.name;
-        const object = node.object as akm.cxObject;
+        const object = node.object as akm.cxObject | null;
         let objtype = object?.type as akm.cxObjectType;
-        if (!objtype) objtype = metis.findObjectType(object.typeRef);
+        if (!objtype && object?.typeRef) objtype = metis.findObjectType(object.typeRef);
         if (objtype?.name !== 'EntityType') {
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {
@@ -518,8 +518,6 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relview.fromArrow = '';
       if (relview?.toArrow === 'None' || relview?.toArrow === ' ')
         relview.toArrow = '';
-      if (relview.points?.length == 4)
-        relview.points = [];
       if (!relview.template) {
         const rel = relview.relship;
         let reltype = rel.type;
@@ -610,10 +608,20 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
-        link.routing = getDefaultRoutingForRelshipType(
-          relview?.name || relview?.relship?.name || relview?.typeview?.name,
-          relview.routing || relview.typeview?.routing || "Normal"
-        );
+        const hasExplicitPoints = Array.isArray(relview?.points) && relview.points.length >= 4;
+        const isSelfLoop =
+          !!fromObjview &&
+          !!toObjview &&
+          String(fromObjview?.id || "") !== "" &&
+          String(fromObjview?.id || "") === String(toObjview?.id || "");
+        link.routing = hasExplicitPoints
+          ? (relview?.routing || "Normal")
+          : (isSelfLoop
+              ? "Normal"
+              : getDefaultRoutingForRelshipType(
+              relview?.name || relview?.relship?.name || relview?.typeview?.name,
+              relview.routing || relview.typeview?.routing || "Normal"
+            ));
         if (!showRelshipNames)
           link.name = " ";
         if (includeDeleted || includeNoObject || includeNoType) {
@@ -636,7 +644,7 @@ export function buildGoMetaPalette() {
   if (debug) console.log('415 buildGoMetaPalette');
   const myGoMetaPalette = new gjs.goModel(utils.createGuid(), 'myMetaPalette', null);
   const nodeArray = new Array();
-  const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
+  const palNode1 = new gjs.paletteNode('01', constants.types.OBJECTTYPE_ID, constants.gojs.C_OBJECTTYPE, "New Object Type", "");
   nodeArray.push(palNode1);
   // const palNode2 = new gjs.paletteNode('02', "container", "Container", "Group", "");
   // palNode2.isGroup = true;

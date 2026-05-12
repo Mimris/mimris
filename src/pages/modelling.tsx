@@ -21,6 +21,7 @@ import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
+import { createSnapshotShare } from "../components/utils/focusShare";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -40,24 +41,22 @@ const Page1 = (props: any) => {
   const [exportTab, setExportTab] = useState(0);
 
   function dispatchLocalStore(locStore: any) {
-    // filter out null models and metamodels
-    let metis = locStore.phData.metis
-
-    const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
-    const models = locStore.phData.metis.models.filter((m: any) => m)
-    metis = { ...metis, models, metamodels }
-
-    const phData = { ...locStore.phData, metis }
+    const metis = locStore?.phData?.metis || {}
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter((mm: any) => mm) : []
+    const models = Array.isArray(metis.models) ? metis.models.filter((m: any) => m) : []
+    const phData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
+    const storedFocus = locStore?.phFocus || {}
     const storedFocusModelId = typeof window !== 'undefined' ? window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
-    const requestedFocusModelId = storedFocusModelId || locStore?.phFocus?.focusModel?.id || focus.focusModel?.id
+    const requestedFocusModelId = storedFocusModelId || storedFocus?.focusModel?.id || focus.focusModel?.id
     const focusModel = models.find(m => m.id === requestedFocusModelId) || models[0]
+    const modelviews = Array.isArray(focusModel?.modelviews) ? focusModel.modelviews.filter((mv: any) => mv) : []
     const requestedFocusModelviewId =
-      (focusModel?.id === locStore?.phFocus?.focusModel?.id && locStore?.phFocus?.focusModelview?.id)
+      (focusModel?.id === storedFocus?.focusModel?.id && storedFocus?.focusModelview?.id)
       || (focusModel?.id === focus.focusModel?.id && focus.focusModelview?.id)
-    const focusModelview = focusModel.modelviews.find(mv => mv.id === requestedFocusModelviewId) || focusModel.modelviews[0]
+    const focusModelview = modelviews.find((mv: any) => mv.id === requestedFocusModelviewId) || modelviews[0] || null
     const phFocus = {
-      ...locStore.phFocus,
-      focusModel: focusModel,
+      ...storedFocus,
+      focusModel: focusModel || null,
       focusModelview: focusModelview,
     }
     dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
@@ -238,17 +237,21 @@ const Page1 = (props: any) => {
     </div>
   )
 
-  const handleExternalLinkClick = () => {
-    // Copy sessionStorage to localStorage
-    const sessionData = sessionStorage.getItem('memorystate');
-    if (sessionData) {
-      setMemoryLocState(sessionData);
+  const handleExternalLinkClick = async () => {
+    const shareWindow = window.open('', "_blank");
+    try {
+      const snapshot = getPersistedState();
+      const url = await createSnapshotShare(snapshot, window.location.origin);
+      if (shareWindow) {
+        shareWindow.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
+    } catch (error) {
+      console.error('Unable to open snapshot share:', error);
+      if (shareWindow) shareWindow.close();
+      alert('Unable to create share link.');
     }
-
-    // Construct the URL and open it in a new tab
-    const url = `/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
-      }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`;
-    window.open(url, "_blank");
   };
 
   const modellingDiv = (mount)

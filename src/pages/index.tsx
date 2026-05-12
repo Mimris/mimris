@@ -27,6 +27,9 @@ import Tasks from '../components/Tasks';
 import GettingStarted from "../components/content/GettingStarted";
 
 const debug = false
+const mimrisSiteUrl = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:3000/'
+  : 'https://mimris.github.io/mimris/';
 
 const page = (props: any) => {
   
@@ -52,7 +55,11 @@ const page = (props: any) => {
 
 
   function dispatchLocalStore(locStore) { 
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
+    const metis = locStore?.phData?.metis || {}
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : []
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : []
+    const normalizedPhData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalizedPhData })
     dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
     dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
@@ -94,7 +101,7 @@ const page = (props: any) => {
 
   const [showExternalPage, setShowExternalPage] = useState(true);
 
-  const externalPageUrl = `https://mimris.github.io/mimris/`;  // Replace with the URL of the external webpage you want to display
+  const externalPageUrl = mimrisSiteUrl;  // Replace with the URL of the external webpage you want to display
   // const externalPageUrl = `https://kavca.github.io/${props.phFocus.focusProj.repo}/`; // Replace with the URL of the external webpage you want to display
   // if (debug) console.log('95 modelling page', props.phFocus.focusProj);
 
@@ -311,7 +318,7 @@ Below is shown an example model built using a template generated from the metamo
                         {activeSubTab === 'subtab1' && (
                           <div className="tab-pane show active">
                             <iframe
-                              src="https://mimris.github.io/mimris/"
+                              src={mimrisSiteUrl}
                               width="100%"
                               height="1500px"
                             />

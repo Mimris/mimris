@@ -60,6 +60,7 @@ import {
   UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
+  REORDER_MODELS,
   REORDER_MODELVIEWS,
   UPDATE_METAMODEL_PROPERTIES,
   UPDATE_OBJECT_PROPERTIES,
@@ -112,6 +113,37 @@ const InitStateJson = StartInitStateJson
 
 if (debug) console.log('86 InitStateJson', InitStateJson);
 const InitState = JSON.parse(JSON.stringify(InitStateJson))
+
+function mergeAndPruneOptionalEmptyFields(currentItem, patch, optionalFields) {
+  const merged = {
+    ...currentItem,
+    ...patch,
+  };
+  for (let i = 0; i < optionalFields.length; i++) {
+    const prop = optionalFields[i];
+    if (!Object.prototype.hasOwnProperty.call(patch, prop)) {
+      if (merged[prop] === undefined || merged[prop] === null || merged[prop] === '') {
+        delete merged[prop];
+      }
+    }
+  }
+  return merged;
+}
+
+const OPTIONAL_OBJECTVIEW_FIELDS = [
+  'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+  'group', 'groupLayout', 'icomStyle',
+  'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+  'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+  'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+  'size', 'scale'
+];
+
+const OPTIONAL_RELSHIPVIEW_FIELDS = [
+  'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+  'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+  'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
+];
 
 // import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
@@ -757,6 +789,15 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
       return {
         ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusModel: state.phFocus?.focusModel?.id === action?.data?.id
+            ? {
+              ...state.phFocus.focusModel,
+              ...action.data,
+            }
+            : state.phFocus?.focusModel,
+        },
         phData: {
           ...state.phData,
           metis: {
@@ -772,6 +813,29 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+    case REORDER_MODELS: {
+      const sourceId = action?.data?.sourceId;
+      const targetId = action?.data?.targetId;
+      const existingModels = state.phData?.metis?.models || [];
+      const sourceIndex = existingModels.findIndex((model) => model?.id === sourceId);
+      const targetIndex = existingModels.findIndex((model) => model?.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) {
+        return state;
+      }
+      const reorderedModels = [...existingModels];
+      const [movedModel] = reorderedModels.splice(sourceIndex, 1);
+      reorderedModels.splice(targetIndex, 0, movedModel);
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            models: reorderedModels,
+          },
+        },
+      };
+    }
     case UPDATE_TARGETMODEL_PROPERTIES:
       // if (debug) console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       return {
@@ -793,6 +857,16 @@ function reducer(state = InitialState, action) {
       }
     case UPDATE_MODELVIEW_PROPERTIES:
       if (debug) console.log('713 UPDATE_MODELVIEW_PROPERTIES', action);
+      const sanitizedModelviewData = {
+        ...(action?.data || {}),
+      };
+      // Modelview-level updates should not replace view collections.
+      // Positions and membership are persisted through UPDATE_*VIEW_PROPERTIES,
+      // and replacing arrays here can replay stale snapshots and cause snap-back.
+      delete sanitizedModelviewData.objectviews;
+      delete sanitizedModelviewData.relshipviews;
+      delete sanitizedModelviewData.objecttypeviews;
+      delete sanitizedModelviewData.relshiptypeviews;
       const curmv = curModel?.modelviews?.find(mv => mv.id === action?.data?.id) // current modelview
       let curModviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === action?.data?.id) // current modelview index
       const curmvlength = curModel?.modelviews?.length
@@ -806,7 +880,7 @@ function reducer(state = InitialState, action) {
           focusModelview: state.phFocus?.focusModelview?.id === action?.data?.id
             ? {
               ...state.phFocus.focusModelview,
-              ...action.data,
+              ...sanitizedModelviewData,
             }
             : state.phFocus?.focusModelview,
         },
@@ -822,7 +896,7 @@ function reducer(state = InitialState, action) {
                   ...curModel?.modelviews?.slice(0, curModviewIndex),
                   {
                     ...curModel?.modelviews[curModviewIndex],
-                    ...action.data,
+                    ...sanitizedModelviewData,
                   },
                   ...curModel?.modelviews?.slice(curModviewIndex + 1),
                 ]
@@ -936,6 +1010,12 @@ function reducer(state = InitialState, action) {
       const curObjectviewsLength = targetModelview?.objectviews?.length
       if (curObjectviewIndex < 0) { curObjectviewIndex = curObjectviewsLength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
 
+      const mergedObjectview = mergeAndPruneOptionalEmptyFields(
+        targetModelview.objectviews[curObjectviewIndex],
+        action.data,
+        OPTIONAL_OBJECTVIEW_FIELDS
+      );
+
       const retval_UPDATE_OBJECTVIEW_PROPERTIES =
       {
         ...state,
@@ -953,10 +1033,7 @@ function reducer(state = InitialState, action) {
                     ...targetModel?.modelviews[targetModelviewIndex],
                     objectviews: [
                       ...targetModelview?.objectviews?.slice(0, curObjectviewIndex),
-                      {
-                        ...targetModelview.objectviews[curObjectviewIndex],
-                        ...action.data,
-                      },
+                      mergedObjectview,
                       ...targetModelview?.objectviews?.slice(curObjectviewIndex + 1, targetModelview?.objectviews.length)
                     ]
                   },
@@ -1064,10 +1141,11 @@ function reducer(state = InitialState, action) {
                     ...targetRelModel?.modelviews[targetRelModelviewIndex],
                     relshipviews: [
                       ...targetRelModelview?.relshipviews?.slice(0, curRelshipviewIndex),
-                      {
-                        ...targetRelModelview?.relshipviews[curRelshipviewIndex],
-                        ...action.data,
-                      },
+                      mergeAndPruneOptionalEmptyFields(
+                        targetRelModelview?.relshipviews[curRelshipviewIndex],
+                        action.data,
+                        OPTIONAL_RELSHIPVIEW_FIELDS
+                      ),
                       ...targetRelModelview?.relshipviews.slice(curRelshipviewIndex + 1, targetRelModelview?.relshipviews?.length)
                     ]
                   },

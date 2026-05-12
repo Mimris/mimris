@@ -1,15 +1,11 @@
-// import SelectContext from '../components/SelectContext'
-// Todo:  change name to ViewContext
 import { useState } from 'react'
 import Link from 'next/link';
-import { useRouter } from "next/router";
 import SelectContext from '../components/utils/SelectContext'
-import { URLPattern } from 'next/server';
+import { createSnapshotShare } from '../components/utils/focusShare';
 
 const debug = false
 
 const ContextView = (props: any) => {
-  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=SELL-A-CAR_PR.json
   const [minimized, setMinimized] = useState(true);
   const toggleMinimized = () => setMinimized(!minimized);
   const [modal, setModal] = useState(false);
@@ -42,26 +38,16 @@ const ContextView = (props: any) => {
     props.setShowIssueModal(true);
   };
 
-  let focusUrl = '';
-  let urlParams = '';
   const copyToClipboard = async () => {
-    const host = window.location.host;
-    urlParams = `
-        org=${phFocus.focusProj.org}&
-        repo=${phFocus.focusProj.repo}& 
-        branch=${phFocus.focusProj.branch}& 
-        path=${phFocus.focusProj.path}&
-        file=${phFocus.focusProj.file}
-        model=${phFocus.focusModel.id || phFocus.focusModel.name}&
-        modelview=${phFocus.focusModelview.id || phFocus.focusModelview.name}
-      `;
-    if (debug) console.log('27 paramFocus', urlParams, phFocus.focusProj);
-    const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-alfa.vercel.app'
-    focusUrl = `http://${tmphost}/model?${urlParams}`;
+    const snapshot = {
+      phData: props.ph?.phData || {},
+      phFocus: props.ph?.phFocus || {},
+      phUser: props.ph?.phUser || {},
+      phSource: props.ph?.phSource || '',
+    };
+    const focusUrl = await createSnapshotShare(snapshot, window.location.origin);
     if (debug) console.log('42 focus', focusUrl);
-    const focus = await navigator.clipboard.writeText(focusUrl);
-    if (debug) console.log('44 focus', focus);
-    // return focus    
+    await navigator.clipboard.writeText(focusUrl);
   }
 
   const statusField = (name: string, field: any) => {

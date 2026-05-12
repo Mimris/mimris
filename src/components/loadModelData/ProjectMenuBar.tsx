@@ -5,7 +5,12 @@ import { useRouter } from 'next/router'; // Add this import
 
 import { InitialState } from '../../reducers/reducer';
 import { ReadModelFromFile } from '../utils/ReadModelFromFile';
+import { buildRemoteUniversePath, getDefaultRemoteUniverseBaseUrl, normalizeRemoteUniverseBaseUrl } from '../utils/remoteUniverse';
+import { readJsonResponse, readJsonResponseError } from '../utils/httpResponse';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta } from '../utils/workspaceUniverseAdapter';
+import { getMetisScopeLabel, getMetisScopeOptions, normalizeMetisScope, setActiveMetisScope } from '../utils/workspaceMetisResolver.js';
+import { saveRemoteUniverseProject } from '../utils/remoteUniverseProject';
 import LoadGitHub from './LoadGitHub';
 import LoadFile from './LoadFile';
 import LoadJsonFile from './LoadJsonFile'
@@ -16,6 +21,17 @@ import ProjectDetailsForm from "../forms/ProjectDetailsForm";
 
 const debug = false;
 
+const buildGithubTreeHref = (focusProj: any) => {
+    const org = focusProj?.org || '';
+    const repo = focusProj?.repo || '';
+    const branch = focusProj?.branch || 'main';
+    const path = String(focusProj?.path || '').replace(/^\/+|\/+$/g, '');
+    if (!org || !repo) return '#';
+    const segments = ['https://github.com', org, repo, 'tree', branch];
+    if (path) segments.push(path);
+    return segments.join('/');
+};
+
 export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
     const dispatch = props.dispatch;
@@ -24,12 +40,24 @@ export const ProjectMenuBar = (props: any) => {
     const project = props.phData.metis;
     const domain = props.phData.domain;
     const source = props.phSource;
+    const activeMetisScope = normalizeMetisScope(getWorkspaceSnapshotMeta(props.phUser)?.activeMetisScope);
+    const metisScopeOptions = getMetisScopeOptions();
+    const remoteUniverseBaseUrl =
+        props.phFocus?.focusProj?.universeApiBaseUrl ||
+        getWorkspaceSnapshotMeta(props.phUser)?.universeApiBaseUrl ||
+        getDefaultRemoteUniverseBaseUrl();
     // const refresh = props.toggleRefresh;
     // const toggleRefresh = props.setRefresh;
     const [minimized, setMinimized] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
+    const [showRemoteUniverseModal, setShowRemoteUniverseModal] = useState(false);
     const [projectname, setProjectname] = useState(props.phFocus?.focusProj?.name);
+    const [remoteUniverseBaseUrlInput, setRemoteUniverseBaseUrlInput] = useState(remoteUniverseBaseUrl);
+    const [remoteUniverseIdInput, setRemoteUniverseIdInput] = useState(props.phFocus?.focusProj?.universeId || '');
+    const [remoteUniverseList, setRemoteUniverseList] = useState<Array<{ slug: string; name?: string; kind?: string }>>([]);
+    const [remoteUniverseLoading, setRemoteUniverseLoading] = useState(false);
+    const [remoteUniverseError, setRemoteUniverseError] = useState('');
 
     const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
     const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
@@ -81,9 +109,9 @@ export const ProjectMenuBar = (props: any) => {
     const handleReadProjectFile = (e: any) => {
         if (!debug) console.log('82 handleReadProjectFile', e);
         ReadModelFromFile(props, dispatch, e);
-        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } });
-        // Navigate to the modelling page after file processing
-        router.push('/modelling');
+        if (router.pathname !== '/modelling') {
+            router.push('/modelling');
+        }
     }
 
     const handleSaveAllToFile = () => {
@@ -93,6 +121,126 @@ export const ProjectMenuBar = (props: any) => {
 
         if (!debug) console.log('94 handleSaveAllToFile', props, projectname, props.phFocus)
         SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+    }
+
+    const handleSaveToServer = async () => {
+        try {
+            const result = await saveRemoteUniverseProject({
+                phData: props.phData,
+                phFocus: props.phFocus,
+                phSource: props.phSource,
+                phUser: props.phUser,
+            });
+            const adaptedState = buildMimrisStateFromWorkspaceSnapshot(result.snapshot, {
+                sourceName: result.snapshot?.focus?.project?.name || props.phFocus?.focusProj?.name || result.id,
+                sourcePath: result.snapshot?.focus?.project?.file || props.phFocus?.focusProj?.file || result.id,
+                universeId: result.id,
+                universeApiBaseUrl: result.baseUrl,
+            });
+            dispatch({
+                type: 'LOAD_TOSTORE_DATA',
+                data: adaptedState,
+            });
+            dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
+            window.alert(`Saved remote universe ${result.id}`);
+        } catch (error: any) {
+            console.error('Error saving remote universe:', error);
+            window.alert(error?.message || 'Unable to save remote universe.');
+        }
+    }
+
+    const handleOpenServerProject = () => {
+        setRemoteUniverseBaseUrlInput(remoteUniverseBaseUrl);
+        setRemoteUniverseIdInput(props.phFocus?.focusProj?.universeId || '');
+        setRemoteUniverseError('');
+        setShowRemoteUniverseModal(true);
+    }
+
+    const handleMetisScopeChange = (nextScope: string) => {
+        const meta = getWorkspaceSnapshotMeta(props.phUser);
+        const snapshot = meta?.snapshot;
+        if (!snapshot) return;
+
+        const nextState = buildMimrisStateFromWorkspaceSnapshot(
+            setActiveMetisScope(snapshot, nextScope),
+            {
+                sourceName: props.phFocus?.focusProj?.name || props.phSource,
+                sourcePath: props.phFocus?.focusProj?.file || props.phSource,
+                universeId: props.phFocus?.focusProj?.universeId || meta?.universeId,
+                universeApiBaseUrl: props.phFocus?.focusProj?.universeApiBaseUrl || meta?.universeApiBaseUrl,
+            },
+        );
+
+        dispatch({
+            type: 'LOAD_TOSTORE_DATA',
+            data: nextState,
+        });
+    };
+
+    const resolveRemoteUniverseBaseUrl = () => {
+        try {
+            return normalizeRemoteUniverseBaseUrl(remoteUniverseBaseUrlInput);
+        } catch (error: any) {
+            throw new Error(error?.message || 'Invalid remote universe base URL.');
+        }
+    };
+
+    const handleLoadRemoteUniverseOptions = async () => {
+        setRemoteUniverseLoading(true);
+        setRemoteUniverseError('');
+        try {
+            const baseUrl = resolveRemoteUniverseBaseUrl();
+            const response = await fetch(`/api/universe/library?baseUrl=${encodeURIComponent(baseUrl)}`);
+            const { payload, text } = await readJsonResponse(response);
+            if (!response.ok || payload?.error || !payload) {
+                throw new Error(readJsonResponseError(response, payload, text, 'Unable to list remote universes.'));
+            }
+            setRemoteUniverseList(Array.isArray(payload?.universes) ? payload.universes : []);
+        } catch (error: any) {
+            setRemoteUniverseError(error?.message || 'Unable to list remote universes.');
+            setRemoteUniverseList([]);
+        } finally {
+            setRemoteUniverseLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (!showRemoteUniverseModal) return;
+        handleLoadRemoteUniverseOptions();
+    }, [showRemoteUniverseModal]);
+
+    useEffect(() => {
+        setRemoteUniverseBaseUrlInput(remoteUniverseBaseUrl);
+    }, [remoteUniverseBaseUrl]);
+
+    const openRemoteUniverseById = () => {
+        const universeId = remoteUniverseIdInput.trim();
+        if (!universeId) return;
+        let baseUrl = '';
+        try {
+            baseUrl = resolveRemoteUniverseBaseUrl();
+        } catch (error: any) {
+            setRemoteUniverseError(error?.message || 'Invalid remote universe base URL.');
+            return;
+        }
+        setShowRemoteUniverseModal(false);
+        router.push(buildRemoteUniversePath(universeId, baseUrl));
+    }
+
+    const openRemoteUniverseBySlug = (slug: string) => {
+        let baseUrl = '';
+        try {
+            baseUrl = resolveRemoteUniverseBaseUrl();
+        } catch (error: any) {
+            setRemoteUniverseError(error?.message || 'Invalid remote universe base URL.');
+            return;
+        }
+        const query = new URLSearchParams({
+            universeSlug: slug,
+            universeApi: baseUrl,
+        });
+        setShowRemoteUniverseModal(false);
+        router.push(`/model?${query.toString()}`);
     }
 
     const handleCloseModal = () => {
@@ -107,6 +255,7 @@ export const ProjectMenuBar = (props: any) => {
 
     function handleOpenFile() {
         if (fileInputRef.current) {
+            fileInputRef.current.value = '';
             fileInputRef.current.click();
         }
     }
@@ -134,6 +283,128 @@ export const ProjectMenuBar = (props: any) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+
+    const remoteUniverseModalDiv = (
+        <Modal
+            show={showRemoteUniverseModal}
+            onHide={() => setShowRemoteUniverseModal(false)}
+            size="xl"
+            centered
+            scrollable
+            style={{ zIndex: "9999" }}
+        >
+            <Modal.Header closeButton>
+                <div>
+                    <div className="fw-semibold">Open Remote Universe</div>
+                    <div className="small text-muted">Browse a shared universe or open one directly by id.</div>
+                </div>
+            </Modal.Header>
+            <Modal.Body>
+                <div className="container-fluid px-0">
+                    <div className="row g-3 mb-3">
+                        <div className="col-12 col-lg-5">
+                            <div className="border rounded-3 p-3 h-100 bg-light-subtle">
+                                <label className="form-label fw-bold mb-2">Universe API</label>
+                                <input
+                                    className="form-control"
+                                    value={remoteUniverseBaseUrlInput}
+                                    onChange={(event) => setRemoteUniverseBaseUrlInput(event.target.value)}
+                                    placeholder="http://localhost:3001"
+                                />
+                                <div className="small text-muted mt-2">
+                                    Remote universes are loaded from this API endpoint. Change it if your shared universe server runs elsewhere.
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-12 col-lg-7">
+                            <div className="border rounded-3 p-3 h-100">
+                                <label className="form-label fw-bold mb-2">Open By Universe Id</label>
+                                <div className="row g-2 align-items-start">
+                                    <div className="col-12 col-md">
+                                        <input
+                                            className="form-control"
+                                            value={remoteUniverseIdInput}
+                                            onChange={(event) => setRemoteUniverseIdInput(event.target.value)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter') openRemoteUniverseById();
+                                            }}
+                                            placeholder="universe_abc123"
+                                        />
+                                    </div>
+                                    <div className="col-12 col-md-auto">
+                                        <button className="btn btn-primary w-100 px-4" onClick={openRemoteUniverseById}>
+                                            Open
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="small text-muted mt-2">
+                                    Paste a known universe id to jump directly to that workspace.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border rounded-3 overflow-hidden">
+                        <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom bg-light">
+                            <div>
+                                <div className="fw-bold">Remote Universe Library</div>
+                                <div className="small text-muted">Select a published universe from the remote catalog.</div>
+                            </div>
+                            <button className="btn btn-sm btn-outline-secondary" onClick={handleLoadRemoteUniverseOptions}>
+                                {remoteUniverseLoading ? 'Refreshing...' : 'Refresh'}
+                            </button>
+                        </div>
+
+                        {remoteUniverseError && (
+                            <div className="alert alert-danger rounded-0 border-0 border-bottom mb-0">
+                                {remoteUniverseError}
+                            </div>
+                        )}
+
+                        <div style={{ maxHeight: "420px", overflowY: "auto", backgroundColor: "#f8fafc" }}>
+                            {remoteUniverseLoading && (
+                                <div className="px-3 py-4 text-muted">Loading universes...</div>
+                            )}
+
+                            {!remoteUniverseLoading && !remoteUniverseError && remoteUniverseList.length === 0 && (
+                                <div className="px-3 py-4 text-muted">No remote universes found.</div>
+                            )}
+
+                            {!remoteUniverseLoading && remoteUniverseList.length > 0 && (
+                                <div className="p-3 d-grid gap-2">
+                                    {remoteUniverseList.map((item) => (
+                                        <button
+                                            key={item.slug}
+                                            className="btn btn-light border rounded-3 text-start px-3 py-3"
+                                            onClick={() => openRemoteUniverseBySlug(item.slug)}
+                                        >
+                                            <div className="d-flex justify-content-between align-items-start gap-3">
+                                                <div className="min-w-0">
+                                                    <div className="fw-bold text-dark text-truncate">
+                                                        {item.name || item.slug}
+                                                    </div>
+                                                    <div className="small text-muted text-break">
+                                                        {item.slug}
+                                                        {item.kind ? ` • ${item.kind}` : ''}
+                                                    </div>
+                                                </div>
+                                                <span className="small fw-semibold text-primary text-nowrap mt-1">
+                                                    Open
+                                                </span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button color="link" onClick={() => setShowRemoteUniverseModal(false)}>Close</Button>
             </Modal.Footer>
         </Modal>
     );
@@ -197,19 +468,14 @@ export const ProjectMenuBar = (props: any) => {
                 data-placement="top"
                 data-bs-html="true"
                 title="Click here to Open a Project file from local file system"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleOpenFile();
+                }}
             >
                 <i className="fa fa-folder fa-lg pe-2 me-4"></i>Open local file
             </button>
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                    // Handle the selected file here
-                    handleReadProjectFile(e);
-                }}
-            />
         </>
     )
 
@@ -224,6 +490,26 @@ export const ProjectMenuBar = (props: any) => {
                 onClick={handleSaveAllToFile}
             >
                 <i className="fa fa-save fa-lg pe-2"></i> Save to local file
+            </button>
+            <button
+                className="btn btn-sm rounded bg-success text-light w-100 px-2 mt-2 d-flex justify-content-start align-items-center"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Save the current project to the remote shared universe API"
+                onClick={handleSaveToServer}
+            >
+                <i className="fa fa-cloud-upload fa-lg pe-2"></i> Save remote universe
+            </button>
+            <button
+                className="btn btn-sm rounded bg-light text-dark border w-100 px-2 mt-2 d-flex justify-content-start align-items-center"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-bs-html="true"
+                title="Open a remote shared universe by universe id"
+                onClick={handleOpenServerProject}
+            >
+                <i className="fa fa-cloud fa-lg pe-2"></i> Open remote universe
             </button>
         </>
     )
@@ -335,7 +621,7 @@ export const ProjectMenuBar = (props: any) => {
                     {(props.phFocus.focusProj?.org !== '' && props.phFocus.focusProj?.repo !== '' && props.phFocus.focusProj?.branch !== '') &&
                         <Link
                             className="text-primary ms-1"
-                            href={props.phFocus.focusProj?.org ? `https://github.com/${props.phFocus.focusProj?.org}/${props.phFocus.focusProj?.repo}/tree/${props.phFocus.focusProj?.branch}/${props.phFocus.focusProj?.path}` : "#"}
+                            href={buildGithubTreeHref(props.phFocus.focusProj)}
                             target="_blank"
                         >
                             {props.phFocus.focusProj?.repo}
@@ -415,6 +701,12 @@ export const ProjectMenuBar = (props: any) => {
                             <span className="px-1">
                                 Project : <span className="px-1">{props.phFocus.focusProj.name} </span>
                             </span>
+                            <span className="px-2 py-0 rounded-pill"
+                                style={{ backgroundColor: "#cfe6d5", fontSize: "0.72rem", letterSpacing: "0.01em" }}
+                                title="Active Metis source"
+                            >
+                                {getMetisScopeLabel(activeMetisScope)}
+                            </span>
                             <span
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
@@ -445,7 +737,7 @@ export const ProjectMenuBar = (props: any) => {
                                 {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '') &&
                                     <Link
                                         className="text-primary"
-                                        href={props.phFocus.focusProj.org ? `https://github.com/${props.phFocus.focusProj.org}/${props.phFocus.focusProj.repo}/tree/${props.phFocus.focusProj.branch}/${props.phFocus.focusProj.path}` :"#"}
+                                        href={buildGithubTreeHref(props.phFocus.focusProj)}
                                         target="_blank"
                                     >
                                         <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>
@@ -461,6 +753,21 @@ export const ProjectMenuBar = (props: any) => {
                                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                                 title="This is the Branch name in the GitHub Repository"
                             > {props.phFocus.focusProj.branch}</span>
+                        </span>
+                        <span className="context-item border d-flex align-items-center rounded-2 mx-1 px-1" style={{ backgroundColor: "#ded", whiteSpace: "nowrap" }}>
+                            <label className="me-2 mb-0" title="Choose which Metis source to open and edit">Metis:</label>
+                            <select
+                                className="form-select form-select-sm"
+                                style={{ minWidth: "220px", backgroundColor: "#efe" }}
+                                value={activeMetisScope}
+                                onChange={(event) => handleMetisScopeChange(event.target.value)}
+                            >
+                                {metisScopeOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
                         </span>
                     </div>
                 </div>
@@ -532,6 +839,18 @@ export const ProjectMenuBar = (props: any) => {
 
     return (
         <>
+            <input
+                type="file"
+                ref={fileInputRef}
+                accept=".json"
+                style={{ display: 'none' }}
+                onClick={(event) => {
+                    event.currentTarget.value = '';
+                }}
+                onChange={(e) => {
+                    handleReadProjectFile(e);
+                }}
+            />
             <div
                 className={`project-menu-bar ${props.expanded ? 'expanded' : ''} context-item`}
                 style={{
@@ -621,6 +940,7 @@ export const ProjectMenuBar = (props: any) => {
                     </div>
                 </div>
                 {projectModalDiv}
+                {remoteUniverseModalDiv}
             </div>
         </>
     );

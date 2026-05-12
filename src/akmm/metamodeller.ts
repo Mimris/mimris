@@ -1038,6 +1038,13 @@ export class cxMetis {
                 objtypegeo.setLoc(item.loc);
                 objtypegeo.setSize(item.size);
                 metamodel.addObjtypeGeo(objtypegeo);
+            } else {
+                // Import new geos as concrete cxObjtypeGeo instances so layout positions
+                // created during runtime survive a subsequent reload/import.
+                objtypegeo = new cxObjtypeGeo(item.id, metamodel, type, item.loc, item.size);
+                objtypegeo.setMarkedAsDeleted(Boolean(item.markedAsDeleted));
+                this.addObjtypeGeo(objtypegeo);
+                metamodel.addObjtypeGeo(objtypegeo);
             }
         }
     }
@@ -1254,6 +1261,49 @@ export class cxMetis {
             }
         }
     }
+    sanitizeObjectViewAfterImport(objview: cxObjectView, source: any) {
+        if (!objview) return;
+        const optionalFields = [
+            'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+            'group', 'groupLayout', 'icomStyle',
+            'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor1', 'strokecolor2', 'strokewidth',
+            'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+            'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+            'size', 'scale', 'loc'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(objview[prop])) {
+                    delete objview[prop];
+                }
+            }
+        }
+    }
+    sanitizeRelshipViewAfterImport(relview: cxRelationshipView, source: any) {
+        if (!relview) return;
+        const optionalFields = [
+            'template', 'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+            'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+            'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor', 'points'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(relview[prop])) {
+                    delete relview[prop];
+                }
+            }
+        }
+    }
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
             const objview = this.findObjectView(item.id);
@@ -1312,6 +1362,7 @@ export class cxMetis {
                         }
                     }
                     objview.viewkind = item.viewkind;
+                    this.sanitizeObjectViewAfterImport(objview, item);
                     if (debug) console.log('1201 objview.markedAsDeleted', objview.markedAsDeleted, objview);
                     object.addObjectView(objview);
                     if (debug) console.log('1203 item, objview', item, objview);
@@ -1392,6 +1443,7 @@ export class cxMetis {
                     if (!relview.markedAsDeleted) relview.visible = true;
                     relview.template = item.template;
                     relview.template2 = item.template2;
+                    this.sanitizeRelshipViewAfterImport(relview, item);
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
                 }
@@ -9670,11 +9722,20 @@ export class cxModelView extends cxMetaObject {
     }
     repairObjectView(objview: cxObjectView): boolean {
         if (!objview) return false;
-        if (objview.isDeleted()) return false;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (Object.prototype.hasOwnProperty.call(view, 'isDeleted')) return Boolean(view.isDeleted);
+            if (Object.prototype.hasOwnProperty.call(view, 'markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
+        if (isViewDeleted(objview)) return false;
         if (!objview.object) return false;
         if (objview.object?.markedAsDeleted) return false;
         // Validate input relviews
-        const inputrelviews = objview.getInputRelviews();
+        const inputrelviews = typeof (objview as any).getInputRelviews === 'function'
+            ? objview.getInputRelviews()
+            : objview.inputrelviews;
         if (inputrelviews) {
             for (let i = 0; i < inputrelviews.length; i++) {
                 const relview = inputrelviews[i];
@@ -9698,7 +9759,9 @@ export class cxModelView extends cxMetaObject {
             }
         }
         // Repair output relviews
-        const outputrelviews = objview.getOutputRelviews();
+        const outputrelviews = typeof (objview as any).getOutputRelviews === 'function'
+            ? objview.getOutputRelviews()
+            : objview.outputrelviews;
         if (outputrelviews) {
             for (let i = 0; i < outputrelviews.length; i++) {
                 const relview = outputrelviews[i];
@@ -10049,6 +10112,52 @@ export class cxObjectView extends cxMetaObject {
             return this.image;
         return "";
     }
+    
+    /**
+     * Resolve an attribute value: returns objectview value if set, 
+     * otherwise falls back to typeview default.
+     * @param attrName - The attribute name to resolve
+     * @returns Object with { value, isInherited }
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        
+        // Check if objectview has an explicit value (non-empty, non-null, non-undefined)
+        const objviewValue = this[attrName];
+        const hasObjviewValue = objviewValue !== undefined && 
+                                objviewValue !== null && 
+                                objviewValue !== "";
+        
+        if (hasObjviewValue) {
+            return { value: objviewValue, isInherited: false };
+        }
+        
+        // Fall back to typeview default
+        const typeviewValue = typeview?.[attrName];
+        return { 
+            value: typeviewValue !== undefined ? typeviewValue : "", 
+            isInherited: true 
+        };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage.
+     * If value matches typeview default, removes the override.
+     * @param attrName - The attribute name
+     * @param value - The new value
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        const typeviewDefault = typeview?.[attrName];
+        
+        // If value matches typeview default, clear the override
+        if (value === typeviewDefault || (value === "" && !typeviewDefault)) {
+            this[attrName] = "";  // Clear to allow inheritance
+        } else {
+            this[attrName] = value;  // Store the override
+        }
+    }
+    
     setIsGroup(flag: boolean) {
         this.isGroup = flag;
     }
@@ -10634,6 +10743,56 @@ export class cxRelationshipView extends cxMetaObject {
     }
     getPoints(): any {
         return this.points;
+    }
+    
+    /**
+     * Resolve an attribute value with inheritance from typeview.
+     * Returns the relshipview's value if set, otherwise falls back to typeview default.
+     * @param attrName - Name of the attribute to resolve
+     * @returns Object containing the resolved value and whether it's inherited
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const relviewValue = this[attrName];
+        const typeview = this.typeview;
+        
+        // If relshipview has a value (not undefined, null, or empty string), use it
+        if (relviewValue !== undefined && relviewValue !== null && relviewValue !== "") {
+            return { value: relviewValue, isInherited: false };
+        }
+        
+        // Otherwise, try to get from typeview
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            if (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "") {
+                return { value: typeviewValue, isInherited: true };
+            }
+        }
+        
+        // No value found anywhere
+        return { value: relviewValue, isInherited: false };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage cleanup.
+     * If the new value matches the typeview default, removes the override.
+     * @param attrName - Name of the attribute to set
+     * @param value - Value to set
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.typeview;
+        
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            
+            // If value matches typeview, remove the override (delta storage)
+            if (value === typeviewValue) {
+                delete this[attrName];
+                return;
+            }
+        }
+        
+        // Otherwise, set the value
+        this[attrName] = value;
     }
 }
 

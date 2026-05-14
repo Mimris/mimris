@@ -4743,16 +4743,18 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             // link label
             $(go.TextBlock,  "",
             {
-                isMultiline: false,  // don't allow newlines in text
+                isMultiline: false,
                 editable: true,
-                background: "transparent",
+                background: null,  // null = no background rendering at all
+                isPanelMain: false,
+                pickable: false,
                 segmentIndex: NaN,
                 segmentFraction: 0.5,
+                segmentOffset: new go.Point(0, 0),
             },
-            { segmentOffset: new go.Point(0, 0) },
             new go.Binding("text", "name").makeTwoWay(),
             new go.Binding("stroke", "textcolor").makeTwoWay(),
-            new go.Binding("scale", "textscale").makeTwoWay(),
+            new go.Binding("scale", "textscale").makeTwoWay()
             ),
             { // Tooltip
             toolTip:
@@ -4889,11 +4891,14 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
                 {
                     isMultiline: true,  // allow newlines in text
                     editable: true,  // allow in-place editing by user
+                    background: null,  // null = no background rendering at all
+                    isPanelMain: false,
+                    pickable: false,
                 },
                 { segmentOffset: new go.Point(-10, -10) },
                 new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("stroke", "textcolor").makeTwoWay(),
-                new go.Binding("scale", "textscale").makeTwoWay(),
+                new go.Binding("scale", "textscale").makeTwoWay()
             ),
             {
             toolTip:
@@ -5007,14 +5012,16 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             // this is a Link label
             isMultiline: true,  // allow newlines in text
             editable: true,
-            background: "transparent",
+            background: null,  // null = no background rendering at all
+            isPanelMain: false,
+            pickable: false,
             segmentIndex: NaN,
             segmentFraction: 0.5,
             segmentOffset: new go.Point(0, 0),
           },
           new go.Binding('text', 'name').makeTwoWay(),
           new go.Binding("stroke", "textcolor").makeTwoWay(),
-          new go.Binding("scale", "textscale").makeTwoWay(),
+          new go.Binding("scale", "textscale").makeTwoWay()
         ),
         {
             toolTip:
@@ -5058,7 +5065,9 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             {
               isMultiline: false,
               editable: false,
-              background: "transparent",
+              background: null,  // null = no background rendering at all
+              isPanelMain: false,
+              pickable: false,
               stroke: "black",
               segmentIndex: NaN,
               segmentFraction: 0.5,

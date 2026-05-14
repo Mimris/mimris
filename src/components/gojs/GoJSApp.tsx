@@ -7253,6 +7253,11 @@ const relayoutPoolGroupAfterLaneChanges = (
     });
   });
 
+  const finalLaneWidthAvailable = Math.max(
+    poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+    minLaneWidth
+  );
+
   let currentY = poolLocation.y + laneTopMargin;
   laneLayouts.forEach((layout, index) => {
     layout.topY = currentY;
@@ -7264,10 +7269,6 @@ const relayoutPoolGroupAfterLaneChanges = (
   currentY += laneBottomMargin;
 
   const totalHeight = currentY - poolLocation.y;
-  const finalLaneWidthAvailable = Math.max(
-    poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
-    minLaneWidth
-  );
 
   laneLayouts.forEach((layout) => {
     const lane = layout.group;
@@ -8775,101 +8776,109 @@ break;
   let gjsFromNode, gjsToNode;
   const isObjectNode = (n: any) =>
     !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
-  for (let it = myDiagram.nodes; it?.next();) {
-    const n = it.value;
-    if (n.data?.key === gjsData.from) {
-      gjsFromNode = n.data;
+  
+  // Wrap ENTIRE LinkDrawn operation in one transaction to prevent any intermediate rendering
+  myDiagram.startTransaction("link-drawn");
+  try {
+    for (let it = myDiagram.nodes; it?.next();) {
+      const n = it.value;
+      if (n.data?.key === gjsData.from) {
+        gjsFromNode = n.data;
+      }
+      if (n.data?.key === gjsData.to) {
+        gjsToNode = n.data;
+      }
     }
-    if (n.data?.key === gjsData.to) {
-      gjsToNode = n.data;
+    let goFromNode: gjs.goObjectNode;
+    let goToNode: gjs.goObjectNode;
+    let fromObjView: akm.cxObjectView;
+    let toObjView: akm.cxObjectView;
+    
+    if (gjsFromNode) {
+      fromObjView = myModelview.findObjectView(gjsFromNode.key);
+      goFromNode = myGoModel.findNode(gjsFromNode.key);
+      context.goFromNode = goFromNode;
+      context.fromObjView = fromObjView;
+      uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
     }
-  }
-  let goFromNode: gjs.goObjectNode;
-  let goToNode: gjs.goObjectNode;
-  let fromObjView: akm.cxObjectView;
-  let toObjView: akm.cxObjectView;
-  if (gjsFromNode) {
-    fromObjView = myModelview.findObjectView(gjsFromNode.key);
-    goFromNode = myGoModel.findNode(gjsFromNode.key);
-    context.goFromNode = goFromNode;
-    context.fromObjView = fromObjView;
-    uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
-  }
-  if (gjsToNode) {
-    toObjView = myModelview.findObjectView(gjsToNode.key);
-    goToNode = myGoModel.findNode(gjsToNode.key);
-    context.goToNode = goToNode;
-    context.toObjView = toObjView;
-    uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
-  }
-  // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
-  const ensureNodeRefs = (gjsNode: any, objview: any) => {
-    if (!gjsNode) return;
-    const setProp = (prop: string, val: any) => {
-      if (val === undefined || val === null) return;
-      try {
-        gjsNode[prop] = val;
-      } catch (_) { /* ignore */ }
+    if (gjsToNode) {
+      toObjView = myModelview.findObjectView(gjsToNode.key);
+      goToNode = myGoModel.findNode(gjsToNode.key);
+      context.goToNode = goToNode;
+      context.toObjView = toObjView;
+      uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
+    }
+    // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
+    const ensureNodeRefs = (gjsNode: any, objview: any) => {
+      if (!gjsNode) return;
+      const setProp = (prop: string, val: any) => {
+        if (val === undefined || val === null) return;
+        try {
+          gjsNode[prop] = val;
+        } catch (_) { /* ignore */ }
+      };
+      if (objview) {
+        setProp('objectview', objview);
+        setProp('objviewRef', objview.id);
+        if (!objview.object && gjsNode.object) {
+          objview.object = gjsNode.object;
+        }
+        setProp('object', objview.object || gjsNode.object);
+        setProp('objRef', objview.object?.id);
+      }
     };
-    if (objview) {
-      setProp('objectview', objview);
-      setProp('objviewRef', objview.id);
-      if (!objview.object && gjsNode.object) {
-        objview.object = gjsNode.object;
+    ensureNodeRefs(gjsFromNode, context.fromObjView);
+    ensureNodeRefs(gjsToNode, context.toObjView);
+    // Handle relationship types
+    if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
+      if (!gjsFromNode || !gjsToNode) {
+        try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
+        break;
       }
-      setProp('object', objview.object || gjsNode.object);
-      setProp('objRef', objview.object?.id);
+      gjsData.category = constants.gojs.C_RELSHIPTYPE;
+      if (debug) console.log('1523 link', fromNode, toNode);
+      // link.category = constants.gojs.C_RELSHIPTYPE;
+      const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
+      if (reltype) {
+        if (debug) console.log('1527 reltype', reltype);
+        const jsnType = new jsn.jsnRelationshipType(reltype, true);
+        modifiedRelshipTypes.push(jsnType);
+        if (debug) console.log('1530 jsnType', jsnType);
+        const reltypeview = reltype.typeview;
+        if (reltypeview) {
+          const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
+          modifiedRelshipTypeViews.push(jsnTypeView);
+          if (debug) console.log('1535 jsnTypeView', jsnTypeView);
+          const linkData = link?.data || gjsData;
+          if (debug) console.log('1546 lnk, reltype', linkData, reltype);
+          myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
+          myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
+          myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
+          myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
+          myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
+          uid.editRelationshipType(linkData, myMetis, myDiagram);
+        }
+      }
+      // myDiagram.requestUpdate();  // Commented out - model changes auto-update, full refresh can cause visual glitches
     }
-  };
-  ensureNodeRefs(gjsFromNode, context.fromObjView);
-  ensureNodeRefs(gjsToNode, context.toObjView);
-  // Handle relationship types
-  if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
-    if (!gjsFromNode || !gjsToNode) {
-      try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
-      break;
-    }
-    gjsData.category = constants.gojs.C_RELSHIPTYPE;
-    if (debug) console.log('1523 link', fromNode, toNode);
-    // link.category = constants.gojs.C_RELSHIPTYPE;
-    const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
-    if (reltype) {
-      if (debug) console.log('1527 reltype', reltype);
-      const jsnType = new jsn.jsnRelationshipType(reltype, true);
-      modifiedRelshipTypes.push(jsnType);
-      if (debug) console.log('1530 jsnType', jsnType);
-      const reltypeview = reltype.typeview;
-      if (reltypeview) {
-        const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelshipTypeViews.push(jsnTypeView);
-        if (debug) console.log('1535 jsnTypeView', jsnTypeView);
-        const linkData = link?.data || gjsData;
-        if (debug) console.log('1546 lnk, reltype', linkData, reltype);
-        myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
-        myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
-        myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
-        myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
-        myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
-        uid.editRelationshipType(linkData, myMetis, myDiagram);
+    // Handle relationships
+    if (isObjectNode(gjsFromNode)) {
+      // gjsData.category = constants.gojs.C_RELATIONSHIP;
+      context.handleOpenModal = this.handleOpenModal;
+      if (gjsFromNode && gjsToNode) {
+        try {
+          myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
+          myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
+          myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
+          myDiagram.model.setDataProperty(gjsData, 'name', '');
+        } catch (_) {}
+        uic.createRelationship(gjsFromNode, gjsToNode, context);
       }
     }
-    myDiagram.requestUpdate();
+    // myDiagram.requestUpdate();  // Commented out - model changes auto-update, full refresh can cause visual glitches
+  } finally {
+    myDiagram.commitTransaction("link-drawn");
   }
-  // Handle relationships
-  if (isObjectNode(gjsFromNode)) {
-    // gjsData.category = constants.gojs.C_RELATIONSHIP;
-    context.handleOpenModal = this.handleOpenModal;
-    if (gjsFromNode && gjsToNode) {
-      try {
-        myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
-        myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
-        myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
-        myDiagram.model.setDataProperty(gjsData, 'name', '');
-      } catch (_) {}
-      uic.createRelationship(gjsFromNode, gjsToNode, context);
-    }
-  }
-  myDiagram.requestUpdate();
   break;
 }
       case "LinkRelinked": {

@@ -8202,6 +8202,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!relship || !myModelview || !myMetamodel) return;
 
         let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+        // Default to true if undefined - inheritance should work by default
+        if (includeInheritedReltypes === undefined || includeInheritedReltypes === null) {
+          includeInheritedReltypes = true;
+          myModelview.includeInheritedReltypes = true;
+        }
+        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -8216,7 +8222,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
+        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
+        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -12029,11 +12037,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $("Node",
           {
             selectable: false, avoidable: false,
-            layerName: "Foreground"
+            layerName: "Foreground",
+            background: "transparent"  // Ensure node background is transparent
           },  // always have link label nodes in front of Links
           $("Shape", "Ellipse",
             {
-              width: 5, height: 5, stroke: null,
+              width: 5, height: 5, stroke: null, fill: "transparent",
               portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
             })
         ));

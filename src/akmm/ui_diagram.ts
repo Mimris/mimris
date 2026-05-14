@@ -1535,7 +1535,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
-    const includeInheritedReltypes = myModelview.includeInheritedReltypes;
+    // Force inheritance to true - ignore stored false values for now
+    const includeInheritedReltypes = true; // myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
     if (!myModelview.isMetamodel) {
@@ -2811,7 +2812,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
                 isInitial: false,
-                direction: 0,
+                direction: 90,  // Try 90 degrees to see if this makes it horizontal
                 layerSpacing: 80,
                 columnSpacing: 40,
                 setsPortSpots: true,

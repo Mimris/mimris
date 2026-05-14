@@ -21,6 +21,23 @@ class MyDocument extends Document {
         {/* <meta name="viewport" content="height=device-height, initial-scale=1" /> */}
 
         <Head>
+          <script dangerouslySetInnerHTML={{__html: `
+            (function() {
+              if (typeof window !== 'undefined') {
+                const originalWarn = console.warn;
+                console.warn = function(...args) {
+                  const message = String(args[0] || '');
+                  if (message.includes('The kernel') || 
+                      message.includes('already registered') || 
+                      message.includes('already been set') ||
+                      message.includes('Platform browser')) {
+                    return;
+                  }
+                  originalWarn.apply(console, args);
+                };
+              }
+            })();
+          `}} />
           {/* <link
             rel="stylesheet"
             href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"

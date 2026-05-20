@@ -2812,7 +2812,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
                 isInitial: false,
-                direction: 90,  // Try 90 degrees to see if this makes it horizontal
+                direction: 0,  // 0 = left-to-right (horizontal), 90 = top-to-bottom (vertical)
                 layerSpacing: 80,
                 columnSpacing: 40,
                 setsPortSpots: true,

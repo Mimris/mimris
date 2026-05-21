@@ -7086,6 +7086,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // ignore
             }
           }
+
+          // Dispatch UPDATE_OBJECTVIEW_PROPERTIES so Redux state is properly updated
+          if (memberObjview) {
+            const jsnObjview = new jsn.jsnObjectView(memberObjview);
+            const objviewData = JSON.parse(JSON.stringify(jsnObjview));
+            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objviewData });
+          }
         };
 
         persistPartGeometry(groupPart);

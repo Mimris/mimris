@@ -1329,6 +1329,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 // Bottom border overlay within lane header
                 $(go.Shape, "Rectangle",
                     {
+                        isPanelMain: false,
                         alignment: go.Spot.Bottom,
                         alignmentFocus: go.Spot.Bottom,
                         stretch: go.GraphObject.Horizontal,
@@ -1390,6 +1391,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                 // Bottom border overlay on lane body
                 $(go.Shape, "Rectangle",
                     {
+                        isPanelMain: false,
                         alignment: go.Spot.Bottom,
                         alignmentFocus: go.Spot.Bottom,
                         stretch: go.GraphObject.Horizontal,
@@ -1403,6 +1405,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
             // Right lane border
             $(go.Shape, "Rectangle",
                 {
+                    isPanelMain: false,
                     row: 0,
                     column: 1,
                     alignment: go.Spot.Right,

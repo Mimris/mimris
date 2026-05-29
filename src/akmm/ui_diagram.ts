@@ -20,6 +20,7 @@ import * as constants from './constants';
 const $ = go.GraphObject.make;
 // Option 1: lanes touch; separators are the lane borders themselves.
 const POOL_LANE_GAP = 0;
+const LANE_BORDER_HEIGHT = 3; // Height of border between lanes (must match SWIM_SEPARATOR_WIDTH)
 const POOL_HEADER_WIDTH = 34;
 const LANE_HEADER_WIDTH = 36;
 // Additional padding on top of the Placeholder padding in the Pool template.
@@ -3011,49 +3012,52 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         const laneSpacing = POOL_LANE_GAP;
         const minLaneWidth = 120;
         const minPoolWidth = poolLeftReserve + lanePaddingLeft + minLaneWidth + lanePaddingRight + laneRightVisualInset;
-        const preservePoolWidths = (myDiagram as any).__preserveResizedPoolWidths as Set<string> | undefined;
-        const preserveWidth =
-            !!preservePoolWidths?.has(String(groupNode.data?.key || myGroup?.id || "")) ||
-            !!effectiveForcedPoolSize;
-        let measuredLaneStackWidth = 0;
+        
+        // First pass: measure actual lane widths to determine required pool width
+        let maxRequiredLaneBodyWidth = minLaneWidth;
+        const laneSizes: number[] = [];
         structuralGroups.forEach(({ group, kind }) => {
-            const laneSize = group.data?.size ? go.Size.parse(String(group.data.size)) : null;
-            const resizeObject = group.resizeObject || group.placeholder || group;
-            const laneBounds = group.actualBounds?.copy();
-            const baseWidth =
-                (typeof laneSize?.width === 'number' && Number.isFinite(laneSize.width) && laneSize.width > 0)
-                    ? laneSize.width
-                    : Math.max(
-                        resizeObject?.desiredSize?.width || 0,
-                        laneBounds?.width || 0,
-                        120
-                    );
             if (kind === 'lane') {
-                const laneHeader = group.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
-                const laneHeaderWidth =
-                    (typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
-                        ? laneHeader.actualBounds.width
-                        : 36;
-                measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth + laneHeaderWidth);
-            } else {
-                measuredLaneStackWidth = Math.max(measuredLaneStackWidth, baseWidth);
+                // Get lane's actual required width from its data.size ONLY
+                // Don't measure from actualBounds to avoid feedback loops
+                const laneSize = group.data?.size ? go.Size.parse(String(group.data.size)) : null;
+                let laneBodyWidth = minLaneWidth;
+                
+                if (laneSize && laneSize.width > 0 && Number.isFinite(laneSize.width)) {
+                    laneBodyWidth = laneSize.width;
+                    laneSizes.push(laneBodyWidth);
+                }
+                
+                maxRequiredLaneBodyWidth = Math.max(maxRequiredLaneBodyWidth, laneBodyWidth);
+                console.log(`Pool layout: lane ${group.data?.key}, body width from data=${laneBodyWidth}`);
             }
         });
-        let poolWidth = preserveWidth
-            ? Math.max(effectiveForcedPoolSize?.width || 0, poolSize?.width || 0, minPoolWidth)
-            : Math.max(
-                effectiveForcedPoolSize?.width || 0,
-                measuredLaneStackWidth + poolLeftReserve + lanePaddingLeft + lanePaddingRight + laneRightVisualInset,
-                minPoolWidth
-            );
-        const measuredInnerWidth = (() => {
-            if (preserveWidth) return 0;
-            const bounds = (poolContentAnchor || poolContentPanel)?.getDocumentBounds?.();
-            if (bounds?.width && Number.isFinite(bounds.width) && bounds.width > 0) return bounds.width;
-            return 0;
-        })();
+        
+        // Check if all lanes already have the same width
+        const allLanesSameWidth = laneSizes.length > 0 && laneSizes.every(w => Math.abs(w - laneSizes[0]) < 0.1);
+        
+        // Calculate pool width from lane requirements
+        // Pool width = max lane body width + lane header + pool header + margins
+        const standardLaneHeaderWidth = 36;
+        const requiredPoolWidth = maxRequiredLaneBodyWidth + standardLaneHeaderWidth + poolLeftReserve + lanePaddingLeft + lanePaddingRight + laneRightVisualInset;
+        
+        console.log(`Pool layout: max lane body=${maxRequiredLaneBodyWidth}, all same width=${allLanesSameWidth}`);
+        console.log(`Pool layout: required pool width=${requiredPoolWidth}, current pool=${poolSize?.width || 0}`);
+        
+        // Use the measured requirement, or preserve current pool width if lanes are already uniform
+        let poolWidth = requiredPoolWidth;
+        if (allLanesSameWidth && poolSize && poolSize.width > 0 && Math.abs(poolSize.width - requiredPoolWidth) < 1) {
+            // Preserve current pool width if it matches lane sizes (within 1px tolerance)
+            poolWidth = poolSize.width;
+            console.log(`Pool layout: preserving current pool width=${poolWidth}`);
+        } else {
+            poolWidth = Math.max(requiredPoolWidth, minPoolWidth);
+            console.log(`Pool layout: setting new pool width=${poolWidth}`);
+        }
+        
+        // Calculate lane width from pool width
         const laneWidth = Math.max(
-            (measuredInnerWidth > 0 ? measuredInnerWidth : (poolWidth - poolLeftReserve)) - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+            poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
             minLaneWidth
         );
 
@@ -3100,6 +3104,7 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             lane.location = lanePoint;
             if (lane.data) {
                 myDiagram.model.setDataProperty(lane.data, "loc", go.Point.stringify(lanePoint));
+                // Store dimensions for reference (height binding reads from this)
                 myDiagram.model.setDataProperty(lane.data, "size", `${laneBodyWidth} ${laneHeight}`);
                 if (groupNode.data?.key && lane.data?.group !== groupNode.data.key) {
                     myDiagram.model.setGroupKeyForNodeData(lane.data, groupNode.data.key);
@@ -3108,53 +3113,36 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
                     myDiagram.model.setDataProperty(lane.data, "laneIndex", idx);
                 }
             }
-            if (resizeObject) {
-                resizeObject.desiredSize = new go.Size(rowWidth, laneHeight);
-            }
-            if (isLaneGroup && laneMain) {
-                (laneMain as any).desiredSize = new go.Size(rowWidth, laneHeight);
-                (laneMain as any).width = rowWidth;
-                (laneMain as any).height = laneHeight;
-            }
-            if (isLaneGroup && laneMainShape) {
-                (laneMainShape as any).desiredSize = new go.Size(rowWidth, laneHeight);
-                (laneMainShape as any).width = rowWidth;
-                (laneMainShape as any).height = laneHeight;
-            }
-            if (isLaneGroup && laneBodyPanel) {
-                (laneBodyPanel as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
-                (laneBodyPanel as any).width = laneBodyWidth;
-                (laneBodyPanel as any).height = laneHeight;
-            }
-            if (isLaneGroup && laneBody) {
-                (laneBody as any).desiredSize = new go.Size(laneBodyWidth, laneHeight);
-                (laneBody as any).width = laneBodyWidth;
-                (laneBody as any).height = laneHeight;
-            }
+            // Let GROUP desiredSize binding handle sizing from data.size
+            // Manual sizing here conflicts with the binding and causes lanes to extend beyond pool
+            // Don't manually size laneBodyPanel or laneBody - let stretch properties handle it
+            // The GROUP desiredSize binding and Table column stretch will size them correctly
             if (!isLaneGroup && childPoolShape) {
                 (childPoolShape as any).desiredSize = new go.Size(rowWidth, laneHeight);
                 (childPoolShape as any).width = rowWidth;
                 (childPoolShape as any).height = laneHeight;
                 nestedPoolsToRelayout.push(lane);
             }
-            try {
-                lane.desiredSize = new go.Size(rowWidth, laneHeight);
-            } catch (_) {
-            }
+            // Don't manually set lane.desiredSize - let the GROUP binding handle it from data.size
             const laneView = myModelview.findObjectView(lane.data?.key);
             if (laneView) {
                 laneView.loc = go.Point.stringify(lanePoint);
                 laneView.group = groupNode.data?.key || laneView.group;
+                // Store dimensions for reference
                 laneView.size = `${laneBodyWidth} ${laneHeight}`;
                 const data = JSON.parse(JSON.stringify(new jsn.jsnObjectView(laneView)));
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
             }
             currentY += laneHeight;
-            if (idx < laneLayouts.length - 1) currentY += laneSpacing;
+            // Add spacing between lanes (includes room for the bottom border separator)
+            if (idx < laneLayouts.length - 1) currentY += laneSpacing + LANE_BORDER_HEIGHT;
         });
 
         const totalHeight = (currentY - poolLocation.y) + laneBottomMargin;
         const finalPoolSize = new go.Size(finalPoolWidth, Math.max(totalHeight, 80));
+        
+        console.log(`Pool layout complete: pool width=${finalPoolWidth}, pool height=${totalHeight}, lane count=${laneLayouts.length}`);
+        
         if (poolResizeObject) {
             poolResizeObject.desiredSize = finalPoolSize;
         }
@@ -3476,12 +3464,90 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         let data = JSON.parse(JSON.stringify(rv));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
     });
+    
+    // Store pool/lane updates to dispatch after transaction commits
+    const deferredDispatches: Array<{ type: string; data: any }> = [];
+    
+    // When lane layout completes, check if pool needs to expand to accommodate the lane
+    if (layoutMode === "lane_content") {
+        const containingPool = groupNode.containingGroup;
+        
+        if (containingPool instanceof go.Group) {
+            const poolHeader = containingPool.findObject("POOL_HEADER_STRIP");
+            const poolHeaderWidth = poolHeader?.actualBounds?.width || 36;
+            const laneHeader = groupNode.findObject("LANE_HEADER_STRIP");
+            const laneHeaderWidth = laneHeader?.actualBounds?.width || 36;
+            
+            // Calculate required lane body width from actual content bounds after layout
+            const laneBody = groupNode.findObject("LANE_BODY_SHAPE");
+            const bodyBounds = laneBody?.actualBounds || groupNode.actualBounds;
+            const requiredLaneBodyWidth = Math.max(160, bodyBounds.width);
+            
+            const poolSize = containingPool.data?.size ? go.Size.parse(String(containingPool.data.size)) : null;
+            const currentPoolWidth = poolSize?.width || 0;
+            const currentAvailableBodyWidth = currentPoolWidth - poolHeaderWidth - laneHeaderWidth;
+            
+            console.log(`Lane layout complete: required=${requiredLaneBodyWidth}, available=${currentAvailableBodyWidth}`);
+            
+            // If lane needs more width than available, expand pool and resize all lanes
+            if (requiredLaneBodyWidth > currentAvailableBodyWidth) {
+                const newPoolWidth = requiredLaneBodyWidth + poolHeaderWidth + laneHeaderWidth;
+                const newPoolHeight = poolSize?.height || 600;
+                const newPoolSize = `${newPoolWidth} ${newPoolHeight}`;
+                
+                console.log(`Expanding pool from ${currentPoolWidth} to ${newPoolWidth} to accommodate lane`);
+                
+                // Update pool size
+                myDiagram.model.setDataProperty(containingPool.data, "size", newPoolSize);
+                const poolView = myModelview.findObjectView(containingPool.data?.key);
+                if (poolView) {
+                    poolView.size = newPoolSize;
+                    
+                    // Prepare pool dispatch for after commit
+                    try {
+                        const poolData = JSON.parse(JSON.stringify(new jsn.jsnObjectView(poolView)));
+                        deferredDispatches.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: poolData });
+                    } catch (err) {
+                        console.error('Failed to serialize pool view for dispatch:', err);
+                    }
+                }
+                
+                // Resize ALL lanes in the pool to match new pool width
+                containingPool.memberParts.each((siblingPart: go.Part) => {
+                    if (siblingPart instanceof go.Group && siblingPart.data?.category === 'Lane') {
+                        const siblingLaneBodyWidth = requiredLaneBodyWidth;
+                        const siblingHeight = siblingPart.data?.size ? go.Size.parse(String(siblingPart.data.size)).height : 260;
+                        const newSiblingSize = `${siblingLaneBodyWidth} ${siblingHeight}`;
+                        
+                        myDiagram.model.setDataProperty(siblingPart.data, "size", newSiblingSize);
+                        const siblingView = myModelview.findObjectView(siblingPart.data?.key);
+                        if (siblingView) {
+                            siblingView.size = newSiblingSize;
+                            
+                            // Prepare sibling dispatch for after commit
+                            try {
+                                const siblingData = JSON.parse(JSON.stringify(new jsn.jsnObjectView(siblingView)));
+                                deferredDispatches.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: siblingData });
+                            } catch (err) {
+                                console.error('Failed to serialize sibling lane view for dispatch:', err);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
       
     const jsnGroup = new jsn.jsnObjectView(myGroup);
     let data = JSON.parse(JSON.stringify(jsnGroup));
     myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
     
     myDiagram.commitTransaction('doGroupLayout');
+    
+    // Dispatch deferred updates after transaction commits
+    deferredDispatches.forEach(dispatch => {
+        myDiagram.dispatch(dispatch);
+    });
 }
 
 function traverseDFS(node: akm.cxObjectView, visited = new Set()) {

@@ -39,6 +39,7 @@ const toArray = (value: any) => {
 };
 
 const asRecord = (value: any) => (value && typeof value === "object" ? value : {});
+const hasKeys = (value: any) => Object.keys(asRecord(value)).length > 0;
 
 const readScope = (value: any) => {
   if (value === "current" || value === "next") return METIS_SCOPE_WORLD_MODEL;
@@ -52,6 +53,21 @@ export const normalizeMetisScope = (value: any) => readScope(value);
 const isMetisRecord = (value: any) => {
   const record = asRecord(value);
   return Array.isArray(record.metamodels) || Array.isArray(record.models);
+};
+
+const firstMetisRecord = (...values: any[]) => {
+  for (const value of values) {
+    if (isMetisRecord(value)) return asRecord(value);
+  }
+  return {};
+};
+
+const firstRecord = (...values: any[]) => {
+  for (const value of values) {
+    const record = asRecord(value);
+    if (hasKeys(record)) return record;
+  }
+  return {};
 };
 
 const normalizeMetisRecord = (value: any) => {
@@ -71,16 +87,17 @@ const getMetisCandidates = (snapshot: any) => {
   const foundationModels = asRecord(originWorld.foundationModels);
   const world = asRecord(canonical.world);
 
-  const worldModelCandidate =
-    asRecord(asRecord(world.worldModel).metis) ||
-    asRecord(asRecord(canonical.worldModel).metis);
+  const worldModelCandidate = firstMetisRecord(
+    asRecord(world.worldModel).metis,
+    asRecord(canonical.worldModel).metis,
+  );
   const typeFoundationCandidate =
     asRecord(asRecord(asRecord(foundationModels.typeDefinition).metis)) ||
     asRecord(asRecord(asRecord(canonical.origin).typeDefinition).metis);
   const templateFoundationCandidate =
     asRecord(asRecord(asRecord(foundationModels.templateDefinition).metis)) ||
     asRecord(asRecord(asRecord(canonical.origin).template).metis);
-  const legacyCandidate = asRecord(canonical.metis);
+  const legacyCandidate = isMetisRecord(canonical.metis) ? asRecord(canonical.metis) : {};
 
   return {
     canonical,
@@ -211,7 +228,8 @@ export const readUniverseSnapshot = (raw: any) => {
     nestedSnapshot.operationalModel ||
     nestedSnapshot.executionModel ||
     nestedSnapshot.metis ||
-    nestedSnapshot.focus
+    nestedSnapshot.focus ||
+    nestedSnapshot.world
   ) {
     return {
       ...record,
@@ -219,6 +237,14 @@ export const readUniverseSnapshot = (raw: any) => {
     };
   }
   return record;
+};
+
+const resolveWorldDefinition = (snapshot: any) => {
+  const canonical = readUniverseSnapshot(snapshot);
+  return firstRecord(
+    asRecord(asRecord(canonical.world).worldDefinition),
+    canonical.worldDefinition,
+  );
 };
 
 export const resolveUniverseOperation = (snapshot: any) => {
@@ -343,7 +369,7 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
   options: { sourceName?: string; sourcePath?: string; universeId?: string; universeApiBaseUrl?: string } = {},
 ) => {
   const canonical = readUniverseSnapshot(snapshot);
-  const worldDefinition = asRecord(canonical.worldDefinition);
+  const worldDefinition = resolveWorldDefinition(canonical);
   const { scope: activeMetisScope, metis: metisSource } = readMetisForScope(canonical);
   const worldOperation = resolveUniverseOperation(canonical);
   const focusSource = asRecord(canonical.focus);
@@ -376,8 +402,72 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
     modelviews[0] ||
     null;
 
+  const source =
+    (canonical.source ??
+    canonical.phSource ??
+    canonical.slug) ||
+    canonical.name ||
+    options.sourceName ||
+    projectFocus.file ||
+    projectFocus.name ||
+    canonical.systemPrompt ||
+    InitialState.phSource;
+  const phFocus = {
+    ...InitialState.phFocus,
+    focusProj: {
+      ...InitialState.phFocus?.focusProj,
+      id: projectFocus.id || "",
+      projectId: canonical.projectId || projectFocus.projectId || "",
+      universeId: options.universeId || canonical.universeId || projectFocus.universeId || "",
+      universeApiBaseUrl: options.universeApiBaseUrl || projectFocus.universeApiBaseUrl || "",
+      name: projectFocus.name || canonical.name || options.sourceName || "",
+      description: projectFocus.description || "",
+      slug: canonical.slug || "",
+      kind: canonical.kind || "",
+      savedAt: canonical.savedAt || "",
+      universeCoordination: canonical.universeCoordination,
+      org: projectFocus.org || "",
+      repo: projectFocus.repo || "",
+      branch: projectFocus.branch || "",
+      path: projectFocus.path || "",
+      file: projectFocus.file || options.sourcePath || "",
+    },
+    focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
+    focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
+    focusObject: readFocusRef(worldModelFocus.object, focusSource.focusObject),
+    focusObjectview: readFocusRef(worldModelFocus.objectview, focusSource.focusObjectview),
+    focusRelship: readFocusRef(worldModelFocus.relship, focusSource.focusRelship),
+    focusRelshipview: readFocusRef(worldModelFocus.relshipview, focusSource.focusRelshipview),
+    focusTargetModel: readFocusRef(worldModelFocus.targetModel, focusSource.focusTargetModel),
+    focusTargetModelview: readFocusRef(worldModelFocus.targetModelview, focusSource.focusTargetModelview),
+    focusTask: readFocusRef(operationalFocus.task, focusSource.focusTask),
+    focusRole: readFocusRef(operationalFocus.role, focusSource.focusRole),
+    focusDoc: readFocusRef(documentFocus.doc, focusSource.focusDoc),
+  };
+
   return {
     ...InitialState,
+    universe: {
+      world: {
+        worldDefinition: {
+          domain: worldDefinition.domain ?? null,
+        },
+        worldModel: {
+          metis: {
+            ...InitialState.phData?.metis,
+            ...metisSource,
+            models,
+            metamodels,
+          },
+        },
+        focus: phFocus,
+      },
+      user: canonical.user ?? canonical.phUser ?? InitialState.phUser,
+      source,
+      compatibility: {
+        documents: toArray(canonical.compatibility?.documents || canonical.documents || canonical.phData?.documents),
+      },
+    },
     phData: {
       ...InitialState.phData,
       ...(worldDefinition.domain ? { domain: worldDefinition.domain } : {}),
@@ -388,40 +478,9 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
         metamodels,
       },
     },
-    phFocus: {
-      ...InitialState.phFocus,
-      focusProj: {
-        ...InitialState.phFocus?.focusProj,
-        id: projectFocus.id || "",
-        projectId: canonical.projectId || projectFocus.projectId || "",
-        universeId: options.universeId || canonical.universeId || projectFocus.universeId || "",
-        universeApiBaseUrl: options.universeApiBaseUrl || projectFocus.universeApiBaseUrl || "",
-        name: projectFocus.name || canonical.name || options.sourceName || "",
-        description: projectFocus.description || "",
-        slug: canonical.slug || "",
-        kind: canonical.kind || "",
-        savedAt: canonical.savedAt || "",
-        universeCoordination: canonical.universeCoordination,
-        org: projectFocus.org || "",
-        repo: projectFocus.repo || "",
-        branch: projectFocus.branch || "",
-        path: projectFocus.path || "",
-        file: projectFocus.file || options.sourcePath || "",
-      },
-      focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
-      focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
-      focusObject: readFocusRef(worldModelFocus.object, focusSource.focusObject),
-      focusObjectview: readFocusRef(worldModelFocus.objectview, focusSource.focusObjectview),
-      focusRelship: readFocusRef(worldModelFocus.relship, focusSource.focusRelship),
-      focusRelshipview: readFocusRef(worldModelFocus.relshipview, focusSource.focusRelshipview),
-      focusTargetModel: readFocusRef(worldModelFocus.targetModel, focusSource.focusTargetModel),
-      focusTargetModelview: readFocusRef(worldModelFocus.targetModelview, focusSource.focusTargetModelview),
-      focusTask: readFocusRef(operationalFocus.task, focusSource.focusTask),
-      focusRole: readFocusRef(operationalFocus.role, focusSource.focusRole),
-      focusDoc: readFocusRef(documentFocus.doc, focusSource.focusDoc),
-    },
+    phFocus,
     phUser: {
-      ...(canonical.phUser || InitialState.phUser),
+      ...(canonical.phUser || canonical.user || InitialState.phUser),
       [WORKSPACE_SNAPSHOT_META_KEY]: {
         snapshot: canonical,
         activeMetisScope,
@@ -431,14 +490,7 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
         loadedAt: new Date().toISOString(),
       },
     },
-    phSource:
-      canonical.slug ||
-      canonical.name ||
-      options.sourceName ||
-      projectFocus.file ||
-      projectFocus.name ||
-      canonical.systemPrompt ||
-      InitialState.phSource,
+    phSource: source,
     lastUpdate: new Date().toISOString(),
   };
 };
@@ -473,9 +525,15 @@ export const buildWorkspaceUniverseSnapshotFromMimrisState = (
   const phData = asRecord(mimrisState?.phData);
   const phFocus = asRecord(mimrisState?.phFocus);
   const phUser = asRecord(mimrisState?.phUser);
+  const universe = asRecord(mimrisState?.universe);
+  const universeWorld = asRecord(universe.world);
+  const universeWorldDefinition = asRecord(universeWorld.worldDefinition);
+  const universeWorldModel = asRecord(universeWorld.worldModel);
+  const domain = universeWorldDefinition.domain ?? phData.domain ?? {};
+  const metis = universeWorldModel.metis ?? phData.metis;
   const meta = getWorkspaceSnapshotMeta(phUser);
   const original = readUniverseSnapshot(meta.snapshot);
-  const originalWorldDefinition = asRecord(original.worldDefinition);
+  const originalWorldDefinition = resolveWorldDefinition(original);
   const originalWorldOperation = resolveUniverseOperation(original);
   const originalFocus = asRecord(original.focus);
   const projectFocus = asRecord(phFocus.focusProj);
@@ -500,16 +558,28 @@ export const buildWorkspaceUniverseSnapshotFromMimrisState = (
     meta.universeId ||
     "";
 
-  const withScopedMetis = writeMetisForScope(baseSnapshot, activeMetisScope, phData.metis);
+  const withScopedMetis = writeMetisForScope(baseSnapshot, activeMetisScope, metis);
   const withOperation = writeUniverseOperation(withScopedMetis, meta.worldOperation || originalWorldOperation);
+  const nextWorldDefinition = {
+    ...originalWorldDefinition,
+    domain: domain || originalWorldDefinition.domain || {},
+  };
+  const nextWorld = {
+    ...asRecord(withOperation.world),
+    worldDefinition: nextWorldDefinition,
+  };
 
   return {
     ...withOperation,
     universeId: nextUniverseId || undefined,
     projectId: nextProjectId || undefined,
-    worldDefinition: {
-      ...originalWorldDefinition,
-      domain: phData.domain || originalWorldDefinition.domain || {},
+    ...(hasKeys(asRecord(withOperation.worldDefinition)) ? { worldDefinition: nextWorldDefinition } : {}),
+    world: nextWorld,
+    user: universe.user ?? phUser ?? undefined,
+    source: universe.source ?? mimrisState?.phSource ?? undefined,
+    compatibility: {
+      ...asRecord(universe.compatibility),
+      documents: ensureArray(asRecord(universe.compatibility).documents || phData.documents),
     },
     focus: {
       ...originalFocus,

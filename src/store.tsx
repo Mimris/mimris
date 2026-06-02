@@ -1,34 +1,54 @@
-import { applyMiddleware, createStore, Store } from 'redux';
-import createSagaMiddleware, { Task } from 'redux-saga';
+import { configureStore, type AnyAction } from '@reduxjs/toolkit';
 import { Context, createWrapper } from 'next-redux-wrapper';
-import reducer from './reducers/reducer';
-import rootSaga from './saga';
+import legacyReducer from './reducers/reducer';
+import {
+    buildUniverseStateFromLegacy,
+    universeReducer,
+    type LegacyUniverseRoot,
+    type SharedUniverseState,
+} from './sharedUniverse/universeSlice';
 
-export interface SagaStore extends Store {
-    sagaTask: Task;
-}
+type RootReducerState = LegacyUniverseRoot & {
+    universe: SharedUniverseState;
+};
 
-let currentStore: SagaStore | null = null;
+const reduceLegacyState = legacyReducer as (state: LegacyUniverseRoot | undefined, action: AnyAction) => LegacyUniverseRoot;
 
-export const getCurrentStore = (): SagaStore | null => currentStore;
+const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
+    const legacyState = reduceLegacyState(state, action);
+    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
+    const nextUniverse = action.type.startsWith('universe/')
+        ? universeReducer(previousUniverse, action)
+        : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
 
-export const makeStore = (context: Context) => {
-    const sagaMiddleware = createSagaMiddleware();
+    return {
+        ...legacyState,
+        universe: nextUniverse,
+    } as RootReducerState;
+};
 
-    const bindMiddleware = (middleware: any) => {
-        if (process.env.NODE_ENV !== 'production') {
-            const { composeWithDevTools } = require('@redux-devtools/extension');
-            return composeWithDevTools(applyMiddleware(...middleware));
-        }
-        return applyMiddleware(...middleware);
-    };
+export const makeStore = (_context?: Context) => {
+    const store = configureStore({
+        reducer: rootReducer,
+        devTools: process.env.NODE_ENV !== 'production',
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({
+                immutableCheck: false,
+                serializableCheck: false,
+            }),
+    });
 
-    const store = createStore(reducer, bindMiddleware([sagaMiddleware]));
-    currentStore = store as SagaStore;
-
-    (store as SagaStore).sagaTask = sagaMiddleware.run(rootSaga);
+    currentStore = store;
 
     return store;
 };
 
-export const wrapper = createWrapper<SagaStore>(makeStore as any);
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore['getState']>;
+export type AppDispatch = AppStore['dispatch'];
+
+let currentStore: AppStore | null = null;
+
+export const getCurrentStore = (): AppStore | null => currentStore;
+
+export const wrapper = createWrapper<AppStore>(makeStore as any);

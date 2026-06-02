@@ -4,7 +4,6 @@
 import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-import { select } from "redux-saga/effects";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 

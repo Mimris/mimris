@@ -11,6 +11,7 @@ import {
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 import { get } from 'http';
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 const debug = false;
 
@@ -22,6 +23,8 @@ const Project = (props) => {
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
   const modeldata = props.props;
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const domain = sharedUniverse.world.worldDefinition.domain || {};
 
   if (debug) console.log('25 Tasks props', modeldata?.phData, props);
 
@@ -52,9 +55,9 @@ const Project = (props) => {
   // Add state for domain editing
   const [editingDomain, setEditingDomain] = useState(false);
   const [editedDomain, setEditedDomain] = useState({
-    name: modeldata?.phData?.domain?.name || '',
-    description: modeldata?.phData?.domain?.description || '',
-    presentation: modeldata?.phData?.domain?.presentation || ''
+    name: domain?.name || '',
+    description: domain?.description || '',
+    presentation: domain?.presentation || ''
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -91,14 +94,14 @@ const Project = (props) => {
 
   // Reset edited domain data when domain changes
   useEffect(() => {
-    if (modeldata?.phData?.domain) {
+    if (domain) {
       setEditedDomain({
-        name: modeldata.phData.domain.name || '',
-        description: modeldata.phData.domain.description || '',
-        presentation: modeldata.phData.domain.presentation || ''
+        name: domain.name || '',
+        description: domain.description || '',
+        presentation: domain.presentation || ''
       });
     }
-  }, [modeldata?.phData?.domain]);
+  }, [domain]);
 
   // Handle domain field changes
   const handleDomainChange = (e) => {
@@ -121,9 +124,9 @@ const Project = (props) => {
   // Cancel domain editing
   const cancelDomainEditing = () => {
     setEditedDomain({
-      name: modeldata.phData.domain.name || '',
-      description: modeldata.phData.domain.description || '',
-      presentation: modeldata.phData.domain.presentation || ''
+      name: domain.name || '',
+      description: domain.description || '',
+      presentation: domain.presentation || ''
     });
     setEditingDomain(false);
     };
@@ -169,7 +172,7 @@ const Project = (props) => {
               {!editingDomain ? (
                 <>
                   <div className="d-flex justify-content-between align-items-center">
-                    <CardTitle className="card-title-bold nobreak">Domain : {modeldata.phData.domain?.name}</CardTitle>
+                    <CardTitle className="card-title-bold nobreak">Domain : {domain?.name}</CardTitle>
                     <Button
                       color="muted"
                       size="sm"
@@ -180,9 +183,9 @@ const Project = (props) => {
                       edit
                     </Button>
                   </div>
-                  <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.domain?.description}</CardSubtitle>
+                  <CardSubtitle className="card-subtitle-bold text-secondary">{domain?.description}</CardSubtitle>
                   <CardText className="card-text"> </CardText>
-                  <div className="border fs-6 p-1">Summary: {modeldata.phData.domain?.presentation}</div>
+                  <div className="border fs-6 p-1">Summary: {domain?.presentation}</div>
                 </>
               ) : (
                 <>

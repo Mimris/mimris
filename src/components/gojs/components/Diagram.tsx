@@ -2188,6 +2188,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        } catch {
 	          // Best-effort only; never block drag completion.
 	        }
+	        
+	        // Trigger pool layout if lanes were dragged
+	        try {
+	          const dragged = this.draggedParts;
+	          let lanesWereDragged = false;
+	          if (dragged && diagram) {
+	            for (let it = dragged.iterator; it?.next();) {
+	              const part: go.Part = it.key;
+	              if (part instanceof go.Group && part.category === "Lane") {
+	                lanesWereDragged = true;
+	                break;
+	              }
+	            }
+	            if (lanesWereDragged) {
+	              // Re-layout all pools to stack lanes properly
+	              diagram.startTransaction("relayout pools");
+	              diagram.findTopLevelGroups().each((g: go.Part) => {
+	                if (g instanceof go.Group && g.category === "Pool" && g.layout) {
+	                  g.layout.invalidateLayout();
+	                }
+	              });
+	              diagram.layoutDiagram();
+	              diagram.commitTransaction("relayout pools");
+	            }
+	          }
+	        } catch {
+	          // Best-effort only
+	        }
+	        
 		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
 		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
 		        super.doDeactivate();
@@ -2391,6 +2420,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.grid.visible = true;
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
+    
+    // Install custom LaneResizingTool for pool/lane resizing
+    uit.installLaneResizingTool(myDiagram);
+    
     myMetis.myDiagram = myDiagram;
     
     this.updateZoomInvariantHandles(myDiagram);
@@ -7068,6 +7101,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             } catch (_err) {
               // ignore
             }
+          }
+
+          // Dispatch UPDATE_OBJECTVIEW_PROPERTIES so Redux state is properly updated
+          if (memberObjview) {
+            const jsnObjview = new jsn.jsnObjectView(memberObjview);
+            const objviewData = JSON.parse(JSON.stringify(jsnObjview));
+            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objviewData });
           }
         };
 

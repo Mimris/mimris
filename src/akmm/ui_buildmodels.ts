@@ -691,9 +691,13 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
         let strokecolor = typeview?.strokecolor;
         let fillcolor = typeview?.fillcolor;
         if (objtype) {
-          if (objtype.isAbstract())
-            includeObjtype = false;
-          else if (!objtype.markedAsDeleted)
+          // Show abstract types in metamodel diagram with special styling
+          // but they're still filtered from the palette (in buildGoPalette)
+          if (objtype.isAbstract()) {
+            includeObjtype = true; // Changed: now show abstract types in metamodel view
+            strokecolor = "gray";  // Visual indicator that it's abstract
+            fillcolor = "lightgray";
+          } else if (!objtype.markedAsDeleted)
             includeObjtype = true;
           else {
             if (debug) console.log('468 objtype', objtype);
@@ -726,7 +730,7 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
             const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
             node.loadNodeContent(metamodel);
             node.strokecolor = strokecolor;
-            // node.fillcolor = fillcolor;
+            node.fillcolor = fillcolor; // Enable fillcolor for abstract type styling
             if (debug) console.log('484 objtype, node', objtype, node);
             myGoMetamodel.addNode(node);
           }

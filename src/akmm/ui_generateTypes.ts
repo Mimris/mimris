@@ -295,8 +295,8 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
     }
     if (objtype) { // The type has been generated - fullfill the generation
         let viewkind = currentObj.getViewKind();
-        let objview: cxObjectView;  
-        if (currentObj.objectviews) 
+        let objview: cxObjectView;
+        if (currentObj.objectviews)
             objview = currentObj.objectviews[0];
         if (!objview)
             return;
@@ -324,6 +324,9 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
         objtype.markedAsDeleted = object.markedAsDeleted;
         { // Handle local inheritance
             const inheritanceObjects = currentObj.getInheritanceObjects(myModel);
+            if (inheritanceObjects?.length > 0) {
+                console.log('[GEN-INHERIT]', objtype.name, 'inherits from', inheritanceObjects.length, 'parent(s):', inheritanceObjects.map(o => o.name).join(', '));
+            }
             for (let i = 0; i < inheritanceObjects.length; i++) {
                 const inhObj = inheritanceObjects[i];
                 const inhObjType = myMetis.findObjectType(inhObj.generatedTypeId);
@@ -338,7 +341,12 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
                         parentRelType.setRelshipKind('Generalization');
                         myTargetMetamodel.addRelationshipType(parentRelType);
                         myMetis.addRelationshipType(parentRelType);
+                        console.log('[GEN-INHERIT] ✅ Created "Is" relationship:', objtype.name, '→', inhObjType.name, '(relshipkind:', parentRelType.relshipkind + ')');
+                    } else {
+                        console.log('[GEN-INHERIT] ⚠️  "Is" relationship already exists:', objtype.name, '→', inhObjType.name);
                     }
+                } else {
+                    console.log('[GEN-INHERIT] ❌ Parent type not found for:', inhObj.name);
                 }
             }
         }
@@ -353,7 +361,7 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             let id;
             if (objtypeview)
                 id = objtypeview.id;
-            if (!objtypeview) 
+            if (!objtypeview)
                 id = utils.createGuid();
             objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
             objtypeview.applyObjectViewParameters(objview);
@@ -452,6 +460,218 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
     return objtype;
 }
 
+/**
+ * Check if a relationship type would be inherited from a parent type
+ * @param fromObjTypeName - The name of the from object type
+ * @param toObjTypeName - The name of the to object type
+ * @param relName - The name of the relationship type
+ * @param myMetis - The Metis instance
+ * @returns true if the relationship type can be inherited, false otherwise
+ */
+function isRelationshipTypeInherited(
+    fromObjTypeName: string,
+    toObjTypeName: string,
+    relName: string,
+    myMetis: akm.cxMetis
+): boolean {
+    // Get the from object type
+    const fromObjType = myMetis.findObjectTypeByName(fromObjTypeName);
+    if (!fromObjType) return false;
+
+    // Get parent types by walking "Is" relationships (Generalization)
+    const parentReltypes = fromObjType.getOutputReltypes(constants.relkinds.GEN);
+    if (!parentReltypes || parentReltypes.length === 0) return false;
+
+    // For each parent type, check if it has this relationship type
+    for (const parentReltype of parentReltypes) {
+        const parentType = parentReltype.toObjtype;
+        if (!parentType) continue;
+
+        // Get relationship types from the parent with this name
+        const parentOutputReltypes = parentType.outputreltypes?.filter(rt => rt.name === relName);
+        if (!parentOutputReltypes || parentOutputReltypes.length === 0) continue;
+
+        // Check if any of these relationship types go to the target type (or a parent of it)
+        const toObjType = myMetis.findObjectTypeByName(toObjTypeName);
+        if (!toObjType) continue;
+
+        for (const candidateReltype of parentOutputReltypes) {
+            const candidateToType = candidateReltype.toObjtype;
+            if (!candidateToType) continue;
+
+            // Check if the parent's relationship type goes to the same type or a parent of it
+            if (candidateToType.name === toObjTypeName) {
+                console.log('[GEN-RELS-INHERIT] ✅ Relationship type', relName, 'from', fromObjTypeName, 'to', toObjTypeName,
+                    'can be inherited from parent', parentType.name);
+                return true;
+            }
+
+            // Check if toObjType inherits from candidateToType
+            if (toObjType.inherits(candidateToType, 0)) {
+                console.log('[GEN-RELS-INHERIT] ✅ Relationship type', relName, 'from', fromObjTypeName, 'to', toObjTypeName,
+                    'can be inherited from parent', parentType.name, '(goes to parent type', candidateToType.name + ')');
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Clean up redundant relationship types that shouldn't exist
+ * Specifically removes "relationshipType" and "refersTo" where from ≠ to
+ * (e.g., removes EntityType → Method, but keeps EntityType → EntityType)
+ * @param targetMetamodel - The metamodel to clean up
+ * @param myMetis - The Metis instance
+ */
+function cleanupRedundantRelationshipTypes(
+    targetMetamodel: akm.cxMetamodel,
+    myMetis: akm.cxMetis
+): void {
+    console.log('[CLEANUP] ========== Starting cleanup of redundant relationship types ==========');
+    console.log('[CLEANUP] Initial relshiptypes count:', targetMetamodel.relshiptypes?.length || 0);
+    console.log('[CLEANUP] Initial relshiptypes0 count:', targetMetamodel.relshiptypes0?.length || 0);
+
+    const relshiptypes = targetMetamodel.relshiptypes || [];
+    const relshiptypes0 = targetMetamodel.relshiptypes0 || [];
+    const removed: string[] = [];
+    let removedCount = 0;
+
+    // Get EntityType for inheritance checks
+    const entityType = myMetis.findObjectTypeByName('EntityType');
+
+    // Filter relshiptypes
+    targetMetamodel.relshiptypes = relshiptypes.filter(reltype => {
+        // Only check "relationshipType" and "refersTo"
+        if (reltype.name !== 'relationshipType' && reltype.name !== 'refersTo') {
+            return true; // Keep all other relationship types
+        }
+
+        const fromType = reltype.fromObjtype;
+        const toType = reltype.toObjtype;
+
+        if (!fromType || !toType) {
+            console.log('[CLEANUP]   Keeping (missing types):', reltype.name);
+            return true;
+        }
+
+        // Keep ONLY EntityType → EntityType (the canonical self-referential one)
+        if (fromType.name === 'EntityType' && toType.name === 'EntityType') {
+            console.log('[CLEANUP]   ✅ KEEPING (EntityType → EntityType):', reltype.name);
+            return true;
+        }
+
+        // Keep RelshipType → RelshipType (for metamodelling)
+        if (fromType.name === 'RelshipType' && toType.name === 'RelshipType') {
+            console.log('[CLEANUP]   ✅ KEEPING (RelshipType → RelshipType):', reltype.name);
+            return true;
+        }
+
+        // Remove everything else involving types that inherit from EntityType
+        // Because they will inherit the EntityType → EntityType relationship type
+        const fromInheritsEntityType = entityType && fromType.inherits(entityType, 0);
+        const toInheritsEntityType = entityType && toType.inherits(entityType, 0);
+
+        if (fromInheritsEntityType || toInheritsEntityType || fromType.name === 'EntityType' || toType.name === 'EntityType') {
+            console.log('[CLEANUP]   ❌ REMOVING:', reltype.name, 'from', fromType.name, 'to', toType.name,
+                '(fromInherits:', fromInheritsEntityType, 'toInherits:', toInheritsEntityType + ')');
+            removed.push(`${reltype.name} (${fromType.name} → ${toType.name})`);
+            removedCount++;
+
+            // Also remove from fromType's outputreltypes and toType's inputreltypes
+            if (fromType.outputreltypes) {
+                const beforeLen = fromType.outputreltypes.length;
+                fromType.outputreltypes = fromType.outputreltypes.filter(rt => rt.id !== reltype.id);
+                const afterLen = fromType.outputreltypes.length;
+                if (beforeLen !== afterLen) {
+                    console.log('[CLEANUP]     → Removed from', fromType.name + '.outputreltypes');
+                }
+            }
+            if (toType.inputreltypes) {
+                const beforeLen = toType.inputreltypes.length;
+                toType.inputreltypes = toType.inputreltypes.filter(rt => rt.id !== reltype.id);
+                const afterLen = toType.inputreltypes.length;
+                if (beforeLen !== afterLen) {
+                    console.log('[CLEANUP]     → Removed from', toType.name + '.inputreltypes');
+                }
+            }
+
+            return false; // Remove this relationship type
+        }
+
+        // Keep anything else (shouldn't happen but safe fallback)
+        console.log('[CLEANUP]   ✅ KEEPING (fallback):', reltype.name, 'from', fromType.name, 'to', toType.name);
+        return true;
+    });
+
+    // Filter relshiptypes0 as well
+    targetMetamodel.relshiptypes0 = relshiptypes0.filter(reltype => {
+        const fromType = reltype.fromObjtype;
+        const toType = reltype.toObjtype;
+
+        if ((reltype.name === 'relationshipType' || reltype.name === 'refersTo') && fromType && toType) {
+            // Keep ONLY EntityType → EntityType and RelshipType → RelshipType
+            if ((fromType.name === 'EntityType' && toType.name === 'EntityType') ||
+                (fromType.name === 'RelshipType' && toType.name === 'RelshipType')) {
+                return true;
+            }
+
+            // Remove everything else involving EntityType inheritance
+            const fromInheritsEntityType = entityType && fromType.inherits(entityType, 0);
+            const toInheritsEntityType = entityType && toType.inherits(entityType, 0);
+
+            if (fromInheritsEntityType || toInheritsEntityType ||
+                fromType.name === 'EntityType' || toType.name === 'EntityType') {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    console.log('[CLEANUP] ========== Cleanup complete ==========');
+    console.log('[CLEANUP] Removed', removedCount, 'relationship types');
+    console.log('[CLEANUP] Final relshiptypes count:', targetMetamodel.relshiptypes?.length || 0);
+    console.log('[CLEANUP] Final relshiptypes0 count:', targetMetamodel.relshiptypes0?.length || 0);
+    if (removed.length > 0) {
+        console.log('[CLEANUP] Removed types:', removed.join(', '));
+    }
+
+    // Also clean up myMetis.relshiptypes to match
+    console.log('[CLEANUP] Cleaning up myMetis.relshiptypes...');
+    const metisRelshiptypes = myMetis.relshiptypes || [];
+    const initialMetisCount = metisRelshiptypes.length;
+    myMetis.relshiptypes = metisRelshiptypes.filter(reltype => {
+        if (reltype.name !== 'relationshipType' && reltype.name !== 'refersTo') {
+            return true;
+        }
+
+        const fromType = reltype.fromObjtype;
+        const toType = reltype.toObjtype;
+
+        if (!fromType || !toType) return true;
+
+        // Keep ONLY EntityType → EntityType and RelshipType → RelshipType
+        if ((fromType.name === 'EntityType' && toType.name === 'EntityType') ||
+            (fromType.name === 'RelshipType' && toType.name === 'RelshipType')) {
+            return true;
+        }
+
+        // Remove everything else involving EntityType inheritance
+        const fromInheritsEntityType = entityType && fromType.inherits(entityType, 0);
+        const toInheritsEntityType = entityType && toType.inherits(entityType, 0);
+
+        if (fromInheritsEntityType || toInheritsEntityType ||
+            fromType.name === 'EntityType' || toType.name === 'EntityType') {
+            return false;
+        }
+
+        return true;
+    });
+    const finalMetisCount = myMetis.relshiptypes?.length || 0;
+    console.log('[CLEANUP] myMetis.relshiptypes: removed', initialMetisCount - finalMetisCount, 'items (from', initialMetisCount, 'to', finalMetisCount + ')');
+}
+
 export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
     if (!relship) {
         return;
@@ -493,7 +713,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     let reltypeview: akm.cxRelationshipTypeView;
     let typeid: string;
 
-    if (resetTypeIdOnRelship) 
+    if (resetTypeIdOnRelship)
         typeid = "";
     else
         typeid = currentRel?.generatedTypeId;
@@ -507,7 +727,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             oldName = reltype?.getName();
             reltype.setName(newName);
 
-            // The following code fails due to that fromType and toType for some reason are unknown / undefined   
+            // The following code fails due to that fromType and toType for some reason are unknown / undefined
             if (false) {
                 // Ensure that the reltype has the same from and to object types
                 let fromType = reltype.fromObjtype;
@@ -520,7 +740,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
                 } else
                     reltype = null;
             }
-            // End failing code             
+            // End failing code
         }
         if (reltype) {
             reltype.markedAsDeleted = relship.markedAsDeleted;
@@ -944,7 +1164,7 @@ export function askForTargetMetamodel(context: any) {
     const objectviews = myModelview.objectviews;
     for (let i = 0; i < objectviews?.length; i++) {
         const objectview = objectviews[i] as akm.cxObjectView;
-        if (!objectview) 
+        if (!objectview)
             continue;
         let object = objectview.object as akm.cxObject;
         if (!object) {
@@ -1047,9 +1267,11 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
                 const object = objectview.object;
+                if (debug) console.log('[GEN-FIND-MM] Checking objectview', i, 'type:', object?.type?.name, 'hasMethod:', typeof object?.getOutputRelships);
                 if (object?.type?.name === constants.types.AKM_METAMODEL) {
                     if (myCurrentObject.id === object.id) {
                         metamodelObj = object;
+                        if (debug) console.log('[GEN-FIND-MM] Found metamodel object, hasMethod:', typeof metamodelObj.getOutputRelships);
                         break;
                     }
                 }
@@ -1068,18 +1290,26 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             let noOfEntityTypes = 0;
             let noOfPortTypes = 0;
             let objviews = new Array();
+            console.log('[GEN-COLLECT] Starting objectview scan, total objectviews:', objectviews.length);
             for (let i = 0; i < objectviews.length; i++) {
                 const objectview = objectviews[i];
+                const objType = objectview?.object?.type?.name;
+                console.log('[GEN-COLLECT]   Objectview', i, 'type:', objType, 'name:', objectview?.object?.name);
                 if (objectview?.object?.type?.name === constants.types.AKM_METAMODEL) {
                     objviews.push(objectview);
+                    console.log('[GEN-COLLECT]     → Added to objviews (Metamodel)');
                  }
                 if (objectview?.object?.type?.name === constants.types.AKM_ENTITY_TYPE) {
                     objviews.push(objectview);
                     noOfEntityTypes++;
+                    console.log('[GEN-COLLECT]     → Added to objviews (EntityType)');
                 }
                 if (objectview?.object?.type?.name === constants.types.AKM_PORT) {
                     objviews.push(objectview);
                     noOfPortTypes++;
+                }
+                if (objectview?.object?.type?.name === constants.types.AKM_RELSHIP_TYPE) {
+                    console.log('[GEN-COLLECT]     ⚠️ Found RelshipType but NOT adding to objviews!');
                 }
             }
             let objects: akm.cxObject = new Array();
@@ -1102,11 +1332,25 @@ export function generateTargetMetamodel2(context: any) { // postoperation
             // Get the relevant objectviews and relshipviews
             for (let i = 0; i < objviews.length; i++) {
                 const objectview = objviews[i];
-                const object: akm.cxObject = objectview.object;
-                if (!object) continue;
-                if (!object.type) continue;
+                if (debug) console.log('[GEN-LOOP] Processing objectview', i, 'of', objviews.length);
+                const object: akm.cxObject = objectview?.object;
+                if (!object) {
+                    if (debug) console.log('[GEN-LOOP] Skipping - no object');
+                    continue;
+                }
+                if (!object.type) {
+                    if (debug) console.log('[GEN-LOOP] Skipping - no type');
+                    continue;
+                }
+                if (debug) console.log('[GEN-LOOP] Object type:', object.type?.name, 'hasMethod:', typeof object.getOutputRelships);
                 if (object.type?.name === constants.types.AKM_METAMODEL) {
                     // Follow 'contains' relationships
+                    // Safety check: ensure object has the required method
+                    if (typeof object.getOutputRelships !== 'function') {
+                        console.error('[GEN-ERROR] object is not a proper cxObject instance. Type:', object.type?.name, 'Constructor:', object.constructor?.name, 'Keys:', Object.keys(object).slice(0, 10));
+                        console.error('[GEN-ERROR] Full object:', object);
+                        continue;
+                    }
                     let rels = object.getOutputRelships(context.myModel, constants.relkinds.REL);
                     for (let j = 0; j < rels?.length; j++) {
                         let rel = rels[j];
@@ -1124,8 +1368,12 @@ export function generateTargetMetamodel2(context: any) { // postoperation
                 }
                 if (object.type.name === constants.types.AKM_RELSHIP_TYPE) {
                     objects.push(object);
+                    console.log('[GEN-COLLECT] Added RelshipType object:', object.name);
                 }
             }
+            console.log('[GEN-COLLECT] Total objects collected:', objects.length, 'EntityTypes + RelshipTypes');
+            const relshipTypeObjs = objects.filter(o => o?.type?.name === constants.types.AKM_RELSHIP_TYPE);
+            console.log('[GEN-COLLECT] RelshipType objects:', relshipTypeObjs.length, relshipTypeObjs.map(o => o.name));
             let relships: akm.cxRelationship[] = new Array();
             let relshipviews: akm.cxRelationshipView[] = srcmodelview.relshipviews;
             for (let i=0; i<relshipviews.length; i++) {
@@ -1190,7 +1438,7 @@ export function generateTargetMetamodel2(context: any) { // postoperation
     uic.repairEntityType(myMetis, targetMetamodel, myDiagram);
     uic.repairContainsTypeview(myMetis, null, myDiagram);
     uic.purgeDuplicateMetamodels(myMetis);
-    
+
     // Dispatch
     const jsnMetamodel = new jsn.jsnMetaModel(targetMetamodel, true);
     myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: jsnMetamodel });
@@ -1434,6 +1682,9 @@ function getSubModelObjects(obj: akm.cxObject, hasSubmodelType: cxRelationshipTy
 }
 
 export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelationship[], context: any): akm.cxMetaModel {
+    console.log('[GEN-META] generateMetamodel called with', objects?.length, 'objects and', relships?.length, 'relationships');
+    const relshipTypeObjs = objects?.filter(o => o?.type?.name === constants.types.AKM_RELSHIP_TYPE);
+    console.log('[GEN-META] RelshipType objects in generateMetamodel:', relshipTypeObjs?.length, relshipTypeObjs?.map(o => o.name));
     const myMetis = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const myModel = context.myModel as akm.cxModel;
@@ -1460,7 +1711,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     }
     myModel.targetMetamodelRef = targetMetamodel.id;
     targetMetamodel.generatedFromModelRef = myModel.id;
-    // targetMetamodel.includeSystemtypes = false; 
+    // targetMetamodel.includeSystemtypes = false;
     const mmname = targetMetamodel.name;
     if (debug) console.log('1268 generateMetamodel 1');
     let isCoreMetamodel = false;
@@ -1556,8 +1807,8 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
         const dtype = dtypes[j];
         if (dtype) targetMetamodel.addDatatype(dtype);
     }
-    // Add system types 
-    // First add object types 
+    // Add system types
+    // First add object types
     let firstTime = context.firstTime;
     let objecttypes = new Array();
     let objecttypes0 = new Array();
@@ -1599,6 +1850,9 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     }
     // Adding system types completed
 
+    // Clean up redundant relationship types from previous generations
+    cleanupRedundantRelationshipTypes(targetMetamodel, myMetis);
+
     {   // Add metamodel contents
         for (let i = 0; i <= objects?.length; i++) {
             let obj = objects[i];
@@ -1629,7 +1883,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                         }
                     }
                 }
-            }            
+            }
         }
     }
     const metaObjects = ['EntityType'];
@@ -1750,6 +2004,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     // Add or generate relationship types
     { // First handle objects of type "RelshipType"
         let relshiptypeByNames: string[] = new Array();
+        console.log('[GEN-RELTYPES] Starting relationship type generation, objects count:', objects?.length);
         for (let i = 0; i < objects?.length; i++) {
             const obj = objects[i];
             if (!obj)
@@ -1758,11 +2013,13 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 continue;
             if (obj.type.name !== constants.types.AKM_RELSHIP_TYPE)
                 continue;
+
+            console.log('[GEN-RELTYPES] Processing RelshipType:', obj.name);
             // Find fromObject and toObject
             let rels = obj.getOutputRelships(myModel, constants.relkinds.REL);
             let fromObjects: akm.cxObject[] = new Array();
             let toObjects: akm.cxObject[]  = new Array();
-            let fromObjType: akm.cxObjectType; 
+            let fromObjType: akm.cxObjectType;
             let toObjType: akm.cxObjectType;
             let fromObjTypes: akm.cxObjectType[] = new Array();
             let toObjTypes: akm.cxObjectType[] = new Array();
@@ -1779,12 +2036,14 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                     fromObjects.push(fromObj);
                     fromObjType = targetMetamodel.findObjectTypeByName(fromtypename);
                     fromObjTypes.push(fromObjType);
+                    console.log('[GEN-RELTYPES]   from:', fromtypename, 'found in metamodel:', !!fromObjType, 'abstract:', fromObjType?.abstract);
                 } else if (rel.name === 'to') {
                     toObj = rel.toObject;
                     toObjects.push(toObj);
                     totypename = toObj?.name;
                     toObjType = targetMetamodel.findObjectTypeByName(totypename);
                     toObjTypes.push(toObjType);
+                    console.log('[GEN-RELTYPES]   to:', totypename, 'found in metamodel:', !!toObjType, 'abstract:', toObjType?.abstract);
                 }
             }
             let reltype = [reltypename, fromtypename, totypename];
@@ -1799,8 +2058,8 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                     fromObj = rel.fromObject; // fromObj is the RelshipType object itself (obj)
                     fromtypename = fromObj?.name;  // e.g. 'refersTo'
                     toObj = rel.toObject;     // toObj represents the object type to inherit from
-                    totypename = toObj?.name;  // i.e. some object type    
-                    toObjType = targetMetamodel.findObjectTypeByName(totypename);                
+                    totypename = toObj?.name;  // i.e. some object type
+                    toObjType = targetMetamodel.findObjectTypeByName(totypename);
                     supertypes.push(toObjType);
                 }
             }
@@ -1811,9 +2070,30 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
             // Now generate the relationship types
             for (let i = 0; i < relshiptypeByNames.length; i++) {
                 let rtype = myMetis.findRelationshipTypeByName1(reltypename, fromObjTypes[i], toObjTypes[i]);
+                console.log('[GEN-RELTYPES]   Generating:', reltypename, fromObjTypes[i]?.name, '→', toObjTypes[i]?.name, 'already exists:', !!rtype);
+
+                // Check if this relationship type can be inherited
+                if (fromObjTypes[i] && toObjTypes[i]) {
+                    const canBeInherited = isRelationshipTypeInherited(fromObjTypes[i].name, toObjTypes[i].name, reltypename, myMetis);
+                    if (canBeInherited) {
+                        console.log('[GEN-RELTYPES]   ⏭️  Skipping - relationship type can be inherited');
+                        continue;
+                    }
+
+                    // Special handling for "relationshipType" and "refersTo":
+                    // Only create them if BOTH from and to are the SAME type
+                    if ((reltypename === 'relationshipType' || reltypename === 'refersTo') &&
+                        fromObjTypes[i].name !== toObjTypes[i].name) {
+                        console.log('[GEN-RELTYPES]   ⏭️  Skipping "' + reltypename + '" - only creating self-referential ones (from=' +
+                            fromObjTypes[i].name + ', to=' + toObjTypes[i].name + ')');
+                        continue;
+                    }
+                }
+
                 if (!rtype) {
                     // This is a new relationship type
                     rtype = generateRelshipType2(obj, fromObjType, toObjType, context);
+                    console.log('[GEN-RELTYPES]   ✅ Created new relationship type:', reltypename);
                 }
                 if (rtype) {
                     // Handle typeview
@@ -1831,17 +2111,19 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 }
             }
         }
-        if (debug) console.log(relshiptypes);
+        // if (debug) console.log(relshiptypes); // Commented out - variable not in scope
     }
     { // Then handle relationships of type "relationshipType"
+        console.log('[GEN-RELS] Processing', relships?.length, 'relationships from modelview');
         if (relships) {
             for (let i = 0; i < relships.length; i++) {
                 const rel = relships[i] as akm.cxRelationship;
                 const relviews = myModelview.findRelationshipViewsByRel(rel) as akm.cxRelationshipView[];
                 const relview = relviews[0];
                 if (!relview) continue;
-                 if (debug) console.log('1427 rel.name', rel.name);
+                console.log('[GEN-RELS]  Relationship', i, 'name:', rel.name, 'from:', rel.fromObject?.name, 'to:', rel.toObject?.name);
                 if (rel.isSystemRel()) {
+                    console.log('[GEN-RELS]    → Skipped (system rel)');
                     continue;
                 }
                 const fromObj = rel.fromObject as akm.cxObject;
@@ -1867,11 +2149,34 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 }
                 if (fromObj && fromObj instanceof akm.cxObject &&
                     toObj && toObj instanceof akm.cxObject) {
-                    if (fromObj?.isOfSystemType(metaObject) &&
-                        toObj?.isOfSystemType(metaObject)) {
+                    const fromIsMetaObject = fromObj?.isOfSystemType(metaObject);
+                    const toIsMetaObject = toObj?.isOfSystemType(metaObject);
+                    console.log('[GEN-RELS]    fromObj:', fromObj.name, 'type:', fromObj.type?.name, 'isOfSystemType(EntityType):', fromIsMetaObject);
+                    console.log('[GEN-RELS]    toObj:', toObj.name, 'type:', toObj.type?.name, 'isOfSystemType(EntityType):', toIsMetaObject);
+                    if (fromIsMetaObject && toIsMetaObject) {
+                        // Check if this relationship type can be inherited
+                        const canBeInherited = isRelationshipTypeInherited(fromObj.name, toObj.name, rel.name, myMetis);
+                        if (canBeInherited) {
+                            console.log('[GEN-RELS]    ⏭️  Skipping - relationship type can be inherited');
+                            continue;
+                        }
+
+                        // Special handling for "relationshipType" and "refersTo":
+                        // Only create them if BOTH from and to are the SAME type (e.g., EntityType → EntityType)
+                        // This prevents redundant EntityType → Method, EntityType → Property, etc.
+                        // because those will be inherited by the child types
+                        if ((rel.name === 'relationshipType' || rel.name === 'refersTo') && fromObj.name !== toObj.name) {
+                            console.log('[GEN-RELS]    ⏭️  Skipping "' + rel.name + '" - only creating self-referential ones (from=' + fromObj.name + ', to=' + toObj.name + ')');
+                            continue;
+                        }
+
+                        console.log('[GEN-RELS]    ✅ Both are EntityType - generating relationship type');
                         let rtype = myMetis.findRelationshipTypeByNames(rel.name, fromObj.name, toObj.name);
                         if (!rtype) {
                             rtype = generateRelshipType(rel, relview, context);
+                            console.log('[GEN-RELS]    ✅ Created relationship type:', rel.name, 'from', fromObj.name, 'to', toObj.name);
+                        } else {
+                            console.log('[GEN-RELS]    ℹ️ Relationship type already exists:', rel.name);
                         }
                         if (rel.relshipviews?.length > 0) {
                             let relview;
@@ -1884,7 +2189,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                 relview.template = relview.template2;
                             }
                         }
-                
+
                         // Prepare dispatches
                         if (rtype) {
                             myMetis.addRelationshipType(rtype);
@@ -1912,6 +2217,8 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                 rtype.setDefaultTypeView(relTypeview);
                             }
                         }
+                    } else {
+                        console.log('[GEN-RELS]    ❌ NOT generating - one or both sides are not EntityType');
                     }
                 }
             }
@@ -2006,7 +2313,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
         const objecttypes = targetMetamodel.objecttypes0;
         const reltypes = targetMetamodel.relshiptypes;
         const newInheritedReltypes: akm.cxRelationshipType[] = [];
-        
+
         // Build map of object type IDs to their abstract status
         const abstractMap = new Map<string, boolean>();
         for (let i = 0; i < objecttypes?.length; i++) {
@@ -2015,19 +2322,19 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                 abstractMap.set(objtype.id, objtype.abstract === true);
             }
         }
-        
+
         // For each concrete type, find its abstract parents and inherit their incoming relationships
         for (let i = 0; i < objecttypes?.length; i++) {
             const concreteType = objecttypes[i];
-            
+
             // Skip abstract types - they don't need inherited relationship types
             if (!concreteType || concreteType.abstract) continue;
-            
+
             // Find all "Is" relationships where this type is the child (fromType)
             const parentIds: string[] = [];
             for (let j = 0; j < reltypes?.length; j++) {
                 const reltype = reltypes[j];
-                if (reltype.name === constants.types.AKM_IS && 
+                if (reltype.name === constants.types.AKM_IS &&
                     reltype.relshipkind === constants.relkinds.GEN &&
                     reltype.fromobjtypeRef === concreteType.id) {
                     const parentId = reltype.toobjtypeRef;
@@ -2036,27 +2343,27 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                     }
                 }
             }
-            
+
             // For each abstract parent, find incoming relationship types and clone them
             for (let p = 0; p < parentIds.length; p++) {
                 const abstractParentId = parentIds[p];
                 const abstractParent = targetMetamodel.findObjectType(abstractParentId);
-                
+
                 if (!abstractParent) continue;
-                
+
                 // Find all relationship types that target the abstract parent
                 for (let k = 0; k < reltypes?.length; k++) {
                     const parentReltype = reltypes[k];
-                    
+
                     // Skip "Is" relationships
                     if (parentReltype.name === constants.types.AKM_IS) continue;
-                    
+
                     // Check if this relationship targets the abstract parent
                     if (parentReltype.toobjtypeRef === abstractParentId) {
                         const fromType = targetMetamodel.findObjectType(parentReltype.fromobjtypeRef);
-                        
+
                         if (!fromType) continue;
-                        
+
                         // Check if we already have this relationship type (avoid duplicates)
                         let alreadyExists = false;
                         for (let m = 0; m < reltypes?.length; m++) {
@@ -2068,7 +2375,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                 break;
                             }
                         }
-                        
+
                         // Check new inherited reltypes array too
                         for (let m = 0; m < newInheritedReltypes.length; m++) {
                             const existing = newInheritedReltypes[m];
@@ -2079,7 +2386,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                 break;
                             }
                         }
-                        
+
                         if (!alreadyExists) {
                             // Create inherited relationship type targeting the concrete child
                             const inheritedReltype = new akm.cxRelationshipType(
@@ -2089,7 +2396,7 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                                 concreteType,
                                 parentReltype.description
                             );
-                            
+
                             // Copy key properties from parent relationship type
                             inheritedReltype.relshipkind = parentReltype.relshipkind;
                             inheritedReltype.viewkind = parentReltype.viewkind;
@@ -2098,35 +2405,35 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
                             inheritedReltype.cardinalityTo = parentReltype.cardinalityTo;
                             inheritedReltype.nameFrom = parentReltype.nameFrom;
                             inheritedReltype.nameTo = parentReltype.nameTo;
-                            
+
                             // Copy typeview reference if exists
                             if (parentReltype.typeviewRef) {
                                 inheritedReltype.typeviewRef = parentReltype.typeviewRef;
                                 inheritedReltype.typeview = parentReltype.typeview;
                             }
-                            
+
                             // Copy properties if any
                             if (parentReltype.properties?.length > 0) {
                                 inheritedReltype.properties = [...parentReltype.properties];
                             }
-                            
+
                             newInheritedReltypes.push(inheritedReltype);
-                            if (debug) console.log('Generated inherited reltype:', inheritedReltype.name, 
-                                'from', fromType.name, 'to', concreteType.name, 
+                            if (debug) console.log('Generated inherited reltype:', inheritedReltype.name,
+                                'from', fromType.name, 'to', concreteType.name,
                                 '(inherited from abstract parent', abstractParent.name + ')');
                         }
                     }
                 }
             }
         }
-        
+
         // Add all new inherited relationship types to the metamodel
         for (let i = 0; i < newInheritedReltypes.length; i++) {
             const reltype = newInheritedReltypes[i];
             targetMetamodel.addRelationshipType(reltype);
             myMetis.addRelationshipType(reltype);
         }
-        
+
         if (debug && newInheritedReltypes.length > 0) {
             console.log('Added', newInheritedReltypes.length, 'inherited relationship types from abstract parents');
         }
@@ -2135,6 +2442,9 @@ export function generateMetamodel(objects: akm.cxObject[], relships: akm.cxRelat
     myMetis.addMetamodel(targetMetamodel);
     myMetis.metamodels = [...new Set(myMetis.metamodels)];
     // modifiedMetamodels.push(targetMetamodel);
+
+    // Clean up redundant relationship types after generation is complete
+    cleanupRedundantRelationshipTypes(targetMetamodel, myMetis);
 
     // Check if the metamodel is used as a sub-metamodel in another metamodel
     const metamodels = myMetis.metamodels;
@@ -2366,7 +2676,7 @@ function addModelToMetamodel(metamodel: akm.cxMetaModel, object: akm.cxObject, c
         modelview = model.modelviews[0];
     }
     // Fill the model with its content
-    // objview is the group 
+    // objview is the group
     const group = objectview as akm.cxObjectView;
     if (group) {
         const objviews = group.getGroupMembers(myModelview);

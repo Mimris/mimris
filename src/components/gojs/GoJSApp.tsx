@@ -280,7 +280,7 @@ function mergeIncomingNodeDataWithLocalState(
   diagram?: go.Diagram | null
 ): any[] {
   if (!Array.isArray(incomingNodes)) return incomingNodes as any;
-  
+
   // Use GLOBAL lock maps instead of diagram instance properties
   // This survives React re-renders, focus changes, and state updates
   const preserveByKey = globalPreserveNodeStateByKey;
@@ -299,20 +299,20 @@ function mergeIncomingNodeDataWithLocalState(
   return incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object' || incoming.key === undefined || incoming.key === null) return incoming;
     const incomingIds = getNodeIdentityAliases(incoming);
-    
+
     // Debug: log what we're checking
     const hasPreserveMap = preserveByKey instanceof Map;
     const hasLockMap = lockByKey instanceof Map;
     const preserveCount = hasPreserveMap ? preserveByKey.size : 0;
     const lockCount = hasLockMap ? lockByKey.size : 0;
-    
+
     if (incoming.key && String(incoming.key).includes('05898170')) {
       console.log(`[MERGE-CHECK] key=${incoming.key}, preserveMap exists: ${hasPreserveMap}, lockMap exists: ${hasLockMap}, preserve count: ${preserveCount}, lock count: ${lockCount}`);
       if (hasLockMap && lockCount > 0) {
         console.log(`[MERGE-CHECK] Lock map contents:`, Array.from(lockByKey.entries()).map(([k, v]) => `${k}=${v.loc} (expires ${v.until > now ? 'active' : 'expired'})`));
       }
     }
-    
+
     // Check for preserve window
     let preserveUntil = 0;
     let matchedPreserveKey = '';
@@ -325,7 +325,7 @@ function mergeIncomingNodeDataWithLocalState(
       }
     }
     const preserveWindowActive = preserveUntil > now;
-    
+
     // Check for explicit position lock
     let lockedPosition: string | null = null;
     let lockMatchedKey = '';
@@ -338,7 +338,7 @@ function mergeIncomingNodeDataWithLocalState(
         break;
       }
     }
-    
+
     // Clean up expired entries
     if (!preserveWindowActive) {
       incomingIds.forEach((id) => {
@@ -366,11 +366,11 @@ function mergeIncomingNodeDataWithLocalState(
     // If we have an explicit locked position, use it!
     if (lockedPosition) {
       console.log(`[MERGE-USE-LOCK] key=${incoming.key} using locked position: ${lockedPosition} (from ${lockMatchedKey}), incoming was: ${incoming.loc}`);
-      
+
       const liveGroup = liveNode instanceof go.Node ? liveNode.data?.group : local?.group;
       const liveScale = liveNode instanceof go.Node ? liveNode.data?.scale : local?.scale;
       const liveScale1 = liveNode instanceof go.Node ? liveNode.data?.scale1 : local?.scale1;
-      
+
       return {
         ...incoming,
         loc: lockedPosition,
@@ -391,7 +391,7 @@ function mergeIncomingNodeDataWithLocalState(
       liveNode instanceof go.Node
         ? `${liveNode.location.x} ${liveNode.location.y}`
         : (typeof liveData?.loc === 'string' && liveData.loc.length > 0 ? liveData.loc : local?.loc);
-    
+
     const liveGroup =
       liveData?.group !== undefined
         ? liveData.group
@@ -608,7 +608,7 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-        
+
         // CRITICAL: Update myMetis nodes AND their objectviews with new positions
         // BEFORE calling setState, so React has the correct data to render
         if (instance.state?.myMetis?.gojsModel?.nodes) {
@@ -643,7 +643,7 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
         instance.setState({ nodeDataArray: [...nodes], skipsDiagramUpdate: true });
       }
     }
-    
+
     // CRITICAL: Also update the GoJS diagram's model directly
     if (storedDiagram && storedDiagram.model) {
       storedDiagram.model.commit((m: any) => {
@@ -684,7 +684,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
-        
+
         // CRITICAL: Update myMetis links with new data
         if (instance.state?.myMetis?.gojsModel?.links) {
           const links = instance.state.myMetis.gojsModel.links;
@@ -707,7 +707,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
         console.error('[Queue] Error updating link:', err);
       }
     });
-    
+
     // Force React state update
     if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
       const links = instance.state.myMetis.gojsModel.links;
@@ -715,7 +715,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
         instance.setState({ linkDataArray: [...links], skipsDiagramUpdate: true });
       }
     }
-    
+
     // Update the GoJS diagram's model directly
     if (storedDiagram && storedDiagram.model) {
       storedDiagram.model.commit((m: any) => {
@@ -723,7 +723,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
           // SAFETY CHECK: Make sure this is actually a link, not a node
           const nodeData = m.findNodeDataForKey(payload.id);
           if (nodeData) return; // Skip this update
-          
+
           const linkData = m.findLinkDataForKey(payload.id);
           if (linkData) {
             if (payload.points) m.set(linkData, 'points', payload.points);
@@ -2040,10 +2040,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (params?.mode === 'follow') {
       const rel = (params?.relationshipToFollow || '').trim();
       if (rel) {
+        const firstHopRelIds = rel.startsWith('rel:') ? [rel.slice(4)] : [];
         this.runSelectConnectedFromContext(ctx, {
           levels: 1,
-          reltypes: rel,
+          reltypes: firstHopRelIds.length > 0 ? '' : rel,
           reldir: 'All',
+          firstHopRelIds,
+          createMissingViews: !!params?.createMissingViews,
         });
       }
       this.closeConnectedObjectsDialog();
@@ -2052,14 +2055,23 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     // Traverse options
     const levels = Math.max(1, Math.floor(Number(params?.steps) || 1));
-    const reltypes = (params?.selectedTypes && params.selectedTypes.length)
-      ? params.selectedTypes.join(',')
+    const selectedTypes = params?.selectedTypes || [];
+    const firstHopRelIds = selectedTypes
+      .filter((value: string) => value.startsWith('rel:'))
+      .map((value: string) => value.slice(4))
+      .filter(Boolean);
+    const reltypes = selectedTypes.length
+      ? selectedTypes
+        .filter((value: string) => !value.startsWith('rel:'))
+        .join(',')
       : '';
     const reldir = params?.direction || 'All';
     this.runSelectConnectedFromContext(ctx, {
       levels,
       reltypes,
       reldir,
+      firstHopRelIds,
+      createMissingViews: !!params?.createMissingViews,
     });
     this.closeConnectedObjectsDialog();
   }
@@ -2084,7 +2096,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   // ...existing code...
   private runSelectConnectedFromContext = (
     ctx: { diagram: go.Diagram; part: go.Part },
-    params: { levels: number; reltypes: string; reldir: string }
+    params: { levels: number; reltypes: string; reldir: string; firstHopRelIds?: string[]; createMissingViews?: boolean }
   ) => {
     const diagram = ctx?.diagram;
     const part = ctx?.part;
@@ -2092,6 +2104,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     const nodeData: any = part.data;
     const myMetis = this.state.myMetis;
+    myMetis.myDiagram = diagram;
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
@@ -2104,15 +2117,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     const dir = (params.reldir || 'All').toLowerCase();
     const viewCollection = new akm.cxCollectionOfViews(modelview as any);
 
-    if (dir === 'all') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    } else if (dir === 'out' || dir === 'in') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
-    } else {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    }
+    uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection, {
+      firstHopRelIds: params.firstHopRelIds || [],
+      createMissingViews: !!params.createMissingViews,
+    });
 
     const mySelection = new go.Set<go.Part | go.Link>();
     const objviews = viewCollection.objectviews || [];
@@ -2132,46 +2140,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       const goLink = goModel.findLinkByViewId(rv.id);
       const gjsLink = diagram.findLinkForKey(goLink?.key);
       if (gjsLink) mySelection.add(gjsLink);
-    }
-
-    const allowedReltypes = (params.reltypes || '')
-      .split(',')
-      .map((s: string) => s.trim())
-      .filter((s: string) => s.length > 0);
-    const allowAll = allowedReltypes.length === 0;
-    const matchesReltype = (rv: any) => {
-      if (allowAll) return true;
-      const rel = rv?.relship || rv?.relationship;
-      const tname = rel?.type?.name;
-      const tid = rel?.type?.id;
-      return allowedReltypes.includes(tname) || allowedReltypes.includes(tid);
-    };
-
-    const rootObjview = objview;
-    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
-      const fromId = rv?.fromObjview?.id;
-      const toId = rv?.toObjview?.id;
-      const touchesRoot = fromId === rootObjview?.id || toId === rootObjview?.id;
-      return touchesRoot && matchesReltype(rv);
-    });
-    for (let i = 0; i < firstHopRelviews.length; i++) {
-      const rv = firstHopRelviews[i];
-      if (!rv) continue;
-      // Add the link
-      const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
-      if (gjsLink) mySelection.add(gjsLink);
-
-      // Add the counterpart node(s)
-      const fromId = rv?.fromObjview?.id;
-      const toId = rv?.toObjview?.id;
-      const otherIds = [fromId, toId].filter(id => id && id !== rootObjview?.id);
-      for (let j = 0; j < otherIds.length; j++) {
-        const oid = otherIds[j];
-        const goNode = goModel.findNodeByViewId(oid);
-        const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
-        if (gjsNode) mySelection.add(gjsNode);
-      }
     }
 
     const rootPart = diagram.findPartForKey(nodeData.key) || diagram.findNodeForKey(nodeData.key);
@@ -2197,7 +2165,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
       console.log(`[COMPONENT-UPDATE] nodeDataArray changed, structural diff: ${structuralNodeDiff}, diagram exists: ${!!diagram}`);
-      
+
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
         // But still apply visual property changes (fillcolor, strokecolor, etc.)
@@ -2206,22 +2174,22 @@ class GoJSApp extends React.Component<{}, AppState> {
           const incomingNodes = this.props.nodeDataArray || [];
           const currentNodes = this.state.nodeDataArray || [];
           const visualProps = ['fillcolor', 'strokecolor', 'strokewidth', 'icon'];
-          
+
           diagram.model.commit((m: any) => {
             incomingNodes.forEach((incomingNode: any) => {
               if (!incomingNode || !incomingNode.key) return;
-              const currentNode = currentNodes.find((n: any) => 
-                n?.key === incomingNode.key || 
-                n?.id === incomingNode.id || 
+              const currentNode = currentNodes.find((n: any) =>
+                n?.key === incomingNode.key ||
+                n?.id === incomingNode.id ||
                 n?.objviewRef === incomingNode.objviewRef
               );
-              
+
               // Check if any visual properties changed
-              const hasVisualChange = visualProps.some(prop => 
-                incomingNode[prop] !== undefined && 
+              const hasVisualChange = visualProps.some(prop =>
+                incomingNode[prop] !== undefined &&
                 incomingNode[prop] !== currentNode?.[prop]
               );
-              
+
               if (hasVisualChange) {
                 const nodeData = m.findNodeDataForKey(incomingNode.key);
                 if (nodeData) {
@@ -2256,22 +2224,22 @@ class GoJSApp extends React.Component<{}, AppState> {
           const incomingLinks = this.props.linkDataArray || [];
           const currentLinks = this.state.linkDataArray || [];
           const visualProps = ['strokecolor', 'strokewidth'];
-          
+
           diagram.model.commit((m: any) => {
             incomingLinks.forEach((incomingLink: any) => {
               if (!incomingLink || !incomingLink.key) return;
-              const currentLink = currentLinks.find((l: any) => 
-                l?.key === incomingLink.key || 
-                l?.id === incomingLink.id || 
+              const currentLink = currentLinks.find((l: any) =>
+                l?.key === incomingLink.key ||
+                l?.id === incomingLink.id ||
                 l?.relviewRef === incomingLink.relviewRef
               );
-              
+
               // Check if any visual properties changed
-              const hasVisualChange = visualProps.some(prop => 
-                incomingLink[prop] !== undefined && 
+              const hasVisualChange = visualProps.some(prop =>
+                incomingLink[prop] !== undefined &&
                 incomingLink[prop] !== currentLink?.[prop]
               );
-              
+
               if (hasVisualChange) {
                 const linkData = m.findLinkDataForKey(incomingLink.key);
                 if (linkData) {
@@ -2288,7 +2256,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           console.error('Error applying link visual updates:', err);
         }
       }
-      
+
       nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
         this.props.linkDataArray,
         this.state.linkDataArray
@@ -2302,14 +2270,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       globalLockMovedNodeLocByKey.forEach((lockInfo) => {
         if (lockInfo.until > now) hasActiveLocks = true;
       });
-      
+
       if (hasActiveLocks) {
         console.log('[METIS-UPDATE-SUPPRESSED] Active locks present, deferring myMetis update');
         // Don't update myMetis while positions are locked
         // The locks will expire and positions will be persisted to Redux already
         return;
       }
-      
+
       nextState.myMetis = this.props.myMetis;
       shouldSyncFromProps = true;
     }
@@ -3606,7 +3574,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             node.strokecolor = data.strokecolor;
             const object = data.object;
             let objview = data.objectview;
-            // objview = uic.setObjviewColors(data, myDiagram);          
+            // objview = uic.setObjviewColors(data, myDiagram);
             const image = object?.image ? object.image : objview?.image;
             if (image) {
               myDiagram.model.setDataProperty(data, "image", image);
@@ -3620,7 +3588,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               isExpanded: objview?.isExpanded,
             });
           }
-          // Fix links 
+          // Fix links
           const linksToRemove = [];
           const links = myDiagram.model.linkDataArray;
           for (let it = links.iterator; it?.next();) {
@@ -3746,7 +3714,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data });
               }
             }
-          } else { // Object           
+          } else { // Object
             if (text === 'Edit name') {
               text = prompt('Enter name');
               gjsData.name = text;
@@ -4143,31 +4111,31 @@ class GoJSApp extends React.Component<{}, AppState> {
               const myGoNode = myGoModel.findNode(myToNode.key);
               const myObject: akm.cxObject = myFromNode.object;
               const myObjectview: akm.cxObjectView = myFromNode.objectview;
-              
+
               if (!myObjectview) {
                 console.error(`[NODE-MOVE-ERROR] No objectview for key=${myToNode.key}, skipping`);
                 continue;
               }
-              
+
               myObjectview.loc = myToNode.loc;
               myObjectview.group = myToNode.group;
               myObjectview.scale = myToNode.scale;
               // Move the object
               let goToNode = uic.changeNodeSizeAndPos(myToNode.gjsData, myFromNode.loc, myToNode.loc,
                 myGoModel, myDiagram, myMetis, modifiedObjectViews) as gjs.goObjectNode;
-              
+
               // CRITICAL: Update lock from PRE-DRAG to POST-DRAG position
               // SelectionMoving set lock to protect during drag, now update to final position
               const liveNode = myDiagram.findNodeForKey(myToNode.key);
               const actualLoc = liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : myToNode.loc;
               const liveGroupKey = liveNode?.containingGroup ? liveNode.containingGroup.key : 'NONE';
-              
+
               console.log(`[NODE-LOCK-UPDATE-END] key=${myToNode.key} group=${liveGroupKey} updating lock from PRE-DRAG to POST-DRAG position: ${actualLoc}`);
-              
+
               // Use GLOBAL lock maps - survives React re-renders and focus changes
               const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
               const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
-              
+
               const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
               const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
               const aliases = [
@@ -4181,11 +4149,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               aliases.forEach((id) => preserveIncomingNodeStateByKey.set(id, preserveNodeStateUntil));
               const lockedLoc = actualLoc; // Use the ACTUAL live position, not myToNode.loc
               aliases.forEach((id) => lockMovedNodeLocByKey.set(id, { loc: lockedLoc, until: lockNodeLocUntil }));
-              
+
               // Debug: verify locks were set
               console.log(`[NODE-LOCK-SET] GLOBAL lock map size:`, lockMovedNodeLocByKey.size, 'Aliases:', aliases);
               console.log(`[NODE-LOCK-VERIFY] Lock entry for key ${myToNode.key}:`, lockMovedNodeLocByKey.get(myToNode.key));
-              
+
               if (goToNode) {
                 goToNode = myGoModel.findNode(goToNode.key);
                 if (!goToNode instanceof gjs.goObjectNode) {
@@ -4303,17 +4271,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const childObj = goToNode.object;
                   const myHasPartReltype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
                   const existingRel = parentObj ? myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null) : null;
-                  
+
                   // Check if metamodel allows "contains" relationship between these specific object types
                   const parentObjType = parentObj?.type;
                   const childObjType = childObj?.type;
-                  const isAllowedByMetamodel = 
-                    myHasPartReltype && 
-                    parentObjType && 
+                  const isAllowedByMetamodel =
+                    myHasPartReltype &&
+                    parentObjType &&
                     childObjType &&
                     myHasPartReltype.isAllowedFromType(parentObjType, true) &&
                     myHasPartReltype.isAllowedToType(childObjType, true);
-                  
+
                   if (!existingRel && isAllowedByMetamodel) {
                     // Create only if it does not already exist AND metamodel allows it.
                     const relId = utils.createGuid();
@@ -4620,7 +4588,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                         link.visible = true;
                         link.points = [];
                         myGoModel.addLink(link);
-                        // myDiagram.model.addLinkData(link);   
+                        // myDiagram.model.addLinkData(link);
                         uid.clearPath(myDiagram.links, myMetis, myDiagram);
                       }
                       const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -4703,12 +4671,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.model.setDataProperty(data, "loc", newLoc);
             myDiagram.model.setDataProperty(data, "size", currentGroupSize);
           }
-          
+
           // CRITICAL: Update lock from PRE-DRAG to POST-DRAG position
           // Use GLOBAL lock maps - survives React re-renders and focus changes
           const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
           const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
-          
+
           const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
           const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
           const aliases = [
@@ -4723,7 +4691,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const lockedLoc = newLoc; // Use the newLoc we just set, not sel.location which might change
           console.log(`[GROUP-LOCK-UPDATE-END] ${data?.key || sel.key}: updating lock to POST-DRAG position: ${lockedLoc}`);
           aliases.forEach((id) => lockMovedNodeLocByKey.set(id, { loc: lockedLoc, until: lockNodeLocUntil }));
-          
+
           const isPlainTopLevelGroupMove =
             !isLaneGroup &&
             !shiftPressed &&
@@ -5009,12 +4977,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Check if metamodel allows "contains" relationship between these specific object types
                 const parentObjType = parentObj?.type;
                 const candidateObjType = candidateObj?.type;
-                const isAllowedByMetamodel = 
-                  parentObjType && 
+                const isAllowedByMetamodel =
+                  parentObjType &&
                   candidateObjType &&
                   containsType.isAllowedFromType(parentObjType, true) &&
                   containsType.isAllowedToType(candidateObjType, true);
-                
+
                 if (!isAllowedByMetamodel) {
                   console.log(`[GRAB-CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${candidateObjType?.name}, skipping auto-creation on grab`);
                   // Continue without creating the relationship
@@ -5224,12 +5192,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               // Check if metamodel allows "contains" relationship between these specific object types
               const parentObjType = nextParentObjview?.object?.type;
               const movedObjType = movedObj?.type;
-              const isAllowedByMetamodel = 
-                parentObjType && 
+              const isAllowedByMetamodel =
+                parentObjType &&
                 movedObjType &&
                 containsType.isAllowedFromType(parentObjType, true) &&
                 containsType.isAllowedToType(movedObjType, true);
-              
+
               if (!isAllowedByMetamodel) {
                 console.log(`[MOVE-CONTAINS-BLOCKED] Metamodel does not allow "contains" from ${parentObjType?.name} to ${movedObjType?.name}, skipping auto-creation on group change`);
                 // Continue without creating the relationship
@@ -6121,7 +6089,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             (myDiagram as any).__lockMovedNodeLocByKey instanceof Map
               ? (myDiagram as any).__lockMovedNodeLocByKey
               : new Map<string, { loc: string; until: number }>();
-          
+
           const desiredMovedNodeLocByKey = new Map<string, { x: number; y: number }>();
           // Ordinary node drags can still receive delayed Redux/modelview refreshes
           // after drop; keep the loc replay guard up long enough to avoid snap-back.
@@ -6160,7 +6128,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           (myDiagram as any).__suppressNodeModelSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressPropSyncUntil = postMoveSuppressUntil;
           (myDiagram as any).__suppressAutoLayoutUntil = Date.now() + 5000;
-          
+
           // Stop any existing watchdog - including callbacks already queued
           const existingWatchdog: any = (myDiagram as any).__movedNodeLockWatchdog;
           if (existingWatchdog) {
@@ -6170,7 +6138,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Increment generation to invalidate old watchdog closures
           const watchdogGeneration = ((myDiagram as any).__watchdogGeneration || 0) + 1;
           (myDiagram as any).__watchdogGeneration = watchdogGeneration;
-          
+
           // WATCHDOG DISABLED - Testing if it's causing swapback issues
           // The merge function should be sufficient to protect live positions
           /*
@@ -7253,6 +7221,11 @@ const relayoutPoolGroupAfterLaneChanges = (
     });
   });
 
+  const finalLaneWidthAvailable = Math.max(
+    poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
+    minLaneWidth
+  );
+
   let currentY = poolLocation.y + laneTopMargin;
   laneLayouts.forEach((layout, index) => {
     layout.topY = currentY;
@@ -7264,10 +7237,6 @@ const relayoutPoolGroupAfterLaneChanges = (
   currentY += laneBottomMargin;
 
   const totalHeight = currentY - poolLocation.y;
-  const finalLaneWidthAvailable = Math.max(
-    poolWidth - poolLeftReserve - lanePaddingLeft - lanePaddingRight - laneRightVisualInset,
-    minLaneWidth
-  );
 
   laneLayouts.forEach((layout) => {
     const lane = layout.group;
@@ -7619,7 +7588,7 @@ e.subject.each(function (n) {
       myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
     }
   } else { // An object type has been dropped - create an object
-    // i.e. new object, new objectview, 
+    // i.e. new object, new objectview,
     objName = node?.data?.object?.name
       || partData.object?.name
       || partData.name
@@ -7865,17 +7834,17 @@ e.subject.each(function (n) {
     const childtype = type;
     const childObj = object;
     const myHasPartRelship = myModel.findRelationship1(parentObj, childObj, myHasPartReltype, null, null);
-    
+
     // Check if metamodel allows "contains" relationship between these specific object types
     const parentObjType = parentObj?.type;
     const childObjType = childObj?.type;
-    const isAllowedByMetamodel = 
-      myHasPartReltype && 
-      parentObjType && 
+    const isAllowedByMetamodel =
+      myHasPartReltype &&
+      parentObjType &&
       childObjType &&
       myHasPartReltype.isAllowedFromType(parentObjType, true) &&
       myHasPartReltype.isAllowedToType(childObjType, true);
-    
+
     if (!myHasPartRelship && parentObj && childObj && isAllowedByMetamodel) {
       // Create the relationship only if metamodel allows it
       const relId = utils.createGuid();
@@ -8709,7 +8678,7 @@ break;
 
   if (debug) console.log('1770 pastedNodes', pastedNodes);
   break;
-}      
+}
       case 'LayoutCompleted': {
   // Persist node/link positions after layout so positions survive reloads
   if (true) {
@@ -8775,101 +8744,109 @@ break;
   let gjsFromNode, gjsToNode;
   const isObjectNode = (n: any) =>
     !!n && (n.category === constants.gojs.C_OBJECT || n.object || n.objectview);
-  for (let it = myDiagram.nodes; it?.next();) {
-    const n = it.value;
-    if (n.data?.key === gjsData.from) {
-      gjsFromNode = n.data;
+
+  // Wrap ENTIRE LinkDrawn operation in one transaction to prevent any intermediate rendering
+  myDiagram.startTransaction("link-drawn");
+  try {
+    for (let it = myDiagram.nodes; it?.next();) {
+      const n = it.value;
+      if (n.data?.key === gjsData.from) {
+        gjsFromNode = n.data;
+      }
+      if (n.data?.key === gjsData.to) {
+        gjsToNode = n.data;
+      }
     }
-    if (n.data?.key === gjsData.to) {
-      gjsToNode = n.data;
+    let goFromNode: gjs.goObjectNode;
+    let goToNode: gjs.goObjectNode;
+    let fromObjView: akm.cxObjectView;
+    let toObjView: akm.cxObjectView;
+
+    if (gjsFromNode) {
+      fromObjView = myModelview.findObjectView(gjsFromNode.key);
+      goFromNode = myGoModel.findNode(gjsFromNode.key);
+      context.goFromNode = goFromNode;
+      context.fromObjView = fromObjView;
+      uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
     }
-  }
-  let goFromNode: gjs.goObjectNode;
-  let goToNode: gjs.goObjectNode;
-  let fromObjView: akm.cxObjectView;
-  let toObjView: akm.cxObjectView;
-  if (gjsFromNode) {
-    fromObjView = myModelview.findObjectView(gjsFromNode.key);
-    goFromNode = myGoModel.findNode(gjsFromNode.key);
-    context.goFromNode = goFromNode;
-    context.fromObjView = fromObjView;
-    uic.updateNode(goFromNode, fromObjView?.typeview, myDiagram, myGoModel);
-  }
-  if (gjsToNode) {
-    toObjView = myModelview.findObjectView(gjsToNode.key);
-    goToNode = myGoModel.findNode(gjsToNode.key);
-    context.goToNode = goToNode;
-    context.toObjView = toObjView;
-    uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
-  }
-  // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
-  const ensureNodeRefs = (gjsNode: any, objview: any) => {
-    if (!gjsNode) return;
-    const setProp = (prop: string, val: any) => {
-      if (val === undefined || val === null) return;
-      try {
-        gjsNode[prop] = val;
-      } catch (_) { /* ignore */ }
+    if (gjsToNode) {
+      toObjView = myModelview.findObjectView(gjsToNode.key);
+      goToNode = myGoModel.findNode(gjsToNode.key);
+      context.goToNode = goToNode;
+      context.toObjView = toObjView;
+      uic.updateNode(goToNode, toObjView?.typeview, myDiagram, myGoModel);
+    }
+    // Ensure freshly dropped nodes carry object/objectview refs for relationship menus
+    const ensureNodeRefs = (gjsNode: any, objview: any) => {
+      if (!gjsNode) return;
+      const setProp = (prop: string, val: any) => {
+        if (val === undefined || val === null) return;
+        try {
+          gjsNode[prop] = val;
+        } catch (_) { /* ignore */ }
+      };
+      if (objview) {
+        setProp('objectview', objview);
+        setProp('objviewRef', objview.id);
+        if (!objview.object && gjsNode.object) {
+          objview.object = gjsNode.object;
+        }
+        setProp('object', objview.object || gjsNode.object);
+        setProp('objRef', objview.object?.id);
+      }
     };
-    if (objview) {
-      setProp('objectview', objview);
-      setProp('objviewRef', objview.id);
-      if (!objview.object && gjsNode.object) {
-        objview.object = gjsNode.object;
+    ensureNodeRefs(gjsFromNode, context.fromObjView);
+    ensureNodeRefs(gjsToNode, context.toObjView);
+    // Handle relationship types
+    if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
+      if (!gjsFromNode || !gjsToNode) {
+        try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
+        break;
       }
-      setProp('object', objview.object || gjsNode.object);
-      setProp('objRef', objview.object?.id);
+      gjsData.category = constants.gojs.C_RELSHIPTYPE;
+      if (debug) console.log('1523 link', fromNode, toNode);
+      // link.category = constants.gojs.C_RELSHIPTYPE;
+      const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
+      if (reltype) {
+        if (debug) console.log('1527 reltype', reltype);
+        const jsnType = new jsn.jsnRelationshipType(reltype, true);
+        modifiedRelshipTypes.push(jsnType);
+        if (debug) console.log('1530 jsnType', jsnType);
+        const reltypeview = reltype.typeview;
+        if (reltypeview) {
+          const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
+          modifiedRelshipTypeViews.push(jsnTypeView);
+          if (debug) console.log('1535 jsnTypeView', jsnTypeView);
+          const linkData = link?.data || gjsData;
+          if (debug) console.log('1546 lnk, reltype', linkData, reltype);
+          myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
+          myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
+          myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
+          myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
+          myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
+          uid.editRelationshipType(linkData, myMetis, myDiagram);
+        }
+      }
+      // myDiagram.requestUpdate();  // Commented out - model changes auto-update, full refresh can cause visual glitches
     }
-  };
-  ensureNodeRefs(gjsFromNode, context.fromObjView);
-  ensureNodeRefs(gjsToNode, context.toObjView);
-  // Handle relationship types
-  if (gjsFromNode?.category === constants.gojs.C_OBJECTTYPE) {
-    if (!gjsFromNode || !gjsToNode) {
-      try { myDiagram.model.removeLinkData(gjsData); } catch (_) {}
-      break;
-    }
-    gjsData.category = constants.gojs.C_RELSHIPTYPE;
-    if (debug) console.log('1523 link', fromNode, toNode);
-    // link.category = constants.gojs.C_RELSHIPTYPE;
-    const reltype = uic.createRelationshipType(gjsFromNode, gjsToNode, gjsData, context);
-    if (reltype) {
-      if (debug) console.log('1527 reltype', reltype);
-      const jsnType = new jsn.jsnRelationshipType(reltype, true);
-      modifiedRelshipTypes.push(jsnType);
-      if (debug) console.log('1530 jsnType', jsnType);
-      const reltypeview = reltype.typeview;
-      if (reltypeview) {
-        const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
-        modifiedRelshipTypeViews.push(jsnTypeView);
-        if (debug) console.log('1535 jsnTypeView', jsnTypeView);
-        const linkData = link?.data || gjsData;
-        if (debug) console.log('1546 lnk, reltype', linkData, reltype);
-        myDiagram.model.setDataProperty(linkData, 'category', constants.gojs.C_RELSHIPTYPE);
-        myDiagram.model.setDataProperty(linkData, 'name', reltype.name);
-        myDiagram.model.setDataProperty(linkData, 'reltype', reltype);
-        myDiagram.model.setDataProperty(linkData, 'relshiptype', reltype);
-        myDiagram.model.setDataProperty(linkData, 'typeview', reltypeview);
-        uid.editRelationshipType(linkData, myMetis, myDiagram);
+    // Handle relationships
+    if (isObjectNode(gjsFromNode)) {
+      // gjsData.category = constants.gojs.C_RELATIONSHIP;
+      context.handleOpenModal = this.handleOpenModal;
+      if (gjsFromNode && gjsToNode) {
+        try {
+          myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
+          myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
+          myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
+          myDiagram.model.setDataProperty(gjsData, 'name', '');
+        } catch (_) {}
+        uic.createRelationship(gjsFromNode, gjsToNode, context);
       }
     }
-    myDiagram.requestUpdate();
+    // myDiagram.requestUpdate();  // Commented out - model changes auto-update, full refresh can cause visual glitches
+  } finally {
+    myDiagram.commitTransaction("link-drawn");
   }
-  // Handle relationships
-  if (isObjectNode(gjsFromNode)) {
-    // gjsData.category = constants.gojs.C_RELATIONSHIP;
-    context.handleOpenModal = this.handleOpenModal;
-    if (gjsFromNode && gjsToNode) {
-      try {
-        myDiagram.model.setDataProperty(gjsData, 'template', 'previewRelationship');
-        myDiagram.model.setDataProperty(gjsData, 'strokecolor', '#2d9cdb');
-        myDiagram.model.setDataProperty(gjsData, 'textcolor', 'black');
-        myDiagram.model.setDataProperty(gjsData, 'name', '');
-      } catch (_) {}
-      uic.createRelationship(gjsFromNode, gjsToNode, context);
-    }
-  }
-  myDiagram.requestUpdate();
   break;
 }
       case "LinkRelinked": {

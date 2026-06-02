@@ -942,10 +942,12 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     if (fromType && toType) {
         const appliesToLabel = fromType.name === constants.types.AKM_LABEL;
         let defText = appliesToLabel ? constants.types.AKM_ANNOTATES : "";
-        let includeInherited = false;
-        if (myModelview.includeInheritedReltypes) {
-            includeInherited = true;
-        }
+        // Default to true - inheritance should work by default
+        // FORCE true for now - ignore stored false values
+        let includeInherited = true;
+        // if (myModelview.includeInheritedReltypes !== undefined && myModelview.includeInheritedReltypes !== null) {
+        //     includeInherited = myModelview.includeInheritedReltypes;
+        // }
         let reltypes: akm.cxRelationshipType[] = [];
         if (!myModelview.isMetamodel) { // IS NOT Metamodel
             if (metamodel.id === metamodel2.id) {
@@ -966,8 +968,9 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             }
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
-                    includeInherited = true;
-                    reltypes = metamodel.findRelationshipTypes0BetweenTypes(fromType, toType, includeInherited);
+                    // COMMENTED OUT - this was overwriting the inheritance-aware results above
+                    // includeInherited = true;
+                    // reltypes = metamodel.findRelationshipTypes0BetweenTypes(fromType, toType, includeInherited);
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);

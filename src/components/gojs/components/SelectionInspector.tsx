@@ -247,8 +247,52 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let mySupertypes: akm.cxObjectType[] = modalContext.supertypes;
     let myRelationship: akm.cxRelationship = modalContext.relship;
     let myRelationshipType: akm.cxRelationshipType = modalContext.relshiptype;
+    const findRelationshipType = (id: string) =>
+      (id && (myMetis?.findRelationshipType?.(id) || myMetamodel?.findRelationshipType?.(id))) || null;
+    const findRelationshipTypeByName = (name: string) =>
+      (name && (myMetis?.findRelationshipTypeByName?.(name) || myMetamodel?.findRelationshipTypeByName?.(name))) || null;
+    const resolveRelationshipType = (relship?: akm.cxRelationship, relData?: any) => {
+      const candidateTypes = [
+        myRelationshipType,
+        relship?.type,
+        relData?.relshiptype,
+        relData?.reltype,
+        relData?.relship?.type,
+        relData?.relshipview?.relship?.type,
+      ];
+      for (let i = 0; i < candidateTypes.length; i++) {
+        const candidate = candidateTypes[i];
+        if (candidate?.id) {
+          return findRelationshipType(candidate.id) || candidate;
+        }
+      }
+      const candidateIds = [
+        relship?.typeRef,
+        relData?.reltypeRef,
+        relData?.relshiptype?.id,
+        relData?.reltype?.id,
+        relData?.relship?.typeRef,
+        relData?.relshipview?.relship?.typeRef,
+      ];
+      for (let i = 0; i < candidateIds.length; i++) {
+        const reltype = findRelationshipType(candidateIds[i]);
+        if (reltype) return reltype;
+      }
+      const candidateNames = [
+        relship?.typeName,
+        relData?.typeName,
+        relData?.typename,
+        relData?.relship?.typeName,
+        relData?.relshipview?.relship?.typeName,
+      ];
+      for (let i = 0; i < candidateNames.length; i++) {
+        const reltype = findRelationshipTypeByName(candidateNames[i]);
+        if (reltype) return reltype;
+      }
+      return null;
+    };
     if (myRelationship && !myRelationshipType) {
-      myRelationshipType = myMetis.findRelationshipType(myRelationship.typeRef) as akm.cxRelationshipType;
+      myRelationshipType = resolveRelationshipType(myRelationship, this.props.selectedData) as akm.cxRelationshipType;
     }
     if (myObjectType?.name === constants.types.AKM_ENTITY_TYPE) {
       myObjectType.properties = [];
@@ -275,7 +319,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       myObjectType = myMetis.findObjectType(selObj?.objtypeRef) as akm.cxObjectType;
     }
     if (!myRelationshipType) {
-      myRelationshipType = myMetis.findRelationshipType(selObj?.reltypeRef) as akm.cxRelationshipType;
+      myRelationshipType = resolveRelationshipType(myRelationship, selObj) as akm.cxRelationshipType;
     }
     let inst: akm.cxObject | akm.cxRelationship;
     let inst1: akm.cxObject | akm.cxRelationship;
@@ -297,8 +341,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         type = myObjectType || (inst1?.type as akm.cxObjectType);
         break;
       case constants.gojs.C_RELATIONSHIP:
-        let relship = myRelationship;
-        let reltype = myRelationshipType;
+        let relship = myRelationship || selObj?.relship || selObj?.relshipview?.relship;
+        let reltype = resolveRelationshipType(relship, selObj) as akm.cxRelationshipType;
+        if (relship && reltype && !relship.type) {
+          relship.setType(reltype);
+        }
         inst = relship;
         inst1 = inst;
         type = reltype;
@@ -361,12 +408,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }    
       } else if (category === constants.gojs.C_RELATIONSHIP) {
         currentType = type as akm.cxRelationshipType;
+        if (!currentType) {
+          return dets;
+        }
         chosenType = currentType;
         chosenInst = inst1;
-        typename = currentType.name;
-        typedescription = currentType.description;
+        typename = currentType?.name;
+        typedescription = currentType?.description;
         if (useTabs && context1.what === 'editRelationship') {
-          let inheritedTypes = inst1?.getInheritedTypes();
+          let inheritedTypes = inst1?.getInheritedTypes() || [];
           inheritedTypes.push(currentType);
           inheritedTypes = [...new Set(inheritedTypes)];
           if (inst1?.hasInheritedProperties(myModel))

@@ -1523,7 +1523,8 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     objtypenames = uniqueSet;
     uniqueSet = utils.removeArrayDuplicatesById(objtypes, "id");
     objtypes = uniqueSet;
-    const includeInheritedReltypes = myModelview.includeInheritedReltypes;
+    // Force inheritance to true - ignore stored false values for now
+    const includeInheritedReltypes = true; // myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
     if (!myModelview.isMetamodel) {
@@ -2536,76 +2537,192 @@ function connectObjects(objview: akm.cxObject, rel: akm.cxRelationship, context:
 
 export function selectConnectedObjects1(modelview: akm.cxModelView, objview: akm.cxObjectView, 
                                 goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels: number, 
-                                reltypes: string, reldir: string, viewCollection: akm.cxCollectionOfViews) {
+                                reltypes: string, reldir: string, viewCollection: akm.cxCollectionOfViews,
+                                options: any = {}) {
     if (noLevels < 1)
         return;
-    const myDiagram = myMetis.myDiagram;
+    const resolveObject = (obj: akm.cxObject | null | undefined): akm.cxObject | null => {
+        const id = obj?.id;
+        if (!id)
+            return null;
+        return myMetis.currentModel?.findObject(id) || myMetis.findObject(id) || obj;
+    };
+    const resolveRelationship = (rel: akm.cxRelationship | null | undefined): akm.cxRelationship | null => {
+        const id = rel?.id;
+        if (!id)
+            return null;
+        return myMetis.currentModel?.findRelationship(id) || myMetis.findRelationship(id) || rel;
+    };
     let object: akm.cxObject = objview.object;
     if (!object) object = myMetis.findObject(objview.objectRef);
     if (object)
-        object = myMetis.findObject(object.id);
-    if (objview && object) {
-        const objtype = object.type;
-        if (objtype && objtype.isContainer()) {
-            objview.viewkind = constants.viewkinds.CONT;
-        }
-        // Parse reltypes as array of allowed type names (or IDs)
-        let allowedRelTypes: string[] = [];
-        let allowAll = false;
-        if (reltypes && reltypes.trim() !== '' && reltypes !== 'All') {
-            allowedRelTypes = reltypes.split(',').map(s => s.trim()).filter(Boolean);
+        object = resolveObject(object);
+    if (!objview || !object)
+        return;
+    const objtype = object.type;
+    if (objtype && objtype.isContainer()) {
+        objview.viewkind = constants.viewkinds.CONT;
+    }
+    const allowedRelTypes = (reltypes && reltypes.trim() !== '' && reltypes !== 'All')
+        ? reltypes.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+    const allowAll = allowedRelTypes.length === 0;
+    const normalizedDirection = (reldir || '').toLowerCase();
+    const followInput = normalizedDirection !== 'out';
+    const followOutput = normalizedDirection !== 'in';
+    const firstHopRelIds = new Set<string>(options?.firstHopRelIds || []);
+    const createMissingViews = !!options?.createMissingViews;
+    const myDiagram = myMetis.myDiagram;
+    const rootLoc = (objview.loc || '0 0').split(' ');
+    const rootX = parseInt(rootLoc[0]) || 0;
+    const rootY = parseInt(rootLoc[1]) || 0;
+    const visitedObjectIds = new Set<string>([object.id]);
+    let createdCount = 0;
+    let frontier: akm.cxObject[] = [object];
+
+    const findVisibleObjview = (obj: akm.cxObject): akm.cxObjectView | null => {
+        const objviews = modelview.findObjectViewsByObject(obj);
+        return objviews?.length > 0 ? objviews[0] : null;
+    };
+
+    const ensureObjectView = (obj: akm.cxObject, level: number, incoming: boolean): akm.cxObjectView | null => {
+        let visibleObjview = findVisibleObjview(obj);
+        if (visibleObjview || !createMissingViews)
+            return visibleObjview;
+        const id = utils.createGuid();
+        visibleObjview = new akm.cxObjectView(id, obj.name, obj, "");
+        obj.addObjectView(visibleObjview);
+        modelview.addObjectView(visibleObjview);
+        myMetis.addObjectView(visibleObjview);
+        const xdir = incoming ? -1 : 1;
+        visibleObjview.loc = `${rootX + xdir * 300 * Math.max(1, level + 1)} ${rootY + createdCount * 100}`;
+        createdCount++;
+        const goNode = new gjs.goObjectNode(visibleObjview.id, goModel, visibleObjview);
+        if (myDiagram) {
+            myDiagram.startTransaction('SelectConnectedAddNode');
+            uic.setObjviewAttributes(goNode, myDiagram);
+            goModel.addNode(goNode);
+            myDiagram.model.addNodeData(goNode);
+            myDiagram.commitTransaction('SelectConnectedAddNode');
         } else {
-            allowAll = true;
+            goModel.addNode(goNode);
         }
-        let useinp = (reldir === 'in');
-        for (let i=0; i<2; i++) {
-            let rels: akm.cxRelationship[];
-            if (i == 0) rels = object.inputrels;
-            if (i == 1) rels = object.outputrels;
-            if (rels) {
-                for (let j=0; j<rels.length; j++) {
-                    let rel = rels[j];
-                    if (!rel)
+        const jsnObjview = new jsn.jsnObjectView(visibleObjview);
+        const data = JSON.parse(JSON.stringify(jsnObjview));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+        return visibleObjview;
+    };
+
+    const ensureRelview = (
+        rel: akm.cxRelationship,
+        fromObjview: akm.cxObjectView | null,
+        toObjview: akm.cxObjectView | null
+    ): akm.cxRelationshipView | null => {
+        if (!fromObjview || !toObjview)
+            return null;
+        let relviews = modelview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
+        if (relviews?.length > 0)
+            return relviews[0];
+        if (!createMissingViews)
+            return null;
+        const id = utils.createGuid();
+        const relview = new akm.cxRelationshipView(id, rel.name, rel, "");
+        relview.fromObjview = fromObjview;
+        relview.toObjview = toObjview;
+        rel.addRelationshipView(relview);
+        modelview.addRelationshipView(relview);
+        myMetis.addRelationshipView(relview);
+        const goLink = new gjs.goRelshipLink(relview.id, goModel, relview);
+        goLink.loadLinkContent(goModel);
+        if (myDiagram) {
+            myDiagram.startTransaction('SelectConnectedAddLink');
+            goLink.fromNode = getNodeByViewId(fromObjview.id, myDiagram);
+            goLink.from = goLink.fromNode?.key;
+            goLink.toNode = getNodeByViewId(toObjview.id, myDiagram);
+            goLink.to = goLink.toNode?.key;
+            uic.setRelviewAttributes(goLink, myDiagram);
+            goModel.addLink(goLink);
+            myDiagram.model.addLinkData(goLink);
+            myDiagram.commitTransaction('SelectConnectedAddLink');
+        } else {
+            goModel.addLink(goLink);
+        }
+        const jsnRelview = new jsn.jsnRelshipView(relview);
+        const data = JSON.parse(JSON.stringify(jsnRelview));
+        myDiagram?.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+        return relview;
+    };
+
+    const getRelationshipsForObject = (obj: akm.cxObject) => {
+        const modelRelationships = myMetis.currentModel?.relships || myMetis.currentModel?.relationships || [];
+        const rels = modelRelationships.length > 0
+            ? modelRelationships
+            : ([] as akm.cxRelationship[])
+                .concat(obj.inputrels || [])
+                .concat(obj.outputrels || []);
+        const matches: Array<{ rel: akm.cxRelationship; incoming: boolean }> = [];
+        const seen = new Set<string>();
+        for (let i = 0; i < rels.length; i++) {
+            const resolvedRel = resolveRelationship(rels[i]);
+            if (!resolvedRel || resolvedRel.markedAsDeleted || seen.has(resolvedRel.id))
+                continue;
+            seen.add(resolvedRel.id);
+            const fromId = resolvedRel.fromObject?.id || resolvedRel.fromobjectRef || resolvedRel.fromObjectRef;
+            const toId = resolvedRel.toObject?.id || resolvedRel.toobjectRef || resolvedRel.toObjectRef;
+            if (toId === obj.id && followInput)
+                matches.push({ rel: resolvedRel, incoming: true });
+            if (fromId === obj.id && followOutput)
+                matches.push({ rel: resolvedRel, incoming: false });
+        }
+        return matches;
+    };
+
+    for (let level = 0; level < noLevels && frontier.length > 0; level++) {
+        const nextFrontier: akm.cxObject[] = [];
+        for (let i = 0; i < frontier.length; i++) {
+            let currentObject: akm.cxObject = frontier[i];
+            if (currentObject) currentObject = resolveObject(currentObject);
+            if (!currentObject || currentObject.markedAsDeleted)
+                continue;
+            const currentObjview = createMissingViews
+                ? ensureObjectView(currentObject, Math.max(0, level - 1), false)
+                : findVisibleObjview(currentObject);
+            const connectedRelationships = getRelationshipsForObject(currentObject);
+            for (let j = 0; j < connectedRelationships.length; j++) {
+                    const direction = connectedRelationships[j];
+                    let rel = direction.rel;
+                    if (!rel || rel.markedAsDeleted)
                         continue;
-                    if (rel.markedAsDeleted)
-                        continue;
-                    rel = myMetis.findRelationship(rel.id) as akm.cxRelationship;
-                    // Only follow if type is allowed
-                    if (!allowAll) {
-                        // Accept match by name or id
-                        const relTypeName = rel?.type?.name;
-                        const relTypeId = rel?.type?.id;
+                    if (level === 0 && firstHopRelIds.size > 0) {
+                        if (!firstHopRelIds.has(rel.id))
+                            continue;
+                    } else if (!allowAll) {
+                        const relTypeName = rel?.type?.name || rel?.name || rel?.typeName;
+                        const relTypeId = rel?.type?.id || rel?.typeRef;
                         if (!allowedRelTypes.includes(relTypeName) && !allowedRelTypes.includes(relTypeId))
                             continue;
                     }
-                    let toObj;
-                    if (useinp) 
-                        toObj = rel.fromObject as akm.cxObject;
-                    else
-                        toObj = rel.toObject as akm.cxObject;
-                    toObj = myMetis.findObject(toObj.id);
-                    if (!toObj || toObj.markedAsDeleted)
+                    const connectedObjRef = direction.incoming
+                        ? rel.fromObject as akm.cxObject
+                        : rel.toObject as akm.cxObject;
+                    const connectedObj = connectedObjRef ? resolveObject(connectedObjRef) : null;
+                    if (!connectedObj || connectedObj.markedAsDeleted)
                         continue;
-                    // Find toObj in modelview
-                    const objviews = modelview.findObjectViewsByObject(toObj);
-                    const oview = objviews.length > 0 ? objviews[0] : null;
-                    if (oview) {
-                        viewCollection.addObjectView(oview);
-                        const relviews = modelview.findRelationshipViewsByRel2(rel, objview, oview);
-                        if (relviews.length > 0)
-                            viewCollection.addRelshipView(relviews[0]);
+                    const connectedObjview = ensureObjectView(connectedObj, level, direction.incoming);
+                    if (connectedObjview)
+                        viewCollection.addObjectView(connectedObjview);
+                    const fromObjview = direction.incoming ? connectedObjview : currentObjview;
+                    const toObjview = direction.incoming ? currentObjview : connectedObjview;
+                    const relview = ensureRelview(rel, fromObjview, toObjview);
+                    if (relview)
+                        viewCollection.addRelshipView(relview);
+                    if (!visitedObjectIds.has(connectedObj.id)) {
+                        visitedObjectIds.add(connectedObj.id);
+                        nextFrontier.push(connectedObj);
                     }
-                }
             }
         }
-    }
-    if (noLevels > 1) {
-        const objectviews = viewCollection.objectviews;
-        for (let i=0; i<objectviews?.length; i++) {
-            const oview = objectviews[i];
-            noLevels--;
-            selectConnectedObjects1(modelview, oview, goModel, myMetis, noLevels, reltypes, reldir, viewCollection);
-        }
+        frontier = nextFrontier;
     }
 }
 
@@ -2799,7 +2916,7 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             layout = new go.LayeredDigraphLayout({
                 isOngoing: false,
                 isInitial: false,
-                direction: 0,
+                direction: 90,  // Try 90 degrees to see if this makes it horizontal
                 layerSpacing: 80,
                 columnSpacing: 40,
                 setsPortSpots: true,

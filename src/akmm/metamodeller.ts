@@ -6097,22 +6097,27 @@ export class cxObjectType extends cxType {
             return true;
         } else {
             const reltypes = this.getOutputReltypes(constants.relkinds.GEN);
+            if (debug && level === 0) console.log('[INHERIT-CHECK]', this.name, 'inherits from', type.name, '? outputreltypes:', reltypes?.length || 0);
             if (reltypes) {
                 for (let i = 0; i < reltypes.length; i++) {
                     const reltype = reltypes[i];
                     const supertype = reltype?.toObjtype;
+                    if (debug && level === 0) console.log('[INHERIT-CHECK]   checking supertype:', supertype?.name);
                     if (supertype) {
                         if (supertype.id === type.id) {
+                            if (debug && level === 0) console.log('[INHERIT-CHECK]   ✅ MATCH! ' + this.name + ' inherits from ' + type.name);
                             retval = true;
                             break;
                         } else {
                             level++;
                             retval = supertype.inherits(type, level);
+                            if (retval) break;
                         }
                     }
                 }
             }
         }
+        if (debug && level === 0 && !retval) console.log('[INHERIT-CHECK]   ❌ NO MATCH - ' + this.name + ' does NOT inherit from ' + type.name);
         return retval;
     }
     findRelshipTypeByKind(relkind: string, objtype: cxObjectType): cxRelationshipType | null {                           // .COMP
@@ -6358,11 +6363,17 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedFromType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.fromObjtype) {
-            if (this.fromObjtype.id === objtype.id)
+            if (this.fromObjtype.id === objtype.id) {
+                if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, '=== ', this.fromObjtype.name, '✅ direct match');
                 return true;
+            }
             if (includeGen) {
+                if (debug) console.log('[ALLOWED-FROM]', this.name, ': checking if', objtype.name, 'inherits from', this.fromObjtype.name);
                 if (objtype.inherits(this.fromObjtype)) {
+                    if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, 'inherits', this.fromObjtype.name, '✅ allowed via inheritance');
                     return true;
+                } else {
+                    if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, 'does NOT inherit', this.fromObjtype.name, '❌');
                 }
             }
         }
@@ -6370,11 +6381,17 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedToType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.toObjtype) {
-            if (this.toObjtype.id === objtype.id)
+            if (this.toObjtype.id === objtype.id) {
+                if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, '===', this.toObjtype.name, '✅ direct match');
                 return true;
+            }
             if (includeGen) {
+                if (debug) console.log('[ALLOWED-TO]', this.name, ': checking if', objtype.name, 'inherits from', this.toObjtype.name);
                 if (objtype.inherits(this.toObjtype)) {
+                    if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, 'inherits', this.toObjtype.name, '✅ allowed via inheritance');
                     return true;
+                } else {
+                    if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, 'does NOT inherit', this.toObjtype.name, '❌');
                 }
             }
         }

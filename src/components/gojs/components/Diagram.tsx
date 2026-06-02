@@ -312,7 +312,7 @@ interface DiagramProps {
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
   onExportSvgReady: any;
-  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: string[]; reltypeOptions?: string[] }) => void;
+  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: Array<string | { value: string; label: string }>; reltypeOptions?: string[] }) => void;
 }
 
 interface DiagramState {
@@ -331,9 +331,9 @@ interface DiagramState {
   selectConnectedReldir?: string;
   selectConnectedReltypeOptions?: string[];
   selectConnectedIncludeAllRels?: boolean;
+  selectConnectedCreateMissingViews?: boolean;
   pendingSelectContext?: { part: go.Part; diagram: go.Diagram } | null;
-  selectConnectedIncludeAllRels?: boolean;
-  selectConnectedRelOptions?: string[];
+  selectConnectedRelOptions?: Array<string | { value: string; label: string }>;
   selectConnectedRelChoice?: string | string[];
   addConnectedDialogOpen?: boolean;
   addConnectedLevels?: string;
@@ -388,6 +388,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectConnectedReldir: 'All',
       selectConnectedReltypeOptions: ['All'],
       selectConnectedIncludeAllRels: false,
+      selectConnectedCreateMissingViews: false,
       pendingSelectContext: null,
       selectConnectedRelOptions: ['All'],
       selectConnectedRelChoice: ['All'],
@@ -1401,18 +1402,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     return 'All';
   }
 
-  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+  private buildConnectedRelationshipOptions = (part: go.Part, includeAllRels: boolean = false): Array<{ value: string; label: string }> => {
     try {
-      if (!part || !part.data) return ['All'];
+      if (!part || !part.data) return [{ value: 'All', label: 'All' }];
       const key = (part.data as any).key;
       const myMetis = this.myMetis;
       let modelview = myMetis?.currentModelview;
-      if (!modelview) return ['All'];
+      if (!modelview) return [{ value: 'All', label: 'All' }];
       modelview = myMetis.findModelView(modelview.id);
       const objview = myMetis.findObjectView(key);
-      if (!objview) return ['All'];
+      if (!objview) return [{ value: 'All', label: 'All' }];
 
-      const names: string[] = [];
+      const options: Array<{ value: string; label: string }> = [];
+      const seen = new Set<string>();
+      const addOption = (rel: any, label: string) => {
+        const value = rel?.id ? `rel:${rel.id}` : '';
+        if (!value || seen.has(value)) return;
+        seen.add(value);
+        options.push({ value, label });
+      };
 
       // Gather relationship types touching this object from the current modelview
       const relviews = modelview.relshipviews || [];
@@ -1427,8 +1435,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const toId = rv?.toObjview?.id;
         const otherNameFrom = rv?.toObjview?.name || rv?.toObjview?.object?.name || rv?.relship?.toObject?.name || '';
         const otherNameTo = rv?.fromObjview?.name || rv?.fromObjview?.object?.name || rv?.relship?.fromObject?.name || '';
-        if (fromId === objview.id) names.push(`${nm} > ${otherNameFrom}`.trim());
-        if (toId === objview.id) names.push(`${nm} < ${otherNameTo}`.trim());
+        if (fromId === objview.id) addOption(rel, `${nm} > ${otherNameFrom}`.trim());
+        if (toId === objview.id) addOption(rel, `${nm} < ${otherNameTo}`.trim());
       }
 
       // Optionally include relationships not currently represented in this modelview
@@ -1449,17 +1457,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!nm) continue;
               const otherObj = useinp ? rel.fromObject : rel.toObject;
               const otherName = otherObj?.name || '';
-              names.push(`${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
+              addOption(rel, `${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
             }
           }
         }
       }
 
-      const list = Array.from(new Set(names)).sort();
-      return ['All', ...list];
+      const list = options.sort((a, b) => a.label.localeCompare(b.label));
+      return [{ value: 'All', label: 'All' }, ...list];
     } catch {
-      return ['All'];
+      return [{ value: 'All', label: 'All' }];
     }
+  };
+
+  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+    return this.buildConnectedRelationshipOptions(part, includeAllRels).map(opt => opt.label);
   };
 
   private buildModelReltypeOptions = (): string[] => {
@@ -1498,15 +1510,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private openSelectConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
     if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
     const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-    const options = this.buildReltypeOptions(part, includeAllRels);
+    const options = this.buildConnectedRelationshipOptions(part, includeAllRels);
     const reltypeOptions = this.buildModelReltypeOptions();
     this.setState({
       selectConnectedDialogOpen: true,
       pendingSelectContext: { diagram, part },
       selectConnectedLevels: this.state.selectConnectedLevels || '1',
       selectConnectedReltypes: 'All',
-      selectConnectedRelChoice: [options?.[0] || 'All'],
-      selectConnectedRelOptions: options || ['All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
+      selectConnectedRelOptions: options || [{ value: 'All', label: 'All' }],
       selectConnectedReltypeOptions: reltypeOptions || ['All'],
       selectConnectedReldir: this.normalizeReldir(this.state.selectConnectedReldir) || 'All',
       selectConnectedIncludeAllRels: includeAllRels,
@@ -1543,12 +1555,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private handleSelectConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const includeAllRels = event.target.checked;
     const part = this.state.pendingSelectContext?.part;
-    const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || ['All']);
+    const options = part ? this.buildConnectedRelationshipOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]);
     this.setState({
       selectConnectedIncludeAllRels: includeAllRels,
       selectConnectedRelOptions: options,
-      selectConnectedRelChoice: [options?.[0] || 'All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
     });
+  };
+
+  private handleSelectConnectedCreateMissingViewsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ selectConnectedCreateMissingViews: event.target.checked });
   };
 
   private handleSelectConnectedCancel = () => {
@@ -1560,45 +1576,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const levelsParsed = parseInt(this.state.selectConnectedLevels || '1', 10);
     const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
     const reldir = (this.state.selectConnectedReldir || 'All').trim();
+    const createMissingViews = !!this.state.selectConnectedCreateMissingViews;
 
     this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null }, () => {
       if (pendingSelectContext) {
         const normalize = (val: string) => (val || '').trim();
-        let reltypesFinal = '';
-        if (levels === 1) {
-          // For level 1, only use the selected relationship(s) as strict tokens
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || ''])
+        const selectedFirstHopRelIds = (Array.isArray(this.state.selectConnectedRelChoice)
+          ? this.state.selectConnectedRelChoice
+          : [this.state.selectConnectedRelChoice || ''])
+          .map(normalize)
+          .filter(v => v.length > 0 && v !== 'All')
+          .map(v => v.startsWith('rel:') ? v.slice(4) : v)
+          .filter(v => v.length > 0);
+        const rawReltypesInput = this.state.selectConnectedReltypes || 'All';
+        const reltypesInput = rawReltypesInput === 'All'
+          ? []
+          : rawReltypesInput
+            .split(',')
             .map(normalize)
             .filter(v => v.length > 0 && v !== 'All');
-          if (selectedReltypes.length === 0) {
-            // Do not proceed if nothing is selected or 'All' is selected
-            alert('Please select a specific relationship to add.');
-            return;
-          }
-          reltypesFinal = selectedReltypes.join(',');
-        } else {
-          // For deeper levels, allow broader filter
-          const reltypesInput = (this.state.selectConnectedReltypes || '') === 'All'
-            ? []
-            : (this.state.selectConnectedReltypes || '')
-              .split(',')
-              .map(normalize)
-              .filter(v => v.length > 0);
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || 'All'])
-            .map(normalize)
-            .filter(v => v.length > 0);
-          reltypesFinal = reltypesInput.length > 0
-            ? reltypesInput.join(',')
-            : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
-        }
         this.runSelectConnectedFromContext(pendingSelectContext, {
           levels,
-          reltypes: reltypesFinal,
+          reltypes: reltypesInput.join(','),
           reldir,
+          firstHopRelIds: selectedFirstHopRelIds,
+          createMissingViews,
         });
       }
     });
@@ -1606,7 +1608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   private runSelectConnectedFromContext = (
     ctx: { diagram: go.Diagram; part: go.Part },
-    params: { levels: number; reltypes: string; reldir: string }
+    params: { levels: number; reltypes: string; reldir: string; firstHopRelIds?: string[]; createMissingViews?: boolean }
   ) => {
     const diagram = ctx?.diagram;
     const part = ctx?.part;
@@ -1614,6 +1616,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const nodeData: any = part.data;
     const myMetis = this.myMetis;
+    myMetis.myDiagram = diagram;
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
@@ -1626,15 +1629,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const dir = (params.reldir || 'All').toLowerCase();
     const viewCollection = new akm.cxCollectionOfViews(modelview, [], []);
 
-    if (dir === 'all') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    } else if (dir === 'out' || dir === 'in') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
-    } else {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    }
+    uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection, {
+      firstHopRelIds: params.firstHopRelIds || [],
+      createMissingViews: !!params.createMissingViews,
+    });
 
     const mySelection = new go.Set<go.Part | go.Link>();
     const objviews = viewCollection.objectviews || [];
@@ -1650,21 +1648,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     for (let i = 0; i < relviews.length; i++) {
       const rv = relviews[i];
-      if (!rv) continue;
-      const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
-      if (gjsLink) mySelection.add(gjsLink);
-    }
-
-    // Always include relationships directly connected to the source node (first step)
-    const rootObjview = objview;
-    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
-      const fromId = rv?.fromObjview?.id;
-      const toId = rv?.toObjview?.id;
-      return fromId === rootObjview?.id || toId === rootObjview?.id;
-    });
-    for (let i = 0; i < firstHopRelviews.length; i++) {
-      const rv = firstHopRelviews[i];
       if (!rv) continue;
       const goLink = goModel.findLinkByViewId(rv.id);
       const gjsLink = diagram.findLinkForKey(goLink?.key);
@@ -7943,7 +7926,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
         if (this.props.onOpenSelectConnectedObjects) {
           const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-          const relOptions = this.buildReltypeOptions(part, includeAllRels);
+          const relOptions = this.buildConnectedRelationshipOptions(part, includeAllRels);
           const reltypeOptions = this.buildModelReltypeOptions();
           this.props.onOpenSelectConnectedObjects({ diagram, part, relOptions, reltypeOptions });
           return;
@@ -8202,6 +8185,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!relship || !myModelview || !myMetamodel) return;
 
         let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+        // Default to true if undefined - inheritance should work by default
+        if (includeInheritedReltypes === undefined || includeInheritedReltypes === null) {
+          includeInheritedReltypes = true;
+          myModelview.includeInheritedReltypes = true;
+        }
+        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -8216,7 +8205,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
+        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
+        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -12029,11 +12020,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $("Node",
           {
             selectable: false, avoidable: false,
-            layerName: "Foreground"
+            layerName: "Foreground",
+            background: "transparent"  // Ensure node background is transparent
           },  // always have link label nodes in front of Links
           $("Shape", "Ellipse",
             {
-              width: 5, height: 5, stroke: null,
+              width: 5, height: 5, stroke: null, fill: "transparent",
               portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
             })
         ));
@@ -12837,9 +12829,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 className="form-select form-select-sm py-1 px-2"
                 style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
               >
-                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
+                {(this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]).map((opt: any) => {
+                  const value = typeof opt === 'string' ? opt : opt.value;
+                  const label = typeof opt === 'string' ? opt : opt.label;
+                  return <option key={value} value={value}>{label}</option>;
+                })}
               </select>
               <div className="form-check mt-1">
                 <input
@@ -12890,6 +12884,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
+              <div className="form-check mt-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="select-create-missing-views"
+                  checked={!!this.state.selectConnectedCreateMissingViews}
+                  onChange={this.handleSelectConnectedCreateMissingViewsChange}
+                />
+                <label className="form-check-label small" htmlFor="select-create-missing-views">
+                  Add missing objects to view
+                </label>
+              </div>
             </div>
             <DialogFooter className="d-flex justify-content-end mt-3 px-1 pb-1 pt-2 gap-3">
               <UiButton

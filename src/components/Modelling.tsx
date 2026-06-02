@@ -34,6 +34,7 @@ import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
+import { selectSharedUniverseState } from "../sharedUniverse";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -102,17 +103,31 @@ const Modelling = (props: any) => {
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
-  let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
-  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
-  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview)
-  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview)
-  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype)
-  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype)
-  const phSource = useSelector(phSource => props.phSource)
-  if (debug) console.log('69 Modelling', focusModel, focusModelview);
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis ?? props.phData?.metis;
+  const phFocus = sharedUniverse.world.focus ?? props.phFocus;
+  const phUser = sharedUniverse.user ?? props.phUser;
+  const phSource = sharedUniverse.source ?? props.phSource;
+  const phData = useMemo(() => ({
+    ...props.phData,
+    domain: sharedUniverse.world.worldDefinition.domain ?? props.phData?.domain,
+    metis,
+  }), [props.phData, sharedUniverse.world.worldDefinition.domain, metis]);
+  const compatibilityProps = useMemo(() => ({
+    ...props,
+    phData,
+    phFocus,
+    phUser,
+    phSource,
+  }), [props, phData, phFocus, phUser, phSource]);
 
-  const ph = props
-  const metis = ph.phData?.metis
+  let focusModel = phFocus?.focusModel
+  let focusModelview = phFocus?.focusModelview
+  const focusObjectview = phFocus?.focusObjectview
+  const focusRelshipview = phFocus?.focusRelshipview
+  const focusObjecttype = phFocus?.focusObjecttype
+  const focusRelshiptype = phFocus?.focusRelshiptype
+  if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
   const getPersistedState = () => {
     const state = store.getState();
@@ -137,8 +152,8 @@ const Modelling = (props: any) => {
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
-  const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-  const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+  const focusTargetModel = phFocus?.focusTargetModel
+  const focusTargetModelview = phFocus?.focusTargetModelview
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
   const targetModelviews = Array.isArray(curtargetmodel?.modelviews) ? curtargetmodel.modelviews.filter((mv: any) => mv) : []
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && targetModelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
@@ -187,10 +202,10 @@ const Modelling = (props: any) => {
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    GenGojsModel(props, myMetis)
+    GenGojsModel(compatibilityProps, myMetis)
     setActiveTab(activetabindex)
     setMount(true);
-  }, [props.phFocus?.focusModel?.id, props.phFocus?.focusModelview?.id, refresh])
+  }, [compatibilityProps, phFocus?.focusModel?.id, phFocus?.focusModelview?.id, refresh])
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -296,7 +311,7 @@ const Modelling = (props: any) => {
         modifiedDate: new Date().toISOString(),
       }
     });
-    if (props.phFocus?.focusModel?.id === model.id) {
+    if (phFocus?.focusModel?.id === model.id) {
       dispatch({ type: 'SET_FOCUS_MODEL', data: { id: model.id, name: nextName } });
     }
     handleCloseRenameModelModal();
@@ -324,7 +339,7 @@ const Modelling = (props: any) => {
       className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
       <Modal.Header closeButton>GitHub Settings: </Modal.Header>
       <Modal.Body >
-        <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
+        <ProjectDetailsForm props={compatibilityProps} onSubmit={handleSubmit} />
       </Modal.Body>
       <Modal.Footer>
         <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
@@ -335,26 +350,26 @@ const Modelling = (props: any) => {
   // Keep GitHub Settings modal closed by default; open explicitly via UI actions only.
 
   useEffect(() => {
-    if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
-    if (!props.phFocus?.focusRefresh?.id) return;
+    if (debug) useEfflog('163 Modelling useEffect 3 [phSource]', phSource)
+    if (!phFocus?.focusRefresh?.id) return;
     doRefresh();
-    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-  }, [props.phFocus?.focusRefresh?.id])
+    if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
+  }, [phFocus?.focusRefresh?.id])
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
+    if (debug) useEfflog('223 Modelling useEffect 4 [phFocus?.focusModelview.id]', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
+    if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.id);
     setRefresh(prev => !prev)
-  }, [props.phFocus?.focusRefresh?.id])
+  }, [phFocus?.focusRefresh?.id])
 
   useEffect(() => {
     const persistedProps = getPersistedState();
     setMemorySessionState(persistedProps)
     setMemoryLocState(persistedProps)
-  }, [props.phData, props.phFocus, props.phSource, props.phUser])
+  }, [phData, phFocus, phSource, phUser])
 
   function doRefresh() { // 
-    if (!debug) console.log('207 Modelling doRefresh', props);
+    if (!debug) console.log('207 Modelling doRefresh', compatibilityProps);
     const persistedProps = getPersistedState();
     setMemorySessionState(persistedProps)
     setMemoryLocState(persistedProps)
@@ -375,10 +390,6 @@ const Modelling = (props: any) => {
   };
 
   if (mount) {
-    let phFocus = props.phFocus;
-    let phData = props.phData
-    let phUser = props.phUser
-
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
 
@@ -746,12 +757,12 @@ const Modelling = (props: any) => {
     )
 
     if (debug) console.log('583 Modelling', activeTab);
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
 
     const modellingDiv = // this is the button row and the modelling area with OSDU import and load options and Reload button
       <>

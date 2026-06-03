@@ -11,14 +11,15 @@ import {
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 import { get } from 'http';
-import { selectSharedUniverseState } from '../sharedUniverse';
+import { bindLegacyUniverseDispatch, selectSharedUniverseState } from '../sharedUniverse';
 
 const debug = false;
 
 const Project = (props) => {
 
 
-  const dispatch = useDispatch();
+  const rawDispatch = useDispatch();
+  const dispatch = bindLegacyUniverseDispatch(rawDispatch);
   const projectModalRef = useRef(null);
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);

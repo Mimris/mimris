@@ -1,6 +1,7 @@
 import type { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import {
     loadLegacyUniverseSnapshot,
+    setUniverseDomain,
     setUniverseFocus,
     setUniversePhData,
     setUniverseSource,
@@ -22,6 +23,8 @@ export const toSharedUniverseAction = (action: AnyAction): AnyAction => {
             return setUniverseUser(action.data) as AnyAction;
         case 'LOAD_TOSTORE_PHSOURCE':
             return setUniverseSource(action.data) as AnyAction;
+        case 'UPDATE_DOMAIN_PROPERTIES':
+            return setUniverseDomain(action.data) as AnyAction;
         default:
             return action;
     }

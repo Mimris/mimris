@@ -44,6 +44,24 @@ export type LegacyUniverseSnapshot = {
 
 const EMPTY_DOCUMENTS: unknown[] = [];
 
+const mergeDomainPatch = (domain: unknown, patch: unknown) => {
+    if (
+        domain &&
+        patch &&
+        typeof domain === 'object' &&
+        typeof patch === 'object' &&
+        !Array.isArray(domain) &&
+        !Array.isArray(patch)
+    ) {
+        return {
+            ...(domain as Record<string, unknown>),
+            ...(patch as Record<string, unknown>),
+        };
+    }
+
+    return patch;
+};
+
 export const initialUniverseState: SharedUniverseState = {
     world: {
         worldDefinition: {
@@ -87,6 +105,7 @@ export const loadLegacyUniverseSnapshot = (snapshot: LegacyUniverseSnapshot) =>
 
 export const setUniverseState = createAction<SharedUniverseState>('universe/setUniverseState');
 export const setUniversePhData = createAction<LegacyPhData>('universe/setUniversePhData');
+export const setUniverseDomain = createAction<unknown>('universe/setUniverseDomain');
 export const setUniverseUser = createAction<unknown>('universe/setUniverseUser');
 export const setUniverseSource = createAction<unknown>('universe/setUniverseSource');
 export const setUniverseFocus = createAction<unknown>('universe/setUniverseFocus');
@@ -118,6 +137,18 @@ export const universeReducer = (
             compatibility: {
                 ...state.compatibility,
                 documents,
+            },
+        };
+    }
+    if (setUniverseDomain.match(action)) {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    domain: mergeDomainPatch(state.world.worldDefinition.domain, action.payload),
+                },
             },
         };
     }

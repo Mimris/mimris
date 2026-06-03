@@ -62,6 +62,40 @@ const mergeDomainPatch = (domain: unknown, patch: unknown) => {
     return patch;
 };
 
+const mergeObjectPatch = (value: unknown, patch: Record<string, unknown>) => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return {
+            ...(value as Record<string, unknown>),
+            ...patch,
+        };
+    }
+
+    return patch;
+};
+
+const legacyFocusFieldByActionType: Record<string, string> = {
+    SET_FOCUS_TAB: 'focusTab',
+    SET_FOCUS_MODEL: 'focusModel',
+    SET_FOCUS_MODELVIEW: 'focusModelview',
+    SET_FOCUS_TARGETMETAMODEL: 'focusTargetMetamodel',
+    SET_FOCUS_TARGETMODEL: 'focusTargetModel',
+    SET_FOCUS_TARGETMODELVIEW: 'focusTargetModelview',
+    SET_FOCUS_OBJECT: 'focusObject',
+    SET_FOCUS_OBJECTVIEW: 'focusObjectview',
+    SET_FOCUS_RELSHIP: 'focusRelship',
+    SET_FOCUS_RELSHIPVIEW: 'focusRelshipview',
+    SET_FOCUS_OBJECTTYPE: 'focusObjecttype',
+    SET_FOCUS_RELSHIPTYPE: 'focusRelshiptype',
+    SET_FOCUS_PROJ: 'focusProj',
+    SET_FOCUS_ORG: 'focusOrg',
+    SET_FOCUS_ROLE: 'focusRole',
+    SET_FOCUS_COLLECTION: 'focusCollection',
+    SET_FOCUS_TASK: 'focusTask',
+    SET_FOCUS_ISSUE: 'focusIssue',
+    SET_FOCUS_SOURCE: 'focusSource',
+    SET_FOCUS_REFRESH: 'focusRefresh',
+};
+
 export const initialUniverseState: SharedUniverseState = {
     world: {
         worldDefinition: {
@@ -170,6 +204,31 @@ export const universeReducer = (
             world: {
                 ...state.world,
                 focus: action.payload,
+            },
+        };
+    }
+    if (action.type === 'SET_FOCUS_PHFOCUS') {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                focus: action.data,
+            },
+        };
+    }
+    if (action.type === 'SET_FOCUS_USER') {
+        return {
+            ...state,
+            user: mergeObjectPatch(state.user, { focusUser: action.data }),
+        };
+    }
+    const legacyFocusField = legacyFocusFieldByActionType[action.type];
+    if (legacyFocusField) {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                focus: mergeObjectPatch(state.world.focus, { [legacyFocusField]: action.data }),
             },
         };
     }

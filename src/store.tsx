@@ -3,6 +3,9 @@ import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
     buildUniverseStateFromLegacy,
+    setUniverseState,
+    setUniverseSource,
+    setUniverseUser,
     universeReducer,
     type LegacyUniverseRoot,
     type SharedUniverseState,
@@ -14,15 +17,50 @@ type RootReducerState = LegacyUniverseRoot & {
 
 const reduceLegacyState = legacyReducer as (state: LegacyUniverseRoot | undefined, action: AnyAction) => LegacyUniverseRoot;
 
+const mirrorUniverseToLegacy = (
+    legacyState: LegacyUniverseRoot,
+    universe: SharedUniverseState,
+): LegacyUniverseRoot => ({
+    ...legacyState,
+    phData: {
+        ...legacyState.phData,
+        ...(universe.world.worldDefinition.domain !== null && universe.world.worldDefinition.domain !== undefined
+            ? { domain: universe.world.worldDefinition.domain }
+            : {}),
+        ...(universe.world.worldModel.metis !== null && universe.world.worldModel.metis !== undefined
+            ? { metis: universe.world.worldModel.metis }
+            : {}),
+        ...(Array.isArray(universe.compatibility.documents)
+            ? { documents: universe.compatibility.documents }
+            : {}),
+    },
+    ...(universe.world.focus !== null && universe.world.focus !== undefined
+        ? { phFocus: universe.world.focus }
+        : {}),
+    ...(universe.user !== null && universe.user !== undefined
+        ? { phUser: universe.user }
+        : {}),
+    ...(universe.source !== null && universe.source !== undefined
+        ? { phSource: universe.source }
+        : {}),
+});
+
 const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
     const legacyState = reduceLegacyState(state, action);
     const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
     const nextUniverse = action.type.startsWith('universe/')
         ? universeReducer(previousUniverse, action)
         : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
+    const nextLegacyState = (
+        setUniverseState.match(action) ||
+        setUniverseUser.match(action) ||
+        setUniverseSource.match(action)
+    )
+        ? mirrorUniverseToLegacy(legacyState, nextUniverse)
+        : legacyState;
 
     return {
-        ...legacyState,
+        ...nextLegacyState,
         universe: nextUniverse,
     } as RootReducerState;
 };

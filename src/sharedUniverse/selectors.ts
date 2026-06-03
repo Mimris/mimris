@@ -1,3 +1,4 @@
+import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { LegacyUniverseRoot, SharedUniverseState } from './universeSlice';
 
@@ -15,32 +16,58 @@ export const selectPhSource = (state: RootState | LegacyUniverseRoot) => asLegac
 
 export const selectWorldDefinitionDomain = (state: RootState | LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.world?.worldDefinition?.domain ?? null;
+    return legacyRoot.universe?.world?.worldDefinition?.domain ?? legacyRoot.phData?.domain ?? null;
 };
 
 export const selectWorldModelMetis = (state: RootState | LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.world?.worldModel?.metis ?? null;
+    return legacyRoot.universe?.world?.worldModel?.metis ?? legacyRoot.phData?.metis ?? null;
 };
 
-export const selectSharedUniverseState = (state: RootState | LegacyUniverseRoot): SharedUniverseState => {
-    const phData = selectPhData(state);
-    const documents = Array.isArray(phData?.documents) ? phData.documents : EMPTY_DOCUMENTS;
+const selectUniverseFocus = (state: RootState | LegacyUniverseRoot) => {
+    const legacyRoot = asLegacyRoot(state);
+    return legacyRoot.universe?.world?.focus ?? legacyRoot.phFocus ?? null;
+};
 
-    return {
+const selectUniverseUser = (state: RootState | LegacyUniverseRoot) => {
+    const legacyRoot = asLegacyRoot(state);
+    return legacyRoot.universe?.user ?? legacyRoot.phUser ?? null;
+};
+
+const selectUniverseSource = (state: RootState | LegacyUniverseRoot) => {
+    const legacyRoot = asLegacyRoot(state);
+    return legacyRoot.universe?.source ?? legacyRoot.phSource ?? null;
+};
+
+const selectCompatibilityDocuments = (state: RootState | LegacyUniverseRoot) => {
+    const legacyRoot = asLegacyRoot(state);
+    const documents = legacyRoot.universe?.compatibility?.documents ?? legacyRoot.phData?.documents;
+    return Array.isArray(documents) ? documents : EMPTY_DOCUMENTS;
+};
+
+export const selectSharedUniverseState = createSelector(
+    [
+        selectWorldDefinitionDomain,
+        selectWorldModelMetis,
+        selectUniverseFocus,
+        selectUniverseUser,
+        selectUniverseSource,
+        selectCompatibilityDocuments,
+    ],
+    (domain, metis, focus, user, source, documents): SharedUniverseState => ({
         world: {
             worldDefinition: {
-                domain: selectWorldDefinitionDomain(state),
+                domain,
             },
             worldModel: {
-                metis: selectWorldModelMetis(state),
+                metis,
             },
-            focus: selectPhFocus(state) ?? null,
+            focus,
         },
-        user: selectPhUser(state) ?? null,
-        source: selectPhSource(state) ?? null,
+        user,
+        source,
         compatibility: {
             documents,
         },
-    };
-};
+    }),
+);

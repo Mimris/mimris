@@ -3,18 +3,12 @@
 
 // import React from "react";
 import React from "react";
-import Link from 'next/link';
-import { connect } from 'react-redux';
 import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
-import { toNamespacedPath } from "path";
 
 import Page from './page';
-import Blog from './Blog'
-import GettingStarted from "./content/GettingStarted";
-import Project from "../components/Project";
 
 
 const page = (props) => {
@@ -514,4 +508,4 @@ const page = (props) => {
   )
 
 }
-export default Page(connect(state => state)(page));
+export default Page(page);

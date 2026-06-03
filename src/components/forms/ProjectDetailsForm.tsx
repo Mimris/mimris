@@ -8,6 +8,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { setFocusIssue } from "@/actions/actions";
+import { setUniverseSource } from "../../sharedUniverse";
 
 
 // import { SaveModelToLocState } from "../utils/SaveModelToLocState";
@@ -74,7 +75,7 @@ function ProjectDetailsForm(props: any) {
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
     console.log("79 ProjectDetailsForm", data, datasource);
     dispatch({ type: 'SET_FOCUS_PROJ', data });
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: file });
+    dispatch(setUniverseSource(file));
 
     const timer = setTimeout(() => {
       console.log("44 ProjectDetailsForm", props.props.phFocus);
@@ -89,7 +90,7 @@ function ProjectDetailsForm(props: any) {
     // setProjectName(props.props.phFocus.focusProj.name);
     const data = `${file}`
     // const data = `${projectName}_PR`
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data }) // setting the new project source filename
+    dispatch(setUniverseSource(data)) // setting the new project source filename
     console.log("ProjectDetailsForm 100", file);
     SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, file, '_PR')
   }

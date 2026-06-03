@@ -1,5 +1,6 @@
 
 import { useDispatch } from 'react-redux';
+import { loadLegacyUniverseSnapshot } from '../../sharedUniverse';
 // import { loadState } from './LocalStorage'
 
 
@@ -15,18 +16,10 @@ const DispatchFromLocalStore = (props: any) => {
     // console.log('15 DispatchFromLocalStore', phData, phFocus, phUser, phSource);
 
     if (phData && phFocus && phUser && phSource) {
-      let data = phData
-      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-      data = phFocus
-      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-      data = phUser
-      dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
-      data = phSource
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+      dispatch(loadLegacyUniverseSnapshot({ phData, phFocus, phUser, phSource }))
     } 
   }
 } 
 export default DispatchFromLocalStore;
-
 
 

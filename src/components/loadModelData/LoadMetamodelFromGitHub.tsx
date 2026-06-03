@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 import Select from '../utils/Select';
 import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from '../githubServices/githubService';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { setUniversePhData } from '../../sharedUniverse';
 
 // import  Search  from './Search';
 // import TextInput from '../utils/TextInput';
@@ -225,7 +226,7 @@ const LoadMetamodelFromGithub = (props: any) => {
           },
         };
         if (debug) console.log('166 ', data)
-        if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phData) dispatch(setUniversePhData(data.phData))
       }
 
       // GenGojsModel(data.phData, dispatch)
@@ -359,4 +360,3 @@ const LoadMetamodelFromGithub = (props: any) => {
 }
 
 export default LoadMetamodelFromGithub;
-

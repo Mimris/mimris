@@ -11,6 +11,7 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { loadLegacyUniverseSnapshot, setUniversePhData } from '../../sharedUniverse';
 // import { load } from 'cheerio';
 
 const debug = false
@@ -202,7 +203,7 @@ const LoadGitHub = (props: any) => {
           },
         };
         if (debug) console.log('166 ', data)
-        if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phData) dispatch(setUniversePhData(data.phData))
       } else if (filename.includes('_MO.json')) { // Todo: check if it is only model  
         const newmodel = projFile as { id: string };; // model is a metamodel
         let newmindex = props.ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
@@ -224,7 +225,7 @@ const LoadGitHub = (props: any) => {
           },
         };
         if (debug) console.log('226 ', data)
-        if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phData) dispatch(setUniversePhData(data.phData))
       } else {// it is a Project file
         const data = {
           phData: {
@@ -253,10 +254,7 @@ const LoadGitHub = (props: any) => {
           // phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
         if (debug) console.log('255', data)
-        if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-        if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-        if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-        if (data.phSource) dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+        dispatch(loadLegacyUniverseSnapshot(data))
       }
     }
   }
@@ -456,4 +454,3 @@ const LoadGitHub = (props: any) => {
 }
 
 export default LoadGitHub;
-

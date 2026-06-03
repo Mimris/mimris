@@ -17,6 +17,7 @@ import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./export/ReportModule";
 import * as uib from '../akmm/ui_buildmodels';
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
+import { loadLegacyUniverseSnapshot } from "../sharedUniverse";
 
 import classnames from 'classnames';
 
@@ -149,10 +150,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
     const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
 
     function dispatchLocalStore(locStore) {
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+        dispatch(loadLegacyUniverseSnapshot(locStore))
     }
 
     // Function to toggle the expanded state

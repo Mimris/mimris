@@ -3,6 +3,7 @@ import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
     buildUniverseStateFromLegacy,
+    setUniversePhData,
     setUniverseState,
     setUniverseSource,
     setUniverseFocus,
@@ -54,6 +55,7 @@ const rootReducer = (state: RootReducerState | undefined, action: AnyAction): Ro
         : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
     const nextLegacyState = (
         setUniverseState.match(action) ||
+        setUniversePhData.match(action) ||
         setUniverseUser.match(action) ||
         setUniverseSource.match(action) ||
         setUniverseFocus.match(action)

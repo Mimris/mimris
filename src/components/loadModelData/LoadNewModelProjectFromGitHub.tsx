@@ -8,6 +8,7 @@ import Select from '../utils/Select';
 import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from '../githubServices/githubService';
 // import { loadDataModel } from '../../actions/actions';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { loadLegacyUniverseSnapshot } from '../../sharedUniverse';
 // import GenGojsModel from '../GenGojsModel';
 
 const debug = false
@@ -175,10 +176,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
         phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
       }
       if ((debug)) console.log('154', data)
-      if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-      if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-      if (data.phSource) dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+      dispatch(loadLegacyUniverseSnapshot(data))
       // }
       // GenGojsModel(data.phData, dispatch)
     }
@@ -307,4 +305,3 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 }
 
 export default LoadNewModelProjectFromGitHub;
-

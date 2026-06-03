@@ -12,6 +12,12 @@ export type LegacyUniverseRoot = {
     phSource?: unknown;
 };
 
+type LegacyPhData = {
+    domain?: unknown;
+    metis?: unknown;
+    documents?: unknown;
+};
+
 export type SharedUniverseState = {
     world: {
         worldDefinition: {
@@ -80,6 +86,7 @@ export const loadLegacyUniverseSnapshot = (snapshot: LegacyUniverseSnapshot) =>
     setUniverseState(buildUniverseStateFromLegacy(snapshot as LegacyUniverseRoot));
 
 export const setUniverseState = createAction<SharedUniverseState>('universe/setUniverseState');
+export const setUniversePhData = createAction<LegacyPhData>('universe/setUniversePhData');
 export const setUniverseUser = createAction<unknown>('universe/setUniverseUser');
 export const setUniverseSource = createAction<unknown>('universe/setUniverseSource');
 export const setUniverseFocus = createAction<unknown>('universe/setUniverseFocus');
@@ -89,6 +96,30 @@ export const universeReducer = (
     action: AnyAction,
 ): SharedUniverseState => {
     if (setUniverseState.match(action)) return action.payload;
+    if (setUniversePhData.match(action)) {
+        const documents = Array.isArray(action.payload?.documents)
+            ? action.payload.documents
+            : state.compatibility.documents;
+
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    ...(action.payload?.domain !== undefined ? { domain: action.payload.domain } : {}),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    ...(action.payload?.metis !== undefined ? { metis: action.payload.metis } : {}),
+                },
+            },
+            compatibility: {
+                ...state.compatibility,
+                documents,
+            },
+        };
+    }
     if (setUniverseUser.match(action)) {
         return {
             ...state,

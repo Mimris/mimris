@@ -34,7 +34,7 @@ import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
-import { selectSharedUniverseState } from "../sharedUniverse";
+import { bindLegacyUniverseDispatch, selectSharedUniverseState } from "../sharedUniverse";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -69,7 +69,8 @@ const Modelling = (props: any) => {
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
   if (debug) console.log('55 Modelling:', props)//, props);        
-  const dispatch = useDispatch();
+  const rawDispatch = useDispatch();
+  const dispatch = useMemo(() => bindLegacyUniverseDispatch(rawDispatch), [rawDispatch]);
   const store = useStore();
 
   const projectModalRef = useRef(null);

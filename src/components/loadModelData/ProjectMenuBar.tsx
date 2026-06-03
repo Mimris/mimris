@@ -39,7 +39,6 @@ export const ProjectMenuBar = (props: any) => {
     const router = useRouter(); // Initialize router
     if (!props.phData) return null;
     const project = props.phData.metis;
-    const domain = props.phData.domain;
     const source = props.phSource;
     const activeMetisScope = normalizeMetisScope(getWorkspaceSnapshotMeta(props.phUser)?.activeMetisScope);
     const metisScopeOptions = getMetisScopeOptions();

@@ -1,10 +1,9 @@
 // @ts-nocheck
-// Index.tsx
+// About.tsx
 
 // import React from "react";
 import React from "react";
 import Link from 'next/link';
-import { connect } from 'react-redux';
 import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
@@ -258,5 +257,4 @@ const page = (props) => {
   )
 
 }
-export default Page(connect(state => state)(page));
-
+export default Page(page);

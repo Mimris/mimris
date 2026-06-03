@@ -179,6 +179,163 @@ const sanitizeModelviewPatch = (patch: Record<string, unknown>) => {
     return sanitizedPatch;
 };
 
+const OPTIONAL_OBJECTVIEW_FIELDS = [
+    'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+    'group', 'groupLayout', 'icomStyle',
+    'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor2', 'strokewidth',
+    'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+    'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+    'size', 'scale',
+];
+
+const OPTIONAL_RELSHIPVIEW_FIELDS = [
+    'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+    'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+    'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor',
+];
+
+const mergeAndPruneOptionalEmptyFields = (
+    currentItem: Record<string, any> | undefined,
+    patch: Record<string, unknown>,
+    optionalFields: string[],
+) => {
+    const merged = {
+        ...(currentItem || {}),
+        ...patch,
+    };
+
+    optionalFields.forEach((field) => {
+        if (!Object.prototype.hasOwnProperty.call(patch, field)) {
+            if (merged[field] === undefined || merged[field] === null || merged[field] === '') {
+                delete merged[field];
+            }
+        }
+    });
+
+    return merged;
+};
+
+const updateCurrentModelCollection = (
+    state: SharedUniverseState,
+    collectionName: 'objects' | 'relships',
+    patch: Record<string, unknown>,
+) => {
+    const metis = asRecord(state.world.worldModel.metis);
+    const models: any[] = Array.isArray(metis.models) ? metis.models : [];
+    if (!models.length) return state;
+
+    const focus = asRecord(state.world.focus);
+    const modelIndex = findModelIndex(models, focus);
+    const model = models[modelIndex];
+    if (!model) return state;
+
+    const collection: any[] = Array.isArray(model?.[collectionName]) ? model[collectionName] : [];
+    const itemIndex = patch.id
+        ? collection.findIndex((item) => item?.id === patch.id)
+        : -1;
+    const targetIndex = itemIndex >= 0 ? itemIndex : collection.length;
+    const nextCollection = replaceArrayItem(collection, targetIndex, {
+        ...(collection[targetIndex] || {}),
+        ...patch,
+    });
+    const nextModels = replaceArrayItem(models, modelIndex, {
+        ...model,
+        [collectionName]: nextCollection,
+    });
+
+    return updateMetis(state, {
+        ...metis,
+        models: nextModels,
+    });
+};
+
+const findModelviewForItem = (
+    models: any[],
+    collectionName: 'objectviews' | 'relshipviews',
+    itemId?: string,
+    focus?: Record<string, any>,
+) => {
+    const focusedModelIndex = findModelIndex(models, focus || {});
+    const focusedModel = models[focusedModelIndex];
+    const focusedModelviews: any[] = Array.isArray(focusedModel?.modelviews) ? focusedModel.modelviews : [];
+    const focusedModelviewIndex = focus?.focusModelview?.id
+        ? focusedModelviews.findIndex((modelview) => modelview?.id === focus.focusModelview.id)
+        : 0;
+    const normalizedFocusedModelviewIndex = focusedModelviewIndex >= 0 ? focusedModelviewIndex : 0;
+    const focusedModelview = focusedModelviews[normalizedFocusedModelviewIndex];
+    const focusedCollection: any[] = Array.isArray(focusedModelview?.[collectionName])
+        ? focusedModelview[collectionName]
+        : [];
+    const focusedItemIndex = itemId
+        ? focusedCollection.findIndex((item) => item?.id === itemId)
+        : -1;
+    if (focusedItemIndex >= 0 || !itemId) {
+        return {
+            modelIndex: focusedModelIndex,
+            modelviewIndex: normalizedFocusedModelviewIndex,
+            itemIndex: focusedItemIndex,
+        };
+    }
+
+    for (let modelIndex = 0; modelIndex < models.length; modelIndex += 1) {
+        const modelviews: any[] = Array.isArray(models[modelIndex]?.modelviews)
+            ? models[modelIndex].modelviews
+            : [];
+        for (let modelviewIndex = 0; modelviewIndex < modelviews.length; modelviewIndex += 1) {
+            const collection: any[] = Array.isArray(modelviews[modelviewIndex]?.[collectionName])
+                ? modelviews[modelviewIndex][collectionName]
+                : [];
+            const itemIndex = collection.findIndex((item) => item?.id === itemId);
+            if (itemIndex >= 0) return { modelIndex, modelviewIndex, itemIndex };
+        }
+    }
+
+    return {
+        modelIndex: focusedModelIndex,
+        modelviewIndex: normalizedFocusedModelviewIndex,
+        itemIndex: -1,
+    };
+};
+
+const updateModelviewCollection = (
+    state: SharedUniverseState,
+    collectionName: 'objectviews' | 'relshipviews',
+    patch: Record<string, unknown>,
+    optionalFields: string[],
+) => {
+    const metis = asRecord(state.world.worldModel.metis);
+    const models: any[] = Array.isArray(metis.models) ? metis.models : [];
+    if (!models.length) return state;
+
+    const focus = asRecord(state.world.focus);
+    const target = findModelviewForItem(models, collectionName, patch.id as string | undefined, focus);
+    const model = models[target.modelIndex];
+    const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+    const modelview = modelviews[target.modelviewIndex];
+    if (!model || !modelview) return state;
+
+    const collection: any[] = Array.isArray(modelview?.[collectionName]) ? modelview[collectionName] : [];
+    const targetIndex = target.itemIndex >= 0 ? target.itemIndex : collection.length;
+    const nextCollection = replaceArrayItem(
+        collection,
+        targetIndex,
+        mergeAndPruneOptionalEmptyFields(collection[targetIndex], patch, optionalFields),
+    );
+    const nextModelviews = replaceArrayItem(modelviews, target.modelviewIndex, {
+        ...modelview,
+        [collectionName]: nextCollection,
+    });
+    const nextModels = replaceArrayItem(models, target.modelIndex, {
+        ...model,
+        modelviews: nextModelviews,
+    });
+
+    return updateMetis(state, {
+        ...metis,
+        models: nextModels,
+    });
+};
+
 export const initialUniverseState: SharedUniverseState = {
     world: {
         worldDefinition: {
@@ -403,6 +560,28 @@ export const universeReducer = (
             ...metis,
             models: nextModels,
         });
+    }
+    if (action.type === 'UPDATE_OBJECT_PROPERTIES') {
+        return updateCurrentModelCollection(state, 'objects', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_RELSHIP_PROPERTIES') {
+        return updateCurrentModelCollection(state, 'relships', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES') {
+        return updateModelviewCollection(
+            state,
+            'objectviews',
+            asRecord(action.data),
+            OPTIONAL_OBJECTVIEW_FIELDS,
+        );
+    }
+    if (action.type === 'UPDATE_RELSHIPVIEW_PROPERTIES') {
+        return updateModelviewCollection(
+            state,
+            'relshipviews',
+            asRecord(action.data),
+            OPTIONAL_RELSHIPVIEW_FIELDS,
+        );
     }
     return state;
 };

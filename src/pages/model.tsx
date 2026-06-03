@@ -11,6 +11,7 @@ import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemote
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
+import { buildUniverseStateFromLegacy, setUniverseState, setUniverseUser } from '../sharedUniverse';
 
 const page = (props: any) => {
     const dispatch = useDispatch();
@@ -64,10 +65,7 @@ const page = (props: any) => {
     });
     const dispatchLoadedState = (snapshot: any) => {
         const normalized = normalizeSnapshotData(snapshot);
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalized.phData });
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: normalized.phFocus });
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: normalized.phUser });
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: normalized.phSource });
+        dispatch(setUniverseState(buildUniverseStateFromLegacy(normalized)));
     };
     const resolveUniverseIdFromLibrarySlug = async (slug: string, baseUrl: string) => {
         if (!slug) return '';
@@ -330,10 +328,7 @@ const page = (props: any) => {
                 universeId: result.id,
                 universeApiBaseUrl: result.baseUrl,
             });
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: adaptedState,
-            });
+            dispatch(setUniverseState(buildUniverseStateFromLegacy(adaptedState)));
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
             setSaveStatus('Saved to server');
         } catch (error: any) {
@@ -401,7 +396,7 @@ const page = (props: any) => {
                 const username = typeof data?.username === 'string' && data.username
                     ? data.username.charAt(0).toUpperCase() + data.username.slice(1)
                     : 'Guest';
-                dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { ...props.phUser, focusUser: { name: username } } });
+                dispatch(setUniverseUser({ ...props.phUser, focusUser: { name: username } }));
             } catch (error) {
                 console.error('Error fetching username:', error);
             }

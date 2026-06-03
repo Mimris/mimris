@@ -22,6 +22,7 @@ import Issues from "../components/Issues";
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import { createSnapshotShare } from "../components/utils/focusShare";
+import { loadLegacyUniverseSnapshot, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -59,10 +60,12 @@ const Page1 = (props: any) => {
       focusModel: focusModel || null,
       focusModelview: focusModelview,
     }
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+    dispatch(loadLegacyUniverseSnapshot({
+      phData,
+      phFocus,
+      phSource: locStore.phSource,
+      phUser: locStore.phUser,
+    }))
   }
 
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
@@ -158,7 +161,7 @@ const Page1 = (props: any) => {
           const githubData = await res?.data
           const sha = await res?.data.sha
           if (debug) console.log('145 modelling githubData:', githubData, sha)
-          dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
+          dispatch(loadLegacyUniverseSnapshot(githubData))
           const timer = setTimeout(() => {
             setRefresh(!refresh);
           }, 200);
@@ -179,7 +182,7 @@ const Page1 = (props: any) => {
               focusTask: params.focusTask,
             },
           };
-          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+          if (data?.phFocus) dispatch(setUniverseFocus(data.phFocus))
         } else {
           org = props.phFocus.focusProj.org;
           repo = props.phFocus.focusProj.repo;
@@ -210,7 +213,7 @@ const Page1 = (props: any) => {
         const data = await response.json();
         data.username = data.username.charAt(0).toUpperCase() + data.username.slice(1);
         console.log('Current Username:', data.username);
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { focusUser: { name: data.username } } })
+        dispatch(setUniverseUser({ focusUser: { name: data.username } }))
       } catch (error) {
         console.error('Error fetching username:', error);
       }

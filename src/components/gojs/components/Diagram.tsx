@@ -52,6 +52,7 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { i } from '../../utils/SvgLetters';
+import { bindLegacyUniverseDispatch } from '../../../sharedUniverse';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -2238,7 +2239,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // This is necessary because updating myMetis.gojsModel doesn't change the array reference,
     // so React's componentDidUpdate never fires. The wrapper bypasses this by directly updating
     // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
-    const originalDispatch = this.props.dispatch || this.myMetis?.dispatch;
+    const originalDispatch = bindLegacyUniverseDispatch(this.props.dispatch || this.myMetis?.dispatch);
     const wrappedDispatch = (action: any) => {
       // Intercept view property updates for immediate visual feedback
       if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {

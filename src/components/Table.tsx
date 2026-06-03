@@ -15,6 +15,7 @@ import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
 import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
+import { selectSharedUniverseState } from '../sharedUniverse';
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
@@ -25,13 +26,16 @@ const page = (props:any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
-  // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
-  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
-  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
-  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
-  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
-  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis;
+  const phFocus = sharedUniverse.world.focus;
+  const phSource = sharedUniverse.source;
+  let focusModel = phFocus?.focusModel;
+  let focusModelview = phFocus?.focusModelview;
+  const focusObjectview = phFocus?.focusObjectview;
+  const focusRelshipview = phFocus?.focusRelshipview;
+  const focusObjecttype = phFocus?.focusObjecttype;
+  const focusRelshiptype = phFocus?.focusRelshiptype;
   // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
@@ -44,19 +48,17 @@ const page = (props:any) => {
 
   if (debug) console.log('49 Modelling', gojsmodel, gojsmodelobjects, props);
   
-  let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
-  let phFocus = props.phFocus;
-  let phData = props.phData
+  let phData = { ...props.phData, metis }
 
-  const models = props.phData?.metis.models
-  const focusModelId = props.phFocus?.focusModel.id
+  const models = metis?.models
+  const focusModelId = focusModel?.id
   const curmod = models?.find(m => m.id === focusModelId)
 
-  if (debug)console.log('61 Table', curmod, focusModelId, models, props.phFocus);
+  if (debug)console.log('61 Table', curmod, focusModelId, models, phFocus);
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 
@@ -145,7 +147,7 @@ const page = (props:any) => {
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-              Current source: {props.phSource}
+              Current source: {phSource}
           </span> 
           {/* <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} {loadlocal}  

@@ -8,9 +8,9 @@ import { InitialState } from '../reducers/reducer';
 import { normalizeGithubSource, readShareQueryValue } from '../components/utils/focusShare';
 import { readJsonResponse, readJsonResponseError } from '../components/utils/httpResponse';
 import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemoteUniverseBaseUrl, readRemoteUniverseId, readRemoteUniverseSlug } from '../components/utils/remoteUniverse';
-import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
+import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
-import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
+import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
 import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
 
 const page = (props: any) => {
@@ -24,6 +24,7 @@ const page = (props: any) => {
     const [saveStatus, setSaveStatus] = useState('');
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
+    const [fetchedUsername, setFetchedUsername] = useState<string | null>(null);
     const sharedUniverse = useSelector(selectSharedUniverseState);
     const phFocus = sharedUniverse.world.focus ?? props.phFocus;
     const phUser = sharedUniverse.user ?? props.phUser;
@@ -45,9 +46,6 @@ const page = (props: any) => {
     const universeName = phFocus?.focusProj?.name || '';
     const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
-    const workspaceMeta = getWorkspaceSnapshotMeta(phUser);
-    const activeMetisScope = normalizeMetisScope(workspaceMeta?.activeMetisScope);
-    const metisAvailability = describeMetisAvailability(workspaceMeta?.snapshot);
     const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
     const normalizeModels = (items: any) => Array.isArray(items) ? items.filter(Boolean) : [];
@@ -414,7 +412,7 @@ const page = (props: any) => {
                 const username = typeof data?.username === 'string' && data.username
                     ? data.username.charAt(0).toUpperCase() + data.username.slice(1)
                     : 'Guest';
-                dispatch(setUniverseUser({ ...phUser, focusUser: { name: username } }));
+                setFetchedUsername(username);
             } catch (error) {
                 console.error('Error fetching username:', error);
             }
@@ -422,6 +420,19 @@ const page = (props: any) => {
 
         fetchUsername();
     }, []);
+
+    useEffect(() => {
+        if (!fetchedUsername) return;
+        if (phUser?.focusUser?.name === fetchedUsername) return;
+
+        dispatch(setUniverseUser({
+            ...(phUser || {}),
+            focusUser: {
+                ...(phUser?.focusUser || {}),
+                name: fetchedUsername,
+            },
+        }));
+    }, [dispatch, fetchedUsername, phUser]);
 
     useEffect(() => {
         if (!hasMounted) return;

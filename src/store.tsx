@@ -50,8 +50,9 @@ const mirrorUniverseToLegacy = (
 const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
     const legacyState = reduceLegacyState(state, action);
     const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
-    const nextUniverse = action.type.startsWith('universe/')
-        ? universeReducer(previousUniverse, action)
+    const reducedUniverse = universeReducer(previousUniverse, action);
+    const nextUniverse = reducedUniverse !== previousUniverse
+        ? reducedUniverse
         : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
     const nextLegacyState = (
         setUniverseState.match(action) ||

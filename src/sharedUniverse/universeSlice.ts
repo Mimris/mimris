@@ -97,8 +97,9 @@ export const universeReducer = (
 ): SharedUniverseState => {
     if (setUniverseState.match(action)) return action.payload;
     if (setUniversePhData.match(action)) {
-        const documents = Array.isArray(action.payload?.documents)
-            ? action.payload.documents
+        const payload = action.payload as LegacyPhData;
+        const documents = Array.isArray(payload?.documents)
+            ? payload.documents
             : state.compatibility.documents;
 
         return {
@@ -107,11 +108,11 @@ export const universeReducer = (
                 ...state.world,
                 worldDefinition: {
                     ...state.world.worldDefinition,
-                    ...(action.payload?.domain !== undefined ? { domain: action.payload.domain } : {}),
+                    ...(payload?.domain !== undefined ? { domain: payload.domain } : {}),
                 },
                 worldModel: {
                     ...state.world.worldModel,
-                    ...(action.payload?.metis !== undefined ? { metis: action.payload.metis } : {}),
+                    ...(payload?.metis !== undefined ? { metis: payload.metis } : {}),
                 },
             },
             compatibility: {

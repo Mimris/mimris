@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import React, { useMemo, useState, useEffect } from 'react';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modelling from '../components/Modelling';
 import Layout from '../components/Layout';
@@ -11,7 +11,7 @@ import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemote
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
-import { buildUniverseStateFromLegacy, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
 
 const page = (props: any) => {
     const dispatch = useDispatch();
@@ -24,10 +24,28 @@ const page = (props: any) => {
     const [saveStatus, setSaveStatus] = useState('');
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
-    const universeName = props.phFocus?.focusProj?.name || '';
-    const metisSuiteName = props.phData?.metis?.name || '';
+    const sharedUniverse = useSelector(selectSharedUniverseState);
+    const phFocus = sharedUniverse.world.focus ?? props.phFocus;
+    const phUser = sharedUniverse.user ?? props.phUser;
+    const phSource = sharedUniverse.source ?? props.phSource;
+    const metis = sharedUniverse.world.worldModel.metis ?? props.phData?.metis;
+    const phData = useMemo(() => ({
+        ...props.phData,
+        domain: sharedUniverse.world.worldDefinition.domain ?? props.phData?.domain,
+        metis,
+        documents: sharedUniverse.compatibility.documents ?? props.phData?.documents,
+    }), [props.phData, sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
+    const compatibilityProps = useMemo(() => ({
+        ...props,
+        phData,
+        phFocus,
+        phUser,
+        phSource,
+    }), [props, phData, phFocus, phUser, phSource]);
+    const universeName = phFocus?.focusProj?.name || '';
+    const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
-    const workspaceMeta = getWorkspaceSnapshotMeta(props.phUser);
+    const workspaceMeta = getWorkspaceSnapshotMeta(phUser);
     const activeMetisScope = normalizeMetisScope(workspaceMeta?.activeMetisScope);
     const metisAvailability = describeMetisAvailability(workspaceMeta?.snapshot);
     const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
@@ -149,12 +167,12 @@ const page = (props: any) => {
             resolvedModelviews.find((modelview: any) => modelview?.id === requestedModelviewRef || modelview?.name === requestedModelviewRef) ||
             resolvedModelviews[0] ||
             null;
-        const projectName = props.phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
+        const projectName = phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
 
         return {
             phData: {
                 ...InitialState.phData,
-                ...props.phData,
+                ...phData,
                 metis: {
                     ...normalizedMetis,
                     models,
@@ -163,31 +181,31 @@ const page = (props: any) => {
             },
             phFocus: {
                 ...InitialState.phFocus,
-                ...props.phFocus,
+                ...phFocus,
                 focusProj: {
                     ...InitialState.phFocus.focusProj,
-                    ...props.phFocus?.focusProj,
+                    ...phFocus?.focusProj,
                     name: projectName,
                     file: options.remoteUri || options.universeSlug || options.universeId || '',
-                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
-                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                    universeId: options.universeId || phFocus?.focusProj?.universeId || '',
+                    universeApiBaseUrl: options.baseUrl || phFocus?.focusProj?.universeApiBaseUrl || '',
                 },
                 focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
                 focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
             },
             phUser: {
                 ...InitialState.phUser,
-                ...props.phUser,
+                ...phUser,
                 __workspaceUniverse: {
-                    ...(props.phUser?.__workspaceUniverse || {}),
+                    ...(phUser?.__workspaceUniverse || {}),
                     activeMetisScope: normalizeMetisScope(options.metisScope),
                     remoteModelUri: options.remoteUri || '',
-                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
+                    universeId: options.universeId || phFocus?.focusProj?.universeId || '',
                     universeSlug: options.universeSlug || '',
-                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                    universeApiBaseUrl: options.baseUrl || phFocus?.focusProj?.universeApiBaseUrl || '',
                 },
             },
-            phSource: options.remoteUri || options.universeSlug || options.universeId || props.phSource,
+            phSource: options.remoteUri || options.universeSlug || options.universeId || phSource,
         };
     };
     const resolveUniverseSlugFromLibraryId = async (universeId: string, baseUrl: string) => {
@@ -299,10 +317,10 @@ const page = (props: any) => {
         return nextState;
     };
     const canSaveRemote = Boolean(
-        props.phFocus?.focusProj?.universeId ||
-        props.phFocus?.focusProj?.universeApiBaseUrl ||
-        props.phUser?.__workspaceUniverse?.universeId ||
-        props.phUser?.__workspaceUniverse?.universeApiBaseUrl,
+        phFocus?.focusProj?.universeId ||
+        phFocus?.focusProj?.universeApiBaseUrl ||
+        phUser?.__workspaceUniverse?.universeId ||
+        phUser?.__workspaceUniverse?.universeApiBaseUrl,
     );
     const clearStoredFocusModel = () => {
         if (typeof window === 'undefined') return;
@@ -317,14 +335,14 @@ const page = (props: any) => {
         setSaveStatus('');
         try {
             const result = await saveRemoteUniverseProject({
-                phData: props.phData,
-                phFocus: props.phFocus,
-                phSource: props.phSource,
-                phUser: props.phUser,
+                phData,
+                phFocus,
+                phSource,
+                phUser,
             });
             const adaptedState = buildMimrisStateFromWorkspaceSnapshot(result.snapshot, {
-                sourceName: result.snapshot?.focus?.project?.name || props.phFocus?.focusProj?.name || result.id,
-                sourcePath: result.snapshot?.focus?.project?.file || props.phFocus?.focusProj?.file || result.id,
+                sourceName: result.snapshot?.focus?.project?.name || phFocus?.focusProj?.name || result.id,
+                sourcePath: result.snapshot?.focus?.project?.file || phFocus?.focusProj?.file || result.id,
                 universeId: result.id,
                 universeApiBaseUrl: result.baseUrl,
             });
@@ -396,7 +414,7 @@ const page = (props: any) => {
                 const username = typeof data?.username === 'string' && data.username
                     ? data.username.charAt(0).toUpperCase() + data.username.slice(1)
                     : 'Guest';
-                dispatch(setUniverseUser({ ...props.phUser, focusUser: { name: username } }));
+                dispatch(setUniverseUser({ ...phUser, focusUser: { name: username } }));
             } catch (error) {
                 console.error('Error fetching username:', error);
             }
@@ -565,7 +583,7 @@ const page = (props: any) => {
         pendingProjectId ||
         (pendingGithubOrg && pendingGithubRepo && pendingGithubFile)
     );
-    const hasRenderableModels = Array.isArray(props.phData?.metis?.models) && props.phData.metis.models.some(Boolean);
+    const hasRenderableModels = Array.isArray(phData?.metis?.models) && phData.metis.models.some(Boolean);
     const waitingForRequestedModel = hasExplicitLoadRequest && (!isReady || isLoading);
     const shouldRenderModel = hasRenderableModels && !waitingForRequestedModel;
 
@@ -579,7 +597,7 @@ const page = (props: any) => {
 
     return (
         <Layout
-            user={props.phUser?.focusUser}
+            user={phUser?.focusUser}
             hideTopMenu
             navbarProps={{
                 variant: 'mini-model',
@@ -606,7 +624,7 @@ const page = (props: any) => {
                 )}
                 {shouldRenderModel && (
                     <Modelling
-                        {...props}
+                        {...compatibilityProps}
                         visibleFocusDetails={visibleFocusDetails}
                         setVisibleFocusDetails={setVisibleFocusDetails}
                         exportTab={exportTab}

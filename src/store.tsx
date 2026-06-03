@@ -5,6 +5,7 @@ import {
     buildUniverseStateFromLegacy,
     setUniverseState,
     setUniverseSource,
+    setUniverseFocus,
     setUniverseUser,
     universeReducer,
     type LegacyUniverseRoot,
@@ -54,7 +55,8 @@ const rootReducer = (state: RootReducerState | undefined, action: AnyAction): Ro
     const nextLegacyState = (
         setUniverseState.match(action) ||
         setUniverseUser.match(action) ||
-        setUniverseSource.match(action)
+        setUniverseSource.match(action) ||
+        setUniverseFocus.match(action)
     )
         ? mirrorUniverseToLegacy(legacyState, nextUniverse)
         : legacyState;

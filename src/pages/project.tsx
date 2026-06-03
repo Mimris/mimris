@@ -22,6 +22,7 @@ import Project from '../components/Project';
 import ProjectDetailsModal from '../components/modals/ProjectDetailsModal';
 
 import HeaderButtons from '../components/utils/ModellingHeaderButtons';
+import { loadLegacyUniverseSnapshot } from '../sharedUniverse';
 
 const debug = false
 
@@ -44,10 +45,7 @@ const page = (props: any) => {
   const [mount, setMount] = useState(false)
 
   function dispatchLocalStore(locStore) {
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+    dispatch(loadLegacyUniverseSnapshot(locStore))
   }
 
   // list query params
@@ -339,7 +337,6 @@ const page = (props: any) => {
 }
 
 export default connect(state => state)(page)
-
 
 
 

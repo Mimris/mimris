@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAction, type AnyAction } from '@reduxjs/toolkit';
 
 export type LegacyUniverseRoot = {
     universe?: SharedUniverseState;
@@ -27,6 +27,13 @@ export type SharedUniverseState = {
     compatibility: {
         documents: unknown[];
     };
+};
+
+export type LegacyUniverseSnapshot = {
+    phData?: unknown;
+    phFocus?: unknown;
+    phUser?: unknown;
+    phSource?: unknown;
 };
 
 const EMPTY_DOCUMENTS: unknown[] = [];
@@ -69,24 +76,39 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
     };
 };
 
-const universeSlice = createSlice({
-    name: 'universe',
-    initialState: initialUniverseState,
-    reducers: {
-        setUniverseState: (_state, action: PayloadAction<SharedUniverseState>) => action.payload,
-        setUniverseUser: (state, action: PayloadAction<unknown>) => {
-            state.user = action.payload;
-        },
-        setUniverseSource: (state, action: PayloadAction<unknown>) => {
-            state.source = action.payload;
-        },
-    },
-});
+export const loadLegacyUniverseSnapshot = (snapshot: LegacyUniverseSnapshot) =>
+    setUniverseState(buildUniverseStateFromLegacy(snapshot as LegacyUniverseRoot));
 
-export const {
-    setUniverseState,
-    setUniverseUser,
-    setUniverseSource,
-} = universeSlice.actions;
+export const setUniverseState = createAction<SharedUniverseState>('universe/setUniverseState');
+export const setUniverseUser = createAction<unknown>('universe/setUniverseUser');
+export const setUniverseSource = createAction<unknown>('universe/setUniverseSource');
+export const setUniverseFocus = createAction<unknown>('universe/setUniverseFocus');
 
-export const universeReducer = universeSlice.reducer;
+export const universeReducer = (
+    state: SharedUniverseState = initialUniverseState,
+    action: AnyAction,
+): SharedUniverseState => {
+    if (setUniverseState.match(action)) return action.payload;
+    if (setUniverseUser.match(action)) {
+        return {
+            ...state,
+            user: action.payload,
+        };
+    }
+    if (setUniverseSource.match(action)) {
+        return {
+            ...state,
+            source: action.payload,
+        };
+    }
+    if (setUniverseFocus.match(action)) {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                focus: action.payload,
+            },
+        };
+    }
+    return state;
+};

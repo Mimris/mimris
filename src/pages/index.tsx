@@ -25,6 +25,7 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import Issues from "../components/Issues";
 import Tasks from '../components/Tasks';
 import GettingStarted from "../components/content/GettingStarted";
+import { loadLegacyUniverseSnapshot } from "../sharedUniverse";
 
 const debug = false
 const mimrisSiteUrl = process.env.NODE_ENV === 'development'
@@ -59,10 +60,12 @@ const page = (props: any) => {
     const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : []
     const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : []
     const normalizedPhData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalizedPhData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+    dispatch(loadLegacyUniverseSnapshot({
+      phData: normalizedPhData,
+      phFocus: locStore.phFocus,
+      phSource: locStore.phSource,
+      phUser: locStore.phUser,
+    }))
   }
     const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 

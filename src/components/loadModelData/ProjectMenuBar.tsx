@@ -11,6 +11,7 @@ import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta } from '../utils/workspaceUniverseAdapter';
 import { getMetisScopeLabel, getMetisScopeOptions, normalizeMetisScope, setActiveMetisScope } from '../utils/workspaceMetisResolver.js';
 import { saveRemoteUniverseProject } from '../utils/remoteUniverseProject';
+import { loadLegacyUniverseSnapshot, setUniverseSource } from '../../sharedUniverse';
 import LoadGitHub from './LoadGitHub';
 import LoadFile from './LoadFile';
 import LoadJsonFile from './LoadJsonFile'
@@ -81,10 +82,7 @@ export const ProjectMenuBar = (props: any) => {
     // };
 
     const loadInitialProject = () => {
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: InitialState.phData });
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: InitialState.phFocus });
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: InitialState.phUser });
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: InitialState.phSource });
+        dispatch(loadLegacyUniverseSnapshot(InitialState));
         dispatch({
             type: 'SET_FOCUS_REFRESH',
             data: { id: crypto.randomUUID(), name: 'InitialState' },
@@ -117,7 +115,7 @@ export const ProjectMenuBar = (props: any) => {
     const handleSaveAllToFile = () => {
         setProjectname(props.phFocus.focusProj.name);
         const data = `${projectname}_PR`
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+        dispatch(setUniverseSource(data))
 
         if (!debug) console.log('94 handleSaveAllToFile', props, projectname, props.phFocus)
         SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
@@ -137,10 +135,7 @@ export const ProjectMenuBar = (props: any) => {
                 universeId: result.id,
                 universeApiBaseUrl: result.baseUrl,
             });
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: adaptedState,
-            });
+            dispatch(loadLegacyUniverseSnapshot(adaptedState));
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
             window.alert(`Saved remote universe ${result.id}`);
         } catch (error: any) {
@@ -171,10 +166,7 @@ export const ProjectMenuBar = (props: any) => {
             },
         );
 
-        dispatch({
-            type: 'LOAD_TOSTORE_DATA',
-            data: nextState,
-        });
+        dispatch(loadLegacyUniverseSnapshot(nextState));
     };
 
     const resolveRemoteUniverseBaseUrl = () => {

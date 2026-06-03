@@ -2,9 +2,9 @@
 // Index.tsx
 
 // import React from "react";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from 'next/link';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
@@ -14,16 +14,6 @@ import Index from "./Index";
 
 const page = (props) => {
   // console.log('12', props);
-  const dispatch = useDispatch()
-  const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); }
-
-  const metis = useSelector((state: any) => state.phData?.metis)
-  const models = useSelector((state: any) => state.phData?.metis?.models)
-  const metamodels = useSelector((state: any) => state.phData?.metis?.metamodels)
-  const focusModel = useSelector((state: any) => state.phFocus?.focusModel)
-  const focusModelview = useSelector((state: any) => state.phFocus?.focusModelview)
-  const gojsmodel = useSelector((state: any) => state.phFocus?.gojsModel)
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
@@ -269,5 +259,4 @@ const page = (props) => {
 
 }
 export default Page(connect(state => state)(page));
-
 

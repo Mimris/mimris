@@ -1171,7 +1171,12 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
-    const myGoModel = myMetis.gojsModel;
+    let myGoModel = context.myGoModel || myMetis.gojsModel;
+    if (!myGoModel && myModelview) {
+        myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+        myMetis?.setGojsModel?.(myGoModel);
+        context.myGoModel = myGoModel;
+    }
     let gjsFromKey = context.gjsFromKey;
     let gjsToKey = context.gjsToKey;
     if (!gjsFromKey) gjsFromKey = context.nodeFrom.key;
@@ -1215,17 +1220,17 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     toObjview.addInputRelview(relview);
     const goRelshipLink = new gjs.goRelshipLink(relview.id, myGoModel, relview);
     const linkName = goRelshipLink.name;
-    goRelshipLink.fromNode = myGoModel.findNodeByViewId(fromObjview.id);
-    goRelshipLink.from = goRelshipLink.fromNode?.key;
-    goRelshipLink.toNode = myGoModel.findNodeByViewId(toObjview.id);
-    goRelshipLink.to = goRelshipLink.toNode?.key;
+    goRelshipLink.fromNode = myGoModel?.findNodeByViewId?.(fromObjview.id) || goFromNode || null;
+    goRelshipLink.from = goRelshipLink.fromNode?.key || gjsFromKey;
+    goRelshipLink.toNode = myGoModel?.findNodeByViewId?.(toObjview.id) || goToNode || null;
+    goRelshipLink.to = goRelshipLink.toNode?.key || gjsToKey;
     goRelshipLink.loadLinkContent(myGoModel);
     goRelshipLink.name = linkName;
     goRelshipLink.curve = relview.curve ? relview.curve : "None";
     goRelshipLink.routing = relview.routing || reltypeview?.routing || "Normal";
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
-    myGoModel.addLink(goRelshipLink);
+    myGoModel?.addLink?.(goRelshipLink);
     relview.points = [];
     // create a link data between the actual nodes
     let linkdata = {

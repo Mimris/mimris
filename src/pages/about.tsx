@@ -1,8 +1,5 @@
 //@ts-nocheck
-// import React, { useState } from "react";
-// import { connect } from 'react-redux';
-import { connect, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+import { useSelector } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -10,11 +7,14 @@ import Footer from "../components/Footer"
 import About from '../components/About';
 import ContextView from '../defs/ContextView';
 import TasksHelp from '../components/TasksHelp'
+import { selectSharedUniverseState } from '../sharedUniverse';
 
-const page = (props: any) => {
+const page = () => {
 
   // console.log(props)
-  const dispatch = useDispatch()
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const phFocus = sharedUniverse.world.focus as any;
+  const phUser = sharedUniverse.user as any;
 
   // if (!props.phData) {
   //   dispatch(loadData())
@@ -32,11 +32,11 @@ const page = (props: any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv = (props.phFocus) && <ContextView phF={props.phFocus} />
+  const setContextDiv = (phFocus) && <ContextView phF={phFocus} />
 
   return (
     <div>
-      <Layout user={props.phUser?.focusUser} >
+      <Layout user={phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper">
             {/* <div className="header">
@@ -136,6 +136,5 @@ const page = (props: any) => {
 }
 
 // export default Page;
-export default Page(connect(state => state)(page));
+export default Page(page);
 // export default authenticated(Page(connect(state => state)(page)));
-

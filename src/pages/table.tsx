@@ -1,8 +1,6 @@
 //@ts-nocheck
-import React, { useState, useEffect } from "react";
-// import { connect } from 'react-redux';
-import { connect, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+import React from "react";
+import { useSelector } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -11,11 +9,16 @@ import Table from '../components/Table';
 import SetContext from '../defs/ContextView'
 import TasksHelp from '../components/TasksHelp'
 import ContextView from "../defs/ContextView";
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 const debug = false;
-const page = (props: any) => {
+const page = () => {
 
-  if (debug) console.log('17', props)
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const phFocus = sharedUniverse.world.focus as any;
+  const phUser = sharedUniverse.user as any;
+
+  if (debug) console.log('17', sharedUniverse)
   //   // const dispatch = useDispatch()
   // if (!props.phData) {
   //   dispatch(loadData())
@@ -29,7 +32,7 @@ const page = (props: any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const ContextDiv = (props.phFocus) && <ContextView ph={props.phFocus} />
+  const ContextDiv = (phFocus) && <ContextView ph={phFocus} />
 
   //   useEffect(() => {
   //     return () => {
@@ -39,7 +42,7 @@ const page = (props: any) => {
 
   return (
     <div>
-      <Layout user={props.phUser?.focusUser} >
+      <Layout user={phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper">
             <div className="header">
@@ -140,8 +143,7 @@ const page = (props: any) => {
 }
 
 // export default Page;
-export default Page(connect(state => state)(page));
+export default Page(page);
 // // export default authenticated(Page(connect(state => state)(page)));
-
 
 

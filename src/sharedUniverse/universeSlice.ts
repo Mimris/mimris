@@ -711,5 +711,32 @@ export const universeReducer = (
     if (action.type === 'UPDATE_VIEWSTYLE_PROPERTIES') {
         return updateMetamodelCollection(state, 'current', 'viewstyles', asRecord(action.data));
     }
+    if (action.type === 'UPDATE_PROPERTY_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'properties', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETPROPERTY_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'properties', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_DATATYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'datatypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETDATATYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'datatypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_METHOD_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'methods', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETMETHOD_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'methods', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_METHODTYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'methodtypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_VALUE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETVALUE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
+    }
     return state;
 };

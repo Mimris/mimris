@@ -675,9 +675,14 @@ export function handleSelectDropdownChange(selected, context) {
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis as akm.cxMetis;
   const myMetamodel: akm.cxMetaModel = context.myMetamodel;
-  const myGoModel: gjs.goModel = context.myGoModel;
   const myModel: akm.cxModel = context.myModel;
   const myModelview: akm.cxModelView = context.myModelview;
+  let myGoModel: gjs.goModel = context.myGoModel || myMetis?.gojsModel;
+  if (!myGoModel && myModelview) {
+    myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+    myMetis?.setGojsModel?.(myGoModel);
+    context.myGoModel = myGoModel;
+  }
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
@@ -1140,17 +1145,16 @@ export function handleSelectDropdownChange(selected, context) {
     }
     case "Create Relationship": {
       const myMetamodel = context.myMetamodel;
-      const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
       const modalContext = context.modalContext;
       // const data = modalContext.data;
       const typename = selected.value;
       modalContext.typename = typename;
-      let fromNode = myGoModel.findNode(modalContext.gjsFromNode);
-      if (!fromNode) fromNode = myGoModel.findNode(modalContext.gjsFromNode.key);
+      let fromNode = myGoModel?.findNode(modalContext.gjsFromNode);
+      if (!fromNode) fromNode = myGoModel?.findNode(modalContext.gjsFromNode?.key);
       const fromPortId = modalContext.portFrom;
-      let toNode = myGoModel.findNode(modalContext.gjsToNode);
-      if (!toNode) toNode = myGoModel.findNode(modalContext.gjsToNode.key);
+      let toNode = myGoModel?.findNode(modalContext.gjsToNode);
+      if (!toNode) toNode = myGoModel?.findNode(modalContext.gjsToNode?.key);
       const toPortId = modalContext.portTo;
       let fromType = modalContext.fromType; 
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);

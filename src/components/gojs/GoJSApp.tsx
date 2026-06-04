@@ -2807,6 +2807,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
     let myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
+    if (!myGoModel && myModelview) {
+      myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+      myMetis.setGojsModel(myGoModel);
+    }
     const nodes = new Array();
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
@@ -2826,7 +2830,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myMetamodel": myMetamodel,
       "myModel": myModel,
       "myModelview": myModelview,
-      "myGoModel": myMetis.gojsModel,
+      "myGoModel": myGoModel,
       "myGoMetamodel": (myDiagram as any)?.myGoMetamodel || null,
       "myDiagram": myDiagram,
       "dispatch": dispatch,

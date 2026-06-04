@@ -131,12 +131,16 @@ const Modelling = (props: any) => {
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
   const getPersistedState = () => {
-    const state = store.getState();
+    const state = selectSharedUniverseState(store.getState() as any);
     return trimPersistedStateForBrowserStorage({
-      phData: state.phData,
-      phFocus: state.phFocus,
-      phUser: state.phUser,
-      phSource: state.phSource,
+      phData: {
+        domain: state.world.worldDefinition.domain,
+        metis: state.world.worldModel.metis,
+        documents: state.compatibility.documents,
+      },
+      phFocus: state.world.focus,
+      phUser: state.user,
+      phSource: state.source,
     });
   }
 

@@ -10,6 +10,7 @@ import { useSelector, useDispatch, useStore } from 'react-redux'
 // import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
 import { selectIcons } from './selectIcons'
+import { selectSharedUniverseState } from '../../sharedUniverse'
 // import SelectColor from './SelectColor'
 // import { colorOptions } from './data';
 
@@ -134,12 +135,16 @@ const EditProperties = (props) => {
     // Use setTimeout to ensure we capture the UPDATED state, not the old state
     setTimeout(() => {
       try {
-        const state = store.getState()
+        const state = selectSharedUniverseState(store.getState() as any)
         const persistedState = {
-          phData: state.phData,
-          phFocus: state.phFocus,
-          phUser: state.phUser,
-          phSource: state.phSource,
+          phData: {
+            domain: state.world.worldDefinition.domain,
+            metis: state.world.worldModel.metis,
+            documents: state.compatibility.documents,
+          },
+          phFocus: state.world.focus,
+          phUser: state.user,
+          phSource: state.source,
         }
         window?.sessionStorage?.setItem('memorystate', JSON.stringify(persistedState))
         window?.localStorage?.setItem('memorystate', JSON.stringify(persistedState))

@@ -94,6 +94,7 @@ import {
   SET_VISIBLE_CONTEXT,
   UPDATE_DOMAIN_PROPERTIES,
 } from '../actions/types';
+import { normalizeModelviewObjectviewIdentities } from '../sharedUniverse/universeSlice';
 
 //import context from '../pages/context';
 
@@ -268,7 +269,10 @@ function reducer(state = InitialState, action) {
       // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
       return {
         ...state,
-        phData: action.data,
+        phData: {
+          ...action.data,
+          metis: normalizeModelviewObjectviewIdentities(action.data?.metis),
+        },
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
@@ -276,7 +280,10 @@ function reducer(state = InitialState, action) {
       const retval_LOAD_DATAGITHUB_SUCCESS =
       {
         ...state,
-        phData: action.data.data.phData,
+        phData: {
+          ...action.data.data.phData,
+          metis: normalizeModelviewObjectviewIdentities(action.data.data.phData?.metis),
+        },
         phSource: action.data.data.phSource, //'GitHub'
         phFocus: action.data.data.phFocus,
         phUser: action.data.data.phUser,
@@ -336,7 +343,7 @@ function reducer(state = InitialState, action) {
           ...action.data,
           metis: {
             ...state.phData.metis,
-            ...action.data.metis
+            ...normalizeModelviewObjectviewIdentities(action.data.metis)
           } 
         }
       }
@@ -367,10 +374,12 @@ function reducer(state = InitialState, action) {
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models, action.data
-            ]
+            ...normalizeModelviewObjectviewIdentities({
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models, action.data
+              ]
+            })
           },
           domain: {
             ...state.phData.domain,
@@ -390,12 +399,14 @@ function reducer(state = InitialState, action) {
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindexnew),
-              action.data,
-              ...state.phData.metis.models.slice(curmindexnew + 1, state.phData?.metis?.models.length),
-            ]
+            ...normalizeModelviewObjectviewIdentities({
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0, curmindexnew),
+                action.data,
+                ...state.phData.metis.models.slice(curmindexnew + 1, state.phData?.metis?.models.length),
+              ]
+            })
           }
         }
       }

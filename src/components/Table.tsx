@@ -4,7 +4,7 @@ const debug = false;
 
 // import React from "react";
 import { useState, useEffect, useLayoutEffect } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
@@ -177,4 +177,4 @@ const page = (props:any) => {
     return (<></>)
   } 
 } 
-export default Page(connect(state => state)(page));
+export default Page(page);

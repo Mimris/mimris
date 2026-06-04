@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import Modal from 'react-bootstrap/Modal';
@@ -366,4 +366,4 @@ const Page1 = (props) => {
   )
 }
 
-export default Page(connect(state => state)(page1));
+export default Page(Page1);

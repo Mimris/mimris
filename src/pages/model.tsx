@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modelling from '../components/Modelling';
 import Layout from '../components/Layout';
@@ -13,7 +13,7 @@ import { saveRemoteUniverseProject } from '../components/utils/remoteUniversePro
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
 import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
 
-const page = (props: any) => {
+const page = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { query, isReady } = router;
@@ -31,18 +31,16 @@ const page = (props: any) => {
     const phSource = sharedUniverse.source as any;
     const metis = sharedUniverse.world.worldModel.metis as any;
     const phData = useMemo(() => ({
-        ...props.phData,
         domain: sharedUniverse.world.worldDefinition.domain,
         metis,
         documents: sharedUniverse.compatibility.documents,
-    }), [props.phData, sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
+    }), [sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
     const compatibilityProps = useMemo(() => ({
-        ...props,
         phData,
         phFocus,
         phUser,
         phSource,
-    }), [props, phData, phFocus, phUser, phSource]);
+    }), [phData, phFocus, phUser, phSource]);
     const universeName = phFocus?.focusProj?.name || '';
     const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
@@ -647,4 +645,4 @@ const page = (props: any) => {
     )
 };
 
-export default connect(state => state)(page);
+export default page;

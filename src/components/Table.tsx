@@ -52,7 +52,12 @@ const page = (props:any) => {
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
-  let phData = { ...props.phData, metis }
+  const compatibilityProps = {
+    ...props,
+    phData: { ...props.phData, metis },
+    phFocus,
+    phSource,
+  }
 
   const models = metis?.models
   const focusModelId = focusModel?.id
@@ -105,7 +110,7 @@ const page = (props:any) => {
             <Row >
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
-                   <ObjectTable ph={props} />  
+                   <ObjectTable ph={compatibilityProps} />  
                 </div>
               </Col>
             </Row>
@@ -117,7 +122,7 @@ const page = (props:any) => {
            <Row >
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
-                   <RelshipTable ph={props} />  
+                   <RelshipTable ph={compatibilityProps} />  
                 </div>
               </Col>
             </Row>
@@ -133,7 +138,7 @@ const page = (props:any) => {
   const modelType = (activeTab === '1') ? 'objects' : 'relationships'
   // const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   if (debug) console.log('134 Table', props, curmod);

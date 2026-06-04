@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
     "build": "next build",
-    "test": "node --test src/components/utils/workspaceMetisResolver.test.mjs",
+    "test": "node --test src/components/utils/workspaceMetisResolver.test.mjs src/sharedUniverse/universeSlice.test.mjs",
     "startlocal": "next build && next start -p 3000",
     "start": "next build && next start -p 3000",
     "start2": "next start -p ${PORT}",

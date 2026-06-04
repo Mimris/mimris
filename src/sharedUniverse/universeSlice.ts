@@ -336,6 +336,92 @@ const updateModelviewCollection = (
     });
 };
 
+const findFocusedModel = (metis: Record<string, any>, focus: Record<string, any>) => {
+    const models: any[] = Array.isArray(metis.models) ? metis.models : [];
+    const modelIndex = findModelIndex(models, focus);
+    return models[modelIndex] || null;
+};
+
+const findMetamodelIndex = (
+    metamodels: any[],
+    metamodelId?: string,
+) => metamodelId
+    ? metamodels.findIndex((metamodel) => metamodel?.id === metamodelId)
+    : -1;
+
+const updateMetamodelAtIndex = (
+    state: SharedUniverseState,
+    metamodelIndex: number,
+    updater: (metamodel: Record<string, any>) => Record<string, any>,
+) => {
+    const metis = asRecord(state.world.worldModel.metis);
+    const metamodels: any[] = Array.isArray(metis.metamodels) ? metis.metamodels : [];
+    if (metamodelIndex < 0) return state;
+
+    const targetIndex = metamodelIndex >= 0 ? metamodelIndex : metamodels.length;
+    const nextMetamodels = replaceArrayItem(
+        metamodels,
+        targetIndex,
+        updater(asRecord(metamodels[targetIndex])),
+    );
+
+    return updateMetis(state, {
+        ...metis,
+        metamodels: nextMetamodels,
+    });
+};
+
+const updateMetamodelPatch = (
+    state: SharedUniverseState,
+    metamodelId: string | undefined,
+    patch: Record<string, unknown>,
+) => {
+    const metis = asRecord(state.world.worldModel.metis);
+    const metamodels: any[] = Array.isArray(metis.metamodels) ? metis.metamodels : [];
+    const metamodelIndex = findMetamodelIndex(metamodels, metamodelId);
+    const targetIndex = metamodelIndex >= 0 ? metamodelIndex : metamodels.length;
+
+    return updateMetamodelAtIndex(state, targetIndex, (metamodel) => ({
+        ...metamodel,
+        ...patch,
+    }));
+};
+
+const updateMetamodelCollection = (
+    state: SharedUniverseState,
+    metamodelRef: 'current' | 'target',
+    collectionName: string,
+    patch: Record<string, unknown>,
+) => {
+    const metis = asRecord(state.world.worldModel.metis);
+    const focus = asRecord(state.world.focus);
+    const model = findFocusedModel(metis, focus);
+    const metamodelId = metamodelRef === 'target'
+        ? model?.targetMetamodelRef
+        : model?.metamodelRef;
+    const metamodels: any[] = Array.isArray(metis.metamodels) ? metis.metamodels : [];
+    const metamodelIndex = findMetamodelIndex(metamodels, metamodelId);
+    if (metamodelIndex < 0) return state;
+
+    return updateMetamodelAtIndex(state, metamodelIndex, (metamodel) => {
+        const collection: any[] = Array.isArray(metamodel?.[collectionName])
+            ? metamodel[collectionName]
+            : [];
+        const itemIndex = patch.id
+            ? collection.findIndex((item) => item?.id === patch.id)
+            : -1;
+        const targetIndex = itemIndex >= 0 ? itemIndex : collection.length;
+
+        return {
+            ...metamodel,
+            [collectionName]: replaceArrayItem(collection, targetIndex, {
+                ...(collection[targetIndex] || {}),
+                ...patch,
+            }),
+        };
+    });
+};
+
 export const initialUniverseState: SharedUniverseState = {
     world: {
         worldDefinition: {
@@ -582,6 +668,48 @@ export const universeReducer = (
             asRecord(action.data),
             OPTIONAL_RELSHIPVIEW_FIELDS,
         );
+    }
+    if (action.type === 'UPDATE_METAMODEL_PROPERTIES') {
+        const patch = asRecord(action.data);
+        return updateMetamodelPatch(state, patch.id, patch);
+    }
+    if (action.type === 'UPDATE_TARGETMETAMODEL_PROPERTIES') {
+        const metis = asRecord(state.world.worldModel.metis);
+        const model = findFocusedModel(metis, asRecord(state.world.focus));
+        return updateMetamodelPatch(state, model?.targetMetamodelRef, asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_OBJECTTYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETOBJECTTYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'objecttypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_OBJECTTYPEVIEW_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'objecttypeviews', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'objecttypeviews', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_OBJECTTYPEGEOS_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'objtypegeos', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'objtypegeos', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_RELSHIPTYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'relshiptypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'target', 'relshiptypes', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'relshiptypeviews', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'relshiptypeviews', asRecord(action.data));
+    }
+    if (action.type === 'UPDATE_VIEWSTYLE_PROPERTIES') {
+        return updateMetamodelCollection(state, 'current', 'viewstyles', asRecord(action.data));
     }
     return state;
 };

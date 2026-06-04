@@ -506,6 +506,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
         modelAny.__originalSetDataProperty = originalSetDataProperty;
         modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          if (!data || typeof data !== 'object') {
+            return data;
+          }
           try {
             if (propname === 'loc' && data) {
               const lockMap: Map<string, { loc: string; until: number }> | undefined =

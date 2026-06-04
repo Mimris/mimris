@@ -4748,6 +4748,9 @@ export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram
 
 export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
+    if (!node || typeof node !== 'object' || !diagram?.model) {
+        return;
+    }
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;

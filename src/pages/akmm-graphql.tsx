@@ -1,9 +1,10 @@
 /// @ts- nocheck
 // import React, { useState } from "react";
 // import { connect, useSelector, useDispatch } from 'react-redux';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
+import { selectSharedUniverseState } from '../sharedUniverse';
 // import Index from '../components/Index';
 // import { loadData } from '../actions/actions'
 // import gqlSchemas from '../components/gql/GenGqlSchemas'
@@ -28,8 +29,9 @@ const page = (props: any) => {
   // }
   // const metis = (props.phData) && props.phData.metis
   // const model = (metis) && metis.models[0]
-  const data = useSelector((state:any) => state)
-  const metis = (data.phData) && data.phData.metis
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis as any;
+  const phUser = sharedUniverse.user as any;
   const metamodelsPre = (metis) ? JSON.stringify(metis) : []
   // console.log('22', (metis) && metis.metamodels);
   // const modelName = (metis) && metis.models[0].name
@@ -44,7 +46,7 @@ const page = (props: any) => {
 
   return (
     <div>
-      <Layout user={data.phUser?.focusUser}>
+      <Layout user={phUser?.focusUser}>
         <div>
           <h4>GraphQL Page </h4>
           
@@ -65,4 +67,4 @@ const page = (props: any) => {
   );
 }
 
-export default Page(connect(state => state)(page));
+export default Page(page);

@@ -1,8 +1,9 @@
-import { connect, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import SelectVideo from '../components/SelectVideo'
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 
 // import { loadData } from '../actions/actions'
@@ -10,7 +11,8 @@ import SelectVideo from '../components/SelectVideo'
 const page = (props: any) => {
 // export default function Contexts({ contexts }: any) {
 
-  const dispatch = useDispatch();
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const phUser = sharedUniverse.user as any;
 
   // if (!props.phData) {
   //   dispatch(loadData())
@@ -19,7 +21,7 @@ const page = (props: any) => {
 
   return (
     <>
-      <Layout user={props.phUser?.focusUser} >
+      <Layout user={phUser?.focusUser} >
         <div id="video" >
           <div className="wrapper" >
             {/* <div className="header " ></div>  */}
@@ -146,7 +148,7 @@ const page = (props: any) => {
 
 }
 
-export default Page(connect(state => state)(page));
+export default Page(page);
 
                     {/* <SelectVideo />
                     <Link href="/modelling" className="nav-link text-primary ">Back</Link> */}

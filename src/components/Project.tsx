@@ -23,9 +23,19 @@ const Project = (props) => {
   const projectModalRef = useRef(null);
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
-  const modeldata = props.props;
   const sharedUniverse = useSelector(selectSharedUniverseState);
   const domain = sharedUniverse.world.worldDefinition.domain || {};
+  const modeldata = {
+    ...props.props,
+    phData: {
+      ...props.props?.phData,
+      domain,
+      metis: sharedUniverse.world.worldModel.metis,
+    },
+    phFocus: sharedUniverse.world.focus,
+    phUser: sharedUniverse.user,
+    phSource: sharedUniverse.source,
+  };
 
   if (debug) console.log('25 Tasks props', modeldata?.phData, props);
 
@@ -145,7 +155,7 @@ const Project = (props) => {
       className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
       <Modal.Header closeButton>Set Context: </Modal.Header>
       <Modal.Body >
-        <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+        <ProjectDetailsForm props={modeldata} onSubmit={handleSubmit} />
       </Modal.Body>
       <Modal.Footer>
         <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>

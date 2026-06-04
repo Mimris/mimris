@@ -26,15 +26,15 @@ const page = (props: any) => {
     const [exportTab, setExportTab] = useState(0);
     const [fetchedUsername, setFetchedUsername] = useState<string | null>(null);
     const sharedUniverse = useSelector(selectSharedUniverseState);
-    const phFocus = sharedUniverse.world.focus ?? props.phFocus;
-    const phUser = sharedUniverse.user ?? props.phUser;
-    const phSource = sharedUniverse.source ?? props.phSource;
-    const metis = sharedUniverse.world.worldModel.metis ?? props.phData?.metis;
+    const phFocus = sharedUniverse.world.focus as any;
+    const phUser = sharedUniverse.user as any;
+    const phSource = sharedUniverse.source as any;
+    const metis = sharedUniverse.world.worldModel.metis as any;
     const phData = useMemo(() => ({
         ...props.phData,
-        domain: sharedUniverse.world.worldDefinition.domain ?? props.phData?.domain,
+        domain: sharedUniverse.world.worldDefinition.domain,
         metis,
-        documents: sharedUniverse.compatibility.documents ?? props.phData?.documents,
+        documents: sharedUniverse.compatibility.documents,
     }), [props.phData, sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
     const compatibilityProps = useMemo(() => ({
         ...props,

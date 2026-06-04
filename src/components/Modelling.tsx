@@ -105,13 +105,13 @@ const Modelling = (props: any) => {
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
   const sharedUniverse = useSelector(selectSharedUniverseState);
-  const metis = sharedUniverse.world.worldModel.metis ?? props.phData?.metis;
-  const phFocus = sharedUniverse.world.focus ?? props.phFocus;
-  const phUser = sharedUniverse.user ?? props.phUser;
-  const phSource = sharedUniverse.source ?? props.phSource;
+  const metis = sharedUniverse.world.worldModel.metis as any;
+  const phFocus = sharedUniverse.world.focus as any;
+  const phUser = sharedUniverse.user as any;
+  const phSource = sharedUniverse.source as any;
   const phData = useMemo(() => ({
     ...props.phData,
-    domain: sharedUniverse.world.worldDefinition.domain ?? props.phData?.domain,
+    domain: sharedUniverse.world.worldDefinition.domain,
     metis,
   }), [props.phData, sharedUniverse.world.worldDefinition.domain, metis]);
   const compatibilityProps = useMemo(() => ({

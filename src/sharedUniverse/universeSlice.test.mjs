@@ -170,6 +170,35 @@ test('normalizes generated modelviews so shared objects have distinct objectview
   assert.equal(view2.relshipviews[0].toobjviewRef, view2.objectviews[1].id);
 });
 
+test('objectview updates are scoped by modelview id when ids are reused', () => {
+  const state = createState();
+  state.world.worldModel.metis.models[0].modelviews = [
+    {
+      id: 'draft-view',
+      name: 'Draft',
+      objectviews: [{ id: 'shared-role-view', objectRef: 'role-1', loc: '0 0' }],
+      relshipviews: [],
+    },
+    {
+      id: 'workbench-view',
+      name: 'Workbench',
+      objectviews: [{ id: 'shared-role-view', objectRef: 'role-1', loc: '100 100' }],
+      relshipviews: [],
+    },
+  ];
+  state.world.focus.focusModelview = { id: 'workbench-view', name: 'Workbench' };
+
+  const nextState = universeReducer(state, {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES',
+    data: { id: 'shared-role-view', modelviewId: 'draft-view', loc: '20 80' },
+  });
+
+  const [draftView, workbenchView] = nextState.world.worldModel.metis.models[0].modelviews;
+  assert.equal(draftView.objectviews[0].loc, '20 80');
+  assert.equal(workbenchView.objectviews[0].loc, '100 100');
+  assert.equal('modelviewId' in draftView.objectviews[0], false);
+});
+
 test('shared phData load actions normalize objectview identities', () => {
   const nextState = universeReducer(createState(), setUniversePhData({
     metis: {

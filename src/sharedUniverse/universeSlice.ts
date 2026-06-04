@@ -342,7 +342,26 @@ const findModelviewForItem = (
     collectionName: 'objectviews' | 'relshipviews',
     itemId?: string,
     focus?: Record<string, any>,
+    modelviewId?: string,
 ) => {
+    if (modelviewId) {
+        for (let modelIndex = 0; modelIndex < models.length; modelIndex += 1) {
+            const modelviews: any[] = Array.isArray(models[modelIndex]?.modelviews)
+                ? models[modelIndex].modelviews
+                : [];
+            const modelviewIndex = modelviews.findIndex((modelview) => modelview?.id === modelviewId);
+            if (modelviewIndex >= 0) {
+                const collection: any[] = Array.isArray(modelviews[modelviewIndex]?.[collectionName])
+                    ? modelviews[modelviewIndex][collectionName]
+                    : [];
+                const itemIndex = itemId
+                    ? collection.findIndex((item) => item?.id === itemId)
+                    : -1;
+                return { modelIndex, modelviewIndex, itemIndex };
+            }
+        }
+    }
+
     const focusedModelIndex = findModelIndex(models, focus || {});
     const focusedModel = models[focusedModelIndex];
     const focusedModelviews: any[] = Array.isArray(focusedModel?.modelviews) ? focusedModel.modelviews : [];
@@ -396,7 +415,12 @@ const updateModelviewCollection = (
     if (!models.length) return state;
 
     const focus = asRecord(state.world.focus);
-    const target = findModelviewForItem(models, collectionName, patch.id as string | undefined, focus);
+    const sanitizedPatch = { ...patch };
+    const rawModelviewId = sanitizedPatch.modelviewId || sanitizedPatch.modelviewRef;
+    const modelviewId = typeof rawModelviewId === 'string' ? rawModelviewId : undefined;
+    delete sanitizedPatch.modelviewId;
+    delete sanitizedPatch.modelviewRef;
+    const target = findModelviewForItem(models, collectionName, sanitizedPatch.id as string | undefined, focus, modelviewId);
     const model = models[target.modelIndex];
     const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
     const modelview = modelviews[target.modelviewIndex];
@@ -407,7 +431,7 @@ const updateModelviewCollection = (
     const nextCollection = replaceArrayItem(
         collection,
         targetIndex,
-        mergeAndPruneOptionalEmptyFields(collection[targetIndex], patch, optionalFields),
+        mergeAndPruneOptionalEmptyFields(collection[targetIndex], sanitizedPatch, optionalFields),
     );
     const nextModelviews = replaceArrayItem(modelviews, target.modelviewIndex, {
         ...modelview,

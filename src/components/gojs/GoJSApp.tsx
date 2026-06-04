@@ -593,8 +593,10 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
   }
   const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
-  const prev = queue.get(data.id) || {};
-  queue.set(data.id, { ...prev, ...data });
+  const modelviewId = data.modelviewId || data.modelviewRef || "";
+  const queueKey = `${modelviewId}:${data.id}`;
+  const prev = queue.get(queueKey) || {};
+  queue.set(queueKey, { ...prev, ...data, ...(modelviewId ? { modelviewId } : {}) });
   // Store the diagram reference for use in the flush
   if (diagram && !queue.__diagram) {
     queue.__diagram = diagram;
@@ -9097,14 +9099,17 @@ if (true) { // Dispatches to store individual objects/types
   const coalescedObjectViews = new Map<string, any>();
   modifiedObjectViews.forEach((mn: any) => {
     if (!mn?.id) return;
-    const prev = coalescedObjectViews.get(mn.id) || {};
-    coalescedObjectViews.set(mn.id, { ...prev, ...mn });
+    const modelviewId = mn.modelviewId || myModelview?.id || "";
+    const coalesceKey = `${modelviewId}:${mn.id}`;
+    const prev = coalescedObjectViews.get(coalesceKey) || {};
+    coalescedObjectViews.set(coalesceKey, { ...prev, ...mn, ...(modelviewId ? { modelviewId } : {}) });
   });
-  const findStoredObjectViewById = (id: string) => {
+  const findStoredObjectViewById = (id: string, modelviewId?: string) => {
     const models = storeState?.phData?.metis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
       const modelviews = models[mi]?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {
+        if (modelviewId && modelviews[mvi]?.id !== modelviewId) continue;
         const objectviews = modelviews[mvi]?.objectviews || [];
         for (let ovi = 0; ovi < objectviews.length; ovi++) {
           const objectview = objectviews[ovi];
@@ -9123,7 +9128,7 @@ if (true) { // Dispatches to store individual objects/types
           data = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch(data));
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
-          const storedObjectView = findStoredObjectViewById(data.id);
+          const storedObjectView = findStoredObjectViewById(data.id, data.modelviewId);
           if (storedObjectView) {
             const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
             let hasMeaningfulDiff = false;

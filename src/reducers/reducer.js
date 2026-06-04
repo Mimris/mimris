@@ -991,19 +991,37 @@ function reducer(state = InitialState, action) {
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (!debug) console.log('866 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
       // console.warn('[OBJVIEW_REDUCER]', { id: action?.data?.id, fillcolor: action?.data?.fillcolor, fillcolor2: action?.data?.fillcolor2, focusModel: state.phFocus?.focusModel?.id, focusModelview: state.phFocus?.focusModelview?.id });
+      const objectviewPatch = { ...(action.data || {}) };
+      const targetModelviewId = objectviewPatch.modelviewId || objectviewPatch.modelviewRef;
+      delete objectviewPatch.modelviewId;
+      delete objectviewPatch.modelviewRef;
       let targetModelIndex = curModelIndex;
       let targetModel = curModel;
       let targetModelviewIndex = curModelviewIndex;
       let targetModelview = curModelview;
-      let curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id);
+      if (targetModelviewId) {
+        for (let mi = 0; mi < state.phData.metis.models.length; mi++) {
+          const model = state.phData.metis.models[mi];
+          const modelviews = model?.modelviews || [];
+          const mvi = modelviews.findIndex((mv) => mv?.id === targetModelviewId);
+          if (mvi >= 0) {
+            targetModelIndex = mi;
+            targetModel = model;
+            targetModelviewIndex = mvi;
+            targetModelview = modelviews[mvi];
+            break;
+          }
+        }
+      }
+      let curObjectview = targetModelview?.objectviews?.find(ov => ov.id === objectviewPatch?.id);
 
-      if (!curObjectview && action?.data?.id) {
+      if (!curObjectview && objectviewPatch?.id && !targetModelviewId) {
         for (let mi = 0; mi < state.phData.metis.models.length; mi++) {
           const model = state.phData.metis.models[mi];
           const modelviews = model?.modelviews || [];
           for (let mvi = 0; mvi < modelviews.length; mvi++) {
             const modelview = modelviews[mvi];
-            const foundObjectview = modelview?.objectviews?.find(ov => ov.id === action.data.id);
+            const foundObjectview = modelview?.objectviews?.find(ov => ov.id === objectviewPatch.id);
             if (foundObjectview) {
               targetModelIndex = mi;
               targetModel = model;
@@ -1023,7 +1041,7 @@ function reducer(state = InitialState, action) {
 
       const mergedObjectview = mergeAndPruneOptionalEmptyFields(
         targetModelview.objectviews[curObjectviewIndex],
-        action.data,
+        objectviewPatch,
         OPTIONAL_OBJECTVIEW_FIELDS
       );
 

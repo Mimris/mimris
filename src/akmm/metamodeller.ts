@@ -1306,7 +1306,16 @@ export class cxMetis {
     }
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
-            const objview = this.findObjectView(item.id);
+            let objview = modelview.findObjectView(item.id);
+            if (!objview) {
+                objview = this.findObjectView(item.id);
+            }
+            if (!objview && item?.id) {
+                const object = this.findObject(item.objectRef);
+                objview = new cxObjectView(item.id, item.name, object, item.description || "", modelview);
+                modelview.addObjectView(objview);
+                this.addObjectView(objview);
+            }
             if (objview) {
                 if (debug) console.log('1170 item, objview', item, objview);
                 const object = this.findObject(item.objectRef);
@@ -1379,7 +1388,10 @@ export class cxMetis {
             if (debug) console.log('1034 item (relshipview): ', item);
             if (item.markedAsDeleted === "")
                 item.markedAsDeleted = false;
-            const relview = this.findRelationshipView(item.id);
+            let relview = modelview.findRelationshipView(item.id);
+            if (!relview) {
+                relview = this.findRelationshipView(item.id);
+            }
             if (relview) {
                 const relship = this.findRelationship(item.relshipRef);
                 if (relship) {

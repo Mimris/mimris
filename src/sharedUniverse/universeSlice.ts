@@ -107,6 +107,94 @@ const replaceArrayItem = <T,>(items: T[], index: number, item: T) => [
     ...items.slice(index + 1),
 ];
 
+const makeUniqueViewId = (id: string, modelviewId: string, usedIds: Set<string>) => {
+    const baseId = id || 'objectview';
+    const scopedBaseId = `${baseId}-${modelviewId || 'modelview'}`;
+    let candidateId = scopedBaseId;
+    let index = 2;
+    while (usedIds.has(candidateId)) {
+        candidateId = `${scopedBaseId}-${index}`;
+        index += 1;
+    }
+    return candidateId;
+};
+
+export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
+    const metisRecord = asRecord(metis);
+    const models: any[] = Array.isArray(metisRecord.models) ? metisRecord.models : [];
+    if (!models.length) return metis;
+
+    let didChange = false;
+    const usedObjectviewIds = new Set<string>();
+
+    const normalizedModels = models.map((model) => {
+        const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+        if (!modelviews.length) return model;
+
+        let modelDidChange = false;
+        const normalizedModelviews = modelviews.map((modelview) => {
+            const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews : [];
+            if (!objectviews.length) return modelview;
+
+            const idMap = new Map<string, string>();
+            let modelviewDidChange = false;
+
+            const normalizedObjectviews = objectviews.map((objectview) => {
+                const currentId = objectview?.id;
+                if (!currentId || usedObjectviewIds.has(currentId) || currentId === objectview?.objectRef) {
+                    const nextId = makeUniqueViewId(currentId, modelview?.id, usedObjectviewIds);
+                    if (currentId) idMap.set(currentId, nextId);
+                    usedObjectviewIds.add(nextId);
+                    modelviewDidChange = true;
+                    return {
+                        ...objectview,
+                        id: nextId,
+                    };
+                }
+
+                usedObjectviewIds.add(currentId);
+                return objectview;
+            });
+
+            const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews : [];
+            const normalizedRelshipviews = idMap.size
+                ? relshipviews.map((relshipview) => {
+                    const fromobjviewRef = idMap.get(relshipview?.fromobjviewRef);
+                    const toobjviewRef = idMap.get(relshipview?.toobjviewRef);
+                    if (!fromobjviewRef && !toobjviewRef) return relshipview;
+                    modelviewDidChange = true;
+                    return {
+                        ...relshipview,
+                        ...(fromobjviewRef ? { fromobjviewRef } : {}),
+                        ...(toobjviewRef ? { toobjviewRef } : {}),
+                    };
+                })
+                : relshipviews;
+
+            if (!modelviewDidChange) return modelview;
+            modelDidChange = true;
+            didChange = true;
+            return {
+                ...modelview,
+                objectviews: normalizedObjectviews,
+                ...(Array.isArray(modelview?.relshipviews) ? { relshipviews: normalizedRelshipviews } : {}),
+            };
+        });
+
+        if (!modelDidChange) return model;
+        return {
+            ...model,
+            modelviews: normalizedModelviews,
+        };
+    });
+
+    if (!didChange) return metis;
+    return {
+        ...metisRecord,
+        models: normalizedModels,
+    };
+};
+
 const updateMetis = (
     state: SharedUniverseState,
     metis: unknown,
@@ -117,7 +205,7 @@ const updateMetis = (
         ...state.world,
         worldModel: {
             ...state.world.worldModel,
-            metis,
+            metis: normalizeModelviewObjectviewIdentities(metis),
         },
         focus,
     },
@@ -441,6 +529,7 @@ export const initialUniverseState: SharedUniverseState = {
 
 export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null): SharedUniverseState => {
     const documents = Array.isArray(state?.phData?.documents) ? state.phData.documents : EMPTY_DOCUMENTS;
+    const metis = state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null;
 
     return {
         world: {
@@ -448,7 +537,7 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
                 domain: state?.universe?.world?.worldDefinition?.domain ?? state?.phData?.domain ?? null,
             },
             worldModel: {
-                metis: state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null,
+                metis: normalizeModelviewObjectviewIdentities(metis),
             },
             focus: state?.universe?.world?.focus ?? state?.phFocus ?? null,
         },
@@ -474,7 +563,18 @@ export const universeReducer = (
     state: SharedUniverseState = initialUniverseState,
     action: AnyAction,
 ): SharedUniverseState => {
-    if (setUniverseState.match(action)) return action.payload;
+    if (setUniverseState.match(action)) {
+        return {
+            ...action.payload,
+            world: {
+                ...action.payload.world,
+                worldModel: {
+                    ...action.payload.world.worldModel,
+                    metis: normalizeModelviewObjectviewIdentities(action.payload.world.worldModel.metis),
+                },
+            },
+        };
+    }
     if (setUniversePhData.match(action)) {
         const payload = action.payload as LegacyPhData;
         const documents = Array.isArray(payload?.documents)
@@ -491,7 +591,9 @@ export const universeReducer = (
                 },
                 worldModel: {
                     ...state.world.worldModel,
-                    ...(payload?.metis !== undefined ? { metis: payload.metis } : {}),
+                    ...(payload?.metis !== undefined
+                        ? { metis: normalizeModelviewObjectviewIdentities(payload.metis) }
+                        : {}),
                 },
             },
             compatibility: {

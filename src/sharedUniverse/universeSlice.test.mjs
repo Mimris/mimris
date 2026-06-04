@@ -27,7 +27,7 @@ const loadUniverseSlice = () => {
   return module.exports;
 };
 
-const { universeReducer } = loadUniverseSlice();
+const { universeReducer, normalizeModelviewObjectviewIdentities, setUniversePhData } = loadUniverseSlice();
 
 const createState = () => ({
   world: {
@@ -125,6 +125,72 @@ test('GoJS objectview mutations update shared modelview collections', () => {
   assert.equal(objectview.name, 'Renamed object view');
   assert.equal(objectview.strokecolor, 'red');
   assert.equal('fillcolor' in objectview, false);
+});
+
+test('normalizes generated modelviews so shared objects have distinct objectview ids', () => {
+  const metis = {
+    models: [
+      {
+        id: 'model-1',
+        objects: [{ id: 'object-1', name: 'Object 1' }],
+        modelviews: [
+          {
+            id: 'view-1',
+            objectviews: [{ id: 'object-1', objectRef: 'object-1', loc: '0 0' }],
+            relshipviews: [],
+          },
+          {
+            id: 'view-2',
+            objectviews: [
+              { id: 'object-1', objectRef: 'object-1', loc: '100 100' },
+              { id: 'object-2', objectRef: 'object-2', loc: '200 200' },
+            ],
+            relshipviews: [
+              {
+                id: 'rv-1',
+                fromobjviewRef: 'object-1',
+                toobjviewRef: 'object-2',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  const normalized = normalizeModelviewObjectviewIdentities(metis);
+  const [view1, view2] = normalized.models[0].modelviews;
+
+  assert.equal(view1.objectviews[0].objectRef, 'object-1');
+  assert.equal(view2.objectviews[0].objectRef, 'object-1');
+  assert.notEqual(view1.objectviews[0].id, 'object-1');
+  assert.notEqual(view2.objectviews[0].id, 'object-1');
+  assert.notEqual(view1.objectviews[0].id, view2.objectviews[0].id);
+  assert.equal(view2.relshipviews[0].fromobjviewRef, view2.objectviews[0].id);
+  assert.equal(view2.relshipviews[0].toobjviewRef, view2.objectviews[1].id);
+});
+
+test('shared phData load actions normalize objectview identities', () => {
+  const nextState = universeReducer(createState(), setUniversePhData({
+    metis: {
+      models: [
+        {
+          id: 'model-1',
+          modelviews: [
+            {
+              id: 'view-1',
+              objectviews: [{ id: 'object-1', objectRef: 'object-1' }],
+            },
+          ],
+        },
+      ],
+    },
+  }));
+
+  assert.equal(
+    nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
+    'object-1-view-1',
+  );
 });
 
 test('metamodel collection mutations update current and target metamodels', () => {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { connect, useSelector, useDispatch, useStore } from 'react-redux';
+import { useSelector, useDispatch, useStore } from 'react-redux';
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
@@ -22,16 +22,28 @@ import Issues from "../components/Issues";
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import { createSnapshotShare } from "../components/utils/focusShare";
-import { loadLegacyUniverseSnapshot, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
 const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
-const Page1 = (props: any) => {
+const Page1 = () => {
 
   const dispatch = useDispatch();
   const store = useStore();
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const props = {
+    phData: {
+      domain: sharedUniverse.world.worldDefinition.domain,
+      metis: sharedUniverse.world.worldModel.metis,
+      documents: sharedUniverse.compatibility.documents,
+    },
+    phFocus: sharedUniverse.world.focus as any,
+    phUser: sharedUniverse.user as any,
+    phSource: sharedUniverse.source as any,
+  };
+  const focus = props.phFocus;
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -86,15 +98,17 @@ const Page1 = (props: any) => {
   const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
-  const focus = useSelector((state: any) => state.phFocus)
-
   const getPersistedState = () => {
-    const state = store.getState();
+    const state = selectSharedUniverseState(store.getState() as any);
     return {
-      phData: state.phData,
-      phFocus: state.phFocus,
-      phUser: state.phUser,
-      phSource: state.phSource,
+      phData: {
+        domain: state.world.worldDefinition.domain,
+        metis: state.world.worldModel.metis,
+        documents: state.compatibility.documents,
+      },
+      phFocus: state.world.focus,
+      phUser: state.user,
+      phSource: state.source,
     };
   }
 
@@ -396,4 +410,4 @@ const Page1 = (props: any) => {
   `}</style>
     </>)
 }
-export default Page(connect(state => state)(Page1));
+export default Page(Page1);

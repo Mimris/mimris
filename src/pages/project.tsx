@@ -1,6 +1,6 @@
 // @ts-nocheck
 // make a page for project
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ import Project from '../components/Project';
 import ProjectDetailsModal from '../components/modals/ProjectDetailsModal';
 
 import HeaderButtons from '../components/utils/ModellingHeaderButtons';
-import { loadLegacyUniverseSnapshot } from '../sharedUniverse';
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState } from '../sharedUniverse';
 
 const debug = false
 
@@ -33,9 +33,20 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored cosole log
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
 
-const page = (props: any) => {
+const page = () => {
   // if (typeof window === 'undefined') return <></>  
   const dispatch = useDispatch()
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const props = {
+    phData: {
+      domain: sharedUniverse.world.worldDefinition.domain,
+      metis: sharedUniverse.world.worldModel.metis,
+      documents: sharedUniverse.compatibility.documents,
+    },
+    phFocus: sharedUniverse.world.focus as any,
+    phUser: sharedUniverse.user as any,
+    phSource: sharedUniverse.source as any,
+  };
   const [refresh, setRefresh] = useState(false)
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project', props, query)
@@ -336,8 +347,7 @@ const page = (props: any) => {
   )
 }
 
-export default connect(state => state)(page)
-
+export default page
 
 
 

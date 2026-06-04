@@ -1,8 +1,7 @@
 // @ts-nocheck
 import React, { useState,  useEffect } from "react";
 import { Router, useRouter } from "next/router";
-// import { connect } from 'react-redux';
-import { connect, useDispatch }  from 'react-redux';
+import { useDispatch, useSelector }  from 'react-redux';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 // import imageUrlBuilder from '@sanity/image-url';
@@ -25,18 +24,29 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import Issues from "../components/Issues";
 import Tasks from '../components/Tasks';
 import GettingStarted from "../components/content/GettingStarted";
-import { loadLegacyUniverseSnapshot } from "../sharedUniverse";
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState } from "../sharedUniverse";
 
 const debug = false
 const mimrisSiteUrl = process.env.NODE_ENV === 'development'
   ? 'http://localhost:3000/'
   : 'https://mimris.github.io/mimris/';
 
-const page = (props: any) => {
+const page = () => {
   
   // console.log(props)
   const dispatch = useDispatch()
-  const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const props = {
+    phData: {
+      domain: sharedUniverse.world.worldDefinition.domain,
+      metis: sharedUniverse.world.worldModel.metis,
+      documents: sharedUniverse.compatibility.documents,
+    },
+    phFocus: sharedUniverse.world.focus as any,
+    phUser: sharedUniverse.user as any,
+    phSource: sharedUniverse.source as any,
+  };
+  const [mappedPosts, setMappedPosts] = useState([]);
   const [refresh, setRefresh] = useState(false) 
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
@@ -362,7 +372,7 @@ Below is shown an example model built using a template generated from the metamo
 }
 
 // export default Page;
-export default Page(connect(state => state)(page));
+export default Page(page);
 // export default authenticated(Page(connect(state => state)(page)));
 
 

@@ -107,8 +107,14 @@ const page = () => {
         }
       }
     };
-    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
-    handleReload();
+    const hasRecoverableState = Boolean(
+      memorySessionState?.phData ||
+      memoryLocState?.phData ||
+      (Array.isArray(memorySessionState) && memorySessionState[0]?.phData) ||
+      (Array.isArray(memoryLocState) && memoryLocState[0]?.phData),
+    );
+    const shouldReload = Object.keys(query).length !== 0 && hasRecoverableState;
+    if (shouldReload) handleReload();
     let org = query.org;
   }, []) 
 

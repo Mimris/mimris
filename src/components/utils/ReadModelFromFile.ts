@@ -14,6 +14,12 @@ import {
 } from "../../sharedUniverse";
 
 const debug = false
+const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
+
+const clearPersistedFileFocus = () => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+}
 
 export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
     if (!debug) console.log('10 ReadModelFromFile', props, e)
@@ -42,6 +48,7 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
             phSource: filename,
         }
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
+        clearPersistedFileFocus()
         props.dispatch(loadLegacyUniverseSnapshot(data))
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
         if (debug) console.log('29 ReadModelFromFile', filename, props)
@@ -81,6 +88,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 resetFileInput()
                 return
             }
+            clearPersistedFileFocus()
             dispatch(loadLegacyUniverseSnapshot(adaptedState))
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
             resetFileInput()
@@ -136,6 +144,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     focusModelview: resolvedProjectModelview ? { id: resolvedProjectModelview.id, name: resolvedProjectModelview.name } : null,
                 },
             }
+            clearPersistedFileFocus()
             dispatch(loadLegacyUniverseSnapshot({
                 ...InitialState,
                 phData: sanitizedProject.phData,
@@ -172,6 +181,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 || resolvedModel?.modelviews?.[0]
                 || null
 
+            clearPersistedFileFocus()
             dispatch(loadLegacyUniverseSnapshot({
                 ...InitialState,
                 phData: {

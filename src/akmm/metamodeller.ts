@@ -95,7 +95,61 @@ export class cxMetis {
         const portType = new cxObjectType(utils.createGuid(), 'Port', 'Port type');
         this.objecttypes = [portType];
     }
+    resetImportedState() {
+        this.projects = null;
+        this.metamodels = null;
+        this.coreMetamodel = null;
+        this.viewstyles = [];
+        this.geometries = [];
+        this.models = null;
+        this.submodels = null;
+        this.modelviews = null;
+        this.datatypes = null;
+        this.inputpatterns = null;
+        this.viewformats = null;
+        this.fieldTypes = null;
+        this.enumerations = null;
+        this.units = null;
+        this.categories = null;
+        this.properties = null;
+        this.methods = null;
+        this.methodtypes = null;
+        const portType = new cxObjectType(utils.createGuid(), 'Port', 'Port type');
+        this.objecttypes = [portType];
+        this.relshiptypes = null;
+        this.objecttypeviews = null;
+        this.objtypegeos = null;
+        this.relshiptypeviews = null;
+        this.objects = null;
+        this.relships = null;
+        this.objectviews = null;
+        this.relshipviews = null;
+        this.gojsModel = null;
+        this.currentProject = null;
+        this.currentMetamodel = null;
+        this.currentMetamodelRef = null;
+        this.currentModel = null;
+        this.currentModelRef = null;
+        this.currentModelview = null;
+        this.currentModelviewRef = null;
+        this.currentTargetMetamodel = null;
+        this.currentTargetModel = null;
+        this.currentTargetModelview = null;
+        this.currentTemplateMetamodel = null;
+        this.currentTemplateModel = null;
+        this.currentTemplateModelview = null;
+        this.currentTaskModel = null;
+        this.currentNode = null;
+        this.currentLink = null;
+        this.fromNodes = [];
+        this.currentSelection = null;
+        this.pasteViewsOnly = false;
+        this.deleteViewsOnly = false;
+        this.pasted = false;
+        this.relinkedRelview = null;
+    }
     importData(importedData: any, includeDeleted: boolean) {
+        this.resetImportedState();
         this.name = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);

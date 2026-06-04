@@ -816,7 +816,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
-                                    key={`${props.phFocus?.focusModel?.id || 'model'}:${props.phFocus?.focusModelview?.id || 'modelview'}`}
+                                    key={`${props.phFocus?.focusRefresh?.id || 'initial'}:${props.phFocus?.focusModel?.id || 'model'}:${props.phFocus?.focusModelview?.id || 'modelview'}`}
                                     nodeDataArray={props.myMetis.gojsModel?.nodes}
                                     linkDataArray={props.myMetis.gojsModel?.links}
                                     metis={props.metis}

@@ -124,6 +124,7 @@ const Modelling = (props: any) => {
 
   let focusModel = phFocus?.focusModel
   let focusModelview = phFocus?.focusModelview
+  const runtimeRefreshKey = phFocus?.focusRefresh?.id || 'initial'
   const focusObjectview = phFocus?.focusObjectview
   const focusRelshipview = phFocus?.focusRelshipview
   const focusObjecttype = phFocus?.focusObjecttype
@@ -210,7 +211,7 @@ const Modelling = (props: any) => {
     GenGojsModel(compatibilityProps, myMetis)
     setActiveTab(activetabindex)
     setMount(true);
-  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, refresh])
+  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh])
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -361,12 +362,6 @@ const Modelling = (props: any) => {
     if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
   }, [phFocus?.focusRefresh?.id])
 
-  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 4 [phFocus?.focusModelview.id]', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
-    if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.id);
-    setRefresh(prev => !prev)
-  }, [phFocus?.focusRefresh?.id])
-
   useEffect(() => {
     const persistedProps = getPersistedState();
     setMemorySessionState(persistedProps)
@@ -480,7 +475,7 @@ const Modelling = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
-        key={`metamodel-palette-${phFocus?.focusModel?.id || 'none'}`}
+        key={`metamodel-palette-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -491,6 +486,7 @@ const Modelling = (props: any) => {
 
     const metamodelDiv =  // this is the metamodel modelling area
       <Modeller
+        key={`metamodel-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phData={phData}
@@ -686,6 +682,7 @@ const Modelling = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px", alignSelf: "flex-start" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "auto", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
+                      key={`model-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
                       myMetis={myMetis}
                       metis={metis}
                       phData={phData}

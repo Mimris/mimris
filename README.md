@@ -44,7 +44,6 @@ Related project:
   - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
   - [📚 Documentation](#-documentation)
-- [\<\<\<\<\<\<\< ours](#-ours)
     - [Enable GitHub Pages](#enable-github-pages)
     - [Ensure the default branch is `main`](#ensure-the-default-branch-is-main)
     - [Preview locally](#preview-locally)

@@ -172,15 +172,19 @@ function mergeIncomingDiagramNodeDataWithLiveState(
   if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
 
   const liveNodeByAlias = new Map<string, go.Node>();
+  const liveNodes: go.Node[] = [];
   for (let it = diagram.nodes.iterator; it?.next();) {
     const node = it.value as go.Node;
+    liveNodes.push(node);
     const aliases = getDiagramNodeAliases(node?.data);
     aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
   }
 
-  return incomingNodes.map((incoming: any) => {
+  const incomingAliases = new Set<string>();
+  const mergedNodes = incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object') return incoming;
     const aliases = getDiagramNodeAliases(incoming);
+    aliases.forEach((alias) => incomingAliases.add(alias));
     if (aliases.length === 0) return incoming;
 
     let liveNode: go.Node | undefined;
@@ -216,6 +220,16 @@ function mergeIncomingDiagramNodeDataWithLiveState(
       scale1: nextScale1,
     };
   });
+  liveNodes.forEach((node) => {
+    const liveData = node?.data;
+    if (!liveData || typeof liveData !== 'object') return;
+    const aliases = getDiagramNodeAliases(liveData);
+    if (aliases.length === 0) return;
+    if (aliases.some((alias) => incomingAliases.has(alias))) return;
+    if (liveData.category !== constants.gojs.C_OBJECT && !liveData.objectview && !liveData.objviewRef) return;
+    mergedNodes.push(liveData);
+  });
+  return mergedNodes;
 }
 
 function normalizeLiveLinkPoints(points: any): number[] | undefined {

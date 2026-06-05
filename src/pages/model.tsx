@@ -133,6 +133,54 @@ const page = () => {
         }
         return false;
     };
+    const readStoredMemoryState = () => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const stored = window.localStorage.getItem('memorystate') || window.sessionStorage.getItem('memorystate');
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            console.error('Error parsing memoryLocState:', error);
+            return null;
+        }
+    };
+    const readStoredRemoteMeta = (stored: any) => {
+        const storedPhUser = stored?.phUser || stored?.universe?.user || {};
+        return storedPhUser?.__workspaceUniverse || {};
+    };
+    const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        const stored = readStoredMemoryState();
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+
+        if (!matchesScope || !matchesBaseUrl || !matchesId || !matchesSlug || !matchesRemoteUri) {
+            return false;
+        }
+
+        dispatchLoadedState(stored);
+        return true;
+    };
     const resolveLoadError = (response: Response, payload: any, text: string, fallbackMessage: string) =>
         readJsonResponseError(response, payload, text, fallbackMessage);
     const buildScopedRemoteLoadError = (scope: string, universeSlug: string, remoteUri: string, detail?: string) => {
@@ -221,6 +269,25 @@ const page = () => {
     };
     const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
+        if (loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
+            updateModelRoute({
+                universeId: options.universeId,
+                universeSlug: options.universeSlug,
+                baseUrl: options.baseUrl,
+                metisScope: options.metisScope,
+            });
+            dispatch({
+                type: 'SET_FOCUS_REFRESH',
+                data: {
+                    id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                        ? crypto.randomUUID()
+                        : `${Date.now()}`,
+                    name: 'Open local draft',
+                },
+            });
+            return true;
+        }
+
         const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl));
         const { payload, text } = await readJsonResponse(response);
         if (!response.ok || payload?.error || !payload?.payload) {
@@ -595,6 +662,28 @@ const page = () => {
     const hasRenderableModels = Array.isArray(phData?.metis?.models) && phData.metis.models.some(Boolean);
     const waitingForRequestedModel = hasExplicitLoadRequest && (!isReady || isLoading);
     const shouldRenderModel = hasRenderableModels && !waitingForRequestedModel;
+
+    useEffect(() => {
+        if (!hasMounted || isLoading || loadError || !hasRenderableModels) return;
+        if (typeof window === 'undefined') return;
+
+        const snapshot = {
+            phData,
+            phFocus,
+            phUser,
+            phSource,
+            universe: sharedUniverse,
+            lastUpdate: new Date().toISOString(),
+        };
+
+        try {
+            const serialized = JSON.stringify(snapshot);
+            window.sessionStorage.setItem('memorystate', serialized);
+            window.localStorage.setItem('memorystate', serialized);
+        } catch (error) {
+            console.error('Unable to persist local model draft:', error);
+        }
+    }, [hasMounted, isLoading, loadError, hasRenderableModels, phData, phFocus, phUser, phSource, sharedUniverse]);
 
     if ((!hasMounted || waitingForRequestedModel) && !hasRenderableModels) {
         return <div className="workarea p-3 w-100">Loading shared model...</div>;

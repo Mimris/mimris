@@ -982,22 +982,28 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         //     includeInherited = myModelview.includeInheritedReltypes;
         // }
         let reltypes: akm.cxRelationshipType[] = [];
+        const addReltypes = (items: any[] | null | undefined) => {
+            if (!Array.isArray(items)) return;
+            for (let i = 0; i < items.length; i++) {
+                const rtype = items[i];
+                if (!rtype?.id && !rtype?.name) continue;
+                if (reltypes.some((existing) => existing?.id === rtype.id || existing?.name === rtype.name)) continue;
+                reltypes.push(rtype);
+            }
+        };
         if (!myModelview.isMetamodel) { // IS NOT Metamodel
             if (metamodel.id === metamodel2.id) {
                 // Handle OSDU relationships
-                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                addReltypes(metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
+                addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
                 if (fromType.name === constants.types.AKM_OSDUTYPE) {
                     if (toType.name === constants.types.AKM_PROPERTY) {
                         const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                 }            
             } else {
-                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-                for (let i = 0; i < rtypes.length; i++) {
-                    const rtype = rtypes[i];
-                    reltypes.push(rtype);
-                }
+                addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
             }
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
@@ -1007,33 +1013,29 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                            reltypes.push(rtype);
+                            addReltypes([rtype]);
                         }
                     }            
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
                         // reltypes = [];
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_CONTAINER) {
                         // reltypes = [];
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                     if (fromType.name === constants.types.AKM_CONTAINER /* && toType.name === constants.types.AKM_ENTITY_TYPE*/) {
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                 } else {
-                    const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-                    for (let i = 0; i < rtypes.length; i++) {
-                        const rtype = rtypes[i];
-                        reltypes.push(rtype);
-                    }
+                    addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
                 }
             }
         } else {
@@ -1041,25 +1043,26 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             let inheritsFlag = false;
             if (fromType.name === "Property" && toType.name === "Method")
                 inheritsFlag = true;
-            reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag);
+            addReltypes(myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag));
+            addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag));
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                    reltypes.push(rtype);
+                    addReltypes([rtype]);
                 }
             }
             else if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
                 reltypes = [];
                 let rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_IS);
-                reltypes.push(rtype);
+                addReltypes([rtype]);
                 rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                reltypes.push(rtype);
+                addReltypes([rtype]);
             }
         }
         if (reltypes) {
             const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             if (fromType.name === constants.types.AKM_CONTAINER) {
-                reltypes.push(rtype);
+                addReltypes([rtype]);
             }
             if (reltypes) {
                 const choices1: string[] = [];
@@ -1114,7 +1117,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const myModelview: akm.cxModelView = myMetis.currentModelview;
     const askForRelshipName = myModelview.askForRelshipName;
     let data = args.context.gjsData;
-    const typename = args.typename;
+    const typename = args.typename || args.reltype?.name;
     const gjsFromKey = data.from;
     const portFrom = args.fromPort;
     const gjsToKey = data.to;
@@ -1135,10 +1138,10 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
-    if (!reltypes) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-    let reltype: akm.cxRelationshipType;
+    if (!reltypes || reltypes.length === 0) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+    let reltype: akm.cxRelationshipType = args.reltype;
     let relname: string;
-    if (reltypes) {
+    if (!reltype && reltypes) {
         for (let i = 0; i < reltypes.length; i++) {
             reltype = reltypes[i];
             if (reltype.name === constants.types.AKM_GENERIC_REL) {
@@ -1150,7 +1153,10 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     }
     if (!reltype || reltype.name !== typename) // reltype not found, try another way
-        reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+        reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType) ||
+            myMetis.findRelationshipTypeByName2(typename, fromType, toType) ||
+            myMetamodel.findRelationshipTypeByName?.(typename) ||
+            myMetis.findRelationshipTypeByName?.(typename);
     if (!reltype) {
         alert("Relationship type given does not exist!"+typename+"\nOperation is cancelled.");
         myDiagram.model.removeLinkData(data);

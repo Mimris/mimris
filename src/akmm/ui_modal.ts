@@ -1169,6 +1169,9 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+      if (!reltype) reltype = context.myMetis?.findRelationshipTypeByName2?.(typename, fromType, toType);
+      if (!reltype) reltype = myMetamodel.findRelationshipTypeByName?.(typename);
+      if (!reltype) reltype = context.myMetis?.findRelationshipTypeByName?.(typename);
       if (reltype) {
         let reltypeview = reltype.typeview;
         if (reltypeview) {
@@ -1182,6 +1185,7 @@ export function handleSelectDropdownChange(selected, context) {
         }
       }
       context.relshiptype = reltype;
+      modalContext.relshiptype = reltype;
       break;
     }
     default:

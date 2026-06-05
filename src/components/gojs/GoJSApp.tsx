@@ -2404,6 +2404,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       data: previewData,
       metamodel: modalContext.myMetamodel,
       typename: typename,
+      reltype: modalContext.relshiptype,
       fromType: modalContext.fromType,
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,

@@ -2391,6 +2391,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       } catch (_) {}
     }
+    if (
+      modalContext?.what === 'selectDropdown' &&
+      modalContext?.case === 'Create Relationship' &&
+      !typename
+    ) {
+      try { myDiagram?.clearSelection?.(); } catch (_) {}
+      this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
+      return;
+    }
     const args = {
       data: previewData,
       metamodel: modalContext.myMetamodel,

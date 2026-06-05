@@ -885,13 +885,44 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
 
-    const fromObjview = context.fromObjView;
-    let fromObject = fromObjview.object;
-    if (!fromObject)
+    const resolveObjview = (nodeData: any, explicitObjview: any) => {
+        if (explicitObjview) return explicitObjview;
+        const nodeKey = nodeData?.key || nodeData?.objviewRef || nodeData?.id;
+        return (
+            (nodeKey && myModelview?.findObjectView?.(nodeKey)) ||
+            (nodeData?.objviewRef && myModelview?.findObjectView?.(nodeData.objviewRef)) ||
+            (nodeKey && myMetis?.findObjectView?.(nodeKey)) ||
+            (nodeData?.objectview || null)
+        );
+    };
+    const resolveObject = (nodeData: any, objview: any) => {
+        return (
+            objview?.object ||
+            (objview?.objectRef && myMetis.findObject(objview.objectRef)) ||
+            nodeData?.object ||
+            (nodeData?.objRef && myMetis.findObject(nodeData.objRef)) ||
+            null
+        );
+    };
+    const resolveObjectType = (nodeData: any, object: any) => {
+        const typeRef = object?.typeRef || object?.type?.id || nodeData?.objtypeRef || nodeData?.objecttype?.id;
+        return (
+            object?.type ||
+            nodeData?.objecttype ||
+            nodeData?.objtype ||
+            (typeRef && myMetamodel?.findObjectType?.(typeRef)) ||
+            (typeRef && myMetis.findObjectType(typeRef)) ||
+            null
+        );
+    };
+
+    const fromObjview = resolveObjview(gjsFromNode, context.fromObjView);
+    let fromObject = resolveObject(gjsFromNode, fromObjview);
+    if (!fromObject && fromObjview?.objectRef)
         fromObject = myMetis.findObject(fromObjview.objectRef);
-    const toObjview = context.toObjView;;
-    let toObject = toObjview.object;
-    if (!toObject)
+    const toObjview = resolveObjview(gjsToNode, context.toObjView);
+    let toObject = resolveObject(gjsToNode, toObjview);
+    if (!toObject && toObjview?.objectRef)
         toObject = myMetis.findObject(toObjview.objectRef);
     const fromPort = context?.gjsData?.fromPort || "";
     const toPort = context?.gjsData?.toPort || "";
@@ -902,12 +933,14 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         if (!fromType) 
             fromType = myMetis.findObjectType(fromObject?.typeRef);
     }
+    if (!fromType) fromType = resolveObjectType(gjsFromNode, fromObject);
     let toTypeRef = toObject?.typeRef;
     if (toTypeRef) {
         toType = myMetamodel.findObjectType(toObject?.typeRef);
         if (!toType) 
             toType = myMetis.findObjectType(toObject?.typeRef);
     }
+    if (!toType) toType = resolveObjectType(gjsToNode, toObject);
     let metamodel = myMetamodel;
     let metamodel2 = myMetamodel;
     const submetamodelRefs = myMetamodel.submetamodelRefs;
@@ -1044,6 +1077,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 choices2.sort();
                 let choices = choices1.concat(choices2);
                 choices = utils.removeArrayDuplicates(choices);
+                if (choices.length === 0) {
+                    try { myDiagram?.model?.removeLinkData?.(context.gjsData); } catch (_) {}
+                    return;
+                }
                 const modalContext = {
                     what: "selectDropdown",
                     title: "Select Relationship Type",

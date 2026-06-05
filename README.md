@@ -268,9 +268,6 @@ export const nodeTemplate = (
 );
 ```
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 ## 📚 Documentation
 
 Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
@@ -278,8 +275,6 @@ Mimris documentation is published as a GitHub Pages site backed by the [`docs/`]
 - **Landing page** – https://mimris.github.io/mimris/
 - **Getting started guide** – https://mimris.github.io/mimris/getting-started
 
-<<<<<<< ours
-=======
 ### Enable GitHub Pages
 
 1. Commit and push updates to the `docs/` directory (for example, editing `docs/index.md`).
@@ -309,15 +304,8 @@ Then go to **Settings → Branches** and set the default branch to `main`.
    ```
 3. Visit <http://localhost:4000> to preview the documentation with live reload while you edit markdown files.
 
->>>>>>> theirs
 To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
 
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 ## Contributing 🤝
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.

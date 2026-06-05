@@ -9105,6 +9105,8 @@ if (true) { // Dispatches to store individual objects/types
   if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
   const dispatchedObjectViewPayloads = new Set<string>();
   const storeState = getCurrentStore?.()?.getState?.();
+  const sharedMetis = storeState?.universe?.world?.worldModel?.metis;
+  const storedMetis = sharedMetis || storeState?.phData?.metis || {};
   const coalescedObjectViews = new Map<string, any>();
   modifiedObjectViews.forEach((mn: any) => {
     if (!mn?.id) return;
@@ -9114,7 +9116,7 @@ if (true) { // Dispatches to store individual objects/types
     coalescedObjectViews.set(coalesceKey, { ...prev, ...mn, ...(modelviewId ? { modelviewId } : {}) });
   });
   const findStoredObjectViewById = (id: string, modelviewId?: string) => {
-    const models = storeState?.phData?.metis?.models || [];
+    const models = storedMetis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
       const modelviews = models[mi]?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {
@@ -9185,7 +9187,7 @@ if (true) { // Dispatches to store individual objects/types
     coalescedRelshipViews.set(mn.id, { ...prev, ...mn });
   });
   const findStoredRelshipViewById = (id: string) => {
-    const models = storeState?.phData?.metis?.models || [];
+    const models = storedMetis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
       const modelviews = models[mi]?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {

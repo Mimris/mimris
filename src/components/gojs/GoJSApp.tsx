@@ -9118,21 +9118,6 @@ if (true) { // Dispatches to store individual objects/types
     const prev = coalescedObjectViews.get(coalesceKey) || {};
     coalescedObjectViews.set(coalesceKey, { ...prev, ...mn, ...(modelviewId ? { modelviewId } : {}) });
   });
-  const findStoredObjectViewById = (id: string, modelviewId?: string) => {
-    const models = storedMetis?.models || [];
-    for (let mi = 0; mi < models.length; mi++) {
-      const modelviews = models[mi]?.modelviews || [];
-      for (let mvi = 0; mvi < modelviews.length; mvi++) {
-        if (modelviewId && modelviews[mvi]?.id !== modelviewId) continue;
-        const objectviews = modelviews[mvi]?.objectviews || [];
-        for (let ovi = 0; ovi < objectviews.length; ovi++) {
-          const objectview = objectviews[ovi];
-          if (objectview?.id === id) return objectview;
-        }
-      }
-    }
-    return null;
-  };
   if (!(this as any).__dispatchingObjectViewUpdates) {
     (this as any).__dispatchingObjectViewUpdates = true;
     try {
@@ -9142,18 +9127,6 @@ if (true) { // Dispatches to store individual objects/types
           data = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch(data));
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
-          const storedObjectView = findStoredObjectViewById(data.id, data.modelviewId);
-          if (storedObjectView) {
-            const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
-            let hasMeaningfulDiff = false;
-            for (const key of Object.keys(data)) {
-              if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
-                hasMeaningfulDiff = true;
-                break;
-              }
-            }
-            if (!hasMeaningfulDiff) return;
-          }
           dispatchedObjectViewPayloads.add(dispatchKey);
           queueObjectViewDispatch(this, context.dispatch, data, myDiagram)
         }

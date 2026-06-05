@@ -7916,14 +7916,9 @@ e.subject.each(function (n) {
     }
   } else // object
   {
-    modifiedObjectViews.push({
-      id: objview?.id,
-      loc: objview?.loc,
-      size: objview?.size,
-      scale: objview?.scale,
-      group: objview?.group,
-      isExpanded: objview?.isExpanded,
-    });
+    const jsnObjview = new jsn.jsnObjectView(objview);
+    (jsnObjview as any).modelviewId = myModelview?.id;
+    modifiedObjectViews.push(jsnObjview);
     const jsnObj = new jsn.jsnObject(object);
     modifiedObjects.push(jsnObj);
     const objvIdName = { id: objview.id, name: objview.name };

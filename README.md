@@ -4,7 +4,17 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
 ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
 
-Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-based Modeling and Metamodelling capabilities.
+Mimris is an open-source graphical modelling and metamodelling tool for creating custom domain-specific modelling languages and models.
+
+It provides a visual modelling environment built around objects, relationships, metamodels, and generated modelling languages. Mimris can be used to define modelling primitives, generate metamodels, and build structured models for domain-specific work such as BPMN-style process modelling.
+
+Public demo: https://mimris.vercel.app
+
+GitHub: https://github.com/Mimris/mimris
+
+Related project:
+
+- [Mimris AI Workspace](https://github.com/mimris/mimris-ai-workspace): structured project execution with domain descriptions, functional models, work items, and AI-assisted draft production.
 <!-- <img src="https://github.com/user-attachments/assets/ea2b6b9a-f8cc-4916-aa00-3e8693015fd3" alt="Image Description" width="200" /> -->
 
 ## Table of Contents

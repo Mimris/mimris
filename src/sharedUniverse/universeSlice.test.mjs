@@ -127,6 +127,27 @@ test('GoJS objectview mutations update shared modelview collections', () => {
   assert.equal('fillcolor' in objectview, false);
 });
 
+test('GoJS objectview mutations append new objectviews to the target modelview', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES',
+    data: {
+      id: 'ov-new',
+      modelviewId: 'view-1',
+      objectRef: 'object-new',
+      name: 'New object view',
+      loc: '40 80',
+    },
+  });
+  const objectviews = nextState.world.worldModel.metis.models[0].modelviews[0].objectviews;
+
+  assert.equal(objectviews.length, 2);
+  assert.equal(objectviews[1].id, 'ov-new');
+  assert.equal(objectviews[1].objectRef, 'object-new');
+  assert.equal(objectviews[1].name, 'New object view');
+  assert.equal(objectviews[1].loc, '40 80');
+  assert.equal('modelviewId' in objectviews[1], false);
+});
+
 test('normalizes generated modelviews so shared objects have distinct objectview ids', () => {
   const metis = {
     models: [

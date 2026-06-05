@@ -7493,6 +7493,7 @@ e.subject.each(function (n) {
   let object: akm.cxObject;
   let objName: string;
   let objDescr: string;
+  let droppedModelObject = false;
   if (!type || !typeview) { // An object has been dropped (dragged from object palette)
     const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
     if (resolvedType) {
@@ -7576,6 +7577,7 @@ e.subject.each(function (n) {
       myModelview.addObjectView(objview);
       myModelview.setFocusObjectview(objview);
       myMetis.addObjectView(objview);
+      droppedModelObject = true;
       let goNode = myGoModel.findNode(key);
       if (!goNode) {
         goNode = new gjs.goObjectNode(key, myGoModel, objview);
@@ -7698,6 +7700,7 @@ e.subject.each(function (n) {
       object.addObjectView(objview);
       myModelview.addObjectView(objview);
       myMetis.addObjectView(objview);
+      droppedModelObject = true;
       if (isContainer) {
         applyGroupTemplateToDiagram(diagramNode, templateName);
       } else {
@@ -7795,6 +7798,7 @@ e.subject.each(function (n) {
     objview.setModified();
     myModelview.addObjectView(objview);
     myMetis.addObjectView(objview);
+    droppedModelObject = true;
   } else {
     objview.loc = part.loc;
     objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
@@ -7893,7 +7897,7 @@ e.subject.each(function (n) {
     part.text = "Label";
   }
   // Prepare dispatch
-  if (part.type === 'objecttype') {
+  if (!droppedModelObject && part.type === 'objecttype') {
     const otype = uic.createObjectType(part, context);
     if (otype) {
       otype.typename = constants.types.OBJECTTYPE_NAME;
@@ -7914,8 +7918,7 @@ e.subject.each(function (n) {
       part.typeview = otype.typeview;
       uid.editObjectType(part, myMetis, myDiagram);
     }
-  } else // object
-  {
+  } else if (object && objview) { // object
     const jsnObjview = new jsn.jsnObjectView(objview);
     (jsnObjview as any).modelviewId = myModelview?.id;
     modifiedObjectViews.push(jsnObjview);

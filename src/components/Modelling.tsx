@@ -211,7 +211,7 @@ const Modelling = (props: any) => {
     GenGojsModel(compatibilityProps, myMetis)
     setActiveTab(activetabindex)
     setMount(true);
-  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh])
+  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, metis])
 
   useEffect(() => {
     setActiveTab(activetabindex);

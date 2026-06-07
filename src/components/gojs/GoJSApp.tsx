@@ -803,6 +803,7 @@ function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
   pendingObjectQueue.forEach((payload) => {
     try {
       dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+      persistObjectViewPatchToMemoryState(payload);
     } catch (_) {
     }
   });

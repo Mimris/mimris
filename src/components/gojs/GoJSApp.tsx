@@ -557,6 +557,56 @@ function sanitizeObjectViewDispatchData(data: any): any {
   return nextData;
 }
 
+const MEMORY_STATE_STORAGE_KEY = 'memorystate';
+
+function applyObjectViewPatchToPhData(phData: any, patch: any): boolean {
+  if (!phData?.metis?.models || !patch?.id) return false;
+  const modelviewId = patch.modelviewId || patch.modelviewRef || "";
+  const sanitizedPatch = { ...patch };
+  delete sanitizedPatch.modelviewId;
+  delete sanitizedPatch.modelviewRef;
+
+  for (let mi = 0; mi < phData.metis.models.length; mi += 1) {
+    const modelviews = phData.metis.models[mi]?.modelviews || [];
+    for (let mvi = 0; mvi < modelviews.length; mvi += 1) {
+      const modelview = modelviews[mvi];
+      if (modelviewId && modelview?.id !== modelviewId) continue;
+      const objectviews = modelview?.objectviews || [];
+      for (let ovi = 0; ovi < objectviews.length; ovi += 1) {
+        const objectview = objectviews[ovi];
+        if (objectview?.id !== patch.id) continue;
+        objectviews[ovi] = {
+          ...objectview,
+          ...sanitizedPatch,
+        };
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function persistObjectViewPatchToMemoryState(patch: any) {
+  if (typeof window === "undefined" || !patch?.id) return;
+  try {
+    const rawStored =
+      window.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) ||
+      window.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
+    if (!rawStored) return;
+
+    const parsed = JSON.parse(rawStored);
+    const didUpdate = applyObjectViewPatchToPhData(parsed?.phData, patch);
+    if (!didUpdate) return;
+
+    const serialized = JSON.stringify(parsed);
+    try { window.sessionStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
+    try { window.localStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
+  } catch (_) {
+    // Best-effort draft persistence; Redux remains authoritative in memory.
+  }
+}
+
 function safeJsonCloneForDispatch(value: any): any {
   const seen = new WeakSet<object>();
   return JSON.parse(JSON.stringify(value, (_key, current) => {
@@ -610,6 +660,7 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+        persistObjectViewPatchToMemoryState(payload);
 
         // CRITICAL: Update myMetis nodes AND their objectviews with new positions
         // BEFORE calling setState, so React has the correct data to render

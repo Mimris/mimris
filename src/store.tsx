@@ -3,11 +3,6 @@ import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
     buildUniverseStateFromLegacy,
-    setUniversePhData,
-    setUniverseState,
-    setUniverseSource,
-    setUniverseFocus,
-    setUniverseUser,
     universeReducer,
     type LegacyUniverseRoot,
     type SharedUniverseState,
@@ -48,27 +43,21 @@ const mirrorUniverseToLegacy = (
 });
 
 export const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
-    const legacyState = reduceLegacyState(state, action);
-    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
+    const legacyBaseState = state ?? reduceLegacyState(undefined, { type: '@@INIT' });
+    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyBaseState);
     const reducedUniverse = universeReducer(previousUniverse, action);
-    const didReduceUniverse = reducedUniverse !== previousUniverse;
-    const nextUniverse = didReduceUniverse
-        ? reducedUniverse
-        : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
-    const nextLegacyState = (
-        didReduceUniverse ||
-        setUniverseState.match(action) ||
-        setUniversePhData.match(action) ||
-        setUniverseUser.match(action) ||
-        setUniverseSource.match(action) ||
-        setUniverseFocus.match(action)
-    )
-        ? mirrorUniverseToLegacy(legacyState, nextUniverse)
-        : legacyState;
 
+    if (reducedUniverse !== previousUniverse) {
+        return {
+            ...mirrorUniverseToLegacy(legacyBaseState, reducedUniverse),
+            universe: reducedUniverse,
+        } as RootReducerState;
+    }
+
+    const legacyState = reduceLegacyState(state, action);
     return {
-        ...nextLegacyState,
-        universe: nextUniverse,
+        ...legacyState,
+        universe: buildUniverseStateFromLegacy({ ...legacyState, universe: undefined }),
     } as RootReducerState;
 };
 

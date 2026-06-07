@@ -225,6 +225,37 @@ test('normalizes generated modelviews so shared objects have distinct objectview
   assert.equal(view2.relshipviews[0].toobjviewRef, view2.objectviews[1].id);
 });
 
+test('normalizes objectview group refs when generated ids are rewritten', () => {
+  const metis = {
+    models: [
+      {
+        id: 'model-1',
+        objects: [
+          { id: 'group-object', name: 'Group' },
+          { id: 'child-object', name: 'Child' },
+        ],
+        modelviews: [
+          {
+            id: 'draft-view',
+            objectviews: [
+              { id: 'group-object', objectRef: 'group-object', loc: '0 0', isGroup: true },
+              { id: 'child-object', objectRef: 'child-object', loc: '10 10', group: 'group-object' },
+            ],
+            relshipviews: [],
+          },
+        ],
+      },
+    ],
+  };
+
+  const normalized = normalizeModelviewObjectviewIdentities(metis);
+  const [groupView, childView] = normalized.models[0].modelviews[0].objectviews;
+
+  assert.notEqual(groupView.id, 'group-object');
+  assert.notEqual(childView.id, 'child-object');
+  assert.equal(childView.group, groupView.id);
+});
+
 test('objectview updates are scoped by modelview id when ids are reused', () => {
   const state = createState();
   state.world.worldModel.metis.models[0].modelviews = [

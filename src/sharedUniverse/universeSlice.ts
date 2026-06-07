@@ -155,6 +155,17 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
                 usedObjectviewIds.add(currentId);
                 return objectview;
             });
+            const normalizedObjectviewsWithGroups = idMap.size
+                ? normalizedObjectviews.map((objectview) => {
+                    const group = idMap.get(objectview?.group);
+                    if (!group) return objectview;
+                    modelviewDidChange = true;
+                    return {
+                        ...objectview,
+                        group,
+                    };
+                })
+                : normalizedObjectviews;
 
             const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews : [];
             const normalizedRelshipviews = idMap.size
@@ -176,7 +187,7 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
             didChange = true;
             return {
                 ...modelview,
-                objectviews: normalizedObjectviews,
+                objectviews: normalizedObjectviewsWithGroups,
                 ...(Array.isArray(modelview?.relshipviews) ? { relshipviews: normalizedRelshipviews } : {}),
             };
         });

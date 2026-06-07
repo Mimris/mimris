@@ -1361,9 +1361,6 @@ export class cxMetis {
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
             let objview = modelview.findObjectView(item.id);
-            if (!objview) {
-                objview = this.findObjectView(item.id);
-            }
             if (!objview && item?.id) {
                 const object = this.findObject(item.objectRef);
                 objview = new cxObjectView(item.id, item.name, object, item.description || "", modelview);

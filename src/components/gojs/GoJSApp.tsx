@@ -5372,6 +5372,31 @@ class GoJSApp extends React.Component<{}, AppState> {
             });
           }
         });
+        // Ensure ordinary object drags are persisted even when GoJS no longer exposes
+        // the moved parts through draggingTool.draggedParts at SelectionMoved time.
+        for (let it = e.subject?.iterator; it?.next();) {
+          const part = it.value;
+          if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+          const data: any = part.data || {};
+          if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELATIONSHIP) continue;
+          const objview =
+            myModelview.findObjectView(data?.objviewRef || data?.key) ||
+            myMetis.findObjectView(data?.objviewRef || data?.key) ||
+            data?.objectview;
+          if (!objview?.id) continue;
+          const loc = `${part.location.x} ${part.location.y}`;
+          objview.loc = loc;
+          if (typeof data.group === "string") objview.group = data.group;
+          if (data.scale !== undefined) objview.scale = data.scale;
+          try { myDiagram.model.setDataProperty(data, "loc", loc); } catch (_) { data.loc = loc; }
+          uic.addItemToList(modifiedObjectViews, {
+            id: objview.id,
+            loc: objview.loc,
+            group: objview.group,
+            scale: objview.scale,
+            modelviewId: myModelview?.id,
+          });
+        }
         { // links
           const movedNodeDeltas = new Map<string, { dx: number; dy: number }>();
           try {

@@ -369,6 +369,50 @@ test('server data load success updates shared universe data and source', () => {
   );
 });
 
+test('github data load success updates shared universe root fields', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_DATAGITHUB_SUCCESS',
+    data: {
+      data: {
+        phData: {
+          domain: { name: 'GitHub domain' },
+          documents: [{ id: 'doc-github', title: 'GitHub doc' }],
+          metis: {
+            models: [
+              {
+                id: 'github-model',
+                modelviews: [
+                  {
+                    id: 'github-view',
+                    objectviews: [{ id: 'github-object', objectRef: 'github-object' }],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        phFocus: {
+          focusModel: { id: 'github-model', name: 'GitHub model' },
+          focusModelview: { id: 'github-view', name: 'GitHub view' },
+        },
+        phUser: { focusUser: { name: 'GitHub user' } },
+        phSource: 'GitHub',
+        lastUpdate: 'not-part-of-shared-universe',
+      },
+    },
+  });
+
+  assert.equal(nextState.world.worldDefinition.domain.name, 'GitHub domain');
+  assert.equal(nextState.compatibility.documents[0].id, 'doc-github');
+  assert.equal(nextState.world.focus.focusModel.id, 'github-model');
+  assert.equal(nextState.user.focusUser.name, 'GitHub user');
+  assert.equal(nextState.source, 'GitHub');
+  assert.equal(
+    nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
+    'github-object-github-view',
+  );
+});
+
 test('current metamodel action updates shared metis current metamodel ref', () => {
   const nextState = universeReducer(createState(), {
     type: 'SET_CURRENT_METAMODEL',

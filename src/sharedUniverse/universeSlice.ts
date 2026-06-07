@@ -750,6 +750,11 @@ export const universeReducer = (
             source: 'Model server',
         };
     }
+    if (action.type === 'LOAD_DATAGITHUB_SUCCESS') {
+        const data = asRecord(action.data);
+        const githubState = asRecord(data.data) as LegacyUniverseRoot;
+        return buildUniverseStateFromLegacy(githubState);
+    }
     if (action.type === 'LOAD_TOSTORE_PHDATA') {
         return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
     }

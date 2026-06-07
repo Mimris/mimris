@@ -105,6 +105,40 @@ test('legacy focus actions update shared universe focus', () => {
   assert.deepEqual(nextState.world.focus.focusModel, { id: 'model-2', name: 'Model 2' });
 });
 
+test('legacy user display actions update shared universe user', () => {
+  const stateWithDeleted = universeReducer(createState(), {
+    type: 'SET_USER_SHOWDELETED',
+    data: true,
+  });
+  const stateWithModified = universeReducer(stateWithDeleted, {
+    type: 'SET_USER_SHOWMODIFIED',
+    data: false,
+  });
+  const stateWithContext = universeReducer(stateWithModified, {
+    type: 'SET_VISIBLE_CONTEXT',
+    data: true,
+  });
+
+  assert.equal(stateWithContext.user.focusUser.diagram.showDeleted, true);
+  assert.equal(stateWithContext.user.focusUser.diagram.showModified, false);
+  assert.equal(stateWithContext.user.appSkin.visibleContext, true);
+});
+
+test('legacy domain mutations update shared universe world definition domain', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'UPDATE_DOMAIN_PROPERTIES',
+    data: {
+      name: 'Renamed domain',
+      description: 'Updated description',
+      presentation: 'Updated presentation',
+    },
+  });
+
+  assert.equal(nextState.world.worldDefinition.domain.name, 'Renamed domain');
+  assert.equal(nextState.world.worldDefinition.domain.description, 'Updated description');
+  assert.equal(nextState.world.worldDefinition.domain.presentation, 'Updated presentation');
+});
+
 test('model property mutations update shared metis and focused model', () => {
   const nextState = universeReducer(createState(), {
     type: 'UPDATE_MODEL_PROPERTIES',

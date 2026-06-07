@@ -674,6 +674,40 @@ export const universeReducer = (
             user: mergeObjectPatch(state.user, { focusUser: action.data }),
         };
     }
+    if (action.type === 'SET_USER_SHOWDELETED' || action.type === 'SET_USER_SHOWMODIFIED') {
+        const user = asRecord(state.user);
+        const focusUser = asRecord(user.focusUser);
+        const diagram = asRecord(focusUser.diagram);
+        return {
+            ...state,
+            user: {
+                ...user,
+                focusUser: {
+                    ...focusUser,
+                    diagram: {
+                        ...diagram,
+                        ...(action.type === 'SET_USER_SHOWDELETED'
+                            ? { showDeleted: action.data }
+                            : { showModified: action.data }),
+                    },
+                },
+            },
+        };
+    }
+    if (action.type === 'SET_VISIBLE_CONTEXT') {
+        const user = asRecord(state.user);
+        const appSkin = asRecord(user.appSkin);
+        return {
+            ...state,
+            user: {
+                ...user,
+                appSkin: {
+                    ...appSkin,
+                    visibleContext: action.data,
+                },
+            },
+        };
+    }
     const legacyFocusField = legacyFocusFieldByActionType[action.type];
     if (legacyFocusField) {
         return {
@@ -681,6 +715,18 @@ export const universeReducer = (
             world: {
                 ...state.world,
                 focus: mergeObjectPatch(state.world.focus, { [legacyFocusField]: action.data }),
+            },
+        };
+    }
+    if (action.type === 'UPDATE_DOMAIN_PROPERTIES') {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    domain: mergeDomainPatch(state.world.worldDefinition.domain, asRecord(action.data)),
+                },
             },
         };
     }

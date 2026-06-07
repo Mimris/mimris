@@ -195,6 +195,102 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
     };
 };
 
+const VIEW_GEOMETRY_FIELDS = ['loc', 'group', 'scale', 'scale1', 'size'];
+
+const buildScopedViewPatchMap = (
+    metis: unknown,
+    collectionName: 'objectviews' | 'relshipviews',
+    fields: string[],
+) => {
+    const patches = new Map<string, Record<string, unknown>>();
+    const models: any[] = Array.isArray(asRecord(metis).models) ? asRecord(metis).models : [];
+
+    models.forEach((model) => {
+        const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+        modelviews.forEach((modelview) => {
+            const collection: any[] = Array.isArray(modelview?.[collectionName]) ? modelview[collectionName] : [];
+            collection.forEach((item) => {
+                if (!item?.id || !modelview?.id) return;
+                const patch: Record<string, unknown> = {};
+                fields.forEach((field) => {
+                    if (item[field] !== undefined) patch[field] = item[field];
+                });
+                if (Object.keys(patch).length > 0) {
+                    patches.set(`${modelview.id}:${item.id}`, patch);
+                }
+            });
+        });
+    });
+
+    return patches;
+};
+
+const preserveCurrentViewGeometryForMatchingItems = (
+    incomingMetis: unknown,
+    currentMetis: unknown,
+) => {
+    const incoming = asRecord(incomingMetis);
+    const models: any[] = Array.isArray(incoming.models) ? incoming.models : [];
+    if (!models.length) return incomingMetis;
+
+    const objectviewPatches = buildScopedViewPatchMap(currentMetis, 'objectviews', VIEW_GEOMETRY_FIELDS);
+    if (!objectviewPatches.size) return incomingMetis;
+
+    let didChange = false;
+    const nextModels = models.map((model) => {
+        const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+        if (!modelviews.length) return model;
+
+        let modelDidChange = false;
+        const nextModelviews = modelviews.map((modelview) => {
+            const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews : [];
+            if (!objectviews.length || !modelview?.id) return modelview;
+
+            let modelviewDidChange = false;
+            const nextObjectviews = objectviews.map((objectview) => {
+                const patch = objectview?.id ? objectviewPatches.get(`${modelview.id}:${objectview.id}`) : null;
+                if (!patch) return objectview;
+                let itemDidChange = false;
+                for (const [key, value] of Object.entries(patch)) {
+                    if (objectview?.[key] !== value) {
+                        itemDidChange = true;
+                        break;
+                    }
+                }
+                if (!itemDidChange) return objectview;
+                modelviewDidChange = true;
+                modelDidChange = true;
+                didChange = true;
+                return {
+                    ...objectview,
+                    ...patch,
+                };
+            });
+
+            return modelviewDidChange
+                ? {
+                    ...modelview,
+                    objectviews: nextObjectviews,
+                }
+                : modelview;
+        });
+
+        return modelDidChange
+            ? {
+                ...model,
+                modelviews: nextModelviews,
+            }
+            : model;
+    });
+
+    return didChange
+        ? {
+            ...incoming,
+            models: nextModels,
+        }
+        : incomingMetis;
+};
+
 const updateMetis = (
     state: SharedUniverseState,
     metis: unknown,
@@ -604,6 +700,9 @@ export const universeReducer = (
         const documents = Array.isArray(payload?.documents)
             ? payload.documents
             : state.compatibility.documents;
+        const nextMetis = payload?.metis !== undefined
+            ? preserveCurrentViewGeometryForMatchingItems(payload.metis, state.world.worldModel.metis)
+            : undefined;
 
         return {
             ...state,
@@ -616,7 +715,7 @@ export const universeReducer = (
                 worldModel: {
                     ...state.world.worldModel,
                     ...(payload?.metis !== undefined
-                        ? { metis: normalizeModelviewObjectviewIdentities(payload.metis) }
+                        ? { metis: normalizeModelviewObjectviewIdentities(nextMetis) }
                         : {}),
                 },
             },

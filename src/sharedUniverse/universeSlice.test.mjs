@@ -27,7 +27,7 @@ const loadUniverseSlice = () => {
   return module.exports;
 };
 
-const { universeReducer, normalizeModelviewObjectviewIdentities, setUniversePhData } = loadUniverseSlice();
+const { universeReducer, normalizeModelviewObjectviewIdentities, setUniversePhData, setUniverseState } = loadUniverseSlice();
 
 const createState = () => ({
   world: {
@@ -348,6 +348,34 @@ test('legacy phData load preserves current objectview geometry for matching view
     },
   });
   const objectview = staleLoadedState.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
+
+  assert.equal(objectview.loc, '300 400');
+  assert.equal(objectview.group, 'group-1');
+  assert.equal(objectview.scale, 1.5);
+});
+
+test('full universe reload preserves current objectview geometry for matching views', () => {
+  const movedState = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES',
+    data: {
+      id: 'ov-1',
+      modelviewId: 'view-1',
+      loc: '300 400',
+      group: 'group-1',
+      scale: 1.5,
+    },
+  });
+  const staleUniverseState = createState();
+  staleUniverseState.world.worldModel.metis.models[0].modelviews[0].objectviews[0] = {
+    id: 'ov-1',
+    name: 'Object view 1',
+    loc: '0 0',
+    group: '',
+    scale: 1,
+  };
+
+  const reloadedState = universeReducer(movedState, setUniverseState(staleUniverseState));
+  const objectview = reloadedState.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
 
   assert.equal(objectview.loc, '300 400');
   assert.equal(objectview.group, 'group-1');

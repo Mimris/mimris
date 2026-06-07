@@ -684,13 +684,18 @@ export const universeReducer = (
     action: AnyAction,
 ): SharedUniverseState => {
     if (setUniverseState.match(action)) {
+        const nextMetis = preserveCurrentViewGeometryForMatchingItems(
+            action.payload.world.worldModel.metis,
+            state.world.worldModel.metis,
+        );
+
         return {
             ...action.payload,
             world: {
                 ...action.payload.world,
                 worldModel: {
                     ...action.payload.world.worldModel,
-                    metis: normalizeModelviewObjectviewIdentities(action.payload.world.worldModel.metis),
+                    metis: normalizeModelviewObjectviewIdentities(nextMetis),
                 },
             },
         };

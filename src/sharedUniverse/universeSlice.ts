@@ -755,6 +755,58 @@ export const universeReducer = (
         const githubState = asRecord(data.data) as LegacyUniverseRoot;
         return buildUniverseStateFromLegacy(githubState);
     }
+    if (action.type === 'LOAD_DATAMODEL_SUCCESS') {
+        const data = asRecord(action.data);
+        const metis = asRecord(state.world.worldModel.metis);
+        const models: any[] = Array.isArray(metis.models) ? metis.models : [];
+        const incomingModels = Array.isArray(data.model)
+            ? data.model
+            : data.model
+                ? [data.model]
+                : [];
+        if (!incomingModels.length) {
+            return {
+                ...state,
+                source: 'Model server',
+                world: {
+                    ...state.world,
+                    worldDefinition: {
+                        ...state.world.worldDefinition,
+                        domain: mergeDomainPatch(state.world.worldDefinition.domain, data.domain),
+                    },
+                },
+            };
+        }
+
+        const targetId = typeof data.id === 'string' ? data.id : incomingModels[0]?.id;
+        const targetIndex = targetId ? models.findIndex((model) => model?.id === targetId) : -1;
+        const nextIndex = targetIndex >= 0 ? targetIndex : models.length;
+        const nextModels = [
+            ...models.slice(0, nextIndex),
+            ...incomingModels,
+            ...models.slice(nextIndex + 1),
+        ];
+        const nextMetis = normalizeModelviewObjectviewIdentities({
+            ...metis,
+            models: nextModels,
+        });
+
+        return {
+            ...state,
+            source: 'Model server',
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    domain: mergeDomainPatch(state.world.worldDefinition.domain, data.domain),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    metis: nextMetis,
+                },
+            },
+        };
+    }
     if (action.type === 'LOAD_TOSTORE_PHDATA') {
         return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
     }

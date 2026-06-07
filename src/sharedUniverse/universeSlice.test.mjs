@@ -413,6 +413,53 @@ test('github data load success updates shared universe root fields', () => {
   );
 });
 
+test('model load success replaces matching shared model and merges domain', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_DATAMODEL_SUCCESS',
+    data: {
+      id: 'model-1',
+      domain: { description: 'Loaded model domain description' },
+      model: [
+        {
+          id: 'model-1',
+          name: 'Loaded model',
+          modelviews: [
+            {
+              id: 'loaded-model-view',
+              objectviews: [{ id: 'loaded-model-object', objectRef: 'loaded-model-object' }],
+            },
+          ],
+        },
+      ],
+    },
+  });
+
+  assert.equal(nextState.world.worldModel.metis.models.length, 2);
+  assert.equal(nextState.world.worldModel.metis.models[0].name, 'Loaded model');
+  assert.equal(nextState.world.worldModel.metis.models[1].id, 'model-2');
+  assert.equal(nextState.world.worldDefinition.domain.name, 'Domain');
+  assert.equal(nextState.world.worldDefinition.domain.description, 'Loaded model domain description');
+  assert.equal(nextState.source, 'Model server');
+  assert.equal(
+    nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
+    'loaded-model-object-loaded-model-view',
+  );
+});
+
+test('model load success appends missing shared model', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_DATAMODEL_SUCCESS',
+    data: {
+      id: 'model-new',
+      model: [{ id: 'model-new', name: 'New loaded model', modelviews: [] }],
+    },
+  });
+
+  assert.equal(nextState.world.worldModel.metis.models.length, 3);
+  assert.equal(nextState.world.worldModel.metis.models[2].id, 'model-new');
+  assert.equal(nextState.source, 'Model server');
+});
+
 test('current metamodel action updates shared metis current metamodel ref', () => {
   const nextState = universeReducer(createState(), {
     type: 'SET_CURRENT_METAMODEL',

@@ -3762,7 +3762,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
-          const goNode = myGoModel.findNode(key);
+          let goNode = myGoModel.findNode(key);
           let text: string = textvalue;
           const category: string = gjsData.category;
           const isMetamodelObjectTypeNode =
@@ -3789,12 +3789,19 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             const objview = myModelview.findObjectView(key);
             if (objview) {
+              if (!goNode) {
+                goNode = myGoModel.findNodeByViewId(objview.id);
+              }
               let obj = objview.object;
               if (obj) {
-                goNode.objRef = obj.id;
-                goNode.text = textvalue;
-                goNode.name = text;
-                obj = uic.updateObject(goNode, field, text, context);
+                if (goNode) {
+                  goNode.objRef = obj.id;
+                  goNode.text = textvalue;
+                  goNode.name = text;
+                  obj = uic.updateObject(goNode, field, text, context) || obj;
+                } else {
+                  obj[field] = text;
+                }
                 if (obj) {
                   obj.name = text;
                   obj.text = textvalue;

@@ -338,6 +338,46 @@ test('legacy phData load action updates shared universe data', () => {
   );
 });
 
+test('server data load success updates shared universe data and source', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_DATA_SUCCESS',
+    data: {
+      domain: { name: 'Server domain' },
+      documents: [{ id: 'doc-server', title: 'Server doc' }],
+      metis: {
+        models: [
+          {
+            id: 'server-model',
+            modelviews: [
+              {
+                id: 'server-view',
+                objectviews: [{ id: 'server-object', objectRef: 'server-object' }],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  });
+
+  assert.equal(nextState.world.worldDefinition.domain.name, 'Server domain');
+  assert.equal(nextState.compatibility.documents[0].id, 'doc-server');
+  assert.equal(nextState.source, 'Model server');
+  assert.equal(
+    nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
+    'server-object-server-view',
+  );
+});
+
+test('current metamodel action updates shared metis current metamodel ref', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'SET_CURRENT_METAMODEL',
+    data: { id: 'meta-target', name: 'Target meta' },
+  });
+
+  assert.equal(nextState.world.worldModel.metis.currentMetamodelRef, 'meta-target');
+});
+
 test('legacy phData load preserves current objectview geometry for matching views', () => {
   const movedState = universeReducer(createState(), {
     type: 'UPDATE_OBJECTVIEW_PROPERTIES',

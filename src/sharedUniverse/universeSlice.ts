@@ -744,6 +744,12 @@ export const universeReducer = (
     if (action.type === 'LOAD_TOSTORE_DATA') {
         return buildUniverseStateFromLegacy(action.data as LegacyUniverseRoot);
     }
+    if (action.type === 'LOAD_DATA_SUCCESS') {
+        return {
+            ...universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData)),
+            source: 'Model server',
+        };
+    }
     if (action.type === 'LOAD_TOSTORE_PHDATA') {
         return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
     }
@@ -915,6 +921,15 @@ export const universeReducer = (
         return updateMetis(state, {
             ...metis,
             ...asRecord(action.data),
+        });
+    }
+    if (action.type === 'SET_CURRENT_METAMODEL') {
+        const metis = asRecord(state.world.worldModel.metis);
+        if (!Object.keys(metis).length) return state;
+
+        return updateMetis(state, {
+            ...metis,
+            currentMetamodelRef: asRecord(action.data).id,
         });
     }
     if (action.type === 'UPDATE_MODEL_PROPERTIES' || action.type === 'UPDATE_TARGETMODEL_PROPERTIES') {

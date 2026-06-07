@@ -51,10 +51,12 @@ const rootReducer = (state: RootReducerState | undefined, action: AnyAction): Ro
     const legacyState = reduceLegacyState(state, action);
     const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
     const reducedUniverse = universeReducer(previousUniverse, action);
-    const nextUniverse = reducedUniverse !== previousUniverse
+    const didReduceUniverse = reducedUniverse !== previousUniverse;
+    const nextUniverse = didReduceUniverse
         ? reducedUniverse
         : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
     const nextLegacyState = (
+        didReduceUniverse ||
         setUniverseState.match(action) ||
         setUniversePhData.match(action) ||
         setUniverseUser.match(action) ||

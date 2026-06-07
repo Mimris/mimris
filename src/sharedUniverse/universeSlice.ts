@@ -626,6 +626,71 @@ export const universeReducer = (
             },
         };
     }
+    if (action.type === 'LOAD_TOSTORE_DATA') {
+        return buildUniverseStateFromLegacy(action.data as LegacyUniverseRoot);
+    }
+    if (action.type === 'LOAD_TOSTORE_PHDATA') {
+        return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
+    }
+    if (action.type === 'LOAD_TOSTORE_PHFOCUS') {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                focus: action.data,
+            },
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_PHUSER') {
+        return {
+            ...state,
+            user: action.data,
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_PHSOURCE') {
+        return {
+            ...state,
+            source: action.data,
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_NEWMODEL') {
+        const metis = asRecord(state.world.worldModel.metis);
+        const models = Array.isArray(metis.models) ? metis.models : [];
+        const patch = asRecord(action.data);
+        const nextMetis = {
+            ...metis,
+            models: [...models, patch],
+        };
+        return {
+            ...updateMetis(state, nextMetis),
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    ...(patch.domain !== undefined
+                        ? { domain: mergeDomainPatch(state.world.worldDefinition.domain, patch.domain) }
+                        : {}),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    metis: normalizeModelviewObjectviewIdentities(nextMetis),
+                },
+            },
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_NEWMODELVIEW') {
+        const metis = asRecord(state.world.worldModel.metis);
+        const models = Array.isArray(metis.models) ? metis.models : [];
+        const patch = asRecord(action.data);
+        const modelIndex = patch.id
+            ? models.findIndex((model) => model?.id === patch.id)
+            : -1;
+        const targetIndex = modelIndex >= 0 ? modelIndex : models.length;
+        return updateMetis(state, {
+            ...metis,
+            models: replaceArrayItem(models, targetIndex, patch),
+        });
+    }
     if (setUniverseDomain.match(action)) {
         return {
             ...state,

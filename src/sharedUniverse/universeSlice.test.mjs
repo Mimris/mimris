@@ -277,6 +277,68 @@ test('shared phData load actions normalize objectview identities', () => {
   );
 });
 
+test('legacy phData load action updates shared universe data', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_TOSTORE_PHDATA',
+    data: {
+      domain: { name: 'Loaded domain' },
+      documents: [{ id: 'doc-1', title: 'Doc 1' }],
+      metis: {
+        models: [
+          {
+            id: 'loaded-model',
+            modelviews: [
+              {
+                id: 'loaded-view',
+                objectviews: [{ id: 'loaded-object', objectRef: 'loaded-object' }],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  });
+
+  assert.equal(nextState.world.worldDefinition.domain.name, 'Loaded domain');
+  assert.equal(nextState.compatibility.documents[0].id, 'doc-1');
+  assert.equal(
+    nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
+    'loaded-object-loaded-view',
+  );
+});
+
+test('legacy new model load action appends to shared metis and merges domain', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_TOSTORE_NEWMODEL',
+    data: {
+      id: 'model-3',
+      name: 'Model 3',
+      domain: { description: 'Model domain detail' },
+      modelviews: [],
+    },
+  });
+
+  assert.equal(nextState.world.worldModel.metis.models.length, 3);
+  assert.equal(nextState.world.worldModel.metis.models[2].id, 'model-3');
+  assert.equal(nextState.world.worldDefinition.domain.name, 'Domain');
+  assert.equal(nextState.world.worldDefinition.domain.description, 'Model domain detail');
+});
+
+test('legacy new modelview load action replaces matching shared model', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_TOSTORE_NEWMODELVIEW',
+    data: {
+      id: 'model-1',
+      name: 'Model 1 with new view',
+      modelviews: [{ id: 'view-new', name: 'New view', objectviews: [], relshipviews: [] }],
+    },
+  });
+
+  assert.equal(nextState.world.worldModel.metis.models.length, 2);
+  assert.equal(nextState.world.worldModel.metis.models[0].name, 'Model 1 with new view');
+  assert.equal(nextState.world.worldModel.metis.models[0].modelviews[0].id, 'view-new');
+});
+
 test('metamodel collection mutations update current and target metamodels', () => {
   const stateWithCurrentType = universeReducer(createState(), {
     type: 'UPDATE_OBJECTTYPE_PROPERTIES',

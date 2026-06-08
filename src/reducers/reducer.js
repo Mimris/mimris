@@ -146,6 +146,10 @@ const OPTIONAL_RELSHIPVIEW_FIELDS = [
   'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
 ];
 
+function compactArray(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : [];
+}
+
 // import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
 // const InitProject = JSON.parse(JSON.stringify(InitProject))
@@ -210,25 +214,71 @@ let focusProj
 let focusRole
 let focusCollection
 
+const ACTIONS_ALLOWED_WITHOUT_CURRENT_MODEL = new Set([
+  FAILURE,
+  LOAD_DATA_SUCCESS,
+  LOAD_DATAGITHUB_SUCCESS,
+  LOAD_DATAMODELLIST_SUCCESS,
+  LOAD_DATAMODEL_SUCCESS,
+  LOAD_TOSTORE_DATA,
+  LOAD_TOSTORE_PHDATA,
+  LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_PHUSER,
+  LOAD_TOSTORE_PHSOURCE,
+  LOAD_TOSTORE_NEWMODEL,
+  LOAD_TOSTORE_NEWMODELVIEW,
+  SET_CURRENT_METAMODEL,
+  SET_FOCUS_PHFOCUS,
+  SET_FOCUS_USER,
+  SET_FOCUS_TAB,
+  SET_FOCUS_MODEL,
+  SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMETAMODEL,
+  SET_FOCUS_TARGETMODEL,
+  SET_FOCUS_TARGETMODELVIEW,
+  SET_FOCUS_OBJECT,
+  SET_FOCUS_OBJECTVIEW,
+  SET_FOCUS_RELSHIP,
+  SET_FOCUS_RELSHIPVIEW,
+  SET_FOCUS_OBJECTTYPE,
+  SET_FOCUS_RELSHIPTYPE,
+  SET_FOCUS_PROJ,
+  SET_FOCUS_ORG,
+  SET_FOCUS_ROLE,
+  SET_FOCUS_COLLECTION,
+  SET_FOCUS_TASK,
+  SET_FOCUS_SOURCE,
+  SET_FOCUS_REFRESH,
+  SET_FOCUS_ISSUE,
+  SET_USER_SHOWDELETED,
+  SET_USER_SHOWMODIFIED,
+  UPDATE_PROJECT_PROPERTIES,
+  UPDATE_DOMAIN_PROPERTIES,
+]);
+
 function reducer(state = InitialState, action) {  
 
   const { phData, domain, phFocus, phUser } = state;
   const { type, payload } = action;
   const focusModel = phFocus?.focusModel
-  const curModel = phData.metis.models.find((m) => m.id === focusModel?.id) || phData.metis.models[0] //current model;
+  const metis = phData?.metis || {};
+  const models = compactArray(metis.models);
+  const metamodels = compactArray(metis.metamodels);
+  const curModel = models.find((m) => m.id === focusModel?.id) || models[0] //current model;
   if (debug) console.log('174 reducer state', state, curModel);
-  if (!curModel) return state;
-  const curModelIndex = phData.metis.models.findIndex((m) => m.id === focusModel?.id);
-  const curModelview = curModel?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) || curModel?.modelviews[0] //current modelview
-  let curModelviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-  const curModelviewsLength = curModel?.modelviews?.length // lentgh of modelviews array
+  if (!curModel && !ACTIONS_ALLOWED_WITHOUT_CURRENT_MODEL.has(action.type)) return state;
+  const curModelIndex = curModel ? models.findIndex((m) => m.id === curModel.id) : -1;
+  const curModelviews = compactArray(curModel?.modelviews);
+  const curModelview = curModelviews.find(mv => mv.id === state.phFocus?.focusModelview?.id) || curModelviews[0] //current modelview
+  let curModelviewIndex = curModelviews.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
+  const curModelviewsLength = curModelviews.length // lentgh of modelviews array
   if (curModelviewIndex < 0) { curModelviewIndex = curModelviewsLength } // if modelview not found, i.e. -1, then add a new modelview
 
   // const curObjectType = curMetamodel.objecttypes.find((ot) => ot.id === curObjectView.objecttypeRef);
   // const curObjectTypeIndex = curMetamodel.objecttypes.findIndex((ot) => ot.id === curObjectView.objecttypeRef);
 
-  const curMetamodel = phData.metis.metamodels.find((m) => m.id === curModel.metamodelRef);
-  const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
+  const curMetamodel = curModel ? metamodels.find((m) => m.id === curModel.metamodelRef) : null;
+  const curMetamodelIndex = curModel ? metamodels.findIndex((m) => m.id === curModel.metamodelRef) : -1;
 
 
 
@@ -300,24 +350,24 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_DATAMODEL_SUCCESS:
       if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
-      let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      let loadmodindex = models.findIndex(m => m.id === action.data?.id) // current model index
       if (debug) console.log('431 reducer', loadmodindex)
-      if (loadmodindex < 0) { loadmodindex = state.phData.metis.models.length }
+      if (loadmodindex < 0) { loadmodindex = models.length }
       if (debug) console.log('433 reducer', loadmodindex)
       return {
         ...state,
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
+            ...metis,
             models: [
-              ...state.phData.metis.models.slice(0, loadmodindex),
+              ...models.slice(0, loadmodindex),
               ...action.data.model,
               // {
               //   ...action.data.model,
               //   modified: new Date().toISOString(),  // add modified date 
               // },
-              ...state.phData.metis.models.slice(loadmodindex + 1, state.phData.metis.models.length),
+              ...models.slice(loadmodindex + 1, models.length),
             ]
           },
           domain: {
@@ -375,9 +425,9 @@ function reducer(state = InitialState, action) {
           ...state.phData,
           metis: {
             ...normalizeModelviewObjectviewIdentities({
-              ...state.phData.metis,
+              ...metis,
               models: [
-                ...state.phData.metis.models, action.data
+                ...models, action.data
               ]
             })
           },
@@ -389,22 +439,22 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_TOSTORE_NEWMODELVIEW:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);
-      const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
-      let curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === action.data.id) // current model index
+      const curmnew = models.find(m => m.id === action.data.id) //current model
+      let curmindexnew = models.findIndex(m => m.id === action.data.id) // current model index
       // const curmnew = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      if (curmindexnew < 0) curmindexnew = state.phData?.metis?.models.length
+      if (curmindexnew < 0) curmindexnew = models.length
       return {
         ...state,
         phData: {
           ...state.phData,
           metis: {
             ...normalizeModelviewObjectviewIdentities({
-              ...state.phData.metis,
+              ...metis,
               models: [
-                ...state.phData.metis.models.slice(0, curmindexnew),
+                ...models.slice(0, curmindexnew),
                 action.data,
-                ...state.phData.metis.models.slice(curmindexnew + 1, state.phData?.metis?.models.length),
+                ...models.slice(curmindexnew + 1, models.length),
               ]
             })
           }

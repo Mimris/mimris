@@ -64,7 +64,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   let adminModel;
 
   if (metis != null) {
-    clogGreen('43 GenGojsModel: props', props);
+    clogGreen('67 GenGojsModel: props', props);
     if (debug) clogGreen('44 GenGojsModel: metis', phData.metis);
   const curmod = (focusModel?.id && models.length > 0) ? (models.find((m: any) => m.id === focusModel.id) || first(models)) : first(models); // safe first model fallback
     const curmodview = (curmod && focusModelview?.id && Array.isArray(curmod.modelviews) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id))

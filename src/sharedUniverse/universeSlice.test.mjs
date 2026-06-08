@@ -27,7 +27,13 @@ const loadUniverseSlice = () => {
   return module.exports;
 };
 
-const { universeReducer, normalizeModelviewObjectviewIdentities, setUniversePhData, setUniverseState } = loadUniverseSlice();
+const {
+  universeReducer,
+  normalizeModelviewObjectviewIdentities,
+  loadLegacyUniverseSnapshot,
+  setUniversePhData,
+  setUniverseState,
+} = loadUniverseSlice();
 
 const createState = () => ({
   world: {
@@ -428,6 +434,41 @@ test('github data load success updates shared universe root fields', () => {
     nextState.world.worldModel.metis.models[0].modelviews[0].objectviews[0].id,
     'github-object-github-view',
   );
+});
+
+test('legacy universe snapshot focuses first populated modelview when saved focus is empty', () => {
+  const nextState = universeReducer(createState(), loadLegacyUniverseSnapshot({
+    phData: {
+      metis: {
+        models: [
+          {
+            id: 'model-1',
+            name: 'Model 1',
+            modelviews: [
+              {
+                id: 'empty-view',
+                name: 'Empty view',
+                objectviews: [],
+                relshipviews: [],
+              },
+              {
+                id: 'populated-view',
+                name: 'Populated view',
+                objectviews: [{ id: 'object-1', objectRef: 'object-1' }],
+                relshipviews: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    phFocus: {
+      focusModel: { id: 'model-1', name: 'Model 1' },
+      focusModelview: { id: 'empty-view', name: 'Empty view' },
+    },
+  }));
+
+  assert.equal(nextState.world.focus.focusModelview.id, 'populated-view');
 });
 
 test('model load success replaces matching shared model and merges domain', () => {

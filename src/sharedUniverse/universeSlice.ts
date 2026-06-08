@@ -338,6 +338,53 @@ const findModelIndex = (
     return focusIndex >= 0 ? focusIndex : 0;
 };
 
+const hasRenderableModelviewContent = (modelview: any) => {
+    const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+    const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+    return objectviews.length > 0 || relshipviews.length > 0;
+};
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+    const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+    if (!modelviews.length) return null;
+
+    const requested = requestedModelview
+        ? modelviews.find((modelview) => (
+            modelview?.id === requestedModelview?.id ||
+            modelview?.name === requestedModelview?.name
+        ))
+        : null;
+    if (requested && hasRenderableModelviewContent(requested)) return requested;
+
+    return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+};
+
+const normalizeFocusForMetis = (metis: unknown, focus: unknown) => {
+    const focusRecord = asRecord(focus);
+    if (!Object.keys(focusRecord).length) return focus;
+
+    const metisRecord = asRecord(metis);
+    const models: any[] = Array.isArray(metisRecord.models) ? metisRecord.models : [];
+    if (!models.length) return focus;
+
+    const requestedModel = focusRecord.focusModel;
+    const resolvedModel = requestedModel
+        ? models.find((model) => (
+            model?.id === requestedModel?.id ||
+            model?.name === requestedModel?.name
+        ))
+        : null;
+    const focusModel = resolvedModel || models[0] || focusRecord.focusModel;
+    const focusModelview = resolveFocusableModelview(focusModel, focusRecord.focusModelview)
+        || focusRecord.focusModelview;
+
+    return {
+        ...focusRecord,
+        focusModel,
+        focusModelview,
+    };
+};
+
 const updateFocusedItem = (
     focus: Record<string, any>,
     field: string,
@@ -664,7 +711,12 @@ export const initialUniverseState: SharedUniverseState = {
 export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null): SharedUniverseState => {
     const documents = Array.isArray(state?.phData?.documents) ? state.phData.documents : EMPTY_DOCUMENTS;
     const metis = state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null;
+    const normalizedMetis = normalizeModelviewObjectviewIdentities(metis);
     const modelList = state?.universe?.compatibility?.modelList ?? state?.phList ?? null;
+    const focus = normalizeFocusForMetis(
+        normalizedMetis,
+        state?.universe?.world?.focus ?? state?.phFocus ?? null,
+    );
 
     return {
         world: {
@@ -672,9 +724,9 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
                 domain: state?.universe?.world?.worldDefinition?.domain ?? state?.phData?.domain ?? null,
             },
             worldModel: {
-                metis: normalizeModelviewObjectviewIdentities(metis),
+                metis: normalizedMetis,
             },
-            focus: state?.universe?.world?.focus ?? state?.phFocus ?? null,
+            focus,
         },
         user: state?.universe?.user ?? state?.phUser ?? null,
         source: state?.universe?.source ?? state?.phSource ?? null,
@@ -704,6 +756,7 @@ export const universeReducer = (
             action.payload.world.worldModel.metis,
             state.world.worldModel.metis,
         );
+        const normalizedMetis = normalizeModelviewObjectviewIdentities(nextMetis);
 
         return {
             ...action.payload,
@@ -711,8 +764,9 @@ export const universeReducer = (
                 ...action.payload.world,
                 worldModel: {
                     ...action.payload.world.worldModel,
-                    metis: normalizeModelviewObjectviewIdentities(nextMetis),
+                    metis: normalizedMetis,
                 },
+                focus: normalizeFocusForMetis(normalizedMetis, action.payload.world.focus),
             },
         };
     }
@@ -829,7 +883,7 @@ export const universeReducer = (
             ...state,
             world: {
                 ...state.world,
-                focus: action.data,
+                focus: normalizeFocusForMetis(state.world.worldModel.metis, action.data),
             },
         };
     }

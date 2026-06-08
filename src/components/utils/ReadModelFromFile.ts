@@ -23,6 +23,22 @@ const clearPersistedFileFocus = () => {
     window.localStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
 }
 
+const hasRenderableModelviewContent = (modelview: any) => {
+    const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+    const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+    return objectviews.length > 0 || relshipviews.length > 0;
+}
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+    if (!modelviews.length) return null;
+    const requested = requestedModelview
+        ? modelviews.find(mv => mv?.id === requestedModelview?.id || mv?.name === requestedModelview?.name)
+        : null;
+    if (requested && hasRenderableModelviewContent(requested)) return requested;
+    return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+}
+
 const buildSourcePropsFromSharedUniverse = (fallbackProps) => {
     const store = getCurrentStore?.();
     if (!store) return fallbackProps || {};
@@ -146,10 +162,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const resolvedProjectModel = importedProjectModels.find(model => model?.id === importedProjectFocus?.focusModel?.id)
                 || importedProjectModels[0]
                 || null
-            const resolvedProjectModelview = resolvedProjectModel?.modelviews?.find(mv => mv?.id === importedProjectFocus?.focusModelview?.id)
-                || resolvedProjectModel?.modelviews?.find(mv => mv)
-                || resolvedProjectModel?.modelviews?.[0]
-                || null
+            const resolvedProjectModelview = resolveFocusableModelview(resolvedProjectModel, importedProjectFocus?.focusModelview)
             const sanitizedProject = {
                 ...importedfile,
                 phData: {
@@ -198,11 +211,12 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 resetFileInput()
                 return
             }
-            const resolvedModel = importedfile?.phFocus?.focusModel || importedPrimaryModel || incomingMetis.models?.[0] || null
-            const resolvedModelview = importedfile?.phFocus?.focusModelview
-                || resolvedModel?.modelviews?.find(mv => mv)
-                || resolvedModel?.modelviews?.[0]
+            const requestedModel = importedfile?.phFocus?.focusModel || null
+            const resolvedModel = incomingMetis.models?.find(model => model?.id === requestedModel?.id || model?.name === requestedModel?.name)
+                || importedPrimaryModel
+                || incomingMetis.models?.[0]
                 || null
+            const resolvedModelview = resolveFocusableModelview(resolvedModel, importedfile?.phFocus?.focusModelview)
 
             clearPersistedFileFocus()
             dispatch(loadLegacyUniverseSnapshot({

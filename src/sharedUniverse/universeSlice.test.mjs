@@ -454,10 +454,8 @@ test('legacy universe snapshot focuses first populated modelview when saved focu
               {
                 id: 'populated-view',
                 name: 'Populated view',
-                objectviews: [],
+                objectviews: [{ id: 'objectview-1', objectRef: 'object-1' }],
                 relshipviews: [],
-                objecttypeviews: [{ id: 'objecttypeview-1', typeRef: 'objecttype-1' }],
-                relshiptypeviews: [],
               },
             ],
           },

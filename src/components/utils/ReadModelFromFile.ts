@@ -26,9 +26,7 @@ const clearPersistedFileFocus = () => {
 const hasRenderableModelviewContent = (modelview: any) => {
     const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
     const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
-    const objecttypeviews = Array.isArray(modelview?.objecttypeviews) ? modelview.objecttypeviews.filter(Boolean) : [];
-    const relshiptypeviews = Array.isArray(modelview?.relshiptypeviews) ? modelview.relshiptypeviews.filter(Boolean) : [];
-    return objectviews.length > 0 || relshipviews.length > 0 || objecttypeviews.length > 0 || relshiptypeviews.length > 0;
+    return objectviews.length > 0 || relshipviews.length > 0;
 }
 
 const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {

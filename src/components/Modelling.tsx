@@ -99,7 +99,6 @@ const Modelling = (props: any) => {
   const [mount, setMount] = useState(false)
   const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
-  const [gojsModelVersion, setGojsModelVersion] = useState(0)
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   // const [visibleContext, setVisibleContext] = useState(true)
@@ -210,16 +209,9 @@ const Modelling = (props: any) => {
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    let isCancelled = false;
-    Promise.resolve(GenGojsModel(compatibilityProps, myMetis)).then(() => {
-      if (isCancelled) return;
-      setActiveTab(activetabindex)
-      setMount(true);
-      setGojsModelVersion((version) => version + 1);
-    });
-    return () => {
-      isCancelled = true;
-    };
+    GenGojsModel(compatibilityProps, myMetis)
+    setActiveTab(activetabindex)
+    setMount(true);
   }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, metis])
 
   useEffect(() => {
@@ -691,7 +683,7 @@ const Modelling = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px", alignSelf: "flex-start" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "auto", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
-                      key={`model-${runtimeRefreshKey}-${gojsModelVersion}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
+                      key={`model-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
                       myMetis={myMetis}
                       metis={metis}
                       phData={phData}

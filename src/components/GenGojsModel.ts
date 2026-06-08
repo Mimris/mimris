@@ -44,12 +44,6 @@ const resolveFocusableModelview = (model: any, requestedModelview: any = null) =
   return modelviews.find(hasRenderableModelviewContent) || requested || first(modelviews);
 };
 
-const hasTypeModelviewContent = (modelview: any) => {
-  const objecttypeviews = Array.isArray(modelview?.objecttypeviews) ? modelview.objecttypeviews.filter(Boolean) : [];
-  const relshiptypeviews = Array.isArray(modelview?.relshiptypeviews) ? modelview.relshiptypeviews.filter(Boolean) : [];
-  return objecttypeviews.length > 0 || relshiptypeviews.length > 0;
-};
-
 const GenGojsModel = async (props: any, myMetis: any) => {
   // let myMetis = yourMetis;
   // let goParams = {};
@@ -117,12 +111,10 @@ const GenGojsModel = async (props: any, myMetis: any) => {
       if (debug) console.log('71 myModel :', myModel);
       let myModelview = (curmodview && myModel) ? myModel?.findModelView(curmodview?.id) : undefined;
       if (debug) console.log('73 myModelview', myModelview);
+      let myGoModel = (myModel) ? uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) : undefined;
+      if (debug) console.log('75 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       let myMetamodel = myModel?.metamodel;
       if (debug) console.log('77 myMetamodel :', myMetamodel);
-      let myGoModel = (myModel && hasTypeModelviewContent(myModelview))
-        ? uib.buildGoModelviewTypesModel(myMetamodel, myModelview, includeDeleted, showModified)
-        : ((myModel) ? uib.buildGoModel(myMetis, myModel, myModelview, includeDeleted, includeNoObject, showModified) : undefined);
-      if (debug) console.log('75 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoMetamodel = myMetamodel ? uib.buildGoMetaModel(myMetamodel, includeDeleted, showModified) : undefined;
       if (debug) console.log('79 myGoMetamodel', myGoMetamodel);
       const myGoMetamodelPalette = (myMetamodel) ? uib.buildGoMetaPalette() : undefined;

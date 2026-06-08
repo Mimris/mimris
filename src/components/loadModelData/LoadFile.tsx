@@ -41,13 +41,22 @@ const LoadFile = (props: any) => {
     phSource: sharedUniverse.source ?? props.ph?.phSource,
     phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
   };
+  const metis = ph.phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(m => m) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(mm => mm) : [];
+  const projectName = metis.name || 'Project';
+  const universeCategory = metis.category || '';
+  const expectedUniverseName = metis.category || 'Universe';
+  const currentModel = models.find(m => m.id === ph?.phFocus?.focusModel?.id) || models[0];
+  const currentMetamodel = metamodels.find(m => m.id === currentModel?.metamodelRef);
+  const currentModelview = currentModel?.modelviews?.find(mv => mv && (mv.id === ph?.phFocus?.focusModelview?.id)) || currentModel?.modelviews?.[0];
 
   function toggleRefresh() { setRefresh(!refresh); }
 
   // if (debug) console.log('28 LoadFile', props.ph.phData.metis.models);
 
-  const modelNames = ph.phData?.metis?.models?.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
-  const metamodelNames = ph.phData?.metis?.metamodels?.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
+  const modelNames = models.map((mn, index) => <span key={mn.id + index}>{mn.name} | </span>)
+  const metamodelNames = metamodels.map((mn, index) => (mn) && <span key={mn.id + index}>{mn.name} | </span>)
 
   if (debug) console.log('36 LoadLocal', props, typeof (window));
 
@@ -57,9 +66,9 @@ const LoadFile = (props: any) => {
     phData: {
       ...ph.phData,
       metis: {
-        ...ph.phData.metis,
-        models: ph.phData.metis.models.filter(m => m),
-        metamodels: ph.phData.metis.metamodels.filter(mm => mm),
+        ...metis,
+        models,
+        metamodels,
       },
     },
     domain: {
@@ -83,59 +92,52 @@ const LoadFile = (props: any) => {
 
   // Save all models and metamodels in current templates to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
-    const templatesname = ph.phData.metis.name
-    const universe = ph.phData.metis.category || ''
     if (debug) console.log('37 LoadFile', data);
-    SaveAllToFile(data, templatesname, '_PR', universe)
+    SaveAllToFile(data, projectName, '_PR', universeCategory)
     // SaveAllToFile(data, templatesname, 'AKMM-Project', universe)
   }
 
   // Save all models and metamodels in current templates to a file with date and time in the name to the downloads folder
   function handleSaveAllToFileDate() {
-    const templatesname = ph.phData.metis.name
-    const universe = ph.phData.metis.category || ''
     if (debug) console.log('37 LoadFile', data);
 
     // SaveAllToFileDate(data, templatesname, 'Project', universe)
-    SaveAllToFileDate(data, templatesname, '_PR', universe)
+    SaveAllToFileDate(data, projectName, '_PR', universeCategory)
   }
 
   // Save current model, metamodel, modelview, container to a file to the downloads folder
   // Attatch the metamodel to the model or modelview
   function handleSaveModelToFile() {
-    const templatesname = ph.phData.metis.name
-    const universe = ph.phData.metis.category || ''
-    const curmodel = ph?.phData?.metis?.models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    const curmmodel = ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
-    const model = { metamodels: curmmodel, models: curmodel }
-    SaveModelToFile(model, curmodel.name, "_MO", universe)
+    if (!currentModel) {
+      alert('No current model to export')
+      return
+    }
+    const model = { metamodels: currentMetamodel, models: currentModel }
+    SaveModelToFile(model, currentModel.name, "_MO", universeCategory)
   }
   function handleSaveModelviewToFile() {
-    const templatesname = ph.phData.metis.name
-    const universe = ph.phData.metis.category || ''
-    const curmodel = ph?.phData?.metis?.models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    if (debug) console.log('73 LoadFile', curmodel)
-    const focusModelviewIndex = curmodel.modelviews?.findIndex(m => m.id === ph?.phFocus?.focusModelview?.id)
-    const curmodelview = curmodel.modelviews[focusModelviewIndex]
-    const curmodelviewobjs = curmodel.objects.filter(obj => curmodelview.objectviews?.find(ov => ov.objectRef === obj.id))
-    const curmodelviewrelships = curmodel.relships.filter(rel => curmodelview.relshipviews?.find(rv => rv.relshipRef === rel.id))
-    const curmmodel = ph?.phData?.metis?.metamodels?.find(m => m.id === curmodel?.metamodelRef)
-    const modelview = { metamodels: curmmodel, modelviews: curmodelview, objects: curmodelviewobjs, relships: curmodelviewrelships }
-    SaveModelviewToFile(modelview, curmodel.name, "_MV", universe)
+    if (!currentModel || !currentModelview) {
+      alert('No current modelview to export')
+      return
+    }
+    if (debug) console.log('73 LoadFile', currentModel)
+    const curmodelviewobjs = (currentModel.objects || []).filter(obj => currentModelview.objectviews?.find(ov => ov.objectRef === obj.id))
+    const curmodelviewrelships = (currentModel.relships || []).filter(rel => currentModelview.relshipviews?.find(rv => rv.relshipRef === rel.id))
+    const modelview = { metamodels: currentMetamodel, modelviews: currentModelview, objects: curmodelviewobjs, relships: curmodelviewrelships }
+    SaveModelviewToFile(modelview, currentModel.name, "_MV", universeCategory)
   }
 
   // Save current metamodel to a file with date and time in the name to the downloads folder
   function handleSaveMetamodelToFile() {
-    const model = ph?.phData?.metis?.models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    const universe = ph.phData.metis.category || ''
-    const metamodel = ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef)
-    SaveMetamodelToFile(metamodel, metamodel.name, '_META', universe)
+    if (!currentMetamodel) {
+      alert('No current metamodel to export')
+      return
+    }
+    SaveMetamodelToFile(currentMetamodel, currentMetamodel.name, '_META', universeCategory)
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel', universe)
   }
 
   function handleSaveNewModel() {
-    const metamodels = ph?.phData?.metis?.metamodels
-
     const data = CreateNewModel(ph)
     if (debug) console.log('194 Loadfile', metamodels, data)
     if (!data) {
@@ -164,8 +166,7 @@ const LoadFile = (props: any) => {
 
     if (!debug) console.log('199 Loadfile', newmm, filename)
 
-  const universe = ph.phData.metis.category || ''
-  SaveAllToFile(templates, filename, '_PR', universe)
+    SaveAllToFile(templates, filename, '_PR', universeCategory)
 
     // More robust template checking
     if (template) {
@@ -177,22 +178,23 @@ const LoadFile = (props: any) => {
         filename.includes('BPMN')
       ) {
         console.log('159 Loadfile', template, filename)
-  SaveAllToFile(template, 'Mimris-template', '_PR', universe)
+        SaveAllToFile(template, 'Mimris-template', '_PR', universeCategory)
       }
     }
 
     if (newmm) {
       const metamodelname = newmm.name.replace('_META', '') // remove _META to avoid twice
-  SaveMetamodelToFile(newmm, metamodelname, '_META', universe)
+      SaveMetamodelToFile(newmm, metamodelname, '_META', universeCategory)
     }
   }
 
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
-    const templatesname = ph.phData.metis.name
-    const model = ph?.phData?.metis?.models?.find(m => m.id === ph?.phFocus?.focusModel?.id)
-    const modelview = model.modelviews?.find(mv => mv && (mv.id === ph?.phFocus?.focusModelview?.id))
-    WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
+    if (!currentModel || !currentModelview) {
+      alert('No current modelview to export as JSON')
+      return
+    }
+    WriteConvertModelToJSONFile(currentModel, currentModelview, currentModel.name, 'Json')
     // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, templatesname+'.'+model.name, 'AKMM-Model')
   }
@@ -291,7 +293,7 @@ const LoadFile = (props: any) => {
                   <h6>Import from file (will overwrite current)</h6>
                   <div style={{ fontSize: 'smaller', color: '#888' }}>
                     Expected filename: <br/>
-                    <code>{`${ph.phData.metis.name || 'Project'}_${ph.phData.metis.category || 'Universe'}_[Type].json`}</code>
+                    <code>{`${projectName}_${expectedUniverseName}_[Type].json`}</code>
                   </div>
                   <input
                     className="select-input "
@@ -301,7 +303,7 @@ const LoadFile = (props: any) => {
                     onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
-                        const expectedPrefix = `${ph.phData.metis.name || 'Project'}_${ph.phData.metis.category || 'Universe'}`;
+                        const expectedPrefix = `${projectName}_${expectedUniverseName}`;
                         if (!file.name.startsWith(expectedPrefix)) {
                           alert(`Warning: The selected file name does not match the current project/universe.\nExpected prefix: ${expectedPrefix}`);
                         }

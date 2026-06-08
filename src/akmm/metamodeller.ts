@@ -1362,14 +1362,22 @@ export class cxMetis {
         if (modelview) {
             let objview = modelview.findObjectView(item.id);
             if (!objview && item?.id) {
-                const object = this.findObject(item.objectRef);
+                const object =
+                    this.findObject(item.objectRef) ||
+                    modelview.model?.findObject?.(item.objectRef);
                 objview = new cxObjectView(item.id, item.name, object, item.description || "", modelview);
+                if (!objview.objectRef && item.objectRef)
+                    objview.objectRef = item.objectRef;
                 modelview.addObjectView(objview);
                 this.addObjectView(objview);
             }
             if (objview) {
                 if (debug) console.log('1170 item, objview', item, objview);
-                const object = this.findObject(item.objectRef);
+                if (!objview.objectRef && item.objectRef)
+                    objview.objectRef = item.objectRef;
+                const object =
+                    this.findObject(item.objectRef) ||
+                    modelview.model?.findObject?.(item.objectRef);
                 if (object) {
                     if (debug) console.log('1173 item.markedAsDeleted', item.markedAsDeleted);
                     objview.setObject(object);

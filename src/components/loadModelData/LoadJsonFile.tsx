@@ -1,17 +1,33 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ReadConvertJSONFromFileToAkm } from '../utils/ConvertJSONToAkmModel';
 import { ConnectImportedTopEntityTypes } from '../utils/ConnectImportedTopOSDUTypes';
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from '../utils/SaveModelToFile';
 import { ImportModelFromFile, ImportMetamodelFromFile } from '../utils/ImportModelFromFile';
+import { selectSharedUniverseState } from '../../sharedUniverse';
 
 const LoadJsonFile = (props: any) => {
-  if (!props.ph.phData?.metis.models) return <></>;
-
   const debug = false;
   const dispatch = useDispatch();
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const ph = {
+    ...props.ph,
+    phData: {
+      ...props.ph?.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || props.ph?.phFocus || {},
+    phUser: sharedUniverse.user || props.ph?.phUser || {},
+    phSource: sharedUniverse.source ?? props.ph?.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
+  };
+  const models = Array.isArray(ph.phData?.metis?.models) ? ph.phData.metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(ph.phData?.metis?.metamodels) ? ph.phData.metis.metamodels.filter(Boolean) : [];
+  if (!models.length) return <></>;
 
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -84,7 +100,7 @@ const LoadJsonFile = (props: any) => {
       ReadConvertJSONFromFileToAkm(
         data,
         dispatch,
-        props.ph,
+        ph,
         inclProps,
         inclPropLinks,
         inclXOsduProperties,
@@ -140,7 +156,7 @@ const LoadJsonFile = (props: any) => {
       ReadConvertJSONFromFileToAkm(
         r,
         dispatch,
-        props.ph,
+        ph,
         inclProps,
         inclPropLinks,
         inclXOsduProperties,
@@ -186,7 +202,7 @@ const LoadJsonFile = (props: any) => {
           ReadConvertJSONFromFileToAkm(
             fileContent,
             dispatch,
-            props.ph,
+            ph,
             inclProps,
             inclPropLinks,
             inclXOsduProperties,
@@ -211,8 +227,8 @@ const LoadJsonFile = (props: any) => {
 
 
 
-  const curModel = props.ph.phData?.metis?.models?.find(m => m.id === props.ph.phFocus?.focusModel?.id);
-  const curMetamodel = props.ph.phData?.metis?.metamodels?.find(m => m.id === curModel?.metamodelRef);
+  const curModel = models.find(m => m.id === ph.phFocus?.focusModel?.id) || models[0];
+  const curMetamodel = metamodels.find(m => m.id === curModel?.metamodelRef);
 
   const modalDiv = (
     <Modal size="lg" isOpen={modal} toggle={toggle}>
@@ -312,7 +328,7 @@ const LoadJsonFile = (props: any) => {
                 <h6>Connect imported OSDU Types</h6>
                 <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true"
                   title="Find Proxies that refers to EntityTypes and convert to relationships!"
-                  onClick={() => { ConnectImportedTopEntityTypes("JSON", props.ph, dispatch, inclDeprecated) }}
+                  onClick={() => { ConnectImportedTopEntityTypes("JSON", ph, dispatch, inclDeprecated) }}
                 >
                   Convert temporary Proxy-objects to Relationships
                 </Button>

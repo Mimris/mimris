@@ -7,11 +7,13 @@ import { i } from "./SvgLetters";
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from "./workspaceUniverseAdapter";
 import {
     loadLegacyUniverseSnapshot,
+    selectSharedUniverseState,
     setUniverseFocus,
     setUniversePhData,
     setUniverseSource,
     setUniverseUser,
 } from "../../sharedUniverse";
+import { getCurrentStore } from "../../store";
 
 const debug = false
 const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
@@ -19,6 +21,26 @@ const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 const clearPersistedFileFocus = () => {
     if (typeof window === 'undefined') return;
     window.localStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+}
+
+const buildSourcePropsFromSharedUniverse = (fallbackProps) => {
+    const store = getCurrentStore?.();
+    if (!store) return fallbackProps || {};
+    const sharedUniverse = selectSharedUniverseState(store.getState() as any);
+    if (!sharedUniverse) return fallbackProps || {};
+    return {
+        ...(fallbackProps || {}),
+        phData: {
+            ...(fallbackProps?.phData || {}),
+            domain: sharedUniverse.world.worldDefinition.domain ?? fallbackProps?.phData?.domain,
+            metis: sharedUniverse.world.worldModel.metis ?? fallbackProps?.phData?.metis,
+            documents: sharedUniverse.compatibility.documents ?? fallbackProps?.phData?.documents,
+        },
+        phFocus: sharedUniverse.world.focus || fallbackProps?.phFocus,
+        phUser: sharedUniverse.user || fallbackProps?.phUser,
+        phSource: sharedUniverse.source ?? fallbackProps?.phSource,
+        phList: sharedUniverse.compatibility.modelList ?? fallbackProps?.phList,
+    };
 }
 
 export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
@@ -59,7 +81,8 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault();
     const reader = new FileReader();
-    const sourceProps = props?.phData ? props : props?.ph
+    const legacySourceProps = props?.phData ? props : props?.ph
+    const sourceProps = buildSourcePropsFromSharedUniverse(legacySourceProps)
     const resetFileInput = () => {
         if (e?.target) e.target.value = ''
     }
@@ -625,23 +648,24 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
     reader.onload = async (e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
+        const sourceProps = buildSourcePropsFromSharedUniverse(props)
         //   alert(text)
-        if (debug) console.log('170 ReadModelFromFile', props);
-        let mmmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
-        const mmlength = props.phData?.metis?.metamodels.length
+        if (debug) console.log('170 ReadModelFromFile', sourceProps);
+        let mmmindex = sourceProps.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
+        const mmlength = sourceProps.phData?.metis?.metamodels.length
         if (mmmindex < 0) { mmmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
         if (debug) console.log('174 ReadModelFromFile', metamodelff, mmmindex, mmlength);
         const data = {
             phData: {
-                ...props.phData,
+                ...sourceProps.phData,
                 metis: {
-                    ...props.phData.metis,
+                    ...sourceProps.phData.metis,
                     metamodels: [
-                        ...props.phData.metis.metamodels.slice(0, mmmindex),
+                        ...sourceProps.phData.metis.metamodels.slice(0, mmmindex),
                         metamodelff,
-                        ...props.phData.metis.metamodels.slice(mmmindex + 1, props.phData.metis.metamodels.length),
+                        ...sourceProps.phData.metis.metamodels.slice(mmmindex + 1, sourceProps.phData.metis.metamodels.length),
                     ],
-                    models: props.phData.metis.models,
+                    models: sourceProps.phData.metis.models,
                 },
             },
         };

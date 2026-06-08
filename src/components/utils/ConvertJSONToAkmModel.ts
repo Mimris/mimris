@@ -45,14 +45,20 @@ export const ReadConvertJSONFromFileToAkm = async (
     //     console.log('13 ', files, e)
     //     const reader = new FileReader()
 
-    const curModel = props.phData?.metis.models.find((m: { id: any }) => m.id === props.phFocus.focusModel.id);
+    const phData = props.phData || props.ph?.phData || {};
+    const phFocus = props.phFocus || props.ph?.phFocus || {};
+    const metis = phData.metis || {};
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
+    const curModel = models.find((m: { id: any }) => m.id === phFocus.focusModel?.id) || models[0];
     if (!curModel) return;
     const objects = curModel?.objects;
     if (debug) console.log("53 ", inclProps, inclPropLinks, inclXOsduProperties, inclAbstractPropLinks, inclArrayProperties, inclGeneric, inclAbstract, inclReference, inclMasterdata, inclWorkProductComponent, modelType, curModel, objects);
 
-    const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any }) => mm.id === curModel.metamodelRef);
-    const curObjTypes = curMetamodel.objecttypes;
-    const curRelTypes = curMetamodel.relshiptypes;
+    const curMetamodel = metamodels.find((mm: { id: any }) => mm.id === curModel.metamodelRef);
+    if (!curMetamodel) return;
+    const curObjTypes = curMetamodel.objecttypes || [];
+    const curRelTypes = curMetamodel.relshiptypes || [];
 
     const JsonObjectType = curObjTypes.find((co: { name: string }) => co.name === "JsonObject" && co);
 

@@ -11,6 +11,7 @@ import { useSelector, useDispatch, useStore } from 'react-redux'
 import FieldDiv from './FieldDiv'
 import { selectIcons } from './selectIcons'
 import { selectSharedUniverseState } from '../../sharedUniverse'
+import { persistMemoryState } from '../utils/memoryStateStorage'
 // import SelectColor from './SelectColor'
 // import { colorOptions } from './data';
 
@@ -146,8 +147,7 @@ const EditProperties = (props) => {
           phUser: state.user,
           phSource: state.source,
         }
-        window?.sessionStorage?.setItem('memorystate', JSON.stringify(persistedState))
-        window?.localStorage?.setItem('memorystate', JSON.stringify(persistedState))
+        persistMemoryState(persistedState)
       } catch (_) {}
     }, 100); // Small delay allows Redux reducer to complete
   }

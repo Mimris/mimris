@@ -12,6 +12,7 @@ import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } fr
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
 import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
 
 const page = () => {
     const dispatch = useDispatch();
@@ -122,7 +123,7 @@ const page = () => {
     };
     const loadLocalMemoryState = () => {
         try {
-            const stored = window.localStorage.getItem('memorystate');
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
             const parsed = stored ? JSON.parse(stored) : null;
             if (parsed) {
                 dispatchLoadedState(parsed);
@@ -136,7 +137,7 @@ const page = () => {
     const readStoredMemoryState = () => {
         if (typeof window === 'undefined') return null;
         try {
-            const stored = window.localStorage.getItem('memorystate') || window.sessionStorage.getItem('memorystate');
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
             return stored ? JSON.parse(stored) : null;
         } catch (error) {
             console.error('Error parsing memoryLocState:', error);
@@ -677,9 +678,10 @@ const page = () => {
         };
 
         try {
-            const serialized = JSON.stringify(snapshot);
-            window.sessionStorage.setItem('memorystate', serialized);
-            window.localStorage.setItem('memorystate', serialized);
+            const result = persistMemoryState(snapshot);
+            if (result.localQuotaExceeded) {
+                console.warn('Local model draft exceeded localStorage quota; kept the current draft in sessionStorage only.');
+            }
         } catch (error) {
             console.error('Unable to persist local model draft:', error);
         }

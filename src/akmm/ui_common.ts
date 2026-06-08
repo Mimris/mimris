@@ -3946,14 +3946,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     } else if (objChanged) {
                         oview['fillcolor'] = 'red';
                     }
-                    const myNode = myGoModel.findNodeByViewId(oview.id);
+                    const myNode = myGoModel?.findNodeByViewId?.(oview.id);
                     if (myNode) {
                         myNode.name = oview.name;
-                        const node = myDiagram.findNodeForKey(myNode?.key);
+                        const node = myDiagram?.findNodeForKey?.(myNode?.key);
                         if (node) node.data = myNode; // sf added if (node)
                     }
                 }
-                myDiagram.requestUpdate();
+                myDiagram?.requestUpdate?.();
             }
         }
         msg += "Verifying objects and object types are completed\n";

@@ -28,9 +28,12 @@ const LoadLocal = (props: any) => {
     phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
   };
   const toggleRefresh = ph.toggleRefresh
+  const metis = ph.phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
 
-  const modelNames = ph.phData?.metis?.models.map((mn: { id: string, name: string }) => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = ph.phData?.metis?.metamodels.map((mn: { id: string, name: string }) => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = models.map((mn: { id: string, name: string }) => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = metamodels.map((mn: { id: string, name: string }) => (mn) && <span key={mn.id}>{mn.name} | </span>)
   if (debug) console.log('24 LoadLocal', ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return

@@ -36,16 +36,18 @@ function LoginServer(props: any) {
   };
   const phFocus = sharedUniverse.world.focus || props.ph?.phFocus || {};
   const modelList = sharedUniverse.compatibility.modelList ?? props.ph?.phList;
+  const metis = phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
 
   const modellist = modelList?.modList;
   // const modellist = (props.ph.phList) && props.ph.phList.modList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) && { value: ml.id, label: ml.name });
   if (debug) console.log('27 LoginServer', modelList, selmodellist);
 
-  const modelNames = phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>);
-  const metamodelNames = phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>);
+  const modelNames = models.map(mn => <span key={mn.id}>{mn.name} | </span>);
+  const metamodelNames = metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>);
   // console.log('20 LoadLocal', modelNames, metamodelNames);
-  const models = phData?.metis?.models;
   const focusModel = phFocus?.focusModel;
   const model = models?.find((m: any) => m?.id === focusModel?.id); // || models[0]
   const selmodels = models?.map((m: any) => m);

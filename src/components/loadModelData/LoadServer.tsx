@@ -27,6 +27,9 @@ const SelectSource = (props: any) => {
   const phFocus = sharedUniverse.world.focus || props.ph?.phFocus || {};
   const phSource = sharedUniverse.source ?? props.ph?.phSource;
   const modelList = sharedUniverse.compatibility.modelList ?? props.ph?.phList;
+  const metis = phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
   
   const modellist = modelList?.modList
   if (debug) console.log('26 LoadServer', props.ph, modelList?.modList, modellist);
@@ -34,9 +37,9 @@ const SelectSource = (props: any) => {
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
   if (debug) console.log('27 LoadServer',  selmodellist);
 
-  const modelNames = phData?.metis?.models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', phData.metis, modelNames, metamodelNames);
+  const modelNames = models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  if (debug) console.log('20 LoadLocal', metis, modelNames, metamodelNames);
 
   function handleLoadModelStore() { 
     const data = phFocus.focusModel
@@ -48,10 +51,11 @@ const SelectSource = (props: any) => {
   function handleSaveModelStore() {
     // saving current model and metamodel
     const focusmodel = phFocus.focusModel
-    const model = phData.metis.models.find(m => m.id === focusmodel.id)
-    const metamodel = phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = (model.targetMetamodelRef) && phData?.metis?.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = (model.targetModelRef) && phData?.metis?.models.find(mm => mm.id === model.targetModelRef)
+    const model = models.find(m => m.id === focusmodel?.id)
+    if (!model) return
+    const metamodel = metamodels.find(mm => mm.id === model.metamodelRef)
+    const currentTargetMetamodel = (model.targetMetamodelRef) && metamodels.find(mm => mm.id === model.targetMetamodelRef)
+    const currentTargetModel = (model.targetModelRef) && models.find(mm => mm.id === model.targetModelRef)
     // const phData = props.phData
     const data = {
       metis: {
@@ -69,7 +73,6 @@ const SelectSource = (props: any) => {
     saveModelDataToServer(data)
   }
  
-  const models = phData?.metis?.models
   const focusModel = phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
@@ -237,4 +240,3 @@ const SelectSource = (props: any) => {
 }
 
 export default SelectSource
-

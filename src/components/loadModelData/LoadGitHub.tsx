@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 // import base64 from 'base-64';
 
@@ -11,13 +11,14 @@ import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, s
 // import { loadDataModel } from '../../actions/actions';
 
 import { SaveAllToFile } from '../utils/SaveModelToFile';
-import { loadLegacyUniverseSnapshot, setUniversePhData } from '../../sharedUniverse';
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState, setUniversePhData } from '../../sharedUniverse';
 // import { load } from 'cheerio';
 
 const debug = false
 
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const [refresh, setRefresh] = useState(true);
   const modalRef = useRef(null);
   const backdropref = useRef(null);
@@ -34,10 +35,23 @@ const LoadGitHub = (props: any) => {
 
 
 
-  let phFocus = props.ph.phFocus;
-  let phData = props.ph.phData
-  let phUser = props.ph.phUser
-  let phSource = props.ph.phSource
+  const ph = {
+    ...props.ph,
+    phData: {
+      ...props.ph?.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || props.ph?.phFocus || {},
+    phUser: sharedUniverse.user || props.ph?.phUser || {},
+    phSource: sharedUniverse.source ?? props.ph?.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
+  };
+  let phFocus = ph.phFocus;
+  let phData = ph.phData
+  let phUser = ph.phUser
+  let phSource = ph.phSource
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
 
@@ -46,10 +60,10 @@ const LoadGitHub = (props: any) => {
 
   // const [searchText, setSearchText] = useState('');
   // const [usernameText, setUsernameText] = useState('Kavca');
-  const [orgText, setOrgText] = useState(props.ph.phFocus?.focusProj?.org);
-  const [repoText, setRepoText] = useState(props.ph.phFocus?.focusProj?.repo);
-  const [pathText, setPathText] = useState(props.ph.phFocus?.focusProj?.path);
-  const [branchText, setBranchText] = useState(props.ph.phFocus?.focusProj?.branch);
+  const [orgText, setOrgText] = useState(phFocus?.focusProj?.org);
+  const [repoText, setRepoText] = useState(phFocus?.focusProj?.repo);
+  const [pathText, setPathText] = useState(phFocus?.focusProj?.path);
+  const [branchText, setBranchText] = useState(phFocus?.focusProj?.branch);
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState<{ phData: any, phFocus: any, phUser: any, phSource: any }[]>([]);
@@ -68,9 +82,9 @@ const LoadGitHub = (props: any) => {
   // if (props.ph.path !== '') setPathText(props.ph.path);
 
   const data = {
-    phData: props.ph.phData,
-    phFocus: props.ph.phFocus,
-    phUser: props.ph.phUser,
+    phData: ph.phData,
+    phFocus: ph.phFocus,
+    phUser: ph.phUser,
     // phSource: propsSource,
     phSource: (phSource === "") && phData.metis.name || phSource,
     lastUpdate: new Date().toISOString()
@@ -174,7 +188,7 @@ const LoadGitHub = (props: any) => {
     if (impProjFile != null) {
       if (filename.includes('_META.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = projFile as { id: string }; // Add type assertion to specify that mprojFile is of type { id: string }
-        let mmindex = props.ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) && mm.id === mmodel?.id) // current mmodel index
+        let mmindex = ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) && mm.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
         // if ( mmindex !== -1) { //  found
@@ -185,20 +199,20 @@ const LoadGitHub = (props: any) => {
         //     name: tmpmodel.name+'_old',
         //   }    
         // }
-        const mmlength = props.ph.phData?.metis?.metamodels.length
+        const mmlength = ph.phData?.metis?.metamodels.length
         if (mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
-            ...props.ph.phData,
+            ...ph.phData,
             metis: {
-              ...props.ph.phData.metis,
+              ...ph.phData.metis,
               metamodels: [
-                ...props.ph.phData.metis.metamodels.slice(0, mmindex),
+                ...ph.phData.metis.metamodels.slice(0, mmindex),
                 // oldmodel,
                 mmodel,
-                ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
+                ...ph.phData.metis.metamodels.slice(mmindex + 1, ph.phData.metis.metamodels.length),
               ],
-              models: props.ph.phData.metis.models,
+              models: ph.phData.metis.models,
             },
           },
         };
@@ -206,20 +220,20 @@ const LoadGitHub = (props: any) => {
         if (data.phData) dispatch(setUniversePhData(data.phData))
       } else if (filename.includes('_MO.json')) { // Todo: check if it is only model  
         const newmodel = projFile as { id: string };; // model is a metamodel
-        let newmindex = props.ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
-        const newmlength = props.ph.phData?.metis?.models.length
+        let newmindex = ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
+        const newmlength = ph.phData?.metis?.models.length
         if (newmindex < 0) { newmindex = newmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
-            ...props.ph.phData,
+            ...ph.phData,
             metis: {
-              ...props.ph.phData.metis,
-              metamodels: props.ph.phData.metis.metamodels,
+              ...ph.phData.metis,
+              metamodels: ph.phData.metis.metamodels,
               models: [
-                ...props.ph.phData.metis.metamodels.slice(0, newmindex),
+                ...ph.phData.metis.metamodels.slice(0, newmindex),
                 // oldmodel,
                 newmodel,
-                ...props.ph.phData.metis.models.slice(newmindex + 1, props.ph.phData.metis.models.length),
+                ...ph.phData.metis.models.slice(newmindex + 1, ph.phData.metis.models.length),
               ],
             },
           },
@@ -311,14 +325,14 @@ const LoadGitHub = (props: any) => {
 
   useEffect(() => {
     if (debug) console.log('291 Modeller useEffect 1 [] ');
-    setOrgText(props.ph.phFocus?.focusProj?.org)
-    setRepoText(props.ph.phFocus?.focusProj?.repo)
+    setOrgText(phFocus?.focusProj?.org)
+    setRepoText(phFocus?.focusProj?.repo)
     if (pathText === undefined || pathText === '') {
       setPathText('/')
     } else {
-      setPathText(props.ph.phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
+      setPathText(phFocus?.focusProj?.path) // !== '') ? props.ph.phFocus?.focusProj?.path : 'models')
     }
-    setBranchText(props.ph.phFocus?.focusProj?.branch)
+    setBranchText(phFocus?.focusProj?.branch)
     // setUsernameText(props.ph.phFocus?.focusProj?.username)
     // const orgText = props.ph.phFocus?.focusProj?.org
     // const repoText = props.ph.phFocus?.focusProj?.repo
@@ -357,7 +371,7 @@ const LoadGitHub = (props: any) => {
   // console.log('160 githubLink', githubLink)
 
   function handleSaveAllToFile() {
-    const projectname = props.ph.phData.metis.name
+    const projectname = ph.phData.metis.name
     SaveAllToFile(data, projectname, '_PR')
   }
 

@@ -22,8 +22,11 @@ function ObjectTable(props) {  // props = ph = all phData
   }
   // console.log('15', hiddenColumns);
   
-  const models = props.ph.phData?.metis.models
-  const focusModelId = props.phFocus?.focusModel.id
+  const ph = props.ph || {};
+  const phData = ph.phData || {};
+  const phFocus = ph.phFocus || {};
+  const models = Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : []
+  const focusModelId = phFocus?.focusModel?.id || models[0]?.id
   const modelindex = models?.findIndex((m: any) => m?.id === focusModelId)
   // const focusModelviewId = props.phFocus?.focusModelview.id
   const curmod = models?.find(m => m.id === focusModelId)
@@ -31,14 +34,14 @@ function ObjectTable(props) {  // props = ph = all phData
   // const curmodview = curmod.modelviews?.find(mv => mv.id === focusModelviewId)
   
   
-  const objects = curmod?.objects || models[0].objects
+  const objects = curmod?.objects || models[0]?.objects || []
   if (debug) console.log('34', curmod, models[0], objects);
 
-    const metamodels = props.ph.phData?.metis.metamodels
+    const metamodels = Array.isArray(phData?.metis?.metamodels) ? phData.metis.metamodels.filter(Boolean) : []
     const curmmod = metamodels.find(mm => mm.id === curmod?.metamodelRef)
     
     if (debug) console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
-    const edititem = objects[0]
+    const edititem = objects[0] || {}
 
     function listAllProperties(o) { // list all obj properties incl prototype properties
       var objectToInspect;
@@ -154,7 +157,7 @@ function ObjectTable(props) {  // props = ph = all phData
           id: o.id,
           name: o.name,
           description: o.description,
-          type: curmmod?.objecttypes.find(ot => (ot.id === o.typeRef)).name,
+          type: curmmod?.objecttypes?.find(ot => (ot.id === o.typeRef))?.name,
           modViews: modelviews?.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
           // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
           deleted: (o.markedAsDeleted) && 'deleted',

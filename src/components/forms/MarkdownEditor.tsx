@@ -1,7 +1,6 @@
-// ts-nocheck
+// @ts-nocheck
 
 import { useEffect, useState } from "react";
-import { useSelector } from 'react-redux'
 // import { saveAs } from "file-saver";
 import Markdown from 'markdown-to-jsx';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -28,26 +27,29 @@ const MarkdownEditor = ({ ph, reportType, modelInFocusId, edit }: { ph: any, rep
   const [selectedId, setSelectedId] = useState('');
   const [objview, setObjview] = useState(null);
 
-  const metamodels = useSelector(state => ph.phData?.metis?.metamodels)  // selecting the models array
-  const focusModel = useSelector(state => ph.phFocus?.focusModel)
-  const focusUser = useSelector(state => ph.phUser?.focusUser)
-  const focusModelview = useSelector(state => ph.phFocus?.focusModelview)
-  const focusObjectview = useSelector(state => ph.phFocus?.focusObjectview)
-  const focusObject = useSelector(state => ph.phFocus?.focusObject)
+  const phData = ph?.phData || {};
+  const phFocus = ph?.phFocus || {};
+  const phUser = ph?.phUser || {};
+  const metamodels = Array.isArray(phData?.metis?.metamodels) ? phData.metis.metamodels.filter(Boolean) : []
+  const focusModel = phFocus?.focusModel
+  const focusUser = phUser?.focusUser
+  const focusModelview = phFocus?.focusModelview
+  const focusObjectview = phFocus?.focusObjectview
+  const focusObject = phFocus?.focusObject
 
   if (debug) console.log('37 Context', focusModel, focusModelview, focusObjectview, ph);
 
-  const models = useSelector(state => ph.phData?.metis?.models)  // selecting the models array
+  const models = Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : []
 
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) //|| models[0]
-  const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const curmodelview = modelviews?.find((mv: any) => mv?.id === curmodel.modelviews.find((mv: any) => mv.id === focusModelview.id)?.id)
+  const modelviews = Array.isArray(curmodel?.modelviews) ? curmodel.modelviews.filter(Boolean) : []
+  const curmodelview = modelviews?.find((mv: any) => mv?.id === focusModelview?.id) || modelviews[0]
   const curmetamodel = metamodels?.find((mm: any) => (mm) && mm.id === (curmodel?.metamodelRef))
   const objects = curmodel?.objects //.map((o: any) => o)
-  const curobjectviews = modelviews?.objectviews
-  const currelshipviews = modelviews?.relshipviews
+  const curobjectviews = curmodelview?.objectviews || []
+  const currelshipviews = curmodelview?.relshipviews || []
   const currelationships = curmodel?.relships.filter((r: any) => r && currelshipviews?.find((crv: any) => crv.relshipRef === r.id))
-  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find((mv: any) => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview.id, modelviews);
+  if (debug) console.log('38 Context', focusModelview?.id, curobjectviews, modelviews, modelviews?.find((mv: any) => mv.id === focusModelview?.id), currelshipviews, currelationships, curobjectviews, focusModelview?.id, modelviews);
 
 
   let curobject = (focusObject?.id === 'no objects selected') ? curmodelview : objects?.find((o: any) => o.id === focusObject?.id) || curmodelview
@@ -79,21 +81,21 @@ const MarkdownEditor = ({ ph, reportType, modelInFocusId, edit }: { ph: any, rep
 
   const title = 'children'
 
-  let orgLength = ph.phFocus.focusProj?.org?.length || 0;
-  let repoLength = ph.phFocus.focusProj?.repo?.length || 0;
-  let pathLength = ph.phFocus.focusProj?.path?.length || 0;
-  let fileLength = ph.phFocus.focusProj?.file?.length || 0;
-  let branchLength = ph.phFocus.focusProj?.branch?.length || 0;
+  let orgLength = phFocus.focusProj?.org?.length || 0;
+  let repoLength = phFocus.focusProj?.repo?.length || 0;
+  let pathLength = phFocus.focusProj?.path?.length || 0;
+  let fileLength = phFocus.focusProj?.file?.length || 0;
+  let branchLength = phFocus.focusProj?.branch?.length || 0;
 
-  let userLength = ph.phFocus.focusUser?.name.length || 0;
+  let userLength = focusUser?.name?.length || 0;
   let dateLength = new Date().toLocaleDateString().length;
   let timeLength = new Date().toLocaleTimeString().length;
 
   const handleAddObjectHeader = () => {
-    setMdHeaderString(` ${ph.phFocus.focusProj?.name} \n\n --- \n\n`);
+    setMdHeaderString(` ${phFocus.focusProj?.name} \n\n --- \n\n`);
   };
 
-  const fileName = `${ph.phFocus.focusProj?.name}_${ph.phFocus.focusModel?.name}_${ph.phFocus.focusModelview?.name}`.replace(/ /g, '-');
+  const fileName = `${phFocus.focusProj?.name}_${phFocus.focusModel?.name}_${phFocus.focusModelview?.name}`.replace(/ /g, '-');
   const svgFileName = `${fileName}.svg`
   const pngFileName = `${fileName}.png`
   const mdFileName = `${fileName}.md`
@@ -103,19 +105,19 @@ const MarkdownEditor = ({ ph, reportType, modelInFocusId, edit }: { ph: any, rep
 
 
   let markdownString = `Markdown Report from AKM Modeller \n\n --- \n\n
-  Project file: ${ph.phFocus.focusProj?.file}
+  Project file: ${phFocus.focusProj?.file}
 
   <details>
   <summary>More about the project ... </summary>
   <nobr>
     | ***Organisation:*** | ***Repository:*** | ***Path:*** | ***Project file:*** | ***Branch:*** |
     |  ${"-".repeat(orgLength + 4)} | ${"-".repeat(repoLength + 4)} | ${"-".repeat(pathLength + 4)} | ${"-".repeat(fileLength + 4)} | ${"-".repeat(branchLength + 4)} |
-    |  "${ph.phFocus.focusProj?.org?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.repo?.padEnd(2)}"  |  "${ph.phFocus.focusProj?.path}"  |  "${ph.phFocus.focusProj?.file}"  |  "${ph.phFocus.focusProj?.branch}"  |
+    |  "${phFocus.focusProj?.org?.padEnd(2)}"  |  "${phFocus.focusProj?.repo?.padEnd(2)}"  |  "${phFocus.focusProj?.path}"  |  "${phFocus.focusProj?.file}"  |  "${phFocus.focusProj?.branch}"  |
     </nobr>
     <nobr> --- \n\n
     | user | date${" ".repeat(dateLength - 4)} | time${" ".repeat(timeLength - 4)} |
     | ${"-".repeat(userLength + 2)} | ${"-".repeat(dateLength + 2)} | ${"-".repeat(timeLength + 2)} |
-    | "${ph.phFocus.focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
+    | "${focusUser?.name || 'no user defined'}" | "${new Date().toLocaleDateString()}" | "${new Date().toLocaleTimeString()}" |
     </nobr>
   </details>
   `

@@ -42,6 +42,7 @@ const Page1 = () => {
     phFocus: sharedUniverse.world.focus as any,
     phUser: sharedUniverse.user as any,
     phSource: sharedUniverse.source as any,
+    phList: sharedUniverse.compatibility.modelList,
   };
   const focus = props.phFocus;
   // const [toggleRefresh, setToggleRefresh] = useState(false)

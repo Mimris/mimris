@@ -93,6 +93,7 @@ const createState = () => ({
   source: 'source',
   compatibility: {
     documents: [],
+    modelList: null,
   },
 });
 
@@ -458,6 +459,16 @@ test('model load success appends missing shared model', () => {
   assert.equal(nextState.world.worldModel.metis.models.length, 3);
   assert.equal(nextState.world.worldModel.metis.models[2].id, 'model-new');
   assert.equal(nextState.source, 'Model server');
+});
+
+test('model list load success updates shared compatibility model list', () => {
+  const modelList = { modList: [{ id: 'server-model', name: 'Server model' }] };
+  const nextState = universeReducer(createState(), {
+    type: 'LOAD_DATAMODELLIST_SUCCESS',
+    data: modelList,
+  });
+
+  assert.deepEqual(nextState.compatibility.modelList, modelList);
 });
 
 test('current metamodel action updates shared metis current metamodel ref', () => {

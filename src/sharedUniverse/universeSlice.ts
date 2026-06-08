@@ -2,6 +2,7 @@ import { createAction, type AnyAction } from '@reduxjs/toolkit';
 
 export type LegacyUniverseRoot = {
     universe?: SharedUniverseState;
+    phList?: unknown;
     phData?: {
         domain?: unknown;
         metis?: unknown;
@@ -32,6 +33,7 @@ export type SharedUniverseState = {
     source: unknown;
     compatibility: {
         documents: unknown[];
+        modelList: unknown;
     };
 };
 
@@ -655,12 +657,14 @@ export const initialUniverseState: SharedUniverseState = {
     source: null,
     compatibility: {
         documents: EMPTY_DOCUMENTS,
+        modelList: null,
     },
 };
 
 export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null): SharedUniverseState => {
     const documents = Array.isArray(state?.phData?.documents) ? state.phData.documents : EMPTY_DOCUMENTS;
     const metis = state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null;
+    const modelList = state?.universe?.compatibility?.modelList ?? state?.phList ?? null;
 
     return {
         world: {
@@ -676,6 +680,7 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
         source: state?.universe?.source ?? state?.phSource ?? null,
         compatibility: {
             documents,
+            modelList,
         },
     };
 };
@@ -804,6 +809,15 @@ export const universeReducer = (
                     ...state.world.worldModel,
                     metis: nextMetis,
                 },
+            },
+        };
+    }
+    if (action.type === 'LOAD_DATAMODELLIST_SUCCESS') {
+        return {
+            ...state,
+            compatibility: {
+                ...state.compatibility,
+                modelList: action.data,
             },
         };
     }

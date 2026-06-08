@@ -167,3 +167,15 @@ test('root reducer mirrors direct legacy phData loads to compatibility props', (
   assert.equal(nextState.phData.metis.models[0].id, 'loaded-model');
   assert.equal(nextState.phData.documents[0].id, 'doc-1');
 });
+
+test('root reducer mirrors shared model list loads to legacy phList', () => {
+  const initialState = rootReducer(undefined, { type: '@@INIT' });
+  const modelList = { modList: [{ id: 'model-list-item', name: 'Listed model' }] };
+  const nextState = rootReducer(initialState, {
+    type: 'LOAD_DATAMODELLIST_SUCCESS',
+    data: modelList,
+  });
+
+  assert.deepEqual(nextState.universe.compatibility.modelList, modelList);
+  assert.deepEqual(nextState.phList, modelList);
+});

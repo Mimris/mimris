@@ -45,6 +45,7 @@ const page = () => {
     phFocus: sharedUniverse.world.focus as any,
     phUser: sharedUniverse.user as any,
     phSource: sharedUniverse.source as any,
+    phList: sharedUniverse.compatibility.modelList,
   };
   const [mappedPosts, setMappedPosts] = useState([]);
   const [refresh, setRefresh] = useState(false) 

@@ -40,6 +40,9 @@ const mirrorUniverseToLegacy = (
     ...(universe.source !== null && universe.source !== undefined
         ? { phSource: universe.source }
         : {}),
+    ...(universe.compatibility.modelList !== null && universe.compatibility.modelList !== undefined
+        ? { phList: universe.compatibility.modelList }
+        : {}),
 });
 
 export const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {

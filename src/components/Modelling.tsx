@@ -120,7 +120,8 @@ const Modelling = (props: any) => {
     phFocus,
     phUser,
     phSource,
-  }), [props, phData, phFocus, phUser, phSource]);
+    phList: sharedUniverse.compatibility.modelList ?? props.phList,
+  }), [props, phData, phFocus, phUser, phSource, sharedUniverse.compatibility.modelList]);
 
   let focusModel = phFocus?.focusModel
   let focusModelview = phFocus?.focusModelview

@@ -46,6 +46,7 @@ const page = () => {
     phFocus: sharedUniverse.world.focus as any,
     phUser: sharedUniverse.user as any,
     phSource: sharedUniverse.source as any,
+    phList: sharedUniverse.compatibility.modelList,
   };
   const [refresh, setRefresh] = useState(false)
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
@@ -348,7 +349,6 @@ const page = () => {
 }
 
 export default page
-
 
 
 

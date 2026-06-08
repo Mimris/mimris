@@ -466,6 +466,7 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
       source,
       compatibility: {
         documents: toArray(canonical.compatibility?.documents || canonical.documents || canonical.phData?.documents),
+        modelList: canonical.compatibility?.modelList || canonical.phList || null,
       },
     },
     phData: {
@@ -580,6 +581,7 @@ export const buildWorkspaceUniverseSnapshotFromMimrisState = (
     compatibility: {
       ...asRecord(universe.compatibility),
       documents: ensureArray(asRecord(universe.compatibility).documents || phData.documents),
+      modelList: asRecord(universe.compatibility).modelList || mimrisState?.phList || null,
     },
     focus: {
       ...originalFocus,

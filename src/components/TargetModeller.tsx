@@ -18,35 +18,38 @@ const TargetModeller = (props: any) => {
 
   const gojsmodel = props.gojsTargetModel;
   let myMetis = props.myMetis;
+  const phFocus = props.phFocus || {};
+  const models = Array.isArray(props.metis?.models) ? props.metis.models.filter(Boolean) : []
   
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
   
   
-  let focusTargetModel = props.phFocus?.focusTargetModel
-  let focusTargetModelview = props.phFocus?.focusTargetModelview
+  let focusTargetModel = phFocus?.focusTargetModel
+  let focusTargetModelview = phFocus?.focusTargetModelview
   
   // console.log('28 TargetModeller', props, focusTargetModel, focusTargetModelview);
-  const models = props.metis?.models
   const model = models?.find((m: any) => m?.id === focusTargetModel?.id)
   const modelindex = models?.findIndex((m: any) => m?.id === focusTargetModel?.id)
-  const modelviews = model?.modelviews
+  const modelviews = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : []
   const modelview = modelviews?.find((m: any) => m?.id === focusTargetModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusTargetModelview?.id)
   
   // put current modell on top  
-  const selmods = [
-    models[modelindex],
-    ...models.slice(0, modelindex),
-    ...models.slice(modelindex+1, models.length)
-  ]
+  const selmods = modelindex >= 0
+    ? [
+      models[modelindex],
+      ...models.slice(0, modelindex),
+      ...models.slice(modelindex+1, models.length)
+    ]
+    : models
   const selmodviews = modelviews
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
   // console.log('36 TargetModeller', focusTargetModelview, selmods, modelviews);
-  let selmodels = selmods?.models?.map((m: any) => m)
-  let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
+  let selmodels = selmods
+  let selmodelviews = selmodviews
   // console.log('33 Modeller', focusModel.name, focusModelview.name);
   // useEffect(() => {
   //   console.log('34 Modeller', focusModel.name, focusModelview.name);
@@ -77,15 +80,15 @@ const TargetModeller = (props: any) => {
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}
       myGoMetamodel={props.myGoMetamodel}
-      phFocus={props.phFocus}
+      phFocus={phFocus}
       dispatch={props.dispatch}
     />
 
   const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
       ? <>
           {/* <div className="modeller-selection float-right" > */}
-            <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
+            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
           {/* </div>  */}
         </>
       :
@@ -144,7 +147,7 @@ const TargetModeller = (props: any) => {
 
     // console.log('130 Modeller', focusModelview, props);
     useEffect(() => {
-      focusTargetModelview = props.phFocus?.focusTargetModelview
+      focusTargetModelview = phFocus?.focusTargetModelview
       console.log('147 TargetModeller GenGojsModel run');
       GenGojsModel(props, dispatch);
       setRefresh(!refresh)

@@ -41,6 +41,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
+  const phFocus = props.phFocus || {};
 
   const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
   const [refresh, setRefresh] = useState(true)
@@ -69,10 +70,10 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     // setOpenDetail(openDetail === id ? null : id);
   };
 
-  let focusModel = props.phFocus?.focusModel
+  let focusModel = phFocus?.focusModel
 
-  const models = props.metis?.models
-  const metamodels = props.metis?.metamodels
+  const models = Array.isArray(props.metis?.models) ? props.metis.models.filter(Boolean) : []
+  const metamodels = Array.isArray(props.metis?.metamodels) ? props.metis.metamodels.filter(Boolean) : []
   if (!metamodels) return null;
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
@@ -89,7 +90,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   // hardcoded for now
   let tasks = []
 
-  let focusTask = props.phFocus?.focusTask
+  let focusTask = phFocus?.focusTask
 
   // function toggleRefresh() { setRefresh(!refresh); }
   function togglePalette() { setVisiblePalette(!visiblePalette); }
@@ -105,10 +106,10 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       props.myMetis.importData(props.metis, true);
     }
     setSelMetamodelName(mmodel?.name);
-    if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, props.phFocus);
+    if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
-    const { focusRole, focusTask } = props.phFocus;
+    const { focusRole, focusTask } = phFocus;
     const objecttypes = mmodel?.objecttypes;
     if (!metamodels) return null;
     if (props.modelType === 'metamodel') setVisiblePalette(false);
@@ -233,7 +234,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     return { nodes: filteredNodes, links: filteredLinks };
   };
 
-  if (debug) console.log('159 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  if (debug) console.log('159 Palette useEffect 2', phFocus.focusTask?.workOnTypes);
 
   function getMetamodels(selectedIndex) {
     setSelMetamodelName(metamodelList[selectedIndex].name)
@@ -287,7 +288,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
           linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
-          phFocus={props.phFocus}
+          phFocus={phFocus}
           dispatch={props.dispatch}
           divClassName={props.modelType === 'model' ? 'diagram-component-objects' : 'diagram-component-palette'}
           diagramStyle={{ height: '76vh' }}

@@ -22,9 +22,29 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
+const first = (arr: any) => (Array.isArray(arr) && arr.length > 0) ? arr[0] : undefined;
+
+const hasRenderableModelviewContent = (modelview: any) => {
+  const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+  const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+  const objecttypeviews = Array.isArray(modelview?.objecttypeviews) ? modelview.objecttypeviews.filter(Boolean) : [];
+  const relshiptypeviews = Array.isArray(modelview?.relshiptypeviews) ? modelview.relshiptypeviews.filter(Boolean) : [];
+  return objectviews.length > 0 || relshipviews.length > 0 || objecttypeviews.length > 0 || relshiptypeviews.length > 0;
+};
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+  const modelviews = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+  if (!modelviews.length) return undefined;
+
+  const requested = requestedModelview
+    ? modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name)
+    : undefined;
+  if (requested && hasRenderableModelviewContent(requested)) return requested;
+
+  return modelviews.find(hasRenderableModelviewContent) || requested || first(modelviews);
+};
+
 const GenGojsModel = async (props: any, myMetis: any) => {
-  // Safe helper to fetch first element
-  const first = (arr: any) => (Array.isArray(arr) && arr.length > 0) ? arr[0] : undefined;
   // let myMetis = yourMetis;
   // let goParams = {};
   if (debug) console.log('28 GenGojsModel started', props, myMetis);
@@ -54,7 +74,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   }
   let focusModelview = phFocus?.focusModelview;
   if (!focusModelview && Array.isArray(focusModel?.modelviews) && focusModel?.modelviews?.length > 0) {
-    const fmvc0 = first(focusModel.modelviews);
+    const fmvc0 = resolveFocusableModelview(focusModel);
     if (fmvc0) focusModelview = { id: fmvc0.id, name: fmvc0.name };
   }
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview);
@@ -67,9 +87,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     clogGreen('67 GenGojsModel: props', props);
     if (debug) clogGreen('44 GenGojsModel: metis', phData.metis);
   const curmod = (focusModel?.id && models.length > 0) ? (models.find((m: any) => m.id === focusModel.id) || first(models)) : first(models); // safe first model fallback
-    const curmodview = (curmod && focusModelview?.id && Array.isArray(curmod.modelviews) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id))
-      ? curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
-  : (Array.isArray(curmod?.modelviews) ? first(curmod?.modelviews) : undefined); // safe first modelview fallback
+    const curmodview = resolveFocusableModelview(curmod, focusModelview);
     const focusTargetModel = phFocus.focusTargetModel
     const focusTargetModelview = phFocus.focusTargetModelview
   const curtargetmodel = (focusTargetModel?.id && models.length > 0) ? models.find((m: any) => m.id === curmod?.targetModelRef) : undefined;

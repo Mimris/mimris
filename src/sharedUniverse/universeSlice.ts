@@ -341,7 +341,9 @@ const findModelIndex = (
 const hasRenderableModelviewContent = (modelview: any) => {
     const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
     const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
-    return objectviews.length > 0 || relshipviews.length > 0;
+    const objecttypeviews: any[] = Array.isArray(modelview?.objecttypeviews) ? modelview.objecttypeviews.filter(Boolean) : [];
+    const relshiptypeviews: any[] = Array.isArray(modelview?.relshiptypeviews) ? modelview.relshiptypeviews.filter(Boolean) : [];
+    return objectviews.length > 0 || relshipviews.length > 0 || objecttypeviews.length > 0 || relshiptypeviews.length > 0;
 };
 
 const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {

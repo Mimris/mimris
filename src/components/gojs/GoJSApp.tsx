@@ -557,17 +557,22 @@ function sanitizeObjectViewDispatchData(data: any): any {
   return nextData;
 }
 
+function getMetisModels(phData: any): any[] {
+  return Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : [];
+}
+
 const MEMORY_STATE_STORAGE_KEY = 'memorystate';
 
 function applyObjectViewPatchToPhData(phData: any, patch: any): boolean {
-  if (!phData?.metis?.models || !patch?.id) return false;
+  if (!patch?.id) return false;
   const modelviewId = patch.modelviewId || patch.modelviewRef || "";
   const sanitizedPatch = { ...patch };
   delete sanitizedPatch.modelviewId;
   delete sanitizedPatch.modelviewRef;
+  const models = getMetisModels(phData);
 
-  for (let mi = 0; mi < phData.metis.models.length; mi += 1) {
-    const modelviews = phData.metis.models[mi]?.modelviews || [];
+  for (let mi = 0; mi < models.length; mi += 1) {
+    const modelviews = models[mi]?.modelviews || [];
     for (let mvi = 0; mvi < modelviews.length; mvi += 1) {
       const modelview = modelviews[mvi];
       if (modelviewId && modelview?.id !== modelviewId) continue;
@@ -1088,9 +1093,10 @@ function groupAllowsGrab(
   const data: any = group.data || {};
   const storeState = getCurrentStore?.()?.getState?.();
   let storedObjview: any = null;
-  if (storeState?.phData?.metis?.models) {
-    outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
-      const model = storeState.phData.metis.models[mi];
+  const storeModels = getMetisModels(storeState?.phData);
+  if (storeModels.length) {
+    outer: for (let mi = 0; mi < storeModels.length; mi++) {
+      const model = storeModels[mi];
       const modelviews = model?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {
         const modelview = modelviews[mvi];
@@ -4705,9 +4711,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = sel.data;
           const storeState = getCurrentStore?.()?.getState?.();
           let storedGroupObjview: any = null;
-          if (storeState?.phData?.metis?.models) {
-            outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
-              const model = storeState.phData.metis.models[mi];
+          const storeModels = getMetisModels(storeState?.phData);
+          if (storeModels.length) {
+            outer: for (let mi = 0; mi < storeModels.length; mi++) {
+              const model = storeModels[mi];
               const modelviews = model?.modelviews || [];
               for (let mvi = 0; mvi < modelviews.length; mvi++) {
                 const modelview = modelviews[mvi];

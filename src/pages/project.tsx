@@ -48,6 +48,10 @@ const page = () => {
     phSource: sharedUniverse.source as any,
     phList: sharedUniverse.compatibility.modelList,
   };
+  const phData = props.phData;
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const focusProj = phFocus.focusProj || {};
   const [refresh, setRefresh] = useState(false)
   const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json 
   if (debug) console.log('28 project', props, query)
@@ -61,14 +65,14 @@ const page = () => {
   }
 
   // list query params
-  const [org, setOrg] = useState(props.phFocus.focusProj.org)
-  const [repo, setRepo] = useState(props.phFocus.focusProj.repo)
-  const [path, setPath] = useState(props.phFocus.focusProj.path)
-  const [file, setFile] = useState(props.phFocus.focusProj.file)
-  const [branch, setBranch] = useState(props.phFocus.focusProj.branch)
-  const [focus, setFocus] = useState(props.phFocus)
-  const [ghtype, setGhtype] = useState(props.phFocus.focusProj.ghtype)
-  const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj.projectNumber) // this is the project number in the list of github projects
+  const [org, setOrg] = useState(focusProj.org)
+  const [repo, setRepo] = useState(focusProj.repo)
+  const [path, setPath] = useState(focusProj.path)
+  const [file, setFile] = useState(focusProj.file)
+  const [branch, setBranch] = useState(focusProj.branch)
+  const [focus, setFocus] = useState(phFocus)
+  const [ghtype, setGhtype] = useState(focusProj.ghtype)
+  const [projectNumber, setProjectNumber] = useState(focusProj.projectNumber) // this is the project number in the list of github projects
 
 
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber)
@@ -101,8 +105,8 @@ const page = () => {
           console.log('Page is refreshed');
 
           // let data = {}
-          if (debug) console.log('68 project', props.phFocus.focusProj.file)
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+          if (debug) console.log('68 project', focusProj.file)
+          if (focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (memoryLocState && memoryLocState.phData) {
               // if ((window.confirm("Do you want to recover your last modelling edits? (last refresh) \n\n  Click 'OK' to recover or 'Cancel' to open intial project."))) {
               // if (Array.isArray(memoryLocState) && memoryLocState[0]) {
@@ -116,15 +120,15 @@ const page = () => {
               // }
             }
           } else {
-            setOrg(props.phFocus.focusProj.org)
-            setRepo(props.phFocus.focusProj.repo)
-            setPath(props.phFocus.focusProj.path)
-            setFile(props.phFocus.focusProj.file)
-            setBranch(props.phFocus.focusProj.branch)
-            setFocus(props.phFocus.focusProj.focus)
-            setProjectNumber(props.phFocus.focusProj.projectNumber)
-            setGhtype(props.phFocus.focusProj.ghtype)
-            setProjectNumber(props.phFocus.focusProj.projectNumber)
+            setOrg(focusProj.org)
+            setRepo(focusProj.repo)
+            setPath(focusProj.path)
+            setFile(focusProj.file)
+            setBranch(focusProj.branch)
+            setFocus(focusProj.focus)
+            setProjectNumber(focusProj.projectNumber)
+            setGhtype(focusProj.ghtype)
+            setProjectNumber(focusProj.projectNumber)
             const timer = setTimeout(() => {
               setRefresh(!refresh)
             }
@@ -190,7 +194,7 @@ const page = () => {
       <ContextView className='setContext' ph={props} />
       <div className="contextarea--context d-flex justify-content-between align-items-center " style={{ backgroundColor: "#dcc" }}>
         {/* <Link className="home p-2 m-2 text-primary" href="/project"> Context </Link> */}
-        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={props.phData} phFocus={props.phFocus} />
+        <SelectContext className='ContextModal mr-2' buttonLabel='Context' phData={phData} phFocus={phFocus} />
         <Link className="video p-2 m-2 text-primary" href="/videos"> Video </Link>
       </div>
     </div>
@@ -201,8 +205,8 @@ const page = () => {
       <div className='container' style={{ fontSize: '0.9rem' }}>
         {/* <div className="m-5"> */}
         {/* {(query.repo) && <h5>Url-Paremeters: {query.repo} / {query.path} / {query.file}</h5> } */}
-        {props.phFocus?.focusProj?.name}
-        <GithubParams phFocus={props.phFocus} />
+        {phFocus?.focusProj?.name}
+        <GithubParams phFocus={phFocus} />
         {/* {(refresh) ? <GithubParams phFocus={props.phFocus} />  : <><GithubParams phFocus={props.phFocus} />aaaa</>  } */}
         <h5>Initial Startup model loaded !</h5>
         {/* </div> */}
@@ -214,13 +218,13 @@ const page = () => {
     <>
       <div className="cur-context-focus">
         {/* <h5 className='m-3 p-2 bg-white'>Current Project: {props.phData.metis.name} | File: {props.phSource}</h5>  */}
-        <ProjectForm phFocus={props.phFocus} />
+        <ProjectForm phFocus={phFocus} />
       </div>
     </>
 
   const renderDiv =
     <>
-      <Layout user={props.phUser?.focusUser} >
+      <Layout user={phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper m-1 pr-2 d-flex flex-column" style={{ backgroundColor: "#cdd", borderRadius: "5px 5px 5px 5px" }} >
             {/* <div className="header">
@@ -349,7 +353,6 @@ const page = () => {
 }
 
 export default page
-
 
 
 

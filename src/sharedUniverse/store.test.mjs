@@ -179,3 +179,21 @@ test('root reducer mirrors shared model list loads to legacy phList', () => {
   assert.deepEqual(nextState.universe.compatibility.modelList, modelList);
   assert.deepEqual(nextState.phList, modelList);
 });
+
+test('root reducer mirrors legacy objectview name updates to legacy phData', () => {
+  const initialState = rootReducer(undefined, { type: '@@INIT' });
+  const nextState = rootReducer(initialState, {
+    type: 'UPDATE_OBJECTVIEW_NAME',
+    data: {
+      id: 'ov-renamed',
+      modelviewId: 'view-1',
+      objectRef: 'object-renamed',
+      name: 'Renamed object view',
+    },
+  });
+  const sharedObjectview = nextState.universe.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
+  const legacyObjectview = nextState.phData.metis.models[0].modelviews[0].objectviews[0];
+
+  assert.equal(sharedObjectview.name, 'Renamed object view');
+  assert.equal(legacyObjectview.name, 'Renamed object view');
+});

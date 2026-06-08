@@ -183,6 +183,22 @@ test('GoJS objectview mutations append new objectviews to the target modelview',
   assert.equal('modelviewId' in objectviews[1], false);
 });
 
+test('legacy objectview name action updates shared modelview objectview', () => {
+  const nextState = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_NAME',
+    data: {
+      id: 'ov-1',
+      name: 'Renamed object view',
+      modelviewId: 'view-1',
+    },
+  });
+  const [objectview] = nextState.world.worldModel.metis.models[0].modelviews[0].objectviews;
+
+  assert.equal(objectview.id, 'ov-1');
+  assert.equal(objectview.name, 'Renamed object view');
+  assert.equal('modelviewId' in objectview, false);
+});
+
 test('normalizes generated modelviews so shared objects have distinct objectview ids', () => {
   const metis = {
     models: [

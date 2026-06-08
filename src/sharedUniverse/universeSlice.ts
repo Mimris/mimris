@@ -1091,7 +1091,7 @@ export const universeReducer = (
     if (action.type === 'UPDATE_RELSHIP_PROPERTIES') {
         return updateCurrentModelCollection(state, 'relships', asRecord(action.data));
     }
-    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES') {
+    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES' || action.type === 'UPDATE_OBJECTVIEW_NAME') {
         return updateModelviewCollection(
             state,
             'objectviews',

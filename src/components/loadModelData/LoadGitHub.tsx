@@ -52,6 +52,9 @@ const LoadGitHub = (props: any) => {
   let phData = ph.phData
   let phUser = ph.phUser
   let phSource = ph.phSource
+  const metis = phData?.metis || {};
+  const currentModels = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const currentMetamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
 
@@ -86,7 +89,7 @@ const LoadGitHub = (props: any) => {
     phFocus: ph.phFocus,
     phUser: ph.phUser,
     // phSource: propsSource,
-    phSource: (phSource === "") && phData.metis.name || phSource,
+    phSource: (phSource === "") && metis.name || phSource,
     lastUpdate: new Date().toISOString()
   }
 
@@ -187,8 +190,8 @@ const LoadGitHub = (props: any) => {
 
     if (impProjFile != null) {
       if (filename.includes('_META.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
-        const mmodel = projFile as { id: string }; // Add type assertion to specify that mprojFile is of type { id: string }
-        let mmindex = ph.phData?.metis?.metamodels?.findIndex((mm: { id: string }) => (mmodel != null) && mm.id === mmodel?.id) // current mmodel index
+        const mmodel = impProjFile as { id: string }; // Add type assertion to specify that mprojFile is of type { id: string }
+        let mmindex = currentMetamodels.findIndex((mm: { id: string }) => (mmodel != null) && mm.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
         // if ( mmindex !== -1) { //  found
@@ -199,41 +202,41 @@ const LoadGitHub = (props: any) => {
         //     name: tmpmodel.name+'_old',
         //   }    
         // }
-        const mmlength = ph.phData?.metis?.metamodels.length
+        const mmlength = currentMetamodels.length
         if (mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
             ...ph.phData,
             metis: {
-              ...ph.phData.metis,
+              ...metis,
               metamodels: [
-                ...ph.phData.metis.metamodels.slice(0, mmindex),
+                ...currentMetamodels.slice(0, mmindex),
                 // oldmodel,
                 mmodel,
-                ...ph.phData.metis.metamodels.slice(mmindex + 1, ph.phData.metis.metamodels.length),
+                ...currentMetamodels.slice(mmindex + 1, currentMetamodels.length),
               ],
-              models: ph.phData.metis.models,
+              models: currentModels,
             },
           },
         };
         if (debug) console.log('166 ', data)
         if (data.phData) dispatch(setUniversePhData(data.phData))
       } else if (filename.includes('_MO.json')) { // Todo: check if it is only model  
-        const newmodel = projFile as { id: string };; // model is a metamodel
-        let newmindex = ph.phData?.metis?.models?.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
-        const newmlength = ph.phData?.metis?.models.length
+        const newmodel = impProjFile as { id: string }; // model is a metamodel
+        let newmindex = currentModels.findIndex((m: any) => (newmodel != null) && (m as { id: string }).id === newmodel?.id) // current mmodel index
+        const newmlength = currentModels.length
         if (newmindex < 0) { newmindex = newmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         const data = {
           phData: {
             ...ph.phData,
             metis: {
-              ...ph.phData.metis,
-              metamodels: ph.phData.metis.metamodels,
+              ...metis,
+              metamodels: currentMetamodels,
               models: [
-                ...ph.phData.metis.metamodels.slice(0, newmindex),
+                ...currentModels.slice(0, newmindex),
                 // oldmodel,
                 newmodel,
-                ...ph.phData.metis.models.slice(newmindex + 1, ph.phData.metis.models.length),
+                ...currentModels.slice(newmindex + 1, currentModels.length),
               ],
             },
           },
@@ -241,13 +244,14 @@ const LoadGitHub = (props: any) => {
         if (debug) console.log('226 ', data)
         if (data.phData) dispatch(setUniversePhData(data.phData))
       } else {// it is a Project file
+        const importedMetis = impProjFile?.phData?.metis || {};
         const data = {
           phData: {
             ...impProjFile.phData,
             metis: {
-              ...impProjFile.phData.metis,
-              name: impProjFile.phData.metis.name,
-              description: impProjFile.phData.metis.description,
+              ...importedMetis,
+              name: importedMetis.name,
+              description: importedMetis.description,
             },
           },
           phFocus: {
@@ -264,7 +268,7 @@ const LoadGitHub = (props: any) => {
             }
           },
           phUser: impProjFile.phUser,
-          phSource: impProjFile.phData.metis.name || impProjFile.phSource
+          phSource: importedMetis.name || impProjFile.phSource
           // phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
         if (debug) console.log('255', data)
@@ -371,7 +375,7 @@ const LoadGitHub = (props: any) => {
   // console.log('160 githubLink', githubLink)
 
   function handleSaveAllToFile() {
-    const projectname = ph.phData.metis.name
+    const projectname = metis.name || 'Project'
     SaveAllToFile(data, projectname, '_PR')
   }
 

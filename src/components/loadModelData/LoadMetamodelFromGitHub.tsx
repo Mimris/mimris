@@ -46,6 +46,9 @@ const LoadMetamodelFromGithub = (props: any) => {
   let phData = ph.phData
   let phUser = ph.phUser
   let phSource = ph.phSource
+  const metis = phData?.metis || {};
+  const currentModels = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const currentMetamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
 
@@ -72,7 +75,7 @@ const LoadMetamodelFromGithub = (props: any) => {
     phFocus: ph.phFocus,
     phUser: ph.phUser,
     // phSource: props.phSource,
-    phSource: (phSource === "") && phData.metis.name || phSource,
+    phSource: (phSource === "") && metis.name || phSource,
     lastUpdate: new Date().toISOString()
   }
 
@@ -167,7 +170,7 @@ const LoadMetamodelFromGithub = (props: any) => {
     if (model) {
       if (filename.includes('_META.json')) { // Todo: check if it is only metamodel and not just a namecheck : Metamodel and will be loaded into current project
         const mmodel = model; // model is a metamodel
-        let mmindex = ph.phData?.metis?.metamodels?.findIndex((m: any) => m.id === mmodel?.id) // current mmodel index
+        let mmindex = currentMetamodels.findIndex((m: any) => m.id === mmodel?.id) // current mmodel index
         // import metamodel into current project, but first rename the current if it has the same id
         // let oldmodel;
         // if ( mmindex !== -1) { //  found
@@ -179,63 +182,68 @@ const LoadMetamodelFromGithub = (props: any) => {
         //   }    
         // }
         let datatmp = ph
-        if (debug) console.log('166 ', mmodel.name, ph.phData?.metis?.metamodels.find((mm: any) => mm.name), ph.phData?.metis?.metamodels)
-        if (mmodel?.name === ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel?.name)?.name && mmodel?.id !== ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel?.name)?.id) {
+        if (debug) console.log('166 ', mmodel.name, currentMetamodels.find((mm: any) => mm.name), currentMetamodels)
+        if (mmodel?.name === currentMetamodels.find((mm: any) => mm.name === mmodel?.name)?.name && mmodel?.id !== currentMetamodels.find((mm: any) => mm.name === mmodel?.name)?.id) {
 
-          const tmpmmodel = ph.phData?.metis?.metamodels.find((mm: any) => mm.name === mmodel.name)
+          const tmpmmodel = currentMetamodels.find((mm: any) => mm.name === mmodel.name)
           const oldmmodel = {
             ...tmpmmodel,
             // id: tmpmmodel.id,//+'_old',
             name: tmpmmodel.name + '_old',
           }
-          let oldmmindex = ph.phData?.metis?.metamodels?.findIndex((m: any) => m.id === oldmmodel?.id) // current mmodel index
-          if (debug) console.log('174 ', oldmmindex, oldmmodel, ph.phData?.metis?.metamodels)
+          let oldmmindex = currentMetamodels.findIndex((m: any) => m.id === oldmmodel?.id) // current mmodel index
+          if (debug) console.log('174 ', oldmmindex, oldmmodel, currentMetamodels)
           // find the model refering to the metamodel and change the metamodelRef to the new metamodel
           let oldmodel;
-          let oldmindex = ph.phData?.metis?.models?.findIndex((m: any) => m.metamodelRef === oldmmodel?.id) // current mmodel index
+          let oldmindex = currentModels.findIndex((m: any) => m.metamodelRef === oldmmodel?.id) // current mmodel index
 
           if (oldmindex !== -1) { //  found
-            const tmpmodel = ph.phData?.metis?.models[oldmindex]
+            const tmpmodel = currentModels[oldmindex]
             oldmodel = {
               ...tmpmodel,
               metamodelRef: mmodel.id,
             }
           }
-          if (debug) console.log('185 ', oldmindex, oldmodel, ph.phData?.metis?.models)
+          if (debug) console.log('185 ', oldmindex, oldmodel, currentModels)
 
           datatmp = {
             phData: {
               ...ph.phData,
               metis: {
-                ...ph.phData.metis,
+                ...metis,
                 metamodels: [
-                  ...ph.phData.metis.metamodels.slice(0, oldmmindex),
+                  ...currentMetamodels.slice(0, oldmmindex),
                   oldmmodel,
-                  ...ph.phData.metis.metamodels.slice(oldmmindex + 1, ph.phData.metis.metamodels.length),
+                  ...currentMetamodels.slice(oldmmindex + 1, currentMetamodels.length),
                 ],
-                models: [
-                  ...ph.phData.metis.models.slice(0, oldmindex),
-                  oldmodel,
-                  ...ph.phData.metis.models.slice(oldmindex + 1, ph.phData.metis.models.length),
-                ],
+                models: oldmindex >= 0
+                  ? [
+                    ...currentModels.slice(0, oldmindex),
+                    oldmodel,
+                    ...currentModels.slice(oldmindex + 1, currentModels.length),
+                  ]
+                  : currentModels,
               },
             },
           };
         }
-        const mmlength = ph.phData?.metis?.metamodels.length
+        const mmlength = currentMetamodels.length
         if (mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new mmodel
         if (debug) console.log('192 ', mmindex, mmlength, mmodel, datatmp)
+        const datatmpMetis = datatmp?.phData?.metis || {};
+        const datatmpMetamodels = Array.isArray(datatmpMetis.metamodels) ? datatmpMetis.metamodels.filter(Boolean) : [];
+        const datatmpModels = Array.isArray(datatmpMetis.models) ? datatmpMetis.models.filter(Boolean) : [];
         const data = {
           phData: {
             ...datatmp?.phData,
             metis: {
-              ...datatmp?.phData.metis,
+              ...datatmpMetis,
               metamodels: [
-                ...datatmp?.phData.metis.metamodels.slice(0, mmindex),
+                ...datatmpMetamodels.slice(0, mmindex),
                 mmodel,
-                ...datatmp?.phData.metis.metamodels.slice(mmindex + 1, ph.phData.metis.metamodels.length),
+                ...datatmpMetamodels.slice(mmindex + 1, datatmpMetamodels.length),
               ],
-              models: datatmp?.phData.metis.models,
+              models: datatmpModels,
             },
           },
         };
@@ -312,7 +320,7 @@ const LoadMetamodelFromGithub = (props: any) => {
   // console.log('160 githubLink', githubLink)
 
   function handleSaveAllToFile() {
-    const projectname = ph.phData.metis.name
+    const projectname = metis.name || 'Project'
     SaveAllToFile(data, projectname, 'Project')
   }
 

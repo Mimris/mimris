@@ -189,11 +189,13 @@ const Page1 = () => {
           const timer = setTimeout(() => {
             setRefresh(!refresh);
           }, 200);
-          let curmodel = githubData.phData.metis.models.find(m => m.id === model)
-          if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
-          if (debug) console.log('83 model curmodel', curmodel.modelviews, modelview)
-          let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
-          if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
+          const githubModels = Array.isArray(githubData?.phData?.metis?.models) ? githubData.phData.metis.models.filter(Boolean) : []
+          let curmodel = githubModels.find(m => m.id === model)
+          if (!curmodel) curmodel = githubModels.find(m => m.name === model)
+          if (debug) console.log('83 model curmodel', curmodel?.modelviews, modelview)
+          const githubModelviews = Array.isArray(curmodel?.modelviews) ? curmodel.modelviews.filter(Boolean) : []
+          let curmodelview = githubModelviews.find(v => v.id === modelview)
+          if (!curmodelview) curmodelview = githubModelviews.find(v => v.name === modelview)
           const data = (params) && {
             phFocus: {
               ...phFocus,

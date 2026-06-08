@@ -14,7 +14,7 @@ GitHub: https://github.com/Mimris/mimris
 
 Related project:
 
-- [Mimris AI Workspace](https://github.com/mimris/mimris-ai-workspace): structured project execution with domain descriptions, functional models, work items, and AI-assisted draft production.
+- [Mimris AI Workspace](https://mimris-ai-workspace.vercel.app): structured project execution with domain descriptions, functional models, work items, and AI-assisted draft production.
 <!-- <img src="https://github.com/user-attachments/assets/ea2b6b9a-f8cc-4916-aa00-3e8693015fd3" alt="Image Description" width="200" /> -->
 
 ## Table of Contents

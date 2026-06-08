@@ -116,18 +116,28 @@ const Page1 = () => {
     };
   }
 
+  const getRecoverableState = (...states: any[]) => {
+    for (const state of states) {
+      if (state?.phData?.metis) return state;
+      if (Array.isArray(state)) {
+        const item = state.find((entry: any) => entry?.phData?.metis);
+        if (item) return item;
+      }
+    }
+    return null;
+  }
+
   useEffect(() => {
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
     const handleReload = () => {
-      let locStore = memorySessionState;
+      let locStore = getRecoverableState(memorySessionState, memoryLocState);
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
-      if (!memorySessionState) locStore = memoryLocState;
       if (debug) console.log('79modelling 1 ', locStore);
       if (locStore && locStore.phData) {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
-        return () => clearTimeout(timer);
+        return;
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
@@ -144,14 +154,8 @@ const Page1 = () => {
         }
       }
     };
-    const hasRecoverableState = Boolean(
-      memorySessionState?.phData ||
-      memoryLocState?.phData ||
-      (Array.isArray(memorySessionState) && memorySessionState[0]?.phData) ||
-      (Array.isArray(memoryLocState) && memoryLocState[0]?.phData),
-    );
-    const shouldReload = Object.keys(query).length !== 0 && hasRecoverableState;
-    if (shouldReload) handleReload();
+    const hasRecoverableState = Boolean(getRecoverableState(memorySessionState, memoryLocState));
+    if (hasRecoverableState) handleReload();
     let org = query.org;
   }, [])
 

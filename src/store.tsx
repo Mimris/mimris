@@ -14,6 +14,20 @@ type RootReducerState = LegacyUniverseRoot & {
 
 const reduceLegacyState = legacyReducer as (state: LegacyUniverseRoot | undefined, action: AnyAction) => LegacyUniverseRoot;
 
+const legacyRuntimeActionTypes = new Set([
+    'SET_MYMETIS_MODEL',
+    'SET_MYMETIS_PARAMETER',
+    'SET_MY_GOMODEL',
+    'SET_MY_GOMETAMODEL',
+    'SET_GOJS_MODEL',
+    'SET_GOJS_TARGETMODEL',
+    'SET_GOJS_MODELOBJECTS',
+    'SET_GOJS_METAMODEL',
+    'SET_GOJS_METAMODELPALETTE',
+    'SET_GOJS_METAMODELMODEL',
+    'SET_GOJS_TARGETMETAMODEL',
+]);
+
 const mirrorUniverseToLegacy = (
     legacyState: LegacyUniverseRoot,
     universe: SharedUniverseState,
@@ -58,6 +72,13 @@ export const rootReducer = (state: RootReducerState | undefined, action: AnyActi
     }
 
     const legacyState = reduceLegacyState(state, action);
+    if (legacyRuntimeActionTypes.has(action.type)) {
+        return {
+            ...legacyState,
+            universe: previousUniverse,
+        } as RootReducerState;
+    }
+
     return {
         ...legacyState,
         universe: buildUniverseStateFromLegacy({ ...legacyState, universe: undefined }),

@@ -83,6 +83,16 @@ const legacyReducer = (state = createLegacyInitialState(), action) => {
     };
   }
 
+  if (action.type === 'SET_GOJS_MODEL') {
+    return {
+      ...state,
+      phGojs: {
+        ...state.phGojs,
+        gojsModel: action.gojsModel,
+      },
+    };
+  }
+
   return state;
 };
 
@@ -196,4 +206,16 @@ test('root reducer mirrors legacy objectview name updates to legacy phData', () 
 
   assert.equal(sharedObjectview.name, 'Renamed object view');
   assert.equal(legacyObjectview.name, 'Renamed object view');
+});
+
+test('root reducer keeps runtime GoJS actions out of shared universe', () => {
+  const initialState = rootReducer(undefined, { type: '@@INIT' });
+  const gojsModel = { nodeDataArray: [{ key: 'node-1' }], linkDataArray: [] };
+  const nextState = rootReducer(initialState, {
+    type: 'SET_GOJS_MODEL',
+    gojsModel,
+  });
+
+  assert.deepEqual(nextState.phGojs.gojsModel, gojsModel);
+  assert.equal(nextState.universe, initialState.universe);
 });

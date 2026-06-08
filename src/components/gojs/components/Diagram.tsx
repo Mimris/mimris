@@ -42,7 +42,6 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
-import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList, imageLibrary } from '../../forms/selectIcons';
 import ChangeIconModal from '../../modals/ChangeIconModal';
 import ChangeImageModal from '../../modals/ChangeImageModal';

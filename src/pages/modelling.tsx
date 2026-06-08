@@ -70,7 +70,17 @@ const Page1 = () => {
     const requestedFocusModelviewId =
       (focusModel?.id === storedFocus?.focusModel?.id && storedFocus?.focusModelview?.id)
       || (focusModel?.id === focus.focusModel?.id && focus.focusModelview?.id)
-    const focusModelview = modelviews.find((mv: any) => mv.id === requestedFocusModelviewId) || modelviews[0] || null
+    const hasRenderableModelviewContent = (modelview: any) => {
+      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : []
+      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : []
+      return objectviews.length > 0 || relshipviews.length > 0
+    }
+    const requestedFocusModelview = modelviews.find((mv: any) => mv.id === requestedFocusModelviewId) || null
+    const focusModelview = (
+      requestedFocusModelview && hasRenderableModelviewContent(requestedFocusModelview)
+    )
+      ? requestedFocusModelview
+      : modelviews.find(hasRenderableModelviewContent) || requestedFocusModelview || modelviews[0] || null
     const phFocus = {
       ...storedFocus,
       focusModel: focusModel || null,

@@ -340,10 +340,16 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       let objview = objviews[i] as akm.cxObjectView;
       if (!objview.id)
         continue;
-      if (objview.name === objview.id)
+      const obj =
+        (objview.object as akm.cxObject) ||
+        (objview.objectRef ? metis.findObject(objview.objectRef) : null);
+      if (!obj)
         continue;
-      const obj = objview.object as akm.cxObject;
-      if (!metis.findObject(obj?.id))
+      if (!objview.object)
+        objview.object = obj;
+      if (!objview.objectRef)
+        objview.objectRef = obj.id;
+      if (!metis.findObject(obj.id))
         continue;
       if (true) {
         if (objview.id === focusObjview?.id)

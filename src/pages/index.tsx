@@ -47,6 +47,9 @@ const page = () => {
     phSource: sharedUniverse.source as any,
     phList: sharedUniverse.compatibility.modelList,
   };
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const focusProj = phFocus.focusProj || {};
   const [mappedPosts, setMappedPosts] = useState([]);
   const [refresh, setRefresh] = useState(false) 
   
@@ -95,7 +98,7 @@ const page = () => {
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+          if (focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
               window.location.reload();
@@ -147,7 +150,7 @@ const page = () => {
   
   return (
     <div>
-      <Layout user={ props.phUser?.focusUser } >
+      <Layout user={ phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper d-flex flex-column min-vh-100">
               {/* <div className="header">
@@ -347,7 +350,7 @@ Below is shown an example model built using a template generated from the metamo
                         {activeSubTab === 'subtab2' && (
                           <div className="tab-pane show active">
                             <iframe
-                              src={props.phFocus?.focusProj?.repo && `https://kavca.github.io/${props.phFocus.focusProj.repo}/`}
+                              src={focusProj?.repo && `https://kavca.github.io/${focusProj.repo}/`}
                               width="100%"
                               height="1500px"
                             />

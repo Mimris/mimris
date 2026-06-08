@@ -44,7 +44,10 @@ const Page1 = () => {
     phSource: sharedUniverse.source as any,
     phList: sharedUniverse.compatibility.modelList,
   };
-  const focus = props.phFocus;
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const focusProj = phFocus.focusProj || {};
+  const focus = phFocus;
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -128,7 +131,7 @@ const Page1 = () => {
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+          if (focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
               window.location.reload();
@@ -169,13 +172,13 @@ const Page1 = () => {
       try {
         if (Object.keys(query).length !== 0) {
           if (debug) console.log('120 modelling query', query, query)
-          org = props.phFocus.focusProj.org;
-          repo = props.phFocus.focusProj.repo;
-          path = props.phFocus.focusProj.path;
-          branch = props.phFocus.focusProj.branch;
-          file = props.phFocus.focusProj.file;
-          model = props.phFocus.focusProj.model;
-          modelview = props.phFocus.focusProj.modelview;
+          org = focusProj.org;
+          repo = focusProj.repo;
+          path = focusProj.path;
+          branch = focusProj.branch;
+          file = focusProj.file;
+          model = focusProj.model;
+          modelview = focusProj.modelview;
 
           if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
@@ -193,7 +196,7 @@ const Page1 = () => {
           if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
           const data = (params) && {
             phFocus: {
-              ...props.phFocus,
+              ...phFocus,
               focusProj: focusProj,
               focusModel: params.focusModel,
               focusModelview: params.focusModelview,
@@ -205,13 +208,13 @@ const Page1 = () => {
           };
           if (data?.phFocus) dispatch(setUniverseFocus(data.phFocus))
         } else {
-          org = props.phFocus.focusProj.org;
-          repo = props.phFocus.focusProj.repo;
-          path = props.phFocus.focusProj.path;
-          branch = props.phFocus.focusProj.branch;
-          file = props.phFocus.focusProj.file;
-          model = props.phFocus.focusProj.model;
-          modelview = props.phFocus.focusProj.modelview;
+          org = focusProj.org;
+          repo = focusProj.repo;
+          path = focusProj.path;
+          branch = focusProj.branch;
+          file = focusProj.file;
+          model = focusProj.model;
+          modelview = focusProj.modelview;
         }
       } catch (error) {
         if (debug) console.log('174 modelling query error ', error);
@@ -281,7 +284,7 @@ const Page1 = () => {
   const modellingDiv = (mount)
     ?
     <div>
-      <Layout user={props.phUser?.focusUser}>
+      <Layout user={phUser?.focusUser}>
         <div id="index">
           <div className="wrapper">
             {/* <div className="header" >

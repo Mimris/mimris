@@ -22,6 +22,7 @@ import Issues from "../components/Issues";
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import { createSnapshotShare } from "../components/utils/focusShare";
+import { MEMORY_STATE_STORAGE_KEY } from "../components/utils/memoryStateStorage";
 import { loadLegacyUniverseSnapshot, selectSharedUniverseState, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
@@ -126,21 +127,56 @@ const Page1 = () => {
     };
   }
 
+  const readStoredMemoryState = (storage: Storage | undefined) => {
+    if (!storage) return null;
+    try {
+      const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      console.warn('Unable to read stored modelling state', error);
+      return null;
+    }
+  }
+
+  const countRenderableModelviewItems = (state: any) => {
+    const models = state?.phData?.metis?.models;
+    if (!Array.isArray(models)) return 0;
+    return models.reduce((count: number, model: any) => {
+      const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
+      return count + modelviews.reduce((viewCount: number, modelview: any) => {
+        const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+        const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+        return viewCount + objectviews.length + relshipviews.length;
+      }, 0);
+    }, 0);
+  }
+
   const getRecoverableState = (...states: any[]) => {
+    let bestState = null;
+    let bestScore = -1;
+    const considerState = (state: any) => {
+      if (!state?.phData?.metis) return;
+      const score = countRenderableModelviewItems(state);
+      if (score > bestScore) {
+        bestState = state;
+        bestScore = score;
+      }
+    };
     for (const state of states) {
-      if (state?.phData?.metis) return state;
+      considerState(state);
       if (Array.isArray(state)) {
-        const item = state.find((entry: any) => entry?.phData?.metis);
-        if (item) return item;
+        state.forEach(considerState);
       }
     }
-    return null;
+    return bestState;
   }
 
   useEffect(() => {
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
     const handleReload = () => {
-      let locStore = getRecoverableState(memorySessionState, memoryLocState);
+      const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
+      const storedLocalState = typeof window !== 'undefined' ? readStoredMemoryState(window.localStorage) : null;
+      let locStore = getRecoverableState(storedSessionState, storedLocalState, memorySessionState, memoryLocState);
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (debug) console.log('79modelling 1 ', locStore);
       if (locStore && locStore.phData) {
@@ -164,7 +200,9 @@ const Page1 = () => {
         }
       }
     };
-    const hasRecoverableState = Boolean(getRecoverableState(memorySessionState, memoryLocState));
+    const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
+    const storedLocalState = typeof window !== 'undefined' ? readStoredMemoryState(window.localStorage) : null;
+    const hasRecoverableState = Boolean(getRecoverableState(storedSessionState, storedLocalState, memorySessionState, memoryLocState));
     if (hasRecoverableState) handleReload();
     let org = query.org;
   }, [])

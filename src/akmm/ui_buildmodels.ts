@@ -361,7 +361,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       let objtype;
       objtype = obj?.type as akm.cxObjectType;
       if (!objtype) 
-        objtype = metis.findObjectType(obj.typeRef);
+        objtype = metis.findObjectType(obj.typeRef) || model.metamodel?.findObjectType?.(obj.typeRef);
+      if (objtype && !obj.type)
+        obj.setType?.(objtype);
       if (!objtype) {
         includeObjview = true;
         includeNoType = true;
@@ -438,7 +440,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         node.name = objview.name;
         const object = node.object as akm.cxObject | null;
         let objtype = object?.type as akm.cxObjectType;
-        if (!objtype && object?.typeRef) objtype = metis.findObjectType(object.typeRef);
+        if (!objtype && object?.typeRef) {
+          objtype = metis.findObjectType(object.typeRef) || model.metamodel?.findObjectType?.(object.typeRef);
+          if (objtype) object.setType?.(objtype);
+        }
         if (objtype?.name !== 'EntityType') {
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {

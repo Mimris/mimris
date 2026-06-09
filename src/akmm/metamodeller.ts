@@ -1228,7 +1228,9 @@ export class cxMetis {
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);
         if (obj) {
-            const objtype = this.findObjectType(item.typeRef);
+            const objtype =
+                this.findObjectType(item.typeRef) ||
+                model?.metamodel?.findObjectType?.(item.typeRef);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;

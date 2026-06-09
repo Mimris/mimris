@@ -518,20 +518,46 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       const objectviews = modelview?.getObjectViews?.() || modelview?.objectviews || [];
       return objectviews.find((objview: akm.cxObjectView) => objview?.objectRef === objectRef) || null;
     };
-    const existingRelshipRefs = new Set<string>();
+    const resolveRelForView = (relview: akm.cxRelationshipView) => (
+      relview.relship ||
+      ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
+      ((relview as any).relshipRef ? model?.findRelationship((relview as any).relshipRef) : null)
+    ) as akm.cxRelationship;
+    const isContainsRelationship = (rel: akm.cxRelationship | null | undefined) => {
+      const typeName = String(rel?.type?.name || rel?.name || "").trim().toLowerCase();
+      return typeName === String(constants.types.AKM_CONTAINS).toLowerCase();
+    };
+    const resolveEndpointViews = (relview: akm.cxRelationshipView, rel: akm.cxRelationship | null | undefined) => {
+      const fromObjview = (
+        relview.fromObjview ||
+        modelview.findObjectView((relview as any).fromobjviewRef) ||
+        findObjectViewByObjectRef(rel?.fromobjectRef || rel?.fromObject?.id)
+      ) as akm.cxObjectView;
+      const toObjview = (
+        relview.toObjview ||
+        modelview.findObjectView((relview as any).toobjviewRef) ||
+        findObjectViewByObjectRef(rel?.toobjectRef || rel?.toObject?.id)
+      ) as akm.cxObjectView;
+      return { fromObjview, toObjview };
+    };
+    const renderableRelshipRefs = new Set<string>();
     for (let i = 0; i < relviews?.length; i++) {
       const rview = relviews[i] as akm.cxRelationshipView;
       if (!rview.id) continue;
       if (rview.markedAsDeleted)
         continue;
-      const relshipRef = rview.relship?.id || (rview as any).relshipRef;
-      if (relshipRef) existingRelshipRefs.add(relshipRef);
+      const rel = resolveRelForView(rview);
+      const relshipRef = rel?.id || rview.relship?.id || (rview as any).relshipRef;
+      const { fromObjview, toObjview } = resolveEndpointViews(rview, rel);
+      if (relshipRef && rview.visible !== false && fromObjview && toObjview) {
+        renderableRelshipRefs.add(relshipRef);
+      }
       relshipviews.push(rview);
     }
     const modelRelships = model?.getRelationships?.() || model?.relships || [];
     for (let i = 0; i < modelRelships.length; i++) {
       const rel = modelRelships[i] as akm.cxRelationship;
-      if (!rel?.id || existingRelshipRefs.has(rel.id) || rel.markedAsDeleted) continue;
+      if (!rel?.id || renderableRelshipRefs.has(rel.id) || rel.markedAsDeleted || !isContainsRelationship(rel)) continue;
       const fromObjectRef = rel.fromobjectRef || rel.fromObject?.id;
       const toObjectRef = rel.toobjectRef || rel.toObject?.id;
       const fromObjview = findObjectViewByObjectRef(fromObjectRef) as akm.cxObjectView;
@@ -547,7 +573,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       relview.routing = modelview.routing || relview.routing;
       relview.curve = modelview.linkcurve || relview.curve;
       relshipviews.push(relview);
-      existingRelshipRefs.add(rel.id);
+      renderableRelshipRefs.add(rel.id);
     }
     relviews = relshipviews;
     const modifiedRelviews = [];
@@ -555,11 +581,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
     for (let i = 0; i < lng; i++) {
       let includeRelview = false;
       let relview = relviews[i] as akm.cxRelationshipView;
-      let rel = (
-        relview.relship ||
-        ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
-        ((relview as any).relshipRef ? model.findRelationship((relview as any).relshipRef) : null)
-      ) as akm.cxRelationship;
+      let rel = resolveRelForView(relview);
       if (rel && !relview.relship)
         relview.setRelationship(rel);
       if (relview?.fromArrow === 'None' || relview?.fromArrow === ' ')
@@ -577,20 +599,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           }
         }
       }
-      let fromObjview = (
-        relview.fromObjview ||
-        modelview.findObjectView((relview as any).fromobjviewRef) ||
-        findObjectViewByObjectRef(rel?.fromobjectRef)
-      ) as akm.cxObjectView;
+      let { fromObjview, toObjview } = resolveEndpointViews(relview, rel);
       if (!fromObjview || !modelview.findObjectView(fromObjview.id))
         continue;
       if (!relview.fromObjview)
         relview.setFromObjectView(fromObjview);
-      let toObjview = (
-        relview.toObjview ||
-        modelview.findObjectView((relview as any).toobjviewRef) ||
-        findObjectViewByObjectRef(rel?.toobjectRef)
-      ) as akm.cxObjectView;
       if (!toObjview || !modelview.findObjectView(toObjview.id))
         continue;
       if (!relview.toObjview)

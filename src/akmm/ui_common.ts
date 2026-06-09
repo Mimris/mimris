@@ -5385,7 +5385,7 @@ export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram
         const fromObjview = relview.fromObjview; // Group
         const toObjview = relview.toObjview;     // Member
         if (fromObjview && toObjview) {
-            const insideGroup = isHiddenSwimlaneContains(relship, fromObjview, toObjview, myDiagram);
+            const insideGroup = isHiddenSwimlaneContains(relview.relship, fromObjview, toObjview, myDiagram);
             if (relview.visible === !insideGroup && relview.markedAsDeleted === false) {
                 continue;
             }

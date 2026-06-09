@@ -35,6 +35,7 @@ import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
 import { bindLegacyUniverseDispatch, selectSharedUniverseState } from "../sharedUniverse";
+import { MEMORY_STATE_STORAGE_KEY } from "./utils/memoryStateStorage";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -62,6 +63,41 @@ const trimPersistedStateForBrowserStorage = (state: any) => {
       },
     },
   };
+};
+
+const countRenderableModelviewItems = (state: any) => {
+  const models = state?.phData?.metis?.models;
+  if (!Array.isArray(models)) return 0;
+  return models.reduce((count: number, model: any) => {
+    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
+    return count + modelviews.reduce((viewCount: number, modelview: any) => {
+      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+      return viewCount + objectviews.length + relshipviews.length;
+    }, 0);
+  }, 0);
+};
+
+const readStoredMemoryState = (storage: Storage | undefined) => {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const shouldSkipSparseStartupPersist = (nextState: any) => {
+  if (typeof window === 'undefined') return false;
+  if (nextState?.phFocus?.focusRefresh?.id) return false;
+  const nextScore = countRenderableModelviewItems(nextState);
+  const storedStates = [
+    readStoredMemoryState(window.sessionStorage),
+    readStoredMemoryState(window.localStorage),
+  ];
+  const storedScore = Math.max(0, ...storedStates.map(countRenderableModelviewItems));
+  return storedScore > nextScore;
 };
 
 const Modelling = (props: any) => {
@@ -151,6 +187,14 @@ const Modelling = (props: any) => {
       phUser: state.user,
       phSource: state.source,
     });
+  }
+
+  const persistCurrentStateToBrowserStorage = () => {
+    const persistedProps = getPersistedState();
+    if (shouldSkipSparseStartupPersist(persistedProps)) return false;
+    setMemorySessionState(persistedProps)
+    setMemoryLocState(persistedProps)
+    return true;
   }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
@@ -387,16 +431,12 @@ const Modelling = (props: any) => {
   }, [phFocus?.focusRefresh?.id])
 
   useEffect(() => {
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
+    persistCurrentStateToBrowserStorage()
   }, [phData, phFocus, phSource, phUser])
 
   function doRefresh() { // 
     if (!debug) console.log('207 Modelling doRefresh', compatibilityProps);
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
+    persistCurrentStateToBrowserStorage()
     setRefresh(prev => !prev)
   }
 

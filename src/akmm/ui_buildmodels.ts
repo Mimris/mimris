@@ -523,9 +523,12 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
       ((relview as any).relshipRef ? model?.findRelationship((relview as any).relshipRef) : null)
     ) as akm.cxRelationship;
-    const isContainsRelationship = (rel: akm.cxRelationship | null | undefined) => {
+    const isMetamodelStructuralRelationship = (rel: akm.cxRelationship | null | undefined) => {
       const typeName = String(rel?.type?.name || rel?.name || "").trim().toLowerCase();
-      return typeName === String(constants.types.AKM_CONTAINS).toLowerCase();
+      return (
+        typeName === String(constants.types.AKM_CONTAINS).toLowerCase() ||
+        typeName === String(constants.types.AKM_IS).toLowerCase()
+      );
     };
     const resolveEndpointViews = (relview: akm.cxRelationshipView, rel: akm.cxRelationship | null | undefined) => {
       const fromObjview = (
@@ -557,7 +560,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
     const modelRelships = model?.getRelationships?.() || model?.relships || [];
     for (let i = 0; i < modelRelships.length; i++) {
       const rel = modelRelships[i] as akm.cxRelationship;
-      if (!rel?.id || renderableRelshipRefs.has(rel.id) || rel.markedAsDeleted || !isContainsRelationship(rel)) continue;
+      if (!rel?.id || renderableRelshipRefs.has(rel.id) || rel.markedAsDeleted || !isMetamodelStructuralRelationship(rel)) continue;
       const fromObjectRef = rel.fromobjectRef || rel.fromObject?.id;
       const toObjectRef = rel.toobjectRef || rel.toObject?.id;
       const fromObjview = findObjectViewByObjectRef(fromObjectRef) as akm.cxObjectView;
@@ -648,8 +651,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           relcolor = relview?.typeview?.strokecolor;
       }
       if (!relcolor) relcolor = 'black';
-      if (relview.visible == false)
+      if (relview.visible == false && !isMetamodelStructuralRelationship(rel))
         includeRelview = false;
+      if (relview.visible == false && isMetamodelStructuralRelationship(rel))
+        relview.visible = true;
       if (includeRelview) {
         if (!relview.strokewidth) relview.strokewidth = 1;
         const explicitRelviewOverrides = {

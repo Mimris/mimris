@@ -32,6 +32,40 @@ function isGroupLikeNode(node: any): boolean {
     );
 }
 
+function isSwimlaneObjectView(objview: akm.cxObjectView | null | undefined, myDiagram?: any): boolean {
+    if (!objview) return false;
+    let node: any = null;
+    try {
+        node = myDiagram ? uid.getNodeByViewId(objview.id, myDiagram) : null;
+    } catch (_) {
+        node = null;
+    }
+    const data: any = node?.data || {};
+    const templateName = String(
+        data?.category ||
+        data?.template ||
+        node?.category ||
+        objview?.template ||
+        objview?.typeview?.template ||
+        objview?.type?.typeview?.template ||
+        ""
+    );
+    return templateName === "Pool" || templateName.startsWith("Lane");
+}
+
+function isHiddenSwimlaneContains(
+    rel: akm.cxRelationship | null | undefined,
+    fromObjview: akm.cxObjectView | null | undefined,
+    toObjview: akm.cxObjectView | null | undefined,
+    myDiagram?: any,
+): boolean {
+    return (
+        rel?.type?.name === constants.types.AKM_CONTAINS &&
+        String(toObjview?.group || "") === String(fromObjview?.id || "") &&
+        (isSwimlaneObjectView(fromObjview, myDiagram) || isSwimlaneObjectView(toObjview, myDiagram))
+    );
+}
+
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {
     if (gjsData === null) {
@@ -1923,9 +1957,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 if (fromObjview && toObjview) {
                     relview.setFromObjectView(fromObjview);
                     relview.setToObjectView(toObjview);
-                    const isHiddenContains =
-                        rel?.type?.name === constants.types.AKM_CONTAINS &&
-                        String(toObjview.group || "") === String(fromObjview.id);
+                    const isHiddenContains = isHiddenSwimlaneContains(rel, fromObjview, toObjview, myDiagram);
                     relview.visible = !isHiddenContains;
                     if (isHiddenContains) {
                         relview.points = [];
@@ -2053,9 +2085,7 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         if (fromObjview && toObjview) {
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
-            const isHiddenContains =
-                relview.relship?.type?.name === constants.types.AKM_CONTAINS &&
-                String(toObjview.group || "") === String(fromObjview.id);
+            const isHiddenContains = isHiddenSwimlaneContains(relview.relship, fromObjview, toObjview, myMetis.myDiagram);
             relview.visible = !isHiddenContains;
             if (isHiddenContains) {
                 relview.points = [];
@@ -5355,7 +5385,7 @@ export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram
         const fromObjview = relview.fromObjview; // Group
         const toObjview = relview.toObjview;     // Member
         if (fromObjview && toObjview) {
-            const insideGroup = toObjview.group === fromObjview.id;
+            const insideGroup = isHiddenSwimlaneContains(relship, fromObjview, toObjview, myDiagram);
             if (relview.visible === !insideGroup && relview.markedAsDeleted === false) {
                 continue;
             }

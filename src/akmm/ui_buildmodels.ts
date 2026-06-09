@@ -687,9 +687,15 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         modifiedRelviews.push(jsnRelview);
         // Update myGoModel
         let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
-        const name = link.name;
+        const name = link.name || relview.name;
         if (debug) console.log('382 modelview, link:', modelview, link);
         link.loadLinkContent(myGoModel);
+        if ((!link.from || !link.to) && fromObjview && toObjview) {
+          link.fromNode = myGoModel.findNodeByViewId(fromObjview.id);
+          link.from = link.fromNode?.key || "";
+          link.toNode = myGoModel.findNodeByViewId(toObjview.id);
+          link.to = link.toNode?.key || "";
+        }
         if (!link.from || !link.to) {
           if (debug) console.warn('Skipping relationship view without resolved GoJS endpoints', relview);
           continue;

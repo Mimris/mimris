@@ -513,6 +513,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   let relshipviews = [] as akm.cxRelationshipView[];
   let relviews = (modelview) && modelview.getRelationshipViews();
   if (relviews) {
+    const findObjectViewByObjectRef = (objectRef: string | undefined | null) => {
+      if (!objectRef) return null;
+      const objectviews = modelview?.getObjectViews?.() || modelview?.objectviews || [];
+      return objectviews.find((objview: akm.cxObjectView) => objview?.objectRef === objectRef) || null;
+    };
     for (let i = 0; i < relviews?.length; i++) {
       const rview = relviews[i] as akm.cxRelationshipView;
       if (!rview.id) continue;
@@ -526,29 +531,46 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
     for (let i = 0; i < lng; i++) {
       let includeRelview = false;
       let relview = relviews[i] as akm.cxRelationshipView;
+      let rel = (
+        relview.relship ||
+        ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
+        ((relview as any).relshipRef ? model.findRelationship((relview as any).relshipRef) : null)
+      ) as akm.cxRelationship;
+      if (rel && !relview.relship)
+        relview.setRelationship(rel);
       if (relview?.fromArrow === 'None' || relview?.fromArrow === ' ')
         relview.fromArrow = '';
       if (relview?.toArrow === 'None' || relview?.toArrow === ' ')
         relview.toArrow = '';
       if (!relview.template) {
-        const rel = relview.relship;
-        let reltype = rel.type;
+        let reltype = rel?.type;
         const metamodel = model.getMetamodel();
         if (!reltype) {
-          reltype = metamodel.findRelationshipType(rel.typeRef);
+          reltype = metamodel.findRelationshipType(rel?.typeRef);
           if (reltype) {
             const reltypeview = reltype.typeview;
             relview.template = reltypeview.template;
           }
         }
       }
-      let fromObjview = relview.fromObjview as akm.cxObjectView;
+      let fromObjview = (
+        relview.fromObjview ||
+        modelview.findObjectView((relview as any).fromobjviewRef) ||
+        findObjectViewByObjectRef(rel?.fromobjectRef)
+      ) as akm.cxObjectView;
       if (!fromObjview || !modelview.findObjectView(fromObjview.id))
         continue;
-      let toObjview = relview.toObjview as akm.cxObjectView;
+      if (!relview.fromObjview)
+        relview.setFromObjectView(fromObjview);
+      let toObjview = (
+        relview.toObjview ||
+        modelview.findObjectView((relview as any).toobjviewRef) ||
+        findObjectViewByObjectRef(rel?.toobjectRef)
+      ) as akm.cxObjectView;
       if (!toObjview || !modelview.findObjectView(toObjview.id))
         continue;
-      const rel = relview.relship as akm.cxRelationship;
+      if (!relview.toObjview)
+        relview.setToObjectView(toObjview);
       if (rel) {
         if (rel.markedAsDeleted == undefined)
           rel.markedAsDeleted = false;

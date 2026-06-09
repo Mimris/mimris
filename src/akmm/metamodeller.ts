@@ -1454,17 +1454,32 @@ export class cxMetis {
                 relview = this.findRelationshipView(item.id);
             }
             if (relview) {
-                const relship = this.findRelationship(item.relshipRef);
+                const relship =
+                    this.findRelationship(item.relshipRef) ||
+                    modelview.model?.findRelationship?.(item.relshipRef);
+                const fromobjviewRef = item.fromobjviewRef || item.fromObjviewRef || item.fromObjectviewRef;
+                const toobjviewRef = item.toobjviewRef || item.toObjviewRef || item.toObjectviewRef;
+                if (item.relshipRef) relview.relshipRef = item.relshipRef;
+                if (fromobjviewRef) relview.fromobjviewRef = fromobjviewRef;
+                if (toobjviewRef) relview.toobjviewRef = toobjviewRef;
                 if (relship) {
                     relview.setRelationship(relship);
-                    const fromobjview = modelview.findObjectView(item.fromobjviewRef) as cxObjectView;
-                    const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
-                    if (!fromobjview || !toobjview)
-                        return;
-                    relview.setFromObjectView(fromobjview);
-                    relview.setToObjectView(toobjview);
-                    fromobjview.addOutputRelview(relview);
-                    toobjview.addInputRelview(relview);
+                    const fromobjview = (
+                        modelview.findObjectView(fromobjviewRef) ||
+                        modelview.objectviews?.find((objview) => objview?.objectRef === relship.fromobjectRef)
+                    ) as cxObjectView;
+                    const toobjview = (
+                        modelview.findObjectView(toobjviewRef) ||
+                        modelview.objectviews?.find((objview) => objview?.objectRef === relship.toobjectRef)
+                    ) as cxObjectView;
+                    if (fromobjview) {
+                        relview.setFromObjectView(fromobjview);
+                        fromobjview.addOutputRelview(relview);
+                    }
+                    if (toobjview) {
+                        relview.setToObjectView(toobjview);
+                        toobjview.addInputRelview(relview);
+                    }
                     relview.fromPortid = relship.fromPortid;
                     relview.toPortid = relship.toPortid;
                     relview.template = item.template;

@@ -148,6 +148,12 @@ const Modeller = React.forwardRef((props: any, ref) => {
     }, [editingModelviewId]);
 
     if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
+    const modelNodeDataArray = props.gojsSnapshot?.modelviewId === phFocus?.focusModelview?.id
+        ? props.gojsSnapshot?.nodes
+        : props.myMetis.gojsModel?.nodes;
+    const modelLinkDataArray = props.gojsSnapshot?.modelviewId === phFocus?.focusModelview?.id
+        ? props.gojsSnapshot?.links
+        : props.myMetis.gojsModel?.links;
 
 
     const showDeleted = phUser?.focusUser?.diagram?.showDeleted
@@ -822,8 +828,8 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
                                     key={`${phFocus?.focusRefresh?.id || 'initial'}:${phFocus?.focusModel?.id || 'model'}:${phFocus?.focusModelview?.id || 'modelview'}`}
-                                    nodeDataArray={props.myMetis.gojsModel?.nodes}
-                                    linkDataArray={props.myMetis.gojsModel?.links}
+                                    nodeDataArray={modelNodeDataArray}
+                                    linkDataArray={modelLinkDataArray}
                                     metis={props.metis}
                                     myMetis={props.myMetis}
                                     phFocus={phFocus}

@@ -97,6 +97,13 @@ const Modelling = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   const [mount, setMount] = useState(false)
+  const [gojsSnapshot, setGojsSnapshot] = useState<any>({
+    nodes: [],
+    links: [],
+    modelId: null,
+    modelviewId: null,
+    version: 0,
+  })
   const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -207,11 +214,27 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Generate GoJS node model when focus changes
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
+    let cancelled = false;
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    GenGojsModel(compatibilityProps, myMetis)
-    setActiveTab(activetabindex)
-    setMount(true);
+    const generateGojsModel = async () => {
+      await GenGojsModel(compatibilityProps, myMetis)
+      if (cancelled) return;
+      const goModel = myMetis?.gojsModel;
+      setGojsSnapshot((snapshot: any) => ({
+        nodes: Array.isArray(goModel?.nodes) ? [...goModel.nodes] : [],
+        links: Array.isArray(goModel?.links) ? [...goModel.links] : [],
+        modelId: phFocus?.focusModel?.id || null,
+        modelviewId: phFocus?.focusModelview?.id || null,
+        version: (snapshot?.version || 0) + 1,
+      }))
+      setActiveTab(activetabindex)
+      setMount(true);
+    }
+    generateGojsModel();
+    return () => {
+      cancelled = true;
+    }
   }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, metis])
 
   useEffect(() => {
@@ -685,6 +708,7 @@ const Modelling = (props: any) => {
                     <Modeller // this is the Modeller ara
                       key={`model-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
                       myMetis={myMetis}
+                      gojsSnapshot={gojsSnapshot}
                       metis={metis}
                       phData={phData}
                       phFocus={phFocus}

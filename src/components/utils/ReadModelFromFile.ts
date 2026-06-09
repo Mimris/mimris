@@ -59,6 +59,12 @@ const buildSourcePropsFromSharedUniverse = (fallbackProps) => {
     };
 }
 
+const stripWorkspaceUniverseMetadata = (phUser: any) => {
+    if (!phUser || typeof phUser !== 'object') return phUser;
+    const { __workspaceUniverse, ...rest } = phUser;
+    return rest;
+}
+
 export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
     if (!debug) console.log('10 ReadModelFromFile', props, e)
     e.preventDefault();
@@ -83,6 +89,7 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
                     models: cleanedData,
                 },
             },
+            phUser: stripWorkspaceUniverseMetadata(importedfile.phUser || props?.phUser || InitialState.phUser),
             phSource: filename,
         }
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
@@ -128,7 +135,10 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 return
             }
             clearPersistedFileFocus()
-            dispatch(loadLegacyUniverseSnapshot(adaptedState))
+            dispatch(loadLegacyUniverseSnapshot({
+                ...adaptedState,
+                phUser: stripWorkspaceUniverseMetadata(adaptedState.phUser || InitialState.phUser),
+            }))
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
             resetFileInput()
             return
@@ -185,7 +195,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 ...InitialState,
                 phData: sanitizedProject.phData,
                 phFocus: sanitizedProject.phFocus,
-                phUser: sanitizedProject.phUser || sourceProps?.phUser || InitialState.phUser,
+                phUser: stripWorkspaceUniverseMetadata(sanitizedProject.phUser || sourceProps?.phUser || InitialState.phUser),
                 phSource: sanitizedProject.phSource || filename,
                 lastUpdate: new Date().toISOString(),
             }))
@@ -231,7 +241,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     ...(resolvedModel ? { focusModel: { id: resolvedModel.id, name: resolvedModel.name } } : { focusModel: null }),
                     ...(resolvedModelview ? { focusModelview: { id: resolvedModelview.id, name: resolvedModelview.name } } : { focusModelview: null }),
                 },
-                phUser: sourceProps?.phUser || InitialState.phUser,
+                phUser: stripWorkspaceUniverseMetadata(sourceProps?.phUser || InitialState.phUser),
                 phSource: filename,
                 lastUpdate: new Date().toISOString(),
             }))

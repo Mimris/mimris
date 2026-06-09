@@ -182,6 +182,40 @@ const page = () => {
         dispatchLoadedState(stored);
         return true;
     };
+    const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+        return matchesScope && matchesBaseUrl && matchesId && matchesSlug && matchesRemoteUri;
+    };
+    const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        const stored = readStoredMemoryState();
+        if (!stored?.phData?.metis && !stored?.universe?.world?.worldModel?.metis) return false;
+        if (remoteMemoryMatchesRoute(stored, options)) return false;
+        dispatchLoadedState(stored);
+        return true;
+    };
     const resolveLoadError = (response: Response, payload: any, text: string, fallbackMessage: string) =>
         readJsonResponseError(response, payload, text, fallbackMessage);
     const buildScopedRemoteLoadError = (scope: string, universeSlug: string, remoteUri: string, detail?: string) => {
@@ -528,6 +562,29 @@ const page = () => {
                     console.error('Error loading snapshot share:', error);
                     setLoadError(error?.message || 'Unable to load shared snapshot.');
                 }
+                setIsLoading(false);
+                return;
+            }
+
+            if (
+                isReady &&
+                (universeId || universeSlug) &&
+                loadNonMatchingLocalMemoryState({
+                    universeId,
+                    universeSlug,
+                    baseUrl: normalizeRemoteUniverseBaseUrl(universeApi),
+                    metisScope: requestedMetisScope,
+                })
+            ) {
+                dispatch({
+                    type: 'SET_FOCUS_REFRESH',
+                    data: {
+                        id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                            ? crypto.randomUUID()
+                            : `${Date.now()}`,
+                        name: 'Restore local draft',
+                    },
+                });
                 setIsLoading(false);
                 return;
             }

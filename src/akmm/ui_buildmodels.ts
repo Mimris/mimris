@@ -690,6 +690,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         const name = link.name;
         if (debug) console.log('382 modelview, link:', modelview, link);
         link.loadLinkContent(myGoModel);
+        if (!link.from || !link.to) {
+          if (debug) console.warn('Skipping relationship view without resolved GoJS endpoints', relview);
+          continue;
+        }
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
@@ -713,7 +717,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           link.strokecolor = relview.strokecolor ? relview.strokecolor : relview.typeview?.strokecolor;
           link.strokewidth = relview.strokewidth;
         }
-        myGoModel.addLink(link);
+        try {
+          myGoModel.addLink(link);
+        } catch (error) {
+          console.warn('Skipping invalid relationship view while building GoJS model', relview?.id, error);
+        }
       }
     }
   }

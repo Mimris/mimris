@@ -34,7 +34,7 @@ import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
-import { bindLegacyUniverseDispatch, selectSharedUniverseState } from "../sharedUniverse";
+import { bindLegacyUniverseDispatch, selectMimrisCompatibilityProps } from "../sharedUniverse";
 import { MEMORY_STATE_STORAGE_KEY } from "./utils/memoryStateStorage";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
@@ -147,24 +147,16 @@ const Modelling = (props: any) => {
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
-  const sharedUniverse = useSelector(selectSharedUniverseState);
-  const metis = sharedUniverse.world.worldModel.metis as any;
-  const phFocus = sharedUniverse.world.focus as any;
-  const phUser = sharedUniverse.user as any;
-  const phSource = sharedUniverse.source as any;
-  const phData = useMemo(() => ({
-    ...props.phData,
-    domain: sharedUniverse.world.worldDefinition.domain,
-    metis,
-  }), [props.phData, sharedUniverse.world.worldDefinition.domain, metis]);
+  const sharedCompatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+  const metis = sharedCompatibilityProps.phData?.metis as any;
+  const phFocus = sharedCompatibilityProps.phFocus as any;
+  const phUser = sharedCompatibilityProps.phUser as any;
+  const phSource = sharedCompatibilityProps.phSource as any;
+  const phData = sharedCompatibilityProps.phData as any;
   const compatibilityProps = useMemo(() => ({
     ...props,
-    phData,
-    phFocus,
-    phUser,
-    phSource,
-    phList: sharedUniverse.compatibility.modelList ?? props.phList,
-  }), [props, phData, phFocus, phUser, phSource, sharedUniverse.compatibility.modelList]);
+    ...sharedCompatibilityProps,
+  }), [props, sharedCompatibilityProps]);
 
   let focusModel = phFocus?.focusModel
   let focusModelview = phFocus?.focusModelview
@@ -176,17 +168,7 @@ const Modelling = (props: any) => {
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
   const getPersistedState = () => {
-    const state = selectSharedUniverseState(store.getState() as any);
-    return trimPersistedStateForBrowserStorage({
-      phData: {
-        domain: state.world.worldDefinition.domain,
-        metis: state.world.worldModel.metis,
-        documents: state.compatibility.documents,
-      },
-      phFocus: state.world.focus,
-      phUser: state.user,
-      phSource: state.source,
-    });
+    return trimPersistedStateForBrowserStorage(selectMimrisCompatibilityProps(store.getState() as any));
   }
 
   const persistCurrentStateToBrowserStorage = () => {

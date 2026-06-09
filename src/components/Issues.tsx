@@ -9,7 +9,7 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
-import { selectSharedUniverseState } from "../sharedUniverse";
+import { selectMimrisCompatibilityProps } from "../sharedUniverse";
 
 // import { fetchIssues } from '../api/github';
 
@@ -18,10 +18,10 @@ const debug = false;
 const Issues = (props: any) => {
   if (debug) console.log('25 Tasks props', props.phData, props);
 
-  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const compatibilityProps = useSelector(selectMimrisCompatibilityProps);
   const dispatch = useDispatch();
   const legacyProps = props.props || props;
-  const phFocus = sharedUniverse.world.focus || legacyProps.phFocus || {};
+  const phFocus = compatibilityProps.phFocus || legacyProps.phFocus || {};
 
   const router = useRouter();
   const currentRoute = router.pathname;

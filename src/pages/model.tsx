@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modelling from '../components/Modelling';
@@ -11,7 +11,7 @@ import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemote
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
-import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { buildUniverseStateFromLegacy, selectMimrisCompatibilityProps, setUniverseState, setUniverseUser } from '../sharedUniverse';
 import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
 
 const page = () => {
@@ -26,22 +26,11 @@ const page = () => {
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
     const [fetchedUsername, setFetchedUsername] = useState<string | null>(null);
-    const sharedUniverse = useSelector(selectSharedUniverseState);
-    const phFocus = sharedUniverse.world.focus as any;
-    const phUser = sharedUniverse.user as any;
-    const phSource = sharedUniverse.source as any;
-    const metis = sharedUniverse.world.worldModel.metis as any;
-    const phData = useMemo(() => ({
-        domain: sharedUniverse.world.worldDefinition.domain,
-        metis,
-        documents: sharedUniverse.compatibility.documents,
-    }), [sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
-    const compatibilityProps = useMemo(() => ({
-        phData,
-        phFocus,
-        phUser,
-        phSource,
-    }), [phData, phFocus, phUser, phSource]);
+    const compatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+    const phFocus = compatibilityProps.phFocus as any;
+    const phUser = compatibilityProps.phUser as any;
+    const phSource = compatibilityProps.phSource as any;
+    const phData = compatibilityProps.phData as any;
     const universeName = phFocus?.focusProj?.name || '';
     const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
@@ -730,7 +719,7 @@ const page = () => {
             phFocus,
             phUser,
             phSource,
-            universe: sharedUniverse,
+            universe: buildUniverseStateFromLegacy(compatibilityProps),
             lastUpdate: new Date().toISOString(),
         };
 
@@ -742,7 +731,7 @@ const page = () => {
         } catch (error) {
             console.error('Unable to persist local model draft:', error);
         }
-    }, [hasMounted, isLoading, loadError, hasRenderableModels, phData, phFocus, phUser, phSource, sharedUniverse]);
+    }, [hasMounted, isLoading, loadError, hasRenderableModels, phData, phFocus, phUser, phSource, compatibilityProps]);
 
     if ((!hasMounted || waitingForRequestedModel) && !hasRenderableModels) {
         return <div className="workarea p-3 w-100">Loading shared model...</div>;

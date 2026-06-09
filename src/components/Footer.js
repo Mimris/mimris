@@ -2,13 +2,13 @@
 // import PropTypes from 'prop-types'
 import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpire, FaOilCan, FaListOl, FaRegCopyright, FaSpaceShuttle, FaLine, FaAutoprefixer, FaMehRollingEyes, FaMagento, FaMagic, FaAccessibleIcon, FaBan, FaXing, FaBezierCurve, FaCommentDots, FaRegCommentDots, FaDirections, FaDashcube, FaDAndDBeyond, FaCircleNotch, FaCloudMeatball, FaCloud, FaCloudMoon, FaCloudversify, FaAsterisk, FaRegSave, FaSourcetree, FaCompactDisc, FaStamp, FaCloudDownloadAlt, FaMixcloud, FaAssistiveListeningSystems, FaApper, FaLaptop } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import { selectSharedUniverseState } from '../sharedUniverse';
+import { selectMimrisCompatibilityProps } from '../sharedUniverse';
 
 const Footer = props => {
-  const sharedUniverse = useSelector(selectSharedUniverseState);
-  const phSource = sharedUniverse.source ?? props.phSource;
-  const phFocus = sharedUniverse.world.focus || props.phFocus || {};
-  const phTemplate = sharedUniverse.compatibility.template ?? props.phTemplate;
+  const compatibilityProps = useSelector(selectMimrisCompatibilityProps);
+  const phSource = compatibilityProps.phSource ?? props.phSource;
+  const phFocus = compatibilityProps.phFocus || props.phFocus || {};
+  const phTemplate = props.phTemplate;
 
   return (
     <div className="footer d-flex align-items-center">

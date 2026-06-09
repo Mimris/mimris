@@ -23,7 +23,7 @@ import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import { createSnapshotShare } from "../components/utils/focusShare";
 import { MEMORY_STATE_STORAGE_KEY } from "../components/utils/memoryStateStorage";
-import { loadLegacyUniverseSnapshot, selectSharedUniverseState, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
+import { loadLegacyUniverseSnapshot, selectMimrisCompatibilityProps, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
@@ -33,18 +33,7 @@ const Page1 = () => {
 
   const dispatch = useDispatch();
   const store = useStore();
-  const sharedUniverse = useSelector(selectSharedUniverseState);
-  const props = {
-    phData: {
-      domain: sharedUniverse.world.worldDefinition.domain,
-      metis: sharedUniverse.world.worldModel.metis,
-      documents: sharedUniverse.compatibility.documents,
-    },
-    phFocus: sharedUniverse.world.focus as any,
-    phUser: sharedUniverse.user as any,
-    phSource: sharedUniverse.source as any,
-    phList: sharedUniverse.compatibility.modelList,
-  };
+  const props = useSelector(selectMimrisCompatibilityProps) as any;
   const phFocus = props.phFocus || {};
   const phUser = props.phUser || {};
   const focusProj = phFocus.focusProj || {};
@@ -114,16 +103,12 @@ const Page1 = () => {
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
   const getPersistedState = () => {
-    const state = selectSharedUniverseState(store.getState() as any);
+    const state = selectMimrisCompatibilityProps(store.getState() as any) as any;
     return {
-      phData: {
-        domain: state.world.worldDefinition.domain,
-        metis: state.world.worldModel.metis,
-        documents: state.compatibility.documents,
-      },
-      phFocus: state.world.focus,
-      phUser: state.user,
-      phSource: state.source,
+      phData: state.phData,
+      phFocus: state.phFocus,
+      phUser: state.phUser,
+      phSource: state.phSource,
     };
   }
 

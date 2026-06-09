@@ -78,3 +78,18 @@ export const selectSharedUniverseState = createSelector(
         },
     }),
 );
+
+export const selectMimrisCompatibilityProps = createSelector(
+    [selectSharedUniverseState],
+    (sharedUniverse) => ({
+        phData: {
+            domain: sharedUniverse.world.worldDefinition.domain,
+            metis: sharedUniverse.world.worldModel.metis,
+            documents: sharedUniverse.compatibility.documents,
+        },
+        phFocus: sharedUniverse.world.focus,
+        phUser: sharedUniverse.user,
+        phSource: sharedUniverse.source,
+        phList: sharedUniverse.compatibility.modelList,
+    }),
+);

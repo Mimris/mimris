@@ -518,12 +518,36 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       const objectviews = modelview?.getObjectViews?.() || modelview?.objectviews || [];
       return objectviews.find((objview: akm.cxObjectView) => objview?.objectRef === objectRef) || null;
     };
+    const existingRelshipRefs = new Set<string>();
     for (let i = 0; i < relviews?.length; i++) {
       const rview = relviews[i] as akm.cxRelationshipView;
       if (!rview.id) continue;
       if (rview.markedAsDeleted)
         continue;
+      const relshipRef = rview.relship?.id || (rview as any).relshipRef;
+      if (relshipRef) existingRelshipRefs.add(relshipRef);
       relshipviews.push(rview);
+    }
+    const modelRelships = model?.getRelationships?.() || model?.relships || [];
+    for (let i = 0; i < modelRelships.length; i++) {
+      const rel = modelRelships[i] as akm.cxRelationship;
+      if (!rel?.id || existingRelshipRefs.has(rel.id) || rel.markedAsDeleted) continue;
+      const fromObjectRef = rel.fromobjectRef || rel.fromObject?.id;
+      const toObjectRef = rel.toobjectRef || rel.toObject?.id;
+      const fromObjview = findObjectViewByObjectRef(fromObjectRef) as akm.cxObjectView;
+      const toObjview = findObjectViewByObjectRef(toObjectRef) as akm.cxObjectView;
+      if (!fromObjview || !toObjview) continue;
+      const relview = new akm.cxRelationshipView(`${rel.id}-${modelview.id}-auto`, rel.name, rel, rel.description || "");
+      relview.setFromObjectView(fromObjview);
+      relview.setToObjectView(toObjview);
+      relview.relshipRef = rel.id;
+      relview.fromobjviewRef = fromObjview.id;
+      relview.toobjviewRef = toObjview.id;
+      if (rel.type?.typeview) relview.setTypeView(rel.type.typeview);
+      relview.routing = modelview.routing || relview.routing;
+      relview.curve = modelview.linkcurve || relview.curve;
+      relshipviews.push(relview);
+      existingRelshipRefs.add(rel.id);
     }
     relviews = relshipviews;
     const modifiedRelviews = [];

@@ -1256,10 +1256,16 @@ export class cxMetis {
         if (!item) return; // sf 2023-05-09
         const rel = this.findRelationship(item.id);
         if (rel) {
-            const reltype = this.findRelationshipType(item.typeRef);
+            const reltype =
+                this.findRelationshipType(item.typeRef) ||
+                model?.metamodel?.findRelationshipType?.(item.typeRef);
             if (debug) console.log('948 item, rel', item, rel);
-            const fromObj = this.findObject(item.fromobjectRef);
-            const toObj = this.findObject(item.toobjectRef);
+            const fromObj =
+                this.findObject(item.fromobjectRef) ||
+                model?.findObject?.(item.fromobjectRef);
+            const toObj =
+                this.findObject(item.toobjectRef) ||
+                model?.findObject?.(item.toobjectRef);
             if (reltype && fromObj && toObj) {
                 rel.setType(reltype);
                 rel.setFromObject(fromObj);

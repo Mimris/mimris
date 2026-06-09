@@ -523,8 +523,14 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
       ((relview as any).relshipRef ? model?.findRelationship((relview as any).relshipRef) : null)
     ) as akm.cxRelationship;
-    const isMetamodelStructuralRelationship = (rel: akm.cxRelationship | null | undefined) => {
-      const typeName = String(rel?.type?.name || rel?.name || "").trim().toLowerCase();
+    const isMetamodelStructuralRelationship = (rel: akm.cxRelationship | null | undefined, relview?: akm.cxRelationshipView | null) => {
+      const typeName = String(
+        rel?.type?.name ||
+        rel?.name ||
+        relview?.typeview?.name ||
+        relview?.name ||
+        ""
+      ).trim().toLowerCase();
       return (
         typeName === String(constants.types.AKM_CONTAINS).toLowerCase() ||
         typeName === String(constants.types.AKM_IS).toLowerCase()
@@ -646,14 +652,17 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (!relview.markedAsDeleted && relview.relship) {
         includeRelview = true;
       }
+      if (!relview.markedAsDeleted && isMetamodelStructuralRelationship(rel, relview)) {
+        includeRelview = true;
+      }
       if (!includeDeleted && !includeNoObject && !includeNoType && relview) {
         if (relview.strokecolor === "")
           relcolor = relview?.typeview?.strokecolor;
       }
       if (!relcolor) relcolor = 'black';
-      if (relview.visible == false && !isMetamodelStructuralRelationship(rel))
+      if (relview.visible == false && !isMetamodelStructuralRelationship(rel, relview))
         includeRelview = false;
-      if (relview.visible == false && isMetamodelStructuralRelationship(rel))
+      if (relview.visible == false && isMetamodelStructuralRelationship(rel, relview))
         relview.visible = true;
       if (includeRelview) {
         if (!relview.strokewidth) relview.strokewidth = 1;

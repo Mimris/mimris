@@ -1468,79 +1468,77 @@ export class cxMetis {
                 if (item.relshipRef) relview.relshipRef = item.relshipRef;
                 if (fromobjviewRef) relview.fromobjviewRef = fromobjviewRef;
                 if (toobjviewRef) relview.toobjviewRef = toobjviewRef;
-                if (relship) {
-                    relview.setRelationship(relship);
-                    const fromobjview = (
-                        modelview.findObjectView(fromobjviewRef) ||
-                        modelview.objectviews?.find((objview) => objview?.objectRef === relship.fromobjectRef)
-                    ) as cxObjectView;
-                    const toobjview = (
-                        modelview.findObjectView(toobjviewRef) ||
-                        modelview.objectviews?.find((objview) => objview?.objectRef === relship.toobjectRef)
-                    ) as cxObjectView;
-                    if (fromobjview) {
-                        relview.setFromObjectView(fromobjview);
-                        fromobjview.addOutputRelview(relview);
-                    }
-                    if (toobjview) {
-                        relview.setToObjectView(toobjview);
-                        toobjview.addInputRelview(relview);
-                    }
-                    relview.fromPortid = relship.fromPortid;
-                    relview.toPortid = relship.toPortid;
-                    relview.template = item.template;
-                    relview.template2 = item.template2;
-                    relview.arrowscale = Number(item.arrowscale);
-                    relview.strokecolor = item.strokecolor;
-                    relview.strokewidth = Number(item.strokewidth);
-                    relview.textcolor = item.textcolor;
-                    relview.textscale = Number(item.textscale);
-                    relview.dash = item.dash;
-                    relview.fromArrow = item.fromArrow;
-                    relview.toArrow = item.toArrow;
-                    relview.fromArrowColor = item.fromArrowColor;
-                    relview.toArrowColor = item.toArrowColor;
-                    relview.routing = item.routing;
-                    relview.corner = Number(item.corner);
-                    relview.curve = Number(item.curve);
-                    relview.points = item.points;
-                    relview.visible = item.visible;
-                    let reltypeview;
-                    if (item.typeviewRef) {
-                        reltypeview = this.findRelationshipTypeView(item.typeviewRef);
-                        if (reltypeview) {
-                            relview.setTypeView(reltypeview);
-                            const viewdata = reltypeview.getData();
-                            for (let prop in viewdata) {
-                                if (item[prop] && item[prop] !== "") {
-                                    relview[prop] = item[prop];
-                                }
-                            }
-                        }
-                    }
-                    if (!reltypeview) {
-                        reltypeview = relview.relship?.type?.typeview as cxRelationshipTypeView;
-                        if (reltypeview) {
-                            relview.setTypeView(reltypeview);
-                            const viewdata = reltypeview.getData();
-                            for (let prop in viewdata) {
-                                if (item[prop] && item[prop] !== "") {
-                                    relview[prop] = item[prop];
-                                }
-                            }
-                        }
-                    } // isFollowedBy
-                    if (relview.name === "isFollowedBy" || relview.name === "follows") {
-                        relview.name = " ";
-                    }
-                    relview.markedAsDeleted = item.markedAsDeleted;
-                    if (!relview.markedAsDeleted) relview.visible = true;
-                    relview.template = item.template;
-                    relview.template2 = item.template2;
-                    this.sanitizeRelshipViewAfterImport(relview, item);
-                    relship.addRelationshipView(relview);
-                    modelview.addRelationshipView(relview);
+                if (relship) relview.setRelationship(relship);
+                const fromobjview = (
+                    modelview.findObjectView(fromobjviewRef) ||
+                    (relship ? modelview.objectviews?.find((objview) => objview?.objectRef === relship.fromobjectRef) : null)
+                ) as cxObjectView;
+                const toobjview = (
+                    modelview.findObjectView(toobjviewRef) ||
+                    (relship ? modelview.objectviews?.find((objview) => objview?.objectRef === relship.toobjectRef) : null)
+                ) as cxObjectView;
+                if (fromobjview) {
+                    relview.setFromObjectView(fromobjview);
+                    fromobjview.addOutputRelview(relview);
                 }
+                if (toobjview) {
+                    relview.setToObjectView(toobjview);
+                    toobjview.addInputRelview(relview);
+                }
+                relview.fromPortid = relship?.fromPortid || item.fromPortid || "";
+                relview.toPortid = relship?.toPortid || item.toPortid || "";
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                relview.arrowscale = Number(item.arrowscale);
+                relview.strokecolor = item.strokecolor;
+                relview.strokewidth = Number(item.strokewidth);
+                relview.textcolor = item.textcolor;
+                relview.textscale = Number(item.textscale);
+                relview.dash = item.dash;
+                relview.fromArrow = item.fromArrow;
+                relview.toArrow = item.toArrow;
+                relview.fromArrowColor = item.fromArrowColor;
+                relview.toArrowColor = item.toArrowColor;
+                relview.routing = item.routing;
+                relview.corner = Number(item.corner);
+                relview.curve = Number(item.curve);
+                relview.points = item.points;
+                relview.visible = item.visible;
+                let reltypeview;
+                if (item.typeviewRef) {
+                    reltypeview = this.findRelationshipTypeView(item.typeviewRef);
+                    if (reltypeview) {
+                        relview.setTypeView(reltypeview);
+                        const viewdata = reltypeview.getData();
+                        for (let prop in viewdata) {
+                            if (item[prop] && item[prop] !== "") {
+                                relview[prop] = item[prop];
+                            }
+                        }
+                    }
+                }
+                if (!reltypeview) {
+                    reltypeview = relview.relship?.type?.typeview as cxRelationshipTypeView;
+                    if (reltypeview) {
+                        relview.setTypeView(reltypeview);
+                        const viewdata = reltypeview.getData();
+                        for (let prop in viewdata) {
+                            if (item[prop] && item[prop] !== "") {
+                                relview[prop] = item[prop];
+                            }
+                        }
+                    }
+                } // isFollowedBy
+                if (relview.name === "isFollowedBy" || relview.name === "follows") {
+                    relview.name = " ";
+                }
+                relview.markedAsDeleted = item.markedAsDeleted;
+                if (!relview.markedAsDeleted) relview.visible = true;
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                this.sanitizeRelshipViewAfterImport(relview, item);
+                if (relship) relship.addRelationshipView(relview);
+                if (fromobjview && toobjview) modelview.addRelationshipView(relview);
             }
         }
     }

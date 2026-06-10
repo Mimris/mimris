@@ -16,6 +16,7 @@ import * as gjs from './ui_gojs';
 import * as constants from './constants';
 import { getCurrentStore } from '../store';
 import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
+import { dispatchUniversePhData } from '../sharedUniverse';
 // const RegexParser = require("regex-parser");
 // const utils = require('./utilities');
 import * as utils from './utilities';
@@ -1401,9 +1402,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const store = getCurrentStore();
       const phDataClone = JSON.parse(JSON.stringify(props.phData));
       applyObjectviewUpdateById(phDataClone, data);
-      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
     } catch (_) {}
   }
 
@@ -1413,9 +1414,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const store = getCurrentStore();
       const phDataClone = JSON.parse(JSON.stringify(props.phData));
       applyRelshipviewUpdateById(phDataClone, data);
-      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
       try {
         const persistSnapshot = () => {
           const snapshot = {

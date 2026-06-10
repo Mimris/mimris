@@ -8,6 +8,7 @@ import * as jsn from '../akmm/ui_json';
 import * as uic from '../akmm/ui_common';
 import { admin } from './constants';
 import * as constants from './constants';
+import { dispatchUniversePhData } from '../sharedUniverse';
 
 let includeNoType = false;
 
@@ -1298,7 +1299,7 @@ export function buildInstancesModelview(myMetis: akm.cxMetis, dispatch: any, myM
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    dispatchUniversePhData(dispatch, data)
   }
   return instancesModelview;
 }

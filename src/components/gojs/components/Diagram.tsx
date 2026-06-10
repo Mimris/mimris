@@ -51,7 +51,7 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { i } from '../../utils/SvgLetters';
-import { bindLegacyUniverseDispatch } from '../../../sharedUniverse';
+import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '../../../sharedUniverse';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -7139,7 +7139,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       }
 
       function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -11057,7 +11057,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSaveLayout = (diagram: go.Diagram) => {
@@ -11151,7 +11151,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSetLinkRouting = (diagram: go.Diagram) => {
@@ -11347,7 +11347,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram?.dispatch, data);
       };
 
       const handleNewMetamodel = () => {

@@ -35,6 +35,11 @@ export const dispatchLegacyUniverseAction = (
     action: AnyAction,
 ) => dispatch?.(toSharedUniverseAction(action));
 
+export const dispatchUniversePhData = (
+    dispatch: LegacyDispatch | undefined,
+    phData: Parameters<typeof setUniversePhData>[0],
+) => dispatch?.(setUniversePhData(phData) as AnyAction);
+
 export const bindLegacyUniverseDispatch = (
     dispatch?: LegacyDispatch,
 ): LegacyDispatch => {

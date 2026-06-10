@@ -11,30 +11,22 @@ import {
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 import { get } from 'http';
-import { bindLegacyUniverseDispatch, selectSharedUniverseState } from '../sharedUniverse';
+import { selectMimrisCompatibilityProps, setUniverseDomain } from '../sharedUniverse';
 
 const debug = false;
 
 const Project = (props) => {
 
 
-  const rawDispatch = useDispatch();
-  const dispatch = bindLegacyUniverseDispatch(rawDispatch);
+  const dispatch = useDispatch();
   const projectModalRef = useRef(null);
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
-  const sharedUniverse = useSelector(selectSharedUniverseState);
-  const domain = sharedUniverse.world.worldDefinition.domain || {};
+  const compatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+  const domain = compatibilityProps.phData?.domain || {};
   const modeldata = {
     ...props.props,
-    phData: {
-      ...props.props?.phData,
-      domain,
-      metis: sharedUniverse.world.worldModel.metis,
-    },
-    phFocus: sharedUniverse.world.focus,
-    phUser: sharedUniverse.user,
-    phSource: sharedUniverse.source,
+    ...compatibilityProps,
   };
 
   if (debug) console.log('25 Tasks props', modeldata?.phData, props);
@@ -125,10 +117,7 @@ const Project = (props) => {
 
   // Save domain changes
   const saveDomainChanges = () => {
-    dispatch({
-      type: 'UPDATE_DOMAIN_PROPERTIES',
-      data: editedDomain
-    });
+    dispatch(setUniverseDomain(editedDomain));
     setEditingDomain(false);
   };
 

@@ -19,6 +19,7 @@
 ## Phase 3: Validation
 
 - [ ] T008 Manually verify landing-page local import navigates into modelling with the imported data
-- [ ] T009 Manually verify modelling-page local import replaces data without route churn
+- [x] T009 Manually verify modelling-page local import replaces data without route churn
 - [ ] T010 Manually verify the same local file can be selected twice in a row
 - [ ] T011 Manually verify empty-file imports show "No models in this file." and do not leave stale state visible
+- [x] T012 Manually verify a legacy local project opened on `/modelling` survives browser Reload without the active modelview becoming blank

@@ -2,6 +2,7 @@ import { createAction, type AnyAction } from '@reduxjs/toolkit';
 
 export type LegacyUniverseRoot = {
     universe?: SharedUniverseState;
+    phList?: unknown;
     phData?: {
         domain?: unknown;
         metis?: unknown;
@@ -32,6 +33,7 @@ export type SharedUniverseState = {
     source: unknown;
     compatibility: {
         documents: unknown[];
+        modelList: unknown;
     };
 };
 
@@ -155,6 +157,17 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
                 usedObjectviewIds.add(currentId);
                 return objectview;
             });
+            const normalizedObjectviewsWithGroups = idMap.size
+                ? normalizedObjectviews.map((objectview) => {
+                    const group = idMap.get(objectview?.group);
+                    if (!group) return objectview;
+                    modelviewDidChange = true;
+                    return {
+                        ...objectview,
+                        group,
+                    };
+                })
+                : normalizedObjectviews;
 
             const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews : [];
             const normalizedRelshipviews = idMap.size
@@ -176,7 +189,7 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
             didChange = true;
             return {
                 ...modelview,
-                objectviews: normalizedObjectviews,
+                objectviews: normalizedObjectviewsWithGroups,
                 ...(Array.isArray(modelview?.relshipviews) ? { relshipviews: normalizedRelshipviews } : {}),
             };
         });
@@ -193,6 +206,102 @@ export const normalizeModelviewObjectviewIdentities = (metis: unknown) => {
         ...metisRecord,
         models: normalizedModels,
     };
+};
+
+const VIEW_GEOMETRY_FIELDS = ['loc', 'group', 'scale', 'scale1', 'size'];
+
+const buildScopedViewPatchMap = (
+    metis: unknown,
+    collectionName: 'objectviews' | 'relshipviews',
+    fields: string[],
+) => {
+    const patches = new Map<string, Record<string, unknown>>();
+    const models: any[] = Array.isArray(asRecord(metis).models) ? asRecord(metis).models : [];
+
+    models.forEach((model) => {
+        const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+        modelviews.forEach((modelview) => {
+            const collection: any[] = Array.isArray(modelview?.[collectionName]) ? modelview[collectionName] : [];
+            collection.forEach((item) => {
+                if (!item?.id || !modelview?.id) return;
+                const patch: Record<string, unknown> = {};
+                fields.forEach((field) => {
+                    if (item[field] !== undefined) patch[field] = item[field];
+                });
+                if (Object.keys(patch).length > 0) {
+                    patches.set(`${modelview.id}:${item.id}`, patch);
+                }
+            });
+        });
+    });
+
+    return patches;
+};
+
+const preserveCurrentViewGeometryForMatchingItems = (
+    incomingMetis: unknown,
+    currentMetis: unknown,
+) => {
+    const incoming = asRecord(incomingMetis);
+    const models: any[] = Array.isArray(incoming.models) ? incoming.models : [];
+    if (!models.length) return incomingMetis;
+
+    const objectviewPatches = buildScopedViewPatchMap(currentMetis, 'objectviews', VIEW_GEOMETRY_FIELDS);
+    if (!objectviewPatches.size) return incomingMetis;
+
+    let didChange = false;
+    const nextModels = models.map((model) => {
+        const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
+        if (!modelviews.length) return model;
+
+        let modelDidChange = false;
+        const nextModelviews = modelviews.map((modelview) => {
+            const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews : [];
+            if (!objectviews.length || !modelview?.id) return modelview;
+
+            let modelviewDidChange = false;
+            const nextObjectviews = objectviews.map((objectview) => {
+                const patch = objectview?.id ? objectviewPatches.get(`${modelview.id}:${objectview.id}`) : null;
+                if (!patch) return objectview;
+                let itemDidChange = false;
+                for (const [key, value] of Object.entries(patch)) {
+                    if (objectview?.[key] !== value) {
+                        itemDidChange = true;
+                        break;
+                    }
+                }
+                if (!itemDidChange) return objectview;
+                modelviewDidChange = true;
+                modelDidChange = true;
+                didChange = true;
+                return {
+                    ...objectview,
+                    ...patch,
+                };
+            });
+
+            return modelviewDidChange
+                ? {
+                    ...modelview,
+                    objectviews: nextObjectviews,
+                }
+                : modelview;
+        });
+
+        return modelDidChange
+            ? {
+                ...model,
+                modelviews: nextModelviews,
+            }
+            : model;
+    });
+
+    return didChange
+        ? {
+            ...incoming,
+            models: nextModels,
+        }
+        : incomingMetis;
 };
 
 const updateMetis = (
@@ -227,6 +336,53 @@ const findModelIndex = (
         : -1;
 
     return focusIndex >= 0 ? focusIndex : 0;
+};
+
+const hasRenderableModelviewContent = (modelview: any) => {
+    const objectviews: any[] = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+    const relshipviews: any[] = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+    return objectviews.length > 0 || relshipviews.length > 0;
+};
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+    const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+    if (!modelviews.length) return null;
+
+    const requested = requestedModelview
+        ? modelviews.find((modelview) => (
+            modelview?.id === requestedModelview?.id ||
+            modelview?.name === requestedModelview?.name
+        ))
+        : null;
+    if (requested && hasRenderableModelviewContent(requested)) return requested;
+
+    return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+};
+
+const normalizeFocusForMetis = (metis: unknown, focus: unknown) => {
+    const focusRecord = asRecord(focus);
+    if (!Object.keys(focusRecord).length) return focus;
+
+    const metisRecord = asRecord(metis);
+    const models: any[] = Array.isArray(metisRecord.models) ? metisRecord.models : [];
+    if (!models.length) return focus;
+
+    const requestedModel = focusRecord.focusModel;
+    const resolvedModel = requestedModel
+        ? models.find((model) => (
+            model?.id === requestedModel?.id ||
+            model?.name === requestedModel?.name
+        ))
+        : null;
+    const focusModel = resolvedModel || models[0] || focusRecord.focusModel;
+    const focusModelview = resolveFocusableModelview(focusModel, focusRecord.focusModelview)
+        || focusRecord.focusModelview;
+
+    return {
+        ...focusRecord,
+        focusModel,
+        focusModelview,
+    };
 };
 
 const updateFocusedItem = (
@@ -342,7 +498,26 @@ const findModelviewForItem = (
     collectionName: 'objectviews' | 'relshipviews',
     itemId?: string,
     focus?: Record<string, any>,
+    modelviewId?: string,
 ) => {
+    if (modelviewId) {
+        for (let modelIndex = 0; modelIndex < models.length; modelIndex += 1) {
+            const modelviews: any[] = Array.isArray(models[modelIndex]?.modelviews)
+                ? models[modelIndex].modelviews
+                : [];
+            const modelviewIndex = modelviews.findIndex((modelview) => modelview?.id === modelviewId);
+            if (modelviewIndex >= 0) {
+                const collection: any[] = Array.isArray(modelviews[modelviewIndex]?.[collectionName])
+                    ? modelviews[modelviewIndex][collectionName]
+                    : [];
+                const itemIndex = itemId
+                    ? collection.findIndex((item) => item?.id === itemId)
+                    : -1;
+                return { modelIndex, modelviewIndex, itemIndex };
+            }
+        }
+    }
+
     const focusedModelIndex = findModelIndex(models, focus || {});
     const focusedModel = models[focusedModelIndex];
     const focusedModelviews: any[] = Array.isArray(focusedModel?.modelviews) ? focusedModel.modelviews : [];
@@ -396,7 +571,12 @@ const updateModelviewCollection = (
     if (!models.length) return state;
 
     const focus = asRecord(state.world.focus);
-    const target = findModelviewForItem(models, collectionName, patch.id as string | undefined, focus);
+    const sanitizedPatch = { ...patch };
+    const rawModelviewId = sanitizedPatch.modelviewId || sanitizedPatch.modelviewRef;
+    const modelviewId = typeof rawModelviewId === 'string' ? rawModelviewId : undefined;
+    delete sanitizedPatch.modelviewId;
+    delete sanitizedPatch.modelviewRef;
+    const target = findModelviewForItem(models, collectionName, sanitizedPatch.id as string | undefined, focus, modelviewId);
     const model = models[target.modelIndex];
     const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
     const modelview = modelviews[target.modelviewIndex];
@@ -407,7 +587,7 @@ const updateModelviewCollection = (
     const nextCollection = replaceArrayItem(
         collection,
         targetIndex,
-        mergeAndPruneOptionalEmptyFields(collection[targetIndex], patch, optionalFields),
+        mergeAndPruneOptionalEmptyFields(collection[targetIndex], sanitizedPatch, optionalFields),
     );
     const nextModelviews = replaceArrayItem(modelviews, target.modelviewIndex, {
         ...modelview,
@@ -524,12 +704,19 @@ export const initialUniverseState: SharedUniverseState = {
     source: null,
     compatibility: {
         documents: EMPTY_DOCUMENTS,
+        modelList: null,
     },
 };
 
 export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null): SharedUniverseState => {
     const documents = Array.isArray(state?.phData?.documents) ? state.phData.documents : EMPTY_DOCUMENTS;
     const metis = state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null;
+    const normalizedMetis = normalizeModelviewObjectviewIdentities(metis);
+    const modelList = state?.universe?.compatibility?.modelList ?? state?.phList ?? null;
+    const focus = normalizeFocusForMetis(
+        normalizedMetis,
+        state?.universe?.world?.focus ?? state?.phFocus ?? null,
+    );
 
     return {
         world: {
@@ -537,14 +724,15 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
                 domain: state?.universe?.world?.worldDefinition?.domain ?? state?.phData?.domain ?? null,
             },
             worldModel: {
-                metis: normalizeModelviewObjectviewIdentities(metis),
+                metis: normalizedMetis,
             },
-            focus: state?.universe?.world?.focus ?? state?.phFocus ?? null,
+            focus,
         },
         user: state?.universe?.user ?? state?.phUser ?? null,
         source: state?.universe?.source ?? state?.phSource ?? null,
         compatibility: {
             documents,
+            modelList,
         },
     };
 };
@@ -564,14 +752,21 @@ export const universeReducer = (
     action: AnyAction,
 ): SharedUniverseState => {
     if (setUniverseState.match(action)) {
+        const nextMetis = preserveCurrentViewGeometryForMatchingItems(
+            action.payload.world.worldModel.metis,
+            state.world.worldModel.metis,
+        );
+        const normalizedMetis = normalizeModelviewObjectviewIdentities(nextMetis);
+
         return {
             ...action.payload,
             world: {
                 ...action.payload.world,
                 worldModel: {
                     ...action.payload.world.worldModel,
-                    metis: normalizeModelviewObjectviewIdentities(action.payload.world.worldModel.metis),
+                    metis: normalizedMetis,
                 },
+                focus: normalizeFocusForMetis(normalizedMetis, action.payload.world.focus),
             },
         };
     }
@@ -580,6 +775,9 @@ export const universeReducer = (
         const documents = Array.isArray(payload?.documents)
             ? payload.documents
             : state.compatibility.documents;
+        const nextMetis = payload?.metis !== undefined
+            ? preserveCurrentViewGeometryForMatchingItems(payload.metis, state.world.worldModel.metis)
+            : undefined;
 
         return {
             ...state,
@@ -592,7 +790,7 @@ export const universeReducer = (
                 worldModel: {
                     ...state.world.worldModel,
                     ...(payload?.metis !== undefined
-                        ? { metis: normalizeModelviewObjectviewIdentities(payload.metis) }
+                        ? { metis: normalizeModelviewObjectviewIdentities(nextMetis) }
                         : {}),
                 },
             },
@@ -601,6 +799,143 @@ export const universeReducer = (
                 documents,
             },
         };
+    }
+    if (action.type === 'LOAD_TOSTORE_DATA') {
+        return buildUniverseStateFromLegacy(action.data as LegacyUniverseRoot);
+    }
+    if (action.type === 'LOAD_DATA_SUCCESS') {
+        return {
+            ...universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData)),
+            source: 'Model server',
+        };
+    }
+    if (action.type === 'LOAD_DATAGITHUB_SUCCESS') {
+        const data = asRecord(action.data);
+        const githubState = asRecord(data.data) as LegacyUniverseRoot;
+        return buildUniverseStateFromLegacy(githubState);
+    }
+    if (action.type === 'LOAD_DATAMODEL_SUCCESS') {
+        const data = asRecord(action.data);
+        const metis = asRecord(state.world.worldModel.metis);
+        const models: any[] = Array.isArray(metis.models) ? metis.models : [];
+        const incomingModels = Array.isArray(data.model)
+            ? data.model
+            : data.model
+                ? [data.model]
+                : [];
+        if (!incomingModels.length) {
+            return {
+                ...state,
+                source: 'Model server',
+                world: {
+                    ...state.world,
+                    worldDefinition: {
+                        ...state.world.worldDefinition,
+                        domain: mergeDomainPatch(state.world.worldDefinition.domain, data.domain),
+                    },
+                },
+            };
+        }
+
+        const targetId = typeof data.id === 'string' ? data.id : incomingModels[0]?.id;
+        const targetIndex = targetId ? models.findIndex((model) => model?.id === targetId) : -1;
+        const nextIndex = targetIndex >= 0 ? targetIndex : models.length;
+        const nextModels = [
+            ...models.slice(0, nextIndex),
+            ...incomingModels,
+            ...models.slice(nextIndex + 1),
+        ];
+        const nextMetis = normalizeModelviewObjectviewIdentities({
+            ...metis,
+            models: nextModels,
+        });
+
+        return {
+            ...state,
+            source: 'Model server',
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    domain: mergeDomainPatch(state.world.worldDefinition.domain, data.domain),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    metis: nextMetis,
+                },
+            },
+        };
+    }
+    if (action.type === 'LOAD_DATAMODELLIST_SUCCESS') {
+        return {
+            ...state,
+            compatibility: {
+                ...state.compatibility,
+                modelList: action.data,
+            },
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_PHDATA') {
+        return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
+    }
+    if (action.type === 'LOAD_TOSTORE_PHFOCUS') {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                focus: normalizeFocusForMetis(state.world.worldModel.metis, action.data),
+            },
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_PHUSER') {
+        return {
+            ...state,
+            user: action.data,
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_PHSOURCE') {
+        return {
+            ...state,
+            source: action.data,
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_NEWMODEL') {
+        const metis = asRecord(state.world.worldModel.metis);
+        const models = Array.isArray(metis.models) ? metis.models : [];
+        const patch = asRecord(action.data);
+        const nextMetis = {
+            ...metis,
+            models: [...models, patch],
+        };
+        return {
+            ...updateMetis(state, nextMetis),
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    ...(patch.domain !== undefined
+                        ? { domain: mergeDomainPatch(state.world.worldDefinition.domain, patch.domain) }
+                        : {}),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    metis: normalizeModelviewObjectviewIdentities(nextMetis),
+                },
+            },
+        };
+    }
+    if (action.type === 'LOAD_TOSTORE_NEWMODELVIEW') {
+        const metis = asRecord(state.world.worldModel.metis);
+        const models = Array.isArray(metis.models) ? metis.models : [];
+        const patch = asRecord(action.data);
+        const modelIndex = patch.id
+            ? models.findIndex((model) => model?.id === patch.id)
+            : -1;
+        const targetIndex = modelIndex >= 0 ? modelIndex : models.length;
+        return updateMetis(state, {
+            ...metis,
+            models: replaceArrayItem(models, targetIndex, patch),
+        });
     }
     if (setUniverseDomain.match(action)) {
         return {
@@ -650,6 +985,40 @@ export const universeReducer = (
             user: mergeObjectPatch(state.user, { focusUser: action.data }),
         };
     }
+    if (action.type === 'SET_USER_SHOWDELETED' || action.type === 'SET_USER_SHOWMODIFIED') {
+        const user = asRecord(state.user);
+        const focusUser = asRecord(user.focusUser);
+        const diagram = asRecord(focusUser.diagram);
+        return {
+            ...state,
+            user: {
+                ...user,
+                focusUser: {
+                    ...focusUser,
+                    diagram: {
+                        ...diagram,
+                        ...(action.type === 'SET_USER_SHOWDELETED'
+                            ? { showDeleted: action.data }
+                            : { showModified: action.data }),
+                    },
+                },
+            },
+        };
+    }
+    if (action.type === 'SET_VISIBLE_CONTEXT') {
+        const user = asRecord(state.user);
+        const appSkin = asRecord(user.appSkin);
+        return {
+            ...state,
+            user: {
+                ...user,
+                appSkin: {
+                    ...appSkin,
+                    visibleContext: action.data,
+                },
+            },
+        };
+    }
     const legacyFocusField = legacyFocusFieldByActionType[action.type];
     if (legacyFocusField) {
         return {
@@ -660,11 +1029,32 @@ export const universeReducer = (
             },
         };
     }
+    if (action.type === 'UPDATE_DOMAIN_PROPERTIES') {
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    domain: mergeDomainPatch(state.world.worldDefinition.domain, asRecord(action.data)),
+                },
+            },
+        };
+    }
     if (action.type === 'UPDATE_PROJECT_PROPERTIES') {
         const metis = asRecord(state.world.worldModel.metis);
         return updateMetis(state, {
             ...metis,
             ...asRecord(action.data),
+        });
+    }
+    if (action.type === 'SET_CURRENT_METAMODEL') {
+        const metis = asRecord(state.world.worldModel.metis);
+        if (!Object.keys(metis).length) return state;
+
+        return updateMetis(state, {
+            ...metis,
+            currentMetamodelRef: asRecord(action.data).id,
         });
     }
     if (action.type === 'UPDATE_MODEL_PROPERTIES' || action.type === 'UPDATE_TARGETMODEL_PROPERTIES') {
@@ -755,7 +1145,7 @@ export const universeReducer = (
     if (action.type === 'UPDATE_RELSHIP_PROPERTIES') {
         return updateCurrentModelCollection(state, 'relships', asRecord(action.data));
     }
-    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES') {
+    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES' || action.type === 'UPDATE_OBJECTVIEW_NAME') {
         return updateModelviewCollection(
             state,
             'objectviews',

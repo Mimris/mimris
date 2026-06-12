@@ -4,7 +4,17 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-3178C6?logo=typescript)
 ![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
 
-Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-based Modeling and Metamodelling capabilities.
+Mimris is an open-source graphical modelling and metamodelling tool for creating custom domain-specific modelling languages and models.
+
+It provides a visual modelling environment built around objects, relationships, metamodels, and generated modelling languages. Mimris can be used to define modelling primitives, generate metamodels, and build structured models for domain-specific work such as BPMN-style process modelling.
+
+Public demo: https://mimris.vercel.app
+
+GitHub: https://github.com/Mimris/mimris
+
+Related project:
+
+- [Mimris AI Workspace](https://github.com/mimris/mimris-ai-workspace): structured project execution with domain descriptions, functional models, work items, and AI-assisted draft production.
 <!-- <img src="https://github.com/user-attachments/assets/ea2b6b9a-f8cc-4916-aa00-3e8693015fd3" alt="Image Description" width="200" /> -->
 
 ## Table of Contents
@@ -34,7 +44,6 @@ Open-source Modelling tool with Graphical Diagram Editor using Cyclic Entity-bas
   - [Diagram Engine](#diagram-engine)
     - [GoJS Configuration](#gojs-configuration)
   - [📚 Documentation](#-documentation)
-- [\<\<\<\<\<\<\< ours](#-ours)
     - [Enable GitHub Pages](#enable-github-pages)
     - [Ensure the default branch is `main`](#ensure-the-default-branch-is-main)
     - [Preview locally](#preview-locally)
@@ -258,9 +267,6 @@ export const nodeTemplate = (
 );
 ```
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 ## 📚 Documentation
 
 Mimris documentation is published as a GitHub Pages site backed by the [`docs/`](docs/) directory.
@@ -268,8 +274,6 @@ Mimris documentation is published as a GitHub Pages site backed by the [`docs/`]
 - **Landing page** – https://mimris.github.io/mimris/
 - **Getting started guide** – https://mimris.github.io/mimris/getting-started
 
-<<<<<<< ours
-=======
 ### Enable GitHub Pages
 
 1. Commit and push updates to the `docs/` directory (for example, editing `docs/index.md`).
@@ -299,15 +303,8 @@ Then go to **Settings → Branches** and set the default branch to `main`.
    ```
 3. Visit <http://localhost:4000> to preview the documentation with live reload while you edit markdown files.
 
->>>>>>> theirs
 To update the site, edit the markdown files under [`docs/`](docs/) and open a pull request. After the changes are merged to the default branch, GitHub Pages will automatically rebuild and deploy the latest content.
 
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 ## Contributing 🤝
 
 We welcome contributions to the Mimris Modelling App! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.

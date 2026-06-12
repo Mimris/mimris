@@ -4,6 +4,7 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import { Container, Row, Col } from 'react-bootstrap'
 
 import GenGojsModel from "../components/GenGojsModel";
+import { selectSharedUniverseState } from "../sharedUniverse";
 
 const debug = false
 
@@ -11,7 +12,10 @@ export default function GithubParams(props: { phFocus: any }) {  // props = prop
 
   if (debug) console.log('5 GithubParams',  props)
 
-  if (!props.phFocus) return <div>no props.phFocus</div>
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const phFocus = sharedUniverse.world.focus || props.phFocus;
+
+  if (!phFocus) return <div>no props.phFocus</div>
 
 
   return (
@@ -28,12 +32,12 @@ export default function GithubParams(props: { phFocus: any }) {  // props = prop
         </Row>
         <div className="border " style={{background: "#ef"}}><strong>
           <Row key={1} className=''>
-            <Col key={1} className='bg-white m-1' >{props.phFocus.focusProj?.org} </Col>
-            <Col key={2} className='bg-white m-1' >{props.phFocus.focusProj?.repo} </Col>
-            <Col key={3} className='bg-white m-1' style={{maxWidth: "100px"}}>{props.phFocus.focusProj?.path} </Col>
-            <Col key={4} className='bg-white m-1' >{props.phFocus.focusProj?.file} </Col>
-            <Col key={5} className='bg-white m-1' style={{maxWidth: "100px"}}>{props.phFocus.focusProj?.branch} </Col>
-            <Col key={6} className='bg-white m-1' style={{maxWidth: "50px"}}>{props.phFocus.focusProj?.projectNumber} </Col>
+            <Col key={1} className='bg-white m-1' >{phFocus.focusProj?.org} </Col>
+            <Col key={2} className='bg-white m-1' >{phFocus.focusProj?.repo} </Col>
+            <Col key={3} className='bg-white m-1' style={{maxWidth: "100px"}}>{phFocus.focusProj?.path} </Col>
+            <Col key={4} className='bg-white m-1' >{phFocus.focusProj?.file} </Col>
+            <Col key={5} className='bg-white m-1' style={{maxWidth: "100px"}}>{phFocus.focusProj?.branch} </Col>
+            <Col key={6} className='bg-white m-1' style={{maxWidth: "50px"}}>{phFocus.focusProj?.projectNumber} </Col>
           </Row></strong>
         </div>
         {/* <div className="d-flex justify-content-center ">

@@ -557,6 +557,61 @@ function sanitizeObjectViewDispatchData(data: any): any {
   return nextData;
 }
 
+function getMetisModels(phData: any): any[] {
+  return Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : [];
+}
+
+const MEMORY_STATE_STORAGE_KEY = 'memorystate';
+
+function applyObjectViewPatchToPhData(phData: any, patch: any): boolean {
+  if (!patch?.id) return false;
+  const modelviewId = patch.modelviewId || patch.modelviewRef || "";
+  const sanitizedPatch = { ...patch };
+  delete sanitizedPatch.modelviewId;
+  delete sanitizedPatch.modelviewRef;
+  const models = getMetisModels(phData);
+
+  for (let mi = 0; mi < models.length; mi += 1) {
+    const modelviews = models[mi]?.modelviews || [];
+    for (let mvi = 0; mvi < modelviews.length; mvi += 1) {
+      const modelview = modelviews[mvi];
+      if (modelviewId && modelview?.id !== modelviewId) continue;
+      const objectviews = modelview?.objectviews || [];
+      for (let ovi = 0; ovi < objectviews.length; ovi += 1) {
+        const objectview = objectviews[ovi];
+        if (objectview?.id !== patch.id) continue;
+        objectviews[ovi] = {
+          ...objectview,
+          ...sanitizedPatch,
+        };
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function persistObjectViewPatchToMemoryState(patch: any) {
+  if (typeof window === "undefined" || !patch?.id) return;
+  try {
+    const rawStored =
+      window.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) ||
+      window.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
+    if (!rawStored) return;
+
+    const parsed = JSON.parse(rawStored);
+    const didUpdate = applyObjectViewPatchToPhData(parsed?.phData, patch);
+    if (!didUpdate) return;
+
+    const serialized = JSON.stringify(parsed);
+    try { window.sessionStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
+    try { window.localStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
+  } catch (_) {
+    // Best-effort draft persistence; Redux remains authoritative in memory.
+  }
+}
+
 function safeJsonCloneForDispatch(value: any): any {
   const seen = new WeakSet<object>();
   return JSON.parse(JSON.stringify(value, (_key, current) => {
@@ -593,8 +648,10 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
   }
   const queue: Map<string, any> = (instance as any).__queuedObjectViewDispatches;
-  const prev = queue.get(data.id) || {};
-  queue.set(data.id, { ...prev, ...data });
+  const modelviewId = data.modelviewId || data.modelviewRef || "";
+  const queueKey = `${modelviewId}:${data.id}`;
+  const prev = queue.get(queueKey) || {};
+  queue.set(queueKey, { ...prev, ...data, ...(modelviewId ? { modelviewId } : {}) });
   // Store the diagram reference for use in the flush
   if (diagram && !queue.__diagram) {
     queue.__diagram = diagram;
@@ -608,6 +665,7 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     pendingQueue.forEach((payload) => {
       try {
         dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+        persistObjectViewPatchToMemoryState(payload);
 
         // CRITICAL: Update myMetis nodes AND their objectviews with new positions
         // BEFORE calling setState, so React has the correct data to render
@@ -750,6 +808,7 @@ function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
   pendingObjectQueue.forEach((payload) => {
     try {
       dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+      persistObjectViewPatchToMemoryState(payload);
     } catch (_) {
     }
   });
@@ -1034,9 +1093,10 @@ function groupAllowsGrab(
   const data: any = group.data || {};
   const storeState = getCurrentStore?.()?.getState?.();
   let storedObjview: any = null;
-  if (storeState?.phData?.metis?.models) {
-    outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
-      const model = storeState.phData.metis.models[mi];
+  const storeModels = getMetisModels(storeState?.phData);
+  if (storeModels.length) {
+    outer: for (let mi = 0; mi < storeModels.length; mi++) {
+      const model = storeModels[mi];
       const modelviews = model?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {
         const modelview = modelviews[mvi];
@@ -2389,10 +2449,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       } catch (_) {}
     }
+    if (
+      modalContext?.what === 'selectDropdown' &&
+      modalContext?.case === 'Create Relationship' &&
+      !typename
+    ) {
+      try { myDiagram?.clearSelection?.(); } catch (_) {}
+      this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
+      return;
+    }
     const args = {
       data: previewData,
       metamodel: modalContext.myMetamodel,
       typename: typename,
+      reltype: modalContext.relshiptype,
       fromType: modalContext.fromType,
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,
@@ -2805,6 +2875,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
     let myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
+    if (!myGoModel && myModelview) {
+      myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+      myMetis.setGojsModel(myGoModel);
+    }
     const nodes = new Array();
     let modifiedObjectTypes = new Array();
     let modifiedObjectTypeViews = new Array();
@@ -2824,7 +2898,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myMetamodel": myMetamodel,
       "myModel": myModel,
       "myModelview": myModelview,
-      "myGoModel": myMetis.gojsModel,
+      "myGoModel": myGoModel,
       "myGoMetamodel": (myDiagram as any)?.myGoMetamodel || null,
       "myDiagram": myDiagram,
       "dispatch": dispatch,
@@ -3694,7 +3768,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Object type or Object
         if (sel instanceof go.Node) {
           const key: string = gjsData.key;
-          const goNode = myGoModel.findNode(key);
+          let goNode = myGoModel.findNode(key);
           let text: string = textvalue;
           const category: string = gjsData.category;
           const isMetamodelObjectTypeNode =
@@ -3721,12 +3795,19 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             const objview = myModelview.findObjectView(key);
             if (objview) {
+              if (!goNode) {
+                goNode = myGoModel.findNodeByViewId(objview.id);
+              }
               let obj = objview.object;
               if (obj) {
-                goNode.objRef = obj.id;
-                goNode.text = textvalue;
-                goNode.name = text;
-                obj = uic.updateObject(goNode, field, text, context);
+                if (goNode) {
+                  goNode.objRef = obj.id;
+                  goNode.text = textvalue;
+                  goNode.name = text;
+                  obj = uic.updateObject(goNode, field, text, context) || obj;
+                } else {
+                  obj[field] = text;
+                }
                 if (obj) {
                   obj.name = text;
                   obj.text = textvalue;
@@ -4630,9 +4711,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = sel.data;
           const storeState = getCurrentStore?.()?.getState?.();
           let storedGroupObjview: any = null;
-          if (storeState?.phData?.metis?.models) {
-            outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {
-              const model = storeState.phData.metis.models[mi];
+          const storeModels = getMetisModels(storeState?.phData);
+          if (storeModels.length) {
+            outer: for (let mi = 0; mi < storeModels.length; mi++) {
+              const model = storeModels[mi];
               const modelviews = model?.modelviews || [];
               for (let mvi = 0; mvi < modelviews.length; mvi++) {
                 const modelview = modelviews[mvi];
@@ -5297,6 +5379,31 @@ class GoJSApp extends React.Component<{}, AppState> {
             });
           }
         });
+        // Ensure ordinary object drags are persisted even when GoJS no longer exposes
+        // the moved parts through draggingTool.draggedParts at SelectionMoved time.
+        for (let it = e.subject?.iterator; it?.next();) {
+          const part = it.value;
+          if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+          const data: any = part.data || {};
+          if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELATIONSHIP) continue;
+          const objview =
+            myModelview.findObjectView(data?.objviewRef || data?.key) ||
+            myMetis.findObjectView(data?.objviewRef || data?.key) ||
+            data?.objectview;
+          if (!objview?.id) continue;
+          const loc = `${part.location.x} ${part.location.y}`;
+          objview.loc = loc;
+          if (typeof data.group === "string") objview.group = data.group;
+          if (data.scale !== undefined) objview.scale = data.scale;
+          try { myDiagram.model.setDataProperty(data, "loc", loc); } catch (_) { data.loc = loc; }
+          uic.addItemToList(modifiedObjectViews, {
+            id: objview.id,
+            loc: objview.loc,
+            group: objview.group,
+            scale: objview.scale,
+            modelviewId: myModelview?.id,
+          });
+        }
         { // links
           const movedNodeDeltas = new Map<string, { dx: number; dy: number }>();
           try {
@@ -7477,6 +7584,7 @@ e.subject.each(function (n) {
   let object: akm.cxObject;
   let objName: string;
   let objDescr: string;
+  let droppedModelObject = false;
   if (!type || !typeview) { // An object has been dropped (dragged from object palette)
     const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
     if (resolvedType) {
@@ -7560,6 +7668,7 @@ e.subject.each(function (n) {
       myModelview.addObjectView(objview);
       myModelview.setFocusObjectview(objview);
       myMetis.addObjectView(objview);
+      droppedModelObject = true;
       let goNode = myGoModel.findNode(key);
       if (!goNode) {
         goNode = new gjs.goObjectNode(key, myGoModel, objview);
@@ -7682,6 +7791,7 @@ e.subject.each(function (n) {
       object.addObjectView(objview);
       myModelview.addObjectView(objview);
       myMetis.addObjectView(objview);
+      droppedModelObject = true;
       if (isContainer) {
         applyGroupTemplateToDiagram(diagramNode, templateName);
       } else {
@@ -7779,6 +7889,7 @@ e.subject.each(function (n) {
     objview.setModified();
     myModelview.addObjectView(objview);
     myMetis.addObjectView(objview);
+    droppedModelObject = true;
   } else {
     objview.loc = part.loc;
     objview.size = part.isGroup ? getPersistedGroupSize(part) : part.size;
@@ -7877,7 +7988,7 @@ e.subject.each(function (n) {
     part.text = "Label";
   }
   // Prepare dispatch
-  if (part.type === 'objecttype') {
+  if (!droppedModelObject && part.type === 'objecttype') {
     const otype = uic.createObjectType(part, context);
     if (otype) {
       otype.typename = constants.types.OBJECTTYPE_NAME;
@@ -7898,16 +8009,10 @@ e.subject.each(function (n) {
       part.typeview = otype.typeview;
       uid.editObjectType(part, myMetis, myDiagram);
     }
-  } else // object
-  {
-    modifiedObjectViews.push({
-      id: objview?.id,
-      loc: objview?.loc,
-      size: objview?.size,
-      scale: objview?.scale,
-      group: objview?.group,
-      isExpanded: objview?.isExpanded,
-    });
+  } else if (object && objview) { // object
+    const jsnObjview = new jsn.jsnObjectView(objview);
+    (jsnObjview as any).modelviewId = myModelview?.id;
+    modifiedObjectViews.push(jsnObjview);
     const jsnObj = new jsn.jsnObject(object);
     modifiedObjects.push(jsnObj);
     const objvIdName = { id: objview.id, name: objview.name };
@@ -9094,26 +9199,16 @@ if (true) { // Dispatches to store individual objects/types
   if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
   const dispatchedObjectViewPayloads = new Set<string>();
   const storeState = getCurrentStore?.()?.getState?.();
+  const sharedMetis = storeState?.universe?.world?.worldModel?.metis;
+  const storedMetis = sharedMetis || storeState?.phData?.metis || {};
   const coalescedObjectViews = new Map<string, any>();
   modifiedObjectViews.forEach((mn: any) => {
     if (!mn?.id) return;
-    const prev = coalescedObjectViews.get(mn.id) || {};
-    coalescedObjectViews.set(mn.id, { ...prev, ...mn });
+    const modelviewId = mn.modelviewId || myModelview?.id || "";
+    const coalesceKey = `${modelviewId}:${mn.id}`;
+    const prev = coalescedObjectViews.get(coalesceKey) || {};
+    coalescedObjectViews.set(coalesceKey, { ...prev, ...mn, ...(modelviewId ? { modelviewId } : {}) });
   });
-  const findStoredObjectViewById = (id: string) => {
-    const models = storeState?.phData?.metis?.models || [];
-    for (let mi = 0; mi < models.length; mi++) {
-      const modelviews = models[mi]?.modelviews || [];
-      for (let mvi = 0; mvi < modelviews.length; mvi++) {
-        const objectviews = modelviews[mvi]?.objectviews || [];
-        for (let ovi = 0; ovi < objectviews.length; ovi++) {
-          const objectview = objectviews[ovi];
-          if (objectview?.id === id) return objectview;
-        }
-      }
-    }
-    return null;
-  };
   if (!(this as any).__dispatchingObjectViewUpdates) {
     (this as any).__dispatchingObjectViewUpdates = true;
     try {
@@ -9123,18 +9218,6 @@ if (true) { // Dispatches to store individual objects/types
           data = sanitizeObjectViewDispatchData(safeJsonCloneForDispatch(data));
           const dispatchKey = JSON.stringify(data);
           if (dispatchedObjectViewPayloads.has(dispatchKey)) return;
-          const storedObjectView = findStoredObjectViewById(data.id);
-          if (storedObjectView) {
-            const sanitizedStoredObjectView = sanitizeObjectViewDispatchData(storedObjectView);
-            let hasMeaningfulDiff = false;
-            for (const key of Object.keys(data)) {
-              if (JSON.stringify(sanitizedStoredObjectView?.[key]) !== JSON.stringify(data[key])) {
-                hasMeaningfulDiff = true;
-                break;
-              }
-            }
-            if (!hasMeaningfulDiff) return;
-          }
           dispatchedObjectViewPayloads.add(dispatchKey);
           queueObjectViewDispatch(this, context.dispatch, data, myDiagram)
         }
@@ -9171,7 +9254,7 @@ if (true) { // Dispatches to store individual objects/types
     coalescedRelshipViews.set(mn.id, { ...prev, ...mn });
   });
   const findStoredRelshipViewById = (id: string) => {
-    const models = storeState?.phData?.metis?.models || [];
+    const models = storedMetis?.models || [];
     for (let mi = 0; mi < models.length; mi++) {
       const modelviews = models[mi]?.modelviews || [];
       for (let mvi = 0; mvi < modelviews.length; mvi++) {

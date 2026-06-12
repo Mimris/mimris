@@ -42,7 +42,6 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
-import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList, imageLibrary } from '../../forms/selectIcons';
 import ChangeIconModal from '../../modals/ChangeIconModal';
 import ChangeImageModal from '../../modals/ChangeImageModal';
@@ -52,7 +51,7 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { i } from '../../utils/SvgLetters';
-import { bindLegacyUniverseDispatch } from '../../../sharedUniverse';
+import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '../../../sharedUniverse';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -172,15 +171,19 @@ function mergeIncomingDiagramNodeDataWithLiveState(
   if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
 
   const liveNodeByAlias = new Map<string, go.Node>();
+  const liveNodes: go.Node[] = [];
   for (let it = diagram.nodes.iterator; it?.next();) {
     const node = it.value as go.Node;
+    liveNodes.push(node);
     const aliases = getDiagramNodeAliases(node?.data);
     aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
   }
 
-  return incomingNodes.map((incoming: any) => {
+  const incomingAliases = new Set<string>();
+  const mergedNodes = incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object') return incoming;
     const aliases = getDiagramNodeAliases(incoming);
+    aliases.forEach((alias) => incomingAliases.add(alias));
     if (aliases.length === 0) return incoming;
 
     let liveNode: go.Node | undefined;
@@ -216,6 +219,16 @@ function mergeIncomingDiagramNodeDataWithLiveState(
       scale1: nextScale1,
     };
   });
+  liveNodes.forEach((node) => {
+    const liveData = node?.data;
+    if (!liveData || typeof liveData !== 'object') return;
+    const aliases = getDiagramNodeAliases(liveData);
+    if (aliases.length === 0) return;
+    if (aliases.some((alias) => incomingAliases.has(alias))) return;
+    if (liveData.category !== constants.gojs.C_OBJECT && !liveData.objectview && !liveData.objviewRef) return;
+    mergedNodes.push(liveData);
+  });
+  return mergedNodes;
 }
 
 function normalizeLiveLinkPoints(points: any): number[] | undefined {
@@ -506,6 +519,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
         modelAny.__originalSetDataProperty = originalSetDataProperty;
         modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          if (!data || typeof data !== 'object') {
+            return data;
+          }
           try {
             if (propname === 'loc' && data) {
               const lockMap: Map<string, { loc: string; until: number }> | undefined =
@@ -7123,7 +7139,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       }
 
       function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -11041,7 +11057,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSaveLayout = (diagram: go.Diagram) => {
@@ -11135,7 +11151,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSetLinkRouting = (diagram: go.Diagram) => {
@@ -11331,7 +11347,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram?.dispatch, data);
       };
 
       const handleNewMetamodel = () => {

@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modelling from '../components/Modelling';
 import Layout from '../components/Layout';
@@ -11,9 +11,10 @@ import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemote
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
-import { buildUniverseStateFromLegacy, selectSharedUniverseState, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { buildUniverseStateFromLegacy, selectMimrisCompatibilityProps, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
 
-const page = (props: any) => {
+const page = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { query, isReady } = router;
@@ -25,24 +26,11 @@ const page = (props: any) => {
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
     const [fetchedUsername, setFetchedUsername] = useState<string | null>(null);
-    const sharedUniverse = useSelector(selectSharedUniverseState);
-    const phFocus = sharedUniverse.world.focus as any;
-    const phUser = sharedUniverse.user as any;
-    const phSource = sharedUniverse.source as any;
-    const metis = sharedUniverse.world.worldModel.metis as any;
-    const phData = useMemo(() => ({
-        ...props.phData,
-        domain: sharedUniverse.world.worldDefinition.domain,
-        metis,
-        documents: sharedUniverse.compatibility.documents,
-    }), [props.phData, sharedUniverse.world.worldDefinition.domain, sharedUniverse.compatibility.documents, metis]);
-    const compatibilityProps = useMemo(() => ({
-        ...props,
-        phData,
-        phFocus,
-        phUser,
-        phSource,
-    }), [props, phData, phFocus, phUser, phSource]);
+    const compatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+    const phFocus = compatibilityProps.phFocus as any;
+    const phUser = compatibilityProps.phUser as any;
+    const phSource = compatibilityProps.phSource as any;
+    const phData = compatibilityProps.phData as any;
     const universeName = phFocus?.focusProj?.name || '';
     const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
@@ -124,7 +112,7 @@ const page = (props: any) => {
     };
     const loadLocalMemoryState = () => {
         try {
-            const stored = window.localStorage.getItem('memorystate');
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
             const parsed = stored ? JSON.parse(stored) : null;
             if (parsed) {
                 dispatchLoadedState(parsed);
@@ -134,6 +122,88 @@ const page = (props: any) => {
             console.error('Error parsing memoryLocState:', error);
         }
         return false;
+    };
+    const readStoredMemoryState = () => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            console.error('Error parsing memoryLocState:', error);
+            return null;
+        }
+    };
+    const readStoredRemoteMeta = (stored: any) => {
+        const storedPhUser = stored?.phUser || stored?.universe?.user || {};
+        return storedPhUser?.__workspaceUniverse || {};
+    };
+    const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        const stored = readStoredMemoryState();
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+
+        if (!matchesScope || !matchesBaseUrl || !matchesId || !matchesSlug || !matchesRemoteUri) {
+            return false;
+        }
+
+        dispatchLoadedState(stored);
+        return true;
+    };
+    const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+        return matchesScope && matchesBaseUrl && matchesId && matchesSlug && matchesRemoteUri;
+    };
+    const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+        const stored = readStoredMemoryState();
+        if (!stored?.phData?.metis && !stored?.universe?.world?.worldModel?.metis) return false;
+        if (remoteMemoryMatchesRoute(stored, options)) return false;
+        dispatchLoadedState(stored);
+        return true;
     };
     const resolveLoadError = (response: Response, payload: any, text: string, fallbackMessage: string) =>
         readJsonResponseError(response, payload, text, fallbackMessage);
@@ -223,6 +293,25 @@ const page = (props: any) => {
     };
     const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
+        if (loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
+            updateModelRoute({
+                universeId: options.universeId,
+                universeSlug: options.universeSlug,
+                baseUrl: options.baseUrl,
+                metisScope: options.metisScope,
+            });
+            dispatch({
+                type: 'SET_FOCUS_REFRESH',
+                data: {
+                    id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                        ? crypto.randomUUID()
+                        : `${Date.now()}`,
+                    name: 'Open local draft',
+                },
+            });
+            return true;
+        }
+
         const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl));
         const { payload, text } = await readJsonResponse(response);
         if (!response.ok || payload?.error || !payload?.payload) {
@@ -466,6 +555,29 @@ const page = (props: any) => {
                 return;
             }
 
+            if (
+                isReady &&
+                (universeId || universeSlug) &&
+                loadNonMatchingLocalMemoryState({
+                    universeId,
+                    universeSlug,
+                    baseUrl: normalizeRemoteUniverseBaseUrl(universeApi),
+                    metisScope: requestedMetisScope,
+                })
+            ) {
+                dispatch({
+                    type: 'SET_FOCUS_REFRESH',
+                    data: {
+                        id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                            ? crypto.randomUUID()
+                            : `${Date.now()}`,
+                        name: 'Restore local draft',
+                    },
+                });
+                setIsLoading(false);
+                return;
+            }
+
             if (isReady && universeId) {
                 try {
                     const baseUrl = normalizeRemoteUniverseBaseUrl(universeApi);
@@ -598,6 +710,29 @@ const page = (props: any) => {
     const waitingForRequestedModel = hasExplicitLoadRequest && (!isReady || isLoading);
     const shouldRenderModel = hasRenderableModels && !waitingForRequestedModel;
 
+    useEffect(() => {
+        if (!hasMounted || isLoading || loadError || !hasRenderableModels) return;
+        if (typeof window === 'undefined') return;
+
+        const snapshot = {
+            phData,
+            phFocus,
+            phUser,
+            phSource,
+            universe: buildUniverseStateFromLegacy(compatibilityProps),
+            lastUpdate: new Date().toISOString(),
+        };
+
+        try {
+            const result = persistMemoryState(snapshot);
+            if (result.localQuotaExceeded) {
+                console.warn('Local model draft exceeded localStorage quota; kept the current draft in sessionStorage only.');
+            }
+        } catch (error) {
+            console.error('Unable to persist local model draft:', error);
+        }
+    }, [hasMounted, isLoading, loadError, hasRenderableModels, phData, phFocus, phUser, phSource, compatibilityProps]);
+
     if ((!hasMounted || waitingForRequestedModel) && !hasRenderableModels) {
         return <div className="workarea p-3 w-100">Loading shared model...</div>;
     }
@@ -647,4 +782,4 @@ const page = (props: any) => {
     )
 };
 
-export default connect(state => state)(page);
+export default page;

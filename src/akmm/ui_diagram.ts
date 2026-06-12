@@ -3665,20 +3665,24 @@ function traverseDFS(node: akm.cxObjectView, visited = new Set()) {
     }
 }
 
-export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objview: akm.cxObjectView, myDiagram: any) {
+export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode | null, objview: akm.cxObjectView, myDiagram: any) {
+    const nodeKey = goNode?.key || objview?.id || gjsNode?.key;
+    if (!nodeKey || !objview || !myDiagram?.model) return;
+
     myDiagram.startTransaction('updateNode');
     const typeview = objview.typeview;
     for (let it = myDiagram.nodes; it?.next();) {
         const n = it.value;
         const ndata = n.data;
-        if (ndata.key === goNode.key) {
-            for (let prop in goNode) {
+        if (ndata?.key === nodeKey) {
+            const sourceNode = goNode || ndata || gjsNode;
+            for (let prop in sourceNode) {
                 if (prop !== 'key') {
                     if (!(typeof prop === 'object')) {
                         try {
                             if (!typeview || gjsNode[prop] !== typeview[prop] || typeview[prop] === "") {
                                 objview[prop] = gjsNode[prop];
-                                goNode[prop]  = gjsNode[prop];
+                                if (goNode) goNode[prop] = gjsNode[prop];
                                 myDiagram.model.setDataProperty(ndata, prop, gjsNode[prop]);
                             }
                         } catch {
@@ -3698,7 +3702,7 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode, objvie
                     }
                 }
             }
-            goNode.removeClassInstances();
+            goNode?.removeClassInstances?.();
         }
     }
     myDiagram.commitTransaction('updateNode');

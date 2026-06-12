@@ -32,6 +32,40 @@ function isGroupLikeNode(node: any): boolean {
     );
 }
 
+function isSwimlaneObjectView(objview: akm.cxObjectView | null | undefined, myDiagram?: any): boolean {
+    if (!objview) return false;
+    let node: any = null;
+    try {
+        node = myDiagram ? uid.getNodeByViewId(objview.id, myDiagram) : null;
+    } catch (_) {
+        node = null;
+    }
+    const data: any = node?.data || {};
+    const templateName = String(
+        data?.category ||
+        data?.template ||
+        node?.category ||
+        objview?.template ||
+        objview?.typeview?.template ||
+        objview?.type?.typeview?.template ||
+        ""
+    );
+    return templateName === "Pool" || templateName.startsWith("Lane");
+}
+
+function isHiddenSwimlaneContains(
+    rel: akm.cxRelationship | null | undefined,
+    fromObjview: akm.cxObjectView | null | undefined,
+    toObjview: akm.cxObjectView | null | undefined,
+    myDiagram?: any,
+): boolean {
+    return (
+        rel?.type?.name === constants.types.AKM_CONTAINS &&
+        String(toObjview?.group || "") === String(fromObjview?.id || "") &&
+        (isSwimlaneObjectView(fromObjview, myDiagram) || isSwimlaneObjectView(toObjview, myDiagram))
+    );
+}
+
 // functions to handle nodes
 export function createObject(gjsData: any, context: any): akm.cxObjectView | null {
     if (gjsData === null) {
@@ -885,13 +919,44 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
     let myMetamodel: akm.cxMetaModel = myMetis.currentMetamodel;
     const myModelview: akm.cxModelView = context.myModelview;
 
-    const fromObjview = context.fromObjView;
-    let fromObject = fromObjview.object;
-    if (!fromObject)
+    const resolveObjview = (nodeData: any, explicitObjview: any) => {
+        if (explicitObjview) return explicitObjview;
+        const nodeKey = nodeData?.key || nodeData?.objviewRef || nodeData?.id;
+        return (
+            (nodeKey && myModelview?.findObjectView?.(nodeKey)) ||
+            (nodeData?.objviewRef && myModelview?.findObjectView?.(nodeData.objviewRef)) ||
+            (nodeKey && myMetis?.findObjectView?.(nodeKey)) ||
+            (nodeData?.objectview || null)
+        );
+    };
+    const resolveObject = (nodeData: any, objview: any) => {
+        return (
+            objview?.object ||
+            (objview?.objectRef && myMetis.findObject(objview.objectRef)) ||
+            nodeData?.object ||
+            (nodeData?.objRef && myMetis.findObject(nodeData.objRef)) ||
+            null
+        );
+    };
+    const resolveObjectType = (nodeData: any, object: any) => {
+        const typeRef = object?.typeRef || object?.type?.id || nodeData?.objtypeRef || nodeData?.objecttype?.id;
+        return (
+            object?.type ||
+            nodeData?.objecttype ||
+            nodeData?.objtype ||
+            (typeRef && myMetamodel?.findObjectType?.(typeRef)) ||
+            (typeRef && myMetis.findObjectType(typeRef)) ||
+            null
+        );
+    };
+
+    const fromObjview = resolveObjview(gjsFromNode, context.fromObjView);
+    let fromObject = resolveObject(gjsFromNode, fromObjview);
+    if (!fromObject && fromObjview?.objectRef)
         fromObject = myMetis.findObject(fromObjview.objectRef);
-    const toObjview = context.toObjView;;
-    let toObject = toObjview.object;
-    if (!toObject)
+    const toObjview = resolveObjview(gjsToNode, context.toObjView);
+    let toObject = resolveObject(gjsToNode, toObjview);
+    if (!toObject && toObjview?.objectRef)
         toObject = myMetis.findObject(toObjview.objectRef);
     const fromPort = context?.gjsData?.fromPort || "";
     const toPort = context?.gjsData?.toPort || "";
@@ -902,12 +967,14 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         if (!fromType) 
             fromType = myMetis.findObjectType(fromObject?.typeRef);
     }
+    if (!fromType) fromType = resolveObjectType(gjsFromNode, fromObject);
     let toTypeRef = toObject?.typeRef;
     if (toTypeRef) {
         toType = myMetamodel.findObjectType(toObject?.typeRef);
         if (!toType) 
             toType = myMetis.findObjectType(toObject?.typeRef);
     }
+    if (!toType) toType = resolveObjectType(gjsToNode, toObject);
     let metamodel = myMetamodel;
     let metamodel2 = myMetamodel;
     const submetamodelRefs = myMetamodel.submetamodelRefs;
@@ -949,22 +1016,28 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
         //     includeInherited = myModelview.includeInheritedReltypes;
         // }
         let reltypes: akm.cxRelationshipType[] = [];
+        const addReltypes = (items: any[] | null | undefined) => {
+            if (!Array.isArray(items)) return;
+            for (let i = 0; i < items.length; i++) {
+                const rtype = items[i];
+                if (!rtype?.id && !rtype?.name) continue;
+                if (reltypes.some((existing) => existing?.id === rtype.id || existing?.name === rtype.name)) continue;
+                reltypes.push(rtype);
+            }
+        };
         if (!myModelview.isMetamodel) { // IS NOT Metamodel
             if (metamodel.id === metamodel2.id) {
                 // Handle OSDU relationships
-                reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+                addReltypes(metamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
+                addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
                 if (fromType.name === constants.types.AKM_OSDUTYPE) {
                     if (toType.name === constants.types.AKM_PROPERTY) {
                         const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                 }            
             } else {
-                const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-                for (let i = 0; i < rtypes.length; i++) {
-                    const rtype = rtypes[i];
-                    reltypes.push(rtype);
-                }
+                addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
             }
             if (!myModelview.isMetamodel) {
                 if (metamodel.id === metamodel2.id) {
@@ -974,33 +1047,29 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                     if (fromType.name === constants.types.AKM_OSDUTYPE) {
                         if (toType.name === constants.types.AKM_PROPERTY) {
                             const rtype = metamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                            reltypes.push(rtype);
+                            addReltypes([rtype]);
                         }
                     }            
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
                         // reltypes = [];
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                     if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_CONTAINER) {
                         // reltypes = [];
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_IS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                         rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                     if (fromType.name === constants.types.AKM_CONTAINER /* && toType.name === constants.types.AKM_ENTITY_TYPE*/) {
                         let rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
-                        reltypes.push(rtype);
+                        addReltypes([rtype]);
                     }
                 } else {
-                    const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
-                    for (let i = 0; i < rtypes.length; i++) {
-                        const rtype = rtypes[i];
-                        reltypes.push(rtype);
-                    }
+                    addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited));
                 }
             }
         } else {
@@ -1008,25 +1077,26 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
             let inheritsFlag = false;
             if (fromType.name === "Property" && toType.name === "Method")
                 inheritsFlag = true;
-            reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag);
+            addReltypes(myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag));
+            addReltypes(myMetis.findRelationshipTypesBetweenTypes(fromType, toType, inheritsFlag));
             if (fromType.name === constants.types.AKM_OSDUTYPE) {
                 if (toType.name === constants.types.AKM_PROPERTY) {
                     const rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_HAS_PROPERTY);
-                    reltypes.push(rtype);
+                    addReltypes([rtype]);
                 }
             }
             else if (fromType.name === constants.types.AKM_ENTITY_TYPE && toType.name === constants.types.AKM_ENTITY_TYPE) {
                 reltypes = [];
                 let rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_IS);
-                reltypes.push(rtype);
+                addReltypes([rtype]);
                 rtype = myMetamodel.findRelationshipTypeByName(constants.types.AKM_RELATIONSHIP_TYPE);
-                reltypes.push(rtype);
+                addReltypes([rtype]);
             }
         }
         if (reltypes) {
             const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             if (fromType.name === constants.types.AKM_CONTAINER) {
-                reltypes.push(rtype);
+                addReltypes([rtype]);
             }
             if (reltypes) {
                 const choices1: string[] = [];
@@ -1044,6 +1114,10 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 choices2.sort();
                 let choices = choices1.concat(choices2);
                 choices = utils.removeArrayDuplicates(choices);
+                if (choices.length === 0) {
+                    try { myDiagram?.model?.removeLinkData?.(context.gjsData); } catch (_) {}
+                    return;
+                }
                 const modalContext = {
                     what: "selectDropdown",
                     title: "Select Relationship Type",
@@ -1077,7 +1151,7 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     const myModelview: akm.cxModelView = myMetis.currentModelview;
     const askForRelshipName = myModelview.askForRelshipName;
     let data = args.context.gjsData;
-    const typename = args.typename;
+    const typename = args.typename || args.reltype?.name;
     const gjsFromKey = data.from;
     const portFrom = args.fromPort;
     const gjsToKey = data.to;
@@ -1098,10 +1172,10 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
     let fromType: akm.cxObjectType = args.fromType;
     let toType: akm.cxObjectType = args.toType;
     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
-    if (!reltypes) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
-    let reltype: akm.cxRelationshipType;
+    if (!reltypes || reltypes.length === 0) reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
+    let reltype: akm.cxRelationshipType = args.reltype;
     let relname: string;
-    if (reltypes) {
+    if (!reltype && reltypes) {
         for (let i = 0; i < reltypes.length; i++) {
             reltype = reltypes[i];
             if (reltype.name === constants.types.AKM_GENERIC_REL) {
@@ -1113,7 +1187,10 @@ export function createRelshipCallback(args: any): akm.cxRelationshipView {
         }
     }
     if (!reltype || reltype.name !== typename) // reltype not found, try another way
-        reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+        reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType) ||
+            myMetis.findRelationshipTypeByName2(typename, fromType, toType) ||
+            myMetamodel.findRelationshipTypeByName?.(typename) ||
+            myMetis.findRelationshipTypeByName?.(typename);
     if (!reltype) {
         alert("Relationship type given does not exist!"+typename+"\nOperation is cancelled.");
         myDiagram.model.removeLinkData(data);
@@ -1171,7 +1248,12 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     const myModelview = context.myModelview;
-    const myGoModel = myMetis.gojsModel;
+    let myGoModel = context.myGoModel || myMetis.gojsModel;
+    if (!myGoModel && myModelview) {
+        myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+        myMetis?.setGojsModel?.(myGoModel);
+        context.myGoModel = myGoModel;
+    }
     let gjsFromKey = context.gjsFromKey;
     let gjsToKey = context.gjsToKey;
     if (!gjsFromKey) gjsFromKey = context.nodeFrom.key;
@@ -1215,17 +1297,17 @@ export function createRelationshipView(rel: akm.cxRelationship, context: any): a
     toObjview.addInputRelview(relview);
     const goRelshipLink = new gjs.goRelshipLink(relview.id, myGoModel, relview);
     const linkName = goRelshipLink.name;
-    goRelshipLink.fromNode = myGoModel.findNodeByViewId(fromObjview.id);
-    goRelshipLink.from = goRelshipLink.fromNode?.key;
-    goRelshipLink.toNode = myGoModel.findNodeByViewId(toObjview.id);
-    goRelshipLink.to = goRelshipLink.toNode?.key;
+    goRelshipLink.fromNode = myGoModel?.findNodeByViewId?.(fromObjview.id) || goFromNode || null;
+    goRelshipLink.from = goRelshipLink.fromNode?.key || gjsFromKey;
+    goRelshipLink.toNode = myGoModel?.findNodeByViewId?.(toObjview.id) || goToNode || null;
+    goRelshipLink.to = goRelshipLink.toNode?.key || gjsToKey;
     goRelshipLink.loadLinkContent(myGoModel);
     goRelshipLink.name = linkName;
     goRelshipLink.curve = relview.curve ? relview.curve : "None";
     goRelshipLink.routing = relview.routing || reltypeview?.routing || "Normal";
     myModelview.addRelationshipView(relview);
     myMetis.addRelationshipView(relview);
-    myGoModel.addLink(goRelshipLink);
+    myGoModel?.addLink?.(goRelshipLink);
     relview.points = [];
     // create a link data between the actual nodes
     let linkdata = {
@@ -1776,7 +1858,7 @@ export function unhideHiddenRelationshipViews(modelview: akm.cxModelView, myMeti
 
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
-    const myGoModel = myMetis.gojsModel;
+    const myGoModel = myMetis.gojsModel || myDiagram?.myGoModel || null;
     const myModel = myMetis.currentModel;
     const objviews = modelview.objectviews;
     let relshipviews = modelview.relshipviews;
@@ -1784,6 +1866,25 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
     const links = new Array();
     const modifiedObjectViews = new Array();
     const modifiedRelshipViews = new Array();
+    const addLiveLink = (relview: akm.cxRelationshipView, fromObjview: akm.cxObjectView, toObjview: akm.cxObjectView) => {
+        if (!myDiagram || !myGoModel) return null;
+        const existingLink = uid.getLinkByViewId(relview.id, myDiagram) || myDiagram.findLinkForKey?.(relview.id);
+        if (existingLink) return existingLink;
+        const link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
+        link.loadLinkContent(myGoModel);
+        link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
+        link.from = link.fromNode?.key;
+        link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
+        link.to = link.toNode?.key;
+        link.visible = relview.visible !== false;
+        if (!link.from || !link.to) return null;
+        myGoModel.addLink(link);
+        links.push(link);
+        if (!myDiagram.findLinkForKey?.(link.key)) {
+            myDiagram.model.addLinkData(link);
+        }
+        return link;
+    };
     for (let i = 0; i < objviews?.length; i++) {    // All objectviews in modelview
         const objview = objviews[i];
         if (objview.markedAsDeleted)
@@ -1830,15 +1931,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 
                 if (!link || !link.fromNode || !link.toNode) {
                     // Link does not exist - create it
-                    link = new gjs.goRelshipLink(rv.id, myGoModel, rv);
-                    link.loadLinkContent(myGoModel);
-                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-                    link.from = link.fromNode?.key;
-                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-                    link.to = link.toNode?.key;
-                    myGoModel.addLink(link);
-                    links.push(link);
-                    myDiagram.model.addLinkData(link);
+                    link = addLiveLink(rv, fromObjview, toObjview);
                 }
                 // Prepare dispatch
                 const jsnRelview = new jsn.jsnRelshipView(rv);
@@ -1875,9 +1968,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                 if (fromObjview && toObjview) {
                     relview.setFromObjectView(fromObjview);
                     relview.setToObjectView(toObjview);
-                    const isHiddenContains =
-                        rel?.type?.name === constants.types.AKM_CONTAINS &&
-                        String(toObjview.group || "") === String(fromObjview.id);
+                    const isHiddenContains = isHiddenSwimlaneContains(rel, fromObjview, toObjview, myDiagram);
                     relview.visible = !isHiddenContains;
                     if (isHiddenContains) {
                         relview.points = [];
@@ -1886,16 +1977,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                     if (debug) console.log('1682 relview', relview);
                     modelview.addRelationshipView(relview);
                     // Add link
-                    let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
-                    link.loadLinkContent(myGoModel);
-                    link.fromNode = uid.getNodeByViewId(fromObjview.id, myDiagram);
-                    link.from = link.fromNode?.key;
-                    link.toNode = uid.getNodeByViewId(toObjview.id, myDiagram);
-                    link.to = link.toNode?.key;
-                    link.visible = relview.visible !== false;
-                    myGoModel.addLink(link);
-                    links.push(link);
-                    myDiagram.model.addLinkData(link);
+                    addLiveLink(relview, fromObjview, toObjview);
                     // Prepare dispatch
                     let jsnObjview = new jsn.jsnObjectView(fromObjview);
                     modifiedObjectViews.push(jsnObjview);
@@ -2005,9 +2087,7 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         if (fromObjview && toObjview) {
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
-            const isHiddenContains =
-                relview.relship?.type?.name === constants.types.AKM_CONTAINS &&
-                String(toObjview.group || "") === String(fromObjview.id);
+            const isHiddenContains = isHiddenSwimlaneContains(relview.relship, fromObjview, toObjview, myMetis.myDiagram);
             relview.visible = !isHiddenContains;
             if (isHiddenContains) {
                 relview.points = [];
@@ -3898,14 +3978,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                     } else if (objChanged) {
                         oview['fillcolor'] = 'red';
                     }
-                    const myNode = myGoModel.findNodeByViewId(oview.id);
+                    const myNode = myGoModel?.findNodeByViewId?.(oview.id);
                     if (myNode) {
                         myNode.name = oview.name;
-                        const node = myDiagram.findNodeForKey(myNode?.key);
+                        const node = myDiagram?.findNodeForKey?.(myNode?.key);
                         if (node) node.data = myNode; // sf added if (node)
                     }
                 }
-                myDiagram.requestUpdate();
+                myDiagram?.requestUpdate?.();
             }
         }
         msg += "Verifying objects and object types are completed\n";
@@ -4748,6 +4828,9 @@ export function clearRelationshipTypeViews(metamodel: akm.cxMetaModel, myDiagram
 
 export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('2471 updateNode', node, diagram);
+    if (!node || typeof node !== 'object' || !diagram?.model) {
+        return;
+    }
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -5304,7 +5387,7 @@ export function handleContainedObjectViews(modelview: akm.cxModelView, myDiagram
         const fromObjview = relview.fromObjview; // Group
         const toObjview = relview.toObjview;     // Member
         if (fromObjview && toObjview) {
-            const insideGroup = toObjview.group === fromObjview.id;
+            const insideGroup = isHiddenSwimlaneContains(relview.relship, fromObjview, toObjview, myDiagram);
             if (relview.visible === !insideGroup && relview.markedAsDeleted === false) {
                 continue;
             }

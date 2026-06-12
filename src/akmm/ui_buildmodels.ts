@@ -8,6 +8,7 @@ import * as jsn from '../akmm/ui_json';
 import * as uic from '../akmm/ui_common';
 import { admin } from './constants';
 import * as constants from './constants';
+import { dispatchUniversePhData } from '../sharedUniverse';
 
 let includeNoType = false;
 
@@ -340,10 +341,17 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       let objview = objviews[i] as akm.cxObjectView;
       if (!objview.id)
         continue;
-      if (objview.name === objview.id)
+      const obj =
+        (objview.object as akm.cxObject) ||
+        (objview.objectRef ? metis.findObject(objview.objectRef) : null) ||
+        (objview.objectRef ? model.findObject(objview.objectRef) : null);
+      if (!obj)
         continue;
-      const obj = objview.object as akm.cxObject;
-      if (!metis.findObject(obj?.id))
+      if (!objview.object)
+        objview.object = obj;
+      if (!objview.objectRef)
+        objview.objectRef = obj.id;
+      if (!metis.findObject(obj.id) && !model.findObject(obj.id))
         continue;
       if (true) {
         if (objview.id === focusObjview?.id)
@@ -354,7 +362,9 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       let objtype;
       objtype = obj?.type as akm.cxObjectType;
       if (!objtype) 
-        objtype = metis.findObjectType(obj.typeRef);
+        objtype = metis.findObjectType(obj.typeRef) || model.metamodel?.findObjectType?.(obj.typeRef);
+      if (objtype && !obj.type)
+        obj.setType?.(objtype);
       if (!objtype) {
         includeObjview = true;
         includeNoType = true;
@@ -431,7 +441,10 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         node.name = objview.name;
         const object = node.object as akm.cxObject | null;
         let objtype = object?.type as akm.cxObjectType;
-        if (!objtype && object?.typeRef) objtype = metis.findObjectType(object.typeRef);
+        if (!objtype && object?.typeRef) {
+          objtype = metis.findObjectType(object.typeRef) || model.metamodel?.findObjectType?.(object.typeRef);
+          if (objtype) object.setType?.(objtype);
+        }
         if (objtype?.name !== 'EntityType') {
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {
@@ -501,12 +514,76 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
   let relshipviews = [] as akm.cxRelationshipView[];
   let relviews = (modelview) && modelview.getRelationshipViews();
   if (relviews) {
+    const findObjectViewByObjectRef = (objectRef: string | undefined | null) => {
+      if (!objectRef) return null;
+      const objectviews = modelview?.getObjectViews?.() || modelview?.objectviews || [];
+      return objectviews.find((objview: akm.cxObjectView) => objview?.objectRef === objectRef) || null;
+    };
+    const resolveRelForView = (relview: akm.cxRelationshipView) => (
+      relview.relship ||
+      ((relview as any).relshipRef ? metis.findRelationship((relview as any).relshipRef) : null) ||
+      ((relview as any).relshipRef ? model?.findRelationship((relview as any).relshipRef) : null)
+    ) as akm.cxRelationship;
+    const isMetamodelStructuralRelationship = (rel: akm.cxRelationship | null | undefined, relview?: akm.cxRelationshipView | null) => {
+      const typeName = String(
+        rel?.type?.name ||
+        rel?.name ||
+        relview?.typeview?.name ||
+        relview?.name ||
+        ""
+      ).trim().toLowerCase();
+      return (
+        typeName === String(constants.types.AKM_CONTAINS).toLowerCase() ||
+        typeName === String(constants.types.AKM_IS).toLowerCase()
+      );
+    };
+    const resolveEndpointViews = (relview: akm.cxRelationshipView, rel: akm.cxRelationship | null | undefined) => {
+      const fromObjview = (
+        relview.fromObjview ||
+        modelview.findObjectView((relview as any).fromobjviewRef) ||
+        findObjectViewByObjectRef(rel?.fromobjectRef || rel?.fromObject?.id)
+      ) as akm.cxObjectView;
+      const toObjview = (
+        relview.toObjview ||
+        modelview.findObjectView((relview as any).toobjviewRef) ||
+        findObjectViewByObjectRef(rel?.toobjectRef || rel?.toObject?.id)
+      ) as akm.cxObjectView;
+      return { fromObjview, toObjview };
+    };
+    const renderableRelshipRefs = new Set<string>();
     for (let i = 0; i < relviews?.length; i++) {
       const rview = relviews[i] as akm.cxRelationshipView;
       if (!rview.id) continue;
       if (rview.markedAsDeleted)
         continue;
+      const rel = resolveRelForView(rview);
+      const relshipRef = rel?.id || rview.relship?.id || (rview as any).relshipRef;
+      const { fromObjview, toObjview } = resolveEndpointViews(rview, rel);
+      if (relshipRef && rview.visible !== false && fromObjview && toObjview) {
+        renderableRelshipRefs.add(relshipRef);
+      }
       relshipviews.push(rview);
+    }
+    const modelRelships = model?.getRelationships?.() || model?.relships || [];
+    for (let i = 0; i < modelRelships.length; i++) {
+      const rel = modelRelships[i] as akm.cxRelationship;
+      if (!rel?.id || renderableRelshipRefs.has(rel.id) || rel.markedAsDeleted || !isMetamodelStructuralRelationship(rel)) continue;
+      const fromObjectRef = rel.fromobjectRef || rel.fromObject?.id;
+      const toObjectRef = rel.toobjectRef || rel.toObject?.id;
+      const fromObjview = findObjectViewByObjectRef(fromObjectRef) as akm.cxObjectView;
+      const toObjview = findObjectViewByObjectRef(toObjectRef) as akm.cxObjectView;
+      if (!fromObjview || !toObjview) continue;
+      const relview = new akm.cxRelationshipView(`${rel.id}-${modelview.id}-auto`, rel.name, rel, rel.description || "");
+      relview.setFromObjectView(fromObjview);
+      relview.setToObjectView(toObjview);
+      relview.relshipRef = rel.id;
+      relview.fromobjviewRef = fromObjview.id;
+      relview.toobjviewRef = toObjview.id;
+      if (rel.type?.typeview) relview.setTypeView(rel.type.typeview);
+      relview.routing = modelview.routing || relview.routing;
+      relview.curve = modelview.linkcurve || relview.curve;
+      relshipviews.push(relview);
+      renderableRelshipRefs.add(rel.id);
     }
     relviews = relshipviews;
     const modifiedRelviews = [];
@@ -514,29 +591,33 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
     for (let i = 0; i < lng; i++) {
       let includeRelview = false;
       let relview = relviews[i] as akm.cxRelationshipView;
+      let rel = resolveRelForView(relview);
+      if (rel && !relview.relship)
+        relview.setRelationship(rel);
       if (relview?.fromArrow === 'None' || relview?.fromArrow === ' ')
         relview.fromArrow = '';
       if (relview?.toArrow === 'None' || relview?.toArrow === ' ')
         relview.toArrow = '';
       if (!relview.template) {
-        const rel = relview.relship;
-        let reltype = rel.type;
+        let reltype = rel?.type;
         const metamodel = model.getMetamodel();
         if (!reltype) {
-          reltype = metamodel.findRelationshipType(rel.typeRef);
+          reltype = metamodel.findRelationshipType(rel?.typeRef);
           if (reltype) {
             const reltypeview = reltype.typeview;
             relview.template = reltypeview.template;
           }
         }
       }
-      let fromObjview = relview.fromObjview as akm.cxObjectView;
+      let { fromObjview, toObjview } = resolveEndpointViews(relview, rel);
       if (!fromObjview || !modelview.findObjectView(fromObjview.id))
         continue;
-      let toObjview = relview.toObjview as akm.cxObjectView;
+      if (!relview.fromObjview)
+        relview.setFromObjectView(fromObjview);
       if (!toObjview || !modelview.findObjectView(toObjview.id))
         continue;
-      const rel = relview.relship as akm.cxRelationship;
+      if (!relview.toObjview)
+        relview.setToObjectView(toObjview);
       if (rel) {
         if (rel.markedAsDeleted == undefined)
           rel.markedAsDeleted = false;
@@ -572,13 +653,18 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (!relview.markedAsDeleted && relview.relship) {
         includeRelview = true;
       }
+      if (!relview.markedAsDeleted && isMetamodelStructuralRelationship(rel, relview)) {
+        includeRelview = true;
+      }
       if (!includeDeleted && !includeNoObject && !includeNoType && relview) {
         if (relview.strokecolor === "")
           relcolor = relview?.typeview?.strokecolor;
       }
       if (!relcolor) relcolor = 'black';
-      if (relview.visible == false)
+      if (relview.visible == false && !isMetamodelStructuralRelationship(rel, relview))
         includeRelview = false;
+      if (relview.visible == false && isMetamodelStructuralRelationship(rel, relview))
+        relview.visible = true;
       if (includeRelview) {
         if (!relview.strokewidth) relview.strokewidth = 1;
         const explicitRelviewOverrides = {
@@ -602,9 +688,19 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         modifiedRelviews.push(jsnRelview);
         // Update myGoModel
         let link = new gjs.goRelshipLink(relview.id, myGoModel, relview);
-        const name = link.name;
+        const name = link.name || relview.name;
         if (debug) console.log('382 modelview, link:', modelview, link);
         link.loadLinkContent(myGoModel);
+        if ((!link.from || !link.to) && fromObjview && toObjview) {
+          link.fromNode = myGoModel.findNodeByViewId(fromObjview.id);
+          link.from = link.fromNode?.key || "";
+          link.toNode = myGoModel.findNodeByViewId(toObjview.id);
+          link.to = link.toNode?.key || "";
+        }
+        if (!link.from || !link.to) {
+          if (debug) console.warn('Skipping relationship view without resolved GoJS endpoints', relview);
+          continue;
+        }
         link.name = name;
         // link.corner = relview.corner ? relview.corner : "0";
         link.curve = relview.curve ? relview.curve : "None";
@@ -628,7 +724,11 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           link.strokecolor = relview.strokecolor ? relview.strokecolor : relview.typeview?.strokecolor;
           link.strokewidth = relview.strokewidth;
         }
-        myGoModel.addLink(link);
+        try {
+          myGoModel.addLink(link);
+        } catch (error) {
+          console.warn('Skipping invalid relationship view while building GoJS model', relview?.id, error);
+        }
       }
     }
   }
@@ -1199,7 +1299,7 @@ export function buildInstancesModelview(myMetis: akm.cxMetis, dispatch: any, myM
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
     let data = { metis: jsnMetis }
     data = JSON.parse(JSON.stringify(data));
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    dispatchUniversePhData(dispatch, data)
   }
   return instancesModelview;
 }

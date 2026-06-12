@@ -20,11 +20,15 @@ A modeller working across Mimris and Mimris AI Workspace wants one shared univer
 7. **Given** all three canonical metis sources are present, **When** Mimris opens the universe, **Then** the default active selection is `world.worldModel.metis`.
 8. **Given** the user opens shared modelling data from another universe, **When** Mimris resolves it for editing, **Then** it keeps active local modelling state at `world.worldModel.metis` and treats shared-model selection as separate-universe sourcing.
 9. **Given** the user opens `/model` with explicit remote-universe, share, server-project, or GitHub query parameters, **When** the page hydrates on the client, **Then** Mimris does not briefly render the local template or stale Redux model before the requested snapshot finishes loading.
+10. **Given** both canonical `universe` state and legacy `ph*` compatibility fields are present during migration, **When** app-level React components read modelling props, **Then** they read through a shared compatibility selector that prefers canonical `universe` values and falls back to legacy values only when needed.
+11. **Given** a write path replaces complete `phData` during the transition period, **When** it dispatches the update, **Then** it uses a shared universe dispatch helper or shared-universe action rather than constructing raw legacy load actions at the call site.
 
 ### Edge Cases
 - What happens when only world-model data exists and no operational data is present?
 - What happens when legacy focus fields conflict with nested focus sections during normalization?
 - What happens when one app understands only part of the canonical snapshot?
+- What happens when canonical `universe` values and mirrored legacy `ph*` values temporarily disagree during migration?
+- What happens when GoJS or AKMM code still needs to pass legacy-shaped props while Redux writes move to shared-universe actions?
 
 ## Requirements
 
@@ -47,6 +51,9 @@ A modeller working across Mimris and Mimris AI Workspace wants one shared univer
 - **FR-009C**: Compatibility fallback status for legacy top-level `metis` MUST remain non-blocking and MUST NOT surface as a persistent legacy banner in the mini-model route.
 - **FR-010**: Save operations MUST preserve top-level sections and unknown fields not owned by the current app so cross-app round trips do not delete data.
 - **FR-011**: Shared links and inter-app handoff MUST be able to address the universe through one canonical `focus` contract.
+- **FR-012**: App-level readers MUST use a compatibility adapter that returns legacy-shaped `phData`, `phFocus`, `phUser`, `phSource`, and `phList` from canonical `universe` state first.
+- **FR-013**: Complete `phData` replacement writes SHOULD go through shared-universe action creators or shared dispatch helpers instead of raw `LOAD_TOSTORE_PHDATA` action objects at migrated call sites.
+- **FR-014**: Legacy dispatch mapping MUST remain available during the transition so unmigrated AKMM/GoJS call sites continue to function.
 
 ### Key Entities
 - **Universe Snapshot**: The canonical persisted object shared between Mimris and Mimris AI Workspace.
@@ -54,6 +61,8 @@ A modeller working across Mimris and Mimris AI Workspace wants one shared univer
 - **World Model**: The modelling-state section that contains `metis` and related modelling content.
 - **Operational Model**: The execution and process-oriented section for runtime work, tasks, artifacts, and related operational content.
 - **Universe Focus**: The shared navigation/context object that spans project, world-model, operational, and document focus.
+- **Compatibility Props**: Legacy-shaped props derived from canonical universe state for components that still expect `phData`, `phFocus`, `phUser`, `phSource`, or `phList`.
+- **Shared Dispatch Helper**: A migration helper that lets legacy-shaped write paths dispatch explicit shared-universe actions without repeating raw legacy action objects.
 
 ## Review & Acceptance Checklist
 

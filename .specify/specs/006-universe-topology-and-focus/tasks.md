@@ -20,6 +20,9 @@
 - [x] T007 Add canonical universe normalization helpers in Mimris
 - [x] T008 Update Mimris adapters to read/write canonical scoped metis sources and universe-level `focus`
 - [x] T008A Prevent `/model` query-driven loads from rendering the initial local template before the requested snapshot resolves
+- [x] T008B Centralize legacy-shaped app props behind `selectMimrisCompatibilityProps`
+- [x] T008C Convert project-domain edits to explicit shared-universe dispatch
+- [x] T008D Introduce `dispatchUniversePhData` for complete `phData` replacement paths and migrate selected call sites
 - [ ] T009 Add server-file read/write against the canonical universe snapshot format
 - [ ] T010 Align the same spec-kit method and canonical contract planning in `mimris-ai-workspace`
 
@@ -28,3 +31,5 @@
 - [ ] T011 Review the contract against the current `mimris-ai-workspace` top-level Redux store
 - [ ] T012 Verify the contract still supports share-link focus handoff
 - [x] T013 Verify the migration plan preserves legacy Mimris snapshots
+- [x] T014 Verify compatibility selector prefers canonical universe state and falls back to legacy `ph*`
+- [x] T015 Verify shared phData dispatch helper emits explicit universe action while legacy mapping still works

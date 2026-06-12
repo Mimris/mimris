@@ -1,22 +1,40 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 // import Select from "react-select"\
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from '../utils/LocalStorage'
 // import useLocalStorage  from '../../hooks/use-local-storage'
 import  {ReadModelFromFile} from '../utils/ReadModelFromFile';
+import { selectSharedUniverseState } from '../../sharedUniverse';
 
 const LoadLocal = (props: any) => {
   
   const debug = false
   const dispatch = useDispatch()  
-  const toggleRefresh = props.ph.toggleRefresh
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const ph = {
+    ...props.ph,
+    phData: {
+      ...props.ph?.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || props.ph?.phFocus || {},
+    phUser: sharedUniverse.user || props.ph?.phUser || {},
+    phSource: sharedUniverse.source ?? props.ph?.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
+  };
+  const toggleRefresh = ph.toggleRefresh
+  const metis = ph.phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
 
-  const modelNames = props.ph.phData?.metis?.models.map((mn: { id: string, name: string }) => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map((mn: { id: string, name: string }) => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('24 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  const modelNames = models.map((mn: { id: string, name: string }) => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = metamodels.map((mn: { id: string, name: string }) => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  if (debug) console.log('24 LoadLocal', ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
 
@@ -35,7 +53,7 @@ const LoadLocal = (props: any) => {
         <ModalBody className="pt-0">
             <div className="">
               <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, props.dispatch, e)} style={{width: "380px"}}/>
+                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(ph, dispatch, e)} style={{width: "380px"}}/>
               </div>
             </div>
         </ModalBody>
@@ -56,4 +74,3 @@ const LoadLocal = (props: any) => {
 }
 
 export default LoadLocal
-

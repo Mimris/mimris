@@ -40,6 +40,19 @@ const toArray = (value: any) => {
 
 const asRecord = (value: any) => (value && typeof value === "object" ? value : {});
 const hasKeys = (value: any) => Object.keys(asRecord(value)).length > 0;
+const hasRenderableModelviewContent = (modelview: any) => {
+  const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+  const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+  return objectviews.length > 0 || relshipviews.length > 0;
+};
+
+const resolveFocusableModelview = (modelviews: any[], requestedModelview: any = null) => {
+  const requested = requestedModelview
+    ? modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name)
+    : null;
+  if (requested && hasRenderableModelviewContent(requested)) return requested;
+  return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+};
 
 const readScope = (value: any) => {
   if (value === "current" || value === "next") return METIS_SCOPE_WORLD_MODEL;
@@ -397,10 +410,7 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
     readFocusRef(worldModelFocus.modelview, focusSource.focusModelview) ||
     readFocusRef(canonical.focusModelview) ||
     null;
-  const resolvedModelview =
-    modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name) ||
-    modelviews[0] ||
-    null;
+  const resolvedModelview = resolveFocusableModelview(modelviews, requestedModelview);
 
   const source =
     (canonical.source ??
@@ -466,6 +476,7 @@ export const buildMimrisStateFromWorkspaceSnapshot = (
       source,
       compatibility: {
         documents: toArray(canonical.compatibility?.documents || canonical.documents || canonical.phData?.documents),
+        modelList: canonical.compatibility?.modelList || canonical.phList || null,
       },
     },
     phData: {
@@ -580,6 +591,7 @@ export const buildWorkspaceUniverseSnapshotFromMimrisState = (
     compatibility: {
       ...asRecord(universe.compatibility),
       documents: ensureArray(asRecord(universe.compatibility).documents || phData.documents),
+      modelList: asRecord(universe.compatibility).modelList || mimrisState?.phList || null,
     },
     focus: {
       ...originalFocus,

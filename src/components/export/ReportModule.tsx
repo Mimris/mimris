@@ -10,6 +10,7 @@ import 'react-tabs/style/react-tabs.css';
 import FocusDetails from '../FocusDetails';
 import MarkdownEditor from '../forms/MarkdownEditor';
 import ExportObjects from './ExportObjects';
+import { selectSharedUniverseState } from '../../sharedUniverse';
 
 const debug = false
 
@@ -17,7 +18,21 @@ const ReportModule = (props: any) => {
 
   if (debug) console.log('17 ReportModule', props, props.reportType, props.modelInFocusId)
 
-  const ph = props.props.props || props.props
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const legacyPh = props.props?.props || props.props || {};
+  const ph = {
+    ...legacyPh,
+    phData: {
+      ...legacyPh.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? legacyPh.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? legacyPh.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? legacyPh.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || legacyPh.phFocus || {},
+    phUser: sharedUniverse.user || legacyPh.phUser || {},
+    phSource: sharedUniverse.source ?? legacyPh.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? legacyPh.phList,
+  };
   if (debug) console.log('20 ReportModule', props, props.reportType, ph, ph?.phData?.metis?.models)
 
 

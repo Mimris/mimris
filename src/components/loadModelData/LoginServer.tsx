@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-// import { useSelector, useDispatch } from 'react-redux'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
 
 import { loadData, loadDataModelList } from '../../actions/actions'
 import Selector from '../utils/Selector'
+import { selectSharedUniverseState } from '../../sharedUniverse';
 // import saveModelDataToServer from '../utils/saveModelDataToServer'
 // import GetStoreFromHtml from '../utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
@@ -23,22 +23,32 @@ const profile = akmmhost+'profile'
 function LoginServer(props: any) {
 
   if (debug)   console.log('15 LoginServer', props, akmmodellist);
-  // let state = useSelector((state: any) => state) // Selecting the whole redux store
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const dispatch = useDispatch();
   const refresh = props.refresh;
   const setRefresh = props.setRefresh;
   function toggleRefresh() { setRefresh(!refresh); }
 
-  const modellist = props?.ph?.phList?.modList;
+  const phData = {
+    domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+    metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+    documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+  };
+  const phFocus = sharedUniverse.world.focus || props.ph?.phFocus || {};
+  const modelList = sharedUniverse.compatibility.modelList ?? props.ph?.phList;
+  const metis = phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
+
+  const modellist = modelList?.modList;
   // const modellist = (props.ph.phList) && props.ph.phList.modList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) && { value: ml.id, label: ml.name });
-  if (debug) console.log('27 LoginServer', props.ph.phList, selmodellist);
+  if (debug) console.log('27 LoginServer', modelList, selmodellist);
 
-  const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>);
-  const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>);
+  const modelNames = models.map(mn => <span key={mn.id}>{mn.name} | </span>);
+  const metamodelNames = metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>);
   // console.log('20 LoadLocal', modelNames, metamodelNames);
-  const models = props.phData?.metis?.models;
-  const focusModel = props.phFocus?.focusModel;
+  const focusModel = phFocus?.focusModel;
   const model = models?.find((m: any) => m?.id === focusModel?.id); // || models[0]
   const selmodels = models?.map((m: any) => m);
   const selmodelviews = model?.modelviews?.map((mv: any) => mv);
@@ -47,7 +57,7 @@ function LoginServer(props: any) {
     dispatch(loadDataModelList());
     function refres() {
       // setRefresh(!refresh)
-      if (debug) console.log('40 LoginServer useffect 1', props, props.ph.phList);
+      if (debug) console.log('40 LoginServer useffect 1', props, modelList);
     }
     setTimeout(refres, 1);
   }, []);

@@ -7,6 +7,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import Selector from './Selector'
 import Context from '../FocusDetails'
 import EditFocusParameter from '../forms/EditFocusParameter'
+import { selectSharedUniverseState } from '../../sharedUniverse';
 // import { loadState, saveState } from '../utils/LocalStorage'
 // import { FaJoint } from 'react-icons/fa';
 
@@ -15,7 +16,13 @@ const debug = false;
 const SelectContext = (props: any) => {
   if (debug) console.log('12 ', props);
   // const dispatch = useDispatch();
-  let state = useSelector((state:any) => state) // Selecting the whole redux store
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const phData = props.phData || {
+    domain: sharedUniverse.world.worldDefinition.domain,
+    metis: sharedUniverse.world.worldModel.metis,
+    documents: sharedUniverse.compatibility.documents,
+  };
+  const phFocus = props.phFocus || sharedUniverse.world.focus;
 
   // const [modal, setModal] = useState(false);
   // const toggle = () => setModal(!modal);
@@ -23,7 +30,7 @@ const SelectContext = (props: any) => {
   const modal = props.modal
   const toggle = props.toggle
  
-  const models = useSelector(models =>  state.phData?.metis?.models)  // selecting the models array 
+  const models = phData?.metis?.models;
   // const { buttonLabel, className } = props;
 
   return (models) && (
@@ -33,7 +40,7 @@ const SelectContext = (props: any) => {
       <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
-          <EditFocusParameter phFocus={props.phFocus} models={props.phData.metis.models}/>
+          <EditFocusParameter phFocus={phFocus} models={models}/>
           {/* <Context /> */}
         </ModalBody>
           {/* <div className="ml-2">{emailDivGmail}</div>

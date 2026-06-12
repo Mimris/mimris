@@ -45,6 +45,11 @@ const selectCompatibilityDocuments = (state: RootState | LegacyUniverseRoot) => 
     return Array.isArray(documents) ? documents : EMPTY_DOCUMENTS;
 };
 
+const selectCompatibilityModelList = (state: RootState | LegacyUniverseRoot) => {
+    const legacyRoot = asLegacyRoot(state);
+    return legacyRoot.universe?.compatibility?.modelList ?? legacyRoot.phList ?? null;
+};
+
 export const selectSharedUniverseState = createSelector(
     [
         selectWorldDefinitionDomain,
@@ -53,8 +58,9 @@ export const selectSharedUniverseState = createSelector(
         selectUniverseUser,
         selectUniverseSource,
         selectCompatibilityDocuments,
+        selectCompatibilityModelList,
     ],
-    (domain, metis, focus, user, source, documents): SharedUniverseState => ({
+    (domain, metis, focus, user, source, documents, modelList): SharedUniverseState => ({
         world: {
             worldDefinition: {
                 domain,
@@ -68,6 +74,22 @@ export const selectSharedUniverseState = createSelector(
         source,
         compatibility: {
             documents,
+            modelList,
         },
+    }),
+);
+
+export const selectMimrisCompatibilityProps = createSelector(
+    [selectSharedUniverseState],
+    (sharedUniverse) => ({
+        phData: {
+            domain: sharedUniverse.world.worldDefinition.domain,
+            metis: sharedUniverse.world.worldModel.metis,
+            documents: sharedUniverse.compatibility.documents,
+        },
+        phFocus: sharedUniverse.world.focus,
+        phUser: sharedUniverse.user,
+        phSource: sharedUniverse.source,
+        phList: sharedUniverse.compatibility.modelList,
     }),
 );

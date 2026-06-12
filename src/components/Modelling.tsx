@@ -34,7 +34,8 @@ import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
-import { bindLegacyUniverseDispatch, selectSharedUniverseState } from "../sharedUniverse";
+import { bindLegacyUniverseDispatch, selectMimrisCompatibilityProps } from "../sharedUniverse";
+import { MEMORY_STATE_STORAGE_KEY } from "./utils/memoryStateStorage";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -62,6 +63,41 @@ const trimPersistedStateForBrowserStorage = (state: any) => {
       },
     },
   };
+};
+
+const countRenderableModelviewItems = (state: any) => {
+  const models = state?.phData?.metis?.models;
+  if (!Array.isArray(models)) return 0;
+  return models.reduce((count: number, model: any) => {
+    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
+    return count + modelviews.reduce((viewCount: number, modelview: any) => {
+      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+      return viewCount + objectviews.length + relshipviews.length;
+    }, 0);
+  }, 0);
+};
+
+const readStoredMemoryState = (storage: Storage | undefined) => {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const shouldSkipSparseStartupPersist = (nextState: any) => {
+  if (typeof window === 'undefined') return false;
+  if (nextState?.phFocus?.focusRefresh?.id) return false;
+  const nextScore = countRenderableModelviewItems(nextState);
+  const storedStates = [
+    readStoredMemoryState(window.sessionStorage),
+    readStoredMemoryState(window.localStorage),
+  ];
+  const storedScore = Math.max(0, ...storedStates.map(countRenderableModelviewItems));
+  return storedScore > nextScore;
 };
 
 const Modelling = (props: any) => {
@@ -97,6 +133,13 @@ const Modelling = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   const [mount, setMount] = useState(false)
+  const [gojsSnapshot, setGojsSnapshot] = useState<any>({
+    nodes: [],
+    links: [],
+    modelId: null,
+    modelviewId: null,
+    version: 0,
+  })
   const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -104,26 +147,20 @@ const Modelling = (props: any) => {
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
-  const sharedUniverse = useSelector(selectSharedUniverseState);
-  const metis = sharedUniverse.world.worldModel.metis as any;
-  const phFocus = sharedUniverse.world.focus as any;
-  const phUser = sharedUniverse.user as any;
-  const phSource = sharedUniverse.source as any;
-  const phData = useMemo(() => ({
-    ...props.phData,
-    domain: sharedUniverse.world.worldDefinition.domain,
-    metis,
-  }), [props.phData, sharedUniverse.world.worldDefinition.domain, metis]);
+  const sharedCompatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+  const metis = sharedCompatibilityProps.phData?.metis as any;
+  const phFocus = sharedCompatibilityProps.phFocus as any;
+  const phUser = sharedCompatibilityProps.phUser as any;
+  const phSource = sharedCompatibilityProps.phSource as any;
+  const phData = sharedCompatibilityProps.phData as any;
   const compatibilityProps = useMemo(() => ({
     ...props,
-    phData,
-    phFocus,
-    phUser,
-    phSource,
-  }), [props, phData, phFocus, phUser, phSource]);
+    ...sharedCompatibilityProps,
+  }), [props, sharedCompatibilityProps]);
 
   let focusModel = phFocus?.focusModel
   let focusModelview = phFocus?.focusModelview
+  const runtimeRefreshKey = phFocus?.focusRefresh?.id || 'initial'
   const focusObjectview = phFocus?.focusObjectview
   const focusRelshipview = phFocus?.focusRelshipview
   const focusObjecttype = phFocus?.focusObjecttype
@@ -131,13 +168,15 @@ const Modelling = (props: any) => {
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
   const getPersistedState = () => {
-    const state = store.getState();
-    return trimPersistedStateForBrowserStorage({
-      phData: state.phData,
-      phFocus: state.phFocus,
-      phUser: state.phUser,
-      phSource: state.phSource,
-    });
+    return trimPersistedStateForBrowserStorage(selectMimrisCompatibilityProps(store.getState() as any));
+  }
+
+  const persistCurrentStateToBrowserStorage = () => {
+    const persistedProps = getPersistedState();
+    if (shouldSkipSparseStartupPersist(persistedProps)) return false;
+    setMemorySessionState(persistedProps)
+    setMemoryLocState(persistedProps)
+    return true;
   }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
@@ -201,12 +240,28 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Generate GoJS node model when focus changes
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
+    let cancelled = false;
     myMetis.modelType = 'Modelling';
     if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    GenGojsModel(compatibilityProps, myMetis)
-    setActiveTab(activetabindex)
-    setMount(true);
-  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, refresh])
+    const generateGojsModel = async () => {
+      await GenGojsModel(compatibilityProps, myMetis)
+      if (cancelled) return;
+      const goModel = myMetis?.gojsModel;
+      setGojsSnapshot((snapshot: any) => ({
+        nodes: Array.isArray(goModel?.nodes) ? [...goModel.nodes] : [],
+        links: Array.isArray(goModel?.links) ? [...goModel.links] : [],
+        modelId: phFocus?.focusModel?.id || null,
+        modelviewId: phFocus?.focusModelview?.id || null,
+        version: (snapshot?.version || 0) + 1,
+      }))
+      setActiveTab(activetabindex)
+      setMount(true);
+    }
+    generateGojsModel();
+    return () => {
+      cancelled = true;
+    }
+  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, metis])
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -357,23 +412,13 @@ const Modelling = (props: any) => {
     if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
   }, [phFocus?.focusRefresh?.id])
 
-  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 4 [phFocus?.focusModelview.id]', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
-    if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.id);
-    setRefresh(prev => !prev)
-  }, [phFocus?.focusRefresh?.id])
-
   useEffect(() => {
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
+    persistCurrentStateToBrowserStorage()
   }, [phData, phFocus, phSource, phUser])
 
   function doRefresh() { // 
     if (!debug) console.log('207 Modelling doRefresh', compatibilityProps);
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
+    persistCurrentStateToBrowserStorage()
     setRefresh(prev => !prev)
   }
 
@@ -476,7 +521,7 @@ const Modelling = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
-        key={`metamodel-palette-${phFocus?.focusModel?.id || 'none'}`}
+        key={`metamodel-palette-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -487,6 +532,7 @@ const Modelling = (props: any) => {
 
     const metamodelDiv =  // this is the metamodel modelling area
       <Modeller
+        key={`metamodel-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phData={phData}
@@ -682,7 +728,9 @@ const Modelling = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px", alignSelf: "flex-start" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "auto", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
+                      key={`model-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
                       myMetis={myMetis}
+                      gojsSnapshot={gojsSnapshot}
                       metis={metis}
                       phData={phData}
                       phFocus={phFocus}

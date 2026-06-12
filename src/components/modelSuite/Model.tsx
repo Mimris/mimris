@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import Modal from 'react-bootstrap/Modal';
@@ -41,26 +41,26 @@ const Page1 = (props) => {
   // }
 
   const modelData = props ?? {};
-  const phData = modelData.phData;
-  const phFocus = modelData.phFocus;
-  const phUser = modelData.phUser;
+  const phData = modelData.phData || {};
+  const phFocus = modelData.phFocus || {};
+  const phUser = modelData.phUser || {};
   const phSource = modelData.phSource;
 
   const [mount, setMount] = useState(false)
-  const metis = phData.metis;
-  const models = metis?.models;
+  const metis = phData.metis || {};
+  const models = Array.isArray(metis?.models) ? metis.models.filter(Boolean) : [];
   const modelList = models || [];
   const curmod = (models && phFocus.focusModel?.id) && models?.find((m: any) => m?.id === phFocus.focusModel?.id) || modelList[0] // find the current model
   const curmodview = (curmod && phFocus.focusModelview?.id && curmod.modelviews?.find((mv: any) => mv.id === phFocus.focusModelview.id))
     ? curmod?.modelviews?.find((mv: any) => mv.id === phFocus.focusModelview.id)
-    : curmod?.modelviews[0] // if focusmodview does not exist set it to the first
+    : curmod?.modelviews?.[0] // if focusmodview does not exist set it to the first
 
 
-  const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-  const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+  const focusTargetModel = phFocus.focusTargetModel
+  const focusTargetModelview = phFocus.focusTargetModelview
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
-  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+  const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews?.[0]
 
 
   // const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -83,7 +83,7 @@ const Page1 = (props) => {
 
   // const modelview = phData?.focusView?.name;
 
-  let activetabindex = modelList.findIndex(sm => sm.id === phFocus.focusModel.id) // if no model in focus, set the active tab to 0
+  let activetabindex = modelList.findIndex(sm => sm.id === phFocus.focusModel?.id) // if no model in focus, set the active tab to 0
   if (activetabindex < 0) activetabindex = 0;
 
   let myMetis = new akm.cxMetis();
@@ -109,10 +109,10 @@ const Page1 = (props) => {
   }, []);
 
   useEffect(() => {
-    if (debug) console.log('207 Modeller useEffect 2 [props.phFocus.focusModelview?.id] : ', activeTab, props.phFocus.focusModel?.name);
+    if (debug) console.log('207 Modeller useEffect 2 [phFocus.focusModelview?.id] : ', activeTab, phFocus.focusModel?.name);
     setActiveTab(activetabindex);
     loadMyModeldata(myMetis, goParams)
-  }, [props.phFocus?.focusModel?.id]);
+  }, [phFocus?.focusModel?.id]);
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -126,15 +126,15 @@ const Page1 = (props) => {
   }, [editingModelId]);
 
   useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) console.log('223 Model useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+    if (debug) console.log('223 Model useEffect 4 [phFocus?.focusModelview.id]', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
     // GenGojsModel(props, myMetis)
     loadMyModeldata(myMetis, goParams)
     const timer = setTimeout(() => {
-      if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
+      if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
       setRefresh(!refresh)
     }, 50);
     return () => clearTimeout(timer);
-  }, [props.phFocus?.focusModelview?.id])
+  }, [phFocus?.focusModelview?.id])
 
   const doRefresh = () => {
     console.log('doRefresh')
@@ -192,7 +192,7 @@ const Page1 = (props) => {
         modifiedDate: new Date().toISOString(),
       }
     });
-    if (props.phFocus?.focusModel?.id === model.id) {
+    if (phFocus?.focusModel?.id === model.id) {
       dispatch({ type: 'SET_FOCUS_MODEL', data: { id: model.id, name: nextName } });
     }
     handleCloseRenameModelModal();
@@ -366,4 +366,4 @@ const Page1 = (props) => {
   )
 }
 
-export default Page(connect(state => state)(page1));
+export default Page(Page1);

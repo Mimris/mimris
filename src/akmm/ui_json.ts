@@ -1714,6 +1714,7 @@ export class jsnObjectView {
     icon2?:          string;
     icon3?:          string;
     image?:          string;
+    modelviewId?:    string;
     constructor(objview: akm.cxObjectView) {
         // Always store core attributes
         this.id              = objview?.id;
@@ -1732,6 +1733,7 @@ export class jsnObjectView {
         this.loc             = objview?.loc;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
+        if ((objview as any)?.modelviewId) this.modelviewId = (objview as any).modelviewId;
 
         // Delta-only storage: only store visual attributes that differ from typeview
         const typeview = objview?.typeview;

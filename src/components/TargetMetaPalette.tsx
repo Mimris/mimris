@@ -12,21 +12,23 @@ const debug = false;
 const TargetMeta = (props) => {
   const dispatch = useDispatch();
   if (debug) console.log('10 TargetMeta', props);
-  let focusModel = props.phFocus?.focusModel
-  const models = props.metis?.models
-  const metamodels = props.metis?.metamodels
+  const phFocus = props.phFocus || {};
+  let focusModel = phFocus?.focusModel
+  const models = Array.isArray(props.metis?.models) ? props.metis.models.filter(Boolean) : []
+  const metamodels = Array.isArray(props.metis?.metamodels) ? props.metis.metamodels.filter(Boolean) : []
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   let targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
   const targetmodel = models?.find((m: any) => m?.id === model?.targetModelRef)
 
+  if (!model?.targetMetamodelRef) return <></>
 
-  const myTargetMetamodel = props.myMetis.findMetamodel(model.targetMetamodelRef)
-  const gojstypes = uib.buildGoPalette(myTargetMetamodel, props.myMetis)
+  const myTargetMetamodel = props.myMetis?.findMetamodel(model.targetMetamodelRef)
+  const gojstypes = myTargetMetamodel ? uib.buildGoPalette(myTargetMetamodel, props.myMetis) : null
   if (debug) console.log('22 TargetMeta', gojstypes, gojstypes.nodes)
 
   const wotArr = ['Container', 'OSDUType', 'Property', 'Proxy', 'DataType', 'Value', 'Fieldtype', 'InputPattern', 'ViewFormat'];
 
-  const otsArrSorted = gojstypes.nodes.sort((a, b) => {
+  const otsArrSorted = gojstypes?.nodes?.sort((a, b) => {
     const aIndex = wotArr.indexOf(a?.name);
     const bIndex = wotArr.indexOf(b?.name);
 
@@ -62,8 +64,7 @@ const TargetMeta = (props) => {
     // return () => clearTimeout(timer);
   }, [(targetmetamodel !== undefined && targetmetamodel?.id !== "")]);
 
-  if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
-  if (!model?.targetMetamodelRef) return <></>
+  if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes?.nodeDataArray);
 
   const gojsapp = (gojstypes) &&
     < GoJSPaletteTargetApp
@@ -73,7 +74,7 @@ const TargetMeta = (props) => {
       metis={props.metis}
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}
-      phFocus={props.phFocus}
+      phFocus={phFocus}
       dispatch={props.dispatch}
     />
 

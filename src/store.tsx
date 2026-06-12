@@ -3,11 +3,6 @@ import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
     buildUniverseStateFromLegacy,
-    setUniversePhData,
-    setUniverseState,
-    setUniverseSource,
-    setUniverseFocus,
-    setUniverseUser,
     universeReducer,
     type LegacyUniverseRoot,
     type SharedUniverseState,
@@ -18,6 +13,20 @@ type RootReducerState = LegacyUniverseRoot & {
 };
 
 const reduceLegacyState = legacyReducer as (state: LegacyUniverseRoot | undefined, action: AnyAction) => LegacyUniverseRoot;
+
+const legacyRuntimeActionTypes = new Set([
+    'SET_MYMETIS_MODEL',
+    'SET_MYMETIS_PARAMETER',
+    'SET_MY_GOMODEL',
+    'SET_MY_GOMETAMODEL',
+    'SET_GOJS_MODEL',
+    'SET_GOJS_TARGETMODEL',
+    'SET_GOJS_MODELOBJECTS',
+    'SET_GOJS_METAMODEL',
+    'SET_GOJS_METAMODELPALETTE',
+    'SET_GOJS_METAMODELMODEL',
+    'SET_GOJS_TARGETMETAMODEL',
+]);
 
 const mirrorUniverseToLegacy = (
     legacyState: LegacyUniverseRoot,
@@ -45,28 +54,34 @@ const mirrorUniverseToLegacy = (
     ...(universe.source !== null && universe.source !== undefined
         ? { phSource: universe.source }
         : {}),
+    ...(universe.compatibility.modelList !== null && universe.compatibility.modelList !== undefined
+        ? { phList: universe.compatibility.modelList }
+        : {}),
 });
 
-const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
-    const legacyState = reduceLegacyState(state, action);
-    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyState);
+export const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
+    const legacyBaseState = state ?? reduceLegacyState(undefined, { type: '@@INIT' });
+    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyBaseState);
     const reducedUniverse = universeReducer(previousUniverse, action);
-    const nextUniverse = reducedUniverse !== previousUniverse
-        ? reducedUniverse
-        : buildUniverseStateFromLegacy({ ...legacyState, universe: undefined });
-    const nextLegacyState = (
-        setUniverseState.match(action) ||
-        setUniversePhData.match(action) ||
-        setUniverseUser.match(action) ||
-        setUniverseSource.match(action) ||
-        setUniverseFocus.match(action)
-    )
-        ? mirrorUniverseToLegacy(legacyState, nextUniverse)
-        : legacyState;
+
+    if (reducedUniverse !== previousUniverse) {
+        return {
+            ...mirrorUniverseToLegacy(legacyBaseState, reducedUniverse),
+            universe: reducedUniverse,
+        } as RootReducerState;
+    }
+
+    const legacyState = reduceLegacyState(state, action);
+    if (legacyRuntimeActionTypes.has(action.type)) {
+        return {
+            ...legacyState,
+            universe: previousUniverse,
+        } as RootReducerState;
+    }
 
     return {
-        ...nextLegacyState,
-        universe: nextUniverse,
+        ...legacyState,
+        universe: buildUniverseStateFromLegacy({ ...legacyState, universe: undefined }),
     } as RootReducerState;
 };
 

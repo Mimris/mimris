@@ -7,7 +7,14 @@ import { searchGithub } from '../components/githubServices/githubService';
 import { InitialState } from '../reducers/reducer';
 import { normalizeGithubSource, readShareQueryValue } from '../components/utils/focusShare';
 import { readJsonResponse, readJsonResponseError } from '../components/utils/httpResponse';
-import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemoteUniverseBaseUrl, readRemoteUniverseId, readRemoteUniverseSlug } from '../components/utils/remoteUniverse';
+import {
+    buildRemoteMetisProxyPath,
+    buildRemoteMetisResourceUri,
+    normalizeRemoteUniverseBaseUrl,
+    readRemoteUniverseId,
+    readRemoteUniverseSlug,
+    type RemoteMetisFocusQuery,
+} from '../components/utils/remoteUniverse';
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
@@ -86,7 +93,30 @@ const page = (props: any) => {
             return '';
         }
     };
-    const buildModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+    const hasRequestedRemoteMetisFocus = (focusQuery?: RemoteMetisFocusQuery) =>
+        Boolean(
+            focusQuery?.modelScope === 'current' ||
+            focusQuery?.currentModelRef ||
+            focusQuery?.currentModelviewRef ||
+            focusQuery?.currentMetamodelRef,
+        );
+    const appendRemoteMetisFocusRouteParams = (params: URLSearchParams, focusQuery?: RemoteMetisFocusQuery) => {
+        if (!focusQuery) return;
+        ([
+            'currentMetamodelRef',
+            'currentModelRef',
+            'currentModelviewRef',
+            'currentTargetMetamodelRef',
+            'currentTargetModelRef',
+            'currentTargetModelviewRef',
+            'modelScope',
+            'revision',
+        ] as const).forEach(key => {
+            const value = focusQuery[key];
+            if (typeof value === 'string' && value.trim()) params.set(key, value.trim());
+        });
+    };
+    const buildModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const params = new URLSearchParams();
         const normalizedBaseUrl = options.baseUrl ? normalizeRemoteUniverseBaseUrl(options.baseUrl) : '';
         if (options.universeId) {
@@ -100,15 +130,17 @@ const page = (props: any) => {
         if (options.metisScope) {
             params.set('metisScope', normalizeMetisScope(options.metisScope));
         }
+        appendRemoteMetisFocusRouteParams(params, options.focusQuery);
         return `/model?${params.toString()}`;
     };
-    const updateModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+    const updateModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const nextRoute = buildModelRoute(options);
         const currentPath = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : router.asPath;
         if (currentPath === nextRoute) return;
         router.replace(nextRoute, undefined, { shallow: true, scroll: false });
     };
-    const loadLocalMemoryState = () => {
+    const loadLocalMemoryState = (focusQuery?: RemoteMetisFocusQuery) => {
+        if (hasRequestedRemoteMetisFocus(focusQuery)) return false;
         try {
             const stored = window.localStorage.getItem('memorystate');
             const parsed = stored ? JSON.parse(stored) : null;
@@ -207,9 +239,9 @@ const page = (props: any) => {
             return '';
         }
     };
-    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string }) => {
+    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
-        const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl));
+        const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl, options.focusQuery));
         const { payload, text } = await readJsonResponse(response);
         if (!response.ok || payload?.error || !payload?.payload) {
             try {
@@ -239,6 +271,7 @@ const page = (props: any) => {
                         universeSlug: options.universeSlug,
                         baseUrl: options.baseUrl,
                         metisScope: options.metisScope,
+                        focusQuery: options.focusQuery,
                     });
                     dispatch({
                         type: 'SET_FOCUS_REFRESH',
@@ -288,6 +321,7 @@ const page = (props: any) => {
             universeSlug: options.universeSlug,
             baseUrl: options.baseUrl,
             metisScope: options.metisScope,
+            focusQuery: options.focusQuery,
         });
         dispatch({
             type: 'SET_FOCUS_REFRESH',
@@ -418,6 +452,16 @@ const page = (props: any) => {
         const universeSlug = readShareQueryValue(query.universeSlug);
         const universeApi = readShareQueryValue(query.universeApi);
         const requestedMetisScope = normalizeMetisScope(readShareQueryValue(query.metisScope));
+        const focusQuery: RemoteMetisFocusQuery = {
+            currentMetamodelRef: readShareQueryValue(query.currentMetamodelRef),
+            currentModelRef: readShareQueryValue(query.currentModelRef),
+            currentModelviewRef: readShareQueryValue(query.currentModelviewRef),
+            currentTargetMetamodelRef: readShareQueryValue(query.currentTargetMetamodelRef),
+            currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
+            currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
+            modelScope: readShareQueryValue(query.modelScope),
+            revision: readShareQueryValue(query.revision),
+        };
         const projectId = readShareQueryValue(query.project);
         const org = readShareQueryValue(query.org);
         const repo = readShareQueryValue(query.repo);
@@ -454,6 +498,7 @@ const page = (props: any) => {
                                 universeId,
                                 baseUrl,
                                 metisScope: requestedMetisScope,
+                                focusQuery,
                             });
                             setIsLoading(false);
                             return;
@@ -484,6 +529,7 @@ const page = (props: any) => {
                         universeId: resolvedId,
                         baseUrl,
                         metisScope: requestedMetisScope,
+                        focusQuery,
                     });
                 } catch (error: any) {
                     console.error('Error loading remote universe library entry:', error);
@@ -534,7 +580,7 @@ const page = (props: any) => {
                     dispatchLoadedState(nextData);
                 } catch (error: any) {
                     console.error('Error loading shared model:', error);
-                    if (!loadLocalMemoryState()) {
+                    if (!loadLocalMemoryState(focusQuery)) {
                         setLoadError(error?.message || 'Unable to load shared model file.');
                     }
                 }
@@ -542,7 +588,7 @@ const page = (props: any) => {
                 return;
             }
 
-            const hasLocalState = loadLocalMemoryState();
+            const hasLocalState = loadLocalMemoryState(focusQuery);
             if (!hasLocalState) {
                 setLoadError('Unable to load shared model file.');
             }

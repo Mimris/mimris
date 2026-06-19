@@ -28,12 +28,46 @@ export const buildRemoteMetisResourceUri = (universeSlug: string, metisScope?: s
   return `${normalizedBaseUrl}/api/remote-universe/${encodeURIComponent(universeSlug)}/metis${scopePath}`;
 };
 
-export const buildRemoteMetisProxyPath = (universeSlug: string, metisScope?: string, baseUrl?: string) => {
+export type RemoteMetisFocusQuery = {
+  currentMetamodelRef?: string;
+  currentModelRef?: string;
+  currentModelviewRef?: string;
+  currentTargetMetamodelRef?: string;
+  currentTargetModelRef?: string;
+  currentTargetModelviewRef?: string;
+  modelScope?: string;
+  revision?: string;
+};
+
+const appendRemoteMetisFocusQuery = (query: URLSearchParams, focusQuery?: RemoteMetisFocusQuery) => {
+  if (!focusQuery) return;
+  ([
+    "currentMetamodelRef",
+    "currentModelRef",
+    "currentModelviewRef",
+    "currentTargetMetamodelRef",
+    "currentTargetModelRef",
+    "currentTargetModelviewRef",
+    "modelScope",
+    "revision",
+  ] as const).forEach(key => {
+    const value = focusQuery[key];
+    if (typeof value === "string" && value.trim()) query.set(key, value.trim());
+  });
+};
+
+export const buildRemoteMetisProxyPath = (
+  universeSlug: string,
+  metisScope?: string,
+  baseUrl?: string,
+  focusQuery?: RemoteMetisFocusQuery,
+) => {
   const query = new URLSearchParams();
   query.set("baseUrl", normalizeRemoteUniverseBaseUrl(baseUrl));
   if (metisScope) {
     query.set("scope", metisScope);
   }
+  appendRemoteMetisFocusQuery(query, focusQuery);
   return `/api/remote-universe/${encodeURIComponent(universeSlug)}/metis?${query.toString()}`;
 };
 

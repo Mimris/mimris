@@ -7,7 +7,14 @@ import { searchGithub } from '../components/githubServices/githubService';
 import { InitialState } from '../reducers/reducer';
 import { normalizeGithubSource, readShareQueryValue } from '../components/utils/focusShare';
 import { readJsonResponse, readJsonResponseError } from '../components/utils/httpResponse';
-import { buildRemoteMetisProxyPath, buildRemoteMetisResourceUri, normalizeRemoteUniverseBaseUrl, readRemoteUniverseId, readRemoteUniverseSlug } from '../components/utils/remoteUniverse';
+import {
+    buildRemoteMetisProxyPath,
+    buildRemoteMetisResourceUri,
+    normalizeRemoteUniverseBaseUrl,
+    readRemoteUniverseId,
+    readRemoteUniverseSlug,
+    type RemoteMetisFocusQuery,
+} from '../components/utils/remoteUniverse';
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
@@ -88,7 +95,30 @@ const page = () => {
             return '';
         }
     };
-    const buildModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+    const hasRequestedRemoteMetisFocus = (focusQuery?: RemoteMetisFocusQuery) =>
+        Boolean(
+            focusQuery?.modelScope === 'current' ||
+            focusQuery?.currentModelRef ||
+            focusQuery?.currentModelviewRef ||
+            focusQuery?.currentMetamodelRef,
+        );
+    const appendRemoteMetisFocusRouteParams = (params: URLSearchParams, focusQuery?: RemoteMetisFocusQuery) => {
+        if (!focusQuery) return;
+        ([
+            'currentMetamodelRef',
+            'currentModelRef',
+            'currentModelviewRef',
+            'currentTargetMetamodelRef',
+            'currentTargetModelRef',
+            'currentTargetModelviewRef',
+            'modelScope',
+            'revision',
+        ] as const).forEach(key => {
+            const value = focusQuery[key];
+            if (typeof value === 'string' && value.trim()) params.set(key, value.trim());
+        });
+    };
+    const buildModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const params = new URLSearchParams();
         const normalizedBaseUrl = options.baseUrl ? normalizeRemoteUniverseBaseUrl(options.baseUrl) : '';
         if (options.universeId) {
@@ -102,9 +132,10 @@ const page = () => {
         if (options.metisScope) {
             params.set('metisScope', normalizeMetisScope(options.metisScope));
         }
+        appendRemoteMetisFocusRouteParams(params, options.focusQuery);
         return `/model?${params.toString()}`;
     };
-    const updateModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string }) => {
+    const updateModelRoute = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const nextRoute = buildModelRoute(options);
         const currentPath = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : router.asPath;
         if (currentPath === nextRoute) return;
@@ -137,7 +168,8 @@ const page = () => {
         const storedPhUser = stored?.phUser || stored?.universe?.user || {};
         return storedPhUser?.__workspaceUniverse || {};
     };
-    const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+    const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         const stored = readStoredMemoryState();
         if (!stored) return false;
         const meta = readStoredRemoteMeta(stored);
@@ -171,7 +203,8 @@ const page = () => {
         dispatchLoadedState(stored);
         return true;
     };
-    const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+    const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         if (!stored) return false;
         const meta = readStoredRemoteMeta(stored);
         const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
@@ -198,7 +231,8 @@ const page = () => {
             : true;
         return matchesScope && matchesBaseUrl && matchesId && matchesSlug && matchesRemoteUri;
     };
-    const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+    const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         const stored = readStoredMemoryState();
         if (!stored?.phData?.metis && !stored?.universe?.world?.worldModel?.metis) return false;
         if (remoteMemoryMatchesRoute(stored, options)) return false;
@@ -291,7 +325,7 @@ const page = () => {
             return '';
         }
     };
-    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string }) => {
+    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
         if (loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
             updateModelRoute({
@@ -299,6 +333,7 @@ const page = () => {
                 universeSlug: options.universeSlug,
                 baseUrl: options.baseUrl,
                 metisScope: options.metisScope,
+                focusQuery: options.focusQuery,
             });
             dispatch({
                 type: 'SET_FOCUS_REFRESH',
@@ -312,7 +347,7 @@ const page = () => {
             return true;
         }
 
-        const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl));
+        const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl, options.focusQuery));
         const { payload, text } = await readJsonResponse(response);
         if (!response.ok || payload?.error || !payload?.payload) {
             try {
@@ -342,6 +377,7 @@ const page = () => {
                         universeSlug: options.universeSlug,
                         baseUrl: options.baseUrl,
                         metisScope: options.metisScope,
+                        focusQuery: options.focusQuery,
                     });
                     dispatch({
                         type: 'SET_FOCUS_REFRESH',
@@ -391,6 +427,7 @@ const page = () => {
             universeSlug: options.universeSlug,
             baseUrl: options.baseUrl,
             metisScope: options.metisScope,
+            focusQuery: options.focusQuery,
         });
         dispatch({
             type: 'SET_FOCUS_REFRESH',
@@ -531,6 +568,16 @@ const page = () => {
         const universeSlug = readShareQueryValue(query.universeSlug);
         const universeApi = readShareQueryValue(query.universeApi);
         const requestedMetisScope = normalizeMetisScope(readShareQueryValue(query.metisScope));
+        const focusQuery: RemoteMetisFocusQuery = {
+            currentMetamodelRef: readShareQueryValue(query.currentMetamodelRef),
+            currentModelRef: readShareQueryValue(query.currentModelRef),
+            currentModelviewRef: readShareQueryValue(query.currentModelviewRef),
+            currentTargetMetamodelRef: readShareQueryValue(query.currentTargetMetamodelRef),
+            currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
+            currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
+            modelScope: readShareQueryValue(query.modelScope),
+            revision: readShareQueryValue(query.revision),
+        };
         const projectId = readShareQueryValue(query.project);
         const org = readShareQueryValue(query.org);
         const repo = readShareQueryValue(query.repo);
@@ -563,6 +610,7 @@ const page = () => {
                     universeSlug,
                     baseUrl: normalizeRemoteUniverseBaseUrl(universeApi),
                     metisScope: requestedMetisScope,
+                    focusQuery,
                 })
             ) {
                 dispatch({
@@ -590,6 +638,7 @@ const page = () => {
                                 universeId,
                                 baseUrl,
                                 metisScope: requestedMetisScope,
+                                focusQuery,
                             });
                             setIsLoading(false);
                             return;
@@ -620,6 +669,7 @@ const page = () => {
                         universeId: resolvedId,
                         baseUrl,
                         metisScope: requestedMetisScope,
+                        focusQuery,
                     });
                 } catch (error: any) {
                     console.error('Error loading remote universe library entry:', error);

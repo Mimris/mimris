@@ -29,6 +29,24 @@ const readRawBaseUrl = (req: NextApiRequest) => {
   return typeof bodyValue === 'string' ? bodyValue : readSingleQueryValue(queryValue);
 };
 
+const buildScopedRemoteMetisUri = (req: NextApiRequest, universeSlug: string, scope: string, baseUrl: string) => {
+  const url = new URL(buildRemoteMetisResourceUri(universeSlug, scope, baseUrl));
+  [
+    'currentMetamodelRef',
+    'currentModelRef',
+    'currentModelviewRef',
+    'currentTargetMetamodelRef',
+    'currentTargetModelRef',
+    'currentTargetModelviewRef',
+    'modelScope',
+    'revision',
+  ].forEach((key) => {
+    const value = readSingleQueryValue(req.query[key]);
+    if (value) url.searchParams.set(key, value);
+  });
+  return url.toString();
+};
+
 const asRecord = (value: any) => (value && typeof value === 'object' ? value : {});
 
 const isMetisRecord = (value: any) => {
@@ -115,7 +133,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const baseUrl = readBaseUrl(req);
     const scope = readSingleQueryValue(req.query.scope);
-    const response = await fetch(buildRemoteMetisResourceUri(universeSlug, scope, baseUrl));
+    const response = await fetch(buildScopedRemoteMetisUri(req, universeSlug, scope, baseUrl));
     const { payload, text } = await readRemoteJsonLike(response);
 
     if (!response.ok || !payload) {

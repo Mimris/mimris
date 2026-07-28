@@ -1398,6 +1398,8 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         isPanelMain: true, // This controls the panel size, preventing Placeholder from expanding it
                         cursor: "move",
                         fill: "white",
+                        // The body is only visual; clicks must reach members in the lane.
+                        pickable: false,
                         stroke: "transparent",
                         strokeWidth: 0,
                     },

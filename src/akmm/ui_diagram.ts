@@ -53,16 +53,6 @@ function snapSizeEven(n: number): number {
 }
 const GROUP_LAYOUT_PADDING = 15;
 
-const uidTemplates = {
-    "default":          uit.textAndIconTemplate,
-    "ActivityNode":     uit.activityNodeTemplate,
-    "EventNode":        uit.eventNodeTemplate,
-    "GatewayNode":      uit.gatewayNodeTemplate,
-    "DataObjectNode":   uit.dataObjectNodeTemplate,
-    "textAndIcon":      uit.textAndIconTemplate,
-    "textAndFigure":    uit.textAndFigureTemplate,
-}
-
 
 
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {

@@ -2025,6 +2025,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
 	    // clamp/snap back into the source lane.
 	    class SwimlaneDraggingTool extends go.DraggingTool {
+	      private constraintLaneCache: Map<go.Part, go.Group> = new Map();
+
 	      override doActivate() {
 	        const diagram = this.diagram;
 	        const draggedParts = this.draggedParts;
@@ -2044,6 +2046,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          } catch (_) { }
 	        }
 	        super.doActivate();
+	        this.constraintLaneCache.clear();
 	      }
 
 	      override doMouseMove() {
@@ -2075,7 +2078,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	        } catch (_) {
 	        }
-          // Temporary drag vibration tracing removed.
+	          // Temporary drag vibration tracing removed.
 	        super.doMouseMove();
 	      }
 
@@ -2249,6 +2252,150 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
 		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
 		        super.doDeactivate();
+		      }
+
+		      override moveParts(parts: go.Map<go.Part, go.DraggingInfo>, offset: go.Point, check: boolean) {
+		        const diagram = this.diagram;
+		        
+		        // Constrain nodes to stay within their lanes unless Shift is held (BEFORE moving, only during check)
+		        let constrainedOffset = offset;
+		        if (diagram && check) {
+		          // Check both shift and control (ctrl acts as shift on some systems)
+		          const shiftHeld = diagram.lastInput?.shift === true || diagram.lastInput?.control === true;
+		          
+		          if (!shiftHeld) {
+		            // Find the most restrictive constraint
+		            let mostRestrictiveOffsetY = offset.y;
+		            let mostRestrictiveOffsetX = offset.x;
+		            
+		            for (let it = parts.iterator; it.next();) {
+		              const part = it.key;
+		              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+		              
+		              // Get the cached lane or find it geometrically
+		              let lane = this.constraintLaneCache.get(part);
+		              
+		              if (!lane) {
+		                // Find lane geometrically using actualBounds
+		                const nodeBounds = part.actualBounds;
+		                const nodeCenter = nodeBounds.center;
+		                
+		                let bestLane: go.Group | null = null;
+		                let bestOverlapArea = 0;
+		                let centerContained = false;
+		                
+		                const nodeIterator = diagram.nodes;
+		                while (nodeIterator.next()) {
+		                  const group = nodeIterator.value;
+		                  if (!(group instanceof go.Group)) continue;
+		                  
+		                  const groupData: any = group.data || {};
+		                  const category = String(groupData.template || groupData.category || group.category || "");
+		                  const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+		                  
+		                  if (isLane) {
+		                    const laneBounds = group.actualBounds;
+		                    const containsCenter = laneBounds.containsPoint(nodeCenter);
+		                    
+		                    if (containsCenter && !centerContained) {
+		                      bestLane = group;
+		                      centerContained = true;
+		                    } else if (!centerContained && nodeBounds.isReal() && laneBounds.isReal() && nodeBounds.intersectsRect(laneBounds)) {
+		                      const intersection = nodeBounds.intersect(laneBounds);
+		                      const overlapArea = intersection.width * intersection.height;
+		                      
+		                      if (overlapArea > bestOverlapArea && isFinite(overlapArea)) {
+		                        bestLane = group;
+		                        bestOverlapArea = overlapArea;
+		                      }
+		                    }
+		                  }
+		                }
+		                
+		                lane = bestLane;
+		                
+		                // Cache the lane for this part for the duration of this drag
+		                if (lane) {
+		                  this.constraintLaneCache.set(part, lane);
+		                }
+		              }
+		              
+		              if (!lane) continue;
+		              
+		              // Get lane content bounds
+		              const bodyPanel = lane.findObject('BODY') as go.Panel | null;
+		              let contentBounds: go.Rect;
+		              
+		              if (bodyPanel) {
+		                contentBounds = bodyPanel.getDocumentBounds();
+		              } else {
+		                const laneBounds = lane.actualBounds;
+		                const SWIMLANE_LANE_HEADER_WIDTH = 54;
+		                contentBounds = new go.Rect(
+		                  laneBounds.x + SWIMLANE_LANE_HEADER_WIDTH,
+		                  laneBounds.y,
+		                  laneBounds.width - SWIMLANE_LANE_HEADER_WIDTH,
+		                  laneBounds.height
+		                );
+		              }
+		              
+		              // Get the original drag start position from GoJS's draggedParts
+		              const dragInfo = this.draggedParts?.get(part);
+		              if (!dragInfo) continue;
+		              
+		              const originalLoc = dragInfo.point;
+		              const b = part.actualBounds;
+		              const margin = 5;
+		              
+		              // Calculate the stable offset from location to bounds based on locationSpot
+		              const locSpot = part.locationSpot;
+		              const locToBoundsOffset = new go.Point(
+		                -b.width * locSpot.x,
+		                -b.height * locSpot.y
+		              );
+		              
+		              // Calculate where bounds would be at the original location
+		              const originalBoundsX = originalLoc.x + locToBoundsOffset.x;
+		              const originalBoundsY = originalLoc.y + locToBoundsOffset.y;
+		              
+		              // Constrain Y axis
+		              const proposedBoundsTop = originalBoundsY + offset.y;
+		              const minBoundsY = contentBounds.y + margin;
+		              const maxBoundsY = contentBounds.bottom - b.height - margin;
+		              const constrainedBoundsY = Math.max(minBoundsY, Math.min(proposedBoundsTop, maxBoundsY));
+		              const constrainedLocY = constrainedBoundsY - locToBoundsOffset.y;
+		              const thisPartOffsetY = constrainedLocY - originalLoc.y;
+		              
+		              // Constrain X axis
+		              const proposedBoundsLeft = originalBoundsX + offset.x;
+		              const minBoundsX = contentBounds.x + margin;
+		              const maxBoundsX = contentBounds.right - b.width - margin;
+		              const constrainedBoundsX = Math.max(minBoundsX, Math.min(proposedBoundsLeft, maxBoundsX));
+		              const constrainedLocX = constrainedBoundsX - locToBoundsOffset.x;
+		              const thisPartOffsetX = constrainedLocX - originalLoc.x;
+		              
+		              // Take most restrictive (Y axis)
+		              if (offset.y > 0) {
+		                mostRestrictiveOffsetY = Math.min(mostRestrictiveOffsetY, thisPartOffsetY);
+		              } else if (offset.y < 0) {
+		                mostRestrictiveOffsetY = Math.max(mostRestrictiveOffsetY, thisPartOffsetY);
+		              }
+		              
+		              // Take most restrictive (X axis)
+		              if (offset.x > 0) {
+		                mostRestrictiveOffsetX = Math.min(mostRestrictiveOffsetX, thisPartOffsetX);
+		              } else if (offset.x < 0) {
+		                mostRestrictiveOffsetX = Math.max(mostRestrictiveOffsetX, thisPartOffsetX);
+		              }
+		            }
+		            
+		            if (Math.abs(mostRestrictiveOffsetY - offset.y) > 0.01 || Math.abs(mostRestrictiveOffsetX - offset.x) > 0.01) {
+		              constrainedOffset = new go.Point(mostRestrictiveOffsetX, mostRestrictiveOffsetY);
+		            }
+		          }
+		        }
+		        
+		        super.moveParts(parts, constrainedOffset, check);
 		      }
 		    }
 

@@ -927,6 +927,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         isPanelMain: true,
                         cursor: "move",
                         fill: "white",
+                        pickable: false, // Allow clicks to pass through to nodes inside the lane
                         // Visible stroke while debugging so we can see the true lane body bounds.
                         stroke: DEBUG_SWIMLANE_BG ? "rgba(0,0,0,0.35)" : "transparent",
                         strokeWidth: DEBUG_SWIMLANE_BG ? 1 : 0,

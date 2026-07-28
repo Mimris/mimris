@@ -27,7 +27,7 @@ p {
   background-color: white;
 }
 
-@container (min-width 1200px) {
+@container (min-width: 1200px) {
   .diagram-component {
     height: 28vh;
     width: 50%;

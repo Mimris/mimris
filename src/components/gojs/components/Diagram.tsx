@@ -387,27 +387,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                      g.findObject("BODY")) as go.GraphObject | null;
 	                  return body ? body.getDocumentBounds() : null;
 	                };
-	                const findLaneAtPoint = (pt: go.Point): go.Group | null => {
-	                  let best: { area: number; lane: go.Group } | null = null;
+	                
+	                // Find any group at the drop point (lanes, containers, or other groups)
+	                const findGroupAtPoint = (pt: go.Point): go.Group | null => {
+	                  let best: { area: number; group: go.Group } | null = null;
 	                  d.nodes.each((n: go.Node) => {
 	                    if (!(n instanceof go.Group)) return;
 	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
-	                    if (!cat.startsWith("Lane")) return;
-	                    const r = laneBodyBounds(n);
-	                    if (!r || !r.containsPoint(pt)) return;
-	                    const area = Math.max(1, r.width * r.height);
-	                    if (!best || area < best.area) best = { area, lane: n };
+	                    const isLane = cat.startsWith("Lane");
+	                    
+	                    // For lanes, use lane body bounds; for other groups, use actual bounds
+	                    const bounds = isLane ? laneBodyBounds(n) : n.actualBounds;
+	                    if (!bounds || !bounds.containsPoint(pt)) return;
+	                    
+	                    const area = Math.max(1, bounds.width * bounds.height);
+	                    if (!best || area < best.area) best = { area, group: n };
 	                  });
-	                  return best ? best.lane : null;
+	                  return best ? best.group : null;
 	                };
-	                const findLaneByOverlap = (part: go.Node): go.Group | null => {
+	                
+	                const findGroupByOverlap = (part: go.Node): go.Group | null => {
 	                  const nb = part.actualBounds;
-	                  let best: { overlap: number; area: number; lane: go.Group } | null = null;
+	                  let best: { overlap: number; area: number; group: go.Group } | null = null;
 	                  d.nodes.each((n: go.Node) => {
 	                    if (!(n instanceof go.Group)) return;
 	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
-	                    if (!cat.startsWith("Lane")) return;
-	                    const gb = laneBodyBounds(n);
+	                    const isLane = cat.startsWith("Lane");
+	                    
+	                    const gb = isLane ? laneBodyBounds(n) : n.actualBounds;
 	                    if (!gb) return;
 	                    const ix1 = Math.max(nb.x, gb.x);
 	                    const iy1 = Math.max(nb.y, gb.y);
@@ -417,22 +424,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                    if (overlap <= 0) return;
 	                    const area = Math.max(1, gb.width * gb.height);
 	                    if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
-	                      best = { overlap, area, lane: n };
+	                      best = { overlap, area, group: n };
 	                    }
 	                  });
-	                  return best ? best.lane : null;
+	                  return best ? best.group : null;
 	                };
 
-	                const targetLane = findLaneAtPoint(dropPt) || ((): go.Group | null => {
-	                  // If drop point is in header strip, overlap tends to still pick the correct lane.
+	                const targetGroup = findGroupAtPoint(dropPt) || ((): go.Group | null => {
+	                  // If drop point is in header strip, overlap tends to still pick the correct group.
 	                  // Use the first moved node as probe.
 	                  for (let it = dragged.iterator; it?.next();) {
 	                    const p: go.Part = it.key;
-	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findLaneByOverlap(p);
+	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findGroupByOverlap(p);
 	                  }
 	                  return null;
 	                })();
-	                const targetKey = targetLane ? String(targetLane.data?.key || targetLane.key || "") : "";
+	                
+	                const targetKey = targetGroup ? String(targetGroup.data?.key || targetGroup.key || "") : "";
 
 	                for (let it = dragged.iterator; it?.next();) {
 	                  const part: go.Part = it.key;
@@ -441,14 +449,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
 	                  if (!allowed) continue;
 
-	                  if (!targetLane || !targetKey) continue;
-
 	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+	                  
+	                  // If dropped on background (no target group), remove from current group
+	                  if (!targetGroup) {
+	                    if (cur !== "") {
+	                      // Remove from old group
+	                      const oldGrp = part.containingGroup;
+	                      if (oldGrp) {
+	                        const s = new go.Set<go.Part>();
+	                        s.add(part);
+	                        oldGrp.removeMembers(s, true);
+	                      }
+	                      // Set group to undefined/empty
+	                      if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                        (d.model as any).setGroupKeyForNodeData(part.data, undefined);
+	                      } else {
+	                        d.model.setDataProperty(part.data, "group", "");
+	                      }
+	                    }
+	                    continue;
+	                  }
+	                  
+	                  // If already in target group, skip
 	                  if (cur === targetKey) continue;
 
-	                  // Force a real reparent in the Diagram so `containingGroup` updates immediately.
+	                  // Reparent to target group
 	                  const oldGrp = part.containingGroup;
-	                  if (oldGrp && oldGrp !== targetLane) {
+	                  if (oldGrp && oldGrp !== targetGroup) {
 	                    const s = new go.Set<go.Part>();
 	                    s.add(part);
 	                    oldGrp.removeMembers(s, true);
@@ -458,7 +486,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                  } else {
 	                    d.model.setDataProperty(part.data, "group", targetKey);
 	                  }
-	                  targetLane.addMembers(new go.Set<go.Part>().add(part), true);
+	                  targetGroup.addMembers(new go.Set<go.Part>().add(part), true);
 	                }
 	              }, "SwimlaneShiftReparent");
 	            }

@@ -29,6 +29,7 @@ const page = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
     const [isSavingRemote, setIsSavingRemote] = useState(false);
+    const [isRefreshingRemote, setIsRefreshingRemote] = useState(false);
     const [saveStatus, setSaveStatus] = useState('');
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
@@ -74,9 +75,18 @@ const page = () => {
                 phSource: snapshot?.phSource || '',
             }),
     });
-    const dispatchLoadedState = (snapshot: any) => {
+    const dispatchLoadedState = (snapshot: any, options?: { replaceGeometry?: boolean }) => {
         const normalized = normalizeSnapshotData(snapshot);
+        if (options?.replaceGeometry) {
+            dispatch({ type: 'LOAD_TOSTORE_DATA', data: normalized });
+            return;
+        }
         dispatch(setUniverseState(buildUniverseStateFromLegacy(normalized)));
+    };
+    const clearStoredMemoryState = () => {
+        if (typeof window === 'undefined') return;
+        try { window.sessionStorage.removeItem(MEMORY_STATE_STORAGE_KEY); } catch (_) { }
+        try { window.localStorage.removeItem(MEMORY_STATE_STORAGE_KEY); } catch (_) { }
     };
     const resolveUniverseIdFromLibrarySlug = async (slug: string, baseUrl: string) => {
         if (!slug) return '';
@@ -112,7 +122,10 @@ const page = () => {
             'currentTargetModelRef',
             'currentTargetModelviewRef',
             'modelScope',
+            'workItemId',
+            'saveTarget',
             'revision',
+            'workspaceAuthority',
         ] as const).forEach(key => {
             const value = focusQuery[key];
             if (typeof value === 'string' && value.trim()) params.set(key, value.trim());
@@ -169,6 +182,7 @@ const page = () => {
         return storedPhUser?.__workspaceUniverse || {};
     };
     const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
         if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         const stored = readStoredMemoryState();
         if (!stored) return false;
@@ -204,6 +218,7 @@ const page = () => {
         return true;
     };
     const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
         if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         if (!stored) return false;
         const meta = readStoredRemoteMeta(stored);
@@ -232,6 +247,7 @@ const page = () => {
         return matchesScope && matchesBaseUrl && matchesId && matchesSlug && matchesRemoteUri;
     };
     const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
         if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
         const stored = readStoredMemoryState();
         if (!stored?.phData?.metis && !stored?.universe?.world?.worldModel?.metis) return false;
@@ -325,9 +341,11 @@ const page = () => {
             return '';
         }
     };
-    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery }) => {
+    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery; preferRemote?: boolean }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
-        if (loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
+        const isWorkspaceAuthoritative = options.focusQuery?.workspaceAuthority === 'redux';
+        if (isWorkspaceAuthoritative) clearStoredMemoryState();
+        if (!options.preferRemote && loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
             updateModelRoute({
                 universeId: options.universeId,
                 universeSlug: options.universeSlug,
@@ -371,7 +389,8 @@ const page = () => {
                         });
 
                     clearStoredFocusModel();
-                    dispatchLoadedState(fallbackState);
+                    if (isWorkspaceAuthoritative) clearStoredMemoryState();
+                    dispatchLoadedState(fallbackState, { replaceGeometry: isWorkspaceAuthoritative });
                     updateModelRoute({
                         universeId: options.universeId,
                         universeSlug: options.universeSlug,
@@ -421,7 +440,8 @@ const page = () => {
             });
 
         clearStoredFocusModel();
-        dispatchLoadedState(nextState);
+        if (isWorkspaceAuthoritative) clearStoredMemoryState();
+        dispatchLoadedState(nextState, { replaceGeometry: isWorkspaceAuthoritative });
         updateModelRoute({
             universeId: options.universeId,
             universeSlug: options.universeSlug,
@@ -446,6 +466,129 @@ const page = () => {
         phUser?.__workspaceUniverse?.universeId ||
         phUser?.__workspaceUniverse?.universeApiBaseUrl,
     );
+    const currentRemoteUniverseSlug = readRemoteUniverseSlug(query.universeSlug) || phUser?.__workspaceUniverse?.universeSlug || '';
+    const currentRemoteUniverseApi = readShareQueryValue(query.universeApi) || phUser?.__workspaceUniverse?.universeApiBaseUrl || '';
+    const currentRemoteMetisScope = normalizeMetisScope(readShareQueryValue(query.metisScope) || phUser?.__workspaceUniverse?.activeMetisScope);
+    const currentRemoteFocusQuery: RemoteMetisFocusQuery = {
+        currentMetamodelRef: readShareQueryValue(query.currentMetamodelRef),
+        currentModelRef: readShareQueryValue(query.currentModelRef),
+        currentModelviewRef: readShareQueryValue(query.currentModelviewRef),
+        currentTargetMetamodelRef: readShareQueryValue(query.currentTargetMetamodelRef),
+        currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
+        currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
+        modelScope: readShareQueryValue(query.modelScope),
+        workItemId: readShareQueryValue(query.workItemId),
+        saveTarget: readShareQueryValue(query.saveTarget),
+        revision: readShareQueryValue(query.revision),
+        workspaceAuthority: readShareQueryValue(query.workspaceAuthority),
+    };
+    const focusedModel = normalizeModels(phData?.metis?.models).find((model: any) => model?.id === phFocus?.focusModel?.id) ||
+        normalizeModels(phData?.metis?.models)[0] ||
+        null;
+    const focusedMetamodelRef = focusedModel?.metamodelRef || focusedModel?.metamodelId || currentRemoteFocusQuery.currentMetamodelRef || '';
+    const focusedMetamodel = normalizeModels(phData?.metis?.metamodels).find((metamodel: any) => metamodel?.id === focusedMetamodelRef) || null;
+    const focusedModelview = normalizeModels(focusedModel?.modelviews).find((modelview: any) => modelview?.id === phFocus?.focusModelview?.id) ||
+        normalizeModels(focusedModel?.modelviews)[0] ||
+        null;
+    const canSaveFocusedModelToWorkspace = Boolean(currentRemoteUniverseSlug && currentRemoteUniverseApi && focusedModel?.id);
+    const canRefreshFocusedModelFromWorkspace = Boolean(currentRemoteUniverseSlug && currentRemoteUniverseApi);
+    const handleRefreshFocusedModelFromWorkspace = async () => {
+        if (!canRefreshFocusedModelFromWorkspace) return;
+        setIsRefreshingRemote(true);
+        setSaveStatus('');
+        setLoadError('');
+        try {
+            const currentMetamodelRef = focusedMetamodelRef || focusedMetamodel?.id || currentRemoteFocusQuery.currentMetamodelRef || '';
+            const currentModelRef = focusedModel?.id || currentRemoteFocusQuery.currentModelRef || '';
+            const currentModelviewRef = focusedModelview?.id || currentRemoteFocusQuery.currentModelviewRef || '';
+            await loadExplicitRemoteMetisScope({
+                universeSlug: currentRemoteUniverseSlug,
+                baseUrl: normalizeRemoteUniverseBaseUrl(currentRemoteUniverseApi),
+                metisScope: currentRemoteMetisScope,
+                focusQuery: {
+                    ...currentRemoteFocusQuery,
+                    currentMetamodelRef,
+                    currentModelRef,
+                    currentModelviewRef,
+                    modelScope: currentRemoteFocusQuery.modelScope || (currentModelRef ? 'current' : ''),
+                },
+                preferRemote: true,
+            });
+            setSaveStatus('Refreshed from workspace. Local changes were discarded.');
+        } catch (error: any) {
+            console.error('Error refreshing focused model from workspace:', error);
+            setLoadError(error?.message || 'Unable to refresh model from workspace.');
+        } finally {
+            setIsRefreshingRemote(false);
+        }
+    };
+    const handleSaveFocusedModelToWorkspace = async () => {
+        if (!canSaveFocusedModelToWorkspace || !focusedModel?.id) return;
+        setIsSavingRemote(true);
+        setSaveStatus('');
+        try {
+            const currentMetamodelRef = focusedMetamodelRef || focusedMetamodel?.id || '';
+            const currentModelRef = focusedModel.id;
+            const currentModelviewRef = focusedModelview?.id || '';
+            const metisPatch = {
+                name: phData?.metis?.name || '',
+                description: phData?.metis?.description || '',
+                ...(currentMetamodelRef ? { currentMetamodelRef } : {}),
+                currentModelRef,
+                ...(currentModelviewRef ? { currentModelviewRef } : {}),
+                metamodels: focusedMetamodel ? [focusedMetamodel] : [],
+                models: [focusedModel],
+            };
+            const response = await fetch(
+                buildRemoteMetisProxyPath(
+                    currentRemoteUniverseSlug,
+                    currentRemoteMetisScope,
+                    currentRemoteUniverseApi,
+                    {
+                        ...currentRemoteFocusQuery,
+                        currentMetamodelRef,
+                        currentModelRef,
+                        currentModelviewRef,
+                        modelScope: 'current',
+                    },
+                ),
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: 'merge', metis: metisPatch }),
+                },
+            );
+            const { payload, text } = await readJsonResponse(response);
+            if (!response.ok || payload?.error) {
+                throw new Error(readJsonResponseError(response, payload, text, 'Unable to save model to workspace.'));
+            }
+            const savedMetis = payload?.payload?.metis || payload?.metis || null;
+            if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'mimris:model-saved',
+                    universeSlug: currentRemoteUniverseSlug,
+                    metisScope: currentRemoteMetisScope,
+                    workItemId: currentRemoteFocusQuery.workItemId || '',
+                    saveTarget: currentRemoteFocusQuery.saveTarget || 'workItem',
+                    metis: savedMetis || metisPatch,
+                    model: focusedModel,
+                    metamodel: focusedMetamodel || undefined,
+                    focus: {
+                        focusModel: { id: currentModelRef, name: focusedModel?.name || '' },
+                        focusModelview: { id: currentModelviewRef, name: focusedModelview?.name || '' },
+                    },
+                    revision: currentRemoteFocusQuery.revision || '',
+                    nextRevision: new Date().toISOString(),
+                }, '*');
+            }
+            setSaveStatus('Saved model to workspace');
+        } catch (error: any) {
+            console.error('Error saving focused model to workspace:', error);
+            setSaveStatus(error?.message || 'Unable to save model to workspace');
+        } finally {
+            setIsSavingRemote(false);
+        }
+    };
     const clearStoredFocusModel = () => {
         if (typeof window === 'undefined') return;
         try {
@@ -576,7 +719,10 @@ const page = () => {
             currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
             currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
             modelScope: readShareQueryValue(query.modelScope),
+            workItemId: readShareQueryValue(query.workItemId),
+            saveTarget: readShareQueryValue(query.saveTarget),
             revision: readShareQueryValue(query.revision),
+            workspaceAuthority: readShareQueryValue(query.workspaceAuthority),
         };
         const projectId = readShareQueryValue(query.project);
         const org = readShareQueryValue(query.org);
@@ -764,6 +910,8 @@ const page = () => {
         if (!hasMounted || isLoading || loadError || !hasRenderableModels) return;
         if (typeof window === 'undefined') return;
 
+        if (currentRemoteFocusQuery.workspaceAuthority === 'redux') return;
+
         const snapshot = {
             phData,
             phFocus,
@@ -775,8 +923,12 @@ const page = () => {
 
         try {
             const result = persistMemoryState(snapshot);
-            if (result.localQuotaExceeded) {
+            if (result.sessionQuotaExceeded && result.localQuotaExceeded) {
+                console.warn('Model draft exceeded both browser storage quotas; the current draft could not be cached.');
+            } else if (result.localQuotaExceeded) {
                 console.warn('Local model draft exceeded localStorage quota; kept the current draft in sessionStorage only.');
+            } else if (result.sessionQuotaExceeded) {
+                console.warn('Local model draft exceeded sessionStorage quota; kept the current draft in localStorage only.');
             }
         } catch (error) {
             console.error('Unable to persist local model draft:', error);
@@ -804,6 +956,28 @@ const page = () => {
             }}
         >
             <div className="workarea p-1 w-100 position-relative" style={{ backgroundColor: "#bcc" }}>
+                {canSaveFocusedModelToWorkspace && (
+                    <div className="px-3 py-2 small text-muted d-flex gap-3 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.82)' }}>
+                        <button
+                            type="button"
+                            className="btn btn-success btn-sm"
+                            disabled={isSavingRemote || isRefreshingRemote}
+                            onClick={handleSaveFocusedModelToWorkspace}
+                        >
+                            {isSavingRemote ? 'Saving model...' : 'Save model to workspace'}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary btn-sm"
+                            disabled={isSavingRemote || isRefreshingRemote}
+                            onClick={handleRefreshFocusedModelFromWorkspace}
+                            title="Reload the current model from workspace and discard local unsaved changes"
+                        >
+                            {isRefreshingRemote ? 'Refreshing...' : 'Refresh from workspace'}
+                        </button>
+                        <span>{focusedModel?.name || focusedModel?.id}</span>
+                    </div>
+                )}
                 {(isLoading || loadError) && (
                     <div
                         className="px-3 py-2 small text-muted d-flex gap-3 align-items-center"

@@ -22,14 +22,20 @@ const setStoredValue = (storage: StorageLike | undefined, value: string) => {
 export const persistMemoryState = (snapshot: unknown) => {
   const serialized = JSON.stringify(snapshot);
   let sessionSaved = false;
+  let sessionQuotaExceeded = false;
   let localSaved = false;
   let localQuotaExceeded = false;
 
   if (typeof window === 'undefined') {
-    return { sessionSaved, localSaved, localQuotaExceeded };
+    return { sessionSaved, sessionQuotaExceeded, localSaved, localQuotaExceeded };
   }
 
-  sessionSaved = setStoredValue(window.sessionStorage, serialized);
+  try {
+    sessionSaved = setStoredValue(window.sessionStorage, serialized);
+  } catch (error) {
+    if (!isQuotaExceededError(error)) throw error;
+    sessionQuotaExceeded = true;
+  }
 
   try {
     localSaved = setStoredValue(window.localStorage, serialized);
@@ -43,6 +49,5 @@ export const persistMemoryState = (snapshot: unknown) => {
     }
   }
 
-  return { sessionSaved, localSaved, localQuotaExceeded };
+  return { sessionSaved, sessionQuotaExceeded, localSaved, localQuotaExceeded };
 };
-

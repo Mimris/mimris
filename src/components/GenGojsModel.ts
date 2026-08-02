@@ -42,7 +42,7 @@ const resolveFocusableModelview = (model: any, requestedModelview: any = null) =
   return modelviews.find(hasRenderableModelviewContent) || requested || first(modelviews);
 };
 
-const GenGojsModel = async (props: any, myMetis: any) => {
+const GenGojsModel = async (props: any, myMetis: any, options: { skipImport?: boolean } = {}) => {
   // let myMetis = yourMetis;
   // let goParams = {};
   if (debug) console.log('28 GenGojsModel started', props, myMetis);
@@ -82,7 +82,7 @@ const GenGojsModel = async (props: any, myMetis: any) => {
   let adminModel;
 
   if (metis != null) {
-    clogGreen('67 GenGojsModel: props', props);
+    if (debug) clogGreen('67 GenGojsModel: props', props);
     if (debug) clogGreen('44 GenGojsModel: metis', phData.metis);
   const curmod = (focusModel?.id && models.length > 0) ? (models.find((m: any) => m.id === focusModel.id) || first(models)) : first(models); // safe first model fallback
     const curmodview = resolveFocusableModelview(curmod, focusModelview);
@@ -97,11 +97,11 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     // const myMetis = new akm.cxMetis();
     // myMetis = props.myMetis;
 
-    if (!debug) console.log('81 GenGojsModel: metis', metis, myMetis);
-    myMetis?.importData(metis, true);
+    if (debug) console.log('81 GenGojsModel: metis', metis, myMetis);
+    if (!options.skipImport) myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (!debug) clogBlue('83 GenGojsModel :', myMetis)
+    if (debug) clogBlue('83 GenGojsModel :', myMetis)
     if (debug) clogBlue('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {

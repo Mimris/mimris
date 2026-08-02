@@ -1226,6 +1226,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const myModel     = myMetis.currentModel;
   const myModelview = myMetis.currentModelview;
   const myGoModel   = myMetis.gojsModel;
+  const findGoNode = (key: any) =>
+    myGoModel?.findNodeByViewId?.(key) ||
+    myGoModel?.findNode?.(key) ||
+    myDiagram?.findNodeForKey?.(key);
+  const findGoLink = (key: any) =>
+    myGoModel?.findLinkByViewId?.(key) ||
+    myGoModel?.findLink?.(key) ||
+    myDiagram?.findLinkForKey?.(key);
   // Prepare for dispatches
   const modifiedObjtypes     = new Array();    
   const modifiedReltypes     = new Array();    
@@ -1516,10 +1524,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObject": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode =
-        myGoModel.findNodeByViewId(selObj.key) ||
-        myGoModel.findNode(selObj.key) ||
-        myDiagram.findNodeForKey(selObj.key);
+      const goNode = findGoNode(selObj.key);
       const objview =
         modalContext?.myContext?.objectview ||
         myModelview.findObjectView(selObj.key) ||
@@ -1555,7 +1560,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         break;
       if (gjsLink) gjsLink.isSelected = true;
       const gjsData = gjsLink.data;
-      const goLink = myGoModel.findLinkByViewId(selRel.key);
+      const goLink = findGoLink(selRel.key);
       const relview = myModelview.findRelationshipView(selRel.key);
       let relship = relview.relship;
       const reltype = relship.type;
@@ -1625,10 +1630,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode =
-        myGoModel.findNodeByViewId(selObj.key) ||
-        myGoModel.findNode(selObj.key) ||
-        myDiagram.findNodeForKey(selObj.key);
+      const goNode = findGoNode(selObj.key);
       const objview =
         modalContext?.myContext?.objectview ||
         myModelview.findObjectView(selObj.key) ||
@@ -2168,8 +2170,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const gjsLink = myDiagram.findLinkForKey(selRel.key);
       if (!gjsLink) break;
       const gjsData = gjsLink.data;
-      const goLink = myGoModel.findLinkByViewId(selRel.key);
+      const goLink = findGoLink(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
+      if (!goLink || !relview) break;
       goLink.template2 = selRel.template2;
       relview.template2 = selRel.template2;
       let relship = relview.relship;

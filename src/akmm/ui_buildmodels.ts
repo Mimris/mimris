@@ -175,13 +175,19 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       const node = new gjs.goObjectTypeNode(nodeKey, objtype);
       if (!node.loadNodeContent(metamodel))
         continue;
+      // Keep copy-safe primitive identity on palette nodes. GoJS may omit nested
+      // class instances while copying a palette part into a model diagram.
+      (node as any).objtypeRef = objtype.id;
+      (node as any).typeviewRef = typeview?.id || "";
+      node.typename = objtype.name;
       myGoPaletteModel.addNode(node);
       if (objtype?.id) objtypeIdsInPalette.add(objtype.id);
     }
   }
 
-  const paletteReltypes =
-    metamodel?.includeSystemtypes ? metamodel?.relshiptypes : (metamodel?.relshiptypes0 || metamodel?.relshiptypes);
+  const paletteReltypes = metamodel?.includeSystemtypes
+    ? metamodel?.relshiptypes
+    : (metamodel?.relshiptypes0?.length ? metamodel.relshiptypes0 : metamodel?.relshiptypes);
   if (paletteReltypes?.length) {
     for (let i = 0; i < paletteReltypes.length; i++) {
       const reltype = paletteReltypes[i];
@@ -212,12 +218,25 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       const toNode = myGoPaletteModel.findTypeNode(toObjtype.id);
       link.fromNode = fromNode;
       link.toNode = toNode;
+
+      // Endpoint semantics are sufficient for a palette link. If an optional
+      // TypeView is incomplete, use the palette's standard visual defaults.
+      const loaded = link.loadLinkContent();
+      // TypeView data can contain legacy blank `from` / `to` fields. Apply the
+      // resolved palette-node endpoints after loading the view so those blanks
+      // cannot erase an otherwise valid graphical relationship.
       link.from = fromNode?.key ?? fromObjtype.id;
       link.to = toNode?.key ?? toObjtype.id;
-
-      if (link.loadLinkContent()) {
-        myGoPaletteModel.addLink(link);
+      if (!loaded) {
+        link.name = reltype.name;
+        (link as any).typename = reltype.name;
+        (link as any).reltypeRef = reltype.id;
+        link.strokecolor = reltype.typeview?.strokecolor || "#555";
+        link.strokewidth = String(reltype.typeview?.strokewidth || 1.4);
+        (link as any).fromArrow = reltype.typeview?.fromArrow || "";
+        (link as any).toArrow = reltype.typeview?.toArrow || "Standard";
       }
+      myGoPaletteModel.addLink(link);
     }
   }
 
@@ -532,9 +551,16 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         relview?.name ||
         ""
       ).trim().toLowerCase();
+      if (typeName === "relationshiptype") {
+        const fromTypeName = String(rel?.fromObject?.type?.name || rel?.fromObject?.typeName || "").trim().toLowerCase();
+        const toTypeName = String(rel?.toObject?.type?.name || rel?.toObject?.typeName || "").trim().toLowerCase();
+        return fromTypeName === "entitytype" && toTypeName === "entitytype";
+      }
       return (
         typeName === String(constants.types.AKM_CONTAINS).toLowerCase() ||
-        typeName === String(constants.types.AKM_IS).toLowerCase()
+        typeName === String(constants.types.AKM_IS).toLowerCase() ||
+        typeName === "has" ||
+        typeName === "isof"
       );
     };
     const resolveEndpointViews = (relview: akm.cxRelationshipView, rel: akm.cxRelationship | null | undefined) => {
@@ -580,6 +606,17 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       relview.fromobjviewRef = fromObjview.id;
       relview.toobjviewRef = toObjview.id;
       if (rel.type?.typeview) relview.setTypeView(rel.type.typeview);
+      const relationshipName = String(rel.type?.name || rel.name || "").trim().toLowerCase();
+      if (relationshipName === "has" || relationshipName === "isof") {
+        relview.strokecolor = "#ddddddcc";
+        relview.textcolor = "#ddddddcc";
+        relview.fromArrowColor = "#ddddddcc";
+        relview.toArrowColor = "#ddddddcc";
+        relview.strokewidth = 1;
+        relview.visible = true;
+        relview.routing = "Normal";
+        relview.points = [];
+      }
       relview.routing = modelview.routing || relview.routing;
       relview.curve = modelview.linkcurve || relview.curve;
       relshipviews.push(relview);

@@ -23,6 +23,8 @@ import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import { createSnapshotShare } from "../components/utils/focusShare";
 import { MEMORY_STATE_STORAGE_KEY } from "../components/utils/memoryStateStorage";
+import { shouldOpenFreshStartupProject } from "../components/utils/modellingStartup";
+import { InitialState } from "../reducers/reducer";
 import { loadLegacyUniverseSnapshot, selectMimrisCompatibilityProps, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
@@ -53,7 +55,7 @@ const Page1 = () => {
     const models = Array.isArray(metis.models) ? metis.models.filter((m: any) => m) : []
     const phData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
     const storedFocus = locStore?.phFocus || {}
-    const storedFocusModelId = typeof window !== 'undefined' ? window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
+    const storedFocusModelId = typeof window !== 'undefined' ? window.sessionStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
     const requestedFocusModelId = storedFocusModelId || storedFocus?.focusModel?.id || focus.focusModel?.id
     const focusModel = models.find(m => m.id === requestedFocusModelId) || models[0]
     const modelviews = Array.isArray(focusModel?.modelviews) ? focusModel.modelviews.filter((mv: any) => mv) : []
@@ -84,7 +86,7 @@ const Page1 = () => {
     }))
   }
 
-  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
+  const { query, isReady } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
   if (debug) console.log('51 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
@@ -157,11 +159,22 @@ const Page1 = () => {
   }
 
   useEffect(() => {
+    if (!isReady) return;
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
+    const navigationType = typeof window !== 'undefined'
+      ? window.performance?.getEntriesByType?.('navigation')?.[0]?.type || 'navigate'
+      : 'navigate';
+    if (shouldOpenFreshStartupProject(query, navigationType)) {
+      try {
+        window.sessionStorage.removeItem(MEMORY_STATE_STORAGE_KEY);
+        window.sessionStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+      } catch (_) { }
+      dispatch(loadLegacyUniverseSnapshot(JSON.parse(JSON.stringify(InitialState))));
+      return;
+    }
     const handleReload = () => {
       const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
-      const storedLocalState = typeof window !== 'undefined' ? readStoredMemoryState(window.localStorage) : null;
-      let locStore = getRecoverableState(storedSessionState, storedLocalState, memorySessionState, memoryLocState);
+      let locStore = getRecoverableState(storedSessionState, memorySessionState);
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
       if (debug) console.log('79modelling 1 ', locStore);
       if (locStore && locStore.phData) {
@@ -186,11 +199,10 @@ const Page1 = () => {
       }
     };
     const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
-    const storedLocalState = typeof window !== 'undefined' ? readStoredMemoryState(window.localStorage) : null;
-    const hasRecoverableState = Boolean(getRecoverableState(storedSessionState, storedLocalState, memorySessionState, memoryLocState));
+    const hasRecoverableState = Boolean(getRecoverableState(storedSessionState, memorySessionState));
     if (hasRecoverableState) handleReload();
     let org = query.org;
-  }, [])
+  }, [isReady])
 
 
   let org = query.org;

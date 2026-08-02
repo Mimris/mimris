@@ -189,6 +189,28 @@ const Modelling = (props: any) => {
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
   if (!curmodview) curmodview = modelviews[0] || null
 
+  const focusedMetamodel = metis?.metamodels?.find((mm: any) => mm?.id === curmod?.metamodelRef) || null;
+  const generationContentKey = useMemo(() => {
+    try {
+      return JSON.stringify({
+        model: curmod || null,
+        metamodel: focusedMetamodel,
+        focusModelId: focusModel?.id || '',
+        focusModelviewId: focusModelview?.id || '',
+      });
+    } catch (_) {
+      return [
+        metis?.id || '',
+        curmod?.id || '',
+        curmodview?.id || '',
+        curmod?.objects?.length || 0,
+        curmod?.relships?.length || 0,
+        focusedMetamodel?.objecttypes?.length || 0,
+        focusedMetamodel?.relshiptypes?.length || 0,
+      ].join(':');
+    }
+  }, [metis, curmod, curmodview?.id, focusedMetamodel, focusModel?.id, focusModelview?.id]);
+
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
@@ -203,12 +225,14 @@ const Modelling = (props: any) => {
   if (activetabindex < 0) activetabindex = 0;
 
   const myMetisRef = useRef<any>(null);
+  const importedGenerationContentKeyRef = useRef<string>('');
   if (!myMetisRef.current) {
     myMetisRef.current = new akm.cxMetis();
   }
   const myMetis = myMetisRef.current;
-  if (metis && myMetis?.importData) {
+  if (metis && myMetis?.importData && importedGenerationContentKeyRef.current !== generationContentKey) {
     myMetis.importData(metis, true);
+    importedGenerationContentKeyRef.current = generationContentKey;
     const hydratedModel =
       (focusModel?.id && myMetis.findModel?.(focusModel.id)) ||
       myMetis.currentModel ||
@@ -242,9 +266,9 @@ const Modelling = (props: any) => {
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
     let cancelled = false;
     myMetis.modelType = 'Modelling';
-    if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
+    if (debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
     const generateGojsModel = async () => {
-      await GenGojsModel(compatibilityProps, myMetis)
+      await GenGojsModel(compatibilityProps, myMetis, { skipImport: true })
       if (cancelled) return;
       const goModel = myMetis?.gojsModel;
       setGojsSnapshot((snapshot: any) => ({
@@ -261,7 +285,7 @@ const Modelling = (props: any) => {
     return () => {
       cancelled = true;
     }
-  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, metis])
+  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, generationContentKey])
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -280,7 +304,7 @@ const Modelling = (props: any) => {
     if (!models?.length) return;
     didRestoreStoredFocusModelRef.current = true;
 
-    const storedFocusModelId = window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+    const storedFocusModelId = window.sessionStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
     if (!storedFocusModelId) return;
     if (focusModel?.id === storedFocusModelId) return;
 
@@ -297,7 +321,7 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!focusModel?.id) return;
-    window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
+    window.sessionStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
   }, [focusModel?.id])
 
 

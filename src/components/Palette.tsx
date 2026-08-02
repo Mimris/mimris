@@ -273,7 +273,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       </select>
     </>
   );
-  const paletteLinkData = isExpanded ? filteredLinkDataArray : [];
+  // Relationship types are part of the metamodel contract, not an expanded-view
+  // decoration. Keep them available and visible in the normal palette as well.
+  const paletteLinkData = filteredLinkDataArray;
 
     // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel

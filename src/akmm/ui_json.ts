@@ -1966,6 +1966,14 @@ export class jsnImportMetis {
                 this.importRelshipType(reltype, metamodel);
             });
         }
+        metamodel.relshiptypes0 = [];
+        const relshiptypes0 = item.relshiptypes0;
+        if (relshiptypes0 && relshiptypes0.length) {
+            relshiptypes0.forEach(rt => {
+                const reltype = jsnMetis.findRelationshipType(rt?.id) || metamodel.findRelationshipType(rt?.id);
+                if (reltype) metamodel.addRelationshipType0(reltype);
+            });
+        }
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(rtv => {
@@ -2224,13 +2232,16 @@ export class jsnImportMetis {
             let reltype = jsnMetis.findRelationshipType(item.typeRef);
             const metamodel = model.metamodel;
             if (!reltype) {
-                reltype = metamodel.findRelationshipTypeByName(item.name);
+                reltype = metamodel.findRelationshipTypeByName(item.typeName);
+                if (!reltype) {
+                    reltype = metamodel.findRelationshipTypeByName(item.name);
+                }
                 if (!reltype) {
                     reltype = metamodel.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 }
             }
-            const fromObj = jsnMetis.findObject(item.fromObjectRef);
-            const toObj = jsnMetis.findObject(item.toObjectRef);
+            const fromObj = jsnMetis.findObject(item.fromObjectRef || item.fromobjectRef);
+            const toObj = jsnMetis.findObject(item.toObjectRef || item.toobjectRef);
             if (reltype && fromObj && toObj) {
                 const rel = new akm.cxRelationship(
                     item.id,
@@ -2327,19 +2338,27 @@ export class jsnImportMetis {
     }
     importRelshipView(item: akm.cxRelationshipView, modelview: akm.cxModelView) {
         if (item) {
-            const relship = jsnMetis.findRelationship(item.relship.id);
+            const source: any = item as any;
+            const relshipRef = source.relshipRef || source.relship?.id;
+            const relship = jsnMetis.findRelationship(relshipRef);
             if (relship) {
                 const relview = new akm.cxRelationshipView(item.id, item.name, relship, item.description);
                 relview.setRelationship(relship);
-                const fromobjview: any = modelview.findObjectView(item.fromObjview.id);
-                const toobjview: any = modelview.findObjectView(item.toObjview.id);
+                relview.relshipRef = relshipRef;
+                const fromobjviewRef = source.fromobjviewRef || source.fromObjviewRef || source.fromObjview?.id;
+                const toobjviewRef = source.toobjviewRef || source.toObjviewRef || source.toObjview?.id;
+                const fromobjview: any = modelview.findObjectView(fromobjviewRef);
+                const toobjview: any = modelview.findObjectView(toobjviewRef);
+                relview.fromobjviewRef = fromobjviewRef;
+                relview.toobjviewRef = toobjviewRef;
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
                 if (item.fromPortid) relview.fromPortid = item.fromPortid;
                 if (item.toPortid) relview.toPortid = item.toPortid;
                 // relview.setData(item.data);
-                if (item.typeview.id) {
-                    const reltypeview = jsnMetis.findRelationshipTypeView(item.typeview.id);
+                const typeviewRef = source.typeviewRef || source.typeview?.id;
+                if (typeviewRef) {
+                    const reltypeview = jsnMetis.findRelationshipTypeView(typeviewRef);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }

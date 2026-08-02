@@ -18,6 +18,26 @@ import { i } from '../components/utils/SvgLetters';
 // import { type } from 'os'
 // cxMetis
 
+// Older IRTV_META files contain endpoint ids copied from an earlier type
+// catalog. Preserve their stable RelationshipType ids and recover the intended
+// endpoints by canonical IRTV type name during import.
+const LEGACY_IRTV_RELSHIP_ENDPOINT_NAMES = new Map<string, [string, string]>([
+    ['7d0f9a1b-ab22-48ee-6656-4e9f0b072504', ['Information', 'Property']],
+    ['5607bf3b-23d3-4141-f95b-06ff806f86f2', ['Role', 'Task']],
+    ['668978e6-d9ba-4596-1329-6a63d24686e5', ['View', 'Information']],
+    ['ffaf9e3b-cf00-4ac2-71b8-43bd48c72a1a', ['Event', 'Task']],
+    ['7efd38eb-82a8-457f-9fda-7b75ef71d942', ['EntityType', 'EntityType']],
+    ['22f50fa8-90be-4738-8f71-670a19668fe0', ['EntityType', 'Property']],
+    ['647d3edb-ad04-4c54-97f9-c1bb5e374451', ['Task', 'Information']],
+    ['eb5f183f-b5be-48ea-920a-96a4d6ae7cb6', ['Task', 'Information']],
+    ['d5f471ae-ec5b-4543-1a9b-acf4853ecff2', ['Role', 'Task']],
+    ['4f673acd-ca6c-4309-0235-d1d7767c826d', ['Task', 'EntityType']],
+    ['074f512c-574f-47dd-39fa-561d1e7e6e74', ['Task', 'View']],
+    ['582b1ae4-a109-489d-6fff-76c3cc799d2b', ['Task', 'Event']],
+    ['147250de-d71b-484b-57c7-7331c77f88f8', ['Task', 'Task']],
+    ['c06b98c3-ee51-429c-d5b3-83685afe8736', ['Task', 'Information']],
+]);
+
 export class cxMetis {
     id: string;
     name: string;
@@ -820,28 +840,25 @@ export class cxMetis {
             });
         }
 
-        let relshiptypes0: any[] = item.relshiptypes0;
-        if (relshiptypes0 && relshiptypes0.length) {
-            relshiptypes0.forEach(reltype0 => {
-                let reltype = this.findRelationshipType(reltype0?.id);
-                if (reltype) {
-                    if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                        // && reltype.name !== constants.types.AKM_IS
-                    ) {
-                        if (!reltype) {
-                            this.addRelationshipType(reltype0);
-                        }
-                        metamodel.addRelationshipType0(reltype);
-                    }
-                }
-            });
-        }
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);
                 if (reltype) {
                     this.importRelshipType(reltype, metamodel);
+                }
+            });
+        }
+        // The compact palette collection must reference the fully imported and
+        // hydrated relationship types. Building it before relshiptypes are
+        // imported leaves endpoint/type-view references unresolved.
+        metamodel.relshiptypes0 = [];
+        const relshiptypes0: any[] = item.relshiptypes0;
+        if (relshiptypes0 && relshiptypes0.length) {
+            relshiptypes0.forEach(reltype0 => {
+                const reltype = this.findRelationshipType(reltype0?.id) || metamodel.findRelationshipType(reltype0?.id);
+                if (reltype && reltype.name !== constants.types.AKM_RELSHIP_TYPE) {
+                    metamodel.addRelationshipType0(reltype);
                 }
             });
         }
@@ -993,10 +1010,21 @@ export class cxMetis {
         // objtypes registered in metamodel
         let fromobjtype = metamodel.findObjectType(item.fromobjtypeRef);
         let toobjtype = metamodel.findObjectType(item.toobjtypeRef);
+        if ((!fromobjtype || !toobjtype) && metamodel?.name === 'IRTV_META') {
+            const endpointNames = LEGACY_IRTV_RELSHIP_ENDPOINT_NAMES.get(item.id);
+            if (endpointNames) {
+                fromobjtype = metamodel.findObjectTypeByName(endpointNames[0]);
+                toobjtype = metamodel.findObjectTypeByName(endpointNames[1]);
+            }
+        }
         if (debug) console.log('447 reltype, fromtype, totype: ', reltype, fromobjtype, toobjtype);
         if (!reltype) {
-            if (fromobjtype && toobjtype)
-                reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
+            // Legacy metamodel files may contain relationship types whose
+            // endpoint ObjectTypes are no longer part of this metamodel. Skip
+            // that individual definition; do not throw and abandon every
+            // valid relationship type that follows it in the import.
+            if (!fromobjtype || !toobjtype) return null;
+            reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
             fromobjtype.addOutputreltype(reltype);
             toobjtype.addInputreltype(reltype);
         }
@@ -1008,6 +1036,10 @@ export class cxMetis {
                 if (item[prop])
                     rtype[prop] = item[prop];
             }
+            // Reapply resolved endpoints after legacy raw properties are copied;
+            // otherwise stale from/to refs overwrite the repaired constructor.
+            if (fromobjtype) reltype.setFromObjtype(fromobjtype);
+            if (toobjtype) reltype.setToObjtype(toobjtype);
             if (item.fromobjtypeRef && item.toobjtypeRef) {
                 const fromobjType = this.findObjectType(item.fromobjtypeRef);
                 const toobjType = this.findObjectType(item.toobjtypeRef);
@@ -1258,7 +1290,9 @@ export class cxMetis {
         if (rel) {
             const reltype =
                 this.findRelationshipType(item.typeRef) ||
-                model?.metamodel?.findRelationshipType?.(item.typeRef);
+                model?.metamodel?.findRelationshipType?.(item.typeRef) ||
+                this.findRelationshipTypeByName(item.typeName) ||
+                model?.metamodel?.findRelationshipTypeByName?.(item.typeName);
             if (debug) console.log('948 item, rel', item, rel);
             const fromObj =
                 this.findObject(item.fromobjectRef) ||
@@ -1459,10 +1493,19 @@ export class cxMetis {
             if (!relview) {
                 relview = this.findRelationshipView(item.id);
             }
+            const relship =
+                this.findRelationship(item.relshipRef) ||
+                modelview.model?.findRelationship?.(item.relshipRef);
+            // Match object-view import behavior: create persisted relationship views
+            // that are not already present in the in-memory modelview.
+            if (!relview && relship && item.id) {
+                relview = new cxRelationshipView(item.id, item.name, relship, item.description || "");
+                relview.relshipRef = item.relshipRef;
+                relview.setRelationship(relship);
+                modelview.addRelationshipView(relview);
+                this.addRelationshipView(relview);
+            }
             if (relview) {
-                const relship =
-                    this.findRelationship(item.relshipRef) ||
-                    modelview.model?.findRelationship?.(item.relshipRef);
                 const fromobjviewRef = item.fromobjviewRef || item.fromObjviewRef || item.fromObjectviewRef;
                 const toobjviewRef = item.toobjviewRef || item.toObjviewRef || item.toObjectviewRef;
                 if (item.relshipRef) relview.relshipRef = item.relshipRef;

@@ -362,6 +362,32 @@ function mergeIncomingNodeDataWithLocalState(
     const local =
       localMap.get(matchedPreserveKey || String(incoming.key)) ||
       incomingIds.map((id) => localMap.get(id)).find((candidate) => candidate && typeof candidate === 'object');
+    const liveDataForName: any = liveNode?.data || local;
+    const liveDefaultName = String(
+      liveDataForName?.name ||
+      liveDataForName?.object?.name ||
+      liveDataForName?.objectview?.name ||
+      liveDataForName?.typename ||
+      liveDataForName?.objecttype?.name ||
+      ''
+    ).trim();
+    const incomingNameIsBlank = !String(
+      incoming?.name || incoming?.object?.name || incoming?.objectview?.name || ''
+    ).trim();
+    const preserveLiveDefaultName = (candidate: any) => {
+      if (!incomingNameIsBlank || !liveDefaultName) return candidate;
+      return {
+        ...candidate,
+        name: liveDefaultName,
+        text: String(candidate?.text || '').trim() ? candidate.text : liveDefaultName,
+        object: candidate?.object
+          ? { ...candidate.object, name: liveDefaultName }
+          : candidate?.object,
+        objectview: candidate?.objectview
+          ? { ...candidate.objectview, name: liveDefaultName }
+          : candidate?.objectview,
+      };
+    };
 
     // If we have an explicit locked position, use it!
     if (lockedPosition) {
@@ -371,22 +397,33 @@ function mergeIncomingNodeDataWithLocalState(
       const liveScale = liveNode instanceof go.Node ? liveNode.data?.scale : local?.scale;
       const liveScale1 = liveNode instanceof go.Node ? liveNode.data?.scale1 : local?.scale1;
 
-      return {
+      return preserveLiveDefaultName({
         ...incoming,
         loc: lockedPosition,
         group: liveGroup ?? incoming.group,
         scale: liveScale ?? incoming.scale,
         scale1: liveScale1 ?? incoming.scale1,
-      };
+      });
     }
 
     // Authoritative live node geometry always wins for the same conceptual node.
     // If there is no live node, only preserve local geometry during an active drag-protection window.
     if (!(liveNode instanceof go.Node) && !(preserveWindowActive && local && typeof local === 'object')) {
-      return incoming;
+      return preserveLiveDefaultName(incoming);
     }
 
     const liveData: any = liveNode?.data || local;
+    const incomingLayoutRevision =
+      incoming?.layoutRevision !== undefined && incoming?.layoutRevision !== null
+        ? String(incoming.layoutRevision)
+        : "";
+    const liveLayoutRevision =
+      liveData?.layoutRevision !== undefined && liveData?.layoutRevision !== null
+        ? String(liveData.layoutRevision)
+        : "";
+    if (incomingLayoutRevision && incomingLayoutRevision !== liveLayoutRevision) {
+      return preserveLiveDefaultName(incoming);
+    }
     const liveLoc =
       liveNode instanceof go.Node
         ? `${liveNode.location.x} ${liveNode.location.y}`
@@ -416,18 +453,18 @@ function mergeIncomingNodeDataWithLocalState(
           preserveByKey.delete(id);
         }
       });
-      return incoming;
+      return preserveLiveDefaultName(incoming);
     }
 
     console.log(`[MERGE-USE-LIVE] key=${incoming.key} using live position: ${liveLoc}, incoming was: ${incoming.loc}`);
 
-    return {
+    return preserveLiveDefaultName({
       ...incoming,
       loc: liveLoc ?? incoming.loc,
       group: liveGroup ?? incoming.group,
       scale: liveScale ?? incoming.scale,
       scale1: liveScale1 ?? incoming.scale1,
-    };
+    });
   });
 }
 
@@ -594,6 +631,7 @@ function applyObjectViewPatchToPhData(phData: any, patch: any): boolean {
 
 function persistObjectViewPatchToMemoryState(patch: any) {
   if (typeof window === "undefined" || !patch?.id) return;
+  if (new URLSearchParams(window.location.search).get("workspaceAuthority") === "redux") return;
   try {
     const rawStored =
       window.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) ||
@@ -2168,7 +2206,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
-    const goModel = myMetis.gojsModel;
+    let goModel = myMetis.gojsModel;
+    if (!goModel) {
+      goModel = new gjs.goModel(modelview.id, "myModel", modelview);
+      myMetis.setGojsModel(goModel);
+    }
     const objview = myMetis.findObjectView(nodeData.key);
     if (!objview) return;
 
@@ -2190,7 +2232,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       const ov = objviews[i];
       if (!ov || ov.id === nodeData.key) continue;
       const goNode = goModel.findNodeByViewId(ov.id);
-      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      const gjsNode = diagram.findNodeForKey(goNode?.key || ov.id) ||
+        (goNode ? diagram.findNodeForData(goNode) : null);
       if (gjsNode) mySelection.add(gjsNode);
     }
 
@@ -2198,7 +2241,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       const rv = relviews[i];
       if (!rv) continue;
       const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      const gjsLink = diagram.findLinkForKey(goLink?.key || rv.id);
       if (gjsLink) mySelection.add(gjsLink);
     }
 
@@ -2221,19 +2264,23 @@ class GoJSApp extends React.Component<{}, AppState> {
     const focusModelviewChanged =
       this.props.phFocus?.focusModelview?.id !== prevProps.phFocus?.focusModelview?.id;
     const metisChanged = this.props.myMetis !== prevProps.myMetis;
+    const isChoosingRelationshipType =
+      this.state.showModal &&
+      this.state.modalContext?.what === 'selectDropdown' &&
+      this.state.modalContext?.case === 'Create Relationship';
 
     if (this.props.nodeDataArray !== prevProps.nodeDataArray) {
       const structuralNodeDiff = hasStructuralNodeArrayDiff(this.props.nodeDataArray, this.state.nodeDataArray);
-      console.log(`[COMPONENT-UPDATE] nodeDataArray changed, structural diff: ${structuralNodeDiff}, diagram exists: ${!!diagram}`);
+      if (debug) console.log(`[COMPONENT-UPDATE] nodeDataArray changed, structural diff: ${structuralNodeDiff}, diagram exists: ${!!diagram}`);
 
       if (diagram && !structuralNodeDiff) {
         // Keep live diagram node geometry authoritative when structure is unchanged.
         // But still apply visual property changes (fillcolor, strokecolor, etc.)
-        console.log('[COMPONENT-UPDATE] No structural change - checking visual props only');
+        if (debug) console.log('[COMPONENT-UPDATE] No structural change - checking visual props only');
         try {
           const incomingNodes = this.props.nodeDataArray || [];
           const currentNodes = this.state.nodeDataArray || [];
-          const visualProps = ['fillcolor', 'strokecolor', 'strokewidth', 'icon'];
+          const liveUpdateProps = ['name', 'text', 'fillcolor', 'strokecolor', 'strokewidth', 'icon'];
 
           diagram.model.commit((m: any) => {
             incomingNodes.forEach((incomingNode: any) => {
@@ -2244,35 +2291,57 @@ class GoJSApp extends React.Component<{}, AppState> {
                 n?.objviewRef === incomingNode.objviewRef
               );
 
-              // Check if any visual properties changed
-              const hasVisualChange = visualProps.some(prop =>
+              // Check if any live-bound label or visual properties changed.
+              const hasLiveUpdate = liveUpdateProps.some(prop =>
                 incomingNode[prop] !== undefined &&
                 incomingNode[prop] !== currentNode?.[prop]
               );
 
-              if (hasVisualChange) {
+              if (hasLiveUpdate) {
                 const nodeData = m.findNodeDataForKey(incomingNode.key);
                 if (nodeData) {
-                  visualProps.forEach(prop => {
+                  liveUpdateProps.forEach(prop => {
                     if (incomingNode[prop] !== undefined && incomingNode[prop] !== currentNode?.[prop]) {
+                      const incomingText = prop === 'name' || prop === 'text'
+                        ? String(incomingNode[prop] ?? '').trim()
+                        : '';
+                      const currentDefaultName = String(
+                        nodeData.name || nodeData.object?.name || nodeData.typename || nodeData.objecttype?.name || ''
+                      ).trim();
+                      // A generated palette may publish one stale blank node
+                      // snapshot immediately after the drop. Do not let it erase
+                      // the ObjectType-name default already assigned live.
+                      if ((prop === 'name' || prop === 'text') && !incomingText && currentDefaultName) {
+                        return;
+                      }
                       m.set(nodeData, prop, incomingNode[prop]);
                     }
                   });
+                  if (incomingNode.object?.name !== undefined &&
+                      (String(incomingNode.object.name).trim() || !String(nodeData.object?.name || nodeData.name || nodeData.typename || '').trim()) &&
+                      incomingNode.object?.name !== nodeData.object?.name) {
+                    m.set(nodeData, 'object', { ...(nodeData.object || {}), ...incomingNode.object });
+                  }
+                  if (incomingNode.objectview?.name !== undefined &&
+                      (String(incomingNode.objectview.name).trim() || !String(nodeData.objectview?.name || nodeData.name || nodeData.typename || '').trim()) &&
+                      incomingNode.objectview?.name !== nodeData.objectview?.name) {
+                    m.set(nodeData, 'objectview', { ...(nodeData.objectview || {}), ...incomingNode.objectview });
+                  }
                 }
               }
             });
-          }, 'apply visual property changes');
+          }, 'apply live label and visual property changes');
         } catch (err) {
           console.error('Error applying visual updates:', err);
         }
       } else {
-      console.log('[COMPONENT-UPDATE] Structural change OR no diagram - running MERGE');
+      if (debug) console.log('[COMPONENT-UPDATE] Structural change OR no diagram - running MERGE');
       const mergedNodes = mergeIncomingNodeDataWithLocalState(
           this.props.nodeDataArray,
           this.state.nodeDataArray,
           diagram
         );
-      console.log('[COMPONENT-UPDATE] Merge complete, merged count:', mergedNodes?.length);
+      if (debug) console.log('[COMPONENT-UPDATE] Merge complete, merged count:', mergedNodes?.length);
       nextState.nodeDataArray = normalizeNodeCategoryData(mergedNodes);
       shouldSyncFromProps = true;
       }
@@ -2317,10 +2386,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
 
-      nextState.linkDataArray = mergeIncomingLinkDataWithLocalState(
-        this.props.linkDataArray,
-        this.state.linkDataArray
-      );
+      // Parent persistence is intentionally one step behind LinkDrawn while
+      // the type chooser is open. Keep the local array containing the pending
+      // link until accept/cancel resolves it.
+      nextState.linkDataArray = isChoosingRelationshipType
+        ? this.state.linkDataArray
+        : mergeIncomingLinkDataWithLocalState(
+            this.props.linkDataArray,
+            this.state.linkDataArray
+          );
       shouldSyncFromProps = true;
     }
     if (metisChanged) {
@@ -2356,7 +2430,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
     }
     if (shouldSyncFromProps) {
-      nextState.skipsDiagramUpdate = false;
+      nextState.skipsDiagramUpdate = isChoosingRelationshipType;
       this.setState(nextState);
       // Auto-layout metamodel when nodeDataArray changes and all nodes are unpositioned
       const incomingNodes = this.props.nodeDataArray;
@@ -2394,12 +2468,29 @@ class GoJSApp extends React.Component<{}, AppState> {
     const isRelationshipTypeChooser =
       modalContext?.what === 'selectDropdown' &&
       modalContext?.case === 'Create Relationship';
+    const provisionalLinkData = isRelationshipTypeChooser
+      ? modalContext?.context?.gjsData
+      : null;
     this.setState({
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
       showModal: true,
       skipsDiagramUpdate: isRelationshipTypeChooser ? true : this.state.skipsDiagramUpdate
+    }, () => {
+      // Opening the chooser must not replace React's model state with a live
+      // GoJS snapshot (that prevented the modal from opening). If a render did
+      // remove the provisional link, restore just that link after the modal is
+      // mounted and keep it until accept/cancel handles it.
+      if (!isRelationshipTypeChooser || !provisionalLinkData) return;
+      const diagram = modalContext?.myDiagram || modalContext?.context?.myDiagram;
+      if (!diagram?.model) return;
+      const key = provisionalLinkData.key;
+      const liveLink = key ? diagram.findLinkForKey(key) : null;
+      if (!liveLink) {
+        try { diagram.model.addLinkData(provisionalLinkData); } catch (_) {}
+      }
+      try { diagram.requestUpdate(); } catch (_) {}
     });
     if (debug) console.log('90 node', this.state.selectedData);
   }
@@ -2418,6 +2509,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       "modalContext": modalContext
     }
     uim.handleSelectDropdownChange(selected, context);
+    // Keep the chosen type in React state as well as the legacy mutable modal
+    // context. This makes Done deterministic across intervening Redux renders.
+    this.setState({
+      selectedOption: selected,
+      modalContext: { ...modalContext },
+      skipsDiagramUpdate: true,
+    });
   }
 
   public handleCloseModal = (e) => {
@@ -2433,7 +2531,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       return;
     }
     const props = this.props;
-    let typename = modalContext.selected?.value;
+    let typename = this.state.selectedOption?.value || modalContext.selected?.value;
     if (!typename) typename = modalContext.typename;
     if (debug) console.log('113 typename: ', typename);
     if (debug) console.log('122 modalContext', modalContext);
@@ -2506,7 +2604,21 @@ class GoJSApp extends React.Component<{}, AppState> {
       try { myDiagram.layoutDiagram(true); } catch (_) {}
       try { myDiagram.requestUpdate(); } catch (_) {}
     } catch (_) {}
-    this.setState({ showModal: false, selectedData: null, modalContext: null, skipsDiagramUpdate: false });
+    const completedLinkDataArray = Array.isArray((myDiagram?.model as any)?.linkDataArray)
+      ? [...(myDiagram.model as any).linkDataArray]
+      : this.state.linkDataArray;
+    this.setState({
+      showModal: false,
+      selectedData: null,
+      selectedOption: null,
+      modalContext: null,
+      linkDataArray: normalizeLinkPortData(completedLinkDataArray),
+      skipsDiagramUpdate: true,
+    }, () => {
+      // Let the completed GoJS transaction and its structural model-change
+      // event settle before parent reconciliation is allowed again.
+      setTimeout(() => this.setState({ skipsDiagramUpdate: false }), 0);
+    });
   }
 
   /**
@@ -7585,7 +7697,24 @@ e.subject.each(function (n) {
   let objName: string;
   let objDescr: string;
   let droppedModelObject = false;
-  if (!type || !typeview) { // An object has been dropped (dragged from object palette)
+  const isObjectTypeDrop = Boolean(
+    partData.category === constants.gojs.C_OBJECTTYPE ||
+    partData.type === constants.types.OBJECTTYPE_ID ||
+    ((partData.objecttype || partData.objtypeRef) &&
+      (!partData.objRef || String(partData.objRef) === String(partData.objtypeRef)))
+  );
+  if (isObjectTypeDrop) {
+    type = (partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null) || type;
+    typeview = type?.typeview || typeview || partData.typeview;
+    if (!typeview && typeof (type as any)?.getDefaultTypeView === 'function') {
+      typeview = (type as any).getDefaultTypeView();
+    }
+    if (!typeview && type && typeof (type as any)?.newDefaultTypeView === 'function') {
+      typeview = (type as any).newDefaultTypeView(type.viewkind || constants.viewkinds.OBJ);
+      type.setDefaultTypeView(typeview);
+    }
+  }
+  if (!isObjectTypeDrop) { // An existing object has been dropped from the object palette
     const resolvedType = partData.objtypeRef ? myMetis.findObjectType(partData.objtypeRef) : null;
     if (resolvedType) {
       type = resolvedType;
@@ -7696,7 +7825,8 @@ e.subject.each(function (n) {
       myDiagram.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data: objvIdName });
       myDiagram.dispatch({ type: 'SET_FOCUS_OBJECT', data: objIdName });
     }
-  } else { // An object type has been dropped - create an object
+  } else { // An ObjectType has been dropped - create a new typed object
+    if (!type || !typeview) return;
     // i.e. new object, new objectview,
     objName = node?.data?.object?.name
       || partData.object?.name
@@ -7725,6 +7855,11 @@ e.subject.each(function (n) {
     // Create a new object
     objId = utils.createGuid();
     object = new akm.cxObject(objId, objName, type, objDescr);
+    object.setType(type);
+    partData.name = objName;
+    if (node?.data) {
+      myDiagram.model.setDataProperty(node.data, 'name', objName);
+    }
     object.parentModelRef = myModel.id;
     myModel.addObject(object);
     myMetis.addObject(object);
@@ -7732,7 +7867,10 @@ e.subject.each(function (n) {
     // Find the objectview
     objview = myModelview.findObjectView(partData.key);
     if (!objview) {
-      objview = new akm.cxObjectView(partData.key, partData.name, object, partData.description, myModelview);
+      objview = new akm.cxObjectView(partData.key, objName, object, partData.description, myModelview);
+      objview.name = objName;
+      objview.objectRef = object.id;
+      objview.setTypeView(typeview);
       const isContainer = Boolean(
         partData.viewkind === constants.viewkinds.CONT ||
         type?.viewkind === constants.viewkinds.CONT ||
@@ -7786,7 +7924,6 @@ e.subject.each(function (n) {
           diagramNode.data.category = templateName || constants.gojs.C_NODETEMPLATE;
         }
       }
-      objview.objectRef = object.id;
       objview.groupLayout = partData.groupLayout;
       object.addObjectView(objview);
       myModelview.addObjectView(objview);
@@ -7816,6 +7953,11 @@ e.subject.each(function (n) {
     setProp('objviewRef', objview.id);
     setProp('objecttype', type);
     setProp('typeview', typeview);
+    setProp('typeviewRef', typeview?.id || '');
+    setProp('name', object.name || type?.name || 'Object');
+    setProp('text', object.name || type?.name || 'Object');
+    setProp('typename', type?.name || '');
+    setProp('typeName', type?.name || '');
     if (persistentTemplate) {
       setProp('template', persistentTemplate);
       setProp('category', persistentTemplate);
@@ -7829,6 +7971,12 @@ e.subject.each(function (n) {
   if (diagramNode?.data && diagramNode.data !== partData) {
     syncDroppedPartRefs(diagramNode.data);
   }
+  // The palette copy and template swap happen inside the same drop event.
+  // Refresh both text bindings immediately so the instance name and typename
+  // do not wait for another model change or selection cycle to appear.
+  try { diagramNode?.updateTargetBindings?.('name'); } catch (_) {}
+  try { diagramNode?.updateTargetBindings?.('text'); } catch (_) {}
+  try { diagramNode?.updateTargetBindings?.('typename'); } catch (_) {}
   let fillcolor = "";
   let strokecolor = "";
   let textcolor = "";

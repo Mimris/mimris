@@ -60,7 +60,7 @@ const LoadFile = (props: any) => {
 
   if (debug) console.log('36 LoadLocal', props, typeof (window));
 
-  if (!debug) console.log('38 LoadLocal', ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('38 LoadLocal', ph.phData, modelNames, metamodelNames);
 
   const data = {
     phData: {

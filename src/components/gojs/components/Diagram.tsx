@@ -52,6 +52,13 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 import Toggle from '../../utils/Toggle';
 import { i } from '../../utils/SvgLetters';
 import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '../../../sharedUniverse';
+import {
+  buildGenerationProvenance,
+  createGeneratedMetamodelProject,
+  generatedProjectFileName,
+  inspectGeneratedProjectTarget,
+  updateGeneratedMetamodelProject,
+} from '../../utils/generatedMetamodelProject';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -1637,7 +1644,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
-    const goModel = myMetis.gojsModel;
+    let goModel = myMetis.gojsModel;
+    if (!goModel) {
+      goModel = new gjs.goModel(modelview.id, "myModel", modelview);
+      myMetis.setGojsModel(goModel);
+    }
     const objview = myMetis.findObjectView(nodeData.key);
     if (!objview) return;
 
@@ -1659,7 +1670,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const ov = objviews[i];
       if (!ov || ov.id === nodeData.key) continue;
       const goNode = goModel.findNodeByViewId(ov.id);
-      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      const gjsNode = diagram.findNodeForKey(goNode?.key || ov.id) ||
+        (goNode ? diagram.findNodeForData(goNode) : null);
       if (gjsNode) mySelection.add(gjsNode);
     }
 
@@ -1667,7 +1679,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const rv = relviews[i];
       if (!rv) continue;
       const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      const gjsLink = diagram.findLinkForKey(goLink?.key || rv.id);
       if (gjsLink) mySelection.add(gjsLink);
     }
 
@@ -6567,14 +6579,83 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return true;
       };
 
-      const handleGenerateMetamodel = (diagram: go.Diagram | null | undefined, data: any) => {
+      const downloadGeneratedProject = (project: any, fileName: string) => {
+        const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = href;
+        link.download = generatedProjectFileName(fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+      };
+
+      const chooseGeneratedProjectFile = (): Promise<{ project: any; fileName: string } | null> =>
+        new Promise((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json,application/json';
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return resolve(null);
+            try {
+              resolve({ project: JSON.parse(await file.text()), fileName: file.name });
+            } catch (_) {
+              alert('The selected file is not valid JSON.');
+              resolve(null);
+            }
+          };
+          input.oncancel = () => resolve(null);
+          input.click();
+        });
+
+      const handleGenerateMetamodel = async (
+        diagram: go.Diagram | null | undefined,
+        data: any,
+        destination: 'current' | 'new-project' | 'existing-project' = 'current'
+      ) => {
         if (!diagram || !data) return;
         if (!canGenerateMetamodelFromData(data)) return;
 
         const metamodelName = data.name;
         if (!metamodelName) return;
 
-        if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+        const provenance = buildGenerationProvenance({
+          sourceProjectId: myMetis.id,
+          sourceModelId: myMetis.currentModel?.id,
+          sourceModelviewId: myMetis.currentModelview?.id,
+          sourceMetamodelObjectId: data.object?.id,
+        });
+        let selectedProject: any = null;
+        let selectedProjectFileName = '';
+        let allowLegacyNameMatch = false;
+        let newProjectName = '';
+        let newModelName = '';
+
+        if (destination === 'new-project') {
+          newProjectName = prompt('Enter generated project name:', metamodelName.replace(/_META$/i, '')) || '';
+          if (!newProjectName.trim()) return;
+          newModelName = prompt('Enter initial model name:', newProjectName) || '';
+          if (!newModelName.trim()) return;
+        } else if (destination === 'existing-project') {
+          const selected = await chooseGeneratedProjectFile();
+          if (!selected) return;
+          selectedProject = selected.project;
+          selectedProjectFileName = selected.fileName;
+          try {
+            const inspected = inspectGeneratedProjectTarget(selectedProject, { name: metamodelName }, provenance);
+            if (inspected.matchType === 'legacy-name') {
+              allowLegacyNameMatch = confirm(
+                `The selected project contains “${metamodelName}” but has no generation provenance. Update that metamodel and establish the link?`
+              );
+              if (!allowLegacyNameMatch) return;
+            }
+          } catch (error: any) {
+            alert(error?.message || 'The selected file is not a compatible generated project.');
+            return;
+          }
+        } else if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' in the current project?')) {
           return;
         }
 
@@ -6609,7 +6690,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           "myDiagram": diagram,
           "dispatch": dispatchTarget
         };
-        gen.generateTargetMetamodel2(context);
+        const generated = gen.generateTargetMetamodel2(context);
+        if (!generated || destination === 'current') return;
+
+        const serializedMetamodel = JSON.parse(JSON.stringify(new jsn.jsnMetaModel(targetMetamodel, true)));
+        try {
+          const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
+          const supportingMetamodels = adminMetamodel
+            ? [JSON.parse(JSON.stringify(new jsn.jsnMetaModel(adminMetamodel, true)))]
+            : [];
+          if (destination === 'new-project') {
+            const project = createGeneratedMetamodelProject({
+              serializedMetamodel,
+              provenance,
+              projectId: utils.createGuid(),
+              projectName: newProjectName.trim(),
+              modelId: utils.createGuid(),
+              modelName: newModelName.trim(),
+              modelviewId: utils.createGuid(),
+              modelviewName: 'Main',
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, newProjectName);
+          } else {
+            const project = updateGeneratedMetamodelProject({
+              project: selectedProject,
+              serializedMetamodel,
+              provenance,
+              allowLegacyNameMatch,
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, selectedProjectFileName);
+          }
+        } catch (error: any) {
+          alert(error?.message || 'The generated project could not be created.');
+        }
       };
 
       function resolveObjectview(nodeData: any): any {
@@ -9199,10 +9314,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           items.push({ separator: true });
           items.push({
-            label: "Generate Metamodel",
-            action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+            label: "Generate Metamodel…",
+            action: showSubMenu([
+              {
+                label: "In Current Project",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'current'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "As New Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'new-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Update Existing Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'existing-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+            ]),
             enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
             visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+            closeOnClick: false,
           });
           items.push({
             label: "Reset to Typeview",

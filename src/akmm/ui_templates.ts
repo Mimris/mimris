@@ -6304,7 +6304,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 // Placeholder for lanes
                 $(go.Placeholder,
                     { 
-                        padding: 5,
+                        padding: 0,
                         alignment: go.Spot.TopLeft  // Pin lanes to top-left
                     }
                 )

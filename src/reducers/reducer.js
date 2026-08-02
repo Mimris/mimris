@@ -1009,6 +1009,32 @@ function reducer(state = InitialState, action) {
       if (curObjectIndex < 0) { curObjectIndex = curObjectLength }  // if object not found, i.e. -1, then add a new object
 
       // const context = getContext(curObjectIndex)
+      const mergedObject = {
+        ...curModel.objects[curObjectIndex],
+        ...action.data,
+        // ...context,
+      };
+      const shouldUpdateObjectviewNames = Boolean(action.data?.name) && curObject?.name !== action.data.name;
+      const updatedModelviews = shouldUpdateObjectviewNames
+        ? (curModel?.modelviews || []).map((modelview) => ({
+          ...modelview,
+          objectviews: (modelview?.objectviews || []).map((objectview) => {
+            if (objectview?.objectRef !== action.data.id) return objectview;
+            const currentObjectviewName = objectview?.name;
+            const inheritsObjectName =
+              currentObjectviewName === undefined ||
+              currentObjectviewName === null ||
+              currentObjectviewName === '' ||
+              currentObjectviewName === curObject?.name;
+            return inheritsObjectName
+              ? {
+                ...objectview,
+                name: action.data.name,
+              }
+              : objectview;
+          }),
+        }))
+        : curModel?.modelviews;
 
       const retval_UPDATE_OBJECT_PROPERTIES = {
         ...state,
@@ -1022,13 +1048,10 @@ function reducer(state = InitialState, action) {
                 ...models[curModelIndex],
                 objects: [
                   ...curModel?.objects.slice(0, curObjectIndex),
-                  {
-                    ...curModel.objects[curObjectIndex],
-                    ...action.data,
-                    // ...context,
-                  },
+                  mergedObject,
                   ...curModel?.objects.slice(curObjectIndex + 1, curModel?.objects.length)
                 ],
+                modelviews: updatedModelviews,
               },
               ...models.slice(curModelIndex + 1, models.length),
             ],

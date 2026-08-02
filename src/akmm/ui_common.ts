@@ -84,7 +84,10 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
         if (!objtype)
             return null;
         let objId = utils.createGuid();
-        let name = gjsData.name;
+        // Palette nodes may carry only their ObjectType and an empty instance
+        // name. A newly dropped object should start with the Type name rather
+        // than a blank label.
+        let name = String(gjsData.name || "").trim() || objtype.name;
         let description = gjsData.description;
         let obj = new akm.cxObject(objId, name, objtype, description);
         // let objId = data.objRef;
@@ -92,16 +95,18 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
         // let obj1: akm.cxObject;
         if (obj) {
             // gjsData.object = obj;
-            let name = context.pasted ? gjsData.name : "";
-            if (!gjsData.parentModel) name = gjsData.name;
+            // Preserve the ObjectType-name fallback resolved above. Palette
+            // nodes normally carry an empty instance name.
+            let sourceName = context.pasted ? gjsData.name : name;
+            if (!gjsData.parentModel) sourceName = String(gjsData.name || "").trim() || name;
             if (myMetis.pasteViewsOnly) {
                 const pastedobj = obj;
                 if (objtype.name === constants.types.AKM_CONTAINER) {
-                    obj = new akm.cxObject(guid, name, objtype, description);
+                    obj = new akm.cxObject(guid, sourceName, objtype, description);
                 }
                 if (!pastedobj) {
                     // This is not a pasted object, create a new one
-                    obj = new akm.cxObject(guid, name, objtype, description);
+                    obj = new akm.cxObject(guid, sourceName, objtype, description);
                     myMetis.pasteViewsOnly = false;
                 } else {
                     obj = pastedobj;
@@ -127,13 +132,23 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
             if (!myMetis.pasteViewsOnly) {
                 const fromObj = context.sourceObject;
                 copyProperties(obj, fromObj);
+                if (!String(obj.name || "").trim()) obj.setName(name);
+                if (!obj.type || obj.type.id !== objtype.id) obj.setType(objtype);
                 obj.objectviews = null;
                 obj.inputrels = null;
                 obj.outputrels = null;
             }
             gjsData.object = obj;
             gjsData.category = 'Object';
+            gjsData.name = obj.name;
+            gjsData.objecttype = objtype;
+            gjsData.objtypeRef = objtype.id;
+            gjsData.typename = objtype.name;
             myDiagram.model.setDataProperty(gjsData, 'category', gjsData.category);
+            myDiagram.model.setDataProperty(gjsData, 'name', obj.name);
+            myDiagram.model.setDataProperty(gjsData, 'objecttype', objtype);
+            myDiagram.model.setDataProperty(gjsData, 'objtypeRef', objtype.id);
+            myDiagram.model.setDataProperty(gjsData, 'typename', objtype.name);
             // Include the new object in the current model
             myModel?.addObject(obj);
             myMetis.addObject(obj);
@@ -214,15 +229,15 @@ export function createObject(gjsData: any, context: any): akm.cxObjectView | nul
                 let n = myDiagram.findNodeForKey(objview.id);
                 myDiagram.model.setDataProperty(gjsData, "key", objview.id);
                 // myDiagram.model.setDataProperty(gjsData, "type", gjsData.type);
-                myDiagram.model.setDataProperty(gjsData, "name", gjsData.name);
+                myDiagram.model.setDataProperty(gjsData, "name", obj.name);
                 myDiagram.model.setDataProperty(n, "scale", gjsData.scale);
                 myDiagram.model.setDataProperty(gjsData, "objectview", objview);
                 myDiagram.model.setDataProperty(gjsData, "group", goNode.group);
                 // Then set the view properties
-                let objtypeView;
+                let objtypeView = objtype.getDefaultTypeView?.() || objtype.typeview;
                 if (context.pasted) {
                     const id = gjsData.typeview?.id;
-                    objtypeView = myMetis.findObjectTypeView(id);
+                    objtypeView = myMetis.findObjectTypeView(id) || objtypeView;
                 }
                 if (oview0) {
                     const otdata = objtypeView.data;
@@ -594,6 +609,7 @@ export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObj
 }
 
 export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
+    if (!toObj || !fromObj) return;
     for (let prop in fromObj) {
         if (prop === 'id') continue;
     //     if (prop === 'name') continue;
@@ -1093,6 +1109,14 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 addReltypes([rtype]);
             }
         }
+        const rejectUnavailableRelationship = () => {
+            try { myDiagram?.model?.removeLinkData?.(context.gjsData); } catch (_) {}
+            const fromName = String(fromType?.name || "source type");
+            const toName = String(toType?.name || "target type");
+            if (typeof window !== "undefined") {
+                window.alert(`No RelationshipType is available or allowed from ${fromName} to ${toName}.`);
+            }
+        };
         if (reltypes) {
             const rtype = myMetis.findRelationshipTypeByName(constants.types.AKM_CONTAINS);
             if (fromType.name === constants.types.AKM_CONTAINER) {
@@ -1115,7 +1139,7 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 let choices = choices1.concat(choices2);
                 choices = utils.removeArrayDuplicates(choices);
                 if (choices.length === 0) {
-                    try { myDiagram?.model?.removeLinkData?.(context.gjsData); } catch (_) {}
+                    rejectUnavailableRelationship();
                     return;
                 }
                 const modalContext = {
@@ -1137,6 +1161,8 @@ export function createRelationship(gjsFromNode: any, gjsToNode: any, context: an
                 }
                 context.handleOpenModal(choices, modalContext);
             }
+        } else {
+            rejectUnavailableRelationship();
         }
     }
 }
@@ -1966,6 +1992,19 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
                     }
                 }
                 if (fromObjview && toObjview) {
+                    const reltypeview = rel?.type?.typeview;
+                    if (reltypeview) relview.setTypeView(reltypeview);
+                    const relationshipName = String(rel?.type?.name || rel?.name || "").trim().toLowerCase();
+                    if (relationshipName === "has" || relationshipName === "isof") {
+                        relview.strokecolor = '#ddddddcc';
+                        relview.textcolor = '#ddddddcc';
+                        relview.fromArrowColor = '#ddddddcc';
+                        relview.toArrowColor = '#ddddddcc';
+                        relview.strokewidth = 1;
+                        relview.routing = 'Normal';
+                        relview.points = [];
+                        relview.visible = true;
+                    }
                     relview.setFromObjectView(fromObjview);
                     relview.setToObjectView(toObjview);
                     const isHiddenContains = isHiddenSwimlaneContains(rel, fromObjview, toObjview, myDiagram);

@@ -364,7 +364,22 @@ export function generateObjectType(object: akm.cxObject, oview: akm.cxObjectView
             if (!objtypeview)
                 id = utils.createGuid();
             objtypeview = new akm.cxObjectTypeView(id, objtype.name, objtype, currentObj.description);
+            // Copy valid ObjectView overrides first. Imported empty fields can
+            // be placeholder objects, so fill any non-overridden fields from
+            // the EntityType source afterwards.
             objtypeview.applyObjectViewParameters(objview);
+            const hasFillOverride = typeof objview.fillcolor === 'string' && objview.fillcolor.trim() !== '';
+            const hasStrokeOverride = typeof objview.strokecolor === 'string' && objview.strokecolor.trim() !== '';
+            const hasWidthOverride = Number.isFinite(Number(objview.strokewidth)) && Number(objview.strokewidth) > 0;
+            const hasIconOverride = typeof objview.icon === 'string' && objview.icon.trim() !== '';
+            if (!hasFillOverride && typeof currentObj['fillcolor'] === 'string' && currentObj['fillcolor'].trim())
+                objtypeview.setFillcolor(currentObj['fillcolor']);
+            if (!hasStrokeOverride && typeof currentObj['strokecolor'] === 'string' && currentObj['strokecolor'].trim())
+                objtypeview.setStrokecolor(currentObj['strokecolor']);
+            if (!hasWidthOverride && Number.isFinite(Number(currentObj['strokewidth'])) && Number(currentObj['strokewidth']) > 0)
+                objtypeview.setStrokewidth(Number(currentObj['strokewidth']));
+            if (!hasIconOverride && typeof currentObj['icon'] === 'string' && currentObj['icon'].trim())
+                objtypeview.setIcon(currentObj['icon']);
             objtype.typeview = objtypeview;
             objtypeview.viewkind = viewkind;
             objtypeview.groupLayout = objview.groupLayout;

@@ -2211,8 +2211,20 @@ export class jsnImportMetis {
                 }
             }
             if (objtype) {
-                let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
+                const objectName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : objtype.name;
+                let obj = new akm.cxObject(item.id, objectName, objtype, item.description);
                 obj.setType(objtype);
+                // EntityType presentation belongs to the semantic TYPE object.
+                // Keep these source defaults on import so Generate Metamodel can
+                // transfer them to the generated ObjectTypeView. ObjectView
+                // values remain per-view overrides and are handled separately.
+                ['fillcolor', 'strokecolor', 'strokewidth', 'icon'].forEach((property) => {
+                    if (Object.prototype.hasOwnProperty.call(item, property) && item[property] !== undefined && item[property] !== null && item[property] !== '') {
+                        obj[property] = item[property];
+                    }
+                });
                 if (item.ports && item.ports.length) {
                     obj.ports = [];
                     item.ports.forEach((port: any) => {
@@ -2276,10 +2288,14 @@ export class jsnImportMetis {
     }
     importObjectView(item: akm.cxObjectView, modelview: akm.cxModelView) {
         if (item.objectRef) {
-            console.warn('[OBJVIEW_IMPORT]', { id: item?.id, fillcolor: item?.fillcolor, fillcolor2: item?.fillcolor2, modelview: modelview?.id });
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
-                const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
+                const objectviewName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : (typeof object.name === 'string' && object.name.trim()
+                        ? object.name
+                        : object.type?.name || '');
+                const objview = new akm.cxObjectView(item.id, objectviewName, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
                 objview.groupLayout = item.groupLayout;
@@ -2329,6 +2345,18 @@ export class jsnImportMetis {
                     if (objview.textcolor === "black") objview.textcolor = "";
                     if (objview.textcolor2 === "black") objview.textcolor2 = "";
                 }
+                // setTypeView applies CORE_META defaults and can overwrite the
+                // persisted ObjectView presentation. Explicit values from the
+                // imported ObjectView are authoritative and must be restored
+                // after the type-view fallback has been resolved.
+                if (typeof item.fillcolor === "string" && item.fillcolor.trim())
+                    objview.fillcolor = item.fillcolor;
+                if (typeof item.strokecolor === "string" && item.strokecolor.trim())
+                    objview.strokecolor = item.strokecolor;
+                if (Number.isFinite(Number(item.strokewidth)) && Number(item.strokewidth) > 0)
+                    objview.strokewidth = Number(item.strokewidth);
+                if (typeof item.icon === "string" && item.icon.trim())
+                    objview.icon = item.icon;
                 // metis.addObjectView(objview);
                 object.addObjectView(objview);
                 modelview.addObjectView(objview);

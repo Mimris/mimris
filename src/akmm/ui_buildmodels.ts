@@ -454,31 +454,50 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           continue;
         // Update myGoModel
         const node = new gjs.goObjectNode(objview.id, myGoModel, objview);
+        // The GoJS wrapper does not retain the semantic object by itself.
+        // Attach it here so rendering defaults (including EntityType
+        // presentation) and later object lookups use the actual model object.
+        node.object = obj;
+        node.objecttype = objtype;
         node.scale = objview.scale;
         (node as any).scale1 = objview.scale;
         myGoModel.addNode(node);
-        node.name = objview.name;
+        const defaultObjectName = String(objview.name || obj?.name || objtype?.name || '').trim();
+        node.name = defaultObjectName;
+        if (!String(objview.name || '').trim() && defaultObjectName) objview.setName(defaultObjectName);
+        if (!String(obj?.name || '').trim() && defaultObjectName) obj.setName(defaultObjectName);
         const object = node.object as akm.cxObject | null;
-        let objtype = object?.type as akm.cxObjectType;
-        if (!objtype && object?.typeRef) {
-          objtype = metis.findObjectType(object.typeRef) || model.metamodel?.findObjectType?.(object.typeRef);
-          if (objtype) object.setType?.(objtype);
+        let nodeObjtype = node.objecttype as akm.cxObjectType;
+        if (!nodeObjtype && object?.typeRef) {
+          nodeObjtype = metis.findObjectType(object.typeRef) || model.metamodel?.findObjectType?.(object.typeRef);
+          if (nodeObjtype) object.setType?.(nodeObjtype);
         }
-        if (objtype?.name !== 'EntityType') {
-          const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
-          if (typeview) {
-            if (!node.template) node.template = typeview.template;
-            if (node.template === "") node.template = typeview.template;
-            if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
-            if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
-            if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
-            if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
-            if (node.textcolor === "") node.textcolor = typeview.textcolor;
-            if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
-            if (node.icon === "") node.icon = typeview.icon;
-            if (node.image === "") node.image = typeview.image;
-            if (node.viewkind === "") node.viewkind = typeview.viewkind;
-          }
+        // Presentation cascade: ObjectView override -> EntityType source
+        // default (TYPE models) -> ObjectTypeView default -> renderer fallback.
+        if (nodeObjtype?.name === 'EntityType') {
+          const hasObjectViewFill = typeof objview.fillcolor === 'string' && objview.fillcolor.trim() !== '';
+          const hasObjectViewStroke = typeof objview.strokecolor === 'string' && objview.strokecolor.trim() !== '';
+          const hasObjectViewWidth = Number.isFinite(Number(objview.strokewidth)) && Number(objview.strokewidth) > 0;
+          const hasObjectViewIcon = typeof objview.icon === 'string' && objview.icon.trim() !== '';
+          if (!hasObjectViewFill && typeof object?.['fillcolor'] === 'string') node.fillcolor = object['fillcolor'];
+          if (!hasObjectViewStroke && typeof object?.['strokecolor'] === 'string') node.strokecolor = object['strokecolor'];
+          if (!hasObjectViewWidth && Number.isFinite(Number(object?.['strokewidth'])))
+            node.strokewidth = Number(object['strokewidth']);
+          if (!hasObjectViewIcon && typeof object?.['icon'] === 'string') node.icon = object['icon'];
+        }
+        const typeview = nodeObjtype?.getDefaultTypeView() as akm.cxObjectTypeView;
+        if (typeview) {
+          if (!node.template) node.template = typeview.template;
+          if (node.template === "") node.template = typeview.template;
+          if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
+          if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
+          if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
+          if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
+          if (node.textcolor === "") node.textcolor = typeview.textcolor;
+          if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
+          if (node.icon === "") node.icon = typeview.icon;
+          if (node.image === "") node.image = typeview.image;
+          if (node.viewkind === "") node.viewkind = typeview.viewkind;
         }
       }
     }
@@ -512,9 +531,23 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         typeview = metis.findObjectTypeView(typeview.id);
         objview.setTypeView(typeview);
         node.typeview = objview.typeview;
-        node.name = objview.name;
+        node.name = String(objview.name || obj?.name || objtype?.name || '').trim();
         node.loadNodeContent(myGoModel);
-        node.name = objview.name;
+        // loadNodeContent applies the CORE_META type-view (white by default).
+        // Restore semantic EntityType presentation afterwards unless this
+        // ObjectView explicitly supplies its own value.
+        if (objtype?.name === 'EntityType') {
+          const hasObjectViewFill = typeof objview.fillcolor === 'string' && objview.fillcolor.trim() !== '';
+          const hasObjectViewStroke = typeof objview.strokecolor === 'string' && objview.strokecolor.trim() !== '';
+          const hasObjectViewWidth = Number.isFinite(Number(objview.strokewidth)) && Number(objview.strokewidth) > 0;
+          const hasObjectViewIcon = typeof objview.icon === 'string' && objview.icon.trim() !== '';
+          if (!hasObjectViewFill && typeof obj?.['fillcolor'] === 'string') node.fillcolor = obj['fillcolor'];
+          if (!hasObjectViewStroke && typeof obj?.['strokecolor'] === 'string') node.strokecolor = obj['strokecolor'];
+          if (!hasObjectViewWidth && Number.isFinite(Number(obj?.['strokewidth'])))
+            node.strokewidth = Number(obj['strokewidth']);
+          if (!hasObjectViewIcon && typeof obj?.['icon'] === 'string') node.icon = obj['icon'];
+        }
+        node.name = String(objview.name || obj?.name || objtype?.name || '').trim();
         if (node.object['proposedType'])
           node.typename = node.object['proposedType'];
         myGoModel.addNode(node);

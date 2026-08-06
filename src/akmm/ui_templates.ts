@@ -794,6 +794,33 @@ export function groupTop2(
     restrictBodyHitArea: boolean = false
 ) {
     const DEBUG_HIT_AREAS = false;
+    const edgePortWidth = 12;
+    const edgePort = (
+        alignment: go.Spot,
+        alignmentFocus: go.Spot,
+        stretch: go.Stretch,
+        size: { width?: number; height?: number },
+        spot: go.Spot,
+    ) => $(go.Shape, "Rectangle",
+        {
+            alignment,
+            alignmentFocus,
+            stretch,
+            ...size,
+            fill: DEBUG_HIT_AREAS ? "rgba(255, 0, 180, 0.18)" : "transparent",
+            stroke: DEBUG_HIT_AREAS ? "rgba(255, 0, 180, 0.5)" : null,
+            cursor: "alias",
+            portId: "",
+            fromLinkable: true,
+            fromLinkableSelfNode: false,
+            fromLinkableDuplicates: true,
+            toLinkable: true,
+            toLinkableSelfNode: false,
+            toLinkableDuplicates: true,
+            fromSpot: spot,
+            toSpot: spot,
+        },
+    );
     const groupFocusStroke = (data: any) => {
         const baseStroke = data?.strokecolor || "lightgray";
         return data?.isFocusPeer ? "lightblue" : baseStroke;
@@ -962,6 +989,14 @@ export function groupTop2(
                 $(go.RowColumnDefinition, { row: 2, height: 6, sizing: go.RowColumnDefinition.None }),
             ),
         ),
+        ...(restrictBodyHitArea
+            ? [
+                edgePort(go.Spot.Top, go.Spot.Top, go.GraphObject.Horizontal, { height: edgePortWidth }, go.Spot.Top),
+                edgePort(go.Spot.Bottom, go.Spot.Bottom, go.GraphObject.Horizontal, { height: edgePortWidth }, go.Spot.Bottom),
+                edgePort(go.Spot.Left, go.Spot.Left, go.GraphObject.Vertical, { width: edgePortWidth }, go.Spot.Left),
+                edgePort(go.Spot.Right, go.Spot.Right, go.GraphObject.Vertical, { width: edgePortWidth }, go.Spot.Right),
+            ]
+            : []),
     );
 }
 
@@ -5414,7 +5449,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon'),
+            groupTop2(contextMenu, 'Icon', false, true),
         );
         groupTemplateMap.add("groupNoPorts", groupWithoutPorts1);
         addGroupTemplateName('groupNoPorts');        

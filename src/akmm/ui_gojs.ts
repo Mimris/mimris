@@ -593,6 +593,16 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
+            const isContainerView =
+                objview.isGroup === true ||
+                objview.viewkind === constants.viewkinds.CONT ||
+                this.typeview?.viewkind === constants.viewkinds.CONT;
+            if (isContainerView) {
+                this.isGroup = true;
+                this.viewkind = constants.viewkinds.CONT;
+                this.template = this.template || "groupNoPorts";
+                this.category = this.template;
+            }
             if (!this.template2)
                 this.template2 = this.typeview?.template2;
             if (!this.geometry)

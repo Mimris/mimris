@@ -597,9 +597,12 @@ class GoJSApp extends React.Component<{}, AppState> {
 	        let hide = fromIsSwim || toIsSwim;
 	        // For non-swimlane containers, also hide when stable group membership matches.
 	        if (!hide) {
-	          if (String(fromKey) && groupKeyOf(toKey) === String(fromKey)) hide = true;
-	          if (String(toKey) && groupKeyOf(fromKey) === String(toKey)) hide = true;
+	          const toGroup = groupKeyOf(toKey);
+	          const fromGroup = groupKeyOf(fromKey);
+	          if (String(fromKey) && toGroup === String(fromKey)) hide = true;
+	          if (String(toKey) && fromGroup === String(toKey)) hide = true;
 	        }
+	        
 	        if (hide) {
 	          // Force-hide at the data level so it stays hidden across refreshes.
 	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
@@ -734,8 +737,58 @@ class GoJSApp extends React.Component<{}, AppState> {
             myDiagram.remove(link);
           }
 	        }
-	        // Re-apply swimlane contains hiding after initial load.
+	        
+	        // FIX: Nodes have wrong group property - they have group=CORE_META but should have group=Mimris_META Types
+	        // This causes applySwimlaneContainsVisibility to hide their "contains" links incorrectly.
+	        // Fix this ONCE on load, then the corrected data should persist.
+	        const coreMeta = Array.from(myDiagram.nodes).find((n: go.Node) => n.data.name === 'CORE_META');
+	        const mimrisMetaTypes = Array.from(myDiagram.nodes).find((n: go.Node) => n.data.name === 'Mimris_META Types');
+	        
+	        if (coreMeta && mimrisMetaTypes) {
+	          const nodesToFix: go.Node[] = [];
+	          myDiagram.nodes.each((node: go.Node) => {
+	            if (node.data.group === coreMeta.data.key && node !== coreMeta) {
+	              nodesToFix.push(node);
+	            }
+	          });
+	          
+	          if (nodesToFix.length > 0) {
+	            myDiagram.startTransaction('fix-group-references');
+	            nodesToFix.forEach((node: go.Node) => {
+	              // 1. Update GoJS model
+	              myDiagram.model.setDataProperty(node.data, 'group', mimrisMetaTypes.data.key);
+	              
+	              // 2. Update myGoModel node (internal data structure)
+	              const goNode = myGoModel.findNode(node.data.key);
+	              if (goNode) {
+	                goNode.group = mimrisMetaTypes.data.key;
+	              }
+	              
+	              // 3. Update objectview and myModelview
+	              if (node.data.objectview) {
+	                const objectview = node.data.objectview;
+	                objectview.group = mimrisMetaTypes.data.key;
+	                
+	                const objviews = myModelview?.objectviews || [];
+	                const matchingObjview = objviews.find((ov: any) => ov.id === objectview.id);
+	                if (matchingObjview) {
+	                  matchingObjview.group = mimrisMetaTypes.data.key;
+	                }
+	                
+	                // Note: Skip Redux dispatch here to avoid circular reference errors during initialization.
+	                // The corrected group values will be persisted through normal diagram events later.
+	              }
+	              
+	              node.part?.updateRelationshipsFromData();
+	            });
+	            myDiagram.commitTransaction('fix-group-references');
+	          }
+	        }
+	        
+	        // Re-apply swimlane contains hiding after fixing group references.
+	        // Now it will correctly see nodes belong to Mimris_META Types, not CORE_META.
 	        applySwimlaneContainsVisibility();
+	        
 	        break;
 	      }
       case 'TextEdited': {
@@ -997,11 +1050,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Group moves are persisted in a dedicated block later; keep this path
           // scoped to regular nodes to avoid accidental group membership rewrites.
           if (n instanceof go.Group) continue;
+          
           // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
           // the rendered position and cause membership/loc persistence to drift.
           const loc = `${n.location.x} ${n.location.y}`;
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
+          
           goNode.loc = loc;
 	          const size = n.actualBounds.width + " " + n.actualBounds.height;
 		          const existingGroupKey = (typeof n.data.group === "string") ? n.data.group : "";
@@ -1033,6 +1088,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 		          // - node is outside its current lane body (repair stale membership).
 		          const canReparentThisNode =
 		            allowReparentForKey(n.data?.key) || !existingGroupKey || outsideCurrentLaneBody;
+		          
 		          let groupKey = existingGroupKey || "";
 		          let group: any = null;
 	          if (canReparentThisNode) {
@@ -1053,6 +1109,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             goNode.group = groupKey;
             goNode.scale = goNode.getMyScale(myGoModel);
           }
+          
           const myToNode = {
             "n": n,
             "gjsData": n.data,
@@ -1125,9 +1182,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.loc = myToNode.loc;
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
+                // CRITICAL: Keep myGoModel's group value synchronized with the diagram's group value.
+                // Without this, line 1410 copies the stale group value from goToNode back into myToNode,
+                // then line 1411 writes it into the diagram, undoing all group fixes from the first loop!
+                goToNode.group = myToNode.group;
               }
 	              const fromGroupKey = (typeof myFromNode.group === "string") ? myFromNode.group : "";
 	              const inSwimlaneContext = isSwimlaneGroupKey(fromGroupKey) || isSwimlaneGroupKey(myToNode.group);
+	              
 	              if (!inSwimlaneContext) {
 	                // Legacy containment/grouping logic for non-swimlane diagrams.
 	                // Swimlanes manage membership explicitly (node.data.group -> Lane key) via GoJS Groups.
@@ -1282,20 +1344,34 @@ class GoJSApp extends React.Component<{}, AppState> {
                   uic.addItemToList(modifiedRelships, jsnRelship);                 
                 }                
               } else {
-                myMetis.purgeInputRelships(myModel);
-                // goToNode is NOT member of a group
-                let grpView = uic.isContainedInGroup(myGoModel, goToNode);
-                if (grpView) {
-                  goToNode.group = grpView.id;
-                } else {
-                  const fromObj = uic.isContainedInGroup1(myGoModel, goToNode);
-                  if (fromObj) {
-                    grpView = myModelview.findObjectViewByName(fromObj.name);
-                    goToNode.group = grpView?.id;
+                // When shouldReparent is false, we're keeping existing membership.
+                // CRITICAL: If the node already has a stable group (fromGroupKey is set),
+                // preserve it. Don't run geometric containment checks (isContainedInGroup)
+                // which can incorrectly detect containment in a different group (e.g., CORE_META)
+                // based on bounding box overlap, overwriting the correct group value.
+                const hasStableGroup = !!(fromGroupKey && typeof fromGroupKey === 'string' && fromGroupKey !== '');
+                
+                if (!hasStableGroup) {
+                  // Only run geometric containment logic for nodes without existing group membership
+                  myMetis.purgeInputRelships(myModel);
+                  // goToNode is NOT member of a group
+                  let grpView = uic.isContainedInGroup(myGoModel, goToNode);
+                  if (grpView) {
+                    goToNode.group = grpView.id;
                   } else {
-                    goToNode.group = "";
+                    const fromObj = uic.isContainedInGroup1(myGoModel, goToNode);
+                    if (fromObj) {
+                      grpView = myModelview.findObjectViewByName(fromObj.name);
+                      goToNode.group = grpView?.id;
+                    } else {
+                      goToNode.group = "";
+                    }
                   }
+                } else {
+                  // Preserve existing group membership - node is moving with its container
+                  goToNode.group = fromGroupKey;
                 }
+                
                 let movedObj = goToNode.object;
                 if (!movedObj) {
                   movedObj = myModel.findObject(goToNode.objRef);
@@ -1769,13 +1845,9 @@ class GoJSApp extends React.Component<{}, AppState> {
 			        } catch (error) {
 			        }
 
-			        // If "contains" (Lane membership) links are present in the model, ensure they stay hidden
-			        // when the member node is actually inside its lane. This avoids those links flashing in
-			        // after a drag/move transaction.
-			        applySwimlaneContainsVisibility();
-			        // Clear drag-time regroup permission markers after we have persisted the move.
-			        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
-			        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;
+
+        if ((myDiagram as any).__dragAllowReparentKeys) delete (myDiagram as any).__dragAllowReparentKeys;
+        if ((myDiagram as any).__dragAllowReparent) delete (myDiagram as any).__dragAllowReparent;
 		        break;
 		      }
       case "SelectionDeleting": {

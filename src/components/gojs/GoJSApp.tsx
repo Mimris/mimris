@@ -4241,6 +4241,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (n instanceof go.Link) continue;
           // Group moves are persisted in a dedicated block later; keep this path
           // scoped to regular nodes to avoid accidental group membership rewrites.
+          if (n instanceof go.Group) continue;
           // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
           // the rendered position and cause membership/loc persistence to drift.
           const loc = `${n.location.x} ${n.location.y}`;
@@ -4399,6 +4400,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 goToNode.loc = myToNode.loc;
                 goToNode.size = myToNode.size;
                 goToNode.scale = myToNode.scale;
+                // Keep the cached GoJS model synchronized with the resolved membership.
+                goToNode.group = myToNode.group;
                 goToNode.objectview = myObjectview;
                 goToNode.object = myObject;
                 goToNode.objecttype = myToNode.objecttype || myObject?.type || goToNode.objecttype;

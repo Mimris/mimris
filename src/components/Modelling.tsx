@@ -301,6 +301,14 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (didRestoreStoredFocusModelRef.current) return;
     if (typeof window === 'undefined') return;
+
+    // Embedded/workspace sessions can request an exact model. That explicit
+    // focus must win over the model remembered from an earlier Mimris tab.
+    const requestedModelRef = new URLSearchParams(window.location.search).get('currentModelRef');
+    if (requestedModelRef) {
+      didRestoreStoredFocusModelRef.current = true;
+      return;
+    }
     if (!models?.length) return;
     didRestoreStoredFocusModelRef.current = true;
 

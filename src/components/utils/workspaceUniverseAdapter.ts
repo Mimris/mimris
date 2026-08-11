@@ -50,8 +50,8 @@ const resolveFocusableModelview = (modelviews: any[], requestedModelview: any = 
   const requested = requestedModelview
     ? modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name)
     : null;
-  if (requested && hasRenderableModelviewContent(requested)) return requested;
-  return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+  if (requested) return requested;
+  return modelviews.find(hasRenderableModelviewContent) || modelviews[0] || null;
 };
 
 const readScope = (value: any) => {

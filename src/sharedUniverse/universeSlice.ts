@@ -354,9 +354,9 @@ const resolveFocusableModelview = (model: any, requestedModelview: any = null) =
             modelview?.name === requestedModelview?.name
         ))
         : null;
-    if (requested && hasRenderableModelviewContent(requested)) return requested;
+    if (requested) return requested;
 
-    return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+    return modelviews.find(hasRenderableModelviewContent) || modelviews[0] || null;
 };
 
 const normalizeFocusForMetis = (metis: unknown, focus: unknown) => {

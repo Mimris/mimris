@@ -37,9 +37,9 @@ const resolveFocusableModelview = (model: any, requestedModelview: any = null) =
   const requested = requestedModelview
     ? modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name)
     : undefined;
-  if (requested && hasRenderableModelviewContent(requested)) return requested;
+  if (requested) return requested;
 
-  return modelviews.find(hasRenderableModelviewContent) || requested || first(modelviews);
+  return modelviews.find(hasRenderableModelviewContent) || first(modelviews);
 };
 
 const GenGojsModel = async (props: any, myMetis: any, options: { skipImport?: boolean } = {}) => {

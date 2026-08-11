@@ -1,12 +1,12 @@
 {
   "name": "Mimris",
-  "version": "1.1.1",
+  "version": "0.1.2-alpha.0",
   "main": "dist/index.js",
   "license": "GNU General Public License v3.0",
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
     "build": "next build",
-    "test": "node --test src/actions/actions.test.mjs src/components/utils/workspaceMetisResolver.test.mjs src/sharedUniverse/universeSlice.test.mjs src/sharedUniverse/selectors.test.mjs src/sharedUniverse/legacyDispatch.test.mjs src/sharedUniverse/store.test.mjs",
+    "test": "node --test src/actions/actions.test.mjs src/components/utils/modelviewPalette.test.mjs src/components/utils/workspaceMetisResolver.test.mjs src/components/utils/generatedMetamodelProject.test.mjs src/components/utils/modellingStartup.test.mjs src/sharedUniverse/universeSlice.test.mjs src/sharedUniverse/selectors.test.mjs src/sharedUniverse/legacyDispatch.test.mjs src/sharedUniverse/store.test.mjs",
     "startlocal": "next build && next start -p 3000",
     "start": "next build && next start -p 3000",
     "start2": "next start -p ${PORT}",

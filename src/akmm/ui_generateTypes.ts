@@ -748,6 +748,15 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             oldName = reltype?.getName();
             reltype.setName(newName);
 
+            // A generated relationship type can be reused through generatedTypeId
+            // after its endpoint object types have been regenerated with new IDs.
+            // Rebind it to the current target metamodel so relshiptypes0 remains
+            // usable by the modelling palette.
+            if (fromtype && totype) {
+                reltype.setFromObjtype(fromtype);
+                reltype.setToObjtype(totype);
+            }
+
             // The following code fails due to that fromType and toType for some reason are unknown / undefined
             if (false) {
                 // Ensure that the reltype has the same from and to object types
@@ -2970,15 +2979,41 @@ function addProperties0(type: akm.cxType | akm.cxMethodType, context: any) {
 
 }
 
+const BUILT_IN_OBJECT_PROPERTY_NAMES = new Set(['name', 'description', 'id']);
+
+function isBuiltInObjectPropertyName(name: string | null | undefined): boolean {
+    return BUILT_IN_OBJECT_PROPERTY_NAMES.has((name || '').trim().toLowerCase());
+}
+
+function removeGeneratedBuiltInProperties(type: akm.cxType | akm.cxMethodType): void {
+    const generatedBuiltInIds = new Set(
+        (type.properties || [])
+            .filter((property) => isBuiltInObjectPropertyName(property?.name))
+            .map((property) => property.id)
+    );
+    type.properties = (type.properties || []).filter(
+        (property) => !isBuiltInObjectPropertyName(property?.name)
+    );
+    type.propertyRefs = (type.propertyRefs || []).filter(
+        (propertyRef) => !generatedBuiltInIds.has(propertyRef)
+    );
+}
+
 function addProperties(type: akm.cxType | akm.cxMethodType, typeprops: akm.cxProperty[], context: any) {
     const myMetis: akm.cxMetis = context.myMetis;
     const myModel: akm.cxModel = context.myModel;
     const myTargetMetamodel: akm.cxMetamodel = context.myTargetMetamodel;
     const myDiagram = context.myDiagram;
+    // Mimris objects already expose name, description, and id as built-in fields.
+    // Do not generate a second set of case-variant ObjectType properties, and
+    // clean them from a reused generated type during Generate/Update.
+    removeGeneratedBuiltInProperties(type);
     for (let i = 0; i < typeprops.length; i++) {
         // Check if property already exists
         let proptype = typeprops[i] as akm.cxObject;
         if (proptype && proptype instanceof akm.cxObject) {
+            if (isBuiltInObjectPropertyName(proptype.name))
+                continue;
             const readOnly = proptype.readOnly;
             let prop = type.findPropertyByName(proptype.name);
             if (prop)

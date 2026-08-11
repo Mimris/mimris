@@ -214,6 +214,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       if (reltype.markedAsDeleted === undefined) reltype.markedAsDeleted = false;
 
       const link = new gjs.goRelshipTypeLink(utils.createGuid(), myGoPaletteModel, reltype);
+      (link as any).reltypeRef = reltype.id;
       const fromNode = myGoPaletteModel.findTypeNode(fromObjtype.id);
       const toNode = myGoPaletteModel.findTypeNode(toObjtype.id);
       link.fromNode = fromNode;

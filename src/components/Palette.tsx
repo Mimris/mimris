@@ -9,6 +9,7 @@ import * as uib from '../akmm/ui_buildmodels';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import genRoleTasks from "./utils/SetRoleTaskFilter";
 import Tasks from '../components/Tasks'
+import { filterPaletteForModelview } from './utils/modelviewPalette';
 
 
 const debug = false;
@@ -77,6 +78,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   if (!metamodels) return null;
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+  const currentModelview = model?.modelviews?.find(
+    (candidate: any) => candidate?.id === phFocus?.focusModelview?.id,
+  ) || model?.modelviews?.[0]
   // const mmodelRefs = mmodel?.metamodelRefs;
 
   const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined && m?.name !== 'ADMIN_META')?.map((m: any) => ({ id: m?.id, name: m?.name })); // exclude admin metamodel
@@ -123,7 +127,13 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
     if (debug) console.log('110 Palette useEffect 3', mmodel?.name, filteredOtNodeDataArray);
-  }, [focusModel?.id, model?.metamodelRef]);
+  }, [
+    focusModel?.id,
+    model?.metamodelRef,
+    phFocus?.focusModelview?.id,
+    currentModelview?.allowedObjectTypeRefs,
+    currentModelview?.allowedRelshipTypeRefs,
+  ]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -221,17 +231,11 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       filteredNodes = otsArrSorted;
     }
 
-    const nodeKeys = new Set(
-      filteredNodes
-        ?.map((n: any) => n?.key ?? n?.objecttype?.id ?? n?.objecttype?.key)
-        ?.filter(Boolean)
-    );
-
-    const filteredLinks = paletteLinks.filter(
-      (link: any) => nodeKeys.has(link?.from) && nodeKeys.has(link?.to)
-    );
-
-    return { nodes: filteredNodes, links: filteredLinks };
+    return filterPaletteForModelview({
+      nodes: filteredNodes,
+      links: paletteLinks,
+      modelview: currentModelview,
+    });
   };
 
   if (debug) console.log('159 Palette useEffect 2', phFocus.focusTask?.workOnTypes);
@@ -285,7 +289,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
         {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
-          key={`${focusModel?.id ?? 'palette-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
+          key={`${focusModel?.id ?? 'palette-default'}-${phFocus?.focusModelview?.id ?? 'view-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
           nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={paletteLinkData}
           metis={props.metis}

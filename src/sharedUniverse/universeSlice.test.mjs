@@ -436,7 +436,7 @@ test('github data load success updates shared universe root fields', () => {
   );
 });
 
-test('legacy universe snapshot focuses first populated modelview when saved focus is empty', () => {
+test('legacy universe snapshot preserves an explicitly focused empty modelview', () => {
   const nextState = universeReducer(createState(), loadLegacyUniverseSnapshot({
     phData: {
       metis: {
@@ -465,6 +465,40 @@ test('legacy universe snapshot focuses first populated modelview when saved focu
     phFocus: {
       focusModel: { id: 'model-1', name: 'Model 1' },
       focusModelview: { id: 'empty-view', name: 'Empty view' },
+    },
+  }));
+
+  assert.equal(nextState.world.focus.focusModelview.id, 'empty-view');
+});
+
+test('legacy universe snapshot uses the first populated modelview only when none is requested', () => {
+  const nextState = universeReducer(createState(), loadLegacyUniverseSnapshot({
+    phData: {
+      metis: {
+        models: [
+          {
+            id: 'model-1',
+            name: 'Model 1',
+            modelviews: [
+              {
+                id: 'empty-view',
+                name: 'Empty view',
+                objectviews: [],
+                relshipviews: [],
+              },
+              {
+                id: 'populated-view',
+                name: 'Populated view',
+                objectviews: [{ id: 'objectview-1', objectRef: 'object-1' }],
+                relshipviews: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    phFocus: {
+      focusModel: { id: 'model-1', name: 'Model 1' },
     },
   }));
 

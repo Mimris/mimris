@@ -6613,7 +6613,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleGenerateMetamodel = async (
         diagram: go.Diagram | null | undefined,
         data: any,
-        destination: 'current' | 'new-project' | 'existing-project' = 'current'
+        destination: 'current' | 'workspace' | 'new-project' | 'existing-project' = 'current'
       ) => {
         if (!diagram || !data) return;
         if (!canGenerateMetamodelFromData(data)) return;
@@ -6655,14 +6655,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             alert(error?.message || 'The selected file is not a compatible generated project.');
             return;
           }
-        } else if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' in the current project?')) {
+        } else if (destination === 'workspace') {
+          if (!confirm('Publish the generated metamodel ' + metamodelName + ' to the workspace without adding it to the current project?')) return;
+        } else if (!confirm('Do you want to generate or update the metamodel ' + metamodelName + ' in the current project?')) {
           return;
         }
 
-        let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+        const originalMetamodels = Array.isArray(myMetis.metamodels) ? [...myMetis.metamodels] : [];
+        const originalTargetMetamodelRef = myMetis.currentModel?.targetMetamodelRef || '';
+        let targetMetamodel = destination === 'workspace'
+          ? new akm.cxMetaModel(utils.createGuid(), metamodelName)
+          : myMetis.findMetamodelByName(metamodelName);
         const dispatchTarget = diagram.dispatch ?? myMetis.myDiagram?.dispatch;
 
-        if (!targetMetamodel) {
+        if (destination === 'workspace') {
+          myMetis.addMetamodel(targetMetamodel);
+        } else if (!targetMetamodel) {
           targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
           myMetis.addMetamodel(targetMetamodel);
           myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
@@ -6690,10 +6698,57 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           "myDiagram": diagram,
           "dispatch": dispatchTarget
         };
-        const generated = gen.generateTargetMetamodel2(context);
-        if (!generated || destination === 'current') return;
-
-        const serializedMetamodel = JSON.parse(JSON.stringify(new jsn.jsnMetaModel(targetMetamodel, true)));
+        let serializedMetamodel: any = null;
+        try {
+          const generated = gen.generateTargetMetamodel2(context);
+          if (!generated) return;
+          serializedMetamodel = JSON.parse(JSON.stringify(new jsn.jsnMetaModel(targetMetamodel, true)));
+        } finally {
+          if (destination === 'workspace') {
+            myMetis.metamodels = originalMetamodels;
+            if (myMetis.currentModel) myMetis.currentModel.targetMetamodelRef = originalTargetMetamodelRef;
+          }
+        }
+        if (!serializedMetamodel) return;
+        if (destination === 'current') return;
+        if (destination === 'workspace') {
+          const generatedObjectTypeIds = new Set(
+            (serializedMetamodel.objecttypes || []).map((type: any) => type?.id).filter(Boolean)
+          );
+          const interMetamodelRelationshipTypes = (myMetis.currentModel?.relships || []).flatMap((rel: any) => {
+            const fromTypeRef = rel?.fromObject?.generatedTypeId || '';
+            const toTypeRef = rel?.toObject?.generatedTypeId || '';
+            if (!fromTypeRef || !toTypeRef) return [];
+            const fromIsLocal = generatedObjectTypeIds.has(fromTypeRef);
+            const toIsLocal = generatedObjectTypeIds.has(toTypeRef);
+            if (fromIsLocal === toIsLocal) return [];
+            return [{
+              id: rel.generatedTypeId || rel.id,
+              name: rel.name || rel.type?.name || 'relationship',
+              description: rel.description || '',
+              sourceRelationshipId: rel.id,
+              fromobjtypeRef: fromTypeRef,
+              toobjtypeRef: toTypeRef,
+              relshipkind: rel.relshipkind || rel.type?.relshipkind || 'Association',
+              cardinality: rel.cardinality || '',
+            }];
+          });
+          if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'mimris:metamodel-generated',
+              metamodel: serializedMetamodel,
+              source: {
+                projectId: myMetis.id,
+                modelId: myMetis.currentModel?.id || '',
+                modelviewId: myMetis.currentModelview?.id || '',
+                metamodelObjectId: data.object?.id || '',
+              },
+              provenance,
+              interMetamodelRelationshipTypes,
+            }, '*');
+          }
+          return;
+        }
         try {
           const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
           const supportingMetamodels = adminMetamodel
@@ -9317,7 +9372,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             label: "Generate Metamodel…",
             action: showSubMenu([
               {
-                label: "In Current Project",
+                label: "Publish to Workspace",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'workspace'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Generate/Update in Current Project",
                 action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'current'); },
                 enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
               },

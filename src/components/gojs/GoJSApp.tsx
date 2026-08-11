@@ -23,6 +23,7 @@ import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
 import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
 import { getCurrentStore } from '../../store';
+import { isAutomaticallyDroppedSelfRelationship } from '../utils/modelviewPalette';
 
 const debug = false;
 const debugPorts = true;
@@ -8187,6 +8188,17 @@ e.subject.each(function (n) {
 })
 
 droppedRelLinks.forEach((linkData: any) => {
+  if (isAutomaticallyDroppedSelfRelationship(linkData)) {
+    try {
+      const liveLinkData = linkData?.key !== undefined
+        ? myDiagram.findLinkForKey(linkData.key)?.data || linkData
+        : linkData;
+      myDiagram.model.removeLinkData(liveLinkData);
+    } catch (_) {
+      // The semantic relationship is still suppressed even if GoJS already removed the copied link.
+    }
+    return;
+  }
   const fromKey = linkData?.from || linkData?.fromNode?.key;
   const toKey = linkData?.to || linkData?.toNode?.key;
   if (!fromKey || !toKey) {

@@ -1689,6 +1689,7 @@ export class jsnObjectView {
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
+    layoutRevision?: string;
     size?:           string;
     scale?:          number;
     memberscale?:    number;
@@ -1731,6 +1732,7 @@ export class jsnObjectView {
         this.isExpanded      = objview?.isExpanded;
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
+        if ((objview as any)?.layoutRevision) this.layoutRevision = String((objview as any).layoutRevision);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
         if ((objview as any)?.modelviewId) this.modelviewId = (objview as any).modelviewId;
@@ -2302,6 +2304,7 @@ export class jsnImportMetis {
                 objview.isExpanded = item.isExpanded;
                 objview.isSelected = item.isSelected;
                 objview.loc = item.loc;
+                objview.layoutRevision = item.layoutRevision ?? "";
                 objview.size = item.size;
                 objview.scale = item.scale;
                 objview.memberscale = item.memberscale;

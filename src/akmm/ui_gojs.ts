@@ -487,6 +487,7 @@ export class goObjectNode extends goNode {
     isGroup: boolean | "";
     isSelected: boolean | "";
     loc:             string;
+    layoutRevision:  string;
     memberscale:     float;
     scale:           float;
     size:            float;
@@ -550,6 +551,7 @@ export class goObjectNode extends goNode {
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
+            this.layoutRevision = objview.layoutRevision || "";
             this.size           = objview.size;
             this.scale         = objview.scale;
             (this as any).scale1 = objview.scale;

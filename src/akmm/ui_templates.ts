@@ -6134,8 +6134,44 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         doLayout(coll: go.Set<go.Part> | go.List<go.Part>) {
             const diagram = this.diagram;
             if (diagram === null) return;
-            diagram.startTransaction("PoolLayout");
             const pool = this.group;
+            const revision = String(pool?.data?.layoutRevision || "").trim();
+            const hasValidGeometry = (part: go.Part) => {
+                const loc = String(part.data?.loc || "").trim();
+                const size = String(part.data?.size || "").trim();
+                if (!loc || !size) return false;
+                try {
+                    const point = go.Point.parse(loc);
+                    const dimensions = go.Size.parse(size);
+                    return Number.isFinite(point.x) && Number.isFinite(point.y) &&
+                        Number.isFinite(dimensions.width) && dimensions.width > 0 &&
+                        Number.isFinite(dimensions.height) && dimensions.height > 0;
+                } catch (_) {
+                    return false;
+                }
+            };
+            if (pool && revision && hasValidGeometry(pool)) {
+                const lanes: go.Group[] = [];
+                const laneKeys = new Set<string>();
+                const registerLane = (part: go.Part) => {
+                    if (!(part instanceof go.Group) || part.category !== "Lane") return;
+                    const key = String(part.data?.key || part.key || "");
+                    if (!key || laneKeys.has(key)) return;
+                    laneKeys.add(key);
+                    lanes.push(part);
+                };
+                pool.memberParts.each((part: go.Part) => {
+                    registerLane(part);
+                });
+                const poolKey = String(pool.data?.key || pool.key || "");
+                diagram.nodes.each((part: go.Part) => {
+                    if (String(part.data?.group || "") === poolKey) registerLane(part);
+                });
+                if (lanes.length > 0 && lanes.every((lane) =>
+                    String(lane.data?.layoutRevision || "").trim() === revision && hasValidGeometry(lane)
+                )) return;
+            }
+            diagram.startTransaction("PoolLayout");
             if (pool !== null && pool.category === "Pool") {
                 // Ensure minimum lane sizes
                 pool.memberParts.each((lane: go.Part) => {
@@ -6324,16 +6360,28 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 )
             ),
             
-            // Pool body - contains lanes
-            $(go.Panel, "Auto",
+            // Pool body - contains lanes. The main shape owns the bounds; the
+            // Placeholder must not resize an explicitly sized imported Pool.
+            $(go.Panel, "Spot",
                 $(go.Shape, "Rectangle",
                     {
                         name: "POOL_BODY_SHAPE",
+                        isPanelMain: true,
                         fill: "white",
                         stroke: "black",
                         strokeWidth: 2,
                         minSize: new go.Size(220, 100)
-                    }
+                    },
+                    new go.Binding("desiredSize", "size", (value: string) => {
+                        const size = go.Size.parse(value || "");
+                        const width = Number.isFinite(size.width) && size.width > 0
+                            ? Math.max(220, size.width - SWIM_HEADER_WIDTH)
+                            : 220;
+                        const height = Number.isFinite(size.height) && size.height > 0
+                            ? Math.max(100, size.height)
+                            : 100;
+                        return new go.Size(width, height);
+                    })
                 ),
                 
                 // Placeholder for lanes
@@ -6341,7 +6389,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     { 
                         padding: 0,
                         alignment: go.Spot.TopLeft  // Pin lanes to top-left
-                    }
+                    },
+                    new go.Binding("visible", "layoutRevision", (revision: unknown) => !String(revision || "").trim())
                 )
             )
         );
@@ -6363,10 +6412,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 copyable: false,
                 resizable: true,
                 resizeObjectName: "LANE_SHAPE",  // Point to the shape for resizing
+                locationObjectName: "LANE_TABLE",
+                locationSpot: go.Spot.TopLeft,
                 // No explicit desiredSize - let Auto panel compute from children
                 layout: null,
-                computesBoundsAfterDrag: true,
+                computesBoundsAfterDrag: false,
                 computesBoundsIncludingLinks: false,
+                computesBoundsIncludingLocation: false,
                 handlesDragDropForMembers: true,
                 // When lane is moved inside a pool, restrict to vertical only
                 dragComputation: function(part: go.Part, pt: go.Point, gridpt: go.Point) {
@@ -6412,8 +6464,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 ),
                 
-                // Lane body - column 1
-                $(go.Panel, "Auto",
+                // Lane body - column 1. The main shape owns the bounds; member
+                // coordinates may overflow visually but cannot resize the Lane.
+                $(go.Panel, "Spot",
                     {
                         column: 1,
                         minSize: new go.Size(MINLENGTH, MINBREADTH)
@@ -6423,6 +6476,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     $(go.Shape, "Rectangle",
                         {
                             name: "LANE_SHAPE",
+                            isPanelMain: true,
                             fill: "white",
                             stroke: "black",
                             strokeWidth: 1,
@@ -6443,8 +6497,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     // Placeholder for lane contents
                     $(go.Placeholder,
                         {
-                            padding: 10
-                        }
+                            padding: 0,
+                            alignment: go.Spot.TopLeft
+                        },
+                        new go.Binding("visible", "layoutRevision", (revision: unknown) => !String(revision || "").trim())
                     )
                 )
             )

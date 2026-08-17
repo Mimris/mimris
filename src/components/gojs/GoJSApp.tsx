@@ -200,15 +200,14 @@ function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, l
     const localHasManualPoints = Array.isArray(localPoints) && localPoints.length >= 4;
     if (!localHasManualPoints) return incoming;
     if (incomingHasManualPoints) return incoming;
-    try {
-      console.warn("[MANUAL_MOVE_PROP_SYNC]", JSON.stringify({
+    if (debug) {
+      console.debug("[MANUAL_MOVE_PROP_SYNC]", {
         key: incoming.key,
         incomingPoints,
         localPoints,
         incomingRouting: incoming.routing || "",
         localRouting: local.routing || "",
-      }));
-    } catch (_) {
+      });
     }
     return {
       ...incoming,
@@ -3398,6 +3397,49 @@ class GoJSApp extends React.Component<{}, AppState> {
 	        (myDiagram as any).__isSwimlaneNormalizeInProgress = false;
 	      }
 	    };
+    const hasAuthoritativeSwimlaneLayout = (poolNode: go.Group): boolean => {
+      const revision = String(poolNode.data?.layoutRevision || "").trim();
+      if (!revision) return false;
+      const hasFinitePoint = (value: unknown): boolean => {
+        if (typeof value !== "string" || !value.trim()) return false;
+        try {
+          const point = go.Point.parse(value);
+          return Number.isFinite(point.x) && Number.isFinite(point.y);
+        } catch (_) {
+          return false;
+        }
+      };
+      const hasPositiveSize = (value: unknown): boolean => {
+        const size = parseSizeString(value);
+        return !!size && Number.isFinite(size.width) && size.width > 0 && Number.isFinite(size.height) && size.height > 0;
+      };
+      if (!hasFinitePoint(poolNode.data?.loc) || !hasPositiveSize(poolNode.data?.size)) return false;
+
+      const lanes: go.Group[] = [];
+      const laneKeys = new Set<string>();
+      const registerLane = (part: go.Part) => {
+        if (!(part instanceof go.Group)) return;
+        const category = String(part.data?.category || part.data?.template || part.category || "").toLowerCase();
+        if (!category.includes("lane")) return;
+        const key = String(part.data?.key || part.key || "");
+        if (!key || laneKeys.has(key)) return;
+        laneKeys.add(key);
+        lanes.push(part);
+      };
+      poolNode.memberParts.each((part: go.Part) => {
+        registerLane(part);
+      });
+      const poolKey = String(poolNode.data?.key || poolNode.key || "");
+      myDiagram.nodes.each((part: go.Part) => {
+        if (String(part.data?.group || "") === poolKey) registerLane(part);
+      });
+      if (lanes.length === 0) return false;
+      return lanes.every((lane) =>
+        String(lane.data?.layoutRevision || "").trim() === revision &&
+        hasFinitePoint(lane.data?.loc) &&
+        hasPositiveSize(lane.data?.size)
+      );
+    };
     const resolveContainingGroup = (nodePart: go.Part): gjs.goObjectNode | null => {
       if (!(nodePart instanceof go.Node) || nodePart instanceof go.Group) return null;
       const nodeBounds = nodePart.actualBounds;
@@ -3661,8 +3703,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             poolKeysToNormalize.add(poolKey);
           });
           poolKeysToNormalize.forEach((poolKey) => {
-            normalizeSwimlanePool(poolKey);
             const poolPart = myDiagram.findNodeForKey(poolKey);
+            if (poolPart instanceof go.Group && hasAuthoritativeSwimlaneLayout(poolPart)) return;
+            normalizeSwimlanePool(poolKey);
             if (poolPart instanceof go.Group) {
               relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
             }
@@ -3733,7 +3776,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             (myDiagram as any).__pendingReloadPoolNormalizeTimer = setTimeout(() => {
               delete (myDiagram as any).__pendingReloadPoolNormalizeTimer;
               const stablePoolKeys = new Set<string>(scheduledPoolKeys);
-              stablePoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+              stablePoolKeys.forEach((poolKey) => {
+                const poolPart = myDiagram.findNodeForKey(poolKey);
+                if (poolPart instanceof go.Group && hasAuthoritativeSwimlaneLayout(poolPart)) return;
+                normalizeSwimlanePool(poolKey);
+              });
               try { myDiagram.requestUpdate(); } catch (_) { }
             }, 0);
           }
@@ -6091,15 +6138,20 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
         }
-        // Dispatch relshipviews
+        // Persist only relationship views whose visibility actually changed.
+        // Relationship views affected by the move have already been added to
+        // modifiedRelshipViews above. Re-adding the complete modelview here
+        // produces one Redux update per relationship after every drag, which
+        // feeds the whole link array back through React reconciliation.
         myModelview.relshipviews = utils.removeArrayDuplicates(myModelview.relshipviews);
         const relviews = myModelview.relshipviews;
         for (let i = 0; i < relviews?.length; i++) {
           const relview = relviews[i];
-          // Preserve explicit hidden state; only ensure deleted links are not visible.
-          relview.visible = (relview.visible !== false) && !relview.markedAsDeleted;
+          const nextVisible = (relview.visible !== false) && !relview.markedAsDeleted;
+          if (relview.visible === nextVisible) continue;
+          relview.visible = nextVisible;
           const jsnRelview = new jsn.jsnRelshipView(relview);
-          modifiedRelshipViews.push(jsnRelview);
+          uic.addItemToList(modifiedRelshipViews, jsnRelview);
         }
         // Dispatch modelview
         const modifiedModelviews = new Array();

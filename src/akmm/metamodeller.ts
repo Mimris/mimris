@@ -1365,7 +1365,7 @@ export class cxMetis {
             'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor1', 'strokecolor2', 'strokewidth',
             'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
             'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
-            'size', 'scale', 'loc'
+            'size', 'scale', 'loc', 'layoutRevision'
         ];
         const isUnset = (value: any) => value === undefined || value === null || value === '';
         const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
@@ -1425,6 +1425,7 @@ export class cxMetis {
                     objview.setObject(object);
                     objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
+                    objview.layoutRevision = item.layoutRevision ?? "";
                     objview.setSize(item.size);
                     objview.setScale(Number(item.scale));
                     objview.setTextscale(Number(item.textscale));
@@ -10034,6 +10035,7 @@ export class cxObjectView extends cxMetaObject {
     isGroup: boolean;
     isSelected: boolean;
     loc: string;
+    layoutRevision: string;
     memberscale: number;
     modified: boolean;
     scale: number;
@@ -10084,6 +10086,7 @@ export class cxObjectView extends cxMetaObject {
         this.grabIsAllowed = false;
         this.viewkind = inferredContainer ? constants.viewkinds.CONT : "";
         this.loc = "";
+        this.layoutRevision = "";
         this.size = "";
         this.scale = 1.0;
         this.template = "";

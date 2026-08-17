@@ -36,10 +36,15 @@ const buildScopedRemoteMetisUri = (req: NextApiRequest, universeSlug: string, sc
     'currentModelRef',
     'currentModelviewRef',
     'currentTargetMetamodelRef',
+    'targetMetamodelRefs',
     'currentTargetModelRef',
     'currentTargetModelviewRef',
+    'initialModelviews',
     'modelScope',
+    'workItemId',
+    'saveTarget',
     'revision',
+    'workspaceAuthority',
   ].forEach((key) => {
     const value = readSingleQueryValue(req.query[key]);
     if (value) url.searchParams.set(key, value);
@@ -120,8 +125,8 @@ const readLocalShareMetis = async (universeSlug: string, scope: string) => {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+  if (req.method !== 'GET' && req.method !== 'PUT') {
+    res.setHeader('Allow', 'GET, PUT');
     return res.status(405).json({ error: 'Method not allowed.' });
   }
 
@@ -133,7 +138,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const baseUrl = readBaseUrl(req);
     const scope = readSingleQueryValue(req.query.scope);
-    const response = await fetch(buildScopedRemoteMetisUri(req, universeSlug, scope, baseUrl));
+    const remoteUri = buildScopedRemoteMetisUri(req, universeSlug, scope, baseUrl);
+    const response = await fetch(remoteUri, req.method === 'PUT'
+      ? {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body || {}),
+      }
+      : undefined);
     const { payload, text } = await readRemoteJsonLike(response);
 
     if (!response.ok || !payload) {
@@ -144,6 +156,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(response.status).json({ payload });
   } catch (error: any) {
+    if (req.method === 'PUT') {
+      return res.status(500).json({
+        error: buildRemoteFetchError('Unable to save remote model resource.', error, readRawBaseUrl(req)),
+      });
+    }
+
     const scope = readSingleQueryValue(req.query.scope);
     const localMetis = await readLocalShareMetis(universeSlug, scope);
     if (localMetis) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modelling from '../components/Modelling';
 import Layout from '../components/Layout';
@@ -15,11 +15,13 @@ import {
     readRemoteUniverseSlug,
     type RemoteMetisFocusQuery,
 } from '../components/utils/remoteUniverse';
-import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
+import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from '../components/utils/workspaceUniverseAdapter';
 import { saveRemoteUniverseProject } from '../components/utils/remoteUniverseProject';
-import { describeMetisAvailability, normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
+import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
+import { buildUniverseStateFromLegacy, selectMimrisCompatibilityProps, setUniverseState, setUniverseUser } from '../sharedUniverse';
+import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
 
-const page = (props: any) => {
+const page = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { query, isReady } = router;
@@ -27,15 +29,19 @@ const page = (props: any) => {
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
     const [isSavingRemote, setIsSavingRemote] = useState(false);
+    const [isRefreshingRemote, setIsRefreshingRemote] = useState(false);
     const [saveStatus, setSaveStatus] = useState('');
     const [visibleFocusDetails, setVisibleFocusDetails] = useState(false);
     const [exportTab, setExportTab] = useState(0);
-    const universeName = props.phFocus?.focusProj?.name || '';
-    const metisSuiteName = props.phData?.metis?.name || '';
+    const [fetchedUsername, setFetchedUsername] = useState<string | null>(null);
+    const compatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+    const phFocus = compatibilityProps.phFocus as any;
+    const phUser = compatibilityProps.phUser as any;
+    const phSource = compatibilityProps.phSource as any;
+    const phData = compatibilityProps.phData as any;
+    const universeName = phFocus?.focusProj?.name || '';
+    const metisSuiteName = phData?.metis?.name || '';
     const headerLabel = [universeName, metisSuiteName].filter(Boolean).join(' / ');
-    const workspaceMeta = getWorkspaceSnapshotMeta(props.phUser);
-    const activeMetisScope = normalizeMetisScope(workspaceMeta?.activeMetisScope);
-    const metisAvailability = describeMetisAvailability(workspaceMeta?.snapshot);
     const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
     const normalizeModels = (items: any) => Array.isArray(items) ? items.filter(Boolean) : [];
@@ -69,12 +75,18 @@ const page = (props: any) => {
                 phSource: snapshot?.phSource || '',
             }),
     });
-    const dispatchLoadedState = (snapshot: any) => {
+    const dispatchLoadedState = (snapshot: any, options?: { replaceGeometry?: boolean }) => {
         const normalized = normalizeSnapshotData(snapshot);
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalized.phData });
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: normalized.phFocus });
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: normalized.phUser });
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: normalized.phSource });
+        if (options?.replaceGeometry) {
+            dispatch({ type: 'LOAD_TOSTORE_DATA', data: normalized });
+            return;
+        }
+        dispatch(setUniverseState(buildUniverseStateFromLegacy(normalized)));
+    };
+    const clearStoredMemoryState = () => {
+        if (typeof window === 'undefined') return;
+        try { window.sessionStorage.removeItem(MEMORY_STATE_STORAGE_KEY); } catch (_) { }
+        try { window.localStorage.removeItem(MEMORY_STATE_STORAGE_KEY); } catch (_) { }
     };
     const resolveUniverseIdFromLibrarySlug = async (slug: string, baseUrl: string) => {
         if (!slug) return '';
@@ -107,10 +119,15 @@ const page = (props: any) => {
             'currentModelRef',
             'currentModelviewRef',
             'currentTargetMetamodelRef',
+            'targetMetamodelRefs',
             'currentTargetModelRef',
             'currentTargetModelviewRef',
+            'initialModelviews',
             'modelScope',
+            'workItemId',
+            'saveTarget',
             'revision',
+            'workspaceAuthority',
         ] as const).forEach(key => {
             const value = focusQuery[key];
             if (typeof value === 'string' && value.trim()) params.set(key, value.trim());
@@ -142,7 +159,7 @@ const page = (props: any) => {
     const loadLocalMemoryState = (focusQuery?: RemoteMetisFocusQuery) => {
         if (hasRequestedRemoteMetisFocus(focusQuery)) return false;
         try {
-            const stored = window.localStorage.getItem('memorystate');
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
             const parsed = stored ? JSON.parse(stored) : null;
             if (parsed) {
                 dispatchLoadedState(parsed);
@@ -152,6 +169,94 @@ const page = (props: any) => {
             console.error('Error parsing memoryLocState:', error);
         }
         return false;
+    };
+    const readStoredMemoryState = () => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            console.error('Error parsing memoryLocState:', error);
+            return null;
+        }
+    };
+    const readStoredRemoteMeta = (stored: any) => {
+        const storedPhUser = stored?.phUser || stored?.universe?.user || {};
+        return storedPhUser?.__workspaceUniverse || {};
+    };
+    const loadMatchingRemoteMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
+        const stored = readStoredMemoryState();
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+
+        if (!matchesScope || !matchesBaseUrl || !matchesId || !matchesSlug || !matchesRemoteUri) {
+            return false;
+        }
+
+        dispatchLoadedState(stored);
+        return true;
+    };
+    const remoteMemoryMatchesRoute = (stored: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
+        if (!stored) return false;
+        const meta = readStoredRemoteMeta(stored);
+        const storedFocusProj = stored?.phFocus?.focusProj || stored?.universe?.world?.focus?.focusProj || {};
+        const storedSource = stored?.phSource || stored?.universe?.source || '';
+        const requestedScope = normalizeMetisScope(options.metisScope);
+        const storedScope = normalizeMetisScope(meta?.activeMetisScope || stored?.workspace?.activeMetisScope);
+        const requestedBaseUrl = normalizeRemoteUniverseBaseUrl(options.baseUrl);
+        const storedBaseUrl = normalizeRemoteUniverseBaseUrl(meta?.universeApiBaseUrl || storedFocusProj?.universeApiBaseUrl);
+        const matchesScope = storedScope === requestedScope;
+        const matchesBaseUrl = !requestedBaseUrl || !storedBaseUrl || storedBaseUrl === requestedBaseUrl;
+        const matchesId = options.universeId
+            ? (meta?.universeId === options.universeId || storedFocusProj?.universeId === options.universeId)
+            : true;
+        const matchesSlug = options.universeSlug
+            ? (
+                meta?.universeSlug === options.universeSlug ||
+                storedFocusProj?.slug === options.universeSlug ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${encodeURIComponent(options.universeSlug)}/`)) ||
+                (typeof storedSource === 'string' && storedSource.includes(`/remote-universe/${options.universeSlug}/`))
+            )
+            : true;
+        const matchesRemoteUri = options.remoteUri
+            ? (meta?.remoteModelUri === options.remoteUri || storedSource === options.remoteUri)
+            : true;
+        return matchesScope && matchesBaseUrl && matchesId && matchesSlug && matchesRemoteUri;
+    };
+    const loadNonMatchingLocalMemoryState = (options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
+        if (options.focusQuery?.workspaceAuthority === 'redux') return false;
+        if (hasRequestedRemoteMetisFocus(options.focusQuery)) return false;
+        const stored = readStoredMemoryState();
+        if (!stored?.phData?.metis && !stored?.universe?.world?.worldModel?.metis) return false;
+        if (remoteMemoryMatchesRoute(stored, options)) return false;
+        dispatchLoadedState(stored);
+        return true;
     };
     const resolveLoadError = (response: Response, payload: any, text: string, fallbackMessage: string) =>
         readJsonResponseError(response, payload, text, fallbackMessage);
@@ -183,12 +288,12 @@ const page = (props: any) => {
             resolvedModelviews.find((modelview: any) => modelview?.id === requestedModelviewRef || modelview?.name === requestedModelviewRef) ||
             resolvedModelviews[0] ||
             null;
-        const projectName = props.phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
+        const projectName = phFocus?.focusProj?.name || options.universeSlug || options.universeId || 'Remote universe';
 
         return {
             phData: {
                 ...InitialState.phData,
-                ...props.phData,
+                ...phData,
                 metis: {
                     ...normalizedMetis,
                     models,
@@ -197,31 +302,31 @@ const page = (props: any) => {
             },
             phFocus: {
                 ...InitialState.phFocus,
-                ...props.phFocus,
+                ...phFocus,
                 focusProj: {
                     ...InitialState.phFocus.focusProj,
-                    ...props.phFocus?.focusProj,
+                    ...phFocus?.focusProj,
                     name: projectName,
                     file: options.remoteUri || options.universeSlug || options.universeId || '',
-                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
-                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                    universeId: options.universeId || phFocus?.focusProj?.universeId || '',
+                    universeApiBaseUrl: options.baseUrl || phFocus?.focusProj?.universeApiBaseUrl || '',
                 },
                 focusModel: resolvedModel ? { id: resolvedModel.id, name: resolvedModel.name } : null,
                 focusModelview: resolvedModelview ? { id: resolvedModelview.id, name: resolvedModelview.name } : null,
             },
             phUser: {
                 ...InitialState.phUser,
-                ...props.phUser,
+                ...phUser,
                 __workspaceUniverse: {
-                    ...(props.phUser?.__workspaceUniverse || {}),
+                    ...(phUser?.__workspaceUniverse || {}),
                     activeMetisScope: normalizeMetisScope(options.metisScope),
                     remoteModelUri: options.remoteUri || '',
-                    universeId: options.universeId || props.phFocus?.focusProj?.universeId || '',
+                    universeId: options.universeId || phFocus?.focusProj?.universeId || '',
                     universeSlug: options.universeSlug || '',
-                    universeApiBaseUrl: options.baseUrl || props.phFocus?.focusProj?.universeApiBaseUrl || '',
+                    universeApiBaseUrl: options.baseUrl || phFocus?.focusProj?.universeApiBaseUrl || '',
                 },
             },
-            phSource: options.remoteUri || options.universeSlug || options.universeId || props.phSource,
+            phSource: options.remoteUri || options.universeSlug || options.universeId || phSource,
         };
     };
     const resolveUniverseSlugFromLibraryId = async (universeId: string, baseUrl: string) => {
@@ -239,8 +344,30 @@ const page = (props: any) => {
             return '';
         }
     };
-    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery }) => {
+    const loadExplicitRemoteMetisScope = async (options: { universeSlug: string; universeId?: string; baseUrl: string; metisScope: string; focusQuery?: RemoteMetisFocusQuery; preferRemote?: boolean }) => {
         const remoteUri = buildRemoteMetisResourceUri(options.universeSlug, options.metisScope, options.baseUrl);
+        const isWorkspaceAuthoritative = options.focusQuery?.workspaceAuthority === 'redux';
+        if (isWorkspaceAuthoritative) clearStoredMemoryState();
+        if (!options.preferRemote && loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
+            updateModelRoute({
+                universeId: options.universeId,
+                universeSlug: options.universeSlug,
+                baseUrl: options.baseUrl,
+                metisScope: options.metisScope,
+                focusQuery: options.focusQuery,
+            });
+            dispatch({
+                type: 'SET_FOCUS_REFRESH',
+                data: {
+                    id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                        ? crypto.randomUUID()
+                        : `${Date.now()}`,
+                    name: 'Open local draft',
+                },
+            });
+            return true;
+        }
+
         const response = await fetch(buildRemoteMetisProxyPath(options.universeSlug, options.metisScope, options.baseUrl, options.focusQuery));
         const { payload, text } = await readJsonResponse(response);
         if (!response.ok || payload?.error || !payload?.payload) {
@@ -265,7 +392,8 @@ const page = (props: any) => {
                         });
 
                     clearStoredFocusModel();
-                    dispatchLoadedState(fallbackState);
+                    if (isWorkspaceAuthoritative) clearStoredMemoryState();
+                    dispatchLoadedState(fallbackState, { replaceGeometry: isWorkspaceAuthoritative });
                     updateModelRoute({
                         universeId: options.universeId,
                         universeSlug: options.universeSlug,
@@ -315,7 +443,8 @@ const page = (props: any) => {
             });
 
         clearStoredFocusModel();
-        dispatchLoadedState(nextState);
+        if (isWorkspaceAuthoritative) clearStoredMemoryState();
+        dispatchLoadedState(nextState, { replaceGeometry: isWorkspaceAuthoritative });
         updateModelRoute({
             universeId: options.universeId,
             universeSlug: options.universeSlug,
@@ -335,11 +464,136 @@ const page = (props: any) => {
         return nextState;
     };
     const canSaveRemote = Boolean(
-        props.phFocus?.focusProj?.universeId ||
-        props.phFocus?.focusProj?.universeApiBaseUrl ||
-        props.phUser?.__workspaceUniverse?.universeId ||
-        props.phUser?.__workspaceUniverse?.universeApiBaseUrl,
+        phFocus?.focusProj?.universeId ||
+        phFocus?.focusProj?.universeApiBaseUrl ||
+        phUser?.__workspaceUniverse?.universeId ||
+        phUser?.__workspaceUniverse?.universeApiBaseUrl,
     );
+    const currentRemoteUniverseSlug = readRemoteUniverseSlug(query.universeSlug) || phUser?.__workspaceUniverse?.universeSlug || '';
+    const currentRemoteUniverseApi = readShareQueryValue(query.universeApi) || phUser?.__workspaceUniverse?.universeApiBaseUrl || '';
+    const currentRemoteMetisScope = normalizeMetisScope(readShareQueryValue(query.metisScope) || phUser?.__workspaceUniverse?.activeMetisScope);
+    const currentRemoteFocusQuery: RemoteMetisFocusQuery = {
+        currentMetamodelRef: readShareQueryValue(query.currentMetamodelRef),
+        currentModelRef: readShareQueryValue(query.currentModelRef),
+        currentModelviewRef: readShareQueryValue(query.currentModelviewRef),
+        currentTargetMetamodelRef: readShareQueryValue(query.currentTargetMetamodelRef),
+        targetMetamodelRefs: readShareQueryValue(query.targetMetamodelRefs),
+        currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
+        currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
+        initialModelviews: readShareQueryValue(query.initialModelviews),
+        modelScope: readShareQueryValue(query.modelScope),
+        workItemId: readShareQueryValue(query.workItemId),
+        saveTarget: readShareQueryValue(query.saveTarget),
+        revision: readShareQueryValue(query.revision),
+        workspaceAuthority: readShareQueryValue(query.workspaceAuthority),
+    };
+    const focusedModel = normalizeModels(phData?.metis?.models).find((model: any) => model?.id === phFocus?.focusModel?.id) ||
+        normalizeModels(phData?.metis?.models)[0] ||
+        null;
+    const focusedMetamodelRef = focusedModel?.metamodelRef || focusedModel?.metamodelId || currentRemoteFocusQuery.currentMetamodelRef || '';
+    const focusedMetamodel = normalizeModels(phData?.metis?.metamodels).find((metamodel: any) => metamodel?.id === focusedMetamodelRef) || null;
+    const focusedModelview = normalizeModels(focusedModel?.modelviews).find((modelview: any) => modelview?.id === phFocus?.focusModelview?.id) ||
+        normalizeModels(focusedModel?.modelviews)[0] ||
+        null;
+    const canSaveFocusedModelToWorkspace = Boolean(currentRemoteUniverseSlug && currentRemoteUniverseApi && focusedModel?.id);
+    const canRefreshFocusedModelFromWorkspace = Boolean(currentRemoteUniverseSlug && currentRemoteUniverseApi);
+    const handleRefreshFocusedModelFromWorkspace = async () => {
+        if (!canRefreshFocusedModelFromWorkspace) return;
+        setIsRefreshingRemote(true);
+        setSaveStatus('');
+        setLoadError('');
+        try {
+            const currentMetamodelRef = focusedMetamodelRef || focusedMetamodel?.id || currentRemoteFocusQuery.currentMetamodelRef || '';
+            const currentModelRef = focusedModel?.id || currentRemoteFocusQuery.currentModelRef || '';
+            const currentModelviewRef = focusedModelview?.id || currentRemoteFocusQuery.currentModelviewRef || '';
+            await loadExplicitRemoteMetisScope({
+                universeSlug: currentRemoteUniverseSlug,
+                baseUrl: normalizeRemoteUniverseBaseUrl(currentRemoteUniverseApi),
+                metisScope: currentRemoteMetisScope,
+                focusQuery: {
+                    ...currentRemoteFocusQuery,
+                    currentMetamodelRef,
+                    currentModelRef,
+                    currentModelviewRef,
+                    modelScope: currentRemoteFocusQuery.modelScope || (currentModelRef ? 'current' : ''),
+                },
+                preferRemote: true,
+            });
+            setSaveStatus('Refreshed from workspace. Local changes were discarded.');
+        } catch (error: any) {
+            console.error('Error refreshing focused model from workspace:', error);
+            setLoadError(error?.message || 'Unable to refresh model from workspace.');
+        } finally {
+            setIsRefreshingRemote(false);
+        }
+    };
+    const handleSaveFocusedModelToWorkspace = async () => {
+        if (!canSaveFocusedModelToWorkspace || !focusedModel?.id) return;
+        setIsSavingRemote(true);
+        setSaveStatus('');
+        try {
+            const currentMetamodelRef = focusedMetamodelRef || focusedMetamodel?.id || '';
+            const currentModelRef = focusedModel.id;
+            const currentModelviewRef = focusedModelview?.id || '';
+            const metisPatch = {
+                name: phData?.metis?.name || '',
+                description: phData?.metis?.description || '',
+                ...(currentMetamodelRef ? { currentMetamodelRef } : {}),
+                currentModelRef,
+                ...(currentModelviewRef ? { currentModelviewRef } : {}),
+                metamodels: focusedMetamodel ? [focusedMetamodel] : [],
+                models: [focusedModel],
+            };
+            const response = await fetch(
+                buildRemoteMetisProxyPath(
+                    currentRemoteUniverseSlug,
+                    currentRemoteMetisScope,
+                    currentRemoteUniverseApi,
+                    {
+                        ...currentRemoteFocusQuery,
+                        currentMetamodelRef,
+                        currentModelRef,
+                        currentModelviewRef,
+                        modelScope: 'current',
+                    },
+                ),
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: 'merge', metis: metisPatch }),
+                },
+            );
+            const { payload, text } = await readJsonResponse(response);
+            if (!response.ok || payload?.error) {
+                throw new Error(readJsonResponseError(response, payload, text, 'Unable to save model to workspace.'));
+            }
+            const savedMetis = payload?.payload?.metis || payload?.metis || null;
+            if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'mimris:model-saved',
+                    universeSlug: currentRemoteUniverseSlug,
+                    metisScope: currentRemoteMetisScope,
+                    workItemId: currentRemoteFocusQuery.workItemId || '',
+                    saveTarget: currentRemoteFocusQuery.saveTarget || 'workItem',
+                    metis: savedMetis || metisPatch,
+                    model: focusedModel,
+                    metamodel: focusedMetamodel || undefined,
+                    focus: {
+                        focusModel: { id: currentModelRef, name: focusedModel?.name || '' },
+                        focusModelview: { id: currentModelviewRef, name: focusedModelview?.name || '' },
+                    },
+                    revision: currentRemoteFocusQuery.revision || '',
+                    nextRevision: new Date().toISOString(),
+                }, '*');
+            }
+            setSaveStatus('Saved model to workspace');
+        } catch (error: any) {
+            console.error('Error saving focused model to workspace:', error);
+            setSaveStatus(error?.message || 'Unable to save model to workspace');
+        } finally {
+            setIsSavingRemote(false);
+        }
+    };
     const clearStoredFocusModel = () => {
         if (typeof window === 'undefined') return;
         try {
@@ -353,21 +607,18 @@ const page = (props: any) => {
         setSaveStatus('');
         try {
             const result = await saveRemoteUniverseProject({
-                phData: props.phData,
-                phFocus: props.phFocus,
-                phSource: props.phSource,
-                phUser: props.phUser,
+                phData,
+                phFocus,
+                phSource,
+                phUser,
             });
             const adaptedState = buildMimrisStateFromWorkspaceSnapshot(result.snapshot, {
-                sourceName: result.snapshot?.focus?.project?.name || props.phFocus?.focusProj?.name || result.id,
-                sourcePath: result.snapshot?.focus?.project?.file || props.phFocus?.focusProj?.file || result.id,
+                sourceName: result.snapshot?.focus?.project?.name || phFocus?.focusProj?.name || result.id,
+                sourcePath: result.snapshot?.focus?.project?.file || phFocus?.focusProj?.file || result.id,
                 universeId: result.id,
                 universeApiBaseUrl: result.baseUrl,
             });
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: adaptedState,
-            });
+            dispatch(setUniverseState(buildUniverseStateFromLegacy(adaptedState)));
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
             setSaveStatus('Saved to server');
         } catch (error: any) {
@@ -435,7 +686,7 @@ const page = (props: any) => {
                 const username = typeof data?.username === 'string' && data.username
                     ? data.username.charAt(0).toUpperCase() + data.username.slice(1)
                     : 'Guest';
-                dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { ...props.phUser, focusUser: { name: username } } });
+                setFetchedUsername(username);
             } catch (error) {
                 console.error('Error fetching username:', error);
             }
@@ -443,6 +694,19 @@ const page = (props: any) => {
 
         fetchUsername();
     }, []);
+
+    useEffect(() => {
+        if (!fetchedUsername) return;
+        if (phUser?.focusUser?.name === fetchedUsername) return;
+
+        dispatch(setUniverseUser({
+            ...(phUser || {}),
+            focusUser: {
+                ...(phUser?.focusUser || {}),
+                name: fetchedUsername,
+            },
+        }));
+    }, [dispatch, fetchedUsername, phUser]);
 
     useEffect(() => {
         if (!hasMounted) return;
@@ -457,10 +721,15 @@ const page = (props: any) => {
             currentModelRef: readShareQueryValue(query.currentModelRef),
             currentModelviewRef: readShareQueryValue(query.currentModelviewRef),
             currentTargetMetamodelRef: readShareQueryValue(query.currentTargetMetamodelRef),
+            targetMetamodelRefs: readShareQueryValue(query.targetMetamodelRefs),
             currentTargetModelRef: readShareQueryValue(query.currentTargetModelRef),
             currentTargetModelviewRef: readShareQueryValue(query.currentTargetModelviewRef),
+            initialModelviews: readShareQueryValue(query.initialModelviews),
             modelScope: readShareQueryValue(query.modelScope),
+            workItemId: readShareQueryValue(query.workItemId),
+            saveTarget: readShareQueryValue(query.saveTarget),
             revision: readShareQueryValue(query.revision),
+            workspaceAuthority: readShareQueryValue(query.workspaceAuthority),
         };
         const projectId = readShareQueryValue(query.project);
         const org = readShareQueryValue(query.org);
@@ -482,6 +751,30 @@ const page = (props: any) => {
                     console.error('Error loading snapshot share:', error);
                     setLoadError(error?.message || 'Unable to load shared snapshot.');
                 }
+                setIsLoading(false);
+                return;
+            }
+
+            if (
+                isReady &&
+                (universeId || universeSlug) &&
+                loadNonMatchingLocalMemoryState({
+                    universeId,
+                    universeSlug,
+                    baseUrl: normalizeRemoteUniverseBaseUrl(universeApi),
+                    metisScope: requestedMetisScope,
+                    focusQuery,
+                })
+            ) {
+                dispatch({
+                    type: 'SET_FOCUS_REFRESH',
+                    data: {
+                        id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                            ? crypto.randomUUID()
+                            : `${Date.now()}`,
+                        name: 'Restore local draft',
+                    },
+                });
                 setIsLoading(false);
                 return;
             }
@@ -616,9 +909,38 @@ const page = (props: any) => {
         pendingProjectId ||
         (pendingGithubOrg && pendingGithubRepo && pendingGithubFile)
     );
-    const hasRenderableModels = Array.isArray(props.phData?.metis?.models) && props.phData.metis.models.some(Boolean);
+    const hasRenderableModels = Array.isArray(phData?.metis?.models) && phData.metis.models.some(Boolean);
     const waitingForRequestedModel = hasExplicitLoadRequest && (!isReady || isLoading);
     const shouldRenderModel = hasRenderableModels && !waitingForRequestedModel;
+
+    useEffect(() => {
+        if (!hasMounted || isLoading || loadError || !hasRenderableModels) return;
+        if (typeof window === 'undefined') return;
+
+        if (currentRemoteFocusQuery.workspaceAuthority === 'redux') return;
+
+        const snapshot = {
+            phData,
+            phFocus,
+            phUser,
+            phSource,
+            universe: buildUniverseStateFromLegacy(compatibilityProps),
+            lastUpdate: new Date().toISOString(),
+        };
+
+        try {
+            const result = persistMemoryState(snapshot);
+            if (result.sessionQuotaExceeded && result.localQuotaExceeded) {
+                console.warn('Model draft exceeded both browser storage quotas; the current draft could not be cached.');
+            } else if (result.localQuotaExceeded) {
+                console.warn('Local model draft exceeded localStorage quota; kept the current draft in sessionStorage only.');
+            } else if (result.sessionQuotaExceeded) {
+                console.warn('Local model draft exceeded sessionStorage quota; kept the current draft in localStorage only.');
+            }
+        } catch (error) {
+            console.error('Unable to persist local model draft:', error);
+        }
+    }, [hasMounted, isLoading, loadError, hasRenderableModels, phData, phFocus, phUser, phSource, compatibilityProps]);
 
     if ((!hasMounted || waitingForRequestedModel) && !hasRenderableModels) {
         return <div className="workarea p-3 w-100">Loading shared model...</div>;
@@ -630,7 +952,7 @@ const page = (props: any) => {
 
     return (
         <Layout
-            user={props.phUser?.focusUser}
+            user={phUser?.focusUser}
             hideTopMenu
             navbarProps={{
                 variant: 'mini-model',
@@ -641,6 +963,28 @@ const page = (props: any) => {
             }}
         >
             <div className="workarea p-1 w-100 position-relative" style={{ backgroundColor: "#bcc" }}>
+                {canSaveFocusedModelToWorkspace && (
+                    <div className="px-3 py-2 small text-muted d-flex gap-3 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.82)' }}>
+                        <button
+                            type="button"
+                            className="btn btn-success btn-sm"
+                            disabled={isSavingRemote || isRefreshingRemote}
+                            onClick={handleSaveFocusedModelToWorkspace}
+                        >
+                            {isSavingRemote ? 'Saving model...' : 'Save model to workspace'}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary btn-sm"
+                            disabled={isSavingRemote || isRefreshingRemote}
+                            onClick={handleRefreshFocusedModelFromWorkspace}
+                            title="Reload the current model from workspace and discard local unsaved changes"
+                        >
+                            {isRefreshingRemote ? 'Refreshing...' : 'Refresh from workspace'}
+                        </button>
+                        <span>{focusedModel?.name || focusedModel?.id}</span>
+                    </div>
+                )}
                 {(isLoading || loadError) && (
                     <div
                         className="px-3 py-2 small text-muted d-flex gap-3 align-items-center"
@@ -657,7 +1001,7 @@ const page = (props: any) => {
                 )}
                 {shouldRenderModel && (
                     <Modelling
-                        {...props}
+                        {...compatibilityProps}
                         visibleFocusDetails={visibleFocusDetails}
                         setVisibleFocusDetails={setVisibleFocusDetails}
                         exportTab={exportTab}
@@ -669,4 +1013,4 @@ const page = (props: any) => {
     )
 };
 
-export default connect(state => state)(page);
+export default page;

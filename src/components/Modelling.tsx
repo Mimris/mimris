@@ -34,6 +34,8 @@ import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { setMymetisModel } from "../actions/actions";
+import { bindLegacyUniverseDispatch, selectMimrisCompatibilityProps } from "../sharedUniverse";
+import { MEMORY_STATE_STORAGE_KEY } from "./utils/memoryStateStorage";
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -63,12 +65,48 @@ const trimPersistedStateForBrowserStorage = (state: any) => {
   };
 };
 
+const countRenderableModelviewItems = (state: any) => {
+  const models = state?.phData?.metis?.models;
+  if (!Array.isArray(models)) return 0;
+  return models.reduce((count: number, model: any) => {
+    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
+    return count + modelviews.reduce((viewCount: number, modelview: any) => {
+      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+      return viewCount + objectviews.length + relshipviews.length;
+    }, 0);
+  }, 0);
+};
+
+const readStoredMemoryState = (storage: Storage | undefined) => {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const shouldSkipSparseStartupPersist = (nextState: any) => {
+  if (typeof window === 'undefined') return false;
+  if (nextState?.phFocus?.focusRefresh?.id) return false;
+  const nextScore = countRenderableModelviewItems(nextState);
+  const storedStates = [
+    readStoredMemoryState(window.sessionStorage),
+    readStoredMemoryState(window.localStorage),
+  ];
+  const storedScore = Math.max(0, ...storedStates.map(countRenderableModelviewItems));
+  return storedScore > nextScore;
+};
+
 const Modelling = (props: any) => {
 
   if (typeof window === 'undefined') return <></>
   // if (!props) return <></>
   if (debug) console.log('55 Modelling:', props)//, props);        
-  const dispatch = useDispatch();
+  const rawDispatch = useDispatch();
+  const dispatch = useMemo(() => bindLegacyUniverseDispatch(rawDispatch), [rawDispatch]);
   const store = useStore();
 
   const projectModalRef = useRef(null);
@@ -95,6 +133,13 @@ const Modelling = (props: any) => {
   const [visibleTasks, setVisibleTasks] = useState(true)
   const [mmToggle, setMmToggle] = useState(true)
   const [mount, setMount] = useState(false)
+  const [gojsSnapshot, setGojsSnapshot] = useState<any>({
+    nodes: [],
+    links: [],
+    modelId: null,
+    modelviewId: null,
+    version: 0,
+  })
   const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -102,26 +147,36 @@ const Modelling = (props: any) => {
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
-  let focusModel = useSelector(focusModel => props.phFocus?.focusModel)
-  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview)
-  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview)
-  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview)
-  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype)
-  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype)
-  const phSource = useSelector(phSource => props.phSource)
+  const sharedCompatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+  const metis = sharedCompatibilityProps.phData?.metis as any;
+  const phFocus = sharedCompatibilityProps.phFocus as any;
+  const phUser = sharedCompatibilityProps.phUser as any;
+  const phSource = sharedCompatibilityProps.phSource as any;
+  const phData = sharedCompatibilityProps.phData as any;
+  const compatibilityProps = useMemo(() => ({
+    ...props,
+    ...sharedCompatibilityProps,
+  }), [props, sharedCompatibilityProps]);
+
+  let focusModel = phFocus?.focusModel
+  let focusModelview = phFocus?.focusModelview
+  const runtimeRefreshKey = phFocus?.focusRefresh?.id || 'initial'
+  const focusObjectview = phFocus?.focusObjectview
+  const focusRelshipview = phFocus?.focusRelshipview
+  const focusObjecttype = phFocus?.focusObjecttype
+  const focusRelshiptype = phFocus?.focusRelshiptype
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
-  const ph = props
-  const metis = ph.phData?.metis
-
   const getPersistedState = () => {
-    const state = store.getState();
-    return trimPersistedStateForBrowserStorage({
-      phData: state.phData,
-      phFocus: state.phFocus,
-      phUser: state.phUser,
-      phSource: state.phSource,
-    });
+    return trimPersistedStateForBrowserStorage(selectMimrisCompatibilityProps(store.getState() as any));
+  }
+
+  const persistCurrentStateToBrowserStorage = () => {
+    const persistedProps = getPersistedState();
+    if (shouldSkipSparseStartupPersist(persistedProps)) return false;
+    setMemorySessionState(persistedProps)
+    setMemoryLocState(persistedProps)
+    return true;
   }
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
@@ -134,11 +189,33 @@ const Modelling = (props: any) => {
   let curmodview = (curmod && modelviews && focusModelview?.id) && modelviews.find((mv: any) => mv.id === focusModelview.id)
   if (!curmodview) curmodview = modelviews[0] || null
 
+  const focusedMetamodel = metis?.metamodels?.find((mm: any) => mm?.id === curmod?.metamodelRef) || null;
+  const generationContentKey = useMemo(() => {
+    try {
+      return JSON.stringify({
+        model: curmod || null,
+        metamodel: focusedMetamodel,
+        focusModelId: focusModel?.id || '',
+        focusModelviewId: focusModelview?.id || '',
+      });
+    } catch (_) {
+      return [
+        metis?.id || '',
+        curmod?.id || '',
+        curmodview?.id || '',
+        curmod?.objects?.length || 0,
+        curmod?.relships?.length || 0,
+        focusedMetamodel?.objecttypes?.length || 0,
+        focusedMetamodel?.relshiptypes?.length || 0,
+      ].join(':');
+    }
+  }, [metis, curmod, curmodview?.id, focusedMetamodel, focusModel?.id, focusModelview?.id]);
+
 
   if (debug) console.log('130 Modelling curmodview', curmod, curmodview, models, focusModel?.name, focusModelview?.name);
 
-  const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-  const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+  const focusTargetModel = phFocus?.focusTargetModel
+  const focusTargetModelview = phFocus?.focusTargetModelview
   const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
   const targetModelviews = Array.isArray(curtargetmodel?.modelviews) ? curtargetmodel.modelviews.filter((mv: any) => mv) : []
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && targetModelviews.find((mv: any) => mv.id === focusTargetModelview?.id)
@@ -148,12 +225,14 @@ const Modelling = (props: any) => {
   if (activetabindex < 0) activetabindex = 0;
 
   const myMetisRef = useRef<any>(null);
+  const importedGenerationContentKeyRef = useRef<string>('');
   if (!myMetisRef.current) {
     myMetisRef.current = new akm.cxMetis();
   }
   const myMetis = myMetisRef.current;
-  if (metis && myMetis?.importData) {
+  if (metis && myMetis?.importData && importedGenerationContentKeyRef.current !== generationContentKey) {
     myMetis.importData(metis, true);
+    importedGenerationContentKeyRef.current = generationContentKey;
     const hydratedModel =
       (focusModel?.id && myMetis.findModel?.(focusModel.id)) ||
       myMetis.currentModel ||
@@ -185,12 +264,28 @@ const Modelling = (props: any) => {
 
   useEffect(() => { // Generate GoJS node model when focus changes
     if (debug) useEfflog('223 Modelling useEffect 1', myMetis)
+    let cancelled = false;
     myMetis.modelType = 'Modelling';
-    if (!debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
-    GenGojsModel(props, myMetis)
-    setActiveTab(activetabindex)
-    setMount(true);
-  }, [props.phFocus?.focusModel?.id, props.phFocus?.focusModelview?.id, refresh])
+    if (debug) console.log('147 Modelling useEffect 2 ', myMetis, activeTab, activetabindex);
+    const generateGojsModel = async () => {
+      await GenGojsModel(compatibilityProps, myMetis, { skipImport: true })
+      if (cancelled) return;
+      const goModel = myMetis?.gojsModel;
+      setGojsSnapshot((snapshot: any) => ({
+        nodes: Array.isArray(goModel?.nodes) ? [...goModel.nodes] : [],
+        links: Array.isArray(goModel?.links) ? [...goModel.links] : [],
+        modelId: phFocus?.focusModel?.id || null,
+        modelviewId: phFocus?.focusModelview?.id || null,
+        version: (snapshot?.version || 0) + 1,
+      }))
+      setActiveTab(activetabindex)
+      setMount(true);
+    }
+    generateGojsModel();
+    return () => {
+      cancelled = true;
+    }
+  }, [phFocus?.focusModel?.id, phFocus?.focusModelview?.id, runtimeRefreshKey, refresh, generationContentKey])
 
   useEffect(() => {
     setActiveTab(activetabindex);
@@ -206,10 +301,18 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (didRestoreStoredFocusModelRef.current) return;
     if (typeof window === 'undefined') return;
+
+    // Embedded/workspace sessions can request an exact model. That explicit
+    // focus must win over the model remembered from an earlier Mimris tab.
+    const requestedModelRef = new URLSearchParams(window.location.search).get('currentModelRef');
+    if (requestedModelRef) {
+      didRestoreStoredFocusModelRef.current = true;
+      return;
+    }
     if (!models?.length) return;
     didRestoreStoredFocusModelRef.current = true;
 
-    const storedFocusModelId = window.localStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+    const storedFocusModelId = window.sessionStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
     if (!storedFocusModelId) return;
     if (focusModel?.id === storedFocusModelId) return;
 
@@ -226,7 +329,7 @@ const Modelling = (props: any) => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!focusModel?.id) return;
-    window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
+    window.sessionStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
   }, [focusModel?.id])
 
 
@@ -296,7 +399,7 @@ const Modelling = (props: any) => {
         modifiedDate: new Date().toISOString(),
       }
     });
-    if (props.phFocus?.focusModel?.id === model.id) {
+    if (phFocus?.focusModel?.id === model.id) {
       dispatch({ type: 'SET_FOCUS_MODEL', data: { id: model.id, name: nextName } });
     }
     handleCloseRenameModelModal();
@@ -324,7 +427,7 @@ const Modelling = (props: any) => {
       className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
       <Modal.Header closeButton>GitHub Settings: </Modal.Header>
       <Modal.Body >
-        <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
+        <ProjectDetailsForm props={compatibilityProps} onSubmit={handleSubmit} />
       </Modal.Body>
       <Modal.Footer>
         <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
@@ -335,29 +438,19 @@ const Modelling = (props: any) => {
   // Keep GitHub Settings modal closed by default; open explicitly via UI actions only.
 
   useEffect(() => {
-    if (debug) useEfflog('163 Modelling useEffect 3 [props.phSource]', props.phSource)
-    if (!props.phFocus?.focusRefresh?.id) return;
+    if (debug) useEfflog('163 Modelling useEffect 3 [phSource]', phSource)
+    if (!phFocus?.focusRefresh?.id) return;
     doRefresh();
-    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-  }, [props.phFocus?.focusRefresh?.id])
-
-  useEffect(() => { // Genereate GoJs node model when the focusRefresch.id changes
-    if (debug) useEfflog('223 Modelling useEffect 4 [props.phFocus?.focusModelview.id]', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.name);
-    if (debug) console.log('226 ', props.phFocus.focusModel?.name, props.phFocus.focusModelview?.name, props.phFocus?.focusRefresh?.id);
-    setRefresh(prev => !prev)
-  }, [props.phFocus?.focusRefresh?.id])
+    if (debug) console.log('226 ', phFocus.focusModel?.name, phFocus.focusModelview?.name, phFocus?.focusRefresh?.name);
+  }, [phFocus?.focusRefresh?.id])
 
   useEffect(() => {
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
-  }, [props.phData, props.phFocus, props.phSource, props.phUser])
+    persistCurrentStateToBrowserStorage()
+  }, [phData, phFocus, phSource, phUser])
 
   function doRefresh() { // 
-    if (!debug) console.log('207 Modelling doRefresh', props);
-    const persistedProps = getPersistedState();
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
+    if (!debug) console.log('207 Modelling doRefresh', compatibilityProps);
+    persistCurrentStateToBrowserStorage()
     setRefresh(prev => !prev)
   }
 
@@ -375,10 +468,6 @@ const Modelling = (props: any) => {
   };
 
   if (mount) {
-    let phFocus = props.phFocus;
-    let phData = props.phData
-    let phUser = props.phUser
-
     if (debug) console.log('255 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
     if (debug) console.log('256 Modelling', curmod, curmodview);
 
@@ -464,7 +553,7 @@ const Modelling = (props: any) => {
 
     const paletteDiv = // this is the div for the palette with the types tab and the objects tab
       <Palette
-        key={`metamodel-palette-${phFocus?.focusModel?.id || 'none'}`}
+        key={`metamodel-palette-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phFocus={phFocus}
@@ -475,6 +564,7 @@ const Modelling = (props: any) => {
 
     const metamodelDiv =  // this is the metamodel modelling area
       <Modeller
+        key={`metamodel-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
         myMetis={myMetis}
         metis={metis}
         phData={phData}
@@ -670,7 +760,9 @@ const Modelling = (props: any) => {
                 <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px", paddingRight: "1px", marginRight: "1px", alignSelf: "flex-start" }}>
                   <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "auto", border: "solid 1px black" }}>
                     <Modeller // this is the Modeller ara
+                      key={`model-${runtimeRefreshKey}-${phFocus?.focusModel?.id || 'none'}-${phFocus?.focusModelview?.id || 'none'}`}
                       myMetis={myMetis}
+                      gojsSnapshot={gojsSnapshot}
                       metis={metis}
                       phData={phData}
                       phFocus={phFocus}
@@ -746,12 +838,12 @@ const Modelling = (props: any) => {
     )
 
     if (debug) console.log('583 Modelling', activeTab);
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
+    const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
 
     const modellingDiv = // this is the button row and the modelling area with OSDU import and load options and Reload button
       <>

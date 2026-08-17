@@ -8,6 +8,7 @@ import useLocalStorage from '../../hooks/use-local-storage'
 import useSessionStorage from "../../hooks/use-session-storage";
 import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { setFocusIssue } from "@/actions/actions";
+import { setUniverseSource } from "../../sharedUniverse";
 
 
 // import { SaveModelToLocState } from "../utils/SaveModelToLocState";
@@ -17,32 +18,40 @@ const debug = false;
 function ProjectDetailsForm(props: any) {
   const dispatch = useDispatch();
   // console.log("7 ProjectDetailsForm", props.props.phFocus);
+  const legacyProps = props.props || {};
+  const phData = legacyProps.phData || {};
+  const phFocus = legacyProps.phFocus || {};
+  const phUser = legacyProps.phUser || {};
+  const phSource = legacyProps.phSource;
+  const focusProj = phFocus.focusProj || {};
+  const focusOrg = phFocus.focusOrg || {};
+  const metis = phData.metis || {};
 
-  const [projectName, setProjectName] = useState(props.props.phFocus.focusProj.name);
+  const [projectName, setProjectName] = useState(focusProj.name);
 
-  const [projectNumber, setProjectNumber] = useState(props.props.phFocus?.focusProj?.projectNumber);
-  const [id, setId] = useState(props.props.phFocus?.focusProj?.id);
-  const [name, setName] = useState(props.props.phFocus?.focusProj?.name);
-  const [org, setOrg] = useState(props.props.phFocus?.focusProj?.org || props.props.phFocus?.focusOrg?.name);
-  const [repo, setRepo] = useState(props.props.phFocus?.focusProj?.repo);
-  const [path, setPath] = useState(props.props.phFocus?.focusProj?.path);
-  const [file, setFile] = useState(props.props.phSource || props.props.phFocus?.focusProj?.file || props.props.phData.metis.name + '.json');
-  const [source, setSource] = useState(props.props.phSource);
-  const [branch, setBranch] = useState(props.props.phFocus?.focusProj?.branch);
+  const [projectNumber, setProjectNumber] = useState(focusProj.projectNumber);
+  const [id, setId] = useState(focusProj.id);
+  const [name, setName] = useState(focusProj.name);
+  const [org, setOrg] = useState(focusProj.org || focusOrg.name);
+  const [repo, setRepo] = useState(focusProj.repo);
+  const [path, setPath] = useState(focusProj.path);
+  const [file, setFile] = useState(phSource || focusProj.file || `${metis.name || 'model'}.json`);
+  const [source, setSource] = useState(phSource);
+  const [branch, setBranch] = useState(focusProj.branch);
 
-  const [focusModel, setFocusModel] = useState(props.props.phFocus?.focusModel);
-  const [focusModelview, setFocusModelview] = useState(props.props.phFocus?.focusModelview);
-  const [focusObject, setFocusObject] = useState(props.props.phFocus?.focusObject);
-  const [focusObjectview, setFocusObjectview] = useState(props.props.phFocus?.focusObjectview);
-  const [focusOrg, setFocusOrg] = useState(props.props.phFocus?.focusOrg);
-  const [focusProj, setFocusProj] = useState(props.props.phFocus?.focusProj);
-  const [focusRole, setFocusRole] = useState(props.props.phFocus?.focusRole);
-  const [focusTask, setFocusTask] = useState(props.props.phFocus?.focusTask);
-  const [focusIssue, setFocusIssue] = useState(props.props.phFocus?.focusIssue);
+  const [focusModel, setFocusModel] = useState(phFocus.focusModel);
+  const [focusModelview, setFocusModelview] = useState(phFocus.focusModelview);
+  const [focusObject, setFocusObject] = useState(phFocus.focusObject);
+  const [focusObjectview, setFocusObjectview] = useState(phFocus.focusObjectview);
+  const [focusOrgState, setFocusOrg] = useState(phFocus.focusOrg);
+  const [focusProjState, setFocusProj] = useState(phFocus.focusProj);
+  const [focusRole, setFocusRole] = useState(phFocus.focusRole);
+  const [focusTask, setFocusTask] = useState(phFocus.focusTask);
+  const [focusIssue, setFocusIssue] = useState(phFocus.focusIssue);
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []);
 
   useEffect(() => {
-    console.log("53 ProjectDetailsForm useEffect 1", props.props.phFocus);
+    console.log("53 ProjectDetailsForm useEffect 1", phFocus);
     setId(id);
     setName(name);
     setOrg(org || '');
@@ -52,17 +61,17 @@ function ProjectDetailsForm(props: any) {
     setFile(file);
     setSource(`${org}/${repo}${(!path || path === '') ? '/' : `/${path.toString()}/`}${file}`);
     setProjectNumber(projectNumber || "1");
-    setFocusIssue(props.props.phFocus?.focusIssue);
-  }, [file, name, org, repo, path, branch, projectNumber, focusIssue, props.props.phFocus, id]);
+    setFocusIssue(phFocus.focusIssue);
+  }, [file, name, org, repo, path, branch, projectNumber, focusIssue, phFocus, id]);
 
   useEffect(() => {
-    console.log("57 ProjectDetailsForm useEffect 2", props.props.phFocus);
-    setFile(props.props.phFocus?.focusProj.file);
-    setName(props.props.phFocus?.focusProj.name);
+    console.log("57 ProjectDetailsForm useEffect 2", phFocus);
+    setFile(focusProj.file || file);
+    setName(focusProj.name || name);
   }, []);
 
-  const idnew = (props.props.phFocus?.focusProj.id) ? props.props.phFocus?.focusProj.id : org + repo + path + file + branch;
-  const namenew = (props.props.phFocus?.focusProj.name) ? props.props.phFocus?.focusProj.name : repo;
+  const idnew = focusProj.id ? focusProj.id : org + repo + path + file + branch;
+  const namenew = focusProj.name ? focusProj.name : repo;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,12 +83,12 @@ function ProjectDetailsForm(props: any) {
     const contextData = { focusModel: focusModel, focusOrg: focusOrg, focusProj: data, focusModelview: focusModelview, focusObject: focusObject, focusObjectview: focusObjectview, focusRole: focusRole, focusTask: focusTask, focusIssue: focusIssue }
     console.log("79 ProjectDetailsForm", data, datasource);
     dispatch({ type: 'SET_FOCUS_PROJ', data });
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: file });
+    dispatch(setUniverseSource(file));
 
     const timer = setTimeout(() => {
-      console.log("44 ProjectDetailsForm", props.props.phFocus);
+      console.log("44 ProjectDetailsForm", phFocus);
       // SaveModelToLocState(props.props, memoryLocState, setMemoryLocState)
-      setMemoryLocState(props.props);
+      setMemoryLocState(legacyProps);
     }, 2000);
     return () => clearTimeout(timer);
   };
@@ -89,9 +98,9 @@ function ProjectDetailsForm(props: any) {
     // setProjectName(props.props.phFocus.focusProj.name);
     const data = `${file}`
     // const data = `${projectName}_PR`
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data }) // setting the new project source filename
+    dispatch(setUniverseSource(data)) // setting the new project source filename
     console.log("ProjectDetailsForm 100", file);
-    SaveAllToFile({ phData: props.props.phData, phFocus: props.props.phFocus, phSource: props.props.phSource, phUser: props.props.phUser }, file, '_PR')
+    SaveAllToFile({ phData, phFocus, phSource, phUser }, file, '_PR')
   }
   const saveFile = (
     <>
@@ -146,7 +155,7 @@ function ProjectDetailsForm(props: any) {
             <input className='rounded bg-white px-1 border-light w-75'
               placeholder="My GitHub Repository name"
               type="text"
-              value={(repo !== '') ? repo : props.props.phFocus?.focusProj.name}
+              value={(repo !== '') ? repo : focusProj.name}
               onChange={(e) => setRepo(e.target.value)}
               title='Repository name'
             />

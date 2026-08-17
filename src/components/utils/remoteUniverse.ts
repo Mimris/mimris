@@ -33,10 +33,15 @@ export type RemoteMetisFocusQuery = {
   currentModelRef?: string;
   currentModelviewRef?: string;
   currentTargetMetamodelRef?: string;
+  targetMetamodelRefs?: string;
   currentTargetModelRef?: string;
   currentTargetModelviewRef?: string;
+  initialModelviews?: string;
   modelScope?: string;
+  workItemId?: string;
+  saveTarget?: string;
   revision?: string;
+  workspaceAuthority?: string;
 };
 
 const appendRemoteMetisFocusQuery = (query: URLSearchParams, focusQuery?: RemoteMetisFocusQuery) => {
@@ -46,10 +51,15 @@ const appendRemoteMetisFocusQuery = (query: URLSearchParams, focusQuery?: Remote
     "currentModelRef",
     "currentModelviewRef",
     "currentTargetMetamodelRef",
+    "targetMetamodelRefs",
     "currentTargetModelRef",
     "currentTargetModelviewRef",
+    "initialModelviews",
     "modelScope",
+    "workItemId",
+    "saveTarget",
     "revision",
+    "workspaceAuthority",
   ] as const).forEach(key => {
     const value = focusQuery[key];
     if (typeof value === "string" && value.trim()) query.set(key, value.trim());

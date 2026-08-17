@@ -48,6 +48,7 @@ Related project:
     - [Ensure the default branch is `main`](#ensure-the-default-branch-is-main)
     - [Preview locally](#preview-locally)
   - [Contributing 🤝](#contributing-)
+  - [Third-party software](#third-party-software)
   - [License](#license)
 - [Mimris](#mimris)
 - [Develop branch used for deployment of beta versjon](#develop-branch-used-for-deployment-of-beta-versjon)
@@ -97,7 +98,7 @@ Below is shown an example model built using a template generated from the metamo
 
 ## Authors
 
-[Authors](docs/AUTHORS.md)
+[Authors, contributors, credits, and inspiration](docs/_community/authors.md)
 
 
 
@@ -338,6 +339,12 @@ Priority Areas:
 - 🧩 Add more modelling methods
 - 🧩 Add more modelling frameworks
 - 🧩 Add more modelling standards
+
+## Third-party software
+
+Mimris is built with TypeScript, React, Next.js, Redux, Bootstrap/ReactStrap, GoJS, and other npm packages listed in [`package.json`](package.json). These dependencies are distributed under their own licenses.
+
+GoJS is a commercial diagramming library. See the [GoJS license information](https://gojs.net/latest/license.html) before distributing or deploying builds that include GoJS.
 
 ## License
 

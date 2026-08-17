@@ -487,6 +487,7 @@ export class goObjectNode extends goNode {
     isGroup: boolean | "";
     isSelected: boolean | "";
     loc:             string;
+    layoutRevision:  string;
     memberscale:     float;
     scale:           float;
     size:            float;
@@ -550,6 +551,7 @@ export class goObjectNode extends goNode {
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
+            this.layoutRevision = objview.layoutRevision || "";
             this.size           = objview.size;
             this.scale         = objview.scale;
             (this as any).scale1 = objview.scale;
@@ -593,6 +595,16 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
+            const isContainerView =
+                objview.isGroup === true ||
+                objview.viewkind === constants.viewkinds.CONT ||
+                this.typeview?.viewkind === constants.viewkinds.CONT;
+            if (isContainerView) {
+                this.isGroup = true;
+                this.viewkind = constants.viewkinds.CONT;
+                this.template = this.template || "groupNoPorts";
+                this.category = this.template;
+            }
             if (!this.template2)
                 this.template2 = this.typeview?.template2;
             if (!this.geometry)
@@ -970,7 +982,7 @@ export class goRelshipLink extends goLink {
     nameFrom:           string;
     nameTo:             string;
     visible:            boolean;
-    constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
+    constructor(key: string, model: goModel | null, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
         this.relshipview     = relview;
@@ -1109,10 +1121,14 @@ export class goRelshipLink extends goLink {
     setRelshipKind(kind: string) {
         this.relshipkind = kind;
     }
-    loadLinkContent(model: goModel) {
+    loadLinkContent(model?: goModel | null) {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
-        const modelview = model.modelView;
+        const modelview =
+            model?.modelView ||
+            relview?.fromObjview?.modelview ||
+            relview?.toObjview?.modelview ||
+            null;
         const isSelfLoop =
             !!this.fromNode &&
             !!this.toNode &&
@@ -1167,12 +1183,12 @@ export class goRelshipLink extends goLink {
         } else if (isSelfLoop) {
             this.routing = "Normal";
         } else {
-            this.routing = relview?.routing || modelview.routing;
+            this.routing = relview?.routing || modelview?.routing || "Normal";
         }
-        this.curve = modelview.linkcurve;
-        if (modelview.showCardinality) {
-            this.cardinalityFrom = relview.relship?.getCardinalityFrom(); 
-            this.cardinalityTo = relview.relship?.getCardinalityTo();
+        this.curve = modelview?.linkcurve || relview?.curve || "None";
+        if (modelview?.showCardinality && relview?.relship) {
+            this.cardinalityFrom = relview.relship.getCardinalityFrom();
+            this.cardinalityTo = relview.relship.getCardinalityTo();
         } else {
             this.cardinalityFrom = "";
             this.cardinalityTo = "";

@@ -42,7 +42,6 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
-import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList, imageLibrary } from '../../forms/selectIcons';
 import ChangeIconModal from '../../modals/ChangeIconModal';
 import ChangeImageModal from '../../modals/ChangeImageModal';
@@ -52,6 +51,14 @@ import ChangeImageModal from '../../modals/ChangeImageModal';
 // import "../BalloonLink.js";
 import Toggle from '../../utils/Toggle';
 import { i } from '../../utils/SvgLetters';
+import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '../../../sharedUniverse';
+import {
+  buildGenerationProvenance,
+  createGeneratedMetamodelProject,
+  generatedProjectFileName,
+  inspectGeneratedProjectTarget,
+  updateGeneratedMetamodelProject,
+} from '../../utils/generatedMetamodelProject';
 
 const linkToLink = false;
 const AllowTopLevel = true;
@@ -171,15 +178,19 @@ function mergeIncomingDiagramNodeDataWithLiveState(
   if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
 
   const liveNodeByAlias = new Map<string, go.Node>();
+  const liveNodes: go.Node[] = [];
   for (let it = diagram.nodes.iterator; it?.next();) {
     const node = it.value as go.Node;
+    liveNodes.push(node);
     const aliases = getDiagramNodeAliases(node?.data);
     aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
   }
 
-  return incomingNodes.map((incoming: any) => {
+  const incomingAliases = new Set<string>();
+  const mergedNodes = incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object') return incoming;
     const aliases = getDiagramNodeAliases(incoming);
+    aliases.forEach((alias) => incomingAliases.add(alias));
     if (aliases.length === 0) return incoming;
 
     let liveNode: go.Node | undefined;
@@ -215,6 +226,16 @@ function mergeIncomingDiagramNodeDataWithLiveState(
       scale1: nextScale1,
     };
   });
+  liveNodes.forEach((node) => {
+    const liveData = node?.data;
+    if (!liveData || typeof liveData !== 'object') return;
+    const aliases = getDiagramNodeAliases(liveData);
+    if (aliases.length === 0) return;
+    if (aliases.some((alias) => incomingAliases.has(alias))) return;
+    if (liveData.category !== constants.gojs.C_OBJECT && !liveData.objectview && !liveData.objviewRef) return;
+    mergedNodes.push(liveData);
+  });
+  return mergedNodes;
 }
 
 function normalizeLiveLinkPoints(points: any): number[] | undefined {
@@ -312,7 +333,7 @@ interface DiagramProps {
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
   onExportSvgReady: any;
-  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: string[]; reltypeOptions?: string[] }) => void;
+  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: Array<string | { value: string; label: string }>; reltypeOptions?: string[] }) => void;
 }
 
 interface DiagramState {
@@ -331,9 +352,9 @@ interface DiagramState {
   selectConnectedReldir?: string;
   selectConnectedReltypeOptions?: string[];
   selectConnectedIncludeAllRels?: boolean;
+  selectConnectedCreateMissingViews?: boolean;
   pendingSelectContext?: { part: go.Part; diagram: go.Diagram } | null;
-  selectConnectedIncludeAllRels?: boolean;
-  selectConnectedRelOptions?: string[];
+  selectConnectedRelOptions?: Array<string | { value: string; label: string }>;
   selectConnectedRelChoice?: string | string[];
   addConnectedDialogOpen?: boolean;
   addConnectedLevels?: string;
@@ -388,6 +409,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectConnectedReldir: 'All',
       selectConnectedReltypeOptions: ['All'],
       selectConnectedIncludeAllRels: false,
+      selectConnectedCreateMissingViews: false,
       pendingSelectContext: null,
       selectConnectedRelOptions: ['All'],
       selectConnectedRelChoice: ['All'],
@@ -504,6 +526,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
         modelAny.__originalSetDataProperty = originalSetDataProperty;
         modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          if (!data || typeof data !== 'object') {
+            return data;
+          }
           try {
             if (propname === 'loc' && data) {
               const lockMap: Map<string, { loc: string; until: number }> | undefined =
@@ -1401,18 +1426,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     return 'All';
   }
 
-  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+  private buildConnectedRelationshipOptions = (part: go.Part, includeAllRels: boolean = false): Array<{ value: string; label: string }> => {
     try {
-      if (!part || !part.data) return ['All'];
+      if (!part || !part.data) return [{ value: 'All', label: 'All' }];
       const key = (part.data as any).key;
       const myMetis = this.myMetis;
       let modelview = myMetis?.currentModelview;
-      if (!modelview) return ['All'];
+      if (!modelview) return [{ value: 'All', label: 'All' }];
       modelview = myMetis.findModelView(modelview.id);
       const objview = myMetis.findObjectView(key);
-      if (!objview) return ['All'];
+      if (!objview) return [{ value: 'All', label: 'All' }];
 
-      const names: string[] = [];
+      const options: Array<{ value: string; label: string }> = [];
+      const seen = new Set<string>();
+      const addOption = (rel: any, label: string) => {
+        const value = rel?.id ? `rel:${rel.id}` : '';
+        if (!value || seen.has(value)) return;
+        seen.add(value);
+        options.push({ value, label });
+      };
 
       // Gather relationship types touching this object from the current modelview
       const relviews = modelview.relshipviews || [];
@@ -1427,8 +1459,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const toId = rv?.toObjview?.id;
         const otherNameFrom = rv?.toObjview?.name || rv?.toObjview?.object?.name || rv?.relship?.toObject?.name || '';
         const otherNameTo = rv?.fromObjview?.name || rv?.fromObjview?.object?.name || rv?.relship?.fromObject?.name || '';
-        if (fromId === objview.id) names.push(`${nm} > ${otherNameFrom}`.trim());
-        if (toId === objview.id) names.push(`${nm} < ${otherNameTo}`.trim());
+        if (fromId === objview.id) addOption(rel, `${nm} > ${otherNameFrom}`.trim());
+        if (toId === objview.id) addOption(rel, `${nm} < ${otherNameTo}`.trim());
       }
 
       // Optionally include relationships not currently represented in this modelview
@@ -1449,17 +1481,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!nm) continue;
               const otherObj = useinp ? rel.fromObject : rel.toObject;
               const otherName = otherObj?.name || '';
-              names.push(`${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
+              addOption(rel, `${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
             }
           }
         }
       }
 
-      const list = Array.from(new Set(names)).sort();
-      return ['All', ...list];
+      const list = options.sort((a, b) => a.label.localeCompare(b.label));
+      return [{ value: 'All', label: 'All' }, ...list];
     } catch {
-      return ['All'];
+      return [{ value: 'All', label: 'All' }];
     }
+  };
+
+  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+    return this.buildConnectedRelationshipOptions(part, includeAllRels).map(opt => opt.label);
   };
 
   private buildModelReltypeOptions = (): string[] => {
@@ -1498,15 +1534,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private openSelectConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
     if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
     const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-    const options = this.buildReltypeOptions(part, includeAllRels);
+    const options = this.buildConnectedRelationshipOptions(part, includeAllRels);
     const reltypeOptions = this.buildModelReltypeOptions();
     this.setState({
       selectConnectedDialogOpen: true,
       pendingSelectContext: { diagram, part },
       selectConnectedLevels: this.state.selectConnectedLevels || '1',
       selectConnectedReltypes: 'All',
-      selectConnectedRelChoice: [options?.[0] || 'All'],
-      selectConnectedRelOptions: options || ['All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
+      selectConnectedRelOptions: options || [{ value: 'All', label: 'All' }],
       selectConnectedReltypeOptions: reltypeOptions || ['All'],
       selectConnectedReldir: this.normalizeReldir(this.state.selectConnectedReldir) || 'All',
       selectConnectedIncludeAllRels: includeAllRels,
@@ -1543,12 +1579,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private handleSelectConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const includeAllRels = event.target.checked;
     const part = this.state.pendingSelectContext?.part;
-    const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || ['All']);
+    const options = part ? this.buildConnectedRelationshipOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]);
     this.setState({
       selectConnectedIncludeAllRels: includeAllRels,
       selectConnectedRelOptions: options,
-      selectConnectedRelChoice: [options?.[0] || 'All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
     });
+  };
+
+  private handleSelectConnectedCreateMissingViewsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ selectConnectedCreateMissingViews: event.target.checked });
   };
 
   private handleSelectConnectedCancel = () => {
@@ -1560,45 +1600,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const levelsParsed = parseInt(this.state.selectConnectedLevels || '1', 10);
     const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
     const reldir = (this.state.selectConnectedReldir || 'All').trim();
+    const createMissingViews = !!this.state.selectConnectedCreateMissingViews;
 
     this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null }, () => {
       if (pendingSelectContext) {
         const normalize = (val: string) => (val || '').trim();
-        let reltypesFinal = '';
-        if (levels === 1) {
-          // For level 1, only use the selected relationship(s) as strict tokens
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || ''])
+        const selectedFirstHopRelIds = (Array.isArray(this.state.selectConnectedRelChoice)
+          ? this.state.selectConnectedRelChoice
+          : [this.state.selectConnectedRelChoice || ''])
+          .map(normalize)
+          .filter(v => v.length > 0 && v !== 'All')
+          .map(v => v.startsWith('rel:') ? v.slice(4) : v)
+          .filter(v => v.length > 0);
+        const rawReltypesInput = this.state.selectConnectedReltypes || 'All';
+        const reltypesInput = rawReltypesInput === 'All'
+          ? []
+          : rawReltypesInput
+            .split(',')
             .map(normalize)
             .filter(v => v.length > 0 && v !== 'All');
-          if (selectedReltypes.length === 0) {
-            // Do not proceed if nothing is selected or 'All' is selected
-            alert('Please select a specific relationship to add.');
-            return;
-          }
-          reltypesFinal = selectedReltypes.join(',');
-        } else {
-          // For deeper levels, allow broader filter
-          const reltypesInput = (this.state.selectConnectedReltypes || '') === 'All'
-            ? []
-            : (this.state.selectConnectedReltypes || '')
-              .split(',')
-              .map(normalize)
-              .filter(v => v.length > 0);
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || 'All'])
-            .map(normalize)
-            .filter(v => v.length > 0);
-          reltypesFinal = reltypesInput.length > 0
-            ? reltypesInput.join(',')
-            : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
-        }
         this.runSelectConnectedFromContext(pendingSelectContext, {
           levels,
-          reltypes: reltypesFinal,
+          reltypes: reltypesInput.join(','),
           reldir,
+          firstHopRelIds: selectedFirstHopRelIds,
+          createMissingViews,
         });
       }
     });
@@ -1606,7 +1632,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   private runSelectConnectedFromContext = (
     ctx: { diagram: go.Diagram; part: go.Part },
-    params: { levels: number; reltypes: string; reldir: string }
+    params: { levels: number; reltypes: string; reldir: string; firstHopRelIds?: string[]; createMissingViews?: boolean }
   ) => {
     const diagram = ctx?.diagram;
     const part = ctx?.part;
@@ -1614,10 +1640,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const nodeData: any = part.data;
     const myMetis = this.myMetis;
+    myMetis.myDiagram = diagram;
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
-    const goModel = myMetis.gojsModel;
+    let goModel = myMetis.gojsModel;
+    if (!goModel) {
+      goModel = new gjs.goModel(modelview.id, "myModel", modelview);
+      myMetis.setGojsModel(goModel);
+    }
     const objview = myMetis.findObjectView(nodeData.key);
     if (!objview) return;
 
@@ -1626,15 +1657,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const dir = (params.reldir || 'All').toLowerCase();
     const viewCollection = new akm.cxCollectionOfViews(modelview, [], []);
 
-    if (dir === 'all') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    } else if (dir === 'out' || dir === 'in') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
-    } else {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    }
+    uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection, {
+      firstHopRelIds: params.firstHopRelIds || [],
+      createMissingViews: !!params.createMissingViews,
+    });
 
     const mySelection = new go.Set<go.Part | go.Link>();
     const objviews = viewCollection.objectviews || [];
@@ -1644,7 +1670,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const ov = objviews[i];
       if (!ov || ov.id === nodeData.key) continue;
       const goNode = goModel.findNodeByViewId(ov.id);
-      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      const gjsNode = diagram.findNodeForKey(goNode?.key || ov.id) ||
+        (goNode ? diagram.findNodeForData(goNode) : null);
       if (gjsNode) mySelection.add(gjsNode);
     }
 
@@ -1652,22 +1679,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const rv = relviews[i];
       if (!rv) continue;
       const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
-      if (gjsLink) mySelection.add(gjsLink);
-    }
-
-    // Always include relationships directly connected to the source node (first step)
-    const rootObjview = objview;
-    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
-      const fromId = rv?.fromObjview?.id;
-      const toId = rv?.toObjview?.id;
-      return fromId === rootObjview?.id || toId === rootObjview?.id;
-    });
-    for (let i = 0; i < firstHopRelviews.length; i++) {
-      const rv = firstHopRelviews[i];
-      if (!rv) continue;
-      const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      const gjsLink = diagram.findLinkForKey(goLink?.key || rv.id);
       if (gjsLink) mySelection.add(gjsLink);
     }
 
@@ -2205,6 +2217,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        } catch {
 	          // Best-effort only; never block drag completion.
 	        }
+	        
+	        // Trigger pool layout if lanes were dragged
+	        try {
+	          const dragged = this.draggedParts;
+	          let lanesWereDragged = false;
+	          if (dragged && diagram) {
+	            for (let it = dragged.iterator; it?.next();) {
+	              const part: go.Part = it.key;
+	              if (part instanceof go.Group && part.category === "Lane") {
+	                lanesWereDragged = true;
+	                break;
+	              }
+	            }
+	            if (lanesWereDragged) {
+	              // Re-layout all pools to stack lanes properly
+	              diagram.startTransaction("relayout pools");
+	              diagram.findTopLevelGroups().each((g: go.Part) => {
+	                if (g instanceof go.Group && g.category === "Pool" && g.layout) {
+	                  g.layout.invalidateLayout();
+	                }
+	              });
+	              diagram.layoutDiagram();
+	              diagram.commitTransaction("relayout pools");
+	            }
+	          }
+	        } catch {
+	          // Best-effort only
+	        }
+	        
 		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
 		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
 		        super.doDeactivate();
@@ -2226,7 +2267,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // This is necessary because updating myMetis.gojsModel doesn't change the array reference,
     // so React's componentDidUpdate never fires. The wrapper bypasses this by directly updating
     // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
-    const originalDispatch = this.props.dispatch || this.myMetis?.dispatch;
+    const originalDispatch = bindLegacyUniverseDispatch(this.props.dispatch || this.myMetis?.dispatch);
     const wrappedDispatch = (action: any) => {
       // Intercept view property updates for immediate visual feedback
       if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
@@ -2408,6 +2449,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.grid.visible = true;
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
+    
+    // Install custom LaneResizingTool for pool/lane resizing
+    uit.installLaneResizingTool(myDiagram);
+    
     myMetis.myDiagram = myDiagram;
     
     this.updateZoomInvariantHandles(myDiagram);
@@ -6534,21 +6579,98 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return true;
       };
 
-      const handleGenerateMetamodel = (diagram: go.Diagram | null | undefined, data: any) => {
+      const downloadGeneratedProject = (project: any, fileName: string) => {
+        const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = href;
+        link.download = generatedProjectFileName(fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+      };
+
+      const chooseGeneratedProjectFile = (): Promise<{ project: any; fileName: string } | null> =>
+        new Promise((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json,application/json';
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return resolve(null);
+            try {
+              resolve({ project: JSON.parse(await file.text()), fileName: file.name });
+            } catch (_) {
+              alert('The selected file is not valid JSON.');
+              resolve(null);
+            }
+          };
+          input.oncancel = () => resolve(null);
+          input.click();
+        });
+
+      const handleGenerateMetamodel = async (
+        diagram: go.Diagram | null | undefined,
+        data: any,
+        destination: 'current' | 'workspace' | 'new-project' | 'existing-project' = 'current'
+      ) => {
         if (!diagram || !data) return;
         if (!canGenerateMetamodelFromData(data)) return;
 
         const metamodelName = data.name;
         if (!metamodelName) return;
 
-        if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+        const provenance = buildGenerationProvenance({
+          sourceProjectId: myMetis.id,
+          sourceModelId: myMetis.currentModel?.id,
+          sourceModelviewId: myMetis.currentModelview?.id,
+          sourceMetamodelObjectId: data.object?.id,
+        });
+        let selectedProject: any = null;
+        let selectedProjectFileName = '';
+        let allowLegacyNameMatch = false;
+        let newProjectName = '';
+        let newModelName = '';
+
+        if (destination === 'new-project') {
+          newProjectName = prompt('Enter generated project name:', metamodelName.replace(/_META$/i, '')) || '';
+          if (!newProjectName.trim()) return;
+          newModelName = prompt('Enter initial model name:', newProjectName) || '';
+          if (!newModelName.trim()) return;
+        } else if (destination === 'existing-project') {
+          const selected = await chooseGeneratedProjectFile();
+          if (!selected) return;
+          selectedProject = selected.project;
+          selectedProjectFileName = selected.fileName;
+          try {
+            const inspected = inspectGeneratedProjectTarget(selectedProject, { name: metamodelName }, provenance);
+            if (inspected.matchType === 'legacy-name') {
+              allowLegacyNameMatch = confirm(
+                `The selected project contains “${metamodelName}” but has no generation provenance. Update that metamodel and establish the link?`
+              );
+              if (!allowLegacyNameMatch) return;
+            }
+          } catch (error: any) {
+            alert(error?.message || 'The selected file is not a compatible generated project.');
+            return;
+          }
+        } else if (destination === 'workspace') {
+          if (!confirm('Publish the generated metamodel ' + metamodelName + ' to the workspace without adding it to the current project?')) return;
+        } else if (!confirm('Do you want to generate or update the metamodel ' + metamodelName + ' in the current project?')) {
           return;
         }
 
-        let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+        const originalMetamodels = Array.isArray(myMetis.metamodels) ? [...myMetis.metamodels] : [];
+        const originalTargetMetamodelRef = myMetis.currentModel?.targetMetamodelRef || '';
+        let targetMetamodel = destination === 'workspace'
+          ? new akm.cxMetaModel(utils.createGuid(), metamodelName)
+          : myMetis.findMetamodelByName(metamodelName);
         const dispatchTarget = diagram.dispatch ?? myMetis.myDiagram?.dispatch;
 
-        if (!targetMetamodel) {
+        if (destination === 'workspace') {
+          myMetis.addMetamodel(targetMetamodel);
+        } else if (!targetMetamodel) {
           targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
           myMetis.addMetamodel(targetMetamodel);
           myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
@@ -6576,7 +6698,88 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           "myDiagram": diagram,
           "dispatch": dispatchTarget
         };
-        gen.generateTargetMetamodel2(context);
+        let serializedMetamodel: any = null;
+        try {
+          const generated = gen.generateTargetMetamodel2(context);
+          if (!generated) return;
+          serializedMetamodel = JSON.parse(JSON.stringify(new jsn.jsnMetaModel(targetMetamodel, true)));
+        } finally {
+          if (destination === 'workspace') {
+            myMetis.metamodels = originalMetamodels;
+            if (myMetis.currentModel) myMetis.currentModel.targetMetamodelRef = originalTargetMetamodelRef;
+          }
+        }
+        if (!serializedMetamodel) return;
+        if (destination === 'current') return;
+        if (destination === 'workspace') {
+          const generatedObjectTypeIds = new Set(
+            (serializedMetamodel.objecttypes || []).map((type: any) => type?.id).filter(Boolean)
+          );
+          const interMetamodelRelationshipTypes = (myMetis.currentModel?.relships || []).flatMap((rel: any) => {
+            const fromTypeRef = rel?.fromObject?.generatedTypeId || '';
+            const toTypeRef = rel?.toObject?.generatedTypeId || '';
+            if (!fromTypeRef || !toTypeRef) return [];
+            const fromIsLocal = generatedObjectTypeIds.has(fromTypeRef);
+            const toIsLocal = generatedObjectTypeIds.has(toTypeRef);
+            if (fromIsLocal === toIsLocal) return [];
+            return [{
+              id: rel.generatedTypeId || rel.id,
+              name: rel.name || rel.type?.name || 'relationship',
+              description: rel.description || '',
+              sourceRelationshipId: rel.id,
+              fromobjtypeRef: fromTypeRef,
+              toobjtypeRef: toTypeRef,
+              relshipkind: rel.relshipkind || rel.type?.relshipkind || 'Association',
+              cardinality: rel.cardinality || '',
+            }];
+          });
+          if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'mimris:metamodel-generated',
+              metamodel: serializedMetamodel,
+              source: {
+                projectId: myMetis.id,
+                modelId: myMetis.currentModel?.id || '',
+                modelviewId: myMetis.currentModelview?.id || '',
+                metamodelObjectId: data.object?.id || '',
+              },
+              provenance,
+              interMetamodelRelationshipTypes,
+            }, '*');
+          }
+          return;
+        }
+        try {
+          const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
+          const supportingMetamodels = adminMetamodel
+            ? [JSON.parse(JSON.stringify(new jsn.jsnMetaModel(adminMetamodel, true)))]
+            : [];
+          if (destination === 'new-project') {
+            const project = createGeneratedMetamodelProject({
+              serializedMetamodel,
+              provenance,
+              projectId: utils.createGuid(),
+              projectName: newProjectName.trim(),
+              modelId: utils.createGuid(),
+              modelName: newModelName.trim(),
+              modelviewId: utils.createGuid(),
+              modelviewName: 'Main',
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, newProjectName);
+          } else {
+            const project = updateGeneratedMetamodelProject({
+              project: selectedProject,
+              serializedMetamodel,
+              provenance,
+              allowLegacyNameMatch,
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, selectedProjectFileName);
+          }
+        } catch (error: any) {
+          alert(error?.message || 'The generated project could not be created.');
+        }
       };
 
       function resolveObjectview(nodeData: any): any {
@@ -7086,6 +7289,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // ignore
             }
           }
+
+          // Dispatch UPDATE_OBJECTVIEW_PROPERTIES so Redux state is properly updated
+          if (memberObjview) {
+            const jsnObjview = new jsn.jsnObjectView(memberObjview);
+            const objviewData = JSON.parse(JSON.stringify(jsnObjview));
+            targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: objviewData });
+          }
         };
 
         persistPartGeometry(groupPart);
@@ -7099,7 +7309,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       }
 
       function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -7943,7 +8153,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
         if (this.props.onOpenSelectConnectedObjects) {
           const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-          const relOptions = this.buildReltypeOptions(part, includeAllRels);
+          const relOptions = this.buildConnectedRelationshipOptions(part, includeAllRels);
           const reltypeOptions = this.buildModelReltypeOptions();
           this.props.onOpenSelectConnectedObjects({ diagram, part, relOptions, reltypeOptions });
           return;
@@ -8202,6 +8412,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!relship || !myModelview || !myMetamodel) return;
 
         let includeInheritedReltypes = myModelview.includeInheritedReltypes;
+        // Default to true if undefined - inheritance should work by default
+        if (includeInheritedReltypes === undefined || includeInheritedReltypes === null) {
+          includeInheritedReltypes = true;
+          myModelview.includeInheritedReltypes = true;
+        }
+        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -8216,7 +8432,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
+        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
+        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -9151,10 +9369,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           items.push({ separator: true });
           items.push({
-            label: "Generate Metamodel",
-            action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+            label: "Generate Metamodel…",
+            action: showSubMenu([
+              {
+                label: "Publish to Workspace",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'workspace'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Generate/Update in Current Project",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'current'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "As New Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'new-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Update Existing Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'existing-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+            ]),
             enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
             visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+            closeOnClick: false,
           });
           items.push({
             label: "Reset to Typeview",
@@ -11009,7 +11249,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSaveLayout = (diagram: go.Diagram) => {
@@ -11103,7 +11343,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSetLinkRouting = (diagram: go.Diagram) => {
@@ -11299,7 +11539,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram?.dispatch, data);
       };
 
       const handleNewMetamodel = () => {
@@ -12029,11 +12269,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $("Node",
           {
             selectable: false, avoidable: false,
-            layerName: "Foreground"
+            layerName: "Foreground",
+            background: "transparent"  // Ensure node background is transparent
           },  // always have link label nodes in front of Links
           $("Shape", "Ellipse",
             {
-              width: 5, height: 5, stroke: null,
+              width: 5, height: 5, stroke: null, fill: "transparent",
               portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
             })
         ));
@@ -12837,9 +13078,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 className="form-select form-select-sm py-1 px-2"
                 style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
               >
-                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
+                {(this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]).map((opt: any) => {
+                  const value = typeof opt === 'string' ? opt : opt.value;
+                  const label = typeof opt === 'string' ? opt : opt.label;
+                  return <option key={value} value={value}>{label}</option>;
+                })}
               </select>
               <div className="form-check mt-1">
                 <input
@@ -12890,6 +13133,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
+              <div className="form-check mt-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="select-create-missing-views"
+                  checked={!!this.state.selectConnectedCreateMissingViews}
+                  onChange={this.handleSelectConnectedCreateMissingViewsChange}
+                />
+                <label className="form-check-label small" htmlFor="select-create-missing-views">
+                  Add missing objects to view
+                </label>
+              </div>
             </div>
             <DialogFooter className="d-flex justify-content-end mt-3 px-1 pb-1 pt-2 gap-3">
               <UiButton

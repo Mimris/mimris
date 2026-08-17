@@ -2,40 +2,17 @@
 // Index.tsx
 
 // import React from "react";
-import React, { useState, useEffect } from "react";
-import Link from 'next/link';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import React from "react";
 import {
   CardGroup, Card, CardImg, CardText, CardBody, CardHeader,
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
-import { toNamespacedPath } from "path";
 
 import Page from './page';
-import Blog from './Blog'
-import GettingStarted from "./content/GettingStarted";
-import Project from "../components/Project";
 
 
 const page = (props) => {
   // console.log('12', props);
-  const dispatch = props.dispatch
-  const [refresh, setRefresh] = useState(true)
-  // function toggleRefresh() { setRefresh(!refresh); }
-  const toggleRefresh = props.toggleRefresh
-
-  /**  * Get the state and metie from the store  */
-  const phData = useSelector((state: any) => state.phData) // Selecting the whole redux store
-  const phFocus = useSelector((state: any) => state.phFocus) // Selecting the whole redux store
-  const metis = (phData) && phData.metis
-  const models = (metis) && metis.models  // selecting the models array
-  const metamodels = (metis) && metis.metamodels
-  // console.log('26 dia',  metis);
-
-  const focusModel = useSelector(focusModel => phFocus?.focusModel)
-  const focusModelview = useSelector(focusModelview => phFocus?.focusModelview)
-
-  let gojsmodel = phFocus?.gojsModel
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
@@ -531,6 +508,4 @@ const page = (props) => {
   )
 
 }
-export default Page(connect(state => state)(page));
-
-
+export default Page(page);

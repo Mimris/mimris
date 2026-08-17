@@ -5,8 +5,65 @@ import { InitialState } from "../../reducers/reducer";
 import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from "./workspaceUniverseAdapter";
+import {
+    loadLegacyUniverseSnapshot,
+    selectSharedUniverseState,
+    setUniverseFocus,
+    setUniversePhData,
+    setUniverseSource,
+    setUniverseUser,
+} from "../../sharedUniverse";
+import { getCurrentStore } from "../../store";
 
 const debug = false
+const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
+
+const clearPersistedFileFocus = () => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+}
+
+const hasRenderableModelviewContent = (modelview: any) => {
+    const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+    const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+    return objectviews.length > 0 || relshipviews.length > 0;
+}
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+    if (!modelviews.length) return null;
+    const requested = requestedModelview
+        ? modelviews.find(mv => mv?.id === requestedModelview?.id || mv?.name === requestedModelview?.name)
+        : null;
+    if (requested && hasRenderableModelviewContent(requested)) return requested;
+    return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
+}
+
+const buildSourcePropsFromSharedUniverse = (fallbackProps) => {
+    const store = getCurrentStore?.();
+    if (!store) return fallbackProps || {};
+    const sharedUniverse = selectSharedUniverseState(store.getState() as any);
+    if (!sharedUniverse) return fallbackProps || {};
+    return {
+        ...(fallbackProps || {}),
+        phData: {
+            ...(fallbackProps?.phData || {}),
+            domain: sharedUniverse.world.worldDefinition.domain ?? fallbackProps?.phData?.domain,
+            metis: sharedUniverse.world.worldModel.metis ?? fallbackProps?.phData?.metis,
+            documents: sharedUniverse.compatibility.documents ?? fallbackProps?.phData?.documents,
+        },
+        phFocus: sharedUniverse.world.focus || fallbackProps?.phFocus,
+        phUser: sharedUniverse.user || fallbackProps?.phUser,
+        phSource: sharedUniverse.source ?? fallbackProps?.phSource,
+        phList: sharedUniverse.compatibility.modelList ?? fallbackProps?.phList,
+    };
+}
+
+const stripWorkspaceUniverseMetadata = (phUser: any) => {
+    if (!phUser || typeof phUser !== 'object') return phUser;
+    const { __workspaceUniverse, ...rest } = phUser;
+    return rest;
+}
 
 export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Project from file
     if (!debug) console.log('10 ReadModelFromFile', props, e)
@@ -23,12 +80,21 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         // remove null models and models with only {} in them
         const cleanedData = importedfile.phData.metis.models.filter(m => m && Object.keys(m).length > 0);
         const filename = reader.fileName
-        data = cleanedData
+        const data = {
+            ...importedfile,
+            phData: {
+                ...importedfile.phData,
+                metis: {
+                    ...importedfile.phData.metis,
+                    models: cleanedData,
+                },
+            },
+            phUser: stripWorkspaceUniverseMetadata(importedfile.phUser || props?.phUser || InitialState.phUser),
+            phSource: filename,
+        }
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
-        props.dispatch('LOAD_TOSTORE_PHDATA', data.phData)
-        if (data.phFocus) props.dispatch('SET_FOCUS_PHFOCUS', data.phFocus)
-        props.dispatch('LOAD_TOSTORE_PHSOURCE', filename)
-        if (data.phUser) props.dispatch('LOAD_TOSTORE_PHUSER', data.phUser)
+        clearPersistedFileFocus()
+        props.dispatch(loadLegacyUniverseSnapshot(data))
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
         if (debug) console.log('29 ReadModelFromFile', filename, props)
     };
@@ -38,7 +104,8 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault();
     const reader = new FileReader();
-    const sourceProps = props?.phData ? props : props?.ph
+    const legacySourceProps = props?.phData ? props : props?.ph
+    const sourceProps = buildSourcePropsFromSharedUniverse(legacySourceProps)
     const resetFileInput = () => {
         if (e?.target) e.target.value = ''
     }
@@ -67,10 +134,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 resetFileInput()
                 return
             }
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: adaptedState,
-            })
+            clearPersistedFileFocus()
+            dispatch(loadLegacyUniverseSnapshot({
+                ...adaptedState,
+                phUser: stripWorkspaceUniverseMetadata(adaptedState.phUser || InitialState.phUser),
+            }))
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
             resetFileInput()
             return
@@ -104,10 +172,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const resolvedProjectModel = importedProjectModels.find(model => model?.id === importedProjectFocus?.focusModel?.id)
                 || importedProjectModels[0]
                 || null
-            const resolvedProjectModelview = resolvedProjectModel?.modelviews?.find(mv => mv?.id === importedProjectFocus?.focusModelview?.id)
-                || resolvedProjectModel?.modelviews?.find(mv => mv)
-                || resolvedProjectModel?.modelviews?.[0]
-                || null
+            const resolvedProjectModelview = resolveFocusableModelview(resolvedProjectModel, importedProjectFocus?.focusModelview)
             const sanitizedProject = {
                 ...importedfile,
                 phData: {
@@ -125,17 +190,15 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     focusModelview: resolvedProjectModelview ? { id: resolvedProjectModelview.id, name: resolvedProjectModelview.name } : null,
                 },
             }
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: {
-                    ...InitialState,
-                    phData: sanitizedProject.phData,
-                    phFocus: sanitizedProject.phFocus,
-                    phUser: sanitizedProject.phUser || sourceProps?.phUser || InitialState.phUser,
-                    phSource: sanitizedProject.phSource || filename,
-                    lastUpdate: new Date().toISOString(),
-                }
-            })
+            clearPersistedFileFocus()
+            dispatch(loadLegacyUniverseSnapshot({
+                ...InitialState,
+                phData: sanitizedProject.phData,
+                phFocus: sanitizedProject.phFocus,
+                phUser: stripWorkspaceUniverseMetadata(sanitizedProject.phUser || sourceProps?.phUser || InitialState.phUser),
+                phSource: sanitizedProject.phSource || filename,
+                lastUpdate: new Date().toISOString(),
+            }))
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
             resetFileInput()
             return
@@ -158,31 +221,30 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 resetFileInput()
                 return
             }
-            const resolvedModel = importedfile?.phFocus?.focusModel || importedPrimaryModel || incomingMetis.models?.[0] || null
-            const resolvedModelview = importedfile?.phFocus?.focusModelview
-                || resolvedModel?.modelviews?.find(mv => mv)
-                || resolvedModel?.modelviews?.[0]
+            const requestedModel = importedfile?.phFocus?.focusModel || null
+            const resolvedModel = incomingMetis.models?.find(model => model?.id === requestedModel?.id || model?.name === requestedModel?.name)
+                || importedPrimaryModel
+                || incomingMetis.models?.[0]
                 || null
+            const resolvedModelview = resolveFocusableModelview(resolvedModel, importedfile?.phFocus?.focusModelview)
 
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: {
-                    ...InitialState,
-                    phData: {
-                        ...InitialState.phData,
-                        ...(importedfile?.domain ? { domain: importedfile.domain } : {}),
-                        metis: incomingMetis,
-                    },
-                    phFocus: {
-                        ...InitialState.phFocus,
-                        ...(resolvedModel ? { focusModel: { id: resolvedModel.id, name: resolvedModel.name } } : { focusModel: null }),
-                        ...(resolvedModelview ? { focusModelview: { id: resolvedModelview.id, name: resolvedModelview.name } } : { focusModelview: null }),
-                    },
-                    phUser: sourceProps?.phUser || InitialState.phUser,
-                    phSource: filename,
-                    lastUpdate: new Date().toISOString(),
-                }
-            })
+            clearPersistedFileFocus()
+            dispatch(loadLegacyUniverseSnapshot({
+                ...InitialState,
+                phData: {
+                    ...InitialState.phData,
+                    ...(importedfile?.domain ? { domain: importedfile.domain } : {}),
+                    metis: incomingMetis,
+                },
+                phFocus: {
+                    ...InitialState.phFocus,
+                    ...(resolvedModel ? { focusModel: { id: resolvedModel.id, name: resolvedModel.name } } : { focusModel: null }),
+                    ...(resolvedModelview ? { focusModelview: { id: resolvedModelview.id, name: resolvedModelview.name } } : { focusModelview: null }),
+                },
+                phUser: stripWorkspaceUniverseMetadata(sourceProps?.phUser || InitialState.phUser),
+                phSource: filename,
+                lastUpdate: new Date().toISOString(),
+            }))
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
             resetFileInput()
             return
@@ -422,11 +484,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         // ---------------------  add metamodel if imorted  --------------------
         if (debug) console.log('237 ReadModelFromFile', filename, props,)
 
-        function dispatchLocalFile(type, data) {
-            if (debug) console.log('240 ReadModelFromFile', data)
-            dispatch({ type: type, data: data })
-        }
-
         // ---------------------  check type of import --------------------- Todo: this can be removed
 
         // if (filename.includes('_MV')) { // if modelff is a modelview, then it is a modelview file with objects and metamodel
@@ -597,11 +654,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
 
         if (debug) console.log('356 ReadModelFromFile', data)
-        dispatchLocalFile('LOAD_TOSTORE_PHDATA', data.phData)
-        if (data.phFocus) dispatchLocalFile('SET_FOCUS_PHFOCUS', data.phFocus)
-        if (data.phSource) dispatchLocalFile('LOAD_TOSTORE_PHSOURCE', data.phSource)
-       if (data.phUser) dispatchLocalFile('LOAD_TOSTORE_PHUSER', data.phUser)
-        dispatchLocalFile('SET_FOCUS_REFRESH', { id: Math.random().toString(36).substring(7), name: filename })
+        dispatch(setUniversePhData(data.phData))
+        if (data.phFocus) dispatch(setUniverseFocus(data.phFocus))
+        if (data.phSource) dispatch(setUniverseSource(data.phSource))
+        if (data.phUser) dispatch(setUniverseUser(data.phUser))
+        dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: filename } })
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
         resetFileInput()
 
@@ -615,29 +672,30 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
     reader.onload = async (e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
+        const sourceProps = buildSourcePropsFromSharedUniverse(props)
         //   alert(text)
-        if (debug) console.log('170 ReadModelFromFile', props);
-        let mmmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
-        const mmlength = props.phData?.metis?.metamodels.length
+        if (debug) console.log('170 ReadModelFromFile', sourceProps);
+        let mmmindex = sourceProps.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
+        const mmlength = sourceProps.phData?.metis?.metamodels.length
         if (mmmindex < 0) { mmmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
         if (debug) console.log('174 ReadModelFromFile', metamodelff, mmmindex, mmlength);
         const data = {
             phData: {
-                ...props.phData,
+                ...sourceProps.phData,
                 metis: {
-                    ...props.phData.metis,
+                    ...sourceProps.phData.metis,
                     metamodels: [
-                        ...props.phData.metis.metamodels.slice(0, mmmindex),
+                        ...sourceProps.phData.metis.metamodels.slice(0, mmmindex),
                         metamodelff,
-                        ...props.phData.metis.metamodels.slice(mmmindex + 1, props.phData.metis.metamodels.length),
+                        ...sourceProps.phData.metis.metamodels.slice(mmmindex + 1, sourceProps.phData.metis.metamodels.length),
                     ],
-                    models: props.phData.metis.models,
+                    models: sourceProps.phData.metis.models,
                 },
             },
         };
         if (debug) console.log('190 ReadModelFromFile', data);
 
-        props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        dispatch(setUniversePhData(data.phData))
     };
     reader.readAsText(e.target.files[0])
 }

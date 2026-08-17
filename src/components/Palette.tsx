@@ -9,6 +9,7 @@ import * as uib from '../akmm/ui_buildmodels';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import genRoleTasks from "./utils/SetRoleTaskFilter";
 import Tasks from '../components/Tasks'
+import { filterPaletteForModelview } from './utils/modelviewPalette';
 
 
 const debug = false;
@@ -41,6 +42,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   if (debug) clog('22 Palette', props);
   const dispatch = useDispatch();
   const prevDeps = useRef({ role: null, task: null, metamodelList: null, types: null });
+  const phFocus = props.phFocus || {};
 
   const [visiblePalette, setVisiblePalette] = useState(() => readStoredBoolean(PALETTE_VISIBLE_STORAGE_KEY, true))
   const [refresh, setRefresh] = useState(true)
@@ -69,13 +71,16 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     // setOpenDetail(openDetail === id ? null : id);
   };
 
-  let focusModel = props.phFocus?.focusModel
+  let focusModel = phFocus?.focusModel
 
-  const models = props.metis?.models
-  const metamodels = props.metis?.metamodels
+  const models = Array.isArray(props.metis?.models) ? props.metis.models.filter(Boolean) : []
+  const metamodels = Array.isArray(props.metis?.metamodels) ? props.metis.metamodels.filter(Boolean) : []
   if (!metamodels) return null;
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
+  const currentModelview = model?.modelviews?.find(
+    (candidate: any) => candidate?.id === phFocus?.focusModelview?.id,
+  ) || model?.modelviews?.[0]
   // const mmodelRefs = mmodel?.metamodelRefs;
 
   const metamodelList = metamodels?.filter((m: any) => m?.id !== undefined && m?.name !== 'ADMIN_META')?.map((m: any) => ({ id: m?.id, name: m?.name })); // exclude admin metamodel
@@ -89,7 +94,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
   // hardcoded for now
   let tasks = []
 
-  let focusTask = props.phFocus?.focusTask
+  let focusTask = phFocus?.focusTask
 
   // function toggleRefresh() { setRefresh(!refresh); }
   function togglePalette() { setVisiblePalette(!visiblePalette); }
@@ -105,10 +110,10 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       props.myMetis.importData(props.metis, true);
     }
     setSelMetamodelName(mmodel?.name);
-    if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, props.phFocus);
+    if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, phFocus);
     if (props.visiblePalette) setVisiblePalette(visiblePalette);
     if (mmodel?.name === 'OSDU_META') setVisiblePalette(true);
-    const { focusRole, focusTask } = props.phFocus;
+    const { focusRole, focusTask } = phFocus;
     const objecttypes = mmodel?.objecttypes;
     if (!metamodels) return null;
     if (props.modelType === 'metamodel') setVisiblePalette(false);
@@ -122,7 +127,13 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     if (debug) console.log('106 Palette useEffect 2', types, mmodel.name, filteredOtNodeDataArray, props.metis);
     
     if (debug) console.log('110 Palette useEffect 3', mmodel?.name, filteredOtNodeDataArray);
-  }, [focusModel?.id, model?.metamodelRef]);
+  }, [
+    focusModel?.id,
+    model?.metamodelRef,
+    phFocus?.focusModelview?.id,
+    currentModelview?.allowedObjectTypeRefs,
+    currentModelview?.allowedRelshipTypeRefs,
+  ]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -220,20 +231,14 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       filteredNodes = otsArrSorted;
     }
 
-    const nodeKeys = new Set(
-      filteredNodes
-        ?.map((n: any) => n?.key ?? n?.objecttype?.id ?? n?.objecttype?.key)
-        ?.filter(Boolean)
-    );
-
-    const filteredLinks = paletteLinks.filter(
-      (link: any) => nodeKeys.has(link?.from) && nodeKeys.has(link?.to)
-    );
-
-    return { nodes: filteredNodes, links: filteredLinks };
+    return filterPaletteForModelview({
+      nodes: filteredNodes,
+      links: paletteLinks,
+      modelview: currentModelview,
+    });
   };
 
-  if (debug) console.log('159 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  if (debug) console.log('159 Palette useEffect 2', phFocus.focusTask?.workOnTypes);
 
   function getMetamodels(selectedIndex) {
     setSelMetamodelName(metamodelList[selectedIndex].name)
@@ -272,7 +277,9 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       </select>
     </>
   );
-  const paletteLinkData = isExpanded ? filteredLinkDataArray : [];
+  // Relationship types are part of the metamodel contract, not an expanded-view
+  // decoration. Keep them available and visible in the normal palette as well.
+  const paletteLinkData = filteredLinkDataArray;
 
     // const gojsappPaletteTopDiv = (mmodel && filteredNewtypesNodeDataArray) && // this is the palette with the current metamodel
     const gojsappPaletteTopDiv = (mmodel && filteredOtNodeDataArray) && // this is the palette with the current metamodel
@@ -282,12 +289,12 @@ const Palette = React.forwardRef((props: any, ref: any) => {
         {/* <summary className="mmname mx-0 px-1 my-0" style={{ fontSize: "16px", backgroundColor: "#9cd", minWidth: "184px", maxWidth: "212px" }}>{mmodel?.name}</summary> */}
         {/* Top palette with current metamodelpalette */}
         <GoJSPaletteApp
-          key={`${focusModel?.id ?? 'palette-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
+          key={`${focusModel?.id ?? 'palette-default'}-${phFocus?.focusModelview?.id ?? 'view-default'}-${mmodel?.id ?? props.myMetis?.currentMetamodel?.id ?? 'metamodel'}`}
           nodeDataArray={filteredOtNodeDataArray}
           linkDataArray={paletteLinkData}
           metis={props.metis}
           myMetis={props.myMetis}
-          phFocus={props.phFocus}
+          phFocus={phFocus}
           dispatch={props.dispatch}
           divClassName={props.modelType === 'model' ? 'diagram-component-objects' : 'diagram-component-palette'}
           diagramStyle={{ height: '76vh' }}

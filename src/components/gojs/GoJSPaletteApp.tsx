@@ -78,7 +78,7 @@ function normalizePaletteLinkData(linkDataArray: any[] | undefined): any[] {
     normalizeEmptyBooleanFieldsInPlace(link);
     return {
       ...link,
-      category: typeof link?.category === 'string' ? link.category : ''
+      category: ''
     };
   });
 }

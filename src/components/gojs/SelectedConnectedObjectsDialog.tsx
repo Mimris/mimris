@@ -5,7 +5,7 @@ interface Props {
   isOpen: boolean;
   toggle: () => void;
   onApply: (params: any) => void;
-  relationshipTypes: string[];
+  relationshipTypes: Array<string | { value: string; label: string }>;
 }
 
 export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle, onApply, relationshipTypes }) => {
@@ -14,12 +14,17 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [direction, setDirection] = useState('All');
   const [relationshipToFollow, setRelationshipToFollow] = useState('');
+  const [createMissingViews, setCreateMissingViews] = useState(false);
+  const normalizedRelationshipTypes = relationshipTypes.map((type) => {
+    if (typeof type === 'string') return { value: type, label: type };
+    return type;
+  });
 
   const handleApply = () => {
     if (tabIndex === 0) {
-      onApply({ mode: 'traverse', steps, selectedTypes, direction });
+      onApply({ mode: 'traverse', steps, selectedTypes, direction, createMissingViews });
     } else {
-      onApply({ mode: 'follow', relationshipToFollow });
+      onApply({ mode: 'follow', relationshipToFollow, createMissingViews });
     }
     toggle();
   };
@@ -67,8 +72,8 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
             <FormGroup>
               <Label for="reltypes">Relationship types to traverse</Label>
               <Input type="select" id="reltypes" multiple value={selectedTypes} onChange={handleSelectionChange}>
-                {relationshipTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                {normalizedRelationshipTypes.map(type => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </Input>
             </FormGroup>
@@ -80,6 +85,15 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
                 <option value="in">In</option>
               </Input>
             </FormGroup>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                id="createMissingViews"
+                checked={createMissingViews}
+                onChange={e => setCreateMissingViews(e.target.checked)}
+              />
+              <Label check for="createMissingViews">Add missing objects to view</Label>
+            </FormGroup>
           </div>
         )}
 
@@ -89,10 +103,19 @@ export const SelectedConnectedObjectsDialog: React.FC<Props> = ({ isOpen, toggle
               <Label for="relationshipToFollow">Relationship to follow</Label>
               <Input type="select" id="relationshipToFollow" value={relationshipToFollow} onChange={e => setRelationshipToFollow(e.target.value)}>
                 <option value="">Select relationship</option>
-                {relationshipTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                {normalizedRelationshipTypes.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </Input>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                id="createMissingViewsFollow"
+                checked={createMissingViews}
+                onChange={e => setCreateMissingViews(e.target.checked)}
+              />
+              <Label check for="createMissingViewsFollow">Add missing objects to view</Label>
             </FormGroup>
           </div>
         )}

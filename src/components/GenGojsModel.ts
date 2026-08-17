@@ -22,22 +22,43 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
-const GenGojsModel = async (props: any, myMetis: any) => {
-  // Safe helper to fetch first element
-  const first = (arr: any) => (Array.isArray(arr) && arr.length > 0) ? arr[0] : undefined;
+const first = (arr: any) => (Array.isArray(arr) && arr.length > 0) ? arr[0] : undefined;
+
+const hasRenderableModelviewContent = (modelview: any) => {
+  const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+  const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+  return objectviews.length > 0 || relshipviews.length > 0;
+};
+
+const resolveFocusableModelview = (model: any, requestedModelview: any = null) => {
+  const modelviews = Array.isArray(model?.modelviews) ? model.modelviews.filter(Boolean) : [];
+  if (!modelviews.length) return undefined;
+
+  const requested = requestedModelview
+    ? modelviews.find((modelview: any) => modelview?.id === requestedModelview?.id || modelview?.name === requestedModelview?.name)
+    : undefined;
+  if (requested) return requested;
+
+  return modelviews.find(hasRenderableModelviewContent) || first(modelviews);
+};
+
+const GenGojsModel = async (props: any, myMetis: any, options: { skipImport?: boolean } = {}) => {
   // let myMetis = yourMetis;
   // let goParams = {};
   if (debug) console.log('28 GenGojsModel started', props, myMetis);
-  const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showModified)
-  const showModified = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showModified : false;
-  const metis = props.phData?.metis; // Todo: check if current model and then load only current model
+  const phData = props.phData || {};
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const includeDeleted = (phUser?.focusUser) ? phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeNoObject = (phUser?.focusUser) ? phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeInstancesOnly = (phUser?.focusUser) ? phUser?.focusUser?.diagram?.showDeleted : false;
+  if (debug) console.log('32 GenGojsModel showDeleted', includeDeleted, phUser?.focusUser?.diagram?.showModified)
+  const showModified = (phUser?.focusUser) ? phUser?.focusUser?.diagram?.showModified : false;
+  const metis = phData?.metis; // Todo: check if current model and then load only current model
   const models = Array.isArray(metis?.models) ? metis.models.filter((m: any) => !!m) : []; // always an array
-  let focusModel = props.phFocus?.focusModel;
+  let focusModel = phFocus?.focusModel;
   if (!focusModel) {
-    const firstModel = first(models[0]);
+    const firstModel = first(models);
     if (firstModel && typeof firstModel === 'object') {
       focusModel = { id: firstModel.id, name: firstModel.name };
     } else if (debug) {
@@ -49,26 +70,24 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     if (debug) console.warn('GenGojsModel exiting early: focusModel unresolved');
     return;
   }
-  let focusModelview = props.phFocus?.focusModelview;
+  let focusModelview = phFocus?.focusModelview;
   if (!focusModelview && Array.isArray(focusModel?.modelviews) && focusModel?.modelviews?.length > 0) {
-    const fmvc0 = first(focusModel.modelviews);
+    const fmvc0 = resolveFocusableModelview(focusModel);
     if (fmvc0) focusModelview = { id: fmvc0.id, name: fmvc0.name };
   }
   if (debug) console.log('37 GenGojsModel focusModel', focusModel, focusModelview);
-  let focusObject = props.phFocus?.focusObject;
-  let focusObjectview = props.phFocus?.focusObjectview;
+  let focusObject = phFocus?.focusObject;
+  let focusObjectview = phFocus?.focusObjectview;
   const metamodels = (metis) && metis.metamodels.filter((mm) => (mm) && mm); // filter out null metamodels
   let adminModel;
 
   if (metis != null) {
-    clogGreen('43 GenGojsModel: props', props);
-    if (debug) clogGreen('44 GenGojsModel: metis', props.phData.metis);
+    if (debug) clogGreen('67 GenGojsModel: props', props);
+    if (debug) clogGreen('44 GenGojsModel: metis', phData.metis);
   const curmod = (focusModel?.id && models.length > 0) ? (models.find((m: any) => m.id === focusModel.id) || first(models)) : first(models); // safe first model fallback
-    const curmodview = (curmod && focusModelview?.id && Array.isArray(curmod.modelviews) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id))
-      ? curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
-  : (Array.isArray(curmod?.modelviews) ? first(curmod?.modelviews) : undefined); // safe first modelview fallback
-    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
-    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
+    const curmodview = resolveFocusableModelview(curmod, focusModelview);
+    const focusTargetModel = phFocus.focusTargetModel
+    const focusTargetModelview = phFocus.focusTargetModelview
   const curtargetmodel = (focusTargetModel?.id && models.length > 0) ? models.find((m: any) => m.id === curmod?.targetModelRef) : undefined;
   const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id && Array.isArray(curtargetmodel.modelviews)) ? curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview?.id) : undefined;
   const curtargetmodelview = focustargetmodelview || (Array.isArray(curtargetmodel?.modelviews) ? first(curtargetmodel?.modelviews) : undefined);
@@ -78,11 +97,11 @@ const GenGojsModel = async (props: any, myMetis: any) => {
     // const myMetis = new akm.cxMetis();
     // myMetis = props.myMetis;
 
-    if (!debug) console.log('81 GenGojsModel: metis', metis, myMetis);
-    myMetis?.importData(metis, true);
+    if (debug) console.log('81 GenGojsModel: metis', metis, myMetis);
+    if (!options.skipImport) myMetis?.importData(metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
-    if (!debug) clogBlue('83 GenGojsModel :', myMetis)
+    if (debug) clogBlue('83 GenGojsModel :', myMetis)
     if (debug) clogBlue('88 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
 
     if (curmod && curmod.id) {

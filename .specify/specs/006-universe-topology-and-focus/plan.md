@@ -34,6 +34,8 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 - Canonical active modelling source is `world.worldModel.metis`.
 - Shared variants should be sourced from separate universes, while legacy top-level `metis` remains compatibility fallback-only ingestion.
 - Query-driven `/model` loads must gate the modelling surface on the requested URL payload, using the explicit route parameters as the first-render source of truth so the initial local template does not flash before the remote snapshot arrives.
+- Shared-universe read migration uses `selectMimrisCompatibilityProps` as the boundary for app-level components that still pass legacy-shaped props to AKMM/GoJS internals.
+- Shared-universe write migration uses explicit action creators and helpers such as `setUniverseDomain` and `dispatchUniversePhData` before removing legacy dispatch compatibility.
 
 ## Migration Matrix
 
@@ -142,11 +144,14 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 
 1. Introduce compatibility selectors that read canonical fields first and legacy fields second.
 2. Move consumers to compatibility selectors before changing writers.
-3. Normalize loaders before switching persistence to the canonical shape.
-4. Switch save flows to merge-preserving canonical writes.
-5. Remove legacy selector fallbacks only after both Mimris and Mimris AI Workspace are aligned.
-6. Keep the UI selector limited to the three canonical sources and do not surface legacy top-level `metis` as a primary option.
-7. Keep compatibility fallback indicators internal to diagnostics and avoid persistent legacy status banners in the mini-model route.
+3. Centralize legacy-shaped compatibility props in one selector so React components do not manually reconstruct `phData`, `phFocus`, `phUser`, `phSource`, or `phList`.
+4. Convert low-risk app-level writes to explicit shared-universe action creators before changing diagram mutation code.
+5. Introduce shared dispatch helpers for complete `phData` replacement paths used by AKMM/GoJS, then migrate raw `LOAD_TOSTORE_PHDATA` call sites incrementally.
+6. Normalize loaders before switching persistence to the canonical shape.
+7. Switch save flows to merge-preserving canonical writes.
+8. Remove legacy selector fallbacks only after both Mimris and Mimris AI Workspace are aligned.
+9. Keep the UI selector limited to the three canonical sources and do not surface legacy top-level `metis` as a primary option.
+10. Keep compatibility fallback indicators internal to diagnostics and avoid persistent legacy status banners in the mini-model route.
 
 ## Files
 
@@ -162,3 +167,5 @@ Define a canonical universe snapshot shared by Mimris and Mimris AI Workspace wi
 - Verify a merged save preserves unknown fields from a workbench-origin snapshot.
 - Verify shared links can target the new universe-level focus contract.
 - Verify `/model?...` loads do not briefly paint the initial local template before the requested remote or shared snapshot resolves.
+- Verify app-level compatibility props prefer canonical `universe` state while legacy `ph*` fields are still present.
+- Verify complete `phData` replacement dispatches can route through shared-universe helpers without breaking legacy call sites.

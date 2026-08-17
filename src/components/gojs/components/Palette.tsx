@@ -155,10 +155,12 @@ function normalizePaletteWrapperLinkData(linkDataArray: any[] | undefined): any[
   return linkDataArray.map((link) => {
     if (!link || typeof link !== "object") return link;
     normalizeEmptyBooleanFieldsInPlace(link);
-    const category = link.category || link.template || 'linkTemplate1';
     return {
       ...link,
-      category: typeof category === "string" ? category : 'linkTemplate1',
+      // The type palette registers one default link template. Imported model
+      // link categories (for example `linkTemplate1`) are diagram categories
+      // and have no palette template-map entry, which makes the link invisible.
+      category: '',
     };
   });
 }
@@ -175,6 +177,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     }
     diagram.removeDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
     this.updatePalettePresentation(diagram);
+    this.ensurePaletteRelationshipLinks(diagram);
     this.updateFocusHighlight(diagram);
   };
   /** @internal */
@@ -199,6 +202,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('InitialLayoutCompleted', this.handleInitialLayout);
       this.updatePalettePresentation(diagram);
+      this.ensurePaletteRelationshipLinks(diagram);
       this.updateFocusHighlight(diagram);
     }
   }
@@ -223,6 +227,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       prevProps.linkDataArray !== this.props.linkDataArray
     ) {
       this.updatePalettePresentation();
+      this.ensurePaletteRelationshipLinks();
     }
     if (
       prevProps.phFocus?.focusObject?.id !== this.props.phFocus?.focusObject?.id ||
@@ -299,6 +304,60 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
     if (layoutChanged) {
       palette.layoutDiagram(true);
     }
+  }
+
+  private ensurePaletteRelationshipLinks(diagram?: go.Diagram) {
+    const palette = diagram ?? this.diagramRef.current?.getDiagram();
+    if (!(palette instanceof go.Diagram)) return;
+    const model = palette.model;
+    if (!(model instanceof go.GraphLinksModel)) return;
+
+    const nodes = normalizePaletteWrapperNodeCategoryData(this.props?.nodeDataArray) || [];
+    const nodeKeyByTypeId = new Map<string, any>();
+    nodes.forEach((node: any) => {
+      const typeId = String(node?.objtypeRef || node?.objecttype?.id || node?.typeRef || '');
+      if (typeId) nodeKeyByTypeId.set(typeId, node?.key);
+    });
+
+    const links = (normalizePaletteWrapperLinkData(this.props?.linkDataArray) || []).map((link: any) => {
+      const fromTypeId = String(link?.reltype?.fromobjtypeRef || link?.fromobjtypeRef || '');
+      const toTypeId = String(link?.reltype?.toobjtypeRef || link?.toobjtypeRef || '');
+      return {
+        ...link,
+        from: link?.from || nodeKeyByTypeId.get(fromTypeId),
+        to: link?.to || nodeKeyByTypeId.get(toTypeId),
+        visible: true,
+      };
+    }).filter((link: any) => link?.from && link?.to);
+
+    palette.startTransaction('sync palette relationship links');
+    try {
+      const desiredKeys = new Set(links.map((link: any) => link.key));
+      const existing = Array.isArray(model.linkDataArray) ? [...model.linkDataArray] : [];
+      existing.forEach((link: any) => {
+        if (!desiredKeys.has(link?.key)) model.removeLinkData(link);
+      });
+      links.forEach((link: any) => {
+        const current = model.findLinkDataForKey(link.key);
+        if (!current) {
+          model.addLinkData(link);
+          return;
+        }
+        model.setFromKeyForLinkData(current, link.from);
+        model.setToKeyForLinkData(current, link.to);
+        model.setDataProperty(current, 'category', '');
+        model.setDataProperty(current, 'visible', true);
+      });
+    } finally {
+      palette.commitTransaction('sync palette relationship links');
+    }
+    try {
+      palette.links.each((link: go.Link) => {
+        link.visible = true;
+        link.invalidateRoute();
+      });
+      palette.requestUpdate();
+    } catch (_) { }
   }
 
   /**
@@ -817,7 +876,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       //   style={this.props.diagramStyle}
       // />
       <ReactDiagram
-        key={`${this.props.phFocus?.focusModel?.id || 'no-model'}-${normalizedNodeDataArray?.length || 0}-${this.props.divClassName || 'palette'}`}
+        key={`${this.props.phFocus?.focusModel?.id || 'no-model'}-${normalizedNodeDataArray?.length || 0}-${normalizedLinkDataArray?.length || 0}-${this.props.divClassName || 'palette'}`}
         ref={this.diagramRef}
         divClassName={divclassname}
         initDiagram={this.initPalette}

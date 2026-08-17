@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from 'react-redux'
 // import ObjectDetails from '../forms/ObjectDetails';
 // import { RelatedFromObjects } from './RelatedFromObjects';
 import { ObjectToCsv } from './ObjectCsv';
+import { selectSharedUniverseState } from '../../sharedUniverse';
 // import Selector from '../utils/Selector'
 // import PopupAMsg from '../utils/PopupAMsg';
 
@@ -22,7 +23,21 @@ const debug = false
 const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, reportType: any, modelInFocusId: any, edit: any }) => {
   if (debug) console.log('17 context', ph, reportType, modelInFocusId)
   // let props.= useSelector((props.any) => props. // Selecting the whole redux store
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const dispatch = useDispatch()
+  const sharedPh = {
+    ...ph,
+    phData: {
+      ...ph?.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? ph?.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? ph?.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? ph?.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || ph?.phFocus || {},
+    phUser: sharedUniverse.user || ph?.phUser || {},
+    phSource: sharedUniverse.source ?? ph?.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? ph?.phList,
+  };
 
   // const [mdString, setMdString] = useState('Your markdown string here');
   const [isCopied, setIsCopied] = useState(false);
@@ -35,28 +50,28 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
 
-  console.log('20 context', ph);
+  if (debug) console.log('20 context', sharedPh);
 
-  if (debug) console.log('25 Context:', reportType, modelInFocusId, ph?.phData);
+  if (debug) console.log('25 Context:', reportType, modelInFocusId, sharedPh?.phData);
 
 
   // const [value, setValue] = useState("");
   // const [visibleContext, setVisibleContext] = useState(true);
-  const metamodels = ph?.phData?.metis?.metamodels
-  const models = ph?.phData?.metis?.models
-  const model = (reportType === 'task') ? models?.find((m: any) => m.id === modelInFocusId) : models?.find((m: any) => m.id === ph.phFocus.focusModel.id)
+  const metamodels = sharedPh?.phData?.metis?.metamodels
+  const models = sharedPh?.phData?.metis?.models
+  const model = (reportType === 'task') ? models?.find((m: any) => m.id === modelInFocusId) : models?.find((m: any) => m.id === sharedPh.phFocus.focusModel?.id)
   const curmodel = models?.find((m: any) => m.id === modelInFocusId)
   const objects = curmodel?.objects
   const modelviews = curmodel?.modelviews
 
   const relationships = curmodel?.relships
-  const curmetamodel = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
+  const curmetamodel = metamodels?.find((mm: any) => mm.id === model?.metamodelRef)
   const curobjectviews = modelviews?.filter((mv: any) => mv.modelRef === modelInFocusId)
 
-  const focusObjectview = ph.phFocus.focusObjectview
-  const focusObject = ph.phFocus.focusObject
-  const focusTask = ph.phFocus.focusTask
-  const focusModelview = ph.phFocus.focusModelview
+  const focusObjectview = sharedPh.phFocus.focusObjectview
+  const focusObject = sharedPh.phFocus.focusObject
+  const focusTask = sharedPh.phFocus.focusTask
+  const focusModelview = sharedPh.phFocus.focusModelview
 
   // const focusObjectview = useSelector((state: any) => state.focusObjectview)
   // const focusObject = useSelector((state: any) => state.focusObject)
@@ -67,7 +82,7 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   const curmodelview = modelviews?.find((mv: any) => mv.id === focusModelview?.id)
   
   const currelationships = curmodelview?.relshipviews.map((rv: any) => relationships?.find((r: any) => r.id === rv.relshipRef) )
-  const curmm = metamodels?.find((mm: any) => mm.id === model.metamodelRef)
+  const curmm = metamodels?.find((mm: any) => mm.id === model?.metamodelRef)
   const curobject = (reportType === 'task') ? objects?.find((o: any) => o.id === focusTask?.id) : objects?.find((o: any) => o.id === focusObject?.id)
 
   const refersTo = curmetamodel?.relshiptypes?.find((ot: any) => ot.name === 'refersTo');
@@ -121,8 +136,8 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   function findObjectTypesForObjectviews(objectviews: any[], objects: any[], metamodels: any[], curmodel: any): any[] {
     return objectviews?.map((objectview) => {
       const object = objects?.find((object) => object.id === objectview.objectRef)
-      const metamodel = metamodels.find((mm) => mm.id === curmodel.metamodelRef)
-      const objecttype = metamodel.objecttypes.find((ot: any) => ot.id === object?.typeRef)
+      const metamodel = metamodels?.find((mm) => mm.id === curmodel?.metamodelRef)
+      const objecttype = metamodel?.objecttypes?.find((ot: any) => ot.id === object?.typeRef)
       return objecttype
     }) || [];
   }
@@ -174,7 +189,9 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   if (debug) console.log('194 objecstodiv', valueList);
   const lineNo = 5;
 
-  const relatedToObjects = curRelatedFromObjectRels?.map((objrel: any) => objects.find((o: any) => o.id === objrel.toobjectRef));
+  const relatedToObjects = curRelatedFromObjectRels
+    ?.map((objrel: any) => objects?.find((o: any) => o.id === objrel.toobjectRef))
+    .filter(Boolean) || [];
 
   // escape semicolon in values of relatedToObjects
 
@@ -242,7 +259,7 @@ const ExportObjects = ({ ph, reportType, modelInFocusId, edit }: { ph: any, repo
   // Add a Byte Order Mark (BOM) to the beginning of the CSV string
   // csvString = "\uFEFF" + csvString;
 
-  if (!ph?.phData?.metis?.models) return <></>
+  if (!sharedPh?.phData?.metis?.models) return <></>
 
   // console.log('214 keys1', setMdString, contentDiv);
   const tabsDiv = (

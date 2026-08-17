@@ -1,8 +1,7 @@
 // @ts-nocheck
 import React, { useState,  useEffect } from "react";
 import { Router, useRouter } from "next/router";
-// import { connect } from 'react-redux';
-import { connect, useDispatch }  from 'react-redux';
+import { useDispatch, useSelector }  from 'react-redux';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 // import imageUrlBuilder from '@sanity/image-url';
@@ -25,17 +24,33 @@ import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
 import Issues from "../components/Issues";
 import Tasks from '../components/Tasks';
 import GettingStarted from "../components/content/GettingStarted";
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState } from "../sharedUniverse";
 
 const debug = false
 const mimrisSiteUrl = process.env.NODE_ENV === 'development'
   ? 'http://localhost:3000/'
   : 'https://mimris.github.io/mimris/';
 
-const page = (props: any) => {
+const page = () => {
   
   // console.log(props)
   const dispatch = useDispatch()
-  const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const props = {
+    phData: {
+      domain: sharedUniverse.world.worldDefinition.domain,
+      metis: sharedUniverse.world.worldModel.metis,
+      documents: sharedUniverse.compatibility.documents,
+    },
+    phFocus: sharedUniverse.world.focus as any,
+    phUser: sharedUniverse.user as any,
+    phSource: sharedUniverse.source as any,
+    phList: sharedUniverse.compatibility.modelList,
+  };
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const focusProj = phFocus.focusProj || {};
+  const [mappedPosts, setMappedPosts] = useState([]);
   const [refresh, setRefresh] = useState(false) 
   
   const [memoryLocState, setMemoryLocState] = useSessionStorage('memorystate', []); //props);
@@ -59,10 +74,12 @@ const page = (props: any) => {
     const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : []
     const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : []
     const normalizedPhData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: normalizedPhData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+    dispatch(loadLegacyUniverseSnapshot({
+      phData: normalizedPhData,
+      phFocus: locStore.phFocus,
+      phSource: locStore.phSource,
+      phUser: locStore.phUser,
+    }))
   }
     const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
@@ -81,7 +98,7 @@ const page = (props: any) => {
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+          if (focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
               window.location.reload();
@@ -94,8 +111,14 @@ const page = (props: any) => {
         }
       }
     };
-    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
-    handleReload();
+    const hasRecoverableState = Boolean(
+      memorySessionState?.phData ||
+      memoryLocState?.phData ||
+      (Array.isArray(memorySessionState) && memorySessionState[0]?.phData) ||
+      (Array.isArray(memoryLocState) && memoryLocState[0]?.phData),
+    );
+    const shouldReload = Object.keys(query).length !== 0 && hasRecoverableState;
+    if (shouldReload) handleReload();
     let org = query.org;
   }, []) 
 
@@ -127,7 +150,7 @@ const page = (props: any) => {
   
   return (
     <div>
-      <Layout user={ props.phUser?.focusUser } >
+      <Layout user={ phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper d-flex flex-column min-vh-100">
               {/* <div className="header">
@@ -327,7 +350,7 @@ Below is shown an example model built using a template generated from the metamo
                         {activeSubTab === 'subtab2' && (
                           <div className="tab-pane show active">
                             <iframe
-                              src={props.phFocus?.focusProj?.repo && `https://kavca.github.io/${props.phFocus.focusProj.repo}/`}
+                              src={focusProj?.repo && `https://kavca.github.io/${focusProj.repo}/`}
                               width="100%"
                               height="1500px"
                             />
@@ -359,7 +382,7 @@ Below is shown an example model built using a template generated from the metamo
 }
 
 // export default Page;
-export default Page(connect(state => state)(page));
+export default Page(page);
 // export default authenticated(Page(connect(state => state)(page)));
 
 

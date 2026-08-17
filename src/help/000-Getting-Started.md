@@ -33,7 +33,7 @@ You can access Mimris from any of these environments:
 
 - **Production:** [https://akmmclient.vercel.app/modelling](https://akmmclient.vercel.app/modelling)
 - **Beta:** [https://akmmclient-beta.vercel.app/modelling](https://akmmclient-beta.vercel.app/modelling)
-- **Alpha:** [https://akmmclient-alfa.vercel.app/modelling](https://akmmclient-alfa.vercel.app/modelling)
+- **Alpha:** [https://akmmclient-alpha.vercel.app/modelling](https://akmmclient-alpha.vercel.app/modelling)
 
 Your active version is indicated in the top bar, e.g., `version: local`.
 

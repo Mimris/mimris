@@ -43,29 +43,30 @@ function FormField(props: any) {
 
 function FocusParametersForm(props: any) {
 
-  const [focusModel, setFocusModel] = useState(props.phFocus?.focusModel);
-  const [focusModelview, setFocusModelview] = useState(props.phFocus?.focusModelview);
-  const [focusObject, setFocusObject] = useState(props.phFocus?.focusObject);
-  const [focusObjectview, setFocusObjectview] = useState(props.phFocus?.focusObjectview);
-  const [focusOrg, setFocusOrg] = useState(props.phFocus?.focusOrg);
-  const [focusProj, setFocusProj] = useState(props.phFocus?.focusProj);
-  const [focusRole, setFocusRole] = useState(props.phFocus?.focusRole);
-  const [focusTask, setFocusTask] = useState(props.phFocus?.focusTask);
-  const [focusIssue, setFocusIssue] = useState(props.phFocus?.focusIssue);
+  const phFocus = props.phFocus || {};
+  const [focusModel, setFocusModel] = useState(phFocus?.focusModel);
+  const [focusModelview, setFocusModelview] = useState(phFocus?.focusModelview);
+  const [focusObject, setFocusObject] = useState(phFocus?.focusObject);
+  const [focusObjectview, setFocusObjectview] = useState(phFocus?.focusObjectview);
+  const [focusOrg, setFocusOrg] = useState(phFocus?.focusOrg);
+  const [focusProj, setFocusProj] = useState(phFocus?.focusProj);
+  const [focusRole, setFocusRole] = useState(phFocus?.focusRole);
+  const [focusTask, setFocusTask] = useState(phFocus?.focusTask);
+  const [focusIssue, setFocusIssue] = useState(phFocus?.focusIssue);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const dispatch = useDispatch();
   console.log('20 FocusParametersForm: ', props, focusModel, focusModelview)
-  const models = props.models;
-  let curmod = models.find((model: any) => model.id === focusModel.id);
+  const models = Array.isArray(props.models) ? props.models.filter(Boolean) : [];
+  let curmod = models.find((model: any) => model.id === focusModel?.id) || models[0];
   const modelOptions = models.map((model: any) => ({ id: model.id, name: model.name }));
-  const modelviews = curmod?.modelviews;
-  const curmodelview = modelviews?.find((modelview: any) => modelview.id === focusModelview.id);
+  const modelviews = Array.isArray(curmod?.modelviews) ? curmod.modelviews.filter(Boolean) : [];
+  const curmodelview = modelviews?.find((modelview: any) => modelview.id === focusModelview?.id) || modelviews[0];
   let modelviewOptions = modelviews?.map((modelview: any) => ({ id: modelview.id, name: modelview.name }));
-  const objects = curmod?.objects;
+  const objects = Array.isArray(curmod?.objects) ? curmod.objects.filter(Boolean) : [];
   const objectOptions = objects?.map((object: any) => ({ id: object.id, name: object.name }));
-  const objectviews = curmodelview?.objectviews;
+  const objectviews = Array.isArray(curmodelview?.objectviews) ? curmodelview.objectviews.filter(Boolean) : [];
   const objectviewOptions = objectviews?.map((objectview: any) => ({ id: objectview.id, name: objectview.name }));
 
   console.log('30 FocusParametersForm: ', models, curmod, objectviews, objectviewOptions, props);
@@ -75,10 +76,10 @@ function FocusParametersForm(props: any) {
   // const modelviewOptions = useRef<any[]>([]);
 
   useEffect(() => {
-    const curmod = models.find((model: any) => model.id === focusModel.id);
+    const curmod = models.find((model: any) => model.id === focusModel?.id);
     curmodRef.current = curmod;
     modelviewOptions.current = modelviews?.map((modelview: any) => ({ id: modelview.id, name: modelview.name }));
-  }, [focusModel.id, models, modelviewOptions, modelviews]);
+  }, [focusModel?.id, models, modelviewOptions, modelviews]);
 
   function handleEdit(fieldName: string, fieldValue: any) { //
     console.log('68 handleEdit: ', fieldName, fieldValue);

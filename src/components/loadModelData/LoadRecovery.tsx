@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux'
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from '../utils/LocalStorage'
 import useLocalStorage  from '../../hooks/use-local-storage'
+import { loadLegacyUniverseSnapshot } from '../../sharedUniverse'
 // import { i } from '../utils/SvgLetters';
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
@@ -83,11 +84,8 @@ const LoadRecovery = (props: any) => {
           const phUser = ph?.phUser
           const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
           // console.log('91 SelectSource', locState);
-          dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
-          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
-          dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
-          let data = (phSource === "") ? phData.metis.name : phSource
-          dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+          const data = (phSource === "") ? phData.metis.name : phSource
+          dispatch(loadLegacyUniverseSnapshot({ phData, phFocus, phUser, phSource: data }))
         }
       }
     }
@@ -244,4 +242,3 @@ const LoadRecovery = (props: any) => {
 }
 
 export default LoadRecovery
-

@@ -94,6 +94,7 @@ import {
   SET_VISIBLE_CONTEXT,
   UPDATE_DOMAIN_PROPERTIES,
 } from '../actions/types';
+import { normalizeModelviewObjectviewIdentities } from '../sharedUniverse/universeSlice';
 
 //import context from '../pages/context';
 
@@ -144,6 +145,10 @@ const OPTIONAL_RELSHIPVIEW_FIELDS = [
   'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
   'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor'
 ];
+
+function compactArray(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : [];
+}
 
 // import { IntitalProjectJson } from 'git/Mimrisodels/Mimris-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
@@ -209,25 +214,71 @@ let focusProj
 let focusRole
 let focusCollection
 
+const ACTIONS_ALLOWED_WITHOUT_CURRENT_MODEL = new Set([
+  FAILURE,
+  LOAD_DATA_SUCCESS,
+  LOAD_DATAGITHUB_SUCCESS,
+  LOAD_DATAMODELLIST_SUCCESS,
+  LOAD_DATAMODEL_SUCCESS,
+  LOAD_TOSTORE_DATA,
+  LOAD_TOSTORE_PHDATA,
+  LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_PHUSER,
+  LOAD_TOSTORE_PHSOURCE,
+  LOAD_TOSTORE_NEWMODEL,
+  LOAD_TOSTORE_NEWMODELVIEW,
+  SET_CURRENT_METAMODEL,
+  SET_FOCUS_PHFOCUS,
+  SET_FOCUS_USER,
+  SET_FOCUS_TAB,
+  SET_FOCUS_MODEL,
+  SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMETAMODEL,
+  SET_FOCUS_TARGETMODEL,
+  SET_FOCUS_TARGETMODELVIEW,
+  SET_FOCUS_OBJECT,
+  SET_FOCUS_OBJECTVIEW,
+  SET_FOCUS_RELSHIP,
+  SET_FOCUS_RELSHIPVIEW,
+  SET_FOCUS_OBJECTTYPE,
+  SET_FOCUS_RELSHIPTYPE,
+  SET_FOCUS_PROJ,
+  SET_FOCUS_ORG,
+  SET_FOCUS_ROLE,
+  SET_FOCUS_COLLECTION,
+  SET_FOCUS_TASK,
+  SET_FOCUS_SOURCE,
+  SET_FOCUS_REFRESH,
+  SET_FOCUS_ISSUE,
+  SET_USER_SHOWDELETED,
+  SET_USER_SHOWMODIFIED,
+  UPDATE_PROJECT_PROPERTIES,
+  UPDATE_DOMAIN_PROPERTIES,
+]);
+
 function reducer(state = InitialState, action) {  
 
   const { phData, domain, phFocus, phUser } = state;
   const { type, payload } = action;
   const focusModel = phFocus?.focusModel
-  const curModel = phData.metis.models.find((m) => m.id === focusModel?.id) || phData.metis.models[0] //current model;
+  const metis = phData?.metis || {};
+  const models = compactArray(metis.models);
+  const metamodels = compactArray(metis.metamodels);
+  const curModel = models.find((m) => m.id === focusModel?.id) || models[0] //current model;
   if (debug) console.log('174 reducer state', state, curModel);
-  if (!curModel) return state;
-  const curModelIndex = phData.metis.models.findIndex((m) => m.id === focusModel?.id);
-  const curModelview = curModel?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) || curModel?.modelviews[0] //current modelview
-  let curModelviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-  const curModelviewsLength = curModel?.modelviews?.length // lentgh of modelviews array
+  if (!curModel && !ACTIONS_ALLOWED_WITHOUT_CURRENT_MODEL.has(action.type)) return state;
+  const curModelIndex = curModel ? models.findIndex((m) => m.id === curModel.id) : -1;
+  const curModelviews = compactArray(curModel?.modelviews);
+  const curModelview = curModelviews.find(mv => mv.id === state.phFocus?.focusModelview?.id) || curModelviews[0] //current modelview
+  let curModelviewIndex = curModelviews.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
+  const curModelviewsLength = curModelviews.length // lentgh of modelviews array
   if (curModelviewIndex < 0) { curModelviewIndex = curModelviewsLength } // if modelview not found, i.e. -1, then add a new modelview
 
   // const curObjectType = curMetamodel.objecttypes.find((ot) => ot.id === curObjectView.objecttypeRef);
   // const curObjectTypeIndex = curMetamodel.objecttypes.findIndex((ot) => ot.id === curObjectView.objecttypeRef);
 
-  const curMetamodel = phData.metis.metamodels.find((m) => m.id === curModel.metamodelRef);
-  const curMetamodelIndex = phData.metis.metamodels.findIndex((m) => m.id === curModel.metamodelRef);
+  const curMetamodel = curModel ? metamodels.find((m) => m.id === curModel.metamodelRef) : null;
+  const curMetamodelIndex = curModel ? metamodels.findIndex((m) => m.id === curModel.metamodelRef) : -1;
 
 
 
@@ -268,7 +319,10 @@ function reducer(state = InitialState, action) {
       // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
       return {
         ...state,
-        phData: action.data,
+        phData: {
+          ...action.data,
+          metis: normalizeModelviewObjectviewIdentities(action.data?.metis),
+        },
         phSource: 'Model server'
       }
     case LOAD_DATAGITHUB_SUCCESS:
@@ -276,7 +330,10 @@ function reducer(state = InitialState, action) {
       const retval_LOAD_DATAGITHUB_SUCCESS =
       {
         ...state,
-        phData: action.data.data.phData,
+        phData: {
+          ...action.data.data.phData,
+          metis: normalizeModelviewObjectviewIdentities(action.data.data.phData?.metis),
+        },
         phSource: action.data.data.phSource, //'GitHub'
         phFocus: action.data.data.phFocus,
         phUser: action.data.data.phUser,
@@ -293,24 +350,24 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_DATAMODEL_SUCCESS:
       if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
-      let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      let loadmodindex = models.findIndex(m => m.id === action.data?.id) // current model index
       if (debug) console.log('431 reducer', loadmodindex)
-      if (loadmodindex < 0) { loadmodindex = state.phData.metis.models.length }
+      if (loadmodindex < 0) { loadmodindex = models.length }
       if (debug) console.log('433 reducer', loadmodindex)
       return {
         ...state,
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
+            ...metis,
             models: [
-              ...state.phData.metis.models.slice(0, loadmodindex),
+              ...models.slice(0, loadmodindex),
               ...action.data.model,
               // {
               //   ...action.data.model,
               //   modified: new Date().toISOString(),  // add modified date 
               // },
-              ...state.phData.metis.models.slice(loadmodindex + 1, state.phData.metis.models.length),
+              ...models.slice(loadmodindex + 1, models.length),
             ]
           },
           domain: {
@@ -336,7 +393,7 @@ function reducer(state = InitialState, action) {
           ...action.data,
           metis: {
             ...state.phData.metis,
-            ...action.data.metis
+            ...normalizeModelviewObjectviewIdentities(action.data.metis)
           } 
         }
       }
@@ -367,10 +424,12 @@ function reducer(state = InitialState, action) {
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models, action.data
-            ]
+            ...normalizeModelviewObjectviewIdentities({
+              ...metis,
+              models: [
+                ...models, action.data
+              ]
+            })
           },
           domain: {
             ...state.phData.domain,
@@ -380,22 +439,24 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_TOSTORE_NEWMODELVIEW:
       if (debug) console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);
-      const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
-      let curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === action.data.id) // current model index
+      const curmnew = models.find(m => m.id === action.data.id) //current model
+      let curmindexnew = models.findIndex(m => m.id === action.data.id) // current model index
       // const curmnew = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      if (curmindexnew < 0) curmindexnew = state.phData?.metis?.models.length
+      if (curmindexnew < 0) curmindexnew = models.length
       return {
         ...state,
         phData: {
           ...state.phData,
           metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindexnew),
-              action.data,
-              ...state.phData.metis.models.slice(curmindexnew + 1, state.phData?.metis?.models.length),
-            ]
+            ...normalizeModelviewObjectviewIdentities({
+              ...metis,
+              models: [
+                ...models.slice(0, curmindexnew),
+                action.data,
+                ...models.slice(curmindexnew + 1, models.length),
+              ]
+            })
           }
         }
       }
@@ -803,12 +864,12 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 ...action.data,
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ]
           },
         },
@@ -845,12 +906,12 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 ...action.data,
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ]
           },
         },
@@ -871,7 +932,7 @@ function reducer(state = InitialState, action) {
       let curModviewIndex = curModel?.modelviews?.findIndex(mv => mv.id === action?.data?.id) // current modelview index
       const curmvlength = curModel?.modelviews?.length
       if (curModviewIndex < 0) { curModviewIndex = curmvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
-      if (debug) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModviewIndex, state.phData.metis.models[curModelIndex].modelviews[curModviewIndex])
+      if (debug) console.log('714 UPDATE_MODELVIEW_PROPERTIES', curModviewIndex, models[curModelIndex].modelviews[curModviewIndex])
 
       const retval_UPDATE_MODELVIEW_PROPERTIES = {
         ...state,
@@ -889,9 +950,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 modelviews: [
                   ...curModel?.modelviews?.slice(0, curModviewIndex),
                   {
@@ -901,7 +962,7 @@ function reducer(state = InitialState, action) {
                   ...curModel?.modelviews?.slice(curModviewIndex + 1),
                 ]
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ]
           },
         },
@@ -928,12 +989,12 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 modelviews: reorderedModelviews,
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ]
           },
         },
@@ -948,6 +1009,32 @@ function reducer(state = InitialState, action) {
       if (curObjectIndex < 0) { curObjectIndex = curObjectLength }  // if object not found, i.e. -1, then add a new object
 
       // const context = getContext(curObjectIndex)
+      const mergedObject = {
+        ...curModel.objects[curObjectIndex],
+        ...action.data,
+        // ...context,
+      };
+      const shouldUpdateObjectviewNames = Boolean(action.data?.name) && curObject?.name !== action.data.name;
+      const updatedModelviews = shouldUpdateObjectviewNames
+        ? (curModel?.modelviews || []).map((modelview) => ({
+          ...modelview,
+          objectviews: (modelview?.objectviews || []).map((objectview) => {
+            if (objectview?.objectRef !== action.data.id) return objectview;
+            const currentObjectviewName = objectview?.name;
+            const inheritsObjectName =
+              currentObjectviewName === undefined ||
+              currentObjectviewName === null ||
+              currentObjectviewName === '' ||
+              currentObjectviewName === curObject?.name;
+            return inheritsObjectName
+              ? {
+                ...objectview,
+                name: action.data.name,
+              }
+              : objectview;
+          }),
+        }))
+        : curModel?.modelviews;
 
       const retval_UPDATE_OBJECT_PROPERTIES = {
         ...state,
@@ -956,20 +1043,17 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 objects: [
                   ...curModel?.objects.slice(0, curObjectIndex),
-                  {
-                    ...curModel.objects[curObjectIndex],
-                    ...action.data,
-                    // ...context,
-                  },
+                  mergedObject,
                   ...curModel?.objects.slice(curObjectIndex + 1, curModel?.objects.length)
                 ],
+                modelviews: updatedModelviews,
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ],
           },
         }
@@ -980,19 +1064,37 @@ function reducer(state = InitialState, action) {
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (!debug) console.log('866 UPDATE_OBJECTVIEW_PROPERTIES: ', action);
       // console.warn('[OBJVIEW_REDUCER]', { id: action?.data?.id, fillcolor: action?.data?.fillcolor, fillcolor2: action?.data?.fillcolor2, focusModel: state.phFocus?.focusModel?.id, focusModelview: state.phFocus?.focusModelview?.id });
+      const objectviewPatch = { ...(action.data || {}) };
+      const targetModelviewId = objectviewPatch.modelviewId || objectviewPatch.modelviewRef;
+      delete objectviewPatch.modelviewId;
+      delete objectviewPatch.modelviewRef;
       let targetModelIndex = curModelIndex;
       let targetModel = curModel;
       let targetModelviewIndex = curModelviewIndex;
       let targetModelview = curModelview;
-      let curObjectview = curModelview?.objectviews?.find(ov => ov.id === action?.data?.id);
+      if (targetModelviewId) {
+        for (let mi = 0; mi < models.length; mi++) {
+          const model = models[mi];
+          const modelviews = model?.modelviews || [];
+          const mvi = modelviews.findIndex((mv) => mv?.id === targetModelviewId);
+          if (mvi >= 0) {
+            targetModelIndex = mi;
+            targetModel = model;
+            targetModelviewIndex = mvi;
+            targetModelview = modelviews[mvi];
+            break;
+          }
+        }
+      }
+      let curObjectview = targetModelview?.objectviews?.find(ov => ov.id === objectviewPatch?.id);
 
-      if (!curObjectview && action?.data?.id) {
-        for (let mi = 0; mi < state.phData.metis.models.length; mi++) {
-          const model = state.phData.metis.models[mi];
+      if (!curObjectview && objectviewPatch?.id && !targetModelviewId) {
+        for (let mi = 0; mi < models.length; mi++) {
+          const model = models[mi];
           const modelviews = model?.modelviews || [];
           for (let mvi = 0; mvi < modelviews.length; mvi++) {
             const modelview = modelviews[mvi];
-            const foundObjectview = modelview?.objectviews?.find(ov => ov.id === action.data.id);
+            const foundObjectview = modelview?.objectviews?.find(ov => ov.id === objectviewPatch.id);
             if (foundObjectview) {
               targetModelIndex = mi;
               targetModel = model;
@@ -1012,7 +1114,7 @@ function reducer(state = InitialState, action) {
 
       const mergedObjectview = mergeAndPruneOptionalEmptyFields(
         targetModelview.objectviews[curObjectviewIndex],
-        action.data,
+        objectviewPatch,
         OPTIONAL_OBJECTVIEW_FIELDS
       );
 
@@ -1024,9 +1126,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, targetModelIndex),
+              ...models.slice(0, targetModelIndex),
               {
-                ...state.phData.metis.models[targetModelIndex],
+                ...models[targetModelIndex],
                 modelviews: [
                   ...targetModel?.modelviews?.slice(0, targetModelviewIndex),
                   {
@@ -1040,7 +1142,7 @@ function reducer(state = InitialState, action) {
                   ...targetModel?.modelviews?.slice(targetModelviewIndex + 1, targetModel.modelviews.length),
                 ],
               },
-              ...state.phData.metis.models.slice(targetModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(targetModelIndex + 1, models.length),
             ]
           },
         },
@@ -1063,9 +1165,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, curModelIndex),
+              ...models.slice(0, curModelIndex),
               {
-                ...state.phData.metis.models[curModelIndex],
+                ...models[curModelIndex],
                 relships: [
                   ...curModel.relships.slice(0, curRelshipIndex),
                   {
@@ -1075,7 +1177,7 @@ function reducer(state = InitialState, action) {
                   ...curModel.relships.slice(curRelshipIndex + 1, curModel.relships.length)
                 ]
               },
-              ...state.phData.metis.models.slice(curModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(curModelIndex + 1, models.length),
             ]
           },
         },
@@ -1102,8 +1204,8 @@ function reducer(state = InitialState, action) {
       let curRelshipview = curModelview?.relshipviews?.find(rv => rv?.id === action?.data?.id);
 
       if (!curRelshipview && action?.data?.id) {
-        for (let mi = 0; mi < state.phData.metis.models.length; mi++) {
-          const model = state.phData.metis.models[mi];
+        for (let mi = 0; mi < models.length; mi++) {
+          const model = models[mi];
           const modelviews = model?.modelviews || [];
           for (let mvi = 0; mvi < modelviews.length; mvi++) {
             const modelview = modelviews[mvi];
@@ -1132,9 +1234,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             models: [
-              ...state.phData.metis.models.slice(0, targetRelModelIndex),
+              ...models.slice(0, targetRelModelIndex),
               {
-                ...state.phData.metis.models[targetRelModelIndex],
+                ...models[targetRelModelIndex],
                 modelviews: [
                   ...targetRelModel?.modelviews?.slice(0, targetRelModelviewIndex),
                   {
@@ -1152,7 +1254,7 @@ function reducer(state = InitialState, action) {
                   ...targetRelModel?.modelviews.slice(targetRelModelviewIndex + 1, targetRelModel?.modelviews?.length),
                 ],
               },
-              ...state.phData.metis.models.slice(targetRelModelIndex + 1, state.phData.metis.models.length),
+              ...models.slice(targetRelModelIndex + 1, models.length),
             ]
           },
         },
@@ -1177,9 +1279,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindexot),
+              ...metamodels.slice(0, curmmindexot),
               {
-                ...state.phData.metis.metamodels[curmmindexot],
+                ...metamodels[curmmindexot],
                 objecttypes: [
                   ...curmmot?.objecttypes.slice(0, indexot),
                   {
@@ -1189,7 +1291,7 @@ function reducer(state = InitialState, action) {
                   ...curmmot?.objecttypes.slice(indexot + 1, curmmot.objecttypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1201,7 +1303,7 @@ function reducer(state = InitialState, action) {
       let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm?.id === action?.data?.id)  // current metamodel index
       if (debug) console.log('1009 UPDATE_METAMODEL_PROPERTIES', curmmindex_mm);
 
-      if (curmmindex_mm < 0) curmmindex_mm = state.phData.metis.metamodels.length
+      if (curmmindex_mm < 0) curmmindex_mm = metamodels.length
       return {
         ...state,
         phData: {
@@ -1209,12 +1311,12 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindex_mm),
+              ...metamodels.slice(0, curmmindex_mm),
               {
-                ...state.phData.metis.metamodels[curmmindex_mm],
+                ...metamodels[curmmindex_mm],
                 ...action.data,
               },
-              ...state.phData.metis.metamodels.slice(curmmindex_mm + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindex_mm + 1, metamodels.length),
             ]
           },
         },
@@ -1225,7 +1327,7 @@ function reducer(state = InitialState, action) {
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
       let curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
       if (debug) console.log('1031 curmm_tmm', curmm_tmm, curmmindex_tmm)
-      if (curmmindex_tmm < 0) curmmindex_tmm = state.phData.metis.metamodels.length
+      if (curmmindex_tmm < 0) curmmindex_tmm = metamodels.length
       if (debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
       if (debug) console.log('1034 metamodels', state.phData?.metis?.metamodels[curmmindex_tmm]);
       return {
@@ -1235,12 +1337,12 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindex_tmm),
+              ...metamodels.slice(0, curmmindex_tmm),
               {
-                ...state.phData.metis.metamodels[curmmindex_tmm],
+                ...metamodels[curmmindex_tmm],
                 ...action.data,
               },
-              ...state.phData.metis.metamodels.slice(curmmindex_tmm + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindex_tmm + 1, metamodels.length),
             ]
           },
         },
@@ -1267,9 +1369,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindextot),
+              ...metamodels.slice(0, curmmindextot),
               {
-                ...state.phData.metis.metamodels[curmmindextot],
+                ...metamodels[curmmindextot],
                 objecttypes: [
                   ...curmmtot?.objecttypes.slice(0, indextot),
                   {
@@ -1279,7 +1381,7 @@ function reducer(state = InitialState, action) {
                   ...curmmtot?.objecttypes.slice(indextot + 1, curmmtot.objecttypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindextot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindextot + 1, metamodels.length),
             ]
           },
         },
@@ -1308,9 +1410,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindextotv),
+              ...metamodels.slice(0, curmmindextotv),
               {
-                ...state.phData.metis.metamodels[curmmindextotv],
+                ...metamodels[curmmindextotv],
                 objecttypeviews: [
                   ...curmmtotv?.objecttypeviews?.slice(0, indextotv),
                   {
@@ -1320,7 +1422,7 @@ function reducer(state = InitialState, action) {
                   ...curmmtotv?.objecttypeviews.slice(indextotv + 1, curmmtotv.objecttypeviews.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindextotv + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindextotv + 1, metamodels.length),
             ]
           },
         },
@@ -1347,9 +1449,9 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               metamodels: [
-                ...state.phData.metis.metamodels.slice(0, curmmtindex),
+                ...metamodels.slice(0, curmmtindex),
                 {
-                  ...state.phData.metis.metamodels[curmmtindex],
+                  ...metamodels[curmmtindex],
                   objtypegeos: [
                     ...curmmt?.objtypegeos?.slice(0, ottindex),
                     {
@@ -1359,7 +1461,7 @@ function reducer(state = InitialState, action) {
                     ...curmmt?.objtypegeos?.slice(ottindex + 1, curmmt.objtypegeos.length)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmtindex + 1, state.phData.metis.metamodels.length),
+                ...metamodels.slice(curmmtindex + 1, metamodels.length),
               ]
             },
           },
@@ -1383,9 +1485,9 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               metamodels: [
-                ...state.phData.metis.metamodels.slice(0, curmmtpindexot),
+                ...metamodels.slice(0, curmmtpindexot),
                 {
-                  ...state.phData.metis.metamodels[curmmtpindexot],
+                  ...metamodels[curmmtpindexot],
                   properties: [
                     ...curmmtpot?.properties.slice(0, indextpot),
                     {
@@ -1395,7 +1497,7 @@ function reducer(state = InitialState, action) {
                     ...curmmtpot?.properties.slice(indextpot + 1, curmmtpot?.properties.length)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmtpindexot + 1, state.phData.metis.metamodels.length),
+                ...metamodels.slice(curmmtpindexot + 1, metamodels.length),
               ]
             },
           },
@@ -1418,9 +1520,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindextrt),
+              ...metamodels.slice(0, curmmindextrt),
               {
-                ...state.phData.metis.metamodels[curmmindextrt],
+                ...metamodels[curmmindextrt],
                 relshiptypes: [
                   ...curmmtrt?.relshiptypes?.slice(0, indextrt),
                   {
@@ -1430,7 +1532,7 @@ function reducer(state = InitialState, action) {
                   ...curmmtrt?.relshiptypes?.slice(indextrt + 1, curmmtrt?.relshiptypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindextrt + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindextrt + 1, metamodels.length),
             ]
           }
         }
@@ -1453,9 +1555,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindextrtv),
+              ...metamodels.slice(0, curmmindextrtv),
               {
-                ...state.phData.metis.metamodels[curmmindextrtv],
+                ...metamodels[curmmindextrtv],
                 relshiptypeviews: [
                   ...curmmtrtv?.relshiptypeviews?.slice(0, indextrtv),
                   {
@@ -1465,7 +1567,7 @@ function reducer(state = InitialState, action) {
                   ...curmmtrtv?.relshiptypeviews.slice(indextrtv + 1, curmmtrtv?.relshiptypeviews.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindextrtv + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindextrtv + 1, metamodels.length),
             ]
           },
         },
@@ -1488,9 +1590,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmdtdindexot),
+              ...metamodels.slice(0, curmmdtdindexot),
               {
-                ...state.phData.metis.metamodels[curmmdtdindexot],
+                ...metamodels[curmmdtdindexot],
                 datatypes: [
                   ...curmmdtdot?.datatypes.slice(0, indexdtdot),
                   {
@@ -1500,7 +1602,7 @@ function reducer(state = InitialState, action) {
                   ...curmmdtdot?.datatypes.slice(indexdtdot + 1, curmmdtdot?.datatypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmdtdindexot + 1, state.phData.metis.metamodels),
+              ...metamodels.slice(curmmdtdindexot + 1, metamodels),
             ]
           },
         },
@@ -1523,9 +1625,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmtvpindexot),
+              ...metamodels.slice(0, curmmtvpindexot),
               {
-                ...state.phData.metis.metamodels[curmmtvpindexot],
+                ...metamodels[curmmtvpindexot],
                 objecttypes: [
                   ...curmmtvpot?.objecttypes.slice(0, indextvpot),
                   {
@@ -1535,7 +1637,7 @@ function reducer(state = InitialState, action) {
                   ...curmmtvpot?.objecttypes.slice(indextvpot + 1, curmmtvpot?.objecttypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmtvpindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmtvpindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1558,9 +1660,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, targetcurmmddindexot),
+              ...metamodels.slice(0, targetcurmmddindexot),
               {
-                ...state.phData.metis.metamodels[targetcurmmddindexot],
+                ...metamodels[targetcurmmddindexot],
                 methods: [
                   ...targetcurmmddot?.methods.slice(0, targetindexddot),
                   {
@@ -1570,7 +1672,7 @@ function reducer(state = InitialState, action) {
                   ...targetcurmmddot?.methods.slice(targetindexddot + 1, targetcurmmddot?.methods.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(targetcurmmddindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(targetcurmmddindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1595,9 +1697,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindexotv),
+              ...metamodels.slice(0, curmmindexotv),
               {
-                ...state.phData.metis.metamodels[curmmindexotv],
+                ...metamodels[curmmindexotv],
                 objecttypeviews: [
                   ...curmmotv?.objecttypeviews.slice(0, indexotv),
                   {
@@ -1607,7 +1709,7 @@ function reducer(state = InitialState, action) {
                   ...curmmotv?.objecttypeviews.slice(indexotv + 1, curmmotv?.objecttypeviews.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexotv + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindexotv + 1, metamodels.length),
             ]
           },
         },
@@ -1629,9 +1731,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindexvs),
+              ...metamodels.slice(0, curmmindexvs),
               {
-                ...state.phData.metis.metamodels[curmmindexvs],
+                ...metamodels[curmmindexvs],
                 viewstyles: [
                   ...curmmvs?.viewstyles.slice(0, indexvs),
                   {
@@ -1641,7 +1743,7 @@ function reducer(state = InitialState, action) {
                   ...curmmvs?.viewstyles.slice(indexvs + 1, curmmvs?.viewstyles.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexvs + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindexvs + 1, metamodels.length),
             ]
           },
         },
@@ -1662,9 +1764,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindex),
+              ...metamodels.slice(0, curmmindex),
               {
-                ...state.phData.metis.metamodels[curmmindex],
+                ...metamodels[curmmindex],
                 objtypegeos: [
                   ...curmm?.objtypegeos.slice(0, otindex),
                   {
@@ -1674,7 +1776,7 @@ function reducer(state = InitialState, action) {
                   ...curmm?.objtypegeos.slice(otindex + 1, curmm?.objtypegeos.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindex + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindex + 1, metamodels.length),
             ]
           },
         },
@@ -1700,9 +1802,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmddindexot),
+              ...metamodels.slice(0, curmmddindexot),
               {
-                ...state.phData.metis.metamodels[curmmddindexot],
+                ...metamodels[curmmddindexot],
                 datatypes: [
                   ...curmmddot?.datatypes.slice(0, indexddot),
                   {
@@ -1712,7 +1814,7 @@ function reducer(state = InitialState, action) {
                   ...curmmddot?.datatypes.slice(indexddot + 1, curmmddot?.datatypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmddindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmddindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1736,9 +1838,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmmtindexot),
+              ...metamodels.slice(0, curmmmtindexot),
               {
-                ...state.phData.metis.metamodels[curmmmtindexot],
+                ...metamodels[curmmmtindexot],
                 methods: [
                   ...curmmmtot?.methodtypes.slice(0, indexdotmt),
                   {
@@ -1748,7 +1850,7 @@ function reducer(state = InitialState, action) {
                   ...curmmmtot?.methods.slice(indexdotmt + 1, curmmmtot?.methods.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmmtindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmmtindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1773,9 +1875,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmpindexot),
+              ...metamodels.slice(0, curmmpindexot),
               {
-                ...state.phData.metis.metamodels[curmmpindexot],
+                ...metamodels[curmmpindexot],
                 properties: [
                   ...curmmpot?.properties?.slice(0, indexpot),
                   {
@@ -1785,7 +1887,7 @@ function reducer(state = InitialState, action) {
                   ...curmmpot?.properties.slice(indexpot + 1, curmmpot?.properties.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmpindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmpindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1807,9 +1909,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmtddindexot),
+              ...metamodels.slice(0, curmtddindexot),
               {
-                ...state.phData.metis.metamodels[curmtddindexot],
+                ...metamodels[curmtddindexot],
                 methods: [
                   ...curmtddot?.methods.slice(0, indexmddot),
                   {
@@ -1819,7 +1921,7 @@ function reducer(state = InitialState, action) {
                   ...curmtddot?.methods.slice(indexmddot + 1, curmtddot?.methods.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmtddindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmtddindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1844,9 +1946,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmvpindexot),
+              ...metamodels.slice(0, curmmvpindexot),
               {
-                ...state.phData.metis.metamodels[curmmvpindexot],
+                ...metamodels[curmmvpindexot],
                 objecttypes: [
                   ...curmmvpot?.objecttypes.slice(0, indexvpot),
                   {
@@ -1856,7 +1958,7 @@ function reducer(state = InitialState, action) {
                   ...curmmvpot?.objecttypes.slice(indexvvpot + 1, curmmvpot?.objecttypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmvpindexot + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmvpindexot + 1, metamodels.length),
             ]
           },
         },
@@ -1879,9 +1981,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindexrt),
+              ...metamodels.slice(0, curmmindexrt),
               {
-                ...state.phData.metis.metamodels[curmmindexrt],
+                ...metamodels[curmmindexrt],
                 relshiptypes: [
                   ...curmmrt?.relshiptypes?.slice(0, indexrt),
                   {
@@ -1891,7 +1993,7 @@ function reducer(state = InitialState, action) {
                   ...curmmrt?.relshiptypes?.slice(indexrt + 1, curmmrt?.relshiptypes.length)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexrt + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindexrt + 1, metamodels.length),
             ]
           },
         },
@@ -1915,9 +2017,9 @@ function reducer(state = InitialState, action) {
           metis: {
             ...state.phData.metis,
             metamodels: [
-              ...state.phData.metis.metamodels.slice(0, curmmindexrtv),
+              ...metamodels.slice(0, curmmindexrtv),
               {
-                ...state.phData.metis.metamodels[curmmindexrtv],
+                ...metamodels[curmmindexrtv],
                 relshiptypeviews: [
                   ...curmmrtv?.relshiptypeviews?.slice(0, indexrtv),
                   {
@@ -1927,7 +2029,7 @@ function reducer(state = InitialState, action) {
                   ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1, curmmrtv?.relshiptypeviews)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexrtv + 1, state.phData.metis.metamodels.length),
+              ...metamodels.slice(curmmindexrtv + 1, metamodels.length),
             ]
           },
         },

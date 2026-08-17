@@ -13,6 +13,7 @@ import taskIcon from "/public/images/task.png";
 import ReportModule from "./export/ReportModule";
 
 import Help from "../help/000-Create-Metamodel";
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 // import {ObjDetailTable} from './forms/ObjDetailTable';
 // import { set } from 'immer/dist/internal';
@@ -35,9 +36,10 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
-  const phData = useSelector((state) => state.phData); 
-  const phFocus = useSelector((state) => state.phFocus);
-  if (debug) console.log('36 Tasks state', phData, phFocus);
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis;
+  const focus = sharedUniverse.world.focus;
+  if (debug) console.log('36 Tasks state', metis, focus);
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimizedTask, setMinimizedTask] = useState(true);
@@ -89,12 +91,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const [formValues, setFormValues] = useState({});
 
-  const metamodels = useSelector(state => phData?.metis?.metamodels);
-  const models = useSelector(state => phData?.metis?.models);
-  let focusModel = useSelector(state => phFocus?.focusModel);
-  const focusModelview = useSelector(state => phFocus.focusModelview);
-  const focusTask = useSelector(state => phFocus.focusTask);
-  const focusRole = useSelector(state => phFocus.focusRole);
+  const metamodels = metis?.metamodels;
+  const models = metis?.models;
+  let focusModel = focus?.focusModel;
+  const focusModelview = focus?.focusModelview;
+  const focusTask = focus?.focusTask;
+  const focusRole = focus?.focusRole;
   const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   if (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);

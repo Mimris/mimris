@@ -1689,6 +1689,7 @@ export class jsnObjectView {
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
+    layoutRevision?: string;
     size?:           string;
     scale?:          number;
     memberscale?:    number;
@@ -1714,6 +1715,7 @@ export class jsnObjectView {
     icon2?:          string;
     icon3?:          string;
     image?:          string;
+    modelviewId?:    string;
     constructor(objview: akm.cxObjectView) {
         // Always store core attributes
         this.id              = objview?.id;
@@ -1730,8 +1732,10 @@ export class jsnObjectView {
         this.isExpanded      = objview?.isExpanded;
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
+        if ((objview as any)?.layoutRevision) this.layoutRevision = String((objview as any).layoutRevision);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
+        if ((objview as any)?.modelviewId) this.modelviewId = (objview as any).modelviewId;
 
         // Delta-only storage: only store visual attributes that differ from typeview
         const typeview = objview?.typeview;
@@ -1962,6 +1966,14 @@ export class jsnImportMetis {
             relshiptypes.forEach(rt => {
                 let reltype = rt as akm.cxRelationshipType;
                 this.importRelshipType(reltype, metamodel);
+            });
+        }
+        metamodel.relshiptypes0 = [];
+        const relshiptypes0 = item.relshiptypes0;
+        if (relshiptypes0 && relshiptypes0.length) {
+            relshiptypes0.forEach(rt => {
+                const reltype = jsnMetis.findRelationshipType(rt?.id) || metamodel.findRelationshipType(rt?.id);
+                if (reltype) metamodel.addRelationshipType0(reltype);
             });
         }
         let relshiptypeviews = item.relshiptypeviews;
@@ -2201,8 +2213,20 @@ export class jsnImportMetis {
                 }
             }
             if (objtype) {
-                let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
+                const objectName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : objtype.name;
+                let obj = new akm.cxObject(item.id, objectName, objtype, item.description);
                 obj.setType(objtype);
+                // EntityType presentation belongs to the semantic TYPE object.
+                // Keep these source defaults on import so Generate Metamodel can
+                // transfer them to the generated ObjectTypeView. ObjectView
+                // values remain per-view overrides and are handled separately.
+                ['fillcolor', 'strokecolor', 'strokewidth', 'icon'].forEach((property) => {
+                    if (Object.prototype.hasOwnProperty.call(item, property) && item[property] !== undefined && item[property] !== null && item[property] !== '') {
+                        obj[property] = item[property];
+                    }
+                });
                 if (item.ports && item.ports.length) {
                     obj.ports = [];
                     item.ports.forEach((port: any) => {
@@ -2222,13 +2246,16 @@ export class jsnImportMetis {
             let reltype = jsnMetis.findRelationshipType(item.typeRef);
             const metamodel = model.metamodel;
             if (!reltype) {
-                reltype = metamodel.findRelationshipTypeByName(item.name);
+                reltype = metamodel.findRelationshipTypeByName(item.typeName);
+                if (!reltype) {
+                    reltype = metamodel.findRelationshipTypeByName(item.name);
+                }
                 if (!reltype) {
                     reltype = metamodel.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 }
             }
-            const fromObj = jsnMetis.findObject(item.fromObjectRef);
-            const toObj = jsnMetis.findObject(item.toObjectRef);
+            const fromObj = jsnMetis.findObject(item.fromObjectRef || item.fromobjectRef);
+            const toObj = jsnMetis.findObject(item.toObjectRef || item.toobjectRef);
             if (reltype && fromObj && toObj) {
                 const rel = new akm.cxRelationship(
                     item.id,
@@ -2263,16 +2290,21 @@ export class jsnImportMetis {
     }
     importObjectView(item: akm.cxObjectView, modelview: akm.cxModelView) {
         if (item.objectRef) {
-            console.warn('[OBJVIEW_IMPORT]', { id: item?.id, fillcolor: item?.fillcolor, fillcolor2: item?.fillcolor2, modelview: modelview?.id });
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
-                const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
+                const objectviewName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : (typeof object.name === 'string' && object.name.trim()
+                        ? object.name
+                        : object.type?.name || '');
+                const objview = new akm.cxObjectView(item.id, objectviewName, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
                 objview.groupLayout = item.groupLayout;
                 objview.isExpanded = item.isExpanded;
                 objview.isSelected = item.isSelected;
                 objview.loc = item.loc;
+                objview.layoutRevision = item.layoutRevision ?? "";
                 objview.size = item.size;
                 objview.scale = item.scale;
                 objview.memberscale = item.memberscale;
@@ -2316,6 +2348,18 @@ export class jsnImportMetis {
                     if (objview.textcolor === "black") objview.textcolor = "";
                     if (objview.textcolor2 === "black") objview.textcolor2 = "";
                 }
+                // setTypeView applies CORE_META defaults and can overwrite the
+                // persisted ObjectView presentation. Explicit values from the
+                // imported ObjectView are authoritative and must be restored
+                // after the type-view fallback has been resolved.
+                if (typeof item.fillcolor === "string" && item.fillcolor.trim())
+                    objview.fillcolor = item.fillcolor;
+                if (typeof item.strokecolor === "string" && item.strokecolor.trim())
+                    objview.strokecolor = item.strokecolor;
+                if (Number.isFinite(Number(item.strokewidth)) && Number(item.strokewidth) > 0)
+                    objview.strokewidth = Number(item.strokewidth);
+                if (typeof item.icon === "string" && item.icon.trim())
+                    objview.icon = item.icon;
                 // metis.addObjectView(objview);
                 object.addObjectView(objview);
                 modelview.addObjectView(objview);
@@ -2325,19 +2369,27 @@ export class jsnImportMetis {
     }
     importRelshipView(item: akm.cxRelationshipView, modelview: akm.cxModelView) {
         if (item) {
-            const relship = jsnMetis.findRelationship(item.relship.id);
+            const source: any = item as any;
+            const relshipRef = source.relshipRef || source.relship?.id;
+            const relship = jsnMetis.findRelationship(relshipRef);
             if (relship) {
                 const relview = new akm.cxRelationshipView(item.id, item.name, relship, item.description);
                 relview.setRelationship(relship);
-                const fromobjview: any = modelview.findObjectView(item.fromObjview.id);
-                const toobjview: any = modelview.findObjectView(item.toObjview.id);
+                relview.relshipRef = relshipRef;
+                const fromobjviewRef = source.fromobjviewRef || source.fromObjviewRef || source.fromObjview?.id;
+                const toobjviewRef = source.toobjviewRef || source.toObjviewRef || source.toObjview?.id;
+                const fromobjview: any = modelview.findObjectView(fromobjviewRef);
+                const toobjview: any = modelview.findObjectView(toobjviewRef);
+                relview.fromobjviewRef = fromobjviewRef;
+                relview.toobjviewRef = toobjviewRef;
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
                 if (item.fromPortid) relview.fromPortid = item.fromPortid;
                 if (item.toPortid) relview.toPortid = item.toPortid;
                 // relview.setData(item.data);
-                if (item.typeview.id) {
-                    const reltypeview = jsnMetis.findRelationshipTypeView(item.typeview.id);
+                const typeviewRef = source.typeviewRef || source.typeview?.id;
+                if (typeviewRef) {
+                    const reltypeview = jsnMetis.findRelationshipTypeView(typeviewRef);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }

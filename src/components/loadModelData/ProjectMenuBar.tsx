@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import Link from 'next/link';
 import { useRouter } from 'next/router'; // Add this import
+import { useSelector } from 'react-redux';
 
 import { InitialState } from '../../reducers/reducer';
 import { ReadModelFromFile } from '../utils/ReadModelFromFile';
@@ -11,6 +12,7 @@ import { SaveAllToFile } from '../utils/SaveModelToFile';
 import { buildMimrisStateFromWorkspaceSnapshot, getWorkspaceSnapshotMeta } from '../utils/workspaceUniverseAdapter';
 import { getMetisScopeLabel, getMetisScopeOptions, normalizeMetisScope, setActiveMetisScope } from '../utils/workspaceMetisResolver.js';
 import { saveRemoteUniverseProject } from '../utils/remoteUniverseProject';
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState, setUniverseSource } from '../../sharedUniverse';
 import LoadGitHub from './LoadGitHub';
 import LoadFile from './LoadFile';
 import LoadJsonFile from './LoadJsonFile'
@@ -36,15 +38,28 @@ export const ProjectMenuBar = (props: any) => {
     if (debug) console.log('18 ProjectMenuBar', props);
     const dispatch = props.dispatch;
     const router = useRouter(); // Initialize router
-    if (!props.phData) return null;
-    const project = props.phData.metis;
-    const domain = props.phData.domain;
-    const source = props.phSource;
-    const activeMetisScope = normalizeMetisScope(getWorkspaceSnapshotMeta(props.phUser)?.activeMetisScope);
+    const sharedUniverse = useSelector(selectSharedUniverseState);
+    const phProps = {
+        ...props,
+        phData: {
+            ...props.phData,
+            domain: sharedUniverse.world.worldDefinition.domain ?? props.phData?.domain,
+            metis: sharedUniverse.world.worldModel.metis ?? props.phData?.metis,
+            documents: sharedUniverse.compatibility.documents ?? props.phData?.documents,
+        },
+        phFocus: sharedUniverse.world.focus || props.phFocus || {},
+        phUser: sharedUniverse.user || props.phUser || {},
+        phSource: sharedUniverse.source ?? props.phSource,
+        phList: sharedUniverse.compatibility.modelList ?? props.phList,
+    };
+    if (!phProps.phData) return null;
+    const project = phProps.phData.metis;
+    const source = phProps.phSource;
+    const activeMetisScope = normalizeMetisScope(getWorkspaceSnapshotMeta(phProps.phUser)?.activeMetisScope);
     const metisScopeOptions = getMetisScopeOptions();
     const remoteUniverseBaseUrl =
-        props.phFocus?.focusProj?.universeApiBaseUrl ||
-        getWorkspaceSnapshotMeta(props.phUser)?.universeApiBaseUrl ||
+        phProps.phFocus?.focusProj?.universeApiBaseUrl ||
+        getWorkspaceSnapshotMeta(phProps.phUser)?.universeApiBaseUrl ||
         getDefaultRemoteUniverseBaseUrl();
     // const refresh = props.toggleRefresh;
     // const toggleRefresh = props.setRefresh;
@@ -52,9 +67,9 @@ export const ProjectMenuBar = (props: any) => {
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const [showRemoteUniverseModal, setShowRemoteUniverseModal] = useState(false);
-    const [projectname, setProjectname] = useState(props.phFocus?.focusProj?.name);
+    const [projectname, setProjectname] = useState(phProps.phFocus?.focusProj?.name);
     const [remoteUniverseBaseUrlInput, setRemoteUniverseBaseUrlInput] = useState(remoteUniverseBaseUrl);
-    const [remoteUniverseIdInput, setRemoteUniverseIdInput] = useState(props.phFocus?.focusProj?.universeId || '');
+    const [remoteUniverseIdInput, setRemoteUniverseIdInput] = useState(phProps.phFocus?.focusProj?.universeId || '');
     const [remoteUniverseList, setRemoteUniverseList] = useState<Array<{ slug: string; name?: string; kind?: string }>>([]);
     const [remoteUniverseLoading, setRemoteUniverseLoading] = useState(false);
     const [remoteUniverseError, setRemoteUniverseError] = useState('');
@@ -81,10 +96,7 @@ export const ProjectMenuBar = (props: any) => {
     // };
 
     const loadInitialProject = () => {
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: InitialState.phData });
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: InitialState.phFocus });
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: InitialState.phUser });
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: InitialState.phSource });
+        dispatch(loadLegacyUniverseSnapshot(InitialState));
         dispatch({
             type: 'SET_FOCUS_REFRESH',
             data: { id: crypto.randomUUID(), name: 'InitialState' },
@@ -108,39 +120,36 @@ export const ProjectMenuBar = (props: any) => {
 
     const handleReadProjectFile = (e: any) => {
         if (!debug) console.log('82 handleReadProjectFile', e);
-        ReadModelFromFile(props, dispatch, e);
+        ReadModelFromFile(phProps, dispatch, e);
         if (router.pathname !== '/modelling') {
             router.push('/modelling');
         }
     }
 
     const handleSaveAllToFile = () => {
-        setProjectname(props.phFocus.focusProj.name);
+        setProjectname(phProps.phFocus.focusProj.name);
         const data = `${projectname}_PR`
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+        dispatch(setUniverseSource(data))
 
-        if (!debug) console.log('94 handleSaveAllToFile', props, projectname, props.phFocus)
-        SaveAllToFile({ phData: props.phData, phFocus: props.phFocus, phSource: props.phSource, phUser: props.phUser }, projectname, '_PR')
+        if (!debug) console.log('94 handleSaveAllToFile', phProps, projectname, phProps.phFocus)
+        SaveAllToFile({ phData: phProps.phData, phFocus: phProps.phFocus, phSource: phProps.phSource, phUser: phProps.phUser }, projectname, '_PR')
     }
 
     const handleSaveToServer = async () => {
         try {
             const result = await saveRemoteUniverseProject({
-                phData: props.phData,
-                phFocus: props.phFocus,
-                phSource: props.phSource,
-                phUser: props.phUser,
+                phData: phProps.phData,
+                phFocus: phProps.phFocus,
+                phSource: phProps.phSource,
+                phUser: phProps.phUser,
             });
             const adaptedState = buildMimrisStateFromWorkspaceSnapshot(result.snapshot, {
-                sourceName: result.snapshot?.focus?.project?.name || props.phFocus?.focusProj?.name || result.id,
-                sourcePath: result.snapshot?.focus?.project?.file || props.phFocus?.focusProj?.file || result.id,
+                sourceName: result.snapshot?.focus?.project?.name || phProps.phFocus?.focusProj?.name || result.id,
+                sourcePath: result.snapshot?.focus?.project?.file || phProps.phFocus?.focusProj?.file || result.id,
                 universeId: result.id,
                 universeApiBaseUrl: result.baseUrl,
             });
-            dispatch({
-                type: 'LOAD_TOSTORE_DATA',
-                data: adaptedState,
-            });
+            dispatch(loadLegacyUniverseSnapshot(adaptedState));
             dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: result.id, name: 'Server save' } });
             window.alert(`Saved remote universe ${result.id}`);
         } catch (error: any) {
@@ -151,30 +160,27 @@ export const ProjectMenuBar = (props: any) => {
 
     const handleOpenServerProject = () => {
         setRemoteUniverseBaseUrlInput(remoteUniverseBaseUrl);
-        setRemoteUniverseIdInput(props.phFocus?.focusProj?.universeId || '');
+        setRemoteUniverseIdInput(phProps.phFocus?.focusProj?.universeId || '');
         setRemoteUniverseError('');
         setShowRemoteUniverseModal(true);
     }
 
     const handleMetisScopeChange = (nextScope: string) => {
-        const meta = getWorkspaceSnapshotMeta(props.phUser);
+        const meta = getWorkspaceSnapshotMeta(phProps.phUser);
         const snapshot = meta?.snapshot;
         if (!snapshot) return;
 
         const nextState = buildMimrisStateFromWorkspaceSnapshot(
             setActiveMetisScope(snapshot, nextScope),
             {
-                sourceName: props.phFocus?.focusProj?.name || props.phSource,
-                sourcePath: props.phFocus?.focusProj?.file || props.phSource,
-                universeId: props.phFocus?.focusProj?.universeId || meta?.universeId,
-                universeApiBaseUrl: props.phFocus?.focusProj?.universeApiBaseUrl || meta?.universeApiBaseUrl,
+                sourceName: phProps.phFocus?.focusProj?.name || phProps.phSource,
+                sourcePath: phProps.phFocus?.focusProj?.file || phProps.phSource,
+                universeId: phProps.phFocus?.focusProj?.universeId || meta?.universeId,
+                universeApiBaseUrl: phProps.phFocus?.focusProj?.universeApiBaseUrl || meta?.universeApiBaseUrl,
             },
         );
 
-        dispatch({
-            type: 'LOAD_TOSTORE_DATA',
-            data: nextState,
-        });
+        dispatch(loadLegacyUniverseSnapshot(nextState));
     };
 
     const resolveRemoteUniverseBaseUrl = () => {
@@ -279,7 +285,7 @@ export const ProjectMenuBar = (props: any) => {
             className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
             <Modal.Header closeButton>GitHub Settings: </Modal.Header>
             <Modal.Body >
-                <ProjectDetailsForm props={props} onSubmit={handleSubmit} />
+                <ProjectDetailsForm props={phProps} onSubmit={handleSubmit} />
             </Modal.Body>
             <Modal.Footer>
                 <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
@@ -451,11 +457,11 @@ export const ProjectMenuBar = (props: any) => {
         };
     }, []);
 
-    const loadGitHub = <LoadGitHub buttonLabel=' Open Project File' className='ContextModal' ph={props} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
-    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel=' New Project' className='ContextModal' ph={props} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
-    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
-    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
-    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={props} refresh={props.refresh} setRefresh={props.setRefresh} />
+    const loadGitHub = <LoadGitHub buttonLabel=' Open Project File' className='ContextModal' ph={phProps} toggleRefresh={props.refresh} setRefresh={props.setRefresh} path='' />;
+    const loadNewModelProject = <LoadNewModelProjectFromGitHub buttonLabel=' New Project' className='ContextModal' ph={phProps} refresh={props.toggleRefresh} setRefresh={props.setRefresh} />;
+    const loadjsonfile = <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={phProps} refresh={props.refresh} setRefresh={props.setRefresh} />
+    const loadGitHubMetamodel = <LoadGitHub buttonLabel='Update Metamodel' className='ContextModal' ph={phProps} refresh={props.refresh} setRefresh={props.setRefresh} path='akm-metamodels' />;
+    const loadfile = <LoadFile buttonLabel='Import/Export File' className='ContextModal' ph={phProps} refresh={props.refresh} setRefresh={props.setRefresh} />
     
     const reload = <span className="btn ps-auto mt-0 pt-1 text-dark w-100" onClick={props.setRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {props.refresh ? 'Reload models' : 'Reload models'} </span>
     const loadMimrisTemplates = <span className="btn ms-3 bg-light text-dark ps-auto mt-0 pt-1 " onClick={loadInitialProject} data-toggle="tooltip" data-placement="top" title="Load Mimris Modeller templates from Kavca/Equinor GitHub repo" > Mimris templates </span>;
@@ -618,13 +624,13 @@ export const ProjectMenuBar = (props: any) => {
                 <hr className="bg-light py-1 my-0" />
                 <div className="bg-light d-flex flex-wrap border border-2 rounded mx-1 ps-2 ">
                     GitHub Repo:
-                    {(props.phFocus.focusProj?.org !== '' && props.phFocus.focusProj?.repo !== '' && props.phFocus.focusProj?.branch !== '') &&
+                    {(phProps.phFocus.focusProj?.org !== '' && phProps.phFocus.focusProj?.repo !== '' && phProps.phFocus.focusProj?.branch !== '') &&
                         <Link
                             className="text-primary ms-1"
-                            href={buildGithubTreeHref(props.phFocus.focusProj)}
+                            href={buildGithubTreeHref(phProps.phFocus.focusProj)}
                             target="_blank"
                         >
-                            {props.phFocus.focusProj?.repo}
+                            {phProps.phFocus.focusProj?.repo}
                         </Link>
                     }
                 </div>
@@ -632,10 +638,10 @@ export const ProjectMenuBar = (props: any) => {
                     GitHub Project No. :
                     <Link
                         className="text-primary"
-                        href={props.phFocus.focusProj?.org ? `https://github.com/orgs/${props.phFocus.focusProj?.org}/projects/${props.phFocus.focusProj?.projectNumber}` : "#"}
+                        href={phProps.phFocus.focusProj?.org ? `https://github.com/orgs/${phProps.phFocus.focusProj?.org}/projects/${phProps.phFocus.focusProj?.projectNumber}` : "#"}
                         target="_blank"
                     >
-                        <button className="text-primary border rounded bg-transparent px-5" >{props.phFocus.focusProj?.projectNumber} </button>
+                        <button className="text-primary border rounded bg-transparent px-5" >{phProps.phFocus.focusProj?.projectNumber} </button>
                     </Link>
                 </div>
             </div>
@@ -699,7 +705,7 @@ export const ProjectMenuBar = (props: any) => {
                             title="Project Number in the GitHub Repository"
                         >
                             <span className="px-1">
-                                Project : <span className="px-1">{props.phFocus.focusProj.name} </span>
+                                Project : <span className="px-1">{phProps.phFocus.focusProj.name} </span>
                             </span>
                             <span className="px-2 py-0 rounded-pill"
                                 style={{ backgroundColor: "#cfe6d5", fontSize: "0.72rem", letterSpacing: "0.01em" }}
@@ -713,12 +719,12 @@ export const ProjectMenuBar = (props: any) => {
                             >
                                 <Link
                                     className="text-primary"
-                                    href={`https://github.com/orgs/${props.phFocus.focusProj.org}/projects/${props.phFocus.focusProj.projectNumber}`}
+                                    href={`https://github.com/orgs/${phProps.phFocus.focusProj.org}/projects/${phProps.phFocus.focusProj.projectNumber}`}
 
                                     target="_blank"
                                 >
                                     <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }} >
-                                        no. {props.phFocus.focusProj.projectNumber}
+                                        no. {phProps.phFocus.focusProj.projectNumber}
                                     </button>
                                 </Link>
                             </span>
@@ -734,13 +740,13 @@ export const ProjectMenuBar = (props: any) => {
                                 className="pe-1"
                                 style={{ whiteSpace: "nowrap" }}
                             >
-                                {(props.phFocus.focusProj.org !== '' && props.phFocus.focusProj.repo !== '') &&
+                                {(phProps.phFocus.focusProj.org !== '' && phProps.phFocus.focusProj.repo !== '') &&
                                     <Link
                                         className="text-primary"
-                                        href={buildGithubTreeHref(props.phFocus.focusProj)}
+                                        href={buildGithubTreeHref(phProps.phFocus.focusProj)}
                                         target="_blank"
                                     >
-                                        <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {props.phFocus.focusProj.repo} </button>
+                                        <button className="px-2 text-primary border-light rounded" style={{ backgroundColor: "#efe" }}> {phProps.phFocus.focusProj.repo} </button>
                                     </Link>
                                 }
                             </span>
@@ -752,7 +758,7 @@ export const ProjectMenuBar = (props: any) => {
                             <span className="px-1 ms-1" style={{ backgroundColor: "#efe" }}
                                 data-toggle="tooltip" data-placement="top" data-bs-html="true"
                                 title="This is the Branch name in the GitHub Repository"
-                            > {props.phFocus.focusProj.branch}</span>
+                            > {phProps.phFocus.focusProj.branch}</span>
                         </span>
                         <span className="context-item border d-flex align-items-center rounded-2 mx-1 px-1" style={{ backgroundColor: "#ded", whiteSpace: "nowrap" }}>
                             <label className="me-2 mb-0" title="Choose which Metis source to open and edit">Metis:</label>
@@ -804,7 +810,7 @@ export const ProjectMenuBar = (props: any) => {
                         <span className="px-1 ms-1" style={{ backgroundColor: "#efe", whiteSpace: "nowrap" }}
                             data-toggle="tooltip" data-placement="top" data-bs-html="true"
                             title="This is the Project File name"
-                        > {props.phFocus.focusProj.file}</span>
+                        > {phProps.phFocus.focusProj.file}</span>
                     </div>
                 </div>
             </div>
@@ -929,7 +935,7 @@ export const ProjectMenuBar = (props: any) => {
                         </div>
                         <div className="modal-body">
                             <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{ width: "580px" }} />
+                                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(phProps, dispatch, e)} style={{ width: "580px" }} />
                             </div>
                         </div>
                         <div className="modal-footer">

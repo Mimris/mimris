@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 
 const debug = false
 import { Dispatch } from 'redux';
@@ -16,15 +16,23 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
 
     if (debug) console.log('13 ', props);
 
-    const curModel = props.phData.metis.models.find((m: { id: any; }) => m.id === props.phFocus.focusModel.id)
-    const curObjects = curModel.objects
-    const curRelships = curModel.relships
+    const legacyProps: any = props;
+    const phData = legacyProps.phData || legacyProps.ph?.phData || {};
+    const phFocus = legacyProps.phFocus || legacyProps.ph?.phFocus || {};
+    const metis = phData.metis || {};
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
+    const curModel = models.find((m: { id: any; }) => m.id === phFocus.focusModel?.id) || models[0]
+    if (!curModel) return;
+    const curObjects = curModel.objects || []
+    const curRelships = curModel.relships || []
 
-    if (debug) console.log('23 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
+    if (debug) console.log('23 ', phFocus.focusModel, curModel, models);
 
-    const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any; }) => mm.id === curModel.metamodelRef)
-    const curObjTypes = curMetamodel.objecttypes
-    const curRelTypes = curMetamodel.relshiptypes
+    const curMetamodel = metamodels.find((mm: { id: any; }) => mm.id === curModel.metamodelRef)
+    if (!curMetamodel) return;
+    const curObjTypes = curMetamodel.objecttypes || []
+    const curRelTypes = curMetamodel.relshiptypes || []
     const refersTo = curRelTypes.find((co: { name: string; }) => (co.name === 'refersTo') && co)
     const hasType = curRelTypes.find((co: { name: string; }) => (co.name === 'has') && co)
     // const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
@@ -249,5 +257,3 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, props: { 
     });
 
 }
-
-

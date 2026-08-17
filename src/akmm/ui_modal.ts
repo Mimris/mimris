@@ -15,6 +15,8 @@ import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 import * as constants from './constants';
 import { getCurrentStore } from '../store';
+import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
+import { dispatchUniversePhData } from '../sharedUniverse';
 // const RegexParser = require("regex-parser");
 // const utils = require('./utilities');
 import * as utils from './utilities';
@@ -181,8 +183,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         phUser: state?.phUser,
         phSource: state?.phSource,
       };
-      window?.sessionStorage?.setItem('memorystate', JSON.stringify(snapshot));
-      window?.localStorage?.setItem('memorystate', JSON.stringify(snapshot));
+      persistMemoryState(snapshot);
     } catch (_) {
       // Do nothing
     }
@@ -675,9 +676,14 @@ export function handleSelectDropdownChange(selected, context) {
   const myDiagram = context.myDiagram;
   const myMetis = context.myMetis as akm.cxMetis;
   const myMetamodel: akm.cxMetaModel = context.myMetamodel;
-  const myGoModel: gjs.goModel = context.myGoModel;
   const myModel: akm.cxModel = context.myModel;
   const myModelview: akm.cxModelView = context.myModelview;
+  let myGoModel: gjs.goModel = context.myGoModel || myMetis?.gojsModel;
+  if (!myGoModel && myModelview) {
+    myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
+    myMetis?.setGojsModel?.(myGoModel);
+    context.myGoModel = myGoModel;
+  }
   const modalContext = context.modalContext;
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
@@ -1140,17 +1146,16 @@ export function handleSelectDropdownChange(selected, context) {
     }
     case "Create Relationship": {
       const myMetamodel = context.myMetamodel;
-      const myGoModel = context.myGoModel;
       const myDiagram = context.myDiagram;
       const modalContext = context.modalContext;
       // const data = modalContext.data;
       const typename = selected.value;
       modalContext.typename = typename;
-      let fromNode = myGoModel.findNode(modalContext.gjsFromNode);
-      if (!fromNode) fromNode = myGoModel.findNode(modalContext.gjsFromNode.key);
+      let fromNode = myGoModel?.findNode(modalContext.gjsFromNode);
+      if (!fromNode) fromNode = myGoModel?.findNode(modalContext.gjsFromNode?.key);
       const fromPortId = modalContext.portFrom;
-      let toNode = myGoModel.findNode(modalContext.gjsToNode);
-      if (!toNode) toNode = myGoModel.findNode(modalContext.gjsToNode.key);
+      let toNode = myGoModel?.findNode(modalContext.gjsToNode);
+      if (!toNode) toNode = myGoModel?.findNode(modalContext.gjsToNode?.key);
       const toPortId = modalContext.portTo;
       let fromType = modalContext.fromType; 
       if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
@@ -1165,6 +1170,9 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       let reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+      if (!reltype) reltype = context.myMetis?.findRelationshipTypeByName2?.(typename, fromType, toType);
+      if (!reltype) reltype = myMetamodel.findRelationshipTypeByName?.(typename);
+      if (!reltype) reltype = context.myMetis?.findRelationshipTypeByName?.(typename);
       if (reltype) {
         let reltypeview = reltype.typeview;
         if (reltypeview) {
@@ -1178,6 +1186,7 @@ export function handleSelectDropdownChange(selected, context) {
         }
       }
       context.relshiptype = reltype;
+      modalContext.relshiptype = reltype;
       break;
     }
     default:
@@ -1217,6 +1226,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const myModel     = myMetis.currentModel;
   const myModelview = myMetis.currentModelview;
   const myGoModel   = myMetis.gojsModel;
+  const findGoNode = (key: any) =>
+    myGoModel?.findNodeByViewId?.(key) ||
+    myGoModel?.findNode?.(key) ||
+    myDiagram?.findNodeForKey?.(key);
+  const findGoLink = (key: any) =>
+    myGoModel?.findLinkByViewId?.(key) ||
+    myGoModel?.findLink?.(key) ||
+    myDiagram?.findLinkForKey?.(key);
   // Prepare for dispatches
   const modifiedObjtypes     = new Array();    
   const modifiedReltypes     = new Array();    
@@ -1361,65 +1378,29 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       phUser: props?.phUser ? JSON.parse(JSON.stringify(props.phUser)) : undefined,
       phSource: props?.phSource ? JSON.parse(JSON.stringify(props.phSource)) : undefined,
     });
+    const updatePersistedMemoryState = (applyUpdate: (phData: any) => void) => {
+      try {
+        const rawStored = window?.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) || window?.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
+        const parsedStored = rawStored ? JSON.parse(rawStored) : getPersistedBase();
+        applyUpdate(parsedStored?.phData);
+        persistMemoryState(parsedStored);
+      } catch (_) {}
+    };
     if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
       try { applyObjectviewUpdateById(props?.phData, action.data); } catch (_) {}
-      try {
-        const rawSession = window?.sessionStorage?.getItem('memorystate');
-        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
-        applyObjectviewUpdateById(parsedSession?.phData, action.data);
-        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
-      } catch (_) {}
-      try {
-        const rawLocal = window?.localStorage?.getItem('memorystate');
-        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
-        applyObjectviewUpdateById(parsedLocal?.phData, action.data);
-        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
-      } catch (_) {}
+      updatePersistedMemoryState((phData: any) => applyObjectviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
       try { applyRelshipviewUpdateById(props?.phData, action.data); } catch (_) {}
-      try {
-        const rawSession = window?.sessionStorage?.getItem('memorystate');
-        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
-        applyRelshipviewUpdateById(parsedSession?.phData, action.data);
-        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
-      } catch (_) {}
-      try {
-        const rawLocal = window?.localStorage?.getItem('memorystate');
-        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
-        applyRelshipviewUpdateById(parsedLocal?.phData, action.data);
-        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
-      } catch (_) {}
+      updatePersistedMemoryState((phData: any) => applyRelshipviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPE_PROPERTIES' && action?.data?.id) {
       try { applyRelshiptypeUpdateById(props?.phData, action.data); } catch (_) {}
-      try {
-        const rawSession = window?.sessionStorage?.getItem('memorystate');
-        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
-        applyRelshiptypeUpdateById(parsedSession?.phData, action.data);
-        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
-      } catch (_) {}
-      try {
-        const rawLocal = window?.localStorage?.getItem('memorystate');
-        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
-        applyRelshiptypeUpdateById(parsedLocal?.phData, action.data);
-        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
-      } catch (_) {}
+      updatePersistedMemoryState((phData: any) => applyRelshiptypeUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
       try { applyRelshiptypeviewUpdateById(props?.phData, action.data); } catch (_) {}
-      try {
-        const rawSession = window?.sessionStorage?.getItem('memorystate');
-        const parsedSession = rawSession ? JSON.parse(rawSession) : getPersistedBase();
-        applyRelshiptypeviewUpdateById(parsedSession?.phData, action.data);
-        window?.sessionStorage?.setItem('memorystate', JSON.stringify(parsedSession));
-      } catch (_) {}
-      try {
-        const rawLocal = window?.localStorage?.getItem('memorystate');
-        const parsedLocal = rawLocal ? JSON.parse(rawLocal) : getPersistedBase();
-        applyRelshiptypeviewUpdateById(parsedLocal?.phData, action.data);
-        window?.localStorage?.setItem('memorystate', JSON.stringify(parsedLocal));
-      } catch (_) {}
+      updatePersistedMemoryState((phData: any) => applyRelshiptypeviewUpdateById(phData, action.data));
     }
   }
 
@@ -1429,9 +1410,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const store = getCurrentStore();
       const phDataClone = JSON.parse(JSON.stringify(props.phData));
       applyObjectviewUpdateById(phDataClone, data);
-      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
     } catch (_) {}
   }
 
@@ -1441,9 +1422,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const store = getCurrentStore();
       const phDataClone = JSON.parse(JSON.stringify(props.phData));
       applyRelshipviewUpdateById(phDataClone, data);
-      try { props?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { modalContext?.context?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
-      try { store?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data: phDataClone }); } catch (_) {}
+      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
+      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
       try {
         const persistSnapshot = () => {
           const snapshot = {
@@ -1452,8 +1433,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             phUser: props?.phUser,
             phSource: props?.phSource,
           };
-          window?.sessionStorage?.setItem('memorystate', JSON.stringify(snapshot));
-          window?.localStorage?.setItem('memorystate', JSON.stringify(snapshot));
+          persistMemoryState(snapshot);
         };
         persistSnapshot();
         window?.setTimeout?.(persistSnapshot, 150);
@@ -1544,8 +1524,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObject": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode = myGoModel.findNodeByViewId(selObj.key);
-      const objview = myModelview.findObjectView(selObj.key);
+      const goNode = findGoNode(selObj.key);
+      const objview =
+        modalContext?.myContext?.objectview ||
+        myModelview.findObjectView(selObj.key) ||
+        goNode?.objectview ||
+        goNode?.data?.objectview;
+      if (!objview) {
+        if (debug) console.log("editObject: missing objview", selObj);
+        break;
+      }
       uid.updateNodeAndView(selObj, goNode, objview, myDiagram);
       // Dispatch
       let object = objview.object;
@@ -1572,7 +1560,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         break;
       if (gjsLink) gjsLink.isSelected = true;
       const gjsData = gjsLink.data;
-      const goLink = myGoModel.findLinkByViewId(selRel.key);
+      const goLink = findGoLink(selRel.key);
       const relview = myModelview.findRelationshipView(selRel.key);
       let relship = relview.relship;
       const reltype = relship.type;
@@ -1642,10 +1630,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
       const selObj = selectedData;
-      const goNode =
-        myGoModel.findNodeByViewId(selObj.key) ||
-        myGoModel.findNode(selObj.key) ||
-        myDiagram.findNodeForKey(selObj.key);
+      const goNode = findGoNode(selObj.key);
       const objview =
         modalContext?.myContext?.objectview ||
         myModelview.findObjectView(selObj.key) ||
@@ -2185,8 +2170,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const gjsLink = myDiagram.findLinkForKey(selRel.key);
       if (!gjsLink) break;
       const gjsData = gjsLink.data;
-      const goLink = myGoModel.findLinkByViewId(selRel.key);
+      const goLink = findGoLink(selRel.key);
       let relview = myModelview.findRelationshipView(selRel.key);
+      if (!goLink || !relview) break;
       goLink.template2 = selRel.template2;
       relview.template2 = selRel.template2;
       let relship = relview.relship;
@@ -2396,8 +2382,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               phUser: state.phUser,
               phSource: state.phSource,
             };
-            window?.sessionStorage?.setItem('memorystate', JSON.stringify(persistedState));
-            window?.localStorage?.setItem('memorystate', JSON.stringify(persistedState));
+            persistMemoryState(persistedState);
           }
         } catch (err) {}
       }, 100);

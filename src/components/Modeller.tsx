@@ -4,7 +4,6 @@
 import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-import { select } from "redux-saga/effects";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
@@ -18,6 +17,7 @@ import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./export/ReportModule";
 import * as uib from '../akmm/ui_buildmodels';
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
+import { loadLegacyUniverseSnapshot } from "../sharedUniverse";
 
 import classnames from 'classnames';
 
@@ -49,6 +49,11 @@ const Modeller = React.forwardRef((props: any, ref) => {
 
     if (debug) console.log('39 Modeller: props', props);
     const dispatch = useDispatch();
+    const phData = props.phData || {};
+    const phFocus = props.phFocus || {};
+    const phUser = props.phUser || {};
+    const phSource = props.phSource;
+    const legacyProps = { ...props, phData, phFocus, phUser, phSource };
     const [mounted, setMounted] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
 
@@ -94,11 +99,11 @@ const Modeller = React.forwardRef((props: any, ref) => {
     let focusModelview;
 
     // Then assign values in the conditional
-    if (props.phFocus?.focusModel?.id !== '') {
-        focusModel = props.phFocus?.focusModel;
-        focusModelview = props.phFocus?.focusModelview;
+    if (phFocus?.focusModel?.id) {
+        focusModel = phFocus?.focusModel;
+        focusModelview = phFocus?.focusModelview;
     } else {
-        const firstModel = props.PhData?.models?.[0];
+        const firstModel = phData?.metis?.models?.[0];
         const firstModelview = firstModel?.modelviews?.find((mv: any) => mv);
         focusModel = firstModel ? { id: firstModel.id, name: firstModel.name } : undefined;
         focusModelview = firstModelview ? { id: firstModelview.id, name: firstModelview.name } : undefined;
@@ -131,9 +136,9 @@ const Modeller = React.forwardRef((props: any, ref) => {
     };
 
     useEffect(() => { // set activTab when focusModelview.id changes
-        if (debug) useEfflog('91 Modeller useEffect 1 [props.phFocus.focusModelview?.id] : ', activeTab, activetabindex, props.phFocus.focusModel?.name);
+        if (debug) useEfflog('91 Modeller useEffect 1 [phFocus.focusModelview?.id] : ', activeTab, activetabindex, phFocus.focusModel?.name);
         setActiveTab(activetabindex)
-    }, [props.phFocus?.focusModelview?.id])
+    }, [phFocus?.focusModelview?.id])
 
     useEffect(() => {
         if (editingModelviewId && renameInputRef.current) {
@@ -143,17 +148,20 @@ const Modeller = React.forwardRef((props: any, ref) => {
     }, [editingModelviewId]);
 
     if (debug) console.log('102 Modeller: gojsmodel', props, gojsmodel, gojsmodel?.nodeDataArray);
+    const modelNodeDataArray = props.gojsSnapshot?.modelviewId === phFocus?.focusModelview?.id
+        ? props.gojsSnapshot?.nodes
+        : props.myMetis.gojsModel?.nodes;
+    const modelLinkDataArray = props.gojsSnapshot?.modelviewId === phFocus?.focusModelview?.id
+        ? props.gojsSnapshot?.links
+        : props.myMetis.gojsModel?.links;
 
 
-    const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
-    const showModified = props.phUser?.focusUser?.diagram?.showModified
-    const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+    const showDeleted = phUser?.focusUser?.diagram?.showDeleted
+    const showModified = phUser?.focusUser?.diagram?.showModified
+    const includeDeleted = (phUser?.focusUser) ? phUser?.focusUser?.diagram?.showDeleted : false;
 
     function dispatchLocalStore(locStore) {
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: locStore.phData })
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: locStore.phFocus })
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+        dispatch(loadLegacyUniverseSnapshot(locStore))
     }
 
     // Function to toggle the expanded state
@@ -248,7 +256,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
 
     useEffect(() => {
         if (debug) useEfflog('142 Modeller useEffect 3 [model.objects.length === 0] ');
-        if (model.objects.length === 0) {
+        if ((model?.objects?.length || 0) === 0) {
             if (selectedOption === 'In this modelview') {
                 setSelectedOption('Sorted by type')
             } else {
@@ -264,21 +272,21 @@ const Modeller = React.forwardRef((props: any, ref) => {
     }, [model?.objects?.length === 0])
 
     useEffect(() => {
-        if (debug) useEfflog('122 Modeller useEffect 4 [props.phFocus?.focusObjectview?.id] ');
+        if (debug) useEfflog('122 Modeller useEffect 4 [phFocus?.focusObjectview?.id] ');
         const propps = {
-            phData: props.phData,
-            phFocus: props.phFocus,
-            phUser: props.phUser,
-            phSource: props.phSource,
+            phData,
+            phFocus,
+            phUser,
+            phSource,
         }
-        if (debug) console.log('163 Modeller useEffect 2, props.phFocus.focusModelview?.id] : ', props.phFocus.focusModelview?.id, propps);
+        if (debug) console.log('163 Modeller useEffect 2, phFocus.focusModelview?.id] : ', phFocus.focusModelview?.id, propps);
         if (props.userSetting) (setMemoryLocState(propps))
         // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
         const timer = setTimeout(() => {
-            SaveAkmmUser(props, 'akmmUser')
+            SaveAkmmUser(legacyProps, 'akmmUser')
         }, 250);
         return () => clearTimeout(timer);
-    }, [props.phFocus?.focusObjectview?.id])
+    }, [phFocus?.focusObjectview?.id])
 
     // put current modell on top 
     const selmods = (models) 
@@ -456,7 +464,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
                 modifiedDate: new Date().toISOString(),
             }
         });
-        if (props.phFocus?.focusModelview?.id === mv.id) {
+        if (phFocus?.focusModelview?.id === mv.id) {
             dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: mv.id, name: nextName } });
         }
         handleCloseRenameModal();
@@ -736,7 +744,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     linkDataArray={gojsobjects.linkDataArray}
                     metis={props.metis}
                     myMetis={props.myMetis}
-                    phFocus={props.phFocus}
+                    phFocus={phFocus}
                     dispatch={props.dispatch}
                     diagramStyle={{ height: "68vh" }}
                     noOfCols={isExpanded ? 4 : 1}
@@ -819,14 +827,14 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             <div className="workpad bg-white border-light mt-0 pe-0">
                                 {/* {props.myMetis.gojsModel.nodes[0].name} */}
                                 <GoJSApp
-                                    key={`${props.phFocus?.focusModel?.id || 'model'}:${props.phFocus?.focusModelview?.id || 'modelview'}`}
-                                    nodeDataArray={props.myMetis.gojsModel?.nodes}
-                                    linkDataArray={props.myMetis.gojsModel?.links}
+                                    key={`${phFocus?.focusRefresh?.id || 'initial'}:${phFocus?.focusModel?.id || 'model'}:${phFocus?.focusModelview?.id || 'modelview'}`}
+                                    nodeDataArray={modelNodeDataArray}
+                                    linkDataArray={modelLinkDataArray}
                                     metis={props.metis}
                                     myMetis={props.myMetis}
-                                    phFocus={props.phFocus}
+                                    phFocus={phFocus}
                                     dispatch={props.dispatch}
-                                    modelType={props.phFocus.focusTab}
+                                    modelType={phFocus.focusTab}
                                     onExportSvgReady={handleExportSvgReady}
                                     diagramStyle={{ height: "83vh" }}
                                 />
@@ -837,10 +845,10 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                             <div className="" style={{ backgroundColor: "#cdd" }}>
                                 {(props.visibleFocusDetails) ?
                                     <ReportModule
-                                        props={props}
+                                        props={legacyProps}
                                         reportType="object"
                                         edit={true}
-                                        modelInFocusId={props.phFocus.focusModel?.id}
+                                        modelInFocusId={phFocus.focusModel?.id}
                                         exportTab={props.exportTab}
                                     />
                                     : <></>
@@ -860,9 +868,9 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
                     linkDataArray={gojsMetamodel?.links}
                     metis={props.metis}
                     myMetis={props.myMetis}
-                    phFocus={props.phFocus}
+                    phFocus={phFocus}
                     dispatch={props.dispatch}
-                    modelType={props.phFocus.focusTab}
+                    modelType={phFocus.focusTab}
                     onExportSvgReady={handleExportSvgReady}
                     diagramStyle={{ height: "83vh" }}
                 />

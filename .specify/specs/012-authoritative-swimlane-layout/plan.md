@@ -5,3 +5,11 @@
 3. Bypass both immediate and deferred initial normalization for authoritative pools.
 4. Verify TypeScript, tests, and the embedded BPMN model visually.
 
+## Progress Tracking
+
+- [x] Specification and compatibility constraints documented.
+- [x] `layoutRevision` preserved through import, runtime node data, and export.
+- [x] Authoritative Pool/Lane detection implemented.
+- [x] Immediate and deferred startup normalization guarded.
+- [x] Revised swimlane placeholders suppressed.
+- [x] Automated and visual verification completed.

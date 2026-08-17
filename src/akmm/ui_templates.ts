@@ -1622,7 +1622,21 @@ function addLinkTemplateName(name: string) {
         if (this.adornedObject === null) return;
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.resize.call(this, newr);
-        if (lane instanceof go.Group && lane.containingGroup !== null && this.isLengthening()) {
+        const diagram = this.diagram;
+        const myMetis = (this as any).__myMetis as akm.cxMetis | undefined;
+        const category = String(lane.data?.template || lane.data?.category || lane.category || "");
+        const isPool = category === "Pool";
+        const isLane =
+          category === "Lane" ||
+          category === "Lane_w_handles" ||
+          category.startsWith("Lane");
+
+        if (isPool) {
+          super.resize.call(this, newr);
+          return;
+        }
+
+        if (isLane && lane.containingGroup !== null && this.isLengthening()) {
           // changing the length of all of the lanes
           lane.containingGroup.memberParts.each((l) => {
             if (!(l instanceof go.Group)) return;
@@ -1636,10 +1650,51 @@ function addLinkTemplateName(name: string) {
           // changing the breadth of a single lane
           super.resize.call(this, newr);
         }
-        relayoutDiagram(); // now that the lane has changed size, layout the pool again
+
+        return;
+      }
+
+      public doDeactivate(): void {
+        const adornedPart = this.adornedObject?.part;
+        const category = String(adornedPart?.data?.template || adornedPart?.data?.category || adornedPart?.category || "");
+        const isPool = category === "Pool";
+        const isLane =
+          category === "Lane" ||
+          category === "Lane_w_handles" ||
+          category.startsWith("Lane");
+        const diagram = this.diagram;
+        const myMetis = (this as any).__myMetis as akm.cxMetis | undefined;
+
+        let resizedShapeSize: go.Size | null = null;
+        if (isPool) {
+          const poolShape = adornedPart?.findObject("POOL_SHAPE") as go.GraphObject | null;
+          resizedShapeSize = poolShape?.desiredSize || poolShape?.actualBounds?.size || null;
+        } else if (isLane) {
+          const laneBody = adornedPart?.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+          resizedShapeSize = laneBody?.desiredSize || laneBody?.actualBounds?.size || null;
+        }
+
+        super.doDeactivate();
+
+        if (!diagram || (!isPool && !isLane) || !(adornedPart instanceof go.Group)) {
+          return;
+        }
+
+        if (resizedShapeSize && !isNaN(resizedShapeSize.width) && !isNaN(resizedShapeSize.height)) {
+          diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(resizedShapeSize));
+        }
       }
   }
   // end LaneResizingTool class
+
+  export function installLaneResizingTool(diagram: go.Diagram, myMetis?: akm.cxMetis) {
+    myDiagram = diagram;
+    const tool = new LaneResizingTool();
+    (tool as any).__myMetis = myMetis;
+    (tool as any).__mimrisToolName = "LaneResizingTool";
+    tool.isGridSnapEnabled = true;
+    diagram.toolManager.resizingTool = tool;
+  }
 
     // hide links between lanes when either lane is collapsed
     function updateCrossLaneLinks(group: go.Group) {
@@ -3349,9 +3404,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 }
 
 export function getLinkTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
-    // Swimlane rule: "contains" (membership) relationships should not be drawn when the child is
-    // actually contained in (grouped to) its Lane. Otherwise these structural links pop in when
-    // moving nodes, which is visually confusing.
+    // Swimlane rule: structural "contains" relationships for Pools/Lanes should not be drawn.
+    // Do not hide ordinary metamodel/container "contains" links such as BPMN_META -> EntityType.
     const linkShouldBeVisible = (d: any, linkObj: go.GraphObject): boolean => {
         // Respect explicit hide flag from persisted relationship views.
         if (d?.visible === false) return false;
@@ -3373,23 +3427,11 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
         const toIsLane = toCat.startsWith("Lane");
         const fromIsPool = fromCat === "Pool";
         const toIsPool = toCat === "Pool";
-        const fromKey = String(from?.data?.key ?? d?.from ?? "");
-        const toKey = String(to?.data?.key ?? d?.to ?? "");
-        const fromGroup = String(from?.data?.group ?? "");
-        const toGroup = String(to?.data?.group ?? "");
-
         // Swimlane invariant: membership ("contains") relationships should never be rendered for Pools/Lanes.
         // We hide them unconditionally when either endpoint is a Pool or Lane group. This is robust even
         // when membership data is briefly inconsistent during drag/layout.
         if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
             return false;
-        }
-
-        // Also hide membership links when the member is grouped to the parent (for non-swimlane containers),
-        // using stable model membership (data.group) rather than transient `containingGroup`.
-        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
-            if (fromIsLane && to && toGroup === fromKey) return false;
-            if (toIsLane && from && fromGroup === toKey) return false;
         }
         return true;
     };
@@ -3525,16 +3567,8 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         const toIsLane = toCat.startsWith("Lane");
         const fromIsPool = fromCat === "Pool";
         const toIsPool = toCat === "Pool";
-        const fromKey = String(from?.data?.key ?? d?.from ?? "");
-        const toKey = String(to?.data?.key ?? d?.to ?? "");
-        const fromGroup = String(from?.data?.group ?? "");
-        const toGroup = String(to?.data?.group ?? "");
         if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
             return false;
-        }
-        if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
-            if (fromIsLane && to && toGroup === fromKey) return false;
-            if (toIsLane && from && fromGroup === toKey) return false;
         }
         return true;
     };
@@ -4055,6 +4089,41 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             diagram.currentTool.doCancel();
             return;
         }
+
+        const normalizeDroppedLaneBodySize = (lane: go.Group) => {
+            const laneBody = lane.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+            const laneMain = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
+            const laneHeader = lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+            const currentSize = lane.data?.size
+                ? go.Size.parse(String(lane.data.size))
+                : new go.Size(
+                    laneBody?.actualBounds.width || laneBody?.desiredSize?.width || 160,
+                    laneBody?.actualBounds.height || laneBody?.desiredSize?.height || 65
+                );
+            const minBodyHeight = Math.max(
+                65,
+                Number((laneBody as any)?.minSize?.height) || 0,
+                laneHeader?.actualBounds.height || 0,
+                laneMain?.actualBounds.height || 0
+            );
+            const nextSize = new go.Size(
+                Math.max(160, !isNaN(currentSize.width) ? currentSize.width : 160),
+                Math.max(minBodyHeight, !isNaN(currentSize.height) ? currentSize.height : minBodyHeight)
+            );
+            if (laneBody) {
+                (laneBody as any).desiredSize = nextSize.copy();
+                (laneBody as any).width = nextSize.width;
+                (laneBody as any).height = nextSize.height;
+            }
+            if (!lane.data?.size || String(lane.data.size) !== go.Size.stringify(nextSize)) {
+                diagram.model.setDataProperty(lane.data, "size", go.Size.stringify(nextSize));
+            }
+        };
+
+        dragged.each((part: go.Part) => {
+            if (!(part instanceof go.Group) || !isLaneGroupPart(part)) return;
+            normalizeDroppedLaneBodySize(part);
+        });
 
         // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
         // target lane based on the drop Y coordinate. We do this by nudging the dropped lanes' Y

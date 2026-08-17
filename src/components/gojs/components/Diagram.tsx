@@ -86,6 +86,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private myMetis: akm.cxMetis;
   private myGoModel: gjs.goModel;
   private myGoMetamodel: gjs.goModel;
+  private modelChangedListener: ((e: go.ChangedEvent) => void) | null = null;
 
   /** @internal */
   constructor(props: DiagramProps) {
@@ -120,6 +121,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.myMetis.showAdminModel = false;
     // this.myMetis.adminModel = null;
   }
+
+  private syncSwimlaneCoreFeatureFlag(diagram?: go.Diagram) {
+    const currentDiagram = diagram ?? this.diagramRef.current?.getDiagram();
+    if (!(currentDiagram instanceof go.Diagram)) return;
+    const modelData: any = currentDiagram.model?.modelData || this.props.modelData || {};
+    const explicit = modelData?.useGoJSSwimlaneCore;
+    const enabled = typeof explicit === 'boolean'
+      ? explicit
+      : process.env.NEXT_PUBLIC_USE_GOJS_SWIMLANE_CORE === 'true';
+    (currentDiagram as any).__useGoJSSwimlaneCore = enabled;
+    (currentDiagram as any).__legacySwimlaneOwnerQuarantined = enabled;
+  }
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -128,6 +141,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
+      this.syncSwimlaneCoreFeatureFlag(diagram);
+      uit.installLaneResizingTool(diagram, this.myMetis);
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
@@ -151,11 +166,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
       diagram.addModelChangedListener(this.props.onModelChange);
+      this.modelChangedListener = (e: go.ChangedEvent) => {
+        if (!e.isTransactionFinished) return;
+        const currentDiagram = diagram;
+        const pendingPools = (currentDiagram as any).__pendingSwimlaneResizePoolKeys as Set<string> | undefined;
+        if (!pendingPools || pendingPools.size === 0) return;
+        const preserveWidths = (currentDiagram as any).__pendingPreserveResizedPoolWidths as Set<string> | undefined;
+        delete (currentDiagram as any).__pendingSwimlaneResizePoolKeys;
+        delete (currentDiagram as any).__pendingPreserveResizedPoolWidths;
+        if (preserveWidths && preserveWidths.size > 0) {
+          (currentDiagram as any).__preserveResizedPoolWidths = preserveWidths;
+        }
+        try {
+          pendingPools.forEach((poolKey) => {
+            const poolObjview =
+              this.myMetis.findObjectView(poolKey) ||
+              this.myMetis.currentModelview?.findObjectView(poolKey);
+            if (poolObjview?.isGroup) {
+              uid.doGroupLayout(poolObjview, currentDiagram, this.myMetis);
+            }
+          });
+          currentDiagram.requestUpdate();
+        } finally {
+          delete (currentDiagram as any).__preserveResizedPoolWidths;
+          delete (currentDiagram as any).__skipNextSwimlanePartResizedRelayout;
+        }
+      };
+      diagram.addModelChangedListener(this.modelChangedListener);
 
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(this.exportSvg, true); // Pass true to indicate that the diagram is ready
       }
 
+    }
+  }
+
+  public componentDidUpdate(prevProps: DiagramProps) {
+    if (!this.diagramRef.current) return;
+    const diagram = this.diagramRef.current.getDiagram();
+    if (!(diagram instanceof go.Diagram)) return;
+    if (prevProps.modelData !== this.props.modelData) {
+      this.syncSwimlaneCoreFeatureFlag(diagram);
     }
   }
 
@@ -187,7 +238,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
 
-      diagram.removeChangedListener(this.props.onModelChange);
+      diagram.removeModelChangedListener(this.props.onModelChange);
+      if (this.modelChangedListener) {
+        diagram.removeModelChangedListener(this.modelChangedListener);
+        this.modelChangedListener = null;
+      }
 
       if (this.props.onExportSvgReady) {
         this.props.onExportSvgReady(null, false); // Pass false to indicate that the diagram is not ready
@@ -669,7 +724,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     myDiagram.grid.visible = true;
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
-    myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
+    uit.installLaneResizingTool(myDiagram, myMetis);
     myMetis.myDiagram = myDiagram;
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";

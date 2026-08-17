@@ -314,6 +314,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('267 this', this);
     if (debug) console.log('268 event name', name);
 
+    const isGoJSSwimlaneCoreEnabled = (): boolean => {
+      const explicitFlag = (myDiagram as any)?.__useGoJSSwimlaneCore;
+      if (typeof explicitFlag === "boolean") return explicitFlag;
+      const modelFlag = myDiagram?.model?.modelData?.useGoJSSwimlaneCore;
+      if (typeof modelFlag === "boolean") return modelFlag;
+      const stateFlag = this.state?.modelData?.useGoJSSwimlaneCore;
+      if (typeof stateFlag === "boolean") return stateFlag;
+      return process.env.NEXT_PUBLIC_USE_GOJS_SWIMLANE_CORE === "true";
+    };
+
     const relayoutPoolByKey = (poolKey: string) => {
       if (!poolKey) return;
       let poolObjview = myMetis.findObjectView(poolKey);
@@ -337,6 +347,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
 	    const normalizeSwimlanePool = (poolKey: string) => {
 	      if (!poolKey) return;
+        if (isGoJSSwimlaneCoreEnabled()) return;
 	      if ((myDiagram as any).__isSwimlaneNormalizeInProgress) return;
 	      const poolNode = myDiagram.findNodeForKey(poolKey);
 	      if (!(poolNode instanceof go.Group)) return;
@@ -559,9 +570,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 	      return myGoModel.findNode(candidates[0].key) || null;
 	    };
 
-	    // Swimlane rule: "contains" membership relationships (Lane -> member) are structural and should
-	    // remain hidden when the member is actually grouped into that Lane. Some code paths were
-	    // resetting relview.visible=true after moves; this helper re-applies the hide rule deterministically.
+	    // Swimlane rule: only structural Pool/Lane "contains" relationships should be hidden.
+	    // Ordinary metamodel/container "contains" links must remain visible even if grouping is used.
 	    const applySwimlaneContainsVisibility = () => {
 	      if (!myDiagram) return;
 
@@ -571,12 +581,6 @@ class GoJSApp extends React.Component<{}, AppState> {
 	        const c = String(n?.data?.category || n?.data?.template || n?.category || "");
 	        return c === "Pool" || c.startsWith("Lane");
 	      };
-	      const groupKeyOf = (k: any): string => {
-	        const n = myDiagram.findNodeForKey(k);
-	        const g = n?.data?.group;
-	        return typeof g === "string" ? g : "";
-	      };
-
 	      myDiagram.links.each((l: go.Link) => {
 	        const d: any = l.data;
 	        if (!d) return;
@@ -594,18 +598,18 @@ class GoJSApp extends React.Component<{}, AppState> {
 	        const fromIsSwim = isSwimlaneGroupKey(fromKey);
 	        const toIsSwim = isSwimlaneGroupKey(toKey);
 	        // In swimlanes, always keep membership links hidden (Pool->Lane and Lane->Member).
-	        let hide = fromIsSwim || toIsSwim;
-	        // For non-swimlane containers, also hide when stable group membership matches.
-	        if (!hide) {
-	          const toGroup = groupKeyOf(toKey);
-	          const fromGroup = groupKeyOf(fromKey);
-	          if (String(fromKey) && toGroup === String(fromKey)) hide = true;
-	          if (String(toKey) && fromGroup === String(toKey)) hide = true;
-	        }
+	        const hide = fromIsSwim || toIsSwim;
 	        
 	        if (hide) {
 	          // Force-hide at the data level so it stays hidden across refreshes.
 	          if (d.visible !== false) myDiagram.model.setDataProperty(d, "visible", false);
+	        } else {
+	          // Recover ordinary "contains" links that older reload logic hid by mistake.
+	          const relview = d?.relshipview || myModelview.findRelationshipView(d.key) || myMetis.findRelationshipView(d.key);
+	          const shouldBeVisible = relview?.visible !== false && !relview?.markedAsDeleted;
+	          if (d.visible === false && shouldBeVisible) {
+	            myDiagram.model.setDataProperty(d, "visible", true);
+	          }
 	        }
 	        l.updateTargetBindings();
 	      });
@@ -957,6 +961,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         return;
       }
 	      case "SelectionMoved": {
+        const useGoJSSwimlaneCore = isGoJSSwimlaneCoreEnabled();
         let myGoModel = context.myGoModel;
         const myModelview = context.myModelview;
         // Keep lane membership stable unless the user explicitly requests regrouping.
@@ -1087,11 +1092,13 @@ class GoJSApp extends React.Component<{}, AppState> {
 		          // - node is ungrouped (new/palette), OR
 		          // - node is outside its current lane body (repair stale membership).
 		          const canReparentThisNode =
-		            allowReparentForKey(n.data?.key) || !existingGroupKey || outsideCurrentLaneBody;
+		            useGoJSSwimlaneCore
+                  ? (allowReparentForKey(n.data?.key) || !existingGroupKey)
+                  : (allowReparentForKey(n.data?.key) || !existingGroupKey || outsideCurrentLaneBody);
 		          
 		          let groupKey = existingGroupKey || "";
 		          let group: any = null;
-	          if (canReparentThisNode) {
+	          if (canReparentThisNode && !useGoJSSwimlaneCore) {
 	            // Prefer the lane under the mouse on drop (Shift-drag intent), fallback to node-center containment.
 	            const dropPt = myDiagram?.lastInput?.documentPoint;
 	            group = resolveContainingGroupByOverlap(n);
@@ -1676,7 +1683,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
 
 	        // Auto-relayout affected pools after lane moves.
-	        if (!(myDiagram as any).__isPoolRelayoutFromMove) {
+	        if (!useGoJSSwimlaneCore && !(myDiagram as any).__isPoolRelayoutFromMove) {
           const poolsToRelayout = new Set<string>();
           const movedSelection = e.subject;
           // When dragging a Pool, its Lane members move too; don't treat that as an intentional lane move
@@ -1755,7 +1762,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 		        // Final swimlane regroup enforcement: during a Shift-drag we allow crossing lanes, but a lot of legacy
 		        // "containment" logic below can overwrite `data.group` based on stale modelview membership.
 		        // Re-assert the intended lane membership based on current geometry, at the end of the move transaction.
-			        try {
+			        if (!useGoJSSwimlaneCore) try {
 			          const lastPt = myDiagram?.lastInput?.documentPoint;
 			          const containsType =
 			            myMetamodel.findRelationshipTypeByName(constants.types.AKM_CONTAINS) ||
@@ -2385,7 +2392,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             objview = myModelview.findObjectView(n.data.key);
             if (!objview) 
               continue;
-            const category = n.data?.category || n.data?.template;
+            const category = n.data?.template || n.data?.category;
             if (category === 'Lane' || category === 'Lane_w_handles') {
               const laneMain = n.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
               const laneHeader = n.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
@@ -2433,12 +2440,79 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (resizedPoolKeys.size > 0) {
-          (myDiagram as any).__preserveResizedPoolWidths = resizedPoolKeys;
-        }
-        relayoutPoolsByKeys(affectedPoolKeys);
-        if (resizedPoolKeys.size > 0) {
-          delete (myDiagram as any).__preserveResizedPoolWidths;
+        if (affectedPoolKeys.size > 0) {
+          const preservedKeys = new Set<string>(resizedPoolKeys);
+          const deferredLaneKeys = new Set<string>();
+          if (preservedKeys.size > 0) {
+            (myDiagram as any).__preserveResizedPoolWidths = preservedKeys;
+          }
+          try {
+            relayoutPoolsByKeys(affectedPoolKeys);
+            affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+            affectedPoolKeys.forEach((poolKey) => {
+              const poolNode = myDiagram.findNodeForKey(poolKey);
+              if (!(poolNode instanceof go.Group)) return;
+              poolNode.memberParts.each((part: go.Part) => {
+                if (!(part instanceof go.Group) || !part.data?.key) return;
+                const laneCategory = String(part.data?.template || part.data?.category || part.category || "");
+                const isLane =
+                  laneCategory === "Lane" ||
+                  laneCategory === "Lane_w_handles" ||
+                  laneCategory.startsWith("Lane");
+                if (!isLane) return;
+                deferredLaneKeys.add(String(part.data.key));
+              });
+            });
+            myDiagram.requestUpdate();
+
+            const refreshedKeys = new Set<string>();
+            affectedPoolKeys.forEach((poolKey) => {
+              refreshedKeys.add(poolKey);
+              const poolNode = myDiagram.findNodeForKey(poolKey);
+              if (poolNode instanceof go.Group) {
+                poolNode.memberParts.each((part: go.Part) => {
+                  if (part instanceof go.Group && part.data?.key) refreshedKeys.add(part.data.key);
+                  if (part instanceof go.Group) {
+                    part.memberParts.each((mp: go.Part) => {
+                      if (mp instanceof go.Node && !(mp instanceof go.Group) && mp.data?.key) {
+                        refreshedKeys.add(mp.data.key);
+                      }
+                    });
+                  }
+                });
+              }
+            });
+
+            modifiedObjectViews = modifiedObjectViews.filter((ov: any) => !refreshedKeys.has(ov?.id));
+            refreshedKeys.forEach((key) => {
+              const ov = myMetis.findObjectView(key) || myModelview.findObjectView(key);
+              if (!ov) return;
+              const node = myDiagram.findNodeForKey(key);
+              if (node && node.data) {
+                ov.loc = `${node.location.x} ${node.location.y}`;
+                if (node.data.size) ov.size = node.data.size;
+                if (typeof node.data.group === "string") ov.group = node.data.group;
+              }
+              const jsnObjview = new jsn.jsnObjectView(ov);
+              uic.addItemToList(modifiedObjectViews, jsnObjview);
+            });
+
+            if (deferredLaneKeys.size > 0) {
+              window.setTimeout(() => {
+                deferredLaneKeys.forEach((laneKey) => {
+                  const laneObjview = myMetis.findObjectView(laneKey) || myModelview.findObjectView(laneKey);
+                  if (laneObjview?.isGroup && laneObjview?.groupLayout !== "ManualLayout") {
+                    uid.doGroupLayout(laneObjview, myDiagram, myMetis);
+                  }
+                });
+                myDiagram.requestUpdate();
+              }, 0);
+            }
+          } finally {
+            if (preservedKeys.size > 0) {
+              delete (myDiagram as any).__preserveResizedPoolWidths;
+            }
+          }
         }
         break;
       }
@@ -2892,10 +2966,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (data?.key) affectedPoolKeys.add(data.key);
           }
 	        });
-	        relayoutPoolsByKeys(affectedPoolKeys);
-	        // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
-	        // and clamp all lane members back into their lane bodies.
-	        affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+	        if (!isGoJSSwimlaneCoreEnabled()) {
+            relayoutPoolsByKeys(affectedPoolKeys);
+            // Fix any nodes that were mistakenly parented to the Pool (won't hide on collapse)
+            // and clamp all lane members back into their lane bodies.
+            affectedPoolKeys.forEach((poolKey) => normalizeSwimlanePool(poolKey));
+          }
 	        break;
 	      }
       case "BackgroundSingleClicked": {

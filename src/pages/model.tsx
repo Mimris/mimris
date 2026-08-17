@@ -156,7 +156,8 @@ const page = () => {
         if (currentPath === nextRoute) return;
         router.replace(nextRoute, undefined, { shallow: true, scroll: false });
     };
-    const loadLocalMemoryState = () => {
+    const loadLocalMemoryState = (focusQuery?: RemoteMetisFocusQuery) => {
+        if (hasRequestedRemoteMetisFocus(focusQuery)) return false;
         try {
             const stored = window.sessionStorage.getItem(MEMORY_STATE_STORAGE_KEY) || window.localStorage.getItem(MEMORY_STATE_STORAGE_KEY);
             const parsed = stored ? JSON.parse(stored) : null;
@@ -872,7 +873,7 @@ const page = () => {
                     dispatchLoadedState(nextData);
                 } catch (error: any) {
                     console.error('Error loading shared model:', error);
-                    if (!loadLocalMemoryState()) {
+                    if (!loadLocalMemoryState(focusQuery)) {
                         setLoadError(error?.message || 'Unable to load shared model file.');
                     }
                 }
@@ -880,7 +881,7 @@ const page = () => {
                 return;
             }
 
-            const hasLocalState = loadLocalMemoryState();
+            const hasLocalState = loadLocalMemoryState(focusQuery);
             if (!hasLocalState) {
                 setLoadError('Unable to load shared model file.');
             }

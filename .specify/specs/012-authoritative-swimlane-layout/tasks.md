@@ -13,6 +13,8 @@
 - [x] Add left content inset and align Pool/Lane top and bottom borders.
 - [x] Make explicit project and model file opens restore saved geometry.
 - [x] Add regression tests for explicit file-open replacement behavior.
+- [x] Restore the standard right-click context menu on Pool and Lane templates.
+- [x] Add an explicit Lane Flow context-menu layout for left-to-right processes and parallel routes.
 - [x] Run TypeScript verification.
 - [x] Run the full test suite and production build.
 - [x] Visually verify the embedded BPMN Pool/Lane layout.

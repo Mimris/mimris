@@ -26,6 +26,8 @@ After opening the model, the modeller expects Lane edits to change Lane frames w
 8. Given a Lane is dragged, when the pointer is still down, then the Pool frame remains fixed; when the drag finishes, the Pool resizes around the resulting Lane stack without translating the Lane content.
 9. Given a Lane is resized, when the requested frame would exclude existing content, then the Lane remains large enough to contain that content with an inset from the left Lane edge.
 10. Given the current model has unsaved geometry changes, when the user explicitly opens a saved project or model file, then the saved file geometry replaces the in-memory geometry. Background refreshes may continue preserving active edits.
+11. Given a Pool or Lane is visible, when the user right-clicks its header or empty body, then the standard object context menu opens for that Pool or Lane.
+12. Given a Lane contains a directed process with one or more parallel routes, when the user explicitly applies Lane Flow layout, then Start is placed at the left content edge, End at the right content edge, intermediate nodes follow relationship direction from left to right, and parallel routes are separated vertically.
 
 ### Edge Cases
 
@@ -50,6 +52,9 @@ After opening the model, the modeller expects Lane edits to change Lane frames w
 - **FR-010**: The Pool border, Pool header, and Lane stack MUST use the same effective top and bottom bounds.
 - **FR-011**: An explicit local file open MUST replace current object-view geometry with the geometry stored in that file.
 - **FR-012**: Non-file refresh paths MAY preserve current object-view geometry so stale background data does not overwrite active edits.
+- **FR-013**: Pool and Lane Group templates MUST expose the standard object context menu across their selectable frame.
+- **FR-014**: Lane Flow layout MUST be an explicit user command and MUST NOT replace manual Lane positions during ordinary rendering or editing.
+- **FR-015**: Lane Flow layout MUST use directed relationships to arrange Lane members from left to right, anchor explicit Start and End nodes at opposite content edges, and retain vertical separation for parallel branches.
 
 ## Compatibility
 

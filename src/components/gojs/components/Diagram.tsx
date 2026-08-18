@@ -8802,6 +8802,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try { (groupRelationshipPathItems as any).menuHeading = 'Relationship Paths'; } catch (_) {}
           const groupLayoutItems: HtmlMenuItem[] = [
             {
+              label: "Lane Flow (Start → End)",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "LaneFlow"),
+              visible: () => isLaneGroup(part),
+            },
+            {
+              separator: true,
+              visible: () => isLaneGroup(part),
+            },
+            {
               label: "Grid",
               action: (diagram) => applyGroupLayoutScheme(diagram, part, "Grid"),
             },

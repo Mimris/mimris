@@ -6648,6 +6648,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 movable: true,
                 copyable: false,
                 resizable: true,
+                contextMenu: contextMenu,
                 resizeObjectName: "POOL_BODY_SHAPE",
                 // Select the complete Pool Group (header, body, and member-lane extent).
                 // Resizing remains scoped to POOL_BODY_SHAPE.
@@ -6777,6 +6778,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 movable: true,
                 copyable: false,
                 resizable: true,
+                contextMenu: contextMenu,
                 selectionObjectName: "LANE_TABLE",
                 resizeObjectName: "LANE_SHAPE",  // Point to the shape for resizing
                 locationObjectName: "LANE_TABLE",

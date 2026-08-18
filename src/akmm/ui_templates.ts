@@ -2818,38 +2818,86 @@ function addLinkTemplateName(name: string) {
         myDiagram.layoutDiagram();
     }
     
+    const computeLaneContentSize = (lane: go.Group) => {
+        const frame = (lane.findObject("LANE_TABLE") || lane) as go.GraphObject;
+        const body = lane.resizeObject || lane.findObject("LANE_BODY_SHAPE") || lane;
+        const frameBounds = frame.getDocumentBounds();
+        const bodyBounds = body.getDocumentBounds();
+        let width = MINLENGTH;
+        let height = lane.isSubGraphExpanded ? MINBREADTH : 1;
+        lane.memberParts.each((member: go.Part) => {
+            if (!(member instanceof go.Node) || member instanceof go.Group) return;
+            width = Math.max(width, Math.ceil(member.actualBounds.right - bodyBounds.left + 16));
+            height = Math.max(height, Math.ceil(member.actualBounds.bottom - frameBounds.top + 16));
+        });
+        return new go.Size(width, height);
+    };
+
     // compute the minimum size of a Pool Group needed to hold all of the Lane Groups
     function computeMinPoolSize(pool: go.Group) {
-        // assert(pool instanceof go.Group && pool.category === "Pool");
         let len = MINLENGTH;
         pool.memberParts.each(function (lane) {
-            // pools ought to only contain lanes, not plain Nodes
             if (!(lane instanceof go.Group)) return;
-            const holder = lane.placeholder;
-            if (holder !== null) {
-                const sz = holder.actualBounds;
-                len = Math.max(len, sz.width);
-            }
+            const data = lane.data || {};
+            const isLane =
+                lane.category === "Lane" ||
+                data.category === "Lane" ||
+                data.template === "Lane";
+            if (!isLane) return;
+            len = Math.max(len, computeLaneContentSize(lane).width);
         });
         return new go.Size(len, NaN);
     }
     
     // compute the minimum size for a particular Lane Group
     function computeLaneSize(lane: go.Group) {
-        // assert(lane instanceof go.Group && lane.category !== "Pool");
         const sz = computeMinLaneSize(lane);
-        if (lane.isSubGraphExpanded) {
-        const holder = lane.placeholder;
-        if (holder !== null) {
-            const hsz = holder.actualBounds;
-            sz.height = Math.max(sz.height, hsz.height);
-        }
-        }
+        const contentSize = computeLaneContentSize(lane);
+        sz.width = Math.max(sz.width, contentSize.width);
+        sz.height = Math.max(sz.height, contentSize.height);
         // minimum breadth needs to be big enough to hold the header
         const hdr = lane.findObject('HEADER');
         if (hdr !== null) sz.height = Math.max(sz.height, hdr.actualBounds.height);
         return sz;
     }
+
+    const syncPoolFrameToLanes = (pool: go.Group) => {
+        const lanes: go.Group[] = [];
+        pool.memberParts.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            const data = part.data || {};
+            if (!(part.category === "Lane" || data.category === "Lane" || data.template === "Lane")) return;
+            lanes.push(part);
+        });
+        if (lanes.length === 0) return;
+        let bodyWidth = MINLENGTH;
+        let totalHeight = 0;
+        lanes.forEach((lane) => {
+            const shape = lane.resizeObject;
+            const dataSize = go.Size.parse(String(lane.data?.size || ""));
+            const width = Number.isFinite(shape?.desiredSize.width) && shape!.desiredSize.width > 0
+                ? shape!.desiredSize.width
+                : dataSize.width;
+            const height = Number.isFinite(shape?.desiredSize.height) && shape!.desiredSize.height > 0
+                ? shape!.desiredSize.height
+                : dataSize.height;
+            if (Number.isFinite(width) && width > 0) bodyWidth = Math.max(bodyWidth, width);
+            if (Number.isFinite(height) && height > 0) totalHeight += height;
+        });
+        const poolBodyWidth = SWIM_HEADER_WIDTH + bodyWidth;
+        const poolBody = pool.findObject("POOL_BODY_SHAPE") as go.Shape | null;
+        if (poolBody) {
+            poolBody.desiredSize = new go.Size(poolBodyWidth, Math.max(MINBREADTH, totalHeight));
+        }
+        if (pool.data && pool.diagram) {
+            const poolSize = new go.Size(
+                SWIM_HEADER_WIDTH + poolBodyWidth,
+                Math.max(MINBREADTH, totalHeight)
+            );
+            pool.diagram.model.setDataProperty(pool.data, "size", go.Size.stringify(poolSize));
+            if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(poolSize);
+        }
+    };
     
     // determine the minimum size of a Lane Group, even if collapsed
     function computeMinLaneSize(lane: go.Group) {
@@ -2872,6 +2920,9 @@ function addLinkTemplateName(name: string) {
         if (this.adornedObject === null) return new go.Size(MINLENGTH, MINBREADTH);
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.computeMinSize.call(this);
+        if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
+          return go.ResizingTool.prototype.computeMinSize.call(this);
+        }
         // assert(lane instanceof go.Group && lane.category !== "Pool");
         const msz = computeMinLaneSize(lane); // get the absolute minimum size
         if (lane.containingGroup !== null && this.isLengthening()) {
@@ -2891,19 +2942,60 @@ function addLinkTemplateName(name: string) {
         if (this.adornedObject === null) return;
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.resize.call(this, newr);
+        if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
+          return go.ResizingTool.prototype.resize.call(this, newr);
+        }
         if (lane instanceof go.Group && lane.containingGroup !== null && this.isLengthening()) {
           // changing the length of all of the lanes
-          lane.containingGroup.memberParts.each((l) => {
+          const pool = lane.containingGroup;
+          const minimumWidth = computeMinPoolSize(pool).width;
+          const nextWidth = Math.max(newr.width, minimumWidth);
+          pool.memberParts.each((l) => {
             if (!(l instanceof go.Group)) return;
+            const data = l.data || {};
+            if (!(l.category === "Lane" || data.category === "Lane" || data.template === "Lane")) return;
             const shape = l.resizeObject;
             if (shape !== null) {
-              // set its desiredSize length, but leave each breadth alone
-              shape.width = newr.width;
+              const dataSize = go.Size.parse(String(l.data?.size || ""));
+              const height = Number.isFinite(shape.desiredSize.height) && shape.desiredSize.height > 0
+                ? shape.desiredSize.height
+                : dataSize.height;
+              shape.desiredSize = new go.Size(nextWidth, height);
+              if (l.data && l.diagram) {
+                l.diagram.model.setDataProperty(
+                  l.data,
+                  "size",
+                  go.Size.stringify(new go.Size(nextWidth, height))
+                );
+                if (l.data.objectview) l.data.objectview.size = go.Size.stringify(new go.Size(nextWidth, height));
+              }
+              l.ensureBounds();
+              l.updateAdornments();
             }
           });
+          syncPoolFrameToLanes(pool);
+          pool.ensureBounds();
+          pool.diagram?.requestUpdate();
         } else {
           // changing the breadth of a single lane
           super.resize.call(this, newr);
+          const shape = lane.resizeObject;
+          if (shape && lane.data && lane.diagram) {
+            const minimumHeight = computeLaneSize(lane).height;
+            const height = Math.max(shape.desiredSize.height, minimumHeight);
+            const width = shape.desiredSize.width;
+            shape.desiredSize = new go.Size(width, height);
+            lane.diagram.model.setDataProperty(
+              lane.data,
+              "size",
+              go.Size.stringify(new go.Size(width, height))
+            );
+            if (lane.data.objectview) lane.data.objectview.size = go.Size.stringify(new go.Size(width, height));
+          }
+          if (lane.containingGroup instanceof go.Group) syncPoolFrameToLanes(lane.containingGroup);
+          lane.ensureBounds();
+          lane.updateAdornments();
+          lane.diagram?.requestUpdate();
         }
       }
 
@@ -5570,6 +5662,40 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         return c === "Pool" || t === "Pool";
     };
 
+    const markActiveSwimlaneDrag = (diagram: go.Diagram, lane: go.Group) => {
+        const laneKey = String(lane.data?.key || lane.key || "");
+        if (!laneKey) return;
+        const activeLaneDragKeys: Set<string> =
+            (diagram as any).__activeSwimlaneDragKeys || new Set<string>();
+        activeLaneDragKeys.add(laneKey);
+        (diagram as any).__activeSwimlaneDragKeys = activeLaneDragKeys;
+
+        const pool = lane.containingGroup;
+        if (pool instanceof go.Group && isPoolGroupPart(pool)) {
+            const poolKey = String(pool.data?.key || pool.key || "");
+            if (poolKey) {
+                const anchors: Map<string, { location: go.Point; bodyBounds: go.Rect }> =
+                    (diagram as any).__activeSwimlanePoolAnchors || new Map();
+                if (!anchors.has(poolKey)) {
+                    const body = pool.findObject("POOL_BODY_SHAPE");
+                    anchors.set(poolKey, {
+                        location: pool.location.copy(),
+                        bodyBounds: (body ? body.getDocumentBounds() : pool.actualBounds).copy()
+                    });
+                }
+                (diagram as any).__activeSwimlanePoolAnchors = anchors;
+            }
+        }
+
+        const previousTimer = (diagram as any).__activeSwimlaneDragClearTimer;
+        if (previousTimer) clearTimeout(previousTimer);
+        (diagram as any).__activeSwimlaneDragClearTimer = setTimeout(() => {
+            delete (diagram as any).__activeSwimlaneDragKeys;
+            delete (diagram as any).__activeSwimlanePoolAnchors;
+            delete (diagram as any).__activeSwimlaneDragClearTimer;
+        }, 1000);
+    };
+
     const laneStructureBounds = (lane: go.Group): go.Rect => {
         const main = lane.findObject("LANE_MAIN_SHAPE") as go.GraphObject | null;
         if (main) return main.getDocumentBounds();
@@ -5611,6 +5737,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
         if (!ok) {
             diagram.currentTool.doCancel();
             return;
+        }
+
+        // PoolLayout must distinguish an intentional Lane drag from import/reload
+        // normalization. During a drag, keep every member at the same offset from
+        // its Lane when the Lane frame is snapped into the Pool stack.
+        if (hasLane) {
+            dragged.each((part: go.Part) => {
+                if (!isLaneGroupPart(part)) return;
+                markActiveSwimlaneDrag(diagram, part);
+            });
         }
 
         // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
@@ -6135,6 +6271,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             const diagram = this.diagram;
             if (diagram === null) return;
             const pool = this.group;
+            const poolKey = String(pool?.data?.key || pool?.key || "");
+            const activeLaneDragKeys: Set<string> | undefined =
+                (diagram as any).__activeSwimlaneDragKeys;
+            const activePoolAnchors: Map<string, { location: go.Point; bodyBounds: go.Rect }> | undefined =
+                (diagram as any).__activeSwimlanePoolAnchors;
+            const activePoolAnchor = poolKey ? activePoolAnchors?.get(poolKey) : undefined;
             const revision = String(pool?.data?.layoutRevision || "").trim();
             const hasValidGeometry = (part: go.Part) => {
                 const loc = String(part.data?.loc || "").trim();
@@ -6150,7 +6292,75 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     return false;
                 }
             };
-            if (pool && revision && hasValidGeometry(pool)) {
+            const getLaneFrameBounds = (lane: go.Group) => {
+                const frame = lane.findObject("LANE_TABLE") || lane.resizeObject || lane;
+                return frame.getDocumentBounds();
+            };
+            const formsAlignedLaneStack = (lanes: go.Group[]) => {
+                const geometry = lanes.map((lane) => getLaneFrameBounds(lane).copy())
+                    .sort((a, b) => a.y - b.y);
+                if (geometry.length === 0) return false;
+                const left = geometry[0].x;
+                const width = geometry[0].width;
+                let expectedTop = geometry[0].y;
+                for (let index = 0; index < geometry.length; index++) {
+                    const lane = geometry[index];
+                    if (
+                        Math.abs(lane.x - left) > 2 ||
+                        Math.abs(lane.y - expectedTop) > 2 ||
+                        Math.abs(lane.width - width) > 2
+                    ) {
+                        return false;
+                    }
+                    expectedTop += lane.height;
+                }
+                return true;
+            };
+            const poolFitsLaneStack = (lanes: go.Group[]) => {
+                if (!pool || lanes.length === 0) return false;
+                const body = pool.findObject("POOL_BODY_SHAPE");
+                if (!body) return false;
+                const bodyBounds = body.getDocumentBounds();
+                const headerBounds = pool.findObject("POOL_HEADER_STRIP")?.getDocumentBounds();
+                const poolBounds = new go.Rect(
+                    bodyBounds.x,
+                    headerBounds?.y ?? bodyBounds.y,
+                    bodyBounds.width,
+                    headerBounds?.height ?? bodyBounds.height
+                );
+                const laneBounds = lanes.map((lane) => getLaneFrameBounds(lane));
+                const left = Math.min(...laneBounds.map((bounds) => bounds.left));
+                const top = Math.min(...laneBounds.map((bounds) => bounds.top));
+                const right = Math.max(...laneBounds.map((bounds) => bounds.right));
+                const bottom = Math.max(...laneBounds.map((bounds) => bounds.bottom));
+                return (
+                    Math.abs(poolBounds.left - left) <= 2 &&
+                    Math.abs(poolBounds.top - top) <= 2 &&
+                    Math.abs(poolBounds.width - (right - left)) <= 2 &&
+                    Math.abs(poolBounds.height - (bottom - top)) <= 2
+                );
+            };
+            const containsPersistedMembers = (lane: go.Group) => {
+                const frame = getLaneFrameBounds(lane);
+                let containsAll = true;
+                lane.memberParts.each((member: go.Part) => {
+                    if (!containsAll || !(member instanceof go.Node) || member instanceof go.Group) return;
+                    const predicted = member.actualBounds.copy();
+                    const persistedLoc = String(member.data?.loc || "").trim();
+                    if (persistedLoc) {
+                        try {
+                            const point = go.Point.parse(persistedLoc);
+                            predicted.offset(point.x - member.location.x, point.y - member.location.y);
+                        } catch (_) { }
+                    }
+                    const minimumLeft = frame.left + SWIM_HEADER_WIDTH + 16;
+                    if (!frame.containsRect(predicted) || predicted.left < minimumLeft) {
+                        containsAll = false;
+                    }
+                });
+                return containsAll;
+            };
+            if (pool && revision && hasValidGeometry(pool) && !activePoolAnchor) {
                 const lanes: go.Group[] = [];
                 const laneKeys = new Set<string>();
                 const registerLane = (part: go.Part) => {
@@ -6169,48 +6379,198 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 });
                 if (lanes.length > 0 && lanes.every((lane) =>
                     String(lane.data?.layoutRevision || "").trim() === revision && hasValidGeometry(lane)
-                )) return;
+                ) && formsAlignedLaneStack(lanes) && poolFitsLaneStack(lanes) && lanes.every(containsPersistedMembers)) return;
             }
             diagram.startTransaction("PoolLayout");
+            const structuralParts = new go.Set<go.Part>();
+            const structuralLanes: go.Group[] = [];
+            const structuralLaneKeys = new Set<string>();
+            const memberLocations: Array<{
+                part: go.Node;
+                lane: go.Group;
+                location: go.Point;
+                laneStartLocation: go.Point;
+                preserveLaneOffset: boolean;
+            }> = [];
+            if (pool && activePoolAnchor) {
+                pool.location = activePoolAnchor.location.copy();
+                if (pool.data) {
+                    diagram.model.setDataProperty(
+                        pool.data,
+                        "loc",
+                        go.Point.stringify(activePoolAnchor.location)
+                    );
+                }
+            }
+            const poolBodyBounds = activePoolAnchor?.bodyBounds.copy()
+                || pool?.findObject("POOL_BODY_SHAPE")?.getDocumentBounds().copy()
+                || null;
             if (pool !== null && pool.category === "Pool") {
-                // Ensure minimum lane sizes
-                pool.memberParts.each((lane: go.Part) => {
-                    if (!(lane instanceof go.Group)) return;
-                    if (lane.category !== "Pool") {
-                        const shape = lane.resizeObject as go.Shape;
-                        if (shape !== null) {
-                            const sz = computeLaneSize(lane);
-                            // Only enforce absolute minimum, don't force all lanes to match
-                            if (isNaN(shape.width)) shape.width = MINLENGTH;
-                            shape.height = (!isNaN(shape.height)) ? Math.max(shape.height, sz.height) : sz.height;
+                const registerStructuralLane = (lane: go.Part) => {
+                    if (!(lane instanceof go.Group) || lane.category === "Pool") return;
+                    const laneKey = String(lane.data?.key || lane.key || "");
+                    if (!laneKey || structuralLaneKeys.has(laneKey)) return;
+                    structuralLaneKeys.add(laneKey);
+                    structuralParts.add(lane);
+                    structuralLanes.push(lane);
+                    const laneStartLocation = lane.location.copy();
+                    const preserveLaneOffset = !!activeLaneDragKeys?.has(laneKey);
+                    // Pool layout owns only the Lane frames. GoJS normally moves a Group's
+                    // members when the Group is arranged, so preserve the modeller's manual
+                    // positions. Imports use persisted document coordinates; intentional Lane
+                    // drags preserve each member's live offset from that Lane.
+                    lane.memberParts.each((member: go.Part) => {
+                        if (member instanceof go.Node && !(member instanceof go.Group)) {
+                            let savedLocation = member.location.copy();
+                            const persistedLoc = preserveLaneOffset
+                                ? ""
+                                : String(member.data?.loc || "").trim();
+                            if (persistedLoc) {
+                                try {
+                                    const point = go.Point.parse(persistedLoc);
+                                    if (Number.isFinite(point.x) && Number.isFinite(point.y)) savedLocation = point;
+                                } catch (_) { }
+                            }
+                            memberLocations.push({
+                                part: member,
+                                lane,
+                                location: savedLocation,
+                                laneStartLocation,
+                                preserveLaneOffset
+                            });
                         }
+                    });
+                    const shape = lane.resizeObject as go.Shape;
+                    if (shape !== null) {
+                        const sz = computeLaneSize(lane);
+                        // Only enforce absolute minimum, don't force all lanes to match
+                        if (isNaN(shape.width)) shape.width = MINLENGTH;
+                        shape.height = (!isNaN(shape.height)) ? Math.max(shape.height, sz.height) : sz.height;
                     }
+                };
+                // GoJS membership and persisted membership can settle on different ticks during
+                // import. Use both so no Lane is omitted from the structural pass.
+                pool.memberParts.each(registerStructuralLane);
+                const poolKey = String(pool.data?.key || pool.key || "");
+                diagram.nodes.each((part: go.Part) => {
+                    if (String(part.data?.group || "") === poolKey) registerStructuralLane(part);
                 });
-                
-                // Stack lanes vertically at a fixed X position
-                const lanes: go.Group[] = [];
-                pool.memberParts.each((lane: go.Part) => {
-                    if (lane instanceof go.Group && lane.category === "Lane") {
-                        lanes.push(lane);
-                    }
+            }
+            // Let GridLayout arrange the lanes within the Pool's document-space
+            // bounds. Assigning (0, currentY) here treats those values as absolute
+            // document coordinates and detaches an imported Pool/Lane structure
+            // from the BPMN nodes it was positioned around.
+            super.doLayout(structuralParts.count > 0 ? structuralParts : coll);
+            // GridLayout can offset lanes with different live member bounds. Normalize the
+            // rendered Lane frames explicitly against the Pool body, without touching content.
+            structuralLanes.sort((a, b) => {
+                const aLoc = go.Point.parse(String(a.data?.loc || go.Point.stringify(a.location)));
+                const bLoc = go.Point.parse(String(b.data?.loc || go.Point.stringify(b.location)));
+                return aLoc.y - bLoc.y;
+            });
+            // A Pool has one structural width. Use the widest persisted Lane body
+            // and apply it to every Lane so their right edges always align.
+            let sharedLaneBodyWidth = MINLENGTH;
+            structuralLanes.forEach((lane) => {
+                const size = go.Size.parse(String(lane.data?.size || ""));
+                const laneShape = lane.resizeObject as go.Shape | null;
+                const width = Number.isFinite(size.width) && size.width > 0
+                    ? size.width
+                    : laneShape?.actualBounds.width;
+                if (Number.isFinite(width) && Number(width) > 0) {
+                    sharedLaneBodyWidth = Math.max(sharedLaneBodyWidth, Number(width));
+                }
+            });
+            const firstFrame = structuralLanes.length > 0 ? getLaneFrameBounds(structuralLanes[0]) : null;
+            const laneLeft = poolBodyBounds?.x ?? firstFrame?.x ?? 0;
+            // Align the Lane's outer 1px stroke with the Pool header's rendered
+            // outer edge. POOL_BODY_SHAPE has a 2px stroke and is half a pixel
+            // higher in document bounds on some zoom levels.
+            const poolHeaderBounds = pool?.findObject("POOL_HEADER_STRIP")?.getDocumentBounds();
+            let laneTop = poolHeaderBounds?.y ?? poolBodyBounds?.y ?? firstFrame?.y ?? 0;
+            const poolLaneTop = laneTop;
+            structuralLanes.forEach((lane) => {
+                const frame = getLaneFrameBounds(lane);
+                const dataSize = go.Size.parse(String(lane.data?.size || ""));
+                const savedHeight = Number.isFinite(dataSize.height) && dataSize.height > 0
+                    ? dataSize.height
+                    : frame.height;
+                let contentBottom = laneTop;
+                memberLocations.forEach(({
+                    part,
+                    lane: owner,
+                    location,
+                    laneStartLocation,
+                    preserveLaneOffset
+                }) => {
+                    if (owner !== lane) return;
+                    // Predict the member bounds without moving it yet. During an intentional
+                    // Lane drag, the member follows the Lane's final stacked position.
+                    const targetY = preserveLaneOffset
+                        ? location.y + laneTop - laneStartLocation.y
+                        : location.y;
+                    const offsetY = targetY - part.location.y;
+                    contentBottom = Math.max(contentBottom, part.actualBounds.bottom + offsetY);
                 });
-                
-                // Sort by current Y position
-                lanes.sort((a, b) => {
-                    const ay = a.location.y;
-                    const by = b.location.y;
-                    if (isNaN(ay) || isNaN(by)) return 0;
-                    if (ay < by) return -1;
-                    if (ay > by) return 1;
-                    return 0;
-                });
-                
-                // Position lanes vertically with no gaps
-                let currentY = 0;
-                lanes.forEach((lane) => {
-                    lane.location = new go.Point(0, currentY);
-                    currentY += lane.actualBounds.height;
-                });
+                const laneHeight = Math.max(savedHeight, Math.ceil(contentBottom - laneTop + 10));
+                const nextLocation = new go.Point(laneLeft, laneTop);
+                lane.location = nextLocation;
+                diagram.model.setDataProperty(lane.data, "loc", go.Point.stringify(nextLocation));
+                const laneShape = lane.resizeObject as go.Shape | null;
+                if (laneShape) {
+                    laneShape.desiredSize = new go.Size(sharedLaneBodyWidth, laneHeight);
+                    diagram.model.setDataProperty(
+                        lane.data,
+                        "size",
+                        go.Size.stringify(new go.Size(sharedLaneBodyWidth, laneHeight))
+                    );
+                }
+                laneTop += laneHeight;
+            });
+            memberLocations.forEach(({
+                part,
+                lane,
+                location,
+                laneStartLocation,
+                preserveLaneOffset
+            }) => {
+                let finalLocation = preserveLaneOffset
+                    ? new go.Point(
+                        location.x + lane.location.x - laneStartLocation.x,
+                        location.y + lane.location.y - laneStartLocation.y
+                    )
+                    : location.copy();
+                // Keep manually arranged content intact, but correct items that overlap
+                // the Lane header/left border. This gives every member a small body inset.
+                const predictedLeft = part.actualBounds.left + finalLocation.x - part.location.x;
+                const minimumLeft = lane.location.x + SWIM_HEADER_WIDTH + 16;
+                if (predictedLeft < minimumLeft) {
+                    finalLocation = new go.Point(
+                        finalLocation.x + minimumLeft - predictedLeft,
+                        finalLocation.y
+                    );
+                }
+                part.location = finalLocation;
+                if (part.data) {
+                    diagram.model.setDataProperty(part.data, "loc", go.Point.stringify(finalLocation));
+                }
+            });
+            if (pool && structuralLanes.length > 0) {
+                const laneStackWidth = SWIM_HEADER_WIDTH + sharedLaneBodyWidth;
+                const laneStackHeight = Math.max(MINBREADTH, laneTop - poolLaneTop);
+                const poolBody = pool.findObject("POOL_BODY_SHAPE") as go.Shape | null;
+                if (poolBody) {
+                    poolBody.desiredSize = new go.Size(laneStackWidth, laneStackHeight);
+                }
+                // Pool data.size includes its own left header; POOL_BODY_SHAPE excludes it.
+                const poolSize = new go.Size(
+                    SWIM_HEADER_WIDTH + laneStackWidth,
+                    laneStackHeight
+                );
+                diagram.model.setDataProperty(pool.data, "size", go.Size.stringify(poolSize));
+                if (pool.data?.objectview) {
+                    pool.data.objectview.size = go.Size.stringify(poolSize);
+                }
             }
             diagram.commitTransaction("PoolLayout");
         }
@@ -6289,7 +6649,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 copyable: false,
                 resizable: true,
                 resizeObjectName: "POOL_BODY_SHAPE",
-                selectionObjectName: "POOL_BODY_SHAPE",
+                // Select the complete Pool Group (header, body, and member-lane extent).
+                // Resizing remains scoped to POOL_BODY_SHAPE.
                 layout: $(PoolLayout),
                 computesBoundsAfterDrag: false,
                 computesBoundsIncludingLinks: false,
@@ -6340,6 +6701,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             // Pool header strip on the left
             $(go.Panel, "Auto",
                 { 
+                    name: "POOL_HEADER_STRIP",
                     width: 36,
                     stretch: go.GraphObject.Vertical  // Extend to cover all lanes
                 },
@@ -6388,9 +6750,13 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 $(go.Placeholder,
                     { 
                         padding: 0,
-                        alignment: go.Spot.TopLeft  // Pin lanes to top-left
-                    },
-                    new go.Binding("visible", "layoutRevision", (revision: unknown) => !String(revision || "").trim())
+                        alignment: go.Spot.TopLeft,
+                        alignmentFocus: go.Spot.TopLeft,
+                        // The Pool border is owned only by POOL_BODY_SHAPE. If the
+                        // Placeholder participates during a Lane drag, GoJS moves the
+                        // Pool edge with that Lane until mouse-up.
+                        visible: false
+                    }
                 )
             )
         );
@@ -6411,6 +6777,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 movable: true,
                 copyable: false,
                 resizable: true,
+                selectionObjectName: "LANE_TABLE",
                 resizeObjectName: "LANE_SHAPE",  // Point to the shape for resizing
                 locationObjectName: "LANE_TABLE",
                 locationSpot: go.Spot.TopLeft,
@@ -6424,6 +6791,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 dragComputation: function(part: go.Part, pt: go.Point, gridpt: go.Point) {
                     // Only restrict to vertical movement when lane is inside a pool
                     if (part instanceof go.Group && part.containingGroup) {
+                        const diagram = part.diagram;
+                        if (diagram) markActiveSwimlaneDrag(diagram, part);
                         return new go.Point(part.location.x, gridpt.y);
                     }
                     // Allow free movement for standalone lanes and during palette drag
@@ -6498,9 +6867,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     $(go.Placeholder,
                         {
                             padding: 0,
-                            alignment: go.Spot.TopLeft
-                        },
-                        new go.Binding("visible", "layoutRevision", (revision: unknown) => !String(revision || "").trim())
+                            alignment: go.Spot.TopLeft,
+                            alignmentFocus: go.Spot.TopLeft,
+                            // Lane members keep explicit document coordinates. The fixed Lane
+                            // shape owns the frame; member bounds must never remeasure or shift it.
+                            visible: false
+                        }
                     )
                 )
             )

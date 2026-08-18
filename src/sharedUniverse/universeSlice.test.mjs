@@ -31,6 +31,8 @@ const {
   universeReducer,
   normalizeModelviewObjectviewIdentities,
   loadLegacyUniverseSnapshot,
+  openLegacyUniverseSnapshot,
+  replaceUniversePhData,
   setUniversePhData,
   setUniverseState,
 } = loadUniverseSlice();
@@ -644,6 +646,70 @@ test('full universe reload preserves current objectview geometry for matching vi
   assert.equal(objectview.loc, '300 400');
   assert.equal(objectview.group, 'group-1');
   assert.equal(objectview.scale, 1.5);
+});
+
+test('explicit file open restores objectview geometry from the saved snapshot', () => {
+  const movedState = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES',
+    data: {
+      id: 'ov-1',
+      modelviewId: 'view-1',
+      loc: '300 400',
+      group: 'group-1',
+      scale: 1.5,
+    },
+  });
+  const savedSnapshot = {
+    phData: {
+      metis: {
+        models: [
+          {
+            id: 'model-1',
+            name: 'Model 1',
+            modelviews: [
+              {
+                id: 'view-1',
+                name: 'View 1',
+                objectviews: [
+                  {
+                    id: 'ov-1',
+                    name: 'Object view 1',
+                    loc: '0 0',
+                    group: '',
+                    scale: 1,
+                  },
+                ],
+                relshipviews: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
+
+  const reopenedState = universeReducer(movedState, openLegacyUniverseSnapshot(savedSnapshot));
+  const objectview = reopenedState.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
+
+  assert.equal(objectview.loc, '0 0');
+  assert.equal(objectview.group, '');
+  assert.equal(objectview.scale, 1);
+});
+
+test('explicit model file open replaces current objectview geometry', () => {
+  const movedState = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES',
+    data: { id: 'ov-1', modelviewId: 'view-1', loc: '300 400' },
+  });
+  const savedPhData = structuredClone({
+    metis: movedState.world.worldModel.metis,
+  });
+  savedPhData.metis.models[0].modelviews[0].objectviews[0].loc = '0 0';
+
+  const reopenedState = universeReducer(movedState, replaceUniversePhData(savedPhData));
+  const objectview = reopenedState.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
+
+  assert.equal(objectview.loc, '0 0');
 });
 
 test('legacy new model load action appends to shared metis and merges domain', () => {

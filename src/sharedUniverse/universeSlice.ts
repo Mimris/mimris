@@ -740,8 +740,16 @@ export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null):
 export const loadLegacyUniverseSnapshot = (snapshot: LegacyUniverseSnapshot) =>
     setUniverseState(buildUniverseStateFromLegacy(snapshot as LegacyUniverseRoot));
 
+// Explicit file opens must use the coordinates stored in the file. Ordinary
+// refreshes keep using loadLegacyUniverseSnapshot/setUniversePhData so a stale
+// background response cannot undo an in-progress diagram edit.
+export const openLegacyUniverseSnapshot = (snapshot: LegacyUniverseSnapshot) =>
+    replaceUniverseState(buildUniverseStateFromLegacy(snapshot as LegacyUniverseRoot));
+
 export const setUniverseState = createAction<SharedUniverseState>('universe/setUniverseState');
+export const replaceUniverseState = createAction<SharedUniverseState>('universe/replaceUniverseState');
 export const setUniversePhData = createAction<LegacyPhData>('universe/setUniversePhData');
+export const replaceUniversePhData = createAction<LegacyPhData>('universe/replaceUniversePhData');
 export const setUniverseDomain = createAction<unknown>('universe/setUniverseDomain');
 export const setUniverseUser = createAction<unknown>('universe/setUniverseUser');
 export const setUniverseSource = createAction<unknown>('universe/setUniverseSource');
@@ -751,6 +759,23 @@ export const universeReducer = (
     state: SharedUniverseState = initialUniverseState,
     action: AnyAction,
 ): SharedUniverseState => {
+    if (replaceUniverseState.match(action)) {
+        const normalizedMetis = normalizeModelviewObjectviewIdentities(
+            action.payload.world.worldModel.metis,
+        );
+
+        return {
+            ...action.payload,
+            world: {
+                ...action.payload.world,
+                worldModel: {
+                    ...action.payload.world.worldModel,
+                    metis: normalizedMetis,
+                },
+                focus: normalizeFocusForMetis(normalizedMetis, action.payload.world.focus),
+            },
+        };
+    }
     if (setUniverseState.match(action)) {
         const nextMetis = preserveCurrentViewGeometryForMatchingItems(
             action.payload.world.worldModel.metis,
@@ -767,6 +792,33 @@ export const universeReducer = (
                     metis: normalizedMetis,
                 },
                 focus: normalizeFocusForMetis(normalizedMetis, action.payload.world.focus),
+            },
+        };
+    }
+    if (replaceUniversePhData.match(action)) {
+        const payload = action.payload as LegacyPhData;
+        const documents = Array.isArray(payload?.documents)
+            ? payload.documents
+            : state.compatibility.documents;
+
+        return {
+            ...state,
+            world: {
+                ...state.world,
+                worldDefinition: {
+                    ...state.world.worldDefinition,
+                    ...(payload?.domain !== undefined ? { domain: payload.domain } : {}),
+                },
+                worldModel: {
+                    ...state.world.worldModel,
+                    ...(payload?.metis !== undefined
+                        ? { metis: normalizeModelviewObjectviewIdentities(payload.metis) }
+                        : {}),
+                },
+            },
+            compatibility: {
+                ...state.compatibility,
+                documents,
             },
         };
     }

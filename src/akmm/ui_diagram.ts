@@ -59,6 +59,81 @@ function shouldPersistLinkPoints(routing: string | undefined | null, points?: an
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
+function getLaneBodyBounds(lane: go.Group): go.Rect | null {
+    const body =
+        lane.findObject("LANE_BODY_SHAPE") ||
+        lane.findObject("BODY") ||
+        lane.resizeObject;
+    const bounds = body?.getDocumentBounds?.();
+    return bounds ? bounds.copy() : null;
+}
+
+function rectContainsPart(rect: go.Rect, bounds: go.Rect): boolean {
+    if (rect.containsRect(bounds)) return true;
+    return rect.containsPoint(bounds.center);
+}
+
+function clampLocationToRect(part: go.Part, loc: go.Point, rect: go.Rect, margin = 4): go.Point {
+    const bounds = part.actualBounds;
+    const offsetX = part.location.x - bounds.x;
+    const offsetY = part.location.y - bounds.y;
+    const minX = rect.x + offsetX + margin;
+    const maxX = rect.right - (bounds.width - offsetX) - margin;
+    const minY = rect.y + offsetY + margin;
+    const maxY = rect.bottom - (bounds.height - offsetY) - margin;
+    const clampAxis = (value: number, min: number, max: number) => {
+        if (min > max) return (min + max) / 2;
+        return Math.max(min, Math.min(value, max));
+    };
+    return new go.Point(
+        clampAxis(loc.x, minX, maxX),
+        clampAxis(loc.y, minY, maxY)
+    );
+}
+
+function realignLaneMembersAfterLaneMove(
+    myDiagram: any,
+    myModelview: any,
+    lane: go.Group,
+    oldBodyBounds: go.Rect | null,
+    memberSnapshots: Map<string, { loc: go.Point; bounds: go.Rect; wasInBody: boolean }>
+) {
+    const newBodyBounds = getLaneBodyBounds(lane);
+    if (!newBodyBounds) return;
+    const dx = oldBodyBounds ? newBodyBounds.x - oldBodyBounds.x : 0;
+    const dy = oldBodyBounds ? newBodyBounds.y - oldBodyBounds.y : 0;
+    const laneKey = String(lane.data?.key || lane.key || "");
+
+    lane.memberParts.each((part: go.Part) => {
+        if (!(part instanceof go.Node) || part instanceof go.Group) return;
+        const key = String(part.data?.key || part.key || "");
+        const snapshot = memberSnapshots.get(key);
+        const groupedToLane = laneKey && String(part.data?.group || "") === laneKey;
+        if (!snapshot && !groupedToLane) return;
+
+        let targetLoc = part.location.copy();
+        const currentBounds = part.actualBounds;
+        if (!rectContainsPart(newBodyBounds, currentBounds)) {
+            const shouldTranslateWithLane = !oldBodyBounds || snapshot?.wasInBody || groupedToLane;
+            if (shouldTranslateWithLane && snapshot) {
+                targetLoc = new go.Point(snapshot.loc.x + dx, snapshot.loc.y + dy);
+            }
+        }
+
+        const clampedLoc = clampLocationToRect(part, targetLoc, newBodyBounds);
+        if (!part.location.equals(clampedLoc)) {
+            part.location = clampedLoc;
+        }
+
+        if (part.data) {
+            const loc = go.Point.stringify(part.location);
+            myDiagram.model.setDataProperty(part.data, "loc", loc);
+            const objview = myModelview?.findObjectView?.(part.data.key);
+            if (objview) objview.loc = loc;
+        }
+    });
+}
+
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
         modelview.focusObjectview = objview;
@@ -3192,6 +3267,21 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             const laneHeight = layout.height || 260;
             const resizeObject = layout.resizeObject || null;
             const isLaneGroup = layout.kind === 'lane';
+            const oldBodyBounds = isLaneGroup ? getLaneBodyBounds(lane) : null;
+            const memberSnapshots = new Map<string, { loc: go.Point; bounds: go.Rect; wasInBody: boolean }>();
+            if (isLaneGroup) {
+                lane.memberParts.each((part: go.Part) => {
+                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+                    const key = String(part.data?.key || part.key || "");
+                    if (!key) return;
+                    const bounds = part.actualBounds.copy();
+                    memberSnapshots.set(key, {
+                        loc: part.location.copy(),
+                        bounds,
+                        wasInBody: oldBodyBounds ? rectContainsPart(oldBodyBounds, bounds) : true,
+                    });
+                });
+            }
             const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
             const laneHeaderWidth =
                 (isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)

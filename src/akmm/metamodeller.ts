@@ -18,6 +18,26 @@ import { i } from '../components/utils/SvgLetters';
 // import { type } from 'os'
 // cxMetis
 
+// Older IRTV_META files contain endpoint ids copied from an earlier type
+// catalog. Preserve their stable RelationshipType ids and recover the intended
+// endpoints by canonical IRTV type name during import.
+const LEGACY_IRTV_RELSHIP_ENDPOINT_NAMES = new Map<string, [string, string]>([
+    ['7d0f9a1b-ab22-48ee-6656-4e9f0b072504', ['Information', 'Property']],
+    ['5607bf3b-23d3-4141-f95b-06ff806f86f2', ['Role', 'Task']],
+    ['668978e6-d9ba-4596-1329-6a63d24686e5', ['View', 'Information']],
+    ['ffaf9e3b-cf00-4ac2-71b8-43bd48c72a1a', ['Event', 'Task']],
+    ['7efd38eb-82a8-457f-9fda-7b75ef71d942', ['EntityType', 'EntityType']],
+    ['22f50fa8-90be-4738-8f71-670a19668fe0', ['EntityType', 'Property']],
+    ['647d3edb-ad04-4c54-97f9-c1bb5e374451', ['Task', 'Information']],
+    ['eb5f183f-b5be-48ea-920a-96a4d6ae7cb6', ['Task', 'Information']],
+    ['d5f471ae-ec5b-4543-1a9b-acf4853ecff2', ['Role', 'Task']],
+    ['4f673acd-ca6c-4309-0235-d1d7767c826d', ['Task', 'EntityType']],
+    ['074f512c-574f-47dd-39fa-561d1e7e6e74', ['Task', 'View']],
+    ['582b1ae4-a109-489d-6fff-76c3cc799d2b', ['Task', 'Event']],
+    ['147250de-d71b-484b-57c7-7331c77f88f8', ['Task', 'Task']],
+    ['c06b98c3-ee51-429c-d5b3-83685afe8736', ['Task', 'Information']],
+]);
+
 export class cxMetis {
     id: string;
     name: string;
@@ -95,7 +115,61 @@ export class cxMetis {
         const portType = new cxObjectType(utils.createGuid(), 'Port', 'Port type');
         this.objecttypes = [portType];
     }
+    resetImportedState() {
+        this.projects = null;
+        this.metamodels = null;
+        this.coreMetamodel = null;
+        this.viewstyles = [];
+        this.geometries = [];
+        this.models = null;
+        this.submodels = null;
+        this.modelviews = null;
+        this.datatypes = null;
+        this.inputpatterns = null;
+        this.viewformats = null;
+        this.fieldTypes = null;
+        this.enumerations = null;
+        this.units = null;
+        this.categories = null;
+        this.properties = null;
+        this.methods = null;
+        this.methodtypes = null;
+        const portType = new cxObjectType(utils.createGuid(), 'Port', 'Port type');
+        this.objecttypes = [portType];
+        this.relshiptypes = null;
+        this.objecttypeviews = null;
+        this.objtypegeos = null;
+        this.relshiptypeviews = null;
+        this.objects = null;
+        this.relships = null;
+        this.objectviews = null;
+        this.relshipviews = null;
+        this.gojsModel = null;
+        this.currentProject = null;
+        this.currentMetamodel = null;
+        this.currentMetamodelRef = null;
+        this.currentModel = null;
+        this.currentModelRef = null;
+        this.currentModelview = null;
+        this.currentModelviewRef = null;
+        this.currentTargetMetamodel = null;
+        this.currentTargetModel = null;
+        this.currentTargetModelview = null;
+        this.currentTemplateMetamodel = null;
+        this.currentTemplateModel = null;
+        this.currentTemplateModelview = null;
+        this.currentTaskModel = null;
+        this.currentNode = null;
+        this.currentLink = null;
+        this.fromNodes = [];
+        this.currentSelection = null;
+        this.pasteViewsOnly = false;
+        this.deleteViewsOnly = false;
+        this.pasted = false;
+        this.relinkedRelview = null;
+    }
     importData(importedData: any, includeDeleted: boolean) {
+        this.resetImportedState();
         this.name = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -115,22 +189,11 @@ export class cxMetis {
             for (let i = len - 1; i >= 0; i--) {
                 const metamodel = metamodels[i];
                 if (!metamodel) continue;
-                if (metamodel.name === constants.core.AKM_CORE_MM)
+                if (metamodel.name === constants.core.AKM_CORE_META)
                     continue;
                 if (metamodel && metamodel.id) {
                     this.importMetamodel(metamodel);
                     this.addMetamodel(metamodel);
-                }
-            }
-            for (let i = len - 1; i >= 0; i--) {
-                const metamodel = metamodels[i];
-                if (!metamodel) continue;
-                if (metamodel.name !== constants.core.AKM_CORE_MM)
-                    continue;
-                if (metamodel && metamodel.id) {
-                    this.importMetamodel(metamodel);
-                    this.addMetamodel(metamodel);
-                    this.coreMetamodel = metamodel;
                 }
             }
         }
@@ -474,7 +537,6 @@ export class cxMetis {
                     }
                     metamodel.relshiptypeviews = [];
                     items = item.relshiptypeviews;
-                    if (items) items.sort(utils.compare);
                     if (items && items.length) {
                         for (let i = 0; i < items.length; i++) {
                             const item1 = items[i];
@@ -787,21 +849,20 @@ export class cxMetis {
                 }
             });
         }
-        let relshiptypes0: any[] = item.relshiptypes0;
+        // The compact palette collection must reference the fully imported and
+        // hydrated relationship types. Building it before relshiptypes are
+        // imported leaves endpoint/type-view references unresolved.
+        metamodel.relshiptypes0 = [];
+        const relshiptypes0: any[] = item.relshiptypes0;
         if (relshiptypes0 && relshiptypes0.length) {
             relshiptypes0.forEach(reltype0 => {
-                let reltype = this.findRelationshipType(reltype0?.id);
-                if (reltype) {
-                    if (reltype.name !== constants.types.AKM_RELSHIP_TYPE
-                        && reltype.name !== constants.types.AKM_IS) {
-                        if (!reltype) {
-                            this.addRelationshipType(reltype0);
-                        }
-                        metamodel.addRelationshipType0(reltype);
-                    }
+                const reltype = this.findRelationshipType(reltype0?.id) || metamodel.findRelationshipType(reltype0?.id);
+                if (reltype && reltype.name !== constants.types.AKM_RELSHIP_TYPE) {
+                    metamodel.addRelationshipType0(reltype);
                 }
             });
         }
+
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -860,7 +921,8 @@ export class cxMetis {
         if (subMetamodelRefs && subMetamodelRefs.length) {
             subMetamodelRefs.forEach(subMetamodelRef => {
                 if (subMetamodelRef) {
-                    metamodel.addSubMetamodelRef(subMetamodelRef);
+                    if (subMetamodelRef !== metamodel.id)
+                        metamodel.addSubMetamodelRef(subMetamodelRef);
                 }
             });
         }
@@ -948,10 +1010,21 @@ export class cxMetis {
         // objtypes registered in metamodel
         let fromobjtype = metamodel.findObjectType(item.fromobjtypeRef);
         let toobjtype = metamodel.findObjectType(item.toobjtypeRef);
+        if ((!fromobjtype || !toobjtype) && metamodel?.name === 'IRTV_META') {
+            const endpointNames = LEGACY_IRTV_RELSHIP_ENDPOINT_NAMES.get(item.id);
+            if (endpointNames) {
+                fromobjtype = metamodel.findObjectTypeByName(endpointNames[0]);
+                toobjtype = metamodel.findObjectTypeByName(endpointNames[1]);
+            }
+        }
         if (debug) console.log('447 reltype, fromtype, totype: ', reltype, fromobjtype, toobjtype);
         if (!reltype) {
-            if (fromobjtype && toobjtype)
-                reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
+            // Legacy metamodel files may contain relationship types whose
+            // endpoint ObjectTypes are no longer part of this metamodel. Skip
+            // that individual definition; do not throw and abandon every
+            // valid relationship type that follows it in the import.
+            if (!fromobjtype || !toobjtype) return null;
+            reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
             fromobjtype.addOutputreltype(reltype);
             toobjtype.addInputreltype(reltype);
         }
@@ -963,6 +1036,10 @@ export class cxMetis {
                 if (item[prop])
                     rtype[prop] = item[prop];
             }
+            // Reapply resolved endpoints after legacy raw properties are copied;
+            // otherwise stale from/to refs overwrite the repaired constructor.
+            if (fromobjtype) reltype.setFromObjtype(fromobjtype);
+            if (toobjtype) reltype.setToObjtype(toobjtype);
             if (item.fromobjtypeRef && item.toobjtypeRef) {
                 const fromobjType = this.findObjectType(item.fromobjtypeRef);
                 const toobjType = this.findObjectType(item.toobjtypeRef);
@@ -1005,7 +1082,7 @@ export class cxMetis {
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
         if (!item.template || item.template === "") item.template = constants.gojs.C_NODETEMPLATE;
-        if (!item.geometry) item.geometry = "";
+        // if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(Number(item.strokewidth));
@@ -1016,6 +1093,7 @@ export class cxMetis {
             objtypeview.setMemberscale(Number(item.memberscale));
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
+            objtypeview.setFigure2(item.figure2);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
@@ -1026,6 +1104,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(Number(item.strokewidth));
             objtypeview.setIcon(item.icon);
             objtypeview.setImage(item.image);
+            objtypeview.setGroupLayout(item.groupLayout);
             objtypeview.setGrabIsAllowed(item.grabIsAllowed);
             // objtypeview.setGroup(item.group);
             // objtypeview.setIsGroup(item.isGroup);
@@ -1044,6 +1123,13 @@ export class cxMetis {
                 objtypegeo.setMetamodel(metamodel);
                 objtypegeo.setLoc(item.loc);
                 objtypegeo.setSize(item.size);
+                metamodel.addObjtypeGeo(objtypegeo);
+            } else {
+                // Import new geos as concrete cxObjtypeGeo instances so layout positions
+                // created during runtime survive a subsequent reload/import.
+                objtypegeo = new cxObjtypeGeo(item.id, metamodel, type, item.loc, item.size);
+                objtypegeo.setMarkedAsDeleted(Boolean(item.markedAsDeleted));
+                this.addObjtypeGeo(objtypegeo);
                 metamodel.addObjtypeGeo(objtypegeo);
             }
         }
@@ -1149,7 +1235,7 @@ export class cxMetis {
                 }
                 const modelviews: any[] = item.modelviews;
                 if (modelviews && (modelviews.length > 0)) {
-                    modelviews.sort(utils.compare);
+                    // modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
                         if (mv.id) {
                             if (model) this.importModelView(mv, model);
@@ -1174,11 +1260,21 @@ export class cxMetis {
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);
         if (obj) {
-            const objtype = this.findObjectType(item.typeRef);
+            const objtype =
+                this.findObjectType(item.typeRef) ||
+                model?.metamodel?.findObjectType?.(item.typeRef);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
                 obj.generatedTypeId = item.generatedTypeId;
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 if (model) {
                     model.addObject(obj);
                 }
@@ -1192,10 +1288,18 @@ export class cxMetis {
         if (!item) return; // sf 2023-05-09
         const rel = this.findRelationship(item.id);
         if (rel) {
-            const reltype = this.findRelationshipType(item.typeRef);
+            const reltype =
+                this.findRelationshipType(item.typeRef) ||
+                model?.metamodel?.findRelationshipType?.(item.typeRef) ||
+                this.findRelationshipTypeByName(item.typeName) ||
+                model?.metamodel?.findRelationshipTypeByName?.(item.typeName);
             if (debug) console.log('948 item, rel', item, rel);
-            const fromObj = this.findObject(item.fromobjectRef);
-            const toObj = this.findObject(item.toobjectRef);
+            const fromObj =
+                this.findObject(item.fromobjectRef) ||
+                model?.findObject?.(item.fromobjectRef);
+            const toObj =
+                this.findObject(item.toobjectRef) ||
+                model?.findObject?.(item.toobjectRef);
             if (reltype && fromObj && toObj) {
                 rel.setType(reltype);
                 rel.setFromObject(fromObj);
@@ -1253,17 +1357,75 @@ export class cxMetis {
             }
         }
     }
+    sanitizeObjectViewAfterImport(objview: cxObjectView, source: any) {
+        if (!objview) return;
+        const optionalFields = [
+            'text', 'template', 'template2', 'figure', 'figure2', 'geometry',
+            'group', 'groupLayout', 'icomStyle',
+            'fillcolor', 'fillcolor1', 'fillcolor2', 'strokecolor', 'strokecolor1', 'strokecolor2', 'strokewidth',
+            'textcolor', 'textcolor2', 'textscale', 'memberscale', 'arrowscale',
+            'icon', 'iconpath', 'icon1', 'icon2', 'icon3', 'image',
+            'size', 'scale', 'loc', 'layoutRevision'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(objview[prop])) {
+                    delete objview[prop];
+                }
+            }
+        }
+    }
+    sanitizeRelshipViewAfterImport(relview: cxRelationshipView, source: any) {
+        if (!relview) return;
+        const optionalFields = [
+            'template', 'template2', 'arrowscale', 'strokecolor', 'strokewidth',
+            'textcolor', 'textscale', 'dash', 'routing', 'curve', 'corner',
+            'fromArrow', 'toArrow', 'fromArrowColor', 'toArrowColor', 'points'
+        ];
+        const isUnset = (value: any) => value === undefined || value === null || value === '';
+        const isUnsetOrNaN = (value: any) => isUnset(value) || (typeof value === 'number' && Number.isNaN(value));
+        for (let i = 0; i < optionalFields.length; i++) {
+            const prop = optionalFields[i];
+            const hasSourceProp = source && Object.prototype.hasOwnProperty.call(source, prop);
+            const sourceValue = source ? source[prop] : undefined;
+            if (!hasSourceProp || isUnset(sourceValue)) {
+                if (isUnsetOrNaN(relview[prop])) {
+                    delete relview[prop];
+                }
+            }
+        }
+    }
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
-            const objview = this.findObjectView(item.id);
+            let objview = modelview.findObjectView(item.id);
+            if (!objview && item?.id) {
+                const object =
+                    this.findObject(item.objectRef) ||
+                    modelview.model?.findObject?.(item.objectRef);
+                objview = new cxObjectView(item.id, item.name, object, item.description || "", modelview);
+                if (!objview.objectRef && item.objectRef)
+                    objview.objectRef = item.objectRef;
+                modelview.addObjectView(objview);
+                this.addObjectView(objview);
+            }
             if (objview) {
                 if (debug) console.log('1170 item, objview', item, objview);
-                const object = this.findObject(item.objectRef);
+                if (!objview.objectRef && item.objectRef)
+                    objview.objectRef = item.objectRef;
+                const object =
+                    this.findObject(item.objectRef) ||
+                    modelview.model?.findObject?.(item.objectRef);
                 if (object) {
                     if (debug) console.log('1173 item.markedAsDeleted', item.markedAsDeleted);
                     objview.setObject(object);
                     objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
+                    objview.layoutRevision = item.layoutRevision ?? "";
                     objview.setSize(item.size);
                     objview.setScale(Number(item.scale));
                     objview.setTextscale(Number(item.textscale));
@@ -1271,10 +1433,13 @@ export class cxMetis {
                     objview.setTemplate2(item.template2);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.setGrabIsAllowed(item.grabIsAllowed === true || item.grabIsAllowed === "true");
                     objview.setArrowscale(Number(item.arrowscale));
                     objview.setMemberscale(Number(item.memberscale));
                     objview.setGroupIsExpanded(item.isExpanded);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.figure = item.figure;
+                    objview.figure2 = item.figure2;
                     objview.fillcolor = item.fillcolor;
                     objview.fillcolor2 = item.fillcolor2;
                     objview.strokecolor = item.strokecolor;
@@ -1308,6 +1473,7 @@ export class cxMetis {
                         }
                     }
                     objview.viewkind = item.viewkind;
+                    this.sanitizeObjectViewAfterImport(objview, item);
                     if (debug) console.log('1201 objview.markedAsDeleted', objview.markedAsDeleted, objview);
                     object.addObjectView(objview);
                     if (debug) console.log('1203 item, objview', item, objview);
@@ -1324,69 +1490,99 @@ export class cxMetis {
             if (debug) console.log('1034 item (relshipview): ', item);
             if (item.markedAsDeleted === "")
                 item.markedAsDeleted = false;
-            const relview = this.findRelationshipView(item.id);
+            let relview = modelview.findRelationshipView(item.id);
+            if (!relview) {
+                relview = this.findRelationshipView(item.id);
+            }
+            const relship =
+                this.findRelationship(item.relshipRef) ||
+                modelview.model?.findRelationship?.(item.relshipRef);
+            // Match object-view import behavior: create persisted relationship views
+            // that are not already present in the in-memory modelview.
+            if (!relview && relship && item.id) {
+                relview = new cxRelationshipView(item.id, item.name, relship, item.description || "");
+                relview.relshipRef = item.relshipRef;
+                relview.setRelationship(relship);
+                modelview.addRelationshipView(relview);
+                this.addRelationshipView(relview);
+            }
             if (relview) {
-                const relship = this.findRelationship(item.relshipRef);
-                if (relship) {
-                    relview.setRelationship(relship);
-                    const fromobjview = modelview.findObjectView(item.fromobjviewRef) as cxObjectView;
-                    const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
-                    if (!fromobjview || !toobjview)
-                        return;
+                const fromobjviewRef = item.fromobjviewRef || item.fromObjviewRef || item.fromObjectviewRef;
+                const toobjviewRef = item.toobjviewRef || item.toObjviewRef || item.toObjectviewRef;
+                if (item.relshipRef) relview.relshipRef = item.relshipRef;
+                if (fromobjviewRef) relview.fromobjviewRef = fromobjviewRef;
+                if (toobjviewRef) relview.toobjviewRef = toobjviewRef;
+                if (relship) relview.setRelationship(relship);
+                const fromobjview = (
+                    modelview.findObjectView(fromobjviewRef) ||
+                    (relship ? modelview.objectviews?.find((objview) => objview?.objectRef === relship.fromobjectRef) : null)
+                ) as cxObjectView;
+                const toobjview = (
+                    modelview.findObjectView(toobjviewRef) ||
+                    (relship ? modelview.objectviews?.find((objview) => objview?.objectRef === relship.toobjectRef) : null)
+                ) as cxObjectView;
+                if (fromobjview) {
                     relview.setFromObjectView(fromobjview);
-                    relview.setToObjectView(toobjview);
                     fromobjview.addOutputRelview(relview);
-                    toobjview.addInputRelview(relview);
-                    relview.fromPortid = relship.fromPortid;
-                    relview.toPortid = relship.toPortid;
-                    relview.template = item.template;
-                    relview.template2 = item.template2;
-                    relview.arrowscale = Number(item.arrowscale);
-                    relview.strokecolor = item.strokecolor;
-                    relview.strokewidth = Number(item.strokewidth);
-                    relview.textcolor = item.textcolor;
-                    relview.textscale = Number(item.textscale);
-                    relview.dash = item.dash;
-                    relview.fromArrow = item.fromArrow;
-                    relview.toArrow = item.toArrow;
-                    relview.fromArrowColor = item.fromArrowColor;
-                    relview.toArrowColor = item.toArrowColor;
-                    relview.routing = item.routing;
-                    relview.corner = Number(item.corner);
-                    relview.curve = Number(item.curve);
-                    relview.points = item.points;
-                    relview.visible = item.visible;
-                    let reltypeview;
-                    if (item.typeviewRef) {
-                        reltypeview = this.findRelationshipTypeView(item.typeviewRef);
-                        if (reltypeview) {
-                            relview.setTypeView(reltypeview);
-                            const viewdata = reltypeview.getData();
-                            for (let prop in viewdata) {
-                                if (item[prop] && item[prop] !== "") {
-                                    relview[prop] = item[prop];
-                                }
-                            }
-                        }
-                    }
-                    if (!reltypeview) {
-                        reltypeview = relview.relship?.type?.typeview as cxRelationshipTypeView;
-                        if (reltypeview) {
-                            relview.setTypeView(reltypeview);
-                            const viewdata = reltypeview.getData();
-                            for (let prop in viewdata) {
-                                if (item[prop] && item[prop] !== "") {
-                                    relview[prop] = item[prop];
-                                }
-                            }
-                        }
-                    }
-                    relview.markedAsDeleted = item.markedAsDeleted;
-                    relview.template = item.template;
-                    relview.template2 = item.template2;
-                    relship.addRelationshipView(relview);
-                    modelview.addRelationshipView(relview);
                 }
+                if (toobjview) {
+                    relview.setToObjectView(toobjview);
+                    toobjview.addInputRelview(relview);
+                }
+                relview.fromPortid = relship?.fromPortid || item.fromPortid || "";
+                relview.toPortid = relship?.toPortid || item.toPortid || "";
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                relview.arrowscale = Number(item.arrowscale);
+                relview.strokecolor = item.strokecolor;
+                relview.strokewidth = Number(item.strokewidth);
+                relview.textcolor = item.textcolor;
+                relview.textscale = Number(item.textscale);
+                relview.dash = item.dash;
+                relview.fromArrow = item.fromArrow;
+                relview.toArrow = item.toArrow;
+                relview.fromArrowColor = item.fromArrowColor;
+                relview.toArrowColor = item.toArrowColor;
+                relview.routing = item.routing;
+                relview.corner = Number(item.corner);
+                relview.curve = Number(item.curve);
+                relview.points = item.points;
+                relview.visible = item.visible;
+                let reltypeview;
+                if (item.typeviewRef) {
+                    reltypeview = this.findRelationshipTypeView(item.typeviewRef);
+                    if (reltypeview) {
+                        relview.setTypeView(reltypeview);
+                        const viewdata = reltypeview.getData();
+                        for (let prop in viewdata) {
+                            if (item[prop] && item[prop] !== "") {
+                                relview[prop] = item[prop];
+                            }
+                        }
+                    }
+                }
+                if (!reltypeview) {
+                    reltypeview = relview.relship?.type?.typeview as cxRelationshipTypeView;
+                    if (reltypeview) {
+                        relview.setTypeView(reltypeview);
+                        const viewdata = reltypeview.getData();
+                        for (let prop in viewdata) {
+                            if (item[prop] && item[prop] !== "") {
+                                relview[prop] = item[prop];
+                            }
+                        }
+                    }
+                } // isFollowedBy
+                if (relview.name === "isFollowedBy" || relview.name === "follows") {
+                    relview.name = " ";
+                }
+                relview.markedAsDeleted = item.markedAsDeleted;
+                if (!relview.markedAsDeleted) relview.visible = true;
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                this.sanitizeRelshipViewAfterImport(relview, item);
+                if (relship) relship.addRelationshipView(relview);
+                if (fromobjview && toobjview) modelview.addRelationshipView(relview);
             }
         }
     }
@@ -2813,7 +3009,8 @@ export class cxMetis {
                         // }
                     }
                 }
-                if (reltype.relshipkind === constants.relkinds.GEN) continue;
+                if (reltype.relshipkind === constants.relkinds.GEN) 
+                    continue;
                 if (reltype.isAllowedFromType(fromType, includeGen)) {
                     if (reltype.isAllowedToType(toType, includeGen)) {
                         reltypes.push(reltype);
@@ -3098,22 +3295,28 @@ export class cxMetis {
         return null;
     }
     removeClassInstances(sel: any) {
-        if (sel.objectview) sel.objectview = null;
-        if (sel.object) sel.object = null;
-        if (sel.objecttype) sel.objecttype = null; 
-        if (sel.typeview) sel.typeview = null; 
-        if (sel.leftPorts) sel.leftPorts = null;
-        if (sel.rightPorts) sel.rightPorts = null;
-        if (sel.topPorts) sel.topPorts = null;
-        if (sel.bottomPorts) sel.bottomPorts = null;
-        if (sel.relshipview) sel.relshipview = null;
-        if (sel.relship) sel.relship = null;
-        if (sel.relshiptype) sel.relshiptype = null;
-        if (sel.typeview) sel.typeview = null;
-        if (sel.fromNode) sel.fromNode = null;
-        if (sel.toNode) sel.toNode = null;
-        if (sel.fromObjview) sel.fromObjview = null;
-        if (sel.toObjview) sel.toObjview = null;
+        const clearProp = (key: string) => {
+            try {
+                if (sel && sel[key]) sel[key] = null;
+            } catch (_) {
+                // Some selection objects expose read-only runtime references.
+            }
+        };
+        clearProp('objectview');
+        clearProp('object');
+        clearProp('objecttype');
+        clearProp('typeview');
+        clearProp('leftPorts');
+        clearProp('rightPorts');
+        clearProp('topPorts');
+        clearProp('bottomPorts');
+        clearProp('relshipview');
+        clearProp('relship');
+        clearProp('relshiptype');
+        clearProp('fromNode');
+        clearProp('toNode');
+        clearProp('fromObjview');
+        clearProp('toObjview');
         return sel;
     }
     substituteNodeMapValues(nodemaps: any, from, to) {
@@ -3143,6 +3346,45 @@ export class cxMetis {
             }
         }
         return node;
+    }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
+        }
     }
 }
 
@@ -3610,6 +3852,7 @@ export class cxMetaModel extends cxMetaObject {
     geometries: cxGeometry[] | null;
     containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
+    porttypes: cxPortType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypes: cxRelationshipType[] | null;
@@ -4876,6 +5119,8 @@ export class cxMetaModel extends cxMetaObject {
                 continue;
             if (reltype.name === constants.types.AKM_IS)
                 continue;
+            if (reltype.name === constants.types.AKM_CONTAINS)
+                continue;
             if (reltype.name === constants.types.AKM_REFERS_TO) {
                 reltypes.push(reltype);
                 continue;
@@ -4898,6 +5143,12 @@ export class cxMetaModel extends cxMetaObject {
                     } else if (fromObjType.name === constants.types.AKM_ENTITY_TYPE) {
                         reltypes.push(reltype);
                     }
+                // } else if (fromObjType.name === constants.types.AKM_CONTAINER) {
+                //     if (toObjType.name === constants.types.AKM_ENTITY_TYPE) {
+                //         if (reltype.name === constants.types.AKM_CONTAINS) {
+                //             reltypes.push(reltype);
+                //         }
+                //     }
                 } else if (includeGen) {
                     if (fromObjType.name === constants.types.AKM_ENTITY_TYPE &&
                         toObjType.name === constants.types.AKM_ENTITY_TYPE) {
@@ -5982,22 +6233,27 @@ export class cxObjectType extends cxType {
             return true;
         } else {
             const reltypes = this.getOutputReltypes(constants.relkinds.GEN);
+            if (debug && level === 0) console.log('[INHERIT-CHECK]', this.name, 'inherits from', type.name, '? outputreltypes:', reltypes?.length || 0);
             if (reltypes) {
                 for (let i = 0; i < reltypes.length; i++) {
                     const reltype = reltypes[i];
                     const supertype = reltype?.toObjtype;
+                    if (debug && level === 0) console.log('[INHERIT-CHECK]   checking supertype:', supertype?.name);
                     if (supertype) {
                         if (supertype.id === type.id) {
+                            if (debug && level === 0) console.log('[INHERIT-CHECK]   ✅ MATCH! ' + this.name + ' inherits from ' + type.name);
                             retval = true;
                             break;
                         } else {
                             level++;
                             retval = supertype.inherits(type, level);
+                            if (retval) break;
                         }
                     }
                 }
             }
         }
+        if (debug && level === 0 && !retval) console.log('[INHERIT-CHECK]   ❌ NO MATCH - ' + this.name + ' does NOT inherit from ' + type.name);
         return retval;
     }
     findRelshipTypeByKind(relkind: string, objtype: cxObjectType): cxRelationshipType | null {                           // .COMP
@@ -6243,11 +6499,17 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedFromType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.fromObjtype) {
-            if (this.fromObjtype.id === objtype.id)
+            if (this.fromObjtype.id === objtype.id) {
+                if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, '=== ', this.fromObjtype.name, '✅ direct match');
                 return true;
+            }
             if (includeGen) {
+                if (debug) console.log('[ALLOWED-FROM]', this.name, ': checking if', objtype.name, 'inherits from', this.fromObjtype.name);
                 if (objtype.inherits(this.fromObjtype)) {
+                    if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, 'inherits', this.fromObjtype.name, '✅ allowed via inheritance');
                     return true;
+                } else {
+                    if (debug) console.log('[ALLOWED-FROM]', this.name, ':', objtype.name, 'does NOT inherit', this.fromObjtype.name, '❌');
                 }
             }
         }
@@ -6255,11 +6517,17 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedToType(objtype: cxObjectType, includeGen: boolean): boolean {
         if (objtype && this.toObjtype) {
-            if (this.toObjtype.id === objtype.id)
+            if (this.toObjtype.id === objtype.id) {
+                if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, '===', this.toObjtype.name, '✅ direct match');
                 return true;
+            }
             if (includeGen) {
+                if (debug) console.log('[ALLOWED-TO]', this.name, ': checking if', objtype.name, 'inherits from', this.toObjtype.name);
                 if (objtype.inherits(this.toObjtype)) {
+                    if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, 'inherits', this.toObjtype.name, '✅ allowed via inheritance');
                     return true;
+                } else {
+                    if (debug) console.log('[ALLOWED-TO]', this.name, ':', objtype.name, 'does NOT inherit', this.toObjtype.name, '❌');
                 }
             }
         }
@@ -6533,14 +6801,21 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     // abstract: boolean;
+    icomStyle: string;
     memberscale: number;
     arrowscale: number;
     viewkind: string;
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6553,14 +6828,21 @@ export class cxObjtypeviewData {
     textscale: number;
     constructor() {
         // this.abstract = false;
+        this.icomStyle = "idef";
         this.memberscale = 1.0;
         this.arrowscale = 1.3;
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
+        this.groupLayout = "";
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.grabIsAllowed = false;
         this.fillcolor = "";
@@ -6584,8 +6866,14 @@ export class cxObjectTypeView extends cxMetaObject {
     template: string;
     template2: string;
     figure: string;
+    figure2: string;
     geometry: string;
+    groupLayout: string;
     icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
     image: string;
     grabIsAllowed: boolean;
     fillcolor: string;
@@ -6604,21 +6892,26 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef = type?.id;
         this.template = "";
         this.template2 = "";
-        this.figure      = "";
-        this.geometry    = "";
-        this.arrowscale = 1.0;
+        this.figure = "";
+        this.figure2 = "";
+        this.geometry = "";
+        this.groupLayout = "";
         this.memberscale = 1.0;
-        this.fillcolor = "";
-        this.fillcolor2 = "";
-        this.strokecolor = "";
-        this.strokecolor2 = "";
+        this.fillcolor = "white";
+        this.fillcolor2 = "white";
+        this.strokecolor = "black";
+        this.strokecolor2 = "black";
         this.strokewidth = 1.0;
-        this.textcolor = "";
-        this.textcolor2 = "";
+        this.textcolor = "black";
+        this.textcolor2 = "black";
         this.textscale = 1.0;
         this.viewkind = constants.viewkinds.OBJ;
         this.grabIsAllowed = false;
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
         this.data = new cxObjtypeviewData();
         if (type) {
@@ -6629,10 +6922,14 @@ export class cxObjectTypeView extends cxMetaObject {
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
         if (objview) {
+            if (objview['figure2'] == "") objview['figure2'] = objview['figure'];
             let prop: any;
             let data: any = this.data;
             for (prop in data) {
-                if (objview[prop] == undefined || objview[prop] === "") continue;
+                if (prop !== 'groupLayout') {
+                    if (objview[prop] == undefined || objview[prop] === "") 
+                        continue;
+                }
                 data[prop] = objview[prop];
             }
             if (debug) console.log('5580 data', data,);
@@ -6712,6 +7009,12 @@ export class cxObjectTypeView extends cxMetaObject {
         this.data.template = template;
         this.template = template;
     }
+    setIcomStyle(icomStyle: string) {
+        this.data.icomStyle = icomStyle || "idef";
+    }
+    getIcomStyle(): string {
+        return this.data?.icomStyle || "idef";
+    }
     getTemplate(): string {
         if (this.data.template)
             return this.data.template;
@@ -6730,16 +7033,27 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template2;
         return "";
     }
-    setFigure(figure: string) {
-        this.data.figure = figure;
-        this.figure = figure;
-    }
     getFigure(): string {
         if (this.figure)
             return this.figure;
         else if (this.data.figure)
             return this.data.figure;
         return "";
+    }
+    setFigure(figure: string) {
+        this.data.figure = figure;
+        this.figure = figure;
+    }
+    getFigure2(): string {
+        if (this.figure2)
+            return this.figure;
+        else if (this.data.figure2)
+            return this.data.figure2;
+        return "";
+    }
+    setFigure2(figure: string) {
+        this.data.figure2 = figure;
+        this.figure2 = figure;
     }
     setGeometry(geometry: string) {
         this.data.geometry = geometry;
@@ -6773,6 +7087,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.data.fillcolor2)
             return this.data.fillcolor2;
         return "white";
+    }
+    getGroupLayout(): string {
+        if (this.groupLayout)
+            return this.groupLayout;
+        else if (this.data.groupLayout)
+            return this.data.groupLayout;
+        return "";
+    }
+    setGroupLayout(layout: string) {
+        this.data.groupLayout = layout;
+        this.groupLayout = layout;
     }
     setTextcolor(color: string) {
         this.data.textcolor = color;
@@ -6864,6 +7189,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.arrowscale;
         return 1.3; // Default  1
     }
+    setIconPath(iconpath: string) {
+        this.data.iconpath = iconpath;
+        this.iconpath = iconpath;
+    }
+    getIconPath(): string {
+        if (this.iconpath)
+            return this.iconpath;
+        // else if (this.data.iconpath)
+        //     return this.data.iconpath;
+        return "";
+    }
     setIcon(icon: string) {
         this.data.icon = icon;
         this.icon = icon;
@@ -6873,6 +7209,39 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.icon;
         // else if (this.data.icon)
         //     return this.data.icon;
+        return "";
+    }
+    setIcon1(icon: string) {
+        this.data.icon1 = icon;
+        this.icon1 = icon;
+    }
+    getIcon1(): string {
+        if (this.icon1)
+            return this.icon1;
+        // else if (this.data.icon1)
+        //     return this.data.icon1;
+        return "";
+    }
+    setIcon2(icon: string) {
+        this.data.icon2 = icon;
+        this.icon2 = icon;
+    }
+    getIcon2(): string {
+        if (this.icon2)
+            return this.icon2;
+        // else if (this.data.icon2)
+        //     return this.data.icon2;
+        return "";
+    }
+    setIcon3(icon: string) {
+        this.data.icon3 = icon;
+        this.icon3 = icon;
+    }
+    getIcon3(): string {
+        if (this.icon3)
+            return this.icon3;
+        // else if (this.data.icon3)
+        //     return this.data.icon3;
         return "";
     }
     setImage(image: string) {
@@ -6900,7 +7269,9 @@ export class cxReltypeviewData {
     arrowscale: number;
     textscale: number;
     dash: string;
+    from: string;
     fromArrow: string;
+    to: string;
     toArrow: string;
     fromArrowColor: string;
     toArrowColor: string;
@@ -7682,6 +8053,7 @@ export class cxModel extends cxMetaObject {
         return null;
     }
     findRelationship1(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType, fromPort: cxPort, toPort: cxPort): cxRelationship | null {
+        if (!fromObj || !toObj || !reltype) return null;
         const relships = this.relships;
         if (relships) {
             const len = utils.objExists(relships) ? relships.length : 0;
@@ -7823,6 +8195,45 @@ export class cxModel extends cxMetaObject {
                 if (!oview.object)
                     oview.markedAsDeleted = true;
             }
+        }
+    }
+    purgeInputRelships(model: cxModel) {
+        const target = model || this;
+        const relships = target.relships;
+        if (!relships || relships.length === 0) {
+            return;
+        }
+        const seen = new Set<string>();
+        const kept = new Array();
+        for (let i = 0; i < relships.length; i++) {
+            const rel = relships[i];
+            if (!rel) {
+                continue;
+            }
+            if (rel.markedAsDeleted) {
+                kept.push(rel);
+                continue;
+            }
+            const fromId = rel.fromObject?.id || "";
+            const toId = rel.toObject?.id || "";
+            const typeId = rel.type?.id || rel.typeRef || "";
+            if (!fromId || !toId || !typeId) {
+                kept.push(rel);
+                continue;
+            }
+            const key = `${fromId}|${toId}|${typeId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                kept.push(rel);
+                continue;
+            }
+            rel.markedAsDeleted = true;
+            rel.fromObject?.removeOutputrel(rel);
+            rel.toObject?.removeInputrel(rel);
+        }
+        target.relships = kept;
+        if (target.relshipRefs) {
+            target.relshipRefs = kept.map((rel) => rel?.id).filter(Boolean);
         }
     }
 }
@@ -8750,7 +9161,8 @@ export class cxRelationship extends cxInstance {
     nameTo: string;
     fromPortid: string;
     toPortid: string;
-    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
+    constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, 
+                name: string, description: string, fromPortId: string = "", toPortId: string = "") {
         super(id, name, type, description);
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipviews = null;
@@ -8761,8 +9173,8 @@ export class cxRelationship extends cxInstance {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
-        this.fromPortid = "";
-        this.toPortid = "";
+        this.fromPortid = fromPortId;
+        this.toPortid = toPortId;
         if (!this.typeName) this.typeName = name;
         if (this.type) {
             this.cardinality = this.getCardinality();
@@ -8838,15 +9250,17 @@ export class cxRelationship extends cxInstance {
     relocate(oldFromObj: cxObject, newFromObj: cxObject,
              oldToObj: cxObject, newToObj: cxObject)
     {
-        if (this.fromObject && oldFromObj && newFromObj) {
-            oldFromObj.removeOutputrel(this);
-            this.fromObject = newFromObj;
-            newFromObj.addOutputrel(this);
-        }
-        if (this.toObject && oldToObj && newToObj) {
-            oldToObj.removeInputrel(this);
-            this.toObject = newToObj;
-            newToObj.addInputrel(this);
+        if ((newFromObj?.id !== newToObj?.id)  && (oldFromObj?.id !== oldToObj?.id)) {
+            if (this.fromObject && oldFromObj && newFromObj) {
+                oldFromObj.removeOutputrel(this);
+                this.fromObject = newFromObj;
+                newFromObj.addOutputrel(this);
+            }
+            if (this.toObject && oldToObj && newToObj) {
+                oldToObj.removeInputrel(this);
+                this.toObject = newToObj;
+                newToObj.addInputrel(this);
+            }
         }
     }
     getRelationshipViews(): cxRelationshipView[] | null {
@@ -9011,8 +9425,8 @@ export class cxModelView extends cxMetaObject {
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
     focusObjectview: cxObjectView | null;
-    scale: string;
-    memberscale: string;
+    scale: number;
+    memberscale: number;
     layout: string;
     routing: string;
     linkcurve: string;
@@ -9037,7 +9451,7 @@ export class cxModelView extends cxMetaObject {
         this.focusObjectview = null;
         this.scale = 1.0;
         this.memberscale = constants.params.MEMBERSCALE;
-        this.layout = "ForceDirected";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9056,7 +9470,7 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.layout = "Tree";
+        this.layout = "None";
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
@@ -9225,9 +9639,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview: cxObjectView = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 if (objview.id === id) {
                     if (!objview.objectRef) {
                         const obj = objview.object;
@@ -9244,9 +9665,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objectviews) return null;
         let i = 0;
         let objview = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objectviews.length) {
             objview = this.objectviews[i];
-            if (!objview?.isDeleted()) {
+            if (!isViewDeleted(objview)) {
                 const obj = objview.object;
                 if (obj?.name === name)
                     return objview;
@@ -9259,9 +9687,16 @@ export class cxModelView extends cxMetaObject {
         let oviews = this.objectviews;
         if (!oviews)
             return null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         for (let i = 0; i < oviews.length; i++) {
             const ov = oviews[i];
-            if (ov.isDeleted())
+            if (isViewDeleted(ov))
                 continue;
             if (ov && obj) {
                 if (ov.object?.id === obj.id) {
@@ -9275,9 +9710,16 @@ export class cxModelView extends cxMetaObject {
         if (!this.objecttypeviews) return null;
         let i = 0;
         let obj = null;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted')) return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < this.objecttypeviews.length) {
             obj = this.objecttypeviews[i];
-            if (!obj?.isDeleted()) {
+            if (!isViewDeleted(obj)) {
                 if (obj.id === id)
                     return obj;
             }
@@ -9289,9 +9731,20 @@ export class cxModelView extends cxMetaObject {
         if (!relshipviews) return null;
         let i = 0;
         let rv = null;
+        var isViewDeleted = function (view) {
+            if (!view)
+                return false;
+            if (typeof view.isDeleted === 'function')
+                return view.isDeleted();
+            if (view.hasOwnProperty('isDeleted'))
+                return Boolean(view.isDeleted);
+            if (view.hasOwnProperty('markedAsDeleted'))
+                return Boolean(view.markedAsDeleted);
+            return false;
+        };
         while (i < relshipviews.length) {
             rv = relshipviews[i];
-            if (rv && !rv?.isDeleted()) {
+            if (!isViewDeleted(rv)) {
                 if (rv.id === id)
                     return rv;
             }
@@ -9364,6 +9817,25 @@ export class cxModelView extends cxMetaObject {
         }
         return null;
     }
+
+    findObjectViewsByGroup(group: cxObjectView): cxObjectView[] | null {
+        const objviews = new Array();
+        let oviews = this.objectviews;
+        if (!oviews)
+            return null;
+        for (let i = 0; i < oviews.length; i++) {
+            const ov = oviews[i];
+            if (ov.isDeleted())
+                continue;
+            if (ov && group) {
+                if (ov.group === group.id) {
+                    objviews.push(ov);
+                }
+            }
+        }
+        return objviews;
+    }
+
     getRelviewsByFromAndToObjviews(fromView: cxObjectView, toView: cxObjectView): cxRelationshipView[] {
         const relviews = new Array();
         if (fromView && toView) {
@@ -9403,11 +9875,20 @@ export class cxModelView extends cxMetaObject {
     }
     repairObjectView(objview: cxObjectView): boolean {
         if (!objview) return false;
-        if (objview.isDeleted()) return false;
+        const isViewDeleted = (view: any) => {
+            if (!view) return false;
+            if (typeof view.isDeleted === 'function') return view.isDeleted();
+            if (Object.prototype.hasOwnProperty.call(view, 'isDeleted')) return Boolean(view.isDeleted);
+            if (Object.prototype.hasOwnProperty.call(view, 'markedAsDeleted')) return Boolean(view.markedAsDeleted);
+            return false;
+        };
+        if (isViewDeleted(objview)) return false;
         if (!objview.object) return false;
         if (objview.object?.markedAsDeleted) return false;
         // Validate input relviews
-        const inputrelviews = objview.getInputRelviews();
+        const inputrelviews = typeof (objview as any).getInputRelviews === 'function'
+            ? objview.getInputRelviews()
+            : objview.inputrelviews;
         if (inputrelviews) {
             for (let i = 0; i < inputrelviews.length; i++) {
                 const relview = inputrelviews[i];
@@ -9431,7 +9912,9 @@ export class cxModelView extends cxMetaObject {
             }
         }
         // Repair output relviews
-        const outputrelviews = objview.getOutputRelviews();
+        const outputrelviews = typeof (objview as any).getOutputRelviews === 'function'
+            ? objview.getOutputRelviews()
+            : objview.outputrelviews;
         if (outputrelviews) {
             for (let i = 0; i < outputrelviews.length; i++) {
                 const relview = outputrelviews[i];
@@ -9518,44 +10001,54 @@ export class cxObjectView extends cxMetaObject {
     category: string;
     object: cxObject | null;
     objectRef: string;
+    parent: string;
     inputrelviews: cxRelationshipView[] | null;
     outputrelviews: cxRelationshipView[] | null;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
-    group: string;
-    isGroup: boolean;
+    ports: cxPort[] | null;
+
     groupLayout: string;
-    parent: string;
-    isExpanded: boolean;
-    isSelected: boolean;
-    visible: boolean;
     grabIsAllowed: boolean;
+    isExpanded: boolean;
     readonly: boolean;
+    visible: boolean;
+    
     text: string;
-    loc: string;
-    size: string;
-    scale: number;
-    memberscale: number;
-    arrowscale: number;
-    viewkind: string;
-    template: string;
-    template2: string;
-    figure: string;
-    geometry: string;
-    icon: string;
-    image: string;
     routing: string;
     linkcurve: string;
-    fillcolor: string;
     fillcolor1: string;
-    fillcolor2: string;
-    strokecolor: string;
     strokecolor1: string;
+
+    figure: string;
+    figure2: string;
+    fillcolor: string;
+    fillcolor2: string;
+    geometry: string;
+    group: string;
+    icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    icon3: string;
+    image: string;
+    isGroup: boolean;
+    isSelected: boolean;
+    loc: string;
+    layoutRevision: string;
+    memberscale: number;
+    modified: boolean;
+    scale: number;
+    size: string;
+    strokecolor: string;
     strokecolor2: string;
     strokewidth: number;
+    template: string;
+    template2: string;
     textcolor: string;
     textcolor2: string;
     textscale: number;
+    viewkind: string;
     constructor(id: string, name: string, object: cxObject | null, description: string, modelview: cxModelView | null) {
         super(id, name, description);
         this.modelview = modelview;
@@ -9569,12 +10062,20 @@ export class cxObjectView extends cxMetaObject {
         this.template2 = "";
         this.typeview = object?.type?.typeview as cxObjectTypeView;
         this.typeviewRef = this.typeview?.id;
-        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : 1.3;
         this.textscale = this.typeview?.textscale ? this.typeview.textscale : 1.0;
-        if (false) {
+        if (true) {
         this.group = "";
-        this.isGroup = false;
+        const baseViewkind =
+            this.typeview?.getViewKind?.() ||
+            this.typeview?.viewkind ||
+            object?.type?.viewkind ||
+            "";
+        const inferredContainer =
+            baseViewkind === constants.viewkinds.CONT ||
+            typeof (object?.type as any)?.isContainer === 'function' && (object?.type as any).isContainer();
+        this.isGroup = inferredContainer;
         this.groupLayout = "";
         this.parent = "";
         this.isExpanded = true;
@@ -9583,13 +10084,15 @@ export class cxObjectView extends cxMetaObject {
         this.visible = true;
         this.readonly = false;
         this.grabIsAllowed = false;
-        this.viewkind = "";
+        this.viewkind = inferredContainer ? constants.viewkinds.CONT : "";
         this.loc = "";
+        this.layoutRevision = "";
         this.size = "";
         this.scale = 1.0;
         this.template = "";
         this.template2 = "";
         this.figure = "";
+        this.figure2 = "";
         this.geometry = "";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -9603,7 +10106,12 @@ export class cxObjectView extends cxMetaObject {
         this.textcolor = "";
         this.textcolor2 = "";
         this.icon = "";
+        this.iconpath = "";
+        this.icon1 = "";
+        this.icon2 = "";
+        this.icon3 = "";
         this.image = "";
+        this.ports = null;
         }
     }
     // Methods
@@ -9692,8 +10200,12 @@ export class cxObjectView extends cxMetaObject {
             const relview0 = this.inputrelviews[0];
             if (relview0 && !relview0.markedAsDeleted)
                 relviews.push(relview0);
+            const fromObjview0 = relview0.fromObjview;
+            const toObjview0 = relview0.toObjview;
             for (let i = 1; i < this.inputrelviews.length; i++) {
                 const relview = this.inputrelviews[i];
+                if (relview.fromObjview.id === fromObjview0.id && relview.toObjview.id === toObjview0.id)
+                    continue;
                 if (!relview.markedAsDeleted) {
                     relviews.push(relview);
                 }
@@ -9755,6 +10267,52 @@ export class cxObjectView extends cxMetaObject {
             return this.image;
         return "";
     }
+    
+    /**
+     * Resolve an attribute value: returns objectview value if set, 
+     * otherwise falls back to typeview default.
+     * @param attrName - The attribute name to resolve
+     * @returns Object with { value, isInherited }
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        
+        // Check if objectview has an explicit value (non-empty, non-null, non-undefined)
+        const objviewValue = this[attrName];
+        const hasObjviewValue = objviewValue !== undefined && 
+                                objviewValue !== null && 
+                                objviewValue !== "";
+        
+        if (hasObjviewValue) {
+            return { value: objviewValue, isInherited: false };
+        }
+        
+        // Fall back to typeview default
+        const typeviewValue = typeview?.[attrName];
+        return { 
+            value: typeviewValue !== undefined ? typeviewValue : "", 
+            isInherited: true 
+        };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage.
+     * If value matches typeview default, removes the override.
+     * @param attrName - The attribute name
+     * @param value - The new value
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.getTypeView() || this.getDefaultTypeView();
+        const typeviewDefault = typeview?.[attrName];
+        
+        // If value matches typeview default, clear the override
+        if (value === typeviewDefault || (value === "" && !typeviewDefault)) {
+            this[attrName] = "";  // Clear to allow inheritance
+        } else {
+            this[attrName] = value;  // Store the override
+        }
+    }
+    
     setIsGroup(flag: boolean) {
         this.isGroup = flag;
     }
@@ -9847,13 +10405,23 @@ export class cxObjectView extends cxMetaObject {
     }
     setFigure(figure: string) {
         if (figure == undefined)
-        figure = "";
+            figure = "";
         this.figure = figure;
     }
     getFigure(): string {
-        if (this.template == undefined)
+        if (this.figure == undefined)
             return "";
-        return this.template;
+        return this.figure;
+    }
+    setFigure2(figure: string) {
+        if (figure == undefined)
+            figure = "";
+        this.figure2 = figure;
+    }
+    getFigure2(): string {
+        if (this.figure2 == undefined)
+            return "";
+        return this.figure2;
     }
     setGrabIsAllowed(flag: boolean) {
         this.grabIsAllowed = flag;
@@ -9884,13 +10452,13 @@ export class cxObjectView extends cxMetaObject {
     }
     setMemberscale(memberscale: number) {
         if (memberscale == undefined || memberscale == null)
-            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         this.memberscale = memberscale;
     }
     getMemberscale(): number {
         const memberscale = this.memberscale;
         if (memberscale == undefined || memberscale == "" || memberscale == null)
-            return this.typeview?.memberscale ? this.typeview.memberscale : 1.0;
+            return this.typeview?.memberscale ? this.typeview.memberscale : constants.params.MEMBERSCALE;
         return this.memberscale;
     }
     setArrowscale(arrowscale: number) {
@@ -9970,6 +10538,78 @@ export class cxObjectView extends cxMetaObject {
             this[k] = "";
         }
     }
+    addPort(port: cxPort) {
+        let ports;
+        if (!this.ports)
+            this.ports = new Array();
+        ports = this.ports;
+        const len = ports.length;
+        for (let i = 0; i < len; i++) {
+            const p = ports[i];
+            if (p.id === port.id) {
+                // Port is already in list
+                return;
+            }
+            ports.push(port);
+        }
+    }
+    getPorts(): cxPort[] {
+        return this.ports;
+    }
+    getLeftPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_LEFT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRightPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_RIGHT)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getTopPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_TOP)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getBottomPorts(): cxPort[] {
+        const ports = [];
+        for (let i = 0; i < this.ports?.length; i++) {
+            const port = this.ports[i];
+            if (port.side === constants.gojs.C_BOTTOM)
+                ports.push(port);
+        }
+        return ports;
+    }
+    getRelsConnectedToPort(portId: string): cxRelationship[] {
+        const rels = new Array();
+        const inputrels = this.inputrels;
+        for (let i = 0; i < inputrels?.length; i++) {
+            const rel = inputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        const outputrels = this.outputrels;
+        for (let i = 0; i < outputrels?.length; i++) {
+            const rel = outputrels[i];
+            if (rel.fromPortid === portId || rel.toPortid === portId) {
+                rels.push(rel);
+            }
+        }
+        return rels;
+    }
 }
 
 export class cxRelationshipView extends cxMetaObject {
@@ -9995,7 +10635,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrowColor: string;
     routing: string;
     corner: number;
-    curve: number;
+    curve: string;
     points: any;
     visible: boolean;
     readonly: boolean;
@@ -10019,10 +10659,10 @@ export class cxRelationshipView extends cxMetaObject {
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
-        this.fromArrowColor = "";
-        this.toArrowColor = "";
+        this.fromArrowColor = "white";
+        this.toArrowColor = "black";
         this.routing = "";
-        this.curve = 0;
+        this.curve = "None";
         this.corner = 0;
         this.points = [];
         this.visible = true;
@@ -10155,6 +10795,8 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
+                this.setFromArrow('');
+                this.textcolor = 'black';
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -10185,9 +10827,13 @@ export class cxRelationshipView extends cxMetaObject {
             case 'Aggregation':
             case 'Composition':
                 this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
                 this.textcolor = 'black';
                 break;
             default:
+                this.setToArrow('OpenTriangle');
+                this.setToArrowColor('black');
+                this.textcolor = 'black';
                 break;
         }
     }
@@ -10252,6 +10898,56 @@ export class cxRelationshipView extends cxMetaObject {
     }
     getPoints(): any {
         return this.points;
+    }
+    
+    /**
+     * Resolve an attribute value with inheritance from typeview.
+     * Returns the relshipview's value if set, otherwise falls back to typeview default.
+     * @param attrName - Name of the attribute to resolve
+     * @returns Object containing the resolved value and whether it's inherited
+     */
+    resolveAttribute(attrName: string): { value: any; isInherited: boolean } {
+        const relviewValue = this[attrName];
+        const typeview = this.typeview;
+        
+        // If relshipview has a value (not undefined, null, or empty string), use it
+        if (relviewValue !== undefined && relviewValue !== null && relviewValue !== "") {
+            return { value: relviewValue, isInherited: false };
+        }
+        
+        // Otherwise, try to get from typeview
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            if (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "") {
+                return { value: typeviewValue, isInherited: true };
+            }
+        }
+        
+        // No value found anywhere
+        return { value: relviewValue, isInherited: false };
+    }
+    
+    /**
+     * Set an attribute value with automatic delta storage cleanup.
+     * If the new value matches the typeview default, removes the override.
+     * @param attrName - Name of the attribute to set
+     * @param value - Value to set
+     */
+    setAttributeWithDelta(attrName: string, value: any): void {
+        const typeview = this.typeview;
+        
+        if (typeview) {
+            const typeviewValue = typeview[attrName];
+            
+            // If value matches typeview, remove the override (delta storage)
+            if (value === typeviewValue) {
+                delete this[attrName];
+                return;
+            }
+        }
+        
+        // Otherwise, set the value
+        this[attrName] = value;
     }
 }
 

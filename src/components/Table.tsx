@@ -4,7 +4,7 @@ const debug = false;
 
 // import React from "react";
 import { useState, useEffect, useLayoutEffect } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 
@@ -15,6 +15,7 @@ import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
 import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
+import { selectSharedUniverseState } from '../sharedUniverse';
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
@@ -25,13 +26,16 @@ const page = (props:any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
-  // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
-  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
-  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
-  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
-  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
-  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis;
+  const phFocus = sharedUniverse.world.focus;
+  const phSource = sharedUniverse.source;
+  let focusModel = phFocus?.focusModel;
+  let focusModelview = phFocus?.focusModelview;
+  const focusObjectview = phFocus?.focusObjectview;
+  const focusRelshipview = phFocus?.focusRelshipview;
+  const focusObjecttype = phFocus?.focusObjecttype;
+  const focusRelshiptype = phFocus?.focusRelshiptype;
   // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
@@ -44,19 +48,22 @@ const page = (props:any) => {
 
   if (debug) console.log('49 Modelling', gojsmodel, gojsmodelobjects, props);
   
-  let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
-  let phFocus = props.phFocus;
-  let phData = props.phData
+  const compatibilityProps = {
+    ...props,
+    phData: { ...props.phData, metis },
+    phFocus,
+    phSource,
+  }
 
-  const models = props.phData?.metis.models
-  const focusModelId = props.phFocus?.focusModel.id
+  const models = metis?.models
+  const focusModelId = focusModel?.id
   const curmod = models?.find(m => m.id === focusModelId)
 
-  if (debug)console.log('61 Table', curmod, focusModelId, models, props.phFocus);
+  if (debug)console.log('61 Table', curmod, focusModelId, models, phFocus);
 
     // useEffect(() => {
     //   console.log('80 Modelling useEffect 3', props); 
@@ -103,7 +110,7 @@ const page = (props:any) => {
             <Row >
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
-                   <ObjectTable ph={props} />  
+                   <ObjectTable ph={compatibilityProps} />  
                 </div>
               </Col>
             </Row>
@@ -115,7 +122,7 @@ const page = (props:any) => {
            <Row >
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
-                   <RelshipTable ph={props} />  
+                   <RelshipTable ph={compatibilityProps} />  
                 </div>
               </Col>
             </Row>
@@ -131,7 +138,7 @@ const page = (props:any) => {
   const modelType = (activeTab === '1') ? 'objects' : 'relationships'
   // const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   if (debug) console.log('134 Table', props, curmod);
@@ -145,7 +152,7 @@ const page = (props:any) => {
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-              Current source: {props.phSource}
+              Current source: {phSource}
           </span> 
           {/* <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} {loadlocal}  
@@ -170,4 +177,4 @@ const page = (props:any) => {
     return (<></>)
   } 
 } 
-export default Page(connect(state => state)(page));
+export default Page(page);

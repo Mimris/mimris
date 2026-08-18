@@ -1,32 +1,33 @@
-// import SelectContext from '../components/SelectContext'
-// Todo:  change name to ViewContext
 import { useState } from 'react'
 import Link from 'next/link';
-import { useRouter } from "next/router";
+import { useSelector } from 'react-redux';
 import SelectContext from '../components/utils/SelectContext'
-import { URLPattern } from 'next/server';
+import { createSnapshotShare } from '../components/utils/focusShare';
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 const debug = false
 
 const ContextView = (props: any) => {
-  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=SELL-A-CAR_PR.json
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const [minimized, setMinimized] = useState(true);
   const toggleMinimized = () => setMinimized(!minimized);
   const [modal, setModal] = useState(false);
 
-  const phFocus = props.ph?.phFocus;
+  const legacyPh = props.ph?.phData || props.ph?.phFocus || props.ph?.phUser || props.ph?.phSource
+    ? props.ph
+    : {};
+  const phData = {
+    domain: sharedUniverse.world.worldDefinition.domain ?? legacyPh.phData?.domain,
+    metis: sharedUniverse.world.worldModel.metis ?? legacyPh.phData?.metis,
+    documents: sharedUniverse.compatibility.documents ?? legacyPh.phData?.documents,
+  };
+  const phFocus = sharedUniverse.world.focus || legacyPh.phFocus || props.phF || props.ph;
+  const phUser = sharedUniverse.user || legacyPh.phUser;
+  const phSource = sharedUniverse.source || legacyPh.phSource || '';
   const repo = (phFocus?.focusProj?.repo) && phFocus.focusProj?.repo;
   const org = (phFocus?.focusProj?.org) && phFocus.focusProj?.org;
-  const branch = (phFocus?.focusProj?.branch) && phFocus.focusProj?.branch;
-  const path = (phFocus?.focusProj?.path) && phFocus.focusProj?.path;
-  const projectNumber = (phFocus?.focusProj?.projectNumber) && phFocus.focusProj?.projectNumber;
 
   if (!phFocus) return null;
-  // if phFocus is change then refresh the page
-  if (phFocus !== props.ph.phFocus) {
-    if(debug) console.log('phFocus', phFocus, props.ph.phFocus);
-    window.location.reload();
-  }
 
   const handleShowModal = () => {
     // if (minimized) {
@@ -42,26 +43,16 @@ const ContextView = (props: any) => {
     props.setShowIssueModal(true);
   };
 
-  let focusUrl = '';
-  let urlParams = '';
   const copyToClipboard = async () => {
-    const host = window.location.host;
-    urlParams = `
-        org=${phFocus.focusProj.org}&
-        repo=${phFocus.focusProj.repo}& 
-        branch=${phFocus.focusProj.branch}& 
-        path=${phFocus.focusProj.path}&
-        file=${phFocus.focusProj.file}
-        model=${phFocus.focusModel.id || phFocus.focusModel.name}&
-        modelview=${phFocus.focusModelview.id || phFocus.focusModelview.name}
-      `;
-    if (debug) console.log('27 paramFocus', urlParams, phFocus.focusProj);
-    const tmphost = (host === 'localhost:3000') ? host : 'akmmclient-alfa.vercel.app'
-    focusUrl = `http://${tmphost}/model?${urlParams}`;
+    const snapshot = {
+      phData,
+      phFocus,
+      phUser: phUser || {},
+      phSource,
+    };
+    const focusUrl = await createSnapshotShare(snapshot, window.location.origin);
     if (debug) console.log('42 focus', focusUrl);
-    const focus = await navigator.clipboard.writeText(focusUrl);
-    if (debug) console.log('44 focus', focus);
-    // return focus    
+    await navigator.clipboard.writeText(focusUrl);
   }
 
   const statusField = (name: string, field: any) => {
@@ -100,10 +91,10 @@ const ContextView = (props: any) => {
   const contextRepoDiv =
     <div className="context-list">
       <div className="d-flex flex-wrap justify-content-between align-items-center">
-        <div>{statusField('Model', props.ph?.phFocus?.focusModel?.name)}</div>
-        <div>{statusField('Modelview', props.ph?.phFocus?.focusModelview?.name)}</div>
-        <div>{statusField('Object', props.ph?.phFocus?.focusObject?.name)}</div>
-        <div>{statusField('Objectview', props.ph?.phFocus?.focusObjectview?.name)}</div>
+        <div>{statusField('Model', phFocus?.focusModel?.name)}</div>
+        <div>{statusField('Modelview', phFocus?.focusModelview?.name)}</div>
+        <div>{statusField('Object', phFocus?.focusObject?.name)}</div>
+        <div>{statusField('Objectview', phFocus?.focusObjectview?.name)}</div>
       </div>
       {/* <div className="font-weight-bold  border fs-6">
           <button
@@ -126,10 +117,10 @@ const ContextView = (props: any) => {
   return (
     <>
       {/* <div className="pt-1" style={{backgroundColor: "#b0cfcf"}}></div> */}
-      <SelectContext className='ContextModal' phData={props.ph.phData} phFocus={props.ph.phFocus} modal={modal} toggle={toggle} />
+      <SelectContext className='ContextModal' phData={phData} phFocus={phFocus} modal={modal} toggle={toggle} />
       <div className="d-flex justify-content-between align-items-center m-0 p-0 " style={{ backgroundColor: "#ffffed" }}>
         <div className="d-flex border rounded me-1 pe-1" style={{ backgroundColor: "#fffff3" }}>
-          {statusFieldLink('Issue', (props.ph?.phFocus?.focusIssue) && '#' + props.ph?.phFocus?.focusIssue?.id + ' ' + props.ph?.phFocus?.focusIssue?.name, `http://github.com/${org}/${repo}/issues/${props.ph?.phFocus?.focusIssue?.id}`)}
+          {statusFieldLink('Issue', (phFocus?.focusIssue) && '#' + phFocus?.focusIssue?.id + ' ' + phFocus?.focusIssue?.name, `http://github.com/${org}/${repo}/issues/${phFocus?.focusIssue?.id}`)}
           {/* <button
                 className="btn btn-sm text-success m-0 px-0 py-0  float-end"
                 data-toggle="tooltip"
@@ -167,8 +158,8 @@ const ContextView = (props: any) => {
         {/* <div className="ms-auto me-1">{statusField('TargetModel', (props.ph?.phFocus?.focusTargetModel) && props.ph?.phFocus?.focusTargetModel)}</div> */}
         <div className="bg-secondary">|</div>
         <div className=" d-flex flex-wrap  ms-0 p-1" style={{ backgroundColor: "#ffffed" }}>
-          {statusField('Role', props.ph?.phFocus?.focusRole?.name)}
-          {statusField('Task', props.ph?.phFocus?.focusTask?.name)}
+          {statusField('Role', phFocus?.focusRole?.name)}
+          {statusField('Task', phFocus?.focusTask?.name)}
         </div>
 
       </div>

@@ -19,7 +19,7 @@ export default function Home({ posts }: { posts: any[] }) {
           <main className="container">
             <div className="pt-1" style={{ backgroundColor: "#b0cfcf" }}></div>
             <div>
-              <h1>AKM Modeller Help & Documentation</h1>
+              <h1>Mimris Modeller Help & Documentation</h1>
             </div>
             {/* <Header /> */}
             <div className='posts'>
@@ -189,14 +189,14 @@ export async function getStaticProps() {
     const { data: frontmatter } = matter(markdownWithMeta)
     const result = {
       slug,
-      frontmatter,
+      frontmatter: frontmatter || {},
     }
     return result
-  })
+  }).filter(Boolean)
 
   return {
     props: {
-      posts: posts.sort(sortByTitle),
+      posts: posts //.sort(sortByTitle),
     },
   }
 }

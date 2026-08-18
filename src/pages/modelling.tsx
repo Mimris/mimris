@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, useStore } from 'react-redux';
 import Link from 'next/link';
 import { Router, useRouter } from "next/router";
 import useLocalStorage from '../hooks/use-local-storage'
@@ -21,15 +21,25 @@ import Issues from "../components/Issues";
 
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
-
+import { createSnapshotShare } from "../components/utils/focusShare";
+import { MEMORY_STATE_STORAGE_KEY } from "../components/utils/memoryStateStorage";
+import { shouldOpenFreshStartupProject } from "../components/utils/modellingStartup";
+import { InitialState } from "../reducers/reducer";
+import { loadLegacyUniverseSnapshot, selectMimrisCompatibilityProps, setUniverseFocus, setUniverseUser } from "../sharedUniverse";
 
 const debug = false
 const useEfflog = console.log.bind(console, '%c %s', 'background: red; color: white'); // green colored console log
+const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
 
-const Page1 = (props: any) => {
+const Page1 = () => {
 
   const dispatch = useDispatch();
-
+  const store = useStore();
+  const props = useSelector(selectMimrisCompatibilityProps) as any;
+  const phFocus = props.phFocus || {};
+  const phUser = props.phUser || {};
+  const focusProj = phFocus.focusProj || {};
+  const focus = phFocus;
   // const [toggleRefresh, setToggleRefresh] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -39,28 +49,44 @@ const Page1 = (props: any) => {
   const [visibleFocusDetails, setVisibleFocusDetails] = useState(false) // show/hide the focus details (right side)
   const [exportTab, setExportTab] = useState(0);
 
-
   function dispatchLocalStore(locStore: any) {
-    // filter out null models and metamodels
-    let metis = locStore.phData.metis
-    const metamodels = locStore.phData.metis.metamodels.filter((mm: any) => mm)
-    const models = locStore.phData.metis.models.filter((m: any) => m)
-    metis = { ...metis, models, metamodels }
-    const phData = { ...locStore.phData, metis }
-    const focusModel = models.find(m => m.id === focus.focusModel?.id) || models[0]
-    const focusModelview = focusModel.modelviews.find(mv => mv.id === focus.focusModelview?.id) || focusModel.modelviews[0]
+    const metis = locStore?.phData?.metis || {}
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter((mm: any) => mm) : []
+    const models = Array.isArray(metis.models) ? metis.models.filter((m: any) => m) : []
+    const phData = locStore?.phData ? { ...locStore.phData, metis: { ...metis, models, metamodels } } : locStore?.phData
+    const storedFocus = locStore?.phFocus || {}
+    const storedFocusModelId = typeof window !== 'undefined' ? window.sessionStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY) : null
+    const requestedFocusModelId = storedFocusModelId || storedFocus?.focusModel?.id || focus.focusModel?.id
+    const focusModel = models.find(m => m.id === requestedFocusModelId) || models[0]
+    const modelviews = Array.isArray(focusModel?.modelviews) ? focusModel.modelviews.filter((mv: any) => mv) : []
+    const requestedFocusModelviewId =
+      (focusModel?.id === storedFocus?.focusModel?.id && storedFocus?.focusModelview?.id)
+      || (focusModel?.id === focus.focusModel?.id && focus.focusModelview?.id)
+    const hasRenderableModelviewContent = (modelview: any) => {
+      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : []
+      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : []
+      return objectviews.length > 0 || relshipviews.length > 0
+    }
+    const requestedFocusModelview = modelviews.find((mv: any) => mv.id === requestedFocusModelviewId) || null
+    const focusModelview = (
+      requestedFocusModelview && hasRenderableModelviewContent(requestedFocusModelview)
+    )
+      ? requestedFocusModelview
+      : modelviews.find(hasRenderableModelviewContent) || requestedFocusModelview || modelviews[0] || null
     const phFocus = {
-      ...locStore.phFocus,
-      focusModel: focusModel,
+      ...storedFocus,
+      focusModel: focusModel || null,
       focusModelview: focusModelview,
     }
-    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
-    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: locStore.phSource })
-    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: locStore.phUser })
+    dispatch(loadLegacyUniverseSnapshot({
+      phData,
+      phFocus,
+      phSource: locStore.phSource,
+      phUser: locStore.phUser,
+    }))
   }
 
-  const { query } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
+  const { query, isReady } = useRouter(); // example: http://localhost:3000/modelling?repo=Kavca/kavca-akm-models&path=models&file=AKM-IRTV-Startup.json
 
   if (debug) console.log('51 modelling', props) //(props.phList) && props.phList);
   const [mount, setMount] = useState(false)
@@ -78,24 +104,88 @@ const Page1 = (props: any) => {
   const [memoryAkmmUser, setMemoryAkmmUser] = useSessionStorage('akmmUser', ''); //props);
   // const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', ''); //props);
   const [visibleContext, setVisibleContext] = useState(false);
-  const focus = useSelector((state: any) => state.phFocus)
+  const getPersistedState = () => {
+    const state = selectMimrisCompatibilityProps(store.getState() as any) as any;
+    return {
+      phData: state.phData,
+      phFocus: state.phFocus,
+      phUser: state.phUser,
+      phSource: state.phSource,
+    };
+  }
+
+  const readStoredMemoryState = (storage: Storage | undefined) => {
+    if (!storage) return null;
+    try {
+      const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      console.warn('Unable to read stored modelling state', error);
+      return null;
+    }
+  }
+
+  const countRenderableModelviewItems = (state: any) => {
+    const models = state?.phData?.metis?.models;
+    if (!Array.isArray(models)) return 0;
+    return models.reduce((count: number, model: any) => {
+      const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
+      return count + modelviews.reduce((viewCount: number, modelview: any) => {
+        const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
+        const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
+        return viewCount + objectviews.length + relshipviews.length;
+      }, 0);
+    }, 0);
+  }
+
+  const getRecoverableState = (...states: any[]) => {
+    let bestState = null;
+    let bestScore = -1;
+    const considerState = (state: any) => {
+      if (!state?.phData?.metis) return;
+      const score = countRenderableModelviewItems(state);
+      if (score > bestScore) {
+        bestState = state;
+        bestScore = score;
+      }
+    };
+    for (const state of states) {
+      considerState(state);
+      if (Array.isArray(state)) {
+        state.forEach(considerState);
+      }
+    }
+    return bestState;
+  }
 
   useEffect(() => {
+    if (!isReady) return;
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
+    const navigationType = typeof window !== 'undefined'
+      ? window.performance?.getEntriesByType?.('navigation')?.[0]?.type || 'navigate'
+      : 'navigate';
+    if (shouldOpenFreshStartupProject(query, navigationType)) {
+      try {
+        window.sessionStorage.removeItem(MEMORY_STATE_STORAGE_KEY);
+        window.sessionStorage.removeItem(LAST_FOCUS_MODEL_STORAGE_KEY);
+      } catch (_) { }
+      dispatch(loadLegacyUniverseSnapshot(JSON.parse(JSON.stringify(InitialState))));
+      return;
+    }
     const handleReload = () => {
-      let locStore = memorySessionState;
+      const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
+      let locStore = getRecoverableState(storedSessionState, memorySessionState);
       if (debug) console.log('81 modelling page reloaded', memorySessionState);
-      if (!memorySessionState) locStore = memoryLocState;
       if (debug) console.log('79modelling 1 ', locStore);
       if (locStore && locStore.phData) {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
-        return () => clearTimeout(timer);
+        return;
       } else {
         if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
-          if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
+          if (focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
               window.location.reload();
@@ -108,10 +198,11 @@ const Page1 = (props: any) => {
         }
       }
     };
-    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
-    handleReload();
+    const storedSessionState = typeof window !== 'undefined' ? readStoredMemoryState(window.sessionStorage) : null;
+    const hasRecoverableState = Boolean(getRecoverableState(storedSessionState, memorySessionState));
+    if (hasRecoverableState) handleReload();
     let org = query.org;
-  }, [])
+  }, [isReady])
 
 
   let org = query.org;
@@ -123,38 +214,40 @@ const Page1 = (props: any) => {
   let modelview = query.modelview;
 
   useEffect(() => {
-    if (debug) console.log('118 modelling useEffect 1', query)//memorySessionState[0], props.phFocus.focusModelview.name)
+    if (debug) console.log('118 modelling useEffect 1', query)
     // let data = {}
     const getQuery = async () => {
       let focusProj = null;
       try {
         if (Object.keys(query).length !== 0) {
           if (debug) console.log('120 modelling query', query, query)
-          org = props.phFocus.focusProj.org;
-          repo = props.phFocus.focusProj.repo;
-          path = props.phFocus.focusProj.path;
-          branch = props.phFocus.focusProj.branch;
-          file = props.phFocus.focusProj.file;
-          model = props.phFocus.focusProj.model;
-          modelview = props.phFocus.focusProj.modelview;
+          org = focusProj.org;
+          repo = focusProj.repo;
+          path = focusProj.path;
+          branch = focusProj.branch;
+          file = focusProj.file;
+          model = focusProj.model;
+          modelview = focusProj.modelview;
 
           if (debug) console.log('132 modelling query', org, repo, path, branch, file, model, modelview)
           const res = await searchGithub(org + '/' + repo, path, file, branch, 'file')
           const githubData = await res?.data
           const sha = await res?.data.sha
-          if (debug) console.log('138 modelling githubData:', githubData, sha)
-          dispatch({ type: 'LOAD_TOSTORE_DATA', data: githubData })
+          if (debug) console.log('145 modelling githubData:', githubData, sha)
+          dispatch(loadLegacyUniverseSnapshot(githubData))
           const timer = setTimeout(() => {
             setRefresh(!refresh);
           }, 200);
-          let curmodel = githubData.phData.metis.models.find(m => m.id === model)
-          if (!curmodel) curmodel = githubData.phData.metis.models.find(m => m.name === model)
-          if (debug) console.log('83 model curmodel', curmodel.modelviews, modelview)
-          let curmodelview = curmodel.modelviews.find(v => v.id === modelview)
-          if (!curmodelview) curmodelview = curmodel.modelviews.find(v => v.name === modelview)
+          const githubModels = Array.isArray(githubData?.phData?.metis?.models) ? githubData.phData.metis.models.filter(Boolean) : []
+          let curmodel = githubModels.find(m => m.id === model)
+          if (!curmodel) curmodel = githubModels.find(m => m.name === model)
+          if (debug) console.log('83 model curmodel', curmodel?.modelviews, modelview)
+          const githubModelviews = Array.isArray(curmodel?.modelviews) ? curmodel.modelviews.filter(Boolean) : []
+          let curmodelview = githubModelviews.find(v => v.id === modelview)
+          if (!curmodelview) curmodelview = githubModelviews.find(v => v.name === modelview)
           const data = (params) && {
             phFocus: {
-              ...props.phFocus,
+              ...phFocus,
               focusProj: focusProj,
               focusModel: params.focusModel,
               focusModelview: params.focusModelview,
@@ -164,15 +257,15 @@ const Page1 = (props: any) => {
               focusTask: params.focusTask,
             },
           };
-          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data })
+          if (data?.phFocus) dispatch(setUniverseFocus(data.phFocus))
         } else {
-          org = props.phFocus.focusProj.org;
-          repo = props.phFocus.focusProj.repo;
-          path = props.phFocus.focusProj.path;
-          branch = props.phFocus.focusProj.branch;
-          file = props.phFocus.focusProj.file;
-          model = props.phFocus.focusProj.model;
-          modelview = props.phFocus.focusProj.modelview;
+          org = focusProj.org;
+          repo = focusProj.repo;
+          path = focusProj.path;
+          branch = focusProj.branch;
+          file = focusProj.file;
+          model = focusProj.model;
+          modelview = focusProj.modelview;
         }
       } catch (error) {
         if (debug) console.log('174 modelling query error ', error);
@@ -195,7 +288,7 @@ const Page1 = (props: any) => {
         const data = await response.json();
         data.username = data.username.charAt(0).toUpperCase() + data.username.slice(1);
         console.log('Current Username:', data.username);
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: { focusUser: { name: data.username } } })
+        dispatch(setUniverseUser({ focusUser: { name: data.username } }))
       } catch (error) {
         console.error('Error fetching username:', error);
       }
@@ -205,9 +298,10 @@ const Page1 = (props: any) => {
   }, []);
 
   useEffect(() => {
-    const locProps = { ...props, phMymetis: null }
+    const locProps = getPersistedState()
     setMemorySessionState(locProps)
   }, [props.phSource])
+  
 
   {/* <Link className="video p-2 m-2 text-primary me-5" href="/videos"> Video </Link> */ }
   const contextDiv = ( //focusExpanded  &&  // the top context area (green)
@@ -221,16 +315,34 @@ const Page1 = (props: any) => {
     </div>
   )
 
+  const handleExternalLinkClick = async () => {
+    const shareWindow = window.open('', "_blank");
+    try {
+      const snapshot = getPersistedState();
+      const url = await createSnapshotShare(snapshot, window.location.origin);
+      if (shareWindow) {
+        shareWindow.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
+    } catch (error) {
+      console.error('Unable to open snapshot share:', error);
+      if (shareWindow) shareWindow.close();
+      alert('Unable to create share link.');
+    }
+  };
+
   const modellingDiv = (mount)
     ?
     <div>
-      <Layout user={props.phUser?.focusUser}>
+      <Layout user={phUser?.focusUser}>
         <div id="index">
           <div className="wrapper">
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
             <ProjectMenuBar {...props}
+              dispatch={dispatch}
               expanded={expanded} setExpanded={setExpanded}
               focusExpanded={focusExpanded} setFocusExpanded={setFocusExpanded}
               refresh={refresh} setRefresh={setRefresh}
@@ -260,13 +372,22 @@ const Page1 = (props: any) => {
               }
             </div>
             <div className="workplace d-flex" style={{ backgroundColor: "#b0cfcf", zIndex: 1 }}>
-              <Link className="link " href={`/model?org=${focus.focusProj.org}&repo=${focus.focusProj.repo}&path=${focus.focusProj.path
-                }&branch=${focus.focusProj.branch}&file=${focus.focusProj.file}&model=${focus.focusModel.name}&modelview=${focus.focusModelview.name}`}
-                target="_blank"
-                style={{ position: "absolute", marginRight: "9px", marginTop: "8px", right: "0", top: "", color: "lightgray" }}
+              <button
+                onClick={() => handleExternalLinkClick()}
+                style={{
+                  position: "absolute",
+                  marginRight: "9px",
+                  marginTop: "8px",
+                  right: "0",
+                  top: "",
+                  color: "lightgray",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer"
+                }}
               >
                 <i className="fas fa-external-link-alt" aria-hidden="true"></i>
-              </Link>
+              </button>
               <div className="workarea p-1 w-100" style={{ backgroundColor: "#bcc" }}>
                 <Modelling {...props}
                   visibleFocusDetails={visibleFocusDetails}
@@ -350,4 +471,4 @@ const Page1 = (props: any) => {
   `}</style>
     </>)
 }
-export default Page(connect(state => state)(Page1));
+export default Page(Page1);

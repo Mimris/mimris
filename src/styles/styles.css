@@ -305,7 +305,7 @@
   background: rgba(255, 255, 255, 0.3);
   font-family: Arial;
   color: #333;
-  font-size: 20px;
+  /* font-size: 20px; */
   padding: 6px 10px;
   text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
   text-transform: uppercase;
@@ -313,12 +313,12 @@
 
 .card-text {
   box-shadow: 6px, 6px, 20px rgba(122, 122, 122, 0.5);
-  font-size: 18px;
+  /* font-size: 18px; */
 }
 
 .card-title-bold {
   font-weight: bolder;
-  font-size: 120%;
+  /* font-size: 120%; */
 }
 
 /* .workarea div:nth-child(3) {   grid-row:  2;
@@ -397,6 +397,69 @@
   background-color: #fff;
   max-width: 350px;
   max-height: 380px;
+}
+
+/* Styling for the enhanced Model toggle button in Modelling.tsx */
+.btn-model-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-model-toggle span {
+  font-weight: 500; /* lighter weight */
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.92);
+}
+.btn-model-toggle.active {
+  transform: translateY(-1px);
+}
+.btn-small-icon {
+  padding: 4px 6px !important;
+  width: auto;
+  height: 28px;
+}
+
+/* Fancy Model Toggle Button */
+.btn-model-toggle {
+  border: none;
+  height: 34px;
+  min-width: 140px;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 20px;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 220ms ease;
+}
+.btn-model-toggle.active {
+  background: linear-gradient(90deg, #3bb, #58a);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+.btn-model-toggle:not(.active) {
+  background: linear-gradient(90deg, #cfd, #9ab);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.btn-model-toggle i {
+  font-size: 14px;
+}
+
+/* Palette label used for Palette and Objects toggles */
+.palette-label {
+  color: #ffffff; /* match palette toggle text (light) */
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
+}
+.palette-label-spaced {
+  white-space: normal;
+  letter-spacing: 0.5em;
+}
+.palette-arrow {
+  white-space: nowrap;
 }
 
 .cost {
@@ -1079,6 +1142,8 @@ li span {
   border-radius: 100%;
   /* background-color: #f38e23; */
 }
+
+
 
 /* @media only screen and (max-with: 410px) {
   .wrapper {

@@ -1,37 +1,48 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-// import { useSelector, useDispatch } from 'react-redux'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
 import { loadData, loadDataModelList, loadDataModel } from '../actions/actions'
 import Selector from '../utils/Selector'
 import saveModelDataToServer from '../utils/SaveModelDataToServer'
+import { selectSharedUniverseState } from '../../sharedUniverse';
 // import GetStoreFromHtml from '../utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 const debug = false
 
 const SelectSource = (props: any) => {
   if (debug) console.log('15 LoadServer', props);
-  // let state = useSelector((state: any) => state) // Selecting the whole redux store
-
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const dispatch = useDispatch()
   const refresh = props.refresh
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
+
+  const phData = {
+    domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+    metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+    documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+  };
+  const phFocus = sharedUniverse.world.focus || props.ph?.phFocus || {};
+  const phSource = sharedUniverse.source ?? props.ph?.phSource;
+  const modelList = sharedUniverse.compatibility.modelList ?? props.ph?.phList;
+  const metis = phData?.metis || {};
+  const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+  const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
   
-  const modellist = (props.ph) && (props.ph.phList) && props?.ph?.phList?.modList
-  if (debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
+  const modellist = modelList?.modList
+  if (debug) console.log('26 LoadServer', props.ph, modelList?.modList, modellist);
   // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
   if (debug) console.log('27 LoadServer',  selmodellist);
 
-  const modelNames = props.ph?.phData?.metis?.models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData.metis, modelNames, metamodelNames);
+  const modelNames = models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
+  if (debug) console.log('20 LoadLocal', metis, modelNames, metamodelNames);
 
   function handleLoadModelStore() { 
-    const data = props.ph.phFocus.focusModel
+    const data = phFocus.focusModel
     dispatch({ type: 'LOAD_DATAMODEL', data }) 
     // dispatch(loadDataModel());
     if (debug) console.log('48 LoadServer', data);
@@ -39,11 +50,12 @@ const SelectSource = (props: any) => {
 
   function handleSaveModelStore() {
     // saving current model and metamodel
-    const focusmodel = props.ph.phFocus.focusModel
-    const model = props.ph.phData.metis.models.find(m => m.id === focusmodel.id)
-    const metamodel = props.ph.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = (model.targetMetamodelRef) && props?.ph?.phData?.metis?.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = (model.targetModelRef) && props?.ph?.phData?.metis?.models.find(mm => mm.id === model.targetModelRef)
+    const focusmodel = phFocus.focusModel
+    const model = models.find(m => m.id === focusmodel?.id)
+    if (!model) return
+    const metamodel = metamodels.find(mm => mm.id === model.metamodelRef)
+    const currentTargetMetamodel = (model.targetMetamodelRef) && metamodels.find(mm => mm.id === model.targetMetamodelRef)
+    const currentTargetModel = (model.targetModelRef) && models.find(mm => mm.id === model.targetModelRef)
     // const phData = props.phData
     const data = {
       metis: {
@@ -61,8 +73,7 @@ const SelectSource = (props: any) => {
     saveModelDataToServer(data)
   }
  
-  const models = props?.ph?.phData?.metis?.models
-  const focusModel = props?.ph?.phFocus?.focusModel
+  const focusModel = phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
@@ -74,7 +85,7 @@ const SelectSource = (props: any) => {
   // if (debug) console.log('67 LoadServer', selmodels, selmodelviews);
   // if (debug) console.log('68 LoadServer', props.ph.phSource);
   // if (debug) console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels) &&
+  const selectorDiv = (phSource === 'Model server') && (selmodels) &&
   // const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
   <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
@@ -91,7 +102,7 @@ const SelectSource = (props: any) => {
     dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
   };
 
-  if (debug) console.log('94', props.ph.phFocus);
+  if (debug) console.log('94', phFocus);
   
   const selectedOptionDiv =  (focusModel) && <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
 
@@ -229,5 +240,3 @@ const SelectSource = (props: any) => {
 }
 
 export default SelectSource
-
-

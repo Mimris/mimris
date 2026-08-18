@@ -1,11 +1,11 @@
 {
   "id": "28362053-7550-453a-c580-5571b10780da",
-  "name": "AKM-ADMIN_MM",
+  "name": "AKM-ADMIN_META",
   "description": "",
   "viewstyles": [
     {
       "id": "d645dcff-80f5-4834-fc92-8754f87c185c",
-      "name": "AKM-ADMIN_MM_Viewstyle",
+      "name": "AKM-ADMIN_META_Viewstyle",
       "description": "",
       "markedAsDeleted": false,
       "modified": false

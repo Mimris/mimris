@@ -1,0 +1,54 @@
+version: 1
+project: mimris
+
+tasks:
+  - id: SPEC-MIM-001
+    title: Establish spec governance and bootstrap spec-kit
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - docs/spec-governance.md
+      - .specify/memory/constitution.md
+    done_when:
+      - governance docs define the role split between AGENTS.md, .specify, docs, and ai
+      - a minimal spec-kit workspace exists in the repository
+
+  - id: SPEC-IDEF-001
+    title: Capture IDEF0 ICOM routing and label behavior as a feature spec
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - .specify/specs/001-idef0-icom-layout/spec.md
+      - .specify/specs/001-idef0-icom-layout/plan.md
+      - .specify/specs/001-idef0-icom-layout/tasks.md
+    done_when:
+      - the IDEF0 ICOM change is represented as a real spec-kit feature
+      - the feature includes requirements, implementation notes, and validation tasks
+
+  - id: SPEC-IMPORT-001
+    title: Capture local project import guardrails as a feature spec
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - .specify/specs/003-local-project-import-guardrails/spec.md
+      - .specify/specs/003-local-project-import-guardrails/plan.md
+      - .specify/specs/003-local-project-import-guardrails/tasks.md
+    done_when:
+      - the local project import change is represented as a real spec-kit feature
+      - the feature includes requirements, implementation notes, and validation tasks
+
+  - id: SPEC-SHARE-001
+    title: Capture shareable focus links as a feature spec
+    phase: spec
+    status: done
+    owners: [ "@you" ]
+    docs:
+      - .specify/specs/004-shareable-focus-links/spec.md
+      - .specify/specs/004-shareable-focus-links/plan.md
+      - .specify/specs/004-shareable-focus-links/tasks.md
+    done_when:
+      - the shareable focus-link change is represented as a real spec-kit feature
+      - the feature includes requirements, implementation notes, and validation tasks

@@ -11,6 +11,7 @@ import {
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
 import { get } from 'http';
+import { selectMimrisCompatibilityProps, setUniverseDomain } from '../sharedUniverse';
 
 const debug = false;
 
@@ -21,16 +22,18 @@ const Project = (props) => {
   const projectModalRef = useRef(null);
   const router = useRouter();
   // const modeldata = useSelector((state: { phData: { metis: { models: any[], name: string, description: string } } }) => state);
-  const modeldata = props.props;
+  const compatibilityProps = useSelector(selectMimrisCompatibilityProps) as any;
+  const domain = compatibilityProps.phData?.domain || {};
+  const modeldata = {
+    ...props.props,
+    ...compatibilityProps,
+  };
 
   if (debug) console.log('25 Tasks props', modeldata?.phData, props);
 
   const models = modeldata?.phData?.metis?.models || [];
   const curmodel = models.find((model: any) => model?.id === modeldata?.phFocus?.focusModelview?.id);
   const modelviews = curmodel?.modelviews;
-
-
-
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [issues, setIssues] = useState([]);
   const [projectFile, setProjectFile] = useState([]);
@@ -52,10 +55,81 @@ const Project = (props) => {
   const [projectNumber, setProjectNumber] = useState(modeldata.phFocus.focusProj?.projectNumber); // this is the project number in the list of github project
   if (debug) console.log('39 project', org, repo, path, file, branch, focus, ghtype, projectNumber);
 
-  const [mounted, setMounted] = useState(false);
+  // Add state for domain editing
+  const [editingDomain, setEditingDomain] = useState(false);
+  const [editedDomain, setEditedDomain] = useState({
+    name: domain?.name || '',
+    description: domain?.description || '',
+    presentation: domain?.presentation || ''
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setIsLoading(false);
+  }, [modeldata]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Any async operations here
+    const loadData = async () => {
+      // Example async operation
+      try {
+        // Perform async operations
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [modeldata]);
+
+  // Reset edited domain data when domain changes
+  useEffect(() => {
+    if (domain) {
+      setEditedDomain({
+        name: domain.name || '',
+        description: domain.description || '',
+        presentation: domain.presentation || ''
+      });
+    }
+  }, [domain]);
+
+  // Handle domain field changes
+  const handleDomainChange = (e) => {
+    const { name, value } = e.target;
+    setEditedDomain(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Save domain changes
+  const saveDomainChanges = () => {
+    dispatch(setUniverseDomain(editedDomain));
+    setEditingDomain(false);
+  };
+
+  // Cancel domain editing
+  const cancelDomainEditing = () => {
+    setEditedDomain({
+      name: domain.name || '',
+      description: domain.description || '',
+      presentation: domain.presentation || ''
+    });
+    setEditingDomain(false);
+    };
 
   const handleSubmit = (details) => {
     props.onSubmit(details);
@@ -70,7 +144,7 @@ const Project = (props) => {
       className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
       <Modal.Header closeButton>Set Context: </Modal.Header>
       <Modal.Body >
-        <ProjectDetailsForm props={props.props} onSubmit={handleSubmit} />
+        <ProjectDetailsForm props={modeldata} onSubmit={handleSubmit} />
       </Modal.Body>
       <Modal.Footer>
         <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
@@ -85,19 +159,99 @@ const Project = (props) => {
 
   if (debug) console.log('79 Project ', modeldata, props);
 
-  return mounted && (
+  return (
     <div className="project bg-light h-100">
-      <Tabs defaultActiveKey="domain" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+      <Tabs defaultActiveKey="modelSuiteDetails" id="custom-tabs" className="custom-tabs nav-link mb-0 pb-0">
         <Tab eventKey="domain" title="ModelSuite Domain">
           {/* <div className="domain bg-warning"> */}
           <Card className="metis px-1 mx-1 me-0 mt-0">
-            {/* <CardHeader className="card-header">AKM Domain :</CardHeader> */}
             <div className="card-body">
-              <CardTitle className="card-title-bold nobreak">Domain : {modeldata.phData.domain?.name}</CardTitle>
-              <CardSubtitle className="card-subtitle-bold text-secondary">{modeldata.phData.domain?.description}</CardSubtitle>
-              <CardText className="card-text"> </CardText>
-                <div className="border fs-6 p-1">Summary: {modeldata.phData.domain?.presentation}</div>
-             
+              {!editingDomain ? (
+                <>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <CardTitle className="card-title-bold nobreak">Domain : {domain?.name}</CardTitle>
+                    <Button
+                      color="muted"
+                      size="sm"
+                      className="px-2 py-0"
+                      style={{ fontSize: '0.8rem' }}
+                      onClick={() => setEditingDomain(true)}
+                    >
+                      edit
+                    </Button>
+                  </div>
+                  <CardSubtitle className="card-subtitle-bold text-secondary">{domain?.description}</CardSubtitle>
+                  <CardText className="card-text"> </CardText>
+                  <div className="border fs-6 p-1">Summary: {domain?.presentation}</div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label">Domain Name:</label>
+                    <input
+                      label="Domain Name"
+                      placeholder="Domain Name"
+                      type="text"
+                      className="form-control"
+                      name="name"
+                      value={editedDomain.name}
+                      onChange={handleDomainChange}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Description:</label>
+                    <textarea
+                      label="Description"
+                      placeholder="Description"
+                      type="text"
+                      className="form-control"
+                      name="description"
+                      value={editedDomain.description}
+                      onChange={handleDomainChange}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Summary:</label>
+                    <textarea
+                      label="Summary"
+                      placeholder="Summary"
+                      type="text"
+                      className="form-control"
+                      name="presentation"
+                      value={editedDomain.presentation}
+                      onChange={handleDomainChange}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="d-flex justify-content-end gap-2">
+                      <Button
+                        color="muted"
+                        size="sm"
+                        className="px-2 py-0"
+                        style={{ fontSize: '0.8rem' }} 
+                        onClick={cancelDomainEditing}
+                      >
+                      Cancel
+                    </Button>
+                      <Button
+                        color="muted"
+                        size="sm"
+                        className="px-2 py-0"
+                        style={{ fontSize: '0.8rem' }} 
+                        onClick={saveDomainChanges}
+                      >
+                      Save Changes
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </Card>
           {/* </div> */}
@@ -107,7 +261,7 @@ const Project = (props) => {
             <Card className="metis p-1 m-1 me-0">
               <CardHeader className="card-header">Model Suite Details</CardHeader>
               <CardBody className="card-body bg-light">
-                <CardTitle className="card-title-bold nobreak">Model Suite : {modeldata.phData.metis.name}</CardTitle>
+                <CardTitle className="card-title-bold nobreak">Model Suite : {modeldata.phData.metis.name || ''}</CardTitle>
                 <CardSubtitle className="card-subtitle-bold"> {modeldata.phData.metis.description}</CardSubtitle>
                <CardText className="card-text"></CardText>
                   <span>GitHub:</span>
@@ -130,7 +284,7 @@ const Project = (props) => {
                     <div className="border fs-6 p-1">Object: {modeldata.phFocus.focusObject?.name} </div>
                     <div className="border fs-6 p-1">Objecttype: {modeldata.phFocus.focusObjecttype?.name} </div>
                     <div className="border fs-6 p-1">Target metamodel: {modeldata.phFocus.focusTargetMetamodel?.name} </div>
-                    <div className="border fs-6 p-1">Source: {modeldata.phFocus.focusSource.name} </div>
+                    <div className="border fs-6 p-1">Source: {modeldata?.phFocus?.focusSource?.name || ''} </div>
                   </div>
 
               </CardBody>
@@ -172,6 +326,7 @@ const Project = (props) => {
           </div>
         </Tab>
       </Tabs>
+        )}
       <style jsx>{`
         .custom-tabs .nav-link {
           background-color: #f8f9fa; /* Default background color for tabs */

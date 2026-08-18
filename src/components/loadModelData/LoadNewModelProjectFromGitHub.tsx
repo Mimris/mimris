@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 // import base64 from 'base-64';
 // import  Search  from './Search';
 // import TextInput from '../utils/TextInput';
@@ -8,12 +8,14 @@ import Select from '../utils/Select';
 import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from '../githubServices/githubService';
 // import { loadDataModel } from '../../actions/actions';
 import { SaveAllToFile } from '../utils/SaveModelToFile';
+import { loadLegacyUniverseSnapshot, selectSharedUniverseState } from '../../sharedUniverse';
 // import GenGojsModel from '../GenGojsModel';
 
 const debug = false
 
 const LoadNewModelProjectFromGitHub = (props: any) => {
   const dispatch = useDispatch();
+  const sharedUniverse = useSelector(selectSharedUniverseState);
   const [refresh, setRefresh] = useState(props.refresh);
   const modalRef = useRef(null);
   // const backdropref = useRef(null);
@@ -29,10 +31,24 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
-  let phFocus = props.ph.phFocus;
-  let phData = props.ph.phData
-  let phUser = props.ph.phUser
-  let phSource = props.ph.phSource
+  const ph = {
+    ...props.ph,
+    phData: {
+      ...props.ph?.phData,
+      domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+      metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+      documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+    },
+    phFocus: sharedUniverse.world.focus || props.ph?.phFocus || {},
+    phUser: sharedUniverse.user || props.ph?.phUser || {},
+    phSource: sharedUniverse.source ?? props.ph?.phSource,
+    phList: sharedUniverse.compatibility.modelList ?? props.ph?.phList,
+  };
+  let phFocus = ph.phFocus;
+  let phData = ph.phData
+  let phUser = ph.phUser
+  let phSource = ph.phSource
+  const metis = phData?.metis || {};
 
   const [githubLink, setGithubLink] = useState('http://github.com/');
 
@@ -56,13 +72,14 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 
 
   const data = {
-    phData: props.ph.phData,
-    phFocus: props.ph.phFocus,
-    phUser: props.ph.phUser,
+    phData: ph.phData,
+    phFocus: ph.phFocus,
+    phUser: ph.phUser,
     // phSource: props.phSource,
-    phSource: (phSource === "") && phData.metis.name || phSource,
+    phSource: (phSource === "") && metis.name || phSource,
     lastUpdate: new Date().toISOString()
   }
+
 
   // useEffect(() => {
   //   setGithubLink(`https://github.com/${orgnameText}/${repoText}/tree/main/${pathText}`)
@@ -174,10 +191,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
         phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
       }
       if ((debug)) console.log('154', data)
-      if (data.phData) dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      if (data.phFocus) dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-      if (data.phUser) dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-      if (data.phSource) dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+      dispatch(loadLegacyUniverseSnapshot(data))
       // }
       // GenGojsModel(data.phData, dispatch)
     }
@@ -243,7 +257,7 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
   // console.log('160 githubLink', githubLink)
 
   function handleSaveAllToFile() {
-    const projectname = props.ph.phData.metis.name
+    const projectname = metis.name || 'Project'
     SaveAllToFile(data, projectname, 'Project')
   }
 
@@ -306,4 +320,3 @@ const LoadNewModelProjectFromGitHub = (props: any) => {
 }
 
 export default LoadNewModelProjectFromGitHub;
-

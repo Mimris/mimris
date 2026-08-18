@@ -19,13 +19,12 @@ JSON.safeStringify = (obj, indent = 2) => {
     return retVal;
 };
 
-export const SaveModelviewToFile = (model, name, type) => {
+export const SaveModelviewToFile = (model, name, type, universe = '') => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = (name.includes('_MV')) ? name : name+type //+'_'+today;
+    let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     link.download = fileName + ".json";
@@ -34,12 +33,11 @@ export const SaveModelviewToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 
-export const SaveModelToFile = (model, name, type) => {
-    const fileName = (name.includes('_MO')) ? name : name+type 
+export const SaveModelToFile = (model, name, type, universe = '') => {
+    let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     link.download = fileName + ".json";
@@ -49,12 +47,11 @@ export const SaveModelToFile = (model, name, type) => {
 }
 
 
-export const SaveMetamodelToFile = (metamodel, name, type) => {
-    const fileName = (name.includes('_MM')) ? name : name+type 
+export const SaveMetamodelToFile = (metamodel, name, type, universe = '') => {
+    let fileName = buildConsistentFileName(name, universe, type);
     const json = JSON.safeStringify(metamodel);
     const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     link.download = fileName + ".json";
@@ -64,16 +61,14 @@ export const SaveMetamodelToFile = (metamodel, name, type) => {
 }
 
 
-export const SaveAllToFile = (data, name, type) => {
+export const SaveAllToFile = (data, name, type, universe = '') => {
     if (!name) { name = 'New-Project' }
-    const fileName = (name?.includes('_PR')) ? name : name+type 
-    if ((debug)) console.log('69 SaveModelToFile', fileName, data);
-    // const json = JSON.stringify(data);
+    let fileName = buildConsistentFileName(name, universe, type);
+    if ((!debug)) console.log('69 SaveModelToFile', fileName, data);
     const json = JSON.safeStringify(data);
     if (debug) console.log('72 SaveModelToFile', json);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     link.download = (fileName.includes('.json')) ? fileName : fileName + ".json";
@@ -82,21 +77,27 @@ export const SaveAllToFile = (data, name, type) => {
     document.body.removeChild(link);
 }
 
-export const SaveAllToFileDate = (data, name, type) => {
+export const SaveAllToFileDate = (data, name, type, universe = '') => {
     const today = new Date().toISOString().slice(0, 10)
-    // const today = new Date().toISOString().slice(0, 19)
-    const fileName = (name.includes('_PR')) ? name+'_'+today : name+type+'_'+today;
+    let fileName = buildConsistentFileName(name, universe, type, today);
     if (debug) console.log('88 SaveModelToFile', data, fileName);
     const json = JSON.safeStringify(data);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     link.download = fileName + ".json";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+// Helper to build consistent file names
+function buildConsistentFileName(projectName, universe, type, date) {
+    let base = projectName || 'New-Project';
+    if (universe && universe !== base) base += '_' + universe;
+    base += type;
+    if (date) base += '_' + date;
+    return base;
 }
 
 export const SaveModelviewToSvgFile = (svgString, filename) => {

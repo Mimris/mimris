@@ -3,16 +3,24 @@ import Layout from '../Layout'
 
 
 export default function Post({ post }) {
-  // console.log('5 Post', post)
+  const frontmatter = post?.frontmatter || {}
+  const title = typeof frontmatter.title === 'string' ? frontmatter.title : post?.slug || 'Untitled post'
+  const date = typeof frontmatter.date === 'string' ? frontmatter.date : ''
+  const excerpt = typeof frontmatter.excerpt === 'string' ? frontmatter.excerpt : ''
+  const coverImage = typeof frontmatter.cover_image === 'string' ? frontmatter.cover_image : ''
+  const isOsduPost = title.startsWith('OSDU ')
+
   return (
     <>
-      <div className="py-0 mx-auto">{(post.frontmatter.title.startsWith('OSDU ')) ? 'OSDU Usecase' : 'AKMM'} </div>
-      <div className={`card d-flex justify-content-between ${post.frontmatter.title.startsWith('OSDU ') ? 'green-border' : ''}`} style={{ height: '100%' }}>
+      <div className="py-0 mx-auto">{isOsduPost ? 'OSDU Usecase' : 'Mimris doc'} </div>
+      <div className={`card d-flex justify-content-between ${isOsduPost ? 'green-border' : ''}`} style={{ height: '100%' }}>
         <div>
-          <Link className="img" href={`/helpblog/${post.slug}`} target="AKMM Help"><img className="mb-1" src={post.frontmatter.cover_image} alt='' /></Link>
-          <div className='post-date'>Posted on {post.frontmatter.date}</div>
-          <h5>{post.frontmatter.title}</h5>
-          <p className="excerpt">{post.frontmatter.excerpt}</p>
+          <Link className="img" href={`/helpblog/${post.slug}`} target="AKMM Help">
+            {coverImage ? <img className="mb-1" src={coverImage} alt={title} /> : null}
+          </Link>
+          <div className='post-date'>{date ? `Posted on ${date}` : 'No date'}</div>
+          <h5>{title}</h5>
+          <p className="excerpt">{excerpt}</p>
         </div>
         <Link href={`/helpblog/${post.slug}#AKMM Help`} className='btn' >Read More</Link>
       </div>

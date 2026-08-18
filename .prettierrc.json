@@ -1,0 +1,13 @@
+{
+    "arrowParens": "always",
+    "semi": true,
+    "bracketSpacing": true,
+    "htmlWhitespaceSensitivity": "ignore",
+    "singleAttributePerLine": false,
+    "printWidth": 120,
+    "tabWidth": 4,
+    "bracketSameLine": true,
+    "[typescript]": {
+        "editor.tabSize": 4
+    }
+}

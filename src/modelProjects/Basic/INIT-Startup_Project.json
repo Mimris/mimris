@@ -4116,7 +4116,7 @@
         },
         {
           "id": "b5655e2a-e181-431b-1406-72d8156f87ae",
-          "name": "TEST_MM",
+          "name": "TEST_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -4141,7 +4141,7 @@
         },
         {
           "id": "28362053-7550-453a-c580-5571b10780da",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -6785,7 +6785,7 @@
             },
             {
               "id": "75ef8cad-1b0f-4146-bbba-11edc3e0a72a",
-              "name": "TEST_MM",
+              "name": "TEST_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -6795,7 +6795,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "TEST_MM",
+              "nameId": "TEST_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -7104,7 +7104,7 @@
                 },
                 {
                   "id": "ece0717a-371c-4c76-1513-834a1ef70ffc",
-                  "name": "TEST_MM",
+                  "name": "TEST_META",
                   "description": "",
                   "objectRef": "75ef8cad-1b0f-4146-bbba-11edc3e0a72a",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

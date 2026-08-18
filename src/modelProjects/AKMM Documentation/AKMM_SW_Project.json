@@ -4092,12 +4092,12 @@
         },
         {
           "id": "d616ae7c-a2be-420a-278d-dc4a15b695dc",
-          "name": "AKMM_MM",
+          "name": "AKMM_META",
           "description": "",
           "viewstyles": [
             {
               "id": "edcf769b-7d1f-45bf-34dc-904cf9edee6d",
-              "name": "AKMM_MM_Viewstyle",
+              "name": "AKMM_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false

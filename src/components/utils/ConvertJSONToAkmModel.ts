@@ -45,14 +45,20 @@ export const ReadConvertJSONFromFileToAkm = async (
     //     console.log('13 ', files, e)
     //     const reader = new FileReader()
 
-    const curModel = props.phData?.metis.models.find((m: { id: any }) => m.id === props.phFocus.focusModel.id);
+    const phData = props.phData || props.ph?.phData || {};
+    const phFocus = props.phFocus || props.ph?.phFocus || {};
+    const metis = phData.metis || {};
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
+    const curModel = models.find((m: { id: any }) => m.id === phFocus.focusModel?.id) || models[0];
     if (!curModel) return;
     const objects = curModel?.objects;
     if (debug) console.log("53 ", inclProps, inclPropLinks, inclXOsduProperties, inclAbstractPropLinks, inclArrayProperties, inclGeneric, inclAbstract, inclReference, inclMasterdata, inclWorkProductComponent, modelType, curModel, objects);
 
-    const curMetamodel = props.phData.metis.metamodels.find((mm: { id: any }) => mm.id === curModel.metamodelRef);
-    const curObjTypes = curMetamodel.objecttypes;
-    const curRelTypes = curMetamodel.relshiptypes;
+    const curMetamodel = metamodels.find((mm: { id: any }) => mm.id === curModel.metamodelRef);
+    if (!curMetamodel) return;
+    const curObjTypes = curMetamodel.objecttypes || [];
+    const curRelTypes = curMetamodel.relshiptypes || [];
 
     const JsonObjectType = curObjTypes.find((co: { name: string }) => co.name === "JsonObject" && co);
 
@@ -106,7 +112,7 @@ export const ReadConvertJSONFromFileToAkm = async (
     ) => {
         const oTypeName = curObjTypes.find((ot: { id: string }) => ot.id === objecttypeRef)?.name;
 
-        if (!debug) console.log("105 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
+        if (debug) console.log("105 createObject", oId, oName, otypeRef, oKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
         if (!inclDeprecated && oName.includes("DEPRECATED")) return; // skip deprecated
         let typeColor = ''
         let typeColor2 = ''
@@ -152,7 +158,7 @@ export const ReadConvertJSONFromFileToAkm = async (
         //     typeStrokeColor2 = proxyGroupType;
         // }
 
-        if (!debug) console.log('152 createObject', oName, linkGroupType, referenceObject,  otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
+        if (debug) console.log('152 createObject', oName, linkGroupType, referenceObject,  otypeRef, 'typeColor 1', typeColor, '2', typeColor2, 'strokeColor 1', typeStrokeColor, 'strokeColor2', typeStrokeColor2);
 
         const importedObject = //(modelType === "AKM") // don't include json attributes
         {
@@ -188,7 +194,7 @@ export const ReadConvertJSONFromFileToAkm = async (
             ...oValProps, // additional attributes
         }
 
-        if (!debug) console.log("188 Create object: ", importedObject);
+        if (debug) console.log("188 Create object: ", importedObject);
         dispatch({ type: "UPDATE_OBJECT_PROPERTIES", data: importedObject });
         return importedObject;
     };
@@ -737,8 +743,8 @@ export const ReadConvertJSONFromFileToAkm = async (
             const rKey = oKey + "|" + "x-osdu-relationship" + "|" + proxyName; // add the relationship name to the oKey
             const pLName = 'has' + proxyName;
 
-            if (!debug) console.log("740 ", proxyName, oId, oName, linkGroupType, rel);
-            if (!debug) console.log("741 ", pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, linkGroupType, referenceObject, osduObj, curModel);
+            if (debug) console.log("740 ", proxyName, oId, oName, linkGroupType, rel);
+            if (debug) console.log("741 ", pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, linkGroupType, referenceObject, osduObj, curModel);
             createObject(pLId, pLName, objecttypeRef, rKey, osduType, jsonType, oValProps, linkGroupType, referenceObject);
             findOwnerandCreateRelationship(pLId, pLName, osduObj, curModel);
         });

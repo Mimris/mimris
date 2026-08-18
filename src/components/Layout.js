@@ -26,7 +26,7 @@ const Layout = (props) => {
       </title>
         <link rel="icon" href="" />
       </Head>
-      <TopMenu projName={projSource} user={props.user}/>
+      {!props.hideTopMenu && <TopMenu projName={projSource} user={props.user}/>}
           {/* <div className="navbar">
             <Toggle darkMode={darkMode} setDarkMode={setDarkMode} />
           </div> */}

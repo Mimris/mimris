@@ -889,9 +889,11 @@ export class jsnObjectTypeView {
     name:            string;
     description:     string;
     typeRef:         string;
+    icomStyle:       string;
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
+    groupLayout:     string;
     grabIsAllowed:   boolean;
     template:        string;
     template2:       string;
@@ -916,11 +918,14 @@ export class jsnObjectTypeView {
         this.name            = objtypeview.name;
         this.description     = "";
         this.typeRef         = objtypeview.typeRef;
+        this.icomStyle       = objtypeview.getIcomStyle();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
         // this.template2       = objtypeview.getTemplate2();
         this.figure          = objtypeview.getFigure();
+        this.figure2         = objtypeview.getFigure2();
         this.geometry        = objtypeview.getGeometry();
+        this.groupLayout     = objtypeview.getGroupLayout();
         this.fillcolor       = objtypeview.getFillcolor();
         this.fillcolor2      = objtypeview.getFillcolor2();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -962,6 +967,9 @@ export class jsnObjectTypegeo {
         this.modified        = objtypegeo.modified;
     }
 }
+
+// Backward-compatible alias for older call sites that use PascalCase Geo.
+export class jsnObjectTypeGeo extends jsnObjectTypegeo {}
 export class jsnRelshipTypeView {
     id:              string;
     name:            string;
@@ -1670,96 +1678,123 @@ export class jsnModelView {
 export class jsnObjectView {
     id:              string;
     name:            string;
-    description:     string;
-    text:            string;
+    description?:    string;
+    text?:           string;
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
     isGroup:         boolean;
     groupLayout:     string;
+    grabIsAllowed:   boolean;
     isExpanded:      boolean;
     isSelected:      boolean;
     loc:             string;
-    size:            string;
-    scale:           number;
-    memberscale:     number;
-    arrowscale:      string;
+    layoutRevision?: string;
+    size?:           string;
+    scale?:          number;
+    memberscale?:    number;
+    arrowscale?:     string;
     viewkind:        string;
     markedAsDeleted: boolean;
     modified:        boolean;
-    template:        string;
-    template2:       string;
-    figure:          string;
-    geometry:        string;
-    fillcolor:       string;
-    fillcolor2:      string;
-    strokecolor:     string;
-    strokecolor2:    string;
-    strokewidth:     number;
-    textcolor:       string;
-    textcolor2:      string;
-    textscale:       number;
-    icon:            string;
-    image:           string;
+    template?:       string;
+    template2?:      string;
+    figure?:         string;
+    geometry?:       string;
+    fillcolor?:      string;
+    fillcolor2?:     string;
+    strokecolor?:    string;
+    strokecolor2?:   string;
+    strokewidth?:    number;
+    textcolor?:      string;
+    textcolor2?:     string;
+    textscale?:      number;
+    icon?:           string;
+    iconpath?:       string;
+    icon1?:          string;
+    icon2?:          string;
+    icon3?:          string;
+    image?:          string;
+    modelviewId?:    string;
     constructor(objview: akm.cxObjectView) {
+        // Always store core attributes
         this.id              = objview?.id;
         this.name            = objview?.name;
-        this.description     = objview?.description;
         this.objectRef       = objview?.object?.id;
         if (!this.objectRef) 
             this.objectRef   = objview?.objectRef;
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
         this.groupLayout     = objview?.groupLayout;
+        this.grabIsAllowed   = objview?.grabIsAllowed;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.isExpanded      = objview?.isExpanded;
         this.isSelected      = objview?.isSelected;
         this.loc             = objview?.loc;
-        this.template        = objview?.template;
-        this.template2       = objview?.template2;
-        this.figure          = objview?.figure;
-        this.geometry        = objview?.geometry;
-        this.fillcolor       = objview?.fillcolor;
-        this.fillcolor2      = objview?.fillcolor2;
-        this.strokecolor     = objview?.strokecolor;
-        this.strokecolor2    = objview?.strokecolor2;
-        this.strokewidth     = objview?.strokewidth;
-        this.textcolor       = objview?.textcolor;
-        this.textcolor2      = objview?.textcolor2;
-        this.icon            = objview?.icon;
-        this.image           = objview?.image;
-        this.size            = objview?.size;
-        this.scale           = objview?.scale;
-        this.memberscale     = objview?.memberscale;
-        this.textscale       = objview?.textscale;
-        this.arrowscale      = objview?.arrowscale;
+        if ((objview as any)?.layoutRevision) this.layoutRevision = String((objview as any).layoutRevision);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
+        if ((objview as any)?.modelviewId) this.modelviewId = (objview as any).modelviewId;
+
+        // Delta-only storage: only store visual attributes that differ from typeview
+        const typeview = objview?.typeview;
+        const shouldStore = (objviewVal: any, typeviewAttr: string) => {
+            if (objviewVal === undefined || objviewVal === null || objviewVal === '') return false;
+            if (!typeview) return true; // No typeview, store everything
+            const typeviewVal = typeview[typeviewAttr];
+            // Store if different from typeview or if typeview doesn't have this attribute
+            return objviewVal !== typeviewVal;
+        };
+
+        // Apply delta-only logic for visual attributes
+        if (shouldStore(objview?.description, 'description')) this.description = objview.description;
+        if (shouldStore(objview?.template, 'template')) this.template = objview.template;
+        if (shouldStore(objview?.template2, 'template2')) this.template2 = objview.template2;
+        if (shouldStore(objview?.figure, 'figure')) this.figure = objview.figure;
+        if (shouldStore(objview?.geometry, 'geometry')) this.geometry = objview.geometry;
+        if (shouldStore(objview?.fillcolor, 'fillcolor')) this.fillcolor = objview.fillcolor;
+        if (shouldStore(objview?.fillcolor2, 'fillcolor2')) this.fillcolor2 = objview.fillcolor2;
+        if (shouldStore(objview?.strokecolor, 'strokecolor')) this.strokecolor = objview.strokecolor;
+        if (shouldStore(objview?.strokecolor2, 'strokecolor2')) this.strokecolor2 = objview.strokecolor2;
+        if (shouldStore(objview?.strokewidth, 'strokewidth')) this.strokewidth = objview.strokewidth;
+        if (shouldStore(objview?.textcolor, 'textcolor')) this.textcolor = objview.textcolor;
+        if (shouldStore(objview?.textcolor2, 'textcolor2')) this.textcolor2 = objview.textcolor2;
+        if (shouldStore(objview?.textscale, 'textscale')) this.textscale = objview.textscale;
+        if (shouldStore(objview?.icon, 'icon')) this.icon = objview.icon;
+        if (shouldStore(objview?.iconpath, 'iconpath')) this.iconpath = objview.iconpath;
+        if (shouldStore(objview?.icon1, 'icon1')) this.icon1 = objview.icon1;
+        if (shouldStore(objview?.icon2, 'icon2')) this.icon2 = objview.icon2;
+        if (shouldStore(objview?.icon3, 'icon3')) this.icon3 = objview.icon3;
+        if (shouldStore(objview?.image, 'image')) this.image = objview.image;
+        if (shouldStore(objview?.size, 'size')) this.size = objview.size;
+        if (shouldStore(objview?.scale, 'scale')) this.scale = objview.scale;
+        if (shouldStore(objview?.memberscale, 'memberscale')) this.memberscale = objview.memberscale;
+        if (shouldStore(objview?.arrowscale, 'arrowscale')) this.arrowscale = objview.arrowscale;
     }
 }
 export class jsnRelshipView {
     id:              string;
     name:            string;
-    description:     string;
+    description?:    string;
     relshipRef:      string;
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
     fromPortid:      string;
     toPortid:        string;
-    template:        string;
-    template2:       string;
-    arrowscale:      number;
-    strokecolor:     string;
-    strokewidth:     number;
-    textcolor:       string;
-    textscale:       number;
-    dash:            string;
-    fromArrow:       string;
-    toArrow:         string;
-    fromArrowColor:  string;
-    toArrowColor:    string;
+    template?:       string;
+    template2?:      string;
+    arrowscale?:     number;
+    strokecolor?:    string;
+    strokewidth?:    number;
+    textcolor?:      string;
+    textscale?:      number;
+    dash?:           string;
+    fromArrow?:      string;
+    toArrow?:        string;
+    fromArrowColor?: string;
+    toArrowColor?:   string;
     routing:         number;
     corner:          number;
     curve:           string;
@@ -1768,23 +1803,11 @@ export class jsnRelshipView {
     modified:        boolean;
     visible:         boolean;
     constructor(relview: akm.cxRelationshipView) {
+        // Always store core attributes
         this.id              = relview?.id;
         this.name            = relview?.name;
-        this.description     = "";
-        this.relshipRef      = "";
-        this.typeviewRef     = "";
-        this.template        = relview?.template;
-        this.template2       = relview?.template2;
-        this.arrowscale      = relview?.arrowscale;
-        this.strokecolor     = relview?.strokecolor;
-        this.strokewidth     = relview?.strokewidth;
-        this.textcolor       = relview?.textcolor;
-        this.textscale       = relview?.textscale;
-        this.dash            = relview?.dash;
-        this.fromArrow       = relview?.fromArrow;
-        this.toArrow         = relview?.toArrow;
-        this.fromArrowColor  = relview?.fromArrowColor;
-        this.toArrowColor    = relview?.toArrowColor;
+        this.relshipRef      = relview?.relship?.id || "";
+        this.typeviewRef     = relview?.typeview?.id || "";
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
         this.fromPortid      = relview?.fromPortid;
@@ -1796,13 +1819,31 @@ export class jsnRelshipView {
         this.markedAsDeleted = relview?.markedAsDeleted;
         this.modified        = relview?.modified;
         this.visible         = relview?.visible;
-        // Code
-        if (relview?.description)
-            this.description = relview.description;
-        if (relview?.relship)
-            this.relshipRef = relview.relship.id;
-        if (relview?.typeview)
-            this.typeviewRef = relview.typeview.id;
+
+        // Delta-only storage: only store visual attributes that differ from typeview
+        const typeview = relview?.typeview;
+        const shouldStore = (relviewVal: any, typeviewAttr: string) => {
+            if (relviewVal === undefined || relviewVal === null || relviewVal === '') return false;
+            if (!typeview) return true; // No typeview, store everything
+            const typeviewVal = typeview[typeviewAttr];
+            // Store if different from typeview or if typeview doesn't have this attribute
+            return relviewVal !== typeviewVal;
+        };
+
+        // Apply delta-only logic for visual attributes
+        if (relview?.description) this.description = relview.description;
+        if (shouldStore(relview?.template, 'template')) this.template = relview.template;
+        if (shouldStore(relview?.template2, 'template2')) this.template2 = relview.template2;
+        if (shouldStore(relview?.arrowscale, 'arrowscale')) this.arrowscale = relview.arrowscale;
+        if (shouldStore(relview?.strokecolor, 'strokecolor')) this.strokecolor = relview.strokecolor;
+        if (shouldStore(relview?.strokewidth, 'strokewidth')) this.strokewidth = relview.strokewidth;
+        if (shouldStore(relview?.textcolor, 'textcolor')) this.textcolor = relview.textcolor;
+        if (shouldStore(relview?.textscale, 'textscale')) this.textscale = relview.textscale;
+        if (shouldStore(relview?.dash, 'dash')) this.dash = relview.dash;
+        if (shouldStore(relview?.fromArrow, 'fromArrow')) this.fromArrow = relview.fromArrow;
+        if (shouldStore(relview?.toArrow, 'toArrow')) this.toArrow = relview.toArrow;
+        if (shouldStore(relview?.fromArrowColor, 'fromArrowColor')) this.fromArrowColor = relview.fromArrowColor;
+        if (shouldStore(relview?.toArrowColor, 'toArrowColor')) this.toArrowColor = relview.toArrowColor;
     }
 }
 export class jsnImportMetis {
@@ -1927,6 +1968,14 @@ export class jsnImportMetis {
                 this.importRelshipType(reltype, metamodel);
             });
         }
+        metamodel.relshiptypes0 = [];
+        const relshiptypes0 = item.relshiptypes0;
+        if (relshiptypes0 && relshiptypes0.length) {
+            relshiptypes0.forEach(rt => {
+                const reltype = jsnMetis.findRelationshipType(rt?.id) || metamodel.findRelationshipType(rt?.id);
+                if (reltype) metamodel.addRelationshipType0(reltype);
+            });
+        }
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(rtv => {
@@ -2014,6 +2063,7 @@ export class jsnImportMetis {
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
         objtypeview.setFigure(item.figure);
+        objtypeview.setFigure2(item.figure2);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setFillcolor2(item.fillcolor2);
@@ -2163,8 +2213,28 @@ export class jsnImportMetis {
                 }
             }
             if (objtype) {
-                let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
+                const objectName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : objtype.name;
+                let obj = new akm.cxObject(item.id, objectName, objtype, item.description);
                 obj.setType(objtype);
+                // EntityType presentation belongs to the semantic TYPE object.
+                // Keep these source defaults on import so Generate Metamodel can
+                // transfer them to the generated ObjectTypeView. ObjectView
+                // values remain per-view overrides and are handled separately.
+                ['fillcolor', 'strokecolor', 'strokewidth', 'icon'].forEach((property) => {
+                    if (Object.prototype.hasOwnProperty.call(item, property) && item[property] !== undefined && item[property] !== null && item[property] !== '') {
+                        obj[property] = item[property];
+                    }
+                });
+                if (item.ports && item.ports.length) {
+                    obj.ports = [];
+                    item.ports.forEach((port: any) => {
+                        const newPort = new akm.cxPort(port.id, port.name, port.description || "", port.side);
+                        if (port.color) newPort.color = port.color;
+                        obj.ports.push(newPort);
+                    });
+                }
                 jsnMetis.addObject(obj);
                 model.addObject(obj);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);
@@ -2176,15 +2246,27 @@ export class jsnImportMetis {
             let reltype = jsnMetis.findRelationshipType(item.typeRef);
             const metamodel = model.metamodel;
             if (!reltype) {
-                reltype = metamodel.findRelationshipTypeByName(item.name);
+                reltype = metamodel.findRelationshipTypeByName(item.typeName);
+                if (!reltype) {
+                    reltype = metamodel.findRelationshipTypeByName(item.name);
+                }
                 if (!reltype) {
                     reltype = metamodel.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 }
             }
-            const fromObj = jsnMetis.findObject(item.fromObjectRef);
-            const toObj = jsnMetis.findObject(item.toObjectRef);
+            const fromObj = jsnMetis.findObject(item.fromObjectRef || item.fromobjectRef);
+            const toObj = jsnMetis.findObject(item.toObjectRef || item.toobjectRef);
             if (reltype && fromObj && toObj) {
-                const rel = new akm.cxRelationship(item.id, item.name, reltype, fromObj, toObj, item.description);
+                const rel = new akm.cxRelationship(
+                    item.id,
+                    reltype,
+                    fromObj,
+                    toObj,
+                    item.name,
+                    item.description,
+                    item.fromPortid || "",
+                    item.toPortid || ""
+                );
                 rel.setType(reltype);
                 jsnMetis.addRelationship(rel);
                 model.addRelationship(rel);
@@ -2210,15 +2292,74 @@ export class jsnImportMetis {
         if (item.objectRef) {
             const object = jsnMetis.findObject(item.objectRef);
             if (object) {
-                const objview = new akm.cxObjectView(item.id, item.name, object, item.description, modelview);
+                const objectviewName = typeof item.name === 'string' && item.name.trim()
+                    ? item.name
+                    : (typeof object.name === 'string' && object.name.trim()
+                        ? object.name
+                        : object.type?.name || '');
+                const objview = new akm.cxObjectView(item.id, objectviewName, object, item.description, modelview);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
+                objview.groupLayout = item.groupLayout;
+                objview.isExpanded = item.isExpanded;
+                objview.isSelected = item.isSelected;
+                objview.loc = item.loc;
+                objview.layoutRevision = item.layoutRevision ?? "";
+                objview.size = item.size;
+                objview.scale = item.scale;
+                objview.memberscale = item.memberscale;
+                objview.arrowscale = item.arrowscale;
+                objview.viewkind = item.viewkind;
+                objview.markedAsDeleted = item.markedAsDeleted;
+                objview.modified = item.modified;
+                objview.template = item.template ?? "";
+                objview.template2 = item.template2 ?? "";
+                objview.figure = item.figure ?? "";
+                objview.figure2 = item.figure2 ?? "";
+                objview.geometry = item.geometry ?? "";
+                objview.fillcolor = item.fillcolor ?? "";
+                objview.fillcolor2 = item.fillcolor2 ?? "";
+                objview.strokecolor = item.strokecolor ?? "";
+                objview.strokecolor2 = item.strokecolor2 ?? "";
+                objview.strokewidth = item.strokewidth;
+                objview.textcolor = item.textcolor ?? "";
+                objview.textcolor2 = item.textcolor2 ?? "";
+                objview.textscale = item.textscale;
+                objview.icon = item.icon ?? "";
+                objview.iconpath = item.iconpath ?? "";
+                objview.icon1 = item.icon1 ?? "";
+                objview.icon2 = item.icon2 ?? "";
+                objview.icon3 = item.icon3 ?? "";
+                objview.image = item.image ?? "";
                 objview.setObject(object);
                 if (item.typeviewRef) {
                     const objtypeview = jsnMetis.findObjectTypeView(item.typeviewRef);
                     if (objtypeview)
                         objview.setTypeView(objtypeview);
                 }
+                // Object views are constructed with white/black runtime defaults.
+                // When no explicit view override was persisted, let build/render fall back
+                // to the typeview colors instead of keeping those constructor defaults.
+                if (objview.typeview) {
+                    if (objview.fillcolor === "white") objview.fillcolor = "";
+                    if (objview.fillcolor2 === "white") objview.fillcolor2 = "";
+                    if (objview.strokecolor === "black") objview.strokecolor = "";
+                    if (objview.strokecolor2 === "black") objview.strokecolor2 = "";
+                    if (objview.textcolor === "black") objview.textcolor = "";
+                    if (objview.textcolor2 === "black") objview.textcolor2 = "";
+                }
+                // setTypeView applies CORE_META defaults and can overwrite the
+                // persisted ObjectView presentation. Explicit values from the
+                // imported ObjectView are authoritative and must be restored
+                // after the type-view fallback has been resolved.
+                if (typeof item.fillcolor === "string" && item.fillcolor.trim())
+                    objview.fillcolor = item.fillcolor;
+                if (typeof item.strokecolor === "string" && item.strokecolor.trim())
+                    objview.strokecolor = item.strokecolor;
+                if (Number.isFinite(Number(item.strokewidth)) && Number(item.strokewidth) > 0)
+                    objview.strokewidth = Number(item.strokewidth);
+                if (typeof item.icon === "string" && item.icon.trim())
+                    objview.icon = item.icon;
                 // metis.addObjectView(objview);
                 object.addObjectView(objview);
                 modelview.addObjectView(objview);
@@ -2228,20 +2369,49 @@ export class jsnImportMetis {
     }
     importRelshipView(item: akm.cxRelationshipView, modelview: akm.cxModelView) {
         if (item) {
-            const relship = jsnMetis.findRelationship(item.relship.id);
+            const source: any = item as any;
+            const relshipRef = source.relshipRef || source.relship?.id;
+            const relship = jsnMetis.findRelationship(relshipRef);
             if (relship) {
                 const relview = new akm.cxRelationshipView(item.id, item.name, relship, item.description);
                 relview.setRelationship(relship);
-                const fromobjview: any = modelview.findObjectView(item.fromObjview.id);
-                const toobjview: any = modelview.findObjectView(item.toObjview.id);
+                relview.relshipRef = relshipRef;
+                const fromobjviewRef = source.fromobjviewRef || source.fromObjviewRef || source.fromObjview?.id;
+                const toobjviewRef = source.toobjviewRef || source.toObjviewRef || source.toObjview?.id;
+                const fromobjview: any = modelview.findObjectView(fromobjviewRef);
+                const toobjview: any = modelview.findObjectView(toobjviewRef);
+                relview.fromobjviewRef = fromobjviewRef;
+                relview.toobjviewRef = toobjviewRef;
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
+                if (item.fromPortid) relview.fromPortid = item.fromPortid;
+                if (item.toPortid) relview.toPortid = item.toPortid;
                 // relview.setData(item.data);
-                if (item.typeview.id) {
-                    const reltypeview = jsnMetis.findRelationshipTypeView(item.typeview.id);
+                const typeviewRef = source.typeviewRef || source.typeview?.id;
+                if (typeviewRef) {
+                    const reltypeview = jsnMetis.findRelationshipTypeView(typeviewRef);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }
+                relview.template = item.template;
+                relview.template2 = item.template2;
+                relview.arrowscale = item.arrowscale;
+                relview.strokecolor = item.strokecolor;
+                relview.strokewidth = item.strokewidth;
+                relview.textcolor = item.textcolor;
+                relview.textscale = item.textscale;
+                relview.dash = item.dash;
+                relview.fromArrow = item.fromArrow;
+                relview.toArrow = item.toArrow;
+                relview.fromArrowColor = item.fromArrowColor;
+                relview.toArrowColor = item.toArrowColor;
+                relview.routing = item.routing;
+                relview.curve = item.curve;
+                relview.corner = item.corner;
+                relview.points = item.points;
+                relview.markedAsDeleted = item.markedAsDeleted;
+                relview.modified = item.modified;
+                relview.visible = item.visible;
                 // metis.addRelationshipView(relview);
                 modelview.addRelationshipView(relview);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);

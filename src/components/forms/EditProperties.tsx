@@ -6,41 +6,150 @@
 //@ts-nocheck
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, useStore } from 'react-redux'
 // import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
 import { selectIcons } from './selectIcons'
+import { selectSharedUniverseState } from '../../sharedUniverse'
+import { persistMemoryState } from '../utils/memoryStateStorage'
 // import SelectColor from './SelectColor'
 // import { colorOptions } from './data';
 
 const EditProperties = (props) => {
 
-  const debug = false
+  const debug = true // Temporarily enable debug for relshipview investigation
   if (debug) console.log('19 EditProperties', props);
   const dispatch = useDispatch()
+  const store = useStore()
   let edititem = props.item
   // console.log('27', edititem);
 
-  const { register, handleSubmit, errors } = useForm()
+  const { register, handleSubmit, errors, setValue } = useForm()
   const [colorvalue, setColorvalue] = useState(props.item.fillcolor)
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
 
-  useEffect((colorvalue) => {
-    setColorvalue(colorvalue)
-  }, [colorvalue]);
+  useEffect(() => {
+    setColorvalue(props.item.fillcolor)
+    setStrokecolorvalue(props.item.strokecolor)
+    setStrokewidthvalue(props.item.strokewidth)
+    setIconvalue(props.item.icon)
+  }, [props.item])
 
   const onSubmit = (e) => { // dispatch the edititem to phData
+    if (debug) console.log('[EditProperties] onSubmit called! e:', e, 'edititem:', edititem);
     // const data = e 
     if (debug) console.log('36 EditProperties', edititem, e, props.item);
     const data = { ...edititem, ...e }
+    
+    // Use state values if event doesn't contain them (event 'e' has the latest form values)
+    // Prefer event values over state to avoid React state batching delays
+    if (Object.prototype.hasOwnProperty.call(edititem, 'fillcolor')) {
+      data.fillcolor = e.fillcolor !== undefined ? e.fillcolor : colorvalue;
+    }
+    if (Object.prototype.hasOwnProperty.call(edititem, 'strokecolor')) {
+      data.strokecolor = e.strokecolor !== undefined ? e.strokecolor : strokecolorvalue;
+    }
+    if (Object.prototype.hasOwnProperty.call(edititem, 'strokewidth')) {
+      data.strokewidth = e.strokewidth !== undefined ? e.strokewidth : strokewidthvalue;
+    }
+    if (Object.prototype.hasOwnProperty.call(edititem, 'icon')) {
+      data.icon = e.icon !== undefined ? e.icon : iconvalue;
+    }
+    
+    if (debug) console.log('[EditProperties] data after merge:', data, 'strokecolor:', data.strokecolor);
     if (debug) console.log('38 EditProperties', props, data);
-    // props.onInputChange(e)
-    // if (data && data.id) {
-      // props.handleInputChange(e)
-    dispatch({ type: props.type, data })
-    // }
+    
+    // CRITICAL: Update myMetis directly BEFORE dispatching (like "Set Objectview Colors" does)
+    // This ensures both myMetis and Redux stay in sync, triggering immediate visual updates
+    if (props.myMetis && (props.type === 'UPDATE_OBJECTVIEW_PROPERTIES' || props.type === 'UPDATE_RELSHIPVIEW_PROPERTIES')) {
+      try {
+        if (props.type === 'UPDATE_OBJECTVIEW_PROPERTIES') {
+          const objview = props.myMetis.findObjectView(data.id);
+          if (objview) {
+            if (debug) console.log('[EditProperties] Updating myMetis objectview:', data.id, 'fillcolor:', data.fillcolor);
+            if (data.fillcolor !== undefined) objview.fillcolor = data.fillcolor;
+            if (data.strokecolor !== undefined) objview.strokecolor = data.strokecolor;
+            if (data.strokewidth !== undefined) objview.strokewidth = data.strokewidth;
+            if (data.icon !== undefined) objview.icon = data.icon;
+            if (data.name !== undefined) objview.name = data.name;
+            if (data.description !== undefined) objview.description = data.description;
+            
+            // Update corresponding GoJS model node if it exists
+            if (props.myMetis.gojsModel && props.myMetis.gojsModel.nodes) {
+              const node = props.myMetis.gojsModel.nodes.find((n: any) => 
+                n.id === data.id || n.key === data.id || n.objviewRef === data.id
+              );
+              if (node) {
+                if (data.fillcolor !== undefined) node.fillcolor = data.fillcolor;
+                if (data.strokecolor !== undefined) node.strokecolor = data.strokecolor;
+                if (data.strokewidth !== undefined) node.strokewidth = data.strokewidth;
+                if (data.icon !== undefined) node.icon = data.icon;
+              }
+            }
+          }
+        } else if (props.type === 'UPDATE_RELSHIPVIEW_PROPERTIES') {
+          const relview = props.myMetis.findRelshipView(data.id);
+          console.log('[EditProperties] ==================== RELSHIPVIEW DISPATCH ====================');
+          console.log('[EditProperties] data.id:', data.id);
+          console.log('[EditProperties] data.strokecolor:', data.strokecolor);
+          console.log('[EditProperties] Found relview:', !!relview);
+          if (relview) {
+            console.log('[EditProperties] Relview details:', { id: relview.id, name: relview.name, strokecolor: relview.strokecolor });
+          }
+          if (relview) {
+            if (debug) console.log('[EditProperties] Updating myMetis relshipview:', data.id);
+            if (data.strokecolor !== undefined) relview.strokecolor = data.strokecolor;
+            if (data.strokewidth !== undefined) relview.strokewidth = data.strokewidth;
+            if (data.name !== undefined) relview.name = data.name;
+            if (data.description !== undefined) relview.description = data.description;
+            
+            // Update corresponding GoJS model link if it exists
+            if (props.myMetis.gojsModel && props.myMetis.gojsModel.links) {
+              const link = props.myMetis.gojsModel.links.find((l: any) => 
+                l.id === data.id || l.key === data.id || l.relviewRef === data.id
+              );
+              console.log('[EditProperties] Searching gojsModel.links for link with id:', data.id);
+              console.log('[EditProperties] Found link in gojsModel:', !!link);
+              if (link) {
+                console.log('[EditProperties] Link details:', { key: link.key, id: link.id, relviewRef: link.relviewRef, category: link.category });
+                if (data.strokecolor !== undefined) link.strokecolor = data.strokecolor;
+                if (data.strokewidth !== undefined) link.strokewidth = data.strokewidth;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[EditProperties] Error updating myMetis:', err);
+      }
+    }
+    
+    // Use diagram's wrapped dispatch if available (for immediate visual updates), otherwise use Redux dispatch
+    const diagramDispatch = props.myMetis?.myDiagram?.dispatch;
+    const dispatchToUse = diagramDispatch || dispatch;
+    
+    console.log('[EditProperties] Dispatching:', props.type, 'data.id:', data.id, 'data.strokecolor:', data.strokecolor, 'using:', diagramDispatch ? 'diagram.dispatch (wrapped)' : 'Redux dispatch (direct)');
+    dispatchToUse({ type: props.type, data })
+    
+    // CRITICAL: Save to localStorage AFTER Redux reducer has time to update
+    // Use setTimeout to ensure we capture the UPDATED state, not the old state
+    setTimeout(() => {
+      try {
+        const state = selectSharedUniverseState(store.getState() as any)
+        const persistedState = {
+          phData: {
+            domain: state.world.worldDefinition.domain,
+            metis: state.world.worldModel.metis,
+            documents: state.compatibility.documents,
+          },
+          phFocus: state.world.focus,
+          phUser: state.user,
+          phSource: state.source,
+        }
+        persistMemoryState(persistedState)
+      } catch (_) {}
+    }, 100); // Small delay allows Redux reducer to complete
   }
 
   function listAllProperties(o) { // list all obj properties incl prototype properties
@@ -58,18 +167,22 @@ const EditProperties = (props) => {
   const handleChangefc = (event) => {
     const color = event.target.value
     setColorvalue(color)
+    setValue('fillcolor', color)  // Update react-hook-form immediately
   }
   const handleChangesc = (event) => {
     const scolor = event.target.value
     setStrokecolorvalue(scolor)
+    setValue('strokecolor', scolor)  // Update react-hook-form immediately
   }
   const handleChangesw = (event) => {
     const strw = event.target.value
     setStrokewidthvalue(strw)
+    setValue('strokewidth', strw)  // Update react-hook-form immediately
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
     setIconvalue(iconvalue)
+    setValue('icon', iconvalue)  // Update react-hook-form immediately
   }
 
   const fields1 = listAllProperties(edititem).map(p => // filter away js prototype properties and some others

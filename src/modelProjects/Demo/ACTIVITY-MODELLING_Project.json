@@ -4618,7 +4618,7 @@
         },
         {
           "id": "28362053-7550-453a-c580-5571b10780da",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -6346,12 +6346,12 @@
         },
         {
           "id": "76d1a443-db97-4de4-be71-e7862d697c56",
-          "name": "ACTIVITY_MM",
+          "name": "ACTIVITY_META",
           "description": "",
           "viewstyles": [
             {
               "id": "05a98f0c-5767-461a-0457-817ef5cdda42",
-              "name": "ACTIVITY_MM_Viewstyle",
+              "name": "ACTIVITY_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -9700,7 +9700,7 @@
             },
             {
               "id": "93003d1c-cf71-4a42-ce23-61d7aa2c16a7",
-              "name": "ACTIVITY_MM",
+              "name": "ACTIVITY_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -9710,7 +9710,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "ACTIVITY_MM",
+              "nameId": "ACTIVITY_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -10045,7 +10045,7 @@
                 },
                 {
                   "id": "26df8a4f-8250-4ae4-1b8e-c6c180ae8916",
-                  "name": "ACTIVITY_MM",
+                  "name": "ACTIVITY_META",
                   "description": "",
                   "objectRef": "93003d1c-cf71-4a42-ce23-61d7aa2c16a7",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
@@ -12151,7 +12151,7 @@
     },
     "focusTargetMetamodel": {
       "id": "76d1a443-db97-4de4-be71-e7862d697c56",
-      "name": "ACTIVITY_MM"
+      "name": "ACTIVITY_META"
     }
   },
   "phUser": {

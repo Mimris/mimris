@@ -10,12 +10,19 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     e.preventDefault()
     const reader = new FileReader()
 
-    const curModel = props.phData.metis.models.find(m => m.id === props.phFocus.focusModel.id)
-    if (debug) console.log('23 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
+    const phData = props.phData || props.ph?.phData || {};
+    const phFocus = props.phFocus || props.ph?.phFocus || {};
+    const metis = phData.metis || {};
+    const models = Array.isArray(metis.models) ? metis.models.filter(Boolean) : [];
+    const metamodels = Array.isArray(metis.metamodels) ? metis.metamodels.filter(Boolean) : [];
+    const curModel = models.find(m => m.id === phFocus.focusModel?.id) || models[0]
+    if (!curModel) return;
+    if (debug) console.log('23 ', phFocus.focusModel, curModel, models);
     
-    const curMetamodel = props.phData.metis.metamodels.find(mm => mm.id === curModel.metamodelRef)
-    const curObjTypes = curMetamodel.objecttypes
-    const curRelTypes = curMetamodel.relshiptypes
+    const curMetamodel = metamodels.find(mm => mm.id === curModel.metamodelRef)
+    if (!curMetamodel) return;
+    const curObjTypes = curMetamodel.objecttypes || []
+    const curRelTypes = curMetamodel.relshiptypes || []
 
     const JsonObjectType = curObjTypes.find(co => (co.name === 'JsonObject') && co)
     
@@ -557,4 +564,3 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     }
 
 }
-

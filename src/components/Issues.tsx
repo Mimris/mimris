@@ -9,6 +9,7 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
 import ModellingHeaderButtons from "./utils/ModellingHeaderButtons";
+import { selectMimrisCompatibilityProps } from "../sharedUniverse";
 
 // import { fetchIssues } from '../api/github';
 
@@ -17,7 +18,10 @@ const debug = false;
 const Issues = (props: any) => {
   if (debug) console.log('25 Tasks props', props.phData, props);
 
+  const compatibilityProps = useSelector(selectMimrisCompatibilityProps);
   const dispatch = useDispatch();
+  const legacyProps = props.props || props;
+  const phFocus = compatibilityProps.phFocus || legacyProps.phFocus || {};
 
   const router = useRouter();
   const currentRoute = router.pathname;
@@ -40,17 +44,17 @@ const Issues = (props: any) => {
   const [selectedProject, setSelectedProject] = useState('');
   const [refresh, setRefresh] = useState(false);
   // const [toggleRefresh, setToggleRefresh] = useState(false);
-  const [focusIssue, setFocusIssue] = useState(props.phFocus.focusIssue);
+  const [focusIssue, setFocusIssue] = useState(phFocus.focusIssue);
 
 
-  const [org, setOrg] = useState(props.phFocus.focusProj?.org)
-  const [repo, setRepo] = useState(props.phFocus.focusProj?.repo)
-  const [path, setPath] = useState(props.phFocus.focusProj?.path)
-  const [file, setFile] = useState(props.phFocus.focusProj?.file)
-  const [branch, setBranch] = useState(props.phFocus.focusProj?.branch)
-  const [focus, setFocus] = useState(props.phFocus.focusProj?.focus)
-  const [ghtype, setGhtype] = useState(props.phFocus.focusProj?.ghtype)
-  const [projectNumber, setProjectNumber] = useState(props.phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
+  const [org, setOrg] = useState(phFocus.focusProj?.org)
+  const [repo, setRepo] = useState(phFocus.focusProj?.repo)
+  const [path, setPath] = useState(phFocus.focusProj?.path)
+  const [file, setFile] = useState(phFocus.focusProj?.file)
+  const [branch, setBranch] = useState(phFocus.focusProj?.branch)
+  const [focus, setFocus] = useState(phFocus.focusProj?.focus)
+  const [ghtype, setGhtype] = useState(phFocus.focusProj?.ghtype)
+  const [projectNumber, setProjectNumber] = useState(phFocus.focusProj?.projectNumber) // this is the project number in the list of github projects
 
   // useEffect(() => {
   // if (currentRoute === '/modelling') setMinimized(true);
@@ -73,14 +77,15 @@ const Issues = (props: any) => {
     //     toggleMinimize();
     //   }
     // };
-    setOrg(props.phFocus.focusProj?.org);
-    setRepo(props.phFocus.focusProj?.repo);
-    setPath(props.phFocus.focusProj?.path);
-    setFile(props.phFocus.focusProj?.file);
-    setBranch(props.phFocus.focusProj?.branch);
-    setFocus(props.phFocus.focusProj?.focus);
-    setGhtype(props.phFocus.focusProj?.ghtype);
-    setProjectNumber(props.phFocus.focusProj?.projectNumber);
+    setOrg(phFocus.focusProj?.org);
+    setRepo(phFocus.focusProj?.repo);
+    setPath(phFocus.focusProj?.path);
+    setFile(phFocus.focusProj?.file);
+    setBranch(phFocus.focusProj?.branch);
+    setFocus(phFocus.focusProj?.focus);
+    setGhtype(phFocus.focusProj?.ghtype);
+    setProjectNumber(phFocus.focusProj?.projectNumber);
+    setFocusIssue(phFocus.focusIssue);
 
     issueUrl = `https://api.github.com/repos/${org}/${repo}/issues`
     issueUrlDone = `https://api.github.com/repos/${org}/${repo}/issues?state=closed`
@@ -92,7 +97,7 @@ const Issues = (props: any) => {
     // return () => {
     //   document.removeEventListener('click', handleClickOutside);
     // };' 
-  }, [repo, org, path, file, branch, focus, ghtype, projectNumber]);
+  }, [phFocus.focusProj, phFocus.focusIssue, repo, org, path, file, branch, focus, ghtype, projectNumber]);
 
   const toggleMinimize = () => {
     props.setMinimized(!props.minimized);
@@ -363,7 +368,7 @@ const Issues = (props: any) => {
                   <i className="fa fa- fa-plus"></i>
                 </button>
               </div>
-              <div className="font-weight-bold p-1 text-success fs-6"> # {props.phFocus.focusIssue?.id}: {props.phFocus.focusIssue?.name}</div>
+              <div className="font-weight-bold p-1 text-success fs-6"> # {phFocus.focusIssue?.id}: {phFocus.focusIssue?.name}</div>
             </div>
             <div className="m-0 p-0 bg-light scroll" style={{ overflow: "auto", height: "64vh" }}>
               <hr className="m-0" />

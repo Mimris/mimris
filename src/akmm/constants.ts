@@ -5,18 +5,18 @@
 // Define View kinds
 
 export let core = {
-     AKM_CORE_MM:   "AKM-META_MM",
+     AKM_CORE_MM:   "CORE_META",
      AKM_MODELVIEWS: ['01-Property', 
                       '02-EntityType', 
                       '03-MethodTypes', 
-                      '1-AKM META', 
+                      '1-CORE', 
                     //   '2-IRTV', 
-                    //   '1-AKM Core'
+                    //   '1-CORE'
                     ], 
 }
   
 export let params = {
-     MEMBERSCALE:  1.0,
+     MEMBERSCALE:  0.8,
 }
 
 export let viewkinds = {
@@ -141,6 +141,7 @@ export let types = {
           AKM_MODEL             : "Model",
           AKM_COLLECTION        : "Collection",
           AKM_CONTAINER         : "Container",
+          AKM_VISUAL_CONTAINER  : "VisualContainer",
           AKM_ENTITY_TYPE       : "EntityType",
           AKM_RELSHIP_TYPE      : "RelshipType",
           AKM_INFORMATION       : "Information",
@@ -183,11 +184,13 @@ export let types = {
           AKM_IS                : "Is",
           AKM_IS_OF_DATATYPE    : "isOf",
           AKM_IS_DEFAULTVALUE   : "isDefault",
-          AKM_HAS_METHOD        : "has",
+          AKM_HAS_METHOD        : "has",     
+          AKM_HAS_METHODTYPE    : "has",
           AKM_HAS_ALLOWED_VALUE : "hasAllowed",
           AKM_HAS_INPUTPATTERN  : "has",
           AKM_HAS_VIEWFORMAT    : "has",
           AKM_HAS_FIELDTYPE     : "has",
+          AKM_HAS_VALUE         : "has",
           AKM_POINTS_TO         : "pointsTo",
           AKM_REFERS_TO         : "refersTo",
           AKM_GENERIC_REL       : "generic",

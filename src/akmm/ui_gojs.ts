@@ -18,6 +18,38 @@ Functions:
 // ----------------------------------------------------------------------------------
 
 const debug = false;
+
+function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
+    if (Array.isArray(points) && points.length > 4) return true;
+    return false;
+    // return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
+}
+
+function deriveTypeviewIcon(objview: akm.cxObjectView): string {
+    if (!objview) return "";
+
+    const tryIcon = (candidate: any): string => {
+        if (!candidate) return "";
+        if (typeof candidate === "string") return candidate;
+        if (typeof candidate === "object" && typeof candidate.icon === "string") return candidate.icon;
+        if (typeof candidate === "object" && typeof candidate.getIcon === "function") {
+            const value = candidate.getIcon();
+            return typeof value === "string" ? value : "";
+        }
+        return "";
+    };
+
+    const direct = tryIcon(objview.typeview);
+    if (direct) return direct;
+
+    const fromObjectType = tryIcon(objview.object?.type?.typeview);
+    if (fromObjectType) return fromObjectType;
+
+    const fromType = tryIcon(objview.object?.type);
+    if (fromType) return fromType;
+
+    return "";
+}
 export class goModel {
     key: string;
     name: string;
@@ -53,7 +85,7 @@ export class goModel {
             if (node instanceof goObjectNode) {
                 let object = node.object;
                 let objecttype = node.objecttype;
-                if (!objecttype)
+                if (!objecttype && object?.typeRef)
                     objecttype = this.metamodel?.findObjectType(object.typeRef);
                 if (objecttype) {
                     const typeviews = this.metamodel?.getObjectTypeViewsByObjectType(objecttype);
@@ -156,7 +188,7 @@ export class goModel {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node: goObjectTypeNode = this.nodes[i] as goObjectTypeNode;
-                if (node.objecttype.id === objtypeId) {
+                if (node.objecttype?.id === objtypeId) {
                     retval = node;
                     break;
                 }
@@ -375,7 +407,7 @@ export class goNode extends goMetaObject {
         this.loc = "";
         this.size = 1;
         this.scale = 1;
-        this.memberscale = 1;
+        this.memberscale = constants.params.MEMBERSCALE;
         this.arrowscale = 1.3;
         this.strokecolor = "";
         this.strokecolor2 = "";
@@ -437,26 +469,38 @@ export class goObjectNode extends goNode {
     rightPorts: akm.cxPort[] | null;
     topPorts: akm.cxPort[] | null;
     bottomPorts: akm.cxPort[] | null;
-    template: string;
-    template2: string;
+
+    grabIsAllowed: boolean;
+    isExpanded: boolean;
+
+    // arrowscale: number;
     figure: string;
-    geometry: string;
-    strokewidth: string;
     fillcolor: string;
     fillcolor2: string;
+    geometry: string;
+    group: string;
+    icon: string;
+    iconpath: string;
+    icon1: string;
+    icon2: string;
+    image: string;
+    isGroup: boolean | "";
+    isSelected: boolean | "";
+    loc:             string;
+    layoutRevision:  string;
+    memberscale:     float;
+    scale:           float;
+    size:            float;
     strokecolor: string;
     strokecolor2: string;
+    strokewidth: string;
+    template: string;
+    template2: string;
     textcolor: string;
     textcolor2: string;
     textscale: string;
-    icon: string;
-    image: string;
-    grabIsAllowed: boolean;
-    isGroup: boolean | "";
-    isExpanded: boolean | "";
-    isSelected: boolean | "";
+
     groupLayout: string;
-    group: string;
     parent: string;
     constructor(key: string, model: goModel, objview: akm.cxObjectView) {
         super(key, model);
@@ -480,6 +524,7 @@ export class goObjectNode extends goNode {
             this.template       = objview.template;
             this.template2      = objview.template2;
             this.figure         = objview.figure ? objview.figure : "";
+            this.figure2        = objview.figure2 ? objview.figure2 : "";
             this.geometry       = objview.geometry ? objview.geometry : "";
             this.fillcolor      = objview.fillcolor ? objview.fillcolor : "";
             this.fillcolor2     = objview.fillcolor2 ? objview.fillcolor2 : "";
@@ -490,11 +535,26 @@ export class goObjectNode extends goNode {
             this.textcolor2     = objview.textcolor2 ? objview.textcolor2 : "";
             this.textscale      = objview.textscale ? objview.textscale : 1.0;
             this.icon           = objview.icon ? objview.icon : "";
+            if (!this.icon || this.icon === "") {
+                const typeviewIcon = deriveTypeviewIcon(objview);
+                if (typeviewIcon) {
+                    this.icon = typeviewIcon;
+                    if (!objview.icon) {
+                        objview.icon = typeviewIcon;
+                    }
+                }
+            }
+            this.iconpath       = objview.iconpath ? objview.iconpath : "";
+            this.icon1           = objview.icon1 ? objview.icon1 : "";
+            this.icon2           = objview.icon2 ? objview.icon2 : "";
+            this.icon3           = objview.icon3 ? objview.icon3 : "";
             this.image          = objview.image ? objview.image : "";
             this.isGroup        = objview.isGroup;
             this.loc            = objview.loc;
+            this.layoutRevision = objview.layoutRevision || "";
             this.size           = objview.size;
             this.scale         = objview.scale;
+            (this as any).scale1 = objview.scale;
             this.memberscale    = objview.memberscale;
             this.grabIsAllowed  = objview.grabIsAllowed;
             this.isExpanded     = objview.isExpanded;
@@ -535,6 +595,16 @@ export class goObjectNode extends goNode {
             this.typeview = objview.getTypeView();
             if (!this.template)
                 this.template = this.typeview?.template;
+            const isContainerView =
+                objview.isGroup === true ||
+                objview.viewkind === constants.viewkinds.CONT ||
+                this.typeview?.viewkind === constants.viewkinds.CONT;
+            if (isContainerView) {
+                this.isGroup = true;
+                this.viewkind = constants.viewkinds.CONT;
+                this.template = this.template || "groupNoPorts";
+                this.category = this.template;
+            }
             if (!this.template2)
                 this.template2 = this.typeview?.template2;
             if (!this.geometry)
@@ -543,6 +613,10 @@ export class goObjectNode extends goNode {
                 this.figure = this.typeview?.figure;
             if (!this.figure)
                 this.figure = "";
+            if (!this.figure2)
+                this.figure2 = this.typeview?.figure2;
+            if (!this.figure2)
+                this.figure2 = "";
         }
     }
     // Methods
@@ -587,6 +661,7 @@ export class goObjectNode extends goNode {
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 this.setScale(this.objectview.getScale())
+                ;(this as any).scale1 = this.objectview.getScale();
                 this.isExpanded = this.objectview.isExpanded;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
@@ -606,58 +681,67 @@ export class goObjectNode extends goNode {
         }
     }
     getParentNode(model: goModel): goNode {
+        if (!model) return null;
         const groupId = this.group;
-        if (groupId !== "" && groupId !== undefined) {
-            const nodes = model.nodes;
-            for (let i = 0; i < nodes?.length; i++) {
-                const node = nodes[i] as goObjectNode;
-                if (node.key === groupId) {
-                    return node;
+        if (!groupId || groupId === "" || groupId === undefined) return null;
+        // Avoid self-references that can cause recursive lookups
+        if (groupId === this.key) return null;
+        const nodes = model.nodes;
+        if (!nodes || !nodes.length) return null;
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            if (!node || !node.key) continue;
+            if (node.key === groupId) {
+                // Extra guard: break group cycles
+                if (node.group === this.key) {
+                    return null;
                 }
+                return node;
             }
         }
         return null;
     }
     getTopNode(model: goModel): goNode {
-        const node = this.getParentNode(model);
-        if (node) {
-            if (node.key === this.key) {
-                return this;
-            } else {
-                const topNode = node.getTopNode(model);
-                if (topNode) {
-                    return topNode;
-                } else
-                    return this;
-            }
+        let current: goObjectNode = this;
+        const visited = new Set<string>();
+        while (true) {
+            const next = current.getParentNode(model) as goObjectNode | null;
+            if (!next) return current;
+            if (visited.has(next.key)) return current; // break cycles
+            visited.add(next.key);
+            if (next.key === current.key) return current;
+            current = next;
         }
-        return this;
     }
     getMyScale(model: goModel): number {
-        let scale = this.scale;
         if (!this.group)
-            scale = 1;
+            return 1;
         const pnode = this.getParentNode(model);
         if (pnode) {
-            scale = pnode.memberscale;
-            if (!scale || scale == 'undefined')
-                scale = pnode.typeview.memberscale;
-            scale *= pnode.getMyScale(model);
-        } else 
-            scale = 1;
-        return scale;
+            let parentScale = 1;
+            try {
+                parentScale = pnode.getActualScale(model);
+            } catch (error) {
+            }
+            let memberScale = pnode.memberscale;
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = pnode.typeview?.memberscale;
+            memberScale = Number(memberScale);
+            if (!memberScale || memberScale == 'undefined')
+                memberScale = constants.params.MEMBERSCALE;
+            return Number(parentScale || 1) * memberScale;
+        }
+        return 1;
     }
     getActualScale(model: goModel): number {
-        let scale = this.scale;
+        let scale: any = (this as any).scale1;
+        if (!scale || scale == 'undefined')
+            scale = this.scale;
+        if (!scale || scale == 'undefined')
+            scale = this.objectview?.scale;
         if (!scale || scale == 'undefined')
             scale = 1;
-        const node = this.getParentNode(model);
-        if (debug) console.log('597 node', node);
-        if (node && node.key !== this.key) {
-            let scale1 = node.getActualScale(model);
-            scale *= scale1;
-        }
-        return scale;
+        return Number(scale);
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
@@ -812,6 +896,15 @@ export class goObjectTypeNode extends goNode {
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
                 this.setViewkind(objtype.getViewKind());
+                const viewkind = objtype.getViewKind() || (typeof typeview.getViewKind === 'function'
+                    ? typeview.getViewKind()
+                    : (typeview as any).viewkind);
+                if (viewkind === constants.viewkinds.CONT) {
+                    this.isGroup = true;
+                    const templateName = typeview.getTemplate?.() || typeview.template || constants.gojs.C_CONTAINER;
+                    this.template = templateName;
+                    this.category = templateName || constants.gojs.C_CONTAINER;
+                }
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -841,9 +934,9 @@ export class goLink extends goMetaObject {
     // parentModel: goModel;
     parentModelRef: string;
     markedAsDeleted: boolean;
-    constructor(key: string, model: goModel) {
+    constructor(key: string, model?: goModel) {
         super(key);
-        this.parentModelRef = model.key;  // goModel
+        this.parentModelRef = model?.key;  // goModel
         // this.parentModel = model;  // goModel
         this.markedAsDeleted = false;
     }
@@ -889,7 +982,7 @@ export class goRelshipLink extends goLink {
     nameFrom:           string;
     nameTo:             string;
     visible:            boolean;
-    constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
+    constructor(key: string, model: goModel | null, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
         this.relshipview     = relview;
@@ -1028,10 +1121,19 @@ export class goRelshipLink extends goLink {
     setRelshipKind(kind: string) {
         this.relshipkind = kind;
     }
-    loadLinkContent(model: goModel) {
+    loadLinkContent(model?: goModel | null) {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
-        const modelview = model.modelView;
+        const modelview =
+            model?.modelView ||
+            relview?.fromObjview?.modelview ||
+            relview?.toObjview?.modelview ||
+            null;
+        const isSelfLoop =
+            !!this.fromNode &&
+            !!this.toNode &&
+            String(this.fromNode?.key || "") !== "" &&
+            String(this.fromNode?.key || "") === String(this.toNode?.key || "");
         if (debug) console.log('722 typeview, relview: ', typeview, relview);
         if ((relview) && (typeview)) {
             if (!relview.markedAsDeleted) {
@@ -1040,7 +1142,7 @@ export class goRelshipLink extends goLink {
                     const data: any = typeview.data;
                     // this.addData(data);
                     this.setName(relview.name);
-                    this.points = relview.points;
+                    this.points = shouldPersistLinkPoints(relview.routing, relview.points) ? relview.points : [];
                     for (let prop in viewdata) {
                         if (prop === 'abstract') continue;
                         if (prop === 'class') continue;
@@ -1053,6 +1155,9 @@ export class goRelshipLink extends goLink {
                             // this[prop] = typeview[prop];
                         }
                     }        
+                    if (Array.isArray(this.points) && this.points.length >= 4) {
+                        this.routing = relview?.routing || "Normal";
+                    }
                 }
             }
             if (debug) console.log('744 goRelshipLink, typeview, relview: ', this, typeview, relview);
@@ -1072,11 +1177,18 @@ export class goRelshipLink extends goLink {
         //         }
         //     }
         // }
-        this.routing = modelview.routing;
-        this.curve = modelview.linkcurve;
-        if (modelview.showCardinality) {
-            this.cardinalityFrom = relview.relship?.getCardinalityFrom(); 
-            this.cardinalityTo = relview.relship?.getCardinalityTo();
+        const hasExplicitPoints = Array.isArray(this.points) && this.points.length >= 4;
+        if (hasExplicitPoints) {
+            this.routing = relview?.routing || "Normal";
+        } else if (isSelfLoop) {
+            this.routing = "Normal";
+        } else {
+            this.routing = relview?.routing || modelview?.routing || "Normal";
+        }
+        this.curve = modelview?.linkcurve || relview?.curve || "None";
+        if (modelview?.showCardinality && relview?.relship) {
+            this.cardinalityFrom = relview.relship.getCardinalityFrom();
+            this.cardinalityTo = relview.relship.getCardinalityTo();
         } else {
             this.cardinalityFrom = "";
             this.cardinalityTo = "";

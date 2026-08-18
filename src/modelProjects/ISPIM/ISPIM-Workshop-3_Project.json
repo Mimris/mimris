@@ -6,12 +6,12 @@
       "metamodels": [
         {
           "id": "d8b5ebcd-ba88-4519-42e1-6c2c54495f65",
-          "name": "IRTV_MM",
+          "name": "IRTV_META",
           "description": "",
           "viewstyles": [
             {
               "id": "28d81ab6-fd61-4749-9015-fbf8d85779a3",
-              "name": "IRTV_MM_Viewstyle",
+              "name": "IRTV_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -4131,12 +4131,12 @@
         },
         {
           "id": "28362053-7550-453a-c580-5571b10780da",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [
             {
               "id": "d645dcff-80f5-4834-fc92-8754f87c185c",
-              "name": "AKM-ADMIN_MM_Viewstyle",
+              "name": "AKM-ADMIN_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -5884,12 +5884,12 @@
         },
         {
           "id": "8d7d605d-fc67-4323-bf8d-b9b05d9810f9",
-          "name": "ISPIM_MM",
+          "name": "ISPIM_META",
           "description": "",
           "viewstyles": [
             {
               "id": "3daf26ba-4437-49e8-b424-7e2689a6ddf9",
-              "name": "ISPIM_MM_Viewstyle",
+              "name": "ISPIM_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -23607,7 +23607,7 @@
             },
             {
               "id": "cdbd6fa2-2e15-4f46-fe6f-def42cd14910",
-              "name": "IRTV_MM",
+              "name": "IRTV_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -23617,7 +23617,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "IRTV_MM",
+              "nameId": "IRTV_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -23816,7 +23816,7 @@
             },
             {
               "id": "8517df46-e17f-405c-03e6-7e3a7986a2d9",
-              "name": "ISPIM_MM",
+              "name": "ISPIM_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -23826,7 +23826,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "ISPIM_MM",
+              "nameId": "ISPIM_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -24231,7 +24231,7 @@
                 },
                 {
                   "id": "024e90bc-4f9f-4205-7e3b-149f6fb8421f",
-                  "name": "IRTV_MM",
+                  "name": "IRTV_META",
                   "description": "",
                   "objectRef": "cdbd6fa2-2e15-4f46-fe6f-def42cd14910",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
@@ -24447,7 +24447,7 @@
                 },
                 {
                   "id": "352d119a-c9d8-4730-aaf2-87904ae3d43f",
-                  "name": "ISPIM_MM",
+                  "name": "ISPIM_META",
                   "description": "",
                   "objectRef": "8517df46-e17f-405c-03e6-7e3a7986a2d9",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

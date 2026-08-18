@@ -12,6 +12,9 @@ import Button from "react-bootstrap/Button";
 import taskIcon from "/public/images/task.png";
 import ReportModule from "./export/ReportModule";
 
+import Help from "../help/000-Create-Metamodel";
+import { selectSharedUniverseState } from '../sharedUniverse';
+
 // import {ObjDetailTable} from './forms/ObjDetailTable';
 // import { set } from 'immer/dist/internal';
 // import { addLinkToDataArray } from '../akmm/ui_common';
@@ -29,12 +32,14 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   // console.log('20 Tasks', require('/public/images/Task.png'));
   if (debug) console.log('18 Tasks props', props);
   const dispatch = useDispatch();
+  const [helpContent, setHelpContent] = useState('');
 
   const [taskFocusModel, setTaskFocusModel] = useState(props.taskFocusModel);
 
-  const phData = useSelector((state) => state.phData); 
-  const phFocus = useSelector((state) => state.phFocus);
-  if (debug) console.log('36 Tasks state', phData, phFocus);
+  const sharedUniverse = useSelector(selectSharedUniverseState);
+  const metis = sharedUniverse.world.worldModel.metis;
+  const focus = sharedUniverse.world.focus;
+  if (debug) console.log('36 Tasks state', metis, focus);
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [minimizedTask, setMinimizedTask] = useState(true);
@@ -53,6 +58,7 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
   //   }
   //   openOneLevel();
   // } , []);
+
 
   useEffect(() => {
     if (debug) useEfflog('59 Tasks useEffect 1 [props.visible]');
@@ -85,12 +91,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   const [formValues, setFormValues] = useState({});
 
-  const metamodels = useSelector(state => phData?.metis?.metamodels);
-  const models = useSelector(state => phData?.metis?.models);
-  let focusModel = useSelector(state => phFocus?.focusModel);
-  const focusModelview = useSelector(state => phFocus.focusModelview);
-  const focusTask = useSelector(state => phFocus.focusTask);
-  const focusRole = useSelector(state => phFocus.focusRole);
+  const metamodels = metis?.metamodels;
+  const models = metis?.models;
+  let focusModel = focus?.focusModel;
+  const focusModelview = focus?.focusModelview;
+  const focusTask = focus?.focusTask;
+  const focusRole = focus?.focusRole;
   const curmodel = models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   // const curmodel = (taskFocusModel?.id) ?  models?.find((m: { id: any; }) => m?.id === taskFocusModel?.id) : models?.find((m: { id: any; }) => m?.id === focusModel?.id);
   if (debug) console.log('95 Tasks', models, focusModel, taskFocusModel, curmodel);
@@ -313,12 +319,12 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               {focusRole?.name}
             </span>
           </div>
-          <div>
+          {/* <div>
             Task:{" "}
             <span className="font-weight-bold text-success bg-white p-1">
               {focusTask?.name}
             </span>
-          </div>
+          </div> */}
           <div className="mb-3">
             {(!collapsed) // collapsed task container
               ?
@@ -343,12 +349,15 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
               </button>
             }
           </div>
-          <hr className="m-0 p-2" />
+          <hr className="m-0" />
         </div>
-        <div className="tasks" style={{ maxHeight: "70vh", overflow: "scroll" }}>
-          <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
-            {genTasksDiv()}
-          </div>
+        <div className="tasks" style={{ maxHeight: "68vh", overflow: "scroll" }}>
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+            {Help}
+          </ReactMarkdown>
+          {/* <div className="bg-light p-1 "> Generated Tasks from: <span className="bg-transparent px-1 text-success"> {subModels[0]?.name}</span>
+            {genTasksDiv()}  // rmoved for now
+          </div> */}
         </div>
       </div>
     </>
@@ -374,13 +383,42 @@ function Tasks(props: { taskFocusModel: any; asPage: any; visible: unknown; prop
 
   if (minimizedTask) {
     return (
-      <button
-        className="btn btn-sm border text-success px-0 py-0 float-end"
-        style={{ backgroundColor: "#ffffdd" }}
-        onClick={() => setMinimizedTask(false)}
-      >
-        <span className="fs-0" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question pull-right-container"></i></span>
-      </button>
+    <div className="d-flex flex-column h-100">
+        <button
+          className="btn btn-sm text-success p-0 pt-0 "
+          style={{ backgroundColor: "#ffffdd" }}
+          onClick={() => setMinimizedTask(false)}
+        >
+          <span className="fs-5" style={{ whiteSpace: "nowrap" }}><i className="fa fa-question "></i></span>
+        </button>
+        <div
+          className="d-flex ms-0 mt-3 fs-900"
+          style={{
+            height: "100%",
+            width: "10px",
+            minWidth: "8px",
+            maxWidth: "10px",
+            padding: 0,
+            fontSize: "16px",
+            fontWeight: "bold",
+            overflow: "hidden",
+            color: "#5f5f5fff",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
+        >
+          {/* Option 1: */}
+          {/* <span style={{ writingMode: "vertical-rl", textAlign: "center", width: "100%" }}>Guide</span> */}
+
+          {/* Option 2: */}
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+            {Array.from("Guide").map((ch, i) => (
+              <span key={i}>{ch}</span>
+            ))}
+          </span>
+        </div>
+      </div>
     );
   } else {
     return (

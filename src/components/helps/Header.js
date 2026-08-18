@@ -5,7 +5,7 @@ export default function Header() {
     <header>
       <div className='container'>
         <Link href='/' passHref>
-          <h2>Mimris Documentation</h2>
+          <h2>AKMM Documentation</h2>
         </Link>
       </div>
     </header>

@@ -4062,7 +4062,7 @@
         },
         {
           "id": "b5655e2a-e181-431b-1406-72d8156f87ae",
-          "name": "TEST_MM",
+          "name": "TEST_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -4087,7 +4087,7 @@
         },
         {
           "id": "28362053-7550-453a-c580-5571b10780da",
-          "name": "AKM-ADMIN_MM",
+          "name": "AKM-ADMIN_META",
           "description": "",
           "viewstyles": [],
           "geometries": [],
@@ -6388,7 +6388,7 @@
             },
             {
               "id": "aa6ec877-7549-44c0-76bf-124fcf23d75f",
-              "name": "TEST_MM",
+              "name": "TEST_META",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -6398,7 +6398,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false,
-              "nameId": "TEST_MM",
+              "nameId": "TEST_META",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -6711,7 +6711,7 @@
                 },
                 {
                   "id": "e937005b-7395-45d1-5072-3c9796578d28",
-                  "name": "TEST_MM",
+                  "name": "TEST_META",
                   "description": "",
                   "objectRef": "aa6ec877-7549-44c0-76bf-124fcf23d75f",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",

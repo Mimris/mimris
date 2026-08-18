@@ -15,22 +15,24 @@ function RelshipTable(props) {
     (idSelected) ? setHiddenColumns(['id']) : setHiddenColumns(['']) 
   }
 
-  
-  const models = props.ph.phData?.metis.models
-  const focusModelId = props.phFocus?.focusModel.id
+  const ph = props.ph || {};
+  const phData = ph.phData || {};
+  const phFocus = ph.phFocus || {};
+  const models = Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : []
+  const focusModelId = phFocus?.focusModel?.id || models[0]?.id
   // const focusModelviewId = props.phFocus?.focusModelview.id
-  const curmod = models?.find(m => m.i === focusModelId)
-  const modelviews = curmod.modelviews
+  const curmod = models?.find(m => m.id === focusModelId)
+  const modelviews = curmod?.modelviews || []
   // const curmodview = curmod.modelviews?.find(mv => mv.id === focusModelviewId)
 
-  const objects = curmod?.objects
-  const relships = curmod?.relships
+  const objects = curmod?.objects || []
+  const relships = curmod?.relships || []
   
-  const metamodels = props.ph.phData?.metis.metamodels
+  const metamodels = Array.isArray(phData?.metis?.metamodels) ? phData.metis.metamodels.filter(Boolean) : []
   const curmmod = metamodels.find(mm => mm.id === curmod?.metamodelRef)
   
   // console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
-  const edititem = relships[0]
+  const edititem = relships[0] || {}
 
   function listAllProperties(o) { // list all obj properties incl prototype properties
     var objectToInspect;
@@ -150,14 +152,14 @@ function RelshipTable(props) {
       {
         ...r,
         id: r.id,
-        fromObjName: curmod.objects.find(o => o.id === r.fromobjectRef).name,
-        fromObjType: curmmod.objecttypes.find(ot => (ot.id === curmod.objects.find(o => o.id === r.fromobjectRef).typeRef)).name,
+        fromObjName: objects.find(o => o.id === r.fromobjectRef)?.name,
+        fromObjType: curmmod?.objecttypes?.find(ot => (ot.id === objects.find(o => o.id === r.fromobjectRef)?.typeRef))?.name,
         name: r.name,
-        toObjName: curmod.objects.find(o => o.id === r.toobjectRef).name,
-        toObjType: curmmod.objecttypes.find(ot => (ot.id === curmod.objects.find(o => o.id === r.toobjectRef).typeRef)).name,
+        toObjName: objects.find(o => o.id === r.toobjectRef)?.name,
+        toObjType: curmmod?.objecttypes?.find(ot => (ot.id === objects.find(o => o.id === r.toobjectRef)?.typeRef))?.name,
         description: r.description,
-        type: curmmod.relshiptypes.find(rt => (rt.id === r.typeRef)).name,
-        modViews: modelviews.map(mv => mv.relshipviews.find(ov => ov.relshipRef === r.id) && mv.name+', ').filter(Boolean), 
+        type: curmmod?.relshiptypes?.find(rt => (rt.id === r.typeRef))?.name,
+        modViews: modelviews.map(mv => mv.relshipviews?.find(ov => ov.relshipRef === r.id) && mv.name+', ').filter(Boolean), 
         // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
       } 
     ),[]

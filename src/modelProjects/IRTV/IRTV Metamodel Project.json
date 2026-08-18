@@ -4078,12 +4078,12 @@
         },
         {
           "id": "214d11c3-5829-4db3-b6ae-55709ba2d4b7",
-          "name": "IRTV_MM1",
+          "name": "IRTV_META1",
           "description": "",
           "viewstyles": [
             {
               "id": "b2b29d49-435c-4367-124d-7d8c98deff11",
-              "name": "IRTV_MM1_Viewstyle",
+              "name": "IRTV_META1_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -7135,12 +7135,12 @@
         },
         {
           "id": "c25488d8-087c-4d96-2137-91ad04663b41",
-          "name": "IRTV_MM",
+          "name": "IRTV_META",
           "description": "",
           "viewstyles": [
             {
               "id": "90318e79-9493-4fef-2eb5-0818e7cf9dac",
-              "name": "IRTV_MM_Viewstyle",
+              "name": "IRTV_META_Viewstyle",
               "description": "",
               "markedAsDeleted": false,
               "modified": false
@@ -11695,7 +11695,7 @@
     },
     "focusTargetMetamodel": {
       "id": "214d11c3-5829-4db3-b6ae-55709ba2d4b7",
-      "name": "IRTV_MM1"
+      "name": "IRTV_META1"
     }
   },
   "phUser": {

@@ -8,10 +8,11 @@ const debug = false
 
 export default function ProjectForm(props) {
 
-  if (debug) console.log(props.phFocus)
-  if (!props.phFocus) return <div>no props.phFocus</div>
+  const phFocus = props.phFocus || {};
+  if (debug) console.log(phFocus)
+  if (!Object.keys(phFocus).length) return <div>no props.phFocus</div>
 
-  const projectFocusNames =  Object.keys(props.phFocus).map(item => {
+  const projectFocusNames =  Object.keys(phFocus).map(item => {
     if (item === 'focusRepo') { return item 
     } else if (item === 'focusOrg')  { return item
     } else if (item === 'focusProj') { return item
@@ -23,11 +24,11 @@ export default function ProjectForm(props) {
   }).filter(item => item !== undefined) 
 
   const projectFocus = projectFocusNames.map((item, index) => {
-    return {[item]: props.phFocus[item]}
+    return {[item]: phFocus[item]}
   } 
   ).filter(item => item !== undefined) || []
 
-  const modelFocusNames = Object.keys(props.phFocus).map(item => {
+  const modelFocusNames = Object.keys(phFocus).map(item => {
     if (item === 'focusRepo') { return item 
     } else if (item === 'focusModel')  { return item
     } else if (item === 'focusModelview') { return item
@@ -39,7 +40,7 @@ export default function ProjectForm(props) {
   }).filter(item => item !== undefined) 
 
   const modelFocus = modelFocusNames.map((item, index) => {
-    return {[item]: props.phFocus[item]}
+    return {[item]: phFocus[item]}
   }
   ).filter(item => item !== undefined) || []
 
@@ -62,8 +63,8 @@ export default function ProjectForm(props) {
           return (
             <Row key={Object.keys(obj)[0]}>
               <Col key={obj.name+1} className='bg-white m-1 font-weight-bold' ><strong> {Object.keys(obj)[0]} </strong></Col>
-              <Col key={obj.name}className='bg-white m-1'><strong> {Object.values(obj)[0].name} </strong></Col>
-              <Col key={obj.id}className='bg-white m-1 ' >{Object.values(obj)[0].id || ''} </Col>
+              <Col key={obj.name}className='bg-white m-1'><strong> {Object.values(obj)[0]?.name} </strong></Col>
+              <Col key={obj.id}className='bg-white m-1 ' >{Object.values(obj)[0]?.id || ''} </Col>
             </Row>
           )
         })}
@@ -83,8 +84,8 @@ export default function ProjectForm(props) {
           return (
             <Row key={Object.keys(obj)[0]}>
               <Col key={obj.name+1} className='bg-white m-1' ><strong> {Object.keys(obj)[0]} </strong> </Col>
-              <Col key={obj.name}className='bg-white m-1'><strong>{Object.values(obj)[0].name} </strong></Col>
-              <Col key={obj.id}className='bg-white m-1 '  >{Object.values(obj)[0].id || ''} </Col>
+              <Col key={obj.name}className='bg-white m-1'><strong>{Object.values(obj)[0]?.name} </strong></Col>
+              <Col key={obj.id}className='bg-white m-1 '  >{Object.values(obj)[0]?.id || ''} </Col>
             </Row>
         )
         })}

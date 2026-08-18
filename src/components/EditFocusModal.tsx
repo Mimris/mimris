@@ -1,27 +1,38 @@
 //@ts-nocheck
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-// import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 // import { FaJoint } from 'react-icons/fa';
 // import { setFocusObject } from '../actions/actions';
 import EditProperties from './forms/EditProperties'
+import { selectSharedUniverseState } from '../sharedUniverse';
 
 const EditFocusModal = (props) => {
 
   const debug = false
+  const sharedUniverse = useSelector(selectSharedUniverseState);
 
   if (debug) console.log('10 EditFocusModal', props);
 
   const refresh = props.refresh
   const setRefresh = props.setRefresh
+  const modalBodyRef = useRef(null)
   function toggleRefresh() { setRefresh(!refresh); }
 
-  const models = props.ph.phData.metis?.models
-  const focusModel = props.ph.phFocus?.focusModel
-  const focusModelview = props.ph.phFocus?.focusModelview
-  const focusObjectview = props.ph.phFocus?.focusObjectview
-  const focusObject = props.ph.phFocus?.focusObject
-  const focusRelshipview = props.ph.phFocus?.focusRelshipview
+  const phData = {
+    domain: sharedUniverse.world.worldDefinition.domain ?? props.ph?.phData?.domain,
+    metis: sharedUniverse.world.worldModel.metis ?? props.ph?.phData?.metis,
+    documents: sharedUniverse.compatibility.documents ?? props.ph?.phData?.documents,
+  };
+  const phFocus = sharedUniverse.world.focus || props.ph?.phFocus || {};
+  const myMetis = props.ph?.myMetis;
+
+  const models = phData.metis?.models
+  const focusModel = phFocus?.focusModel
+  const focusModelview = phFocus?.focusModelview
+  const focusObjectview = phFocus?.focusObjectview
+  const focusObject = phFocus?.focusObject
+  const focusRelshipview = phFocus?.focusRelshipview
 
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
@@ -34,10 +45,10 @@ const EditFocusModal = (props) => {
   const currel = (currel_tmp) && { ...currel_tmp, name: currelview?.name, description: currelview?.description }
   // console.log('25 EditFocusModal', models, curmodel, currelview, curobjview?.relshipRef, currel);
 
-  const focusObjecttype = props.ph.phFocus?.focusObjecttype
-  const focusRelshiptype = props.ph.phFocus?.focusRelshiptype
+  const focusObjecttype = phFocus?.focusObjecttype
+  const focusRelshiptype = phFocus?.focusRelshiptype
 
-  const metamodels = props.ph.phData.metis?.metamodels
+  const metamodels = phData.metis?.metamodels
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === curmodel?.metamodelRef)
   const curmmobj = curmetamodel?.objecttypes?.find((ov: any) => ov?.id === focusObjecttype?.id)
 
@@ -54,70 +65,70 @@ const EditFocusModal = (props) => {
   if (debug) console.log('42 EditFocusModal', props.modelType, curtableobj, curobj);
 
   const editmpropertyDiv = (props.modelType === 'modelview')
-    && (curmodel) && <EditProperties key={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
+    && (curmodel) && <EditProperties key={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} myMetis={myMetis} />
   const editmvpropertyDiv = (props.modelType === 'modelview')
-    && (curmodelview) && <EditProperties key={curmodelview.id} item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
+    && (curmodelview) && <EditProperties key={curmodelview.id} item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} myMetis={myMetis} />
   const editmmpropertyDiv = (props.modelType === 'modelview')
-    && (curmetamodel) && <EditProperties key={curmetamodel.id} item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
+    && (curmetamodel) && <EditProperties key={curmetamodel.id} item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} myMetis={myMetis} />
 
   const editovpropertyDiv = (props.modelType === 'model')
     ? (props.buttonLabel === 'Object')
-      ? (curobjview) && <EditProperties key={curobjview.id} item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
-      : (currelview) && <EditProperties key={currelview.id} item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
+      ? (curobjview) && <EditProperties key={curobjview.id} item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} myMetis={myMetis} />
+      : (currelview) && <EditProperties key={currelview.id} item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} myMetis={myMetis} />
     : (props.buttonLabel === 'Object')
-      ? (curmmobj) && <EditProperties key={curmmobj.id} item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
-      : (curmmrel) && <EditProperties key={curmmrel.id} item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
+      ? (curmmobj) && <EditProperties key={curmmobj.id} item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} myMetis={myMetis} />
+      : (curmmrel) && <EditProperties key={curmmrel.id} item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} myMetis={myMetis} />
 
   const editopropertyDiv = (props.modelType === 'model' || 'objects') &&
     (props.modelType === 'model')
     ? (props.buttonLabel === 'Object')
       ?
-      (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} /> ||
-      (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
-      : (currel) && <EditProperties item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} />
+      (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} myMetis={myMetis} /> ||
+      (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} myMetis={myMetis} />
+      : (currel) && <EditProperties item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} myMetis={myMetis} />
     // : (props.buttonLabel === 'Obj')
     //   ? (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
     //   : <></>
-    : (curtableobj) && <EditProperties item={curtableobj} type={'UPDATE_OBJECT_PROPERTIES'} />
+    : (curtableobj) && <EditProperties item={curtableobj} type={'UPDATE_OBJECT_PROPERTIES'} myMetis={myMetis} />
 
   const editotpropertyDiv = (props.modelType === 'model')
     // ? (curotypeview.id !== curmmotypeview?.id) 
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     ? (props.buttonLabel === 'Object')
-      ? (curotypeview) && <EditProperties key={curotypeview.id} item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-      : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+      ? (curotypeview) && <EditProperties key={curotypeview.id} item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} myMetis={myMetis} />
+      : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} myMetis={myMetis} />
     : (props.buttonLabel === 'Object')
-      ? (curmmotypeview) && <EditProperties key={curmmotypeview.id} item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-      : (curmmrtypeview) && <EditProperties key={curmmrtypeview.id} item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+      ? (curmmotypeview) && <EditProperties key={curmmotypeview.id} item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} myMetis={myMetis} />
+      : (curmmrtypeview) && <EditProperties key={curmmrtypeview.id} item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} myMetis={myMetis} />
 
   const idNameDiv = (props.modelType === 'modelview')
     ?
     <>
-      <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusModel?.id} </span></div>
-      <div> Name :<span className="titlename font-weight-bolder ml-4" >{props.ph.phFocus.focusModel?.name}</span></div>
+      <div >Id : <span className="font-weight-bolder ml-5">{phFocus.focusModel?.id} </span></div>
+      <div> Name :<span className="titlename font-weight-bolder ml-4" >{phFocus.focusModel?.name}</span></div>
     </>
     : (props.modelType === 'model')
       ? (props.buttonLabel == 'Object')
         ?
         <>
-          <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
+          <div >Id : <span className="font-weight-bolder ml-5">{phFocus.focusObjectview?.id} </span></div>
           <div> Name :<span className="titlename font-weight-bolder ml-4" >{curobjview?.name}</span></div>
         </>
         :
         <>
-          <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshipview?.id} </span></div>
+          <div >Id : <span className="font-weight-bolder ml-5">{phFocus.focusRelshipview?.id} </span></div>
           <div> Name :<span className="titlename font-weight-bolder ml-4" >{currelview?.name}</span></div>
         </>
       : (props.buttonLabel === 'Object')
         ?
         <>
-          <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
+          <div >Id : <span className="font-weight-bolder ml-5">{phFocus.focusObjecttype?.id} </span></div>
           <div> Name :<span className="titlename font-weight-bolder ml-4" >{curmmobj?.name}</span></div>
         </>
         :
         <>
-          <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshiptype?.id} </span></div>
+          <div >Id : <span className="font-weight-bolder ml-5">{phFocus.focusRelshiptype?.id} </span></div>
           <div> Name :<span className="titlename font-weight-bolder ml-4" >{currel?.name}</span></div>
         </>
 
@@ -220,16 +231,30 @@ const EditFocusModal = (props) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+
+  const submitFormsAndClose = () => {
+    const forms = modalBodyRef.current?.querySelectorAll?.('form') || [];
+    forms.forEach((form: HTMLFormElement) => {
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+    });
+    toggle();
+    toggleRefresh();
+  }
+
   return (
     <>
       < button className="btn-dark bg-dark text-light float-right px-3 mr-1" onClick={toggle} > {buttonLabel}</button >
       <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%" }} >
-        <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
-        <ModalBody >
+        <ModalHeader toggle={submitFormsAndClose}>{modalheader}</ModalHeader>
+        <ModalBody innerRef={modalBodyRef}>
           {dialogDiv}
         </ModalBody>
         <ModalFooter>
-          <Button className="modal-footer m-0 p-0" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
+          <Button className="modal-footer m-0 p-0" color="link" onClick={submitFormsAndClose}>Done</Button>
         </ModalFooter>
       </Modal>
     </>

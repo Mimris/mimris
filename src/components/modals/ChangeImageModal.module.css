@@ -1,0 +1,18 @@
+.modal {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.header :global(.modal-title) {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.header :global(.btn-close) {
+  transform: scale(0.75);
+}
+
+.closeButton {
+  font-size: 0.75rem;
+  /* padding: 0.15rem 0.85rem; */
+}

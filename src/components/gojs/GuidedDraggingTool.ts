@@ -393,8 +393,15 @@ export class GuidedDraggingTool extends go.DraggingTool {
     area.inflate(marginOfError + 1, distance);
     let otherObjs = this?.diagram?.findObjectsIn(area,
       (obj) => obj.part as go.Part,
-      (p) => p instanceof go.Part && !p.isSelected && !(p instanceof go.Link) && p.isTopLevel && p.layer !== null && !p.layer.isTemporary,
-      true) as go.Set<go.Part>;
+      (p) =>
+        p instanceof go.Part &&
+        !p.isSelected &&
+        !(p instanceof go.Link) &&
+        p.isTopLevel &&
+        p.layer !== null &&
+        !p.layer.isTemporary,
+      true
+    ) as go.Set<go.Part>;
 
     let bestDiff: number = marginOfError;
     let bestObj: any = null;  // TS 2.6 won't let this be go.Part | null

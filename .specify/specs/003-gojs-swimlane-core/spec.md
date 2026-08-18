@@ -2,7 +2,8 @@
 
 **Feature Branch**: `003-gojs-swimlane-core`
 **Created**: 2026-06-30
-**Status**: In progress
+**Status**: In progress — resize synchronization behavior is specified; rollout and validation remain in progress.
+**Last Updated**: 2026-08-18
 **Input**: User description: "Refactor BPMN swimlanes so a newly built pool with lanes behaves like the GoJS swimlane sample, while preserving Mimris palette drag/drop and BPMN metamodel integration."
 
 ## User Scenarios & Testing
@@ -30,6 +31,10 @@ A modeller building BPMN swimlanes wants pools and lanes to behave predictably, 
 - What happens when a modeller moves a pool immediately after resizing it?
 - What happens when multiple lanes are reordered or resized after reload?
 - What happens when the new swimlane core is enabled for one modelview while legacy logic still exists in the codebase behind a feature flag?
+
+### Current Milestone
+
+The resize contract has been documented in `docs/lane-resize-pool-sync-spec.md`: resizing a lane must synchronize its sibling lanes and pool while keeping the pool header and lane headers fixed and visible. The implementation remains gated by the swimlane-core rollout, and the remaining manual validation scenarios are tracked in `tasks.md`.
 
 ## Requirements
 

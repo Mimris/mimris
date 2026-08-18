@@ -18,6 +18,7 @@ import { NavbarToggler } from "reactstrap";
 import GenGojsModel from "../components/GenGojsModel";
 import Project from "../components/Project";
 import Issues from "../components/Issues";
+import { selectPersistedAppState } from "../components/utils/persistedState";
 
 import { searchGithub } from '../components/githubServices/githubService'
 import { ProjectMenuBar } from "../components/loadModelData/ProjectMenuBar";
@@ -80,34 +81,29 @@ const Page1 = (props: any) => {
   useEffect(() => {
     if (debug) useEfflog('71 modelling useEffect 0 [] ');
     const handleReload = () => {
-      let locStore = memorySessionState;
-      if (debug) console.log('81 modelling page reloaded', memorySessionState);
-      if (!memorySessionState) locStore = memoryLocState;
+      const locStore = selectPersistedAppState(memorySessionState, memoryLocState);
+      if (debug) console.log('81 modelling page reloaded', memorySessionState, memoryLocState, locStore);
       if (debug) console.log('79modelling 1 ', locStore);
       if (locStore && locStore.phData) {
         const data = locStore;
         if (debug) console.log('87 modelling ', data);
         dispatchLocalStore(data);
-        return () => clearTimeout(timer);
       } else {
-        if (debug) console.log('92 modelling page not reloaded', memorySessionState[0]);
+        if (debug) console.log('92 modelling page not reloaded', memorySessionState);
         if (window.confirm("No recovery model.  \n\n  Click 'OK' to recover or 'Cancel' to open initial project.")) {
           if (props.phFocus.focusProj.file === 'AKM-INIT-Startup_PR.json') {
             if (!isReloading) {
               setIsReloading(true);
               window.location.reload();
             }
-            const timer = setTimeout(() => {
+            setTimeout(() => {
               setRefresh(!refresh);
             }, 100);
-            return () => clearTimeout(timer);
           }
         }
       }
     };
-    const shouldReload = Object.keys(query).length !== 0 && memorySessionState[0] && mount;
     handleReload();
-    let org = query.org;
   }, [])
 
 
@@ -223,7 +219,11 @@ const Page1 = (props: any) => {
     // Copy sessionStorage to localStorage
     const sessionData = sessionStorage.getItem('memorystate');
     if (sessionData) {
-      setMemoryLocState(sessionData);
+      try {
+        setMemoryLocState(JSON.parse(sessionData));
+      } catch (_error) {
+        // Ignore malformed recovery data and continue opening the external page.
+      }
     }
 
     // Construct the URL and open it in a new tab

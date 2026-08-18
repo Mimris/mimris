@@ -5,6 +5,7 @@ import useSessionStorage from '../hooks/use-session-storage';
 import useLocalStorage from '../hooks/use-local-storage';
 import Modelling from '../components/Modelling';
 import Page from '../components/page';
+import { selectPersistedAppState } from '../components/utils/persistedState';
 
 const debug = false;
 
@@ -18,30 +19,10 @@ const page = (props: any) => {
     // Retrieve memorySessionState using the useSessionStorage hook
     const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', []);
     // console.log('20 MemoryLocState:', memoryLocState); // Debug log
-    const [data, setData] = useState(() => {
-        try {
-            return memoryLocState && typeof memoryLocState === 'string'
-                ? JSON.parse(memoryLocState)
-                : {};
-        } catch (error) {
-            console.error('Error parsing initial memoryLocState:', error);
-            return {};
-        }
-    });
+    const [data, setData] = useState(() => selectPersistedAppState(null, memoryLocState) || {});
 
     useEffect(() => {
-        let parsedMemoryLocState = null;
-
-        try {
-            // Parse memoryLocState if it's a string
-            parsedMemoryLocState = memoryLocState && typeof memoryLocState === 'string'
-                ? JSON.parse(memoryLocState)
-                : memoryLocState;
-
-            console.log('Parsed memoryLocState:', parsedMemoryLocState); // Debug log
-        } catch (error) {
-            console.error('Error parsing memoryLocState:', error);
-        }
+        const parsedMemoryLocState = selectPersistedAppState(null, memoryLocState);
 
         if (parsedMemoryLocState) {
             const newData = {

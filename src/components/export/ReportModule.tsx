@@ -45,7 +45,15 @@ const ReportModule = (props: any) => {
       {!visibleTabsDiv ?
         <>
           <button className="btn-sm bg-transparent float-end me-2" style={{ textAlign: "left", outline: "0", borderStyle: "none" }}
-            onClick={() => setVisibleTabsDiv(!visibleTabsDiv)}><span><i className="fa fa-arrow-right fa-lg"></i></span>
+            onClick={() => {
+              // When collapsing the tabs (right arrow clicked), close the parent dialog completely
+              if (props.props?.setVisibleFocusDetails) {
+                props.props.setVisibleFocusDetails(false);
+              } else {
+                // Fallback to local toggle if parent method not available
+                setVisibleTabsDiv(!visibleTabsDiv);
+              }
+            }}><span><i className="fa fa-arrow-right fa-lg"></i></span>
           </button>
           <>
             <Tabs onSelect={index => setActiveTab(index)}

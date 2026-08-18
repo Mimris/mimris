@@ -133,6 +133,19 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
         continue;
       if (debug) console.log('103 obj, objtype', obj, objtype);
       const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "", null);
+      // Palette entries should inherit styling from the object type view. The synthetic object view
+      // created here must not contribute its constructor defaults ("white", "black", etc.),
+      // otherwise goObjectNode.loadNodeContent() treats those defaults as explicit overrides.
+      objview.fillcolor = "";
+      objview.fillcolor1 = "";
+      objview.fillcolor2 = "";
+      objview.strokecolor = "";
+      objview.strokecolor1 = "";
+      objview.strokecolor2 = "";
+      objview.textcolor = "";
+      objview.textcolor2 = "";
+      objview.icon = "";
+      objview.image = "";
       let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
       if (typeview?.data.viewkind === 'Container') {
         objtype.viewkind = 'Container';
@@ -151,6 +164,26 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       objview.setTypeView(typeview); 
       const node = new gjs.goObjectNode(objview.id, myGoPaletteModel, objview);
       node.loadNodeContent(myGoPaletteModel);  
+      if (typeview) {
+        if (!node.fillcolor || node.fillcolor === "white" || node.fillcolor === "transparent") {
+          node.fillcolor = typeview.getFillcolor();
+        }
+        if (!node.fillcolor2 || node.fillcolor2 === "white" || node.fillcolor2 === "transparent") {
+          node.fillcolor2 = typeview.getFillcolor2();
+        }
+        if (!node.strokecolor || node.strokecolor === "black") {
+          node.strokecolor = typeview.getStrokecolor();
+        }
+        if (!node.strokecolor2 || node.strokecolor2 === "black") {
+          node.strokecolor2 = typeview.getStrokecolor2();
+        }
+        if (!node.textcolor || node.textcolor === "black") {
+          node.textcolor = typeview.getTextcolor();
+        }
+        if (!node.textcolor2 || node.textcolor2 === "black") {
+          node.textcolor2 = typeview.getTextcolor2();
+        }
+      }
       if (debug) console.log('121 node', objtype, objview, node);
       node.isGroup = objtype.isContainer();
       if (node.isGroup)
@@ -370,17 +403,17 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
         if (objtype?.name !== 'EntityType') {
           const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
           if (typeview) {
-            if (!node.template) node.template = typeview.template;
-            if (node.template === "") node.template = typeview.template;
-            if (!node.fillcolor) node.fillcolor = typeview.fillcolor;
-            if (node.fillcolor2 === "") node.fillcolor2 = typeview.fillcolor2;
-            if (node.strokecolor === "") node.strokecolor = typeview.strokecolor;
-            if (node.strokecolor2 === "") node.strokecolor2 = typeview.strokecolor2;
-            if (node.textcolor === "") node.textcolor = typeview.textcolor;
-            if (node.textcolor2 === "") node.textcolor2 = typeview.textcolor2;
+            if (!node.template) node.template = typeview.getTemplate();
+            if (node.template === "") node.template = typeview.getTemplate();
+            if (!node.fillcolor) node.fillcolor = typeview.getFillcolor();
+            if (node.fillcolor2 === "") node.fillcolor2 = typeview.getFillcolor2();
+            if (node.strokecolor === "") node.strokecolor = typeview.getStrokecolor();
+            if (node.strokecolor2 === "") node.strokecolor2 = typeview.getStrokecolor2();
+            if (node.textcolor === "") node.textcolor = typeview.getTextcolor();
+            if (node.textcolor2 === "") node.textcolor2 = typeview.getTextcolor2();
             if (node.icon === "") node.icon = typeview.icon;
             if (node.image === "") node.image = typeview.image;
-            if (node.viewkind === "") node.viewkind = typeview.viewkind;
+            if (node.viewkind === "") node.viewkind = typeview.getViewKind();
           }
         }
       }
@@ -599,8 +632,8 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
           }
         }
         let typeview = objtype.typeview as akm.cxObjectTypeView;
-        let strokecolor = typeview?.strokecolor;
-        let fillcolor = typeview?.fillcolor;
+        let strokecolor = typeview?.getStrokecolor?.();
+        let fillcolor = typeview?.getFillcolor?.();
         if (objtype) {
           if (objtype.isAbstract())
             includeObjtype = false;
@@ -637,7 +670,9 @@ export function buildGoMetaModel(metamodel: akm.cxMetaModel, includeDeleted: boo
             const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
             node.loadNodeContent(metamodel);
             node.strokecolor = strokecolor;
-            // node.fillcolor = fillcolor;
+            if (!node.fillcolor || node.fillcolor === "white" || node.fillcolor === "transparent") {
+              node.fillcolor = fillcolor;
+            }
             if (debug) console.log('484 objtype, node', objtype, node);
             myGoMetamodel.addNode(node);
           }

@@ -348,6 +348,19 @@ export class cxMetis {
                     otypeview.name = otype.name;
             }
         }
+        // Object types can be imported before their typeviews. Reattach the real default typeview
+        // after all objecttypeviews have been imported so palette/model builders do not fall back
+        // to the constructor defaults ("white", etc.).
+        for (let i = 0; i < objtypes?.length; i++) {
+            const otype = objtypes[i];
+            if (!otype) continue;
+            const typeviewRef = otype.typeviewRef || otype.typeview?.id;
+            if (!typeviewRef) continue;
+            const otypeview = this.findObjectTypeView(typeviewRef);
+            if (otypeview) {
+                otype.setDefaultTypeView(otypeview);
+            }
+        }
         mmodels = this.metamodels;
         if (false) {
             // Postprocess relshiptypeviews

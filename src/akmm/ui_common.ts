@@ -5189,26 +5189,29 @@ export function setObjviewColors(data: any, object: any, objview: any, typeview:
         let fillcolor = "";
         let strokecolor = "";
         let textcolor = "";
+        const typeFill = typeview?.getFillcolor ? typeview.getFillcolor() : typeview?.fillcolor;
+        const typeStroke = typeview?.getStrokecolor ? typeview.getStrokecolor() : typeview?.strokecolor;
+        const typeText = typeview?.getTextcolor ? typeview.getTextcolor() : typeview?.textcolor;
         if (object.fillcolor) {
             fillcolor = object.fillcolor;
         } else if (objview.fillcolor1) {
             fillcolor = objview.fillcolor1;
-        } else if (typeview?.fillcolor) {
-            fillcolor = typeview.fillcolor;
+        } else if (typeFill) {
+            fillcolor = typeFill;
         }
         if (object.strokecolor) {
             strokecolor = object.strokecolor;
         } else if (objview.strokecolor2) {
             strokecolor = objview.strokecolor2;
-        } else if (typeview?.strokecolor) {
-            strokecolor = typeview.strokecolor;
+        } else if (typeStroke) {
+            strokecolor = typeStroke;
         }
         if (object.textcolor) {
             textcolor = object.textcolor;
         } else if (objview.textcolor2) {
             textcolor = objview.textcolor2;
-        } else if (typeview?.textcolor) {
-            textcolor = typeview.textcolor;
+        } else if (typeText) {
+            textcolor = typeText;
         }
         data.fillcolor = fillcolor;
         myDiagram.model.setDataProperty(data, "fillcolor", fillcolor);

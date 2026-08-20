@@ -51,7 +51,6 @@ const page = () => {
         for (let index = 0; index < 6; index += 1) {
             const record = asRecord(current);
             if (!record || Object.keys(record).length === 0) break;
-            if (isWorkspaceUniverseSnapshot(record)) return record;
             if (Array.isArray(record.models) || Array.isArray(record.metamodels)) return record;
             if (record.metis && typeof record.metis === 'object') {
                 current = record.metis;
@@ -61,6 +60,7 @@ const page = () => {
                 current = record.payload;
                 continue;
             }
+            if (isWorkspaceUniverseSnapshot(record)) return record;
             return record;
         }
         return asRecord(current);
@@ -267,17 +267,23 @@ const page = () => {
         }
         return `${prefix} URI: ${remoteUri}`;
     };
-    const buildRemoteMetisState = (metisPayload: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string }) => {
+    const buildRemoteMetisState = (metisPayload: any, options: { universeId?: string; universeSlug?: string; baseUrl?: string; metisScope?: string; remoteUri?: string; focusQuery?: RemoteMetisFocusQuery }) => {
         const resolvedMetisPayload = unwrapRemotePayload(metisPayload);
         const normalizedMetis = {
             ...InitialState.phData?.metis,
             ...resolvedMetisPayload,
         };
         const models = normalizeModels(normalizedMetis.models);
-        const metamodels = normalizeModels(normalizedMetis.metamodels);
-        const requestedModelRef = readShareQueryValue(normalizedMetis.currentModelRef);
-        const requestedModelviewRef = readShareQueryValue(normalizedMetis.currentModelviewRef);
-        const requestedMetamodelRef = readShareQueryValue(normalizedMetis.currentMetamodelRef);
+        const remoteMetamodels = normalizeModels(resolvedMetisPayload.metamodels);
+        const metamodels = remoteMetamodels.length > 0
+            ? remoteMetamodels
+            : normalizeModels(InitialState.phData?.metis?.metamodels);
+        const requestedModelRef = readShareQueryValue(options.focusQuery?.currentModelRef) ||
+            readShareQueryValue(normalizedMetis.currentModelRef);
+        const requestedModelviewRef = readShareQueryValue(options.focusQuery?.currentModelviewRef) ||
+            readShareQueryValue(normalizedMetis.currentModelviewRef);
+        const requestedMetamodelRef = readShareQueryValue(options.focusQuery?.currentMetamodelRef) ||
+            readShareQueryValue(normalizedMetis.currentMetamodelRef);
         const resolvedModel =
             models.find((model: any) => model?.id === requestedModelRef || model?.name === requestedModelRef) ||
             models.find((model: any) => requestedMetamodelRef && model?.metamodelRef === requestedMetamodelRef) ||
@@ -389,6 +395,7 @@ const page = () => {
                             baseUrl: options.baseUrl,
                             metisScope: options.metisScope,
                             remoteUri,
+                            focusQuery: options.focusQuery,
                         });
 
                     clearStoredFocusModel();
@@ -440,6 +447,7 @@ const page = () => {
                 baseUrl: options.baseUrl,
                 metisScope: options.metisScope,
                 remoteUri,
+                focusQuery: options.focusQuery,
             });
 
         clearStoredFocusModel();

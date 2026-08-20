@@ -20,6 +20,7 @@ import { saveRemoteUniverseProject } from '../components/utils/remoteUniversePro
 import { normalizeMetisScope, setActiveMetisScope } from '../components/utils/workspaceMetisResolver.js';
 import { buildUniverseStateFromLegacy, selectMimrisCompatibilityProps, setUniverseState, setUniverseUser } from '../sharedUniverse';
 import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
+import { hydrateRemoteMetisReferences } from '../components/utils/remoteMetisHydration.js';
 
 const page = () => {
     const dispatch = useDispatch();
@@ -273,11 +274,12 @@ const page = () => {
             ...InitialState.phData?.metis,
             ...resolvedMetisPayload,
         };
-        const models = normalizeModels(normalizedMetis.models);
         const remoteMetamodels = normalizeModels(resolvedMetisPayload.metamodels);
         const metamodels = remoteMetamodels.length > 0
             ? remoteMetamodels
             : normalizeModels(InitialState.phData?.metis?.metamodels);
+        const hydratedMetis = hydrateRemoteMetisReferences(normalizedMetis, metamodels);
+        const models = normalizeModels(hydratedMetis.models);
         const requestedModelRef = readShareQueryValue(options.focusQuery?.currentModelRef) ||
             readShareQueryValue(normalizedMetis.currentModelRef);
         const requestedModelviewRef = readShareQueryValue(options.focusQuery?.currentModelviewRef) ||
@@ -301,7 +303,7 @@ const page = () => {
                 ...InitialState.phData,
                 ...phData,
                 metis: {
-                    ...normalizedMetis,
+                    ...hydratedMetis,
                     models,
                     metamodels,
                 },

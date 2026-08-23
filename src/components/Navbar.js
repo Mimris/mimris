@@ -109,15 +109,23 @@ const Navbar = (props) => {
 	];
 
 	return (
-		<nav className="navbar navbar-expand-sm navbar-toggler ps-0 pb-0"
+		<nav className="navbar navbar-expand-sm ps-0 pb-0"
 			style={(domainName === "localhost")
 				? { marginLeft: "36px", marginRight: "36px", backgroundColor: "#efe" }
 				: { marginLeft: "32px", marginRight: "32px", backgroundColor: " #efefef" }}>
+			<a
+				href="https://mimris-site.vercel.app"
+				target="_blank"
+				rel="noreferrer"
+				className="ecosystem-brand text-success fs-4 fw-bold"
+				aria-label="Open Mimris ecosystem home in a new tab"
+			>
+				Mimris Modelling
+			</a>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<div className="navbar-nav d-flex justify-content-between align-items-top"
 					style={{ marginLeft: "1vw" }}
 				>
-					<strong className="text-success fs-2" style={{ whiteSpace: "nowrap" }}>Mimris</strong>
 					<div className="mb-2 me-4 d-flex justify-content-between align-items-center">
 						<span className="mx-1 pt-2 text-secondary bg-transparent" style={{ whiteSpace: "nowrap", scale: "0.8" }} >version: {version}</span>
 						<DropdownMenu options={options} domainName={domainName} />
@@ -125,7 +133,7 @@ const Navbar = (props) => {
 				</div>
 				<ul className="navbar-nav ">
 					<li className={`nav-item ${currentRoute === "/" ? "active" : ""}`}>
-						<Link href="/">Home</Link>
+						<Link href="/">Modelling start</Link>
 					</li>
 					<li className={`nav-item ${currentRoute === "/modelling" ? "active" : ""}`}>
 						<Link href="/modelling" >Modelling</Link>
@@ -156,6 +164,9 @@ const Navbar = (props) => {
 					</li>
 					<li className={`nav-item ${currentRoute === "/about" ? "active" : ""}`} >
 						<Link href="/about">About</Link>
+					</li>
+					<li className="nav-item">
+						<a href="https://mimris-ai-workspace.vercel.app" target="_blank" rel="noreferrer">AI Workspace ↗</a>
 					</li>
 					{/* <li className="nav-item pt-1 ps-1" style={{ minWidth: "54px"}}>
 							<Link
@@ -196,7 +207,7 @@ const Navbar = (props) => {
 					aria-expanded="false"
 					aria-label="Toggle navigation"
 				>
-					<span className="navbar-toggler-icon ">toggler icon</span>
+					<span className="navbar-toggler-icon" />
 				</button>
 			</div>
 			<style jsx>{`
@@ -209,14 +220,20 @@ const Navbar = (props) => {
 				background: #dadada;
 				box-shadow: 0 0px 10px #ccc;
 			}
+			.ecosystem-brand {
+				margin-left: 1vw;
+				text-decoration: none;
+				white-space: nowrap;
+			}
 			.nav-item {
-				width: 8rem;
+				width: auto;
+				flex: 0 0 auto;
 				display: flex;
 				justify-content: center;
 				align-items: baseline; 
 				padding: 2px 10px;
-				width: 100%;
 				height: 100%;
+				white-space: nowrap;
 				background: #ebf0f0;
 				border-radius: 10px 10px 0 0;
 				border-top: 4px solid #aaa

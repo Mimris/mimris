@@ -595,14 +595,6 @@ export const ProjectMenuBar = (props: any) => {
                     className="d-flex justify-content-around p-1 m-0 w-100"
                     style={{ position: "relative", top: "-4px", left: "0px" }}
                 >
-                    <Link className="mt-3 bg-transparent" href="http://www.kavca.no" target="_blank">
-                        <div className="d-flex ms-1 justify-content-end align-items-baseline">
-                            <img src="images/Kavca-logo2.png" width="18" height="18" className="" alt="Kavca logo" />
-                            <span className="fw-bold fs-5" style={{ color: "#0083e2" }}>
-                                avca AS
-                            </span>
-                        </div>
-                    </Link>
                     <Link className="mb-" href="#">
                         <img
                             src="images/equinor-logo.svg"

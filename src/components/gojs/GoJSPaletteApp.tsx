@@ -255,8 +255,30 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
   public componentDidUpdate(prevProps: any) {
     const nextCols = this.props?.noOfCols ? this.props.noOfCols : 1;
+    const nodeDataChanged = prevProps?.nodeDataArray !== this.props?.nodeDataArray;
+    const linkDataChanged = prevProps?.linkDataArray !== this.props?.linkDataArray;
+    const stateUpdate: Partial<AppState> = {};
+
     if (prevProps?.noOfCols !== this.props?.noOfCols && nextCols !== this.state.noOfCols) {
-      this.setState({ noOfCols: nextCols, skipsDiagramUpdate: false });
+      stateUpdate.noOfCols = nextCols;
+    }
+    if (nodeDataChanged) {
+      stateUpdate.nodeDataArray = this.props?.nodeDataArray || [];
+    }
+    if (linkDataChanged) {
+      stateUpdate.linkDataArray = this.props?.linkDataArray || [];
+    }
+
+    if (Object.keys(stateUpdate).length > 0) {
+      stateUpdate.skipsDiagramUpdate = false;
+      this.setState(stateUpdate as AppState, () => {
+        if (nodeDataChanged) {
+          this.refreshNodeIndex(this.state.nodeDataArray);
+        }
+        if (linkDataChanged) {
+          this.refreshLinkIndex(this.state.linkDataArray);
+        }
+      });
     }
 
     const nodesChanged = prevProps.nodeDataArray !== this.props.nodeDataArray;
@@ -372,10 +394,13 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const nodes = this.state.nodeDataArray;
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
-          if (!node.fillcolor) {
+          if (!node.fillcolor || node.fillcolor === "white" || node.fillcolor === "transparent") {
             const obj = node.object;
+            const typeview = node.typeview;
             if (obj?.fillcolor) {
               node.fillcolor = obj.fillcolor;
+            } else if (typeview?.fillcolor) {
+              node.fillcolor = typeview.fillcolor;
             }
           }
         }

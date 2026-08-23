@@ -357,13 +357,15 @@ const page = () => {
         const isWorkspaceAuthoritative = options.focusQuery?.workspaceAuthority === 'redux';
         if (isWorkspaceAuthoritative) clearStoredMemoryState();
         if (!options.preferRemote && loadMatchingRemoteMemoryState({ ...options, remoteUri })) {
-            updateModelRoute({
-                universeId: options.universeId,
-                universeSlug: options.universeSlug,
-                baseUrl: options.baseUrl,
-                metisScope: options.metisScope,
-                focusQuery: options.focusQuery,
-            });
+            if (!isWorkspaceAuthoritative) {
+                updateModelRoute({
+                    universeId: options.universeId,
+                    universeSlug: options.universeSlug,
+                    baseUrl: options.baseUrl,
+                    metisScope: options.metisScope,
+                    focusQuery: options.focusQuery,
+                });
+            }
             dispatch({
                 type: 'SET_FOCUS_REFRESH',
                 data: {
@@ -403,13 +405,15 @@ const page = () => {
                     clearStoredFocusModel();
                     if (isWorkspaceAuthoritative) clearStoredMemoryState();
                     dispatchLoadedState(fallbackState, { replaceGeometry: isWorkspaceAuthoritative });
-                    updateModelRoute({
-                        universeId: options.universeId,
-                        universeSlug: options.universeSlug,
-                        baseUrl: options.baseUrl,
-                        metisScope: options.metisScope,
-                        focusQuery: options.focusQuery,
-                    });
+                    if (!isWorkspaceAuthoritative) {
+                        updateModelRoute({
+                            universeId: options.universeId,
+                            universeSlug: options.universeSlug,
+                            baseUrl: options.baseUrl,
+                            metisScope: options.metisScope,
+                            focusQuery: options.focusQuery,
+                        });
+                    }
                     dispatch({
                         type: 'SET_FOCUS_REFRESH',
                         data: {
@@ -455,13 +459,15 @@ const page = () => {
         clearStoredFocusModel();
         if (isWorkspaceAuthoritative) clearStoredMemoryState();
         dispatchLoadedState(nextState, { replaceGeometry: isWorkspaceAuthoritative });
-        updateModelRoute({
-            universeId: options.universeId,
-            universeSlug: options.universeSlug,
-            baseUrl: options.baseUrl,
-            metisScope: options.metisScope,
-            focusQuery: options.focusQuery,
-        });
+        if (!isWorkspaceAuthoritative) {
+            updateModelRoute({
+                universeId: options.universeId,
+                universeSlug: options.universeSlug,
+                baseUrl: options.baseUrl,
+                metisScope: options.metisScope,
+                focusQuery: options.focusQuery,
+            });
+        }
         dispatch({
             type: 'SET_FOCUS_REFRESH',
             data: {

@@ -6,7 +6,8 @@ import { setFocusModel } from "../../actions/actions";
 import { i } from "./SvgLetters";
 import { buildMimrisStateFromWorkspaceSnapshot, isWorkspaceUniverseSnapshot } from "./workspaceUniverseAdapter";
 import {
-    loadLegacyUniverseSnapshot,
+    openLegacyUniverseSnapshot,
+    replaceUniversePhData,
     selectSharedUniverseState,
     setUniverseFocus,
     setUniversePhData,
@@ -94,7 +95,7 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
         }
         if (debug) console.log('356 ReadModelFromFile', data, importedfile?.phData?.metis.models, importedfile?.phData?.metis.metamodels)
         clearPersistedFileFocus()
-        props.dispatch(loadLegacyUniverseSnapshot(data))
+        props.dispatch(openLegacyUniverseSnapshot(data))
         // dispatch({type: 'SET_FOCUS_REFRESH', data:  {id: Math.random().toString(36).substring(7), name: 'refresh'}})
         if (debug) console.log('29 ReadModelFromFile', filename, props)
     };
@@ -135,7 +136,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 return
             }
             clearPersistedFileFocus()
-            dispatch(loadLegacyUniverseSnapshot({
+            dispatch(openLegacyUniverseSnapshot({
                 ...adaptedState,
                 phUser: stripWorkspaceUniverseMetadata(adaptedState.phUser || InitialState.phUser),
             }))
@@ -191,7 +192,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                 },
             }
             clearPersistedFileFocus()
-            dispatch(loadLegacyUniverseSnapshot({
+            dispatch(openLegacyUniverseSnapshot({
                 ...InitialState,
                 phData: sanitizedProject.phData,
                 phFocus: sanitizedProject.phFocus,
@@ -229,7 +230,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
             const resolvedModelview = resolveFocusableModelview(resolvedModel, importedfile?.phFocus?.focusModelview)
 
             clearPersistedFileFocus()
-            dispatch(loadLegacyUniverseSnapshot({
+            dispatch(openLegacyUniverseSnapshot({
                 ...InitialState,
                 phData: {
                     ...InitialState.phData,
@@ -654,7 +655,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
 
         if (debug) console.log('356 ReadModelFromFile', data)
-        dispatch(setUniversePhData(data.phData))
+        dispatch(replaceUniversePhData(data.phData))
         if (data.phFocus) dispatch(setUniverseFocus(data.phFocus))
         if (data.phSource) dispatch(setUniverseSource(data.phSource))
         if (data.phUser) dispatch(setUniverseUser(data.phUser))

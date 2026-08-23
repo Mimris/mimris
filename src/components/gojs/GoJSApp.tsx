@@ -3290,7 +3290,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         laneInfos.forEach((info) => {
           const part = info.lane;
           const laneKey = info.key;
-          const bodyBounds = info.bodyBounds;
           if (poolKey && part.data?.group !== poolKey) {
             if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === "function") {
               (myDiagram.model as any).setGroupKeyForNodeData(part.data, poolKey);
@@ -3312,26 +3311,24 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
 
-            // Ensure the model loc matches what the user sees.
-            const locStr = `${mp.location.x} ${mp.location.y}`;
-            myDiagram.model.setDataProperty(mp.data, "loc", locStr);
-
-            // Safety clamp: if a node ended up outside its lane body due to stale loc or relayout timing,
-            // move it back inside so subsequent drags are constrained correctly.
-            if (bodyBounds) {
-              const b = mp.actualBounds;
-              if (!bodyBounds.containsRect(b)) {
-                const x = Math.max(bodyBounds.x + 2, Math.min(b.x, bodyBounds.right - b.width - 2));
-                const y = Math.max(bodyBounds.y + 2, Math.min(b.y, bodyBounds.bottom - b.height - 2));
-                mp.moveTo(x, y);
-                myDiagram.model.setDataProperty(mp.data, "loc", `${mp.location.x} ${mp.location.y}`);
-              }
+            // Persisted coordinates are authoritative during reload. Group membership can move a
+            // live Part transiently; restore the saved document location instead of writing that
+            // transient position back over the model.
+            const persistedLoc = String(mp.data.loc || "").trim();
+            if (persistedLoc) {
+              try {
+                const point = go.Point.parse(persistedLoc);
+                if (Number.isFinite(point.x) && Number.isFinite(point.y)) mp.location = point;
+              } catch (_) { }
+            } else {
+              myDiagram.model.setDataProperty(mp.data, "loc", go.Point.stringify(mp.location));
             }
+
           });
         });
 
         // Fix nodes that are direct Pool members but clearly inside a Lane: assign them to the smallest
-        // containing lane (usually the row they are in), then clamp into the lane body.
+		// containing lane (usually the row they are in). Membership repair must not change geometry.
 	        if (laneInfos.length > 0) {
           // Sort smallest-first to pick the most specific lane if bounds overlap.
           laneInfos.sort((a, b) => a.area - b.area);
@@ -3341,6 +3338,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!d) return;
             const currentGroup = typeof d.group === "string" ? d.group : "";
             if (currentGroup !== poolKey) return; // only repair pool-level members
+            const persistedLoc = String(d.loc || "").trim();
             const center = part.actualBounds.center;
             let chosen: (typeof laneInfos)[number] | null = null;
             for (let i = 0; i < laneInfos.length; i++) {
@@ -3356,15 +3354,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else {
               myDiagram.model.setDataProperty(d, "group", chosen.key);
             }
-            myDiagram.model.setDataProperty(d, "loc", `${part.location.x} ${part.location.y}`);
-            if (chosen.bodyBounds) {
-              const b = part.actualBounds;
-              if (!chosen.bodyBounds.containsRect(b)) {
-                const x = Math.max(chosen.bodyBounds.x + 2, Math.min(b.x, chosen.bodyBounds.right - b.width - 2));
-                const y = Math.max(chosen.bodyBounds.y + 2, Math.min(b.y, chosen.bodyBounds.bottom - b.height - 2));
-                part.moveTo(x, y);
-                myDiagram.model.setDataProperty(d, "loc", `${part.location.x} ${part.location.y}`);
-              }
+            if (persistedLoc) {
+              try {
+                const point = go.Point.parse(persistedLoc);
+                if (Number.isFinite(point.x) && Number.isFinite(point.y)) part.location = point;
+              } catch (_) { }
+            } else {
+              myDiagram.model.setDataProperty(d, "loc", go.Point.stringify(part.location));
             }
 	          });
 	        }

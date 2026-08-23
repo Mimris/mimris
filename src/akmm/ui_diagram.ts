@@ -59,6 +59,81 @@ function shouldPersistLinkPoints(routing: string | undefined | null, points?: an
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
+function getLaneBodyBounds(lane: go.Group): go.Rect | null {
+    const body =
+        lane.findObject("LANE_BODY_SHAPE") ||
+        lane.findObject("BODY") ||
+        lane.resizeObject;
+    const bounds = body?.getDocumentBounds?.();
+    return bounds ? bounds.copy() : null;
+}
+
+function rectContainsPart(rect: go.Rect, bounds: go.Rect): boolean {
+    if (rect.containsRect(bounds)) return true;
+    return rect.containsPoint(bounds.center);
+}
+
+function clampLocationToRect(part: go.Part, loc: go.Point, rect: go.Rect, margin = 4): go.Point {
+    const bounds = part.actualBounds;
+    const offsetX = part.location.x - bounds.x;
+    const offsetY = part.location.y - bounds.y;
+    const minX = rect.x + offsetX + margin;
+    const maxX = rect.right - (bounds.width - offsetX) - margin;
+    const minY = rect.y + offsetY + margin;
+    const maxY = rect.bottom - (bounds.height - offsetY) - margin;
+    const clampAxis = (value: number, min: number, max: number) => {
+        if (min > max) return (min + max) / 2;
+        return Math.max(min, Math.min(value, max));
+    };
+    return new go.Point(
+        clampAxis(loc.x, minX, maxX),
+        clampAxis(loc.y, minY, maxY)
+    );
+}
+
+function realignLaneMembersAfterLaneMove(
+    myDiagram: any,
+    myModelview: any,
+    lane: go.Group,
+    oldBodyBounds: go.Rect | null,
+    memberSnapshots: Map<string, { loc: go.Point; bounds: go.Rect; wasInBody: boolean }>
+) {
+    const newBodyBounds = getLaneBodyBounds(lane);
+    if (!newBodyBounds) return;
+    const dx = oldBodyBounds ? newBodyBounds.x - oldBodyBounds.x : 0;
+    const dy = oldBodyBounds ? newBodyBounds.y - oldBodyBounds.y : 0;
+    const laneKey = String(lane.data?.key || lane.key || "");
+
+    lane.memberParts.each((part: go.Part) => {
+        if (!(part instanceof go.Node) || part instanceof go.Group) return;
+        const key = String(part.data?.key || part.key || "");
+        const snapshot = memberSnapshots.get(key);
+        const groupedToLane = laneKey && String(part.data?.group || "") === laneKey;
+        if (!snapshot && !groupedToLane) return;
+
+        let targetLoc = part.location.copy();
+        const currentBounds = part.actualBounds;
+        if (!rectContainsPart(newBodyBounds, currentBounds)) {
+            const shouldTranslateWithLane = !oldBodyBounds || snapshot?.wasInBody || groupedToLane;
+            if (shouldTranslateWithLane && snapshot) {
+                targetLoc = new go.Point(snapshot.loc.x + dx, snapshot.loc.y + dy);
+            }
+        }
+
+        const clampedLoc = clampLocationToRect(part, targetLoc, newBodyBounds);
+        if (!part.location.equals(clampedLoc)) {
+            part.location = clampedLoc;
+        }
+
+        if (part.data) {
+            const loc = go.Point.stringify(part.location);
+            myDiagram.model.setDataProperty(part.data, "loc", loc);
+            const objview = myModelview?.findObjectView?.(part.data.key);
+            if (objview) objview.loc = loc;
+        }
+    });
+}
+
 export function setFocus(modelview: akm.cxModelView, objview: akm.cxObjectView) {
     if (modelview) {
         modelview.focusObjectview = objview;
@@ -2912,6 +2987,8 @@ export function setGroupLayoutParameters(groupLayout: string): go.Layout {
             break;
             
         case 'LaneLayout':
+        case 'LaneFlow':
+        case 'LaneFlowLayout':
         case 'LayeredDigraph':
         case 'LayeredDigraphLayout':
             layout = new go.LayeredDigraphLayout({
@@ -3192,6 +3269,21 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             const laneHeight = layout.height || 260;
             const resizeObject = layout.resizeObject || null;
             const isLaneGroup = layout.kind === 'lane';
+            const oldBodyBounds = isLaneGroup ? getLaneBodyBounds(lane) : null;
+            const memberSnapshots = new Map<string, { loc: go.Point; bounds: go.Rect; wasInBody: boolean }>();
+            if (isLaneGroup) {
+                lane.memberParts.each((part: go.Part) => {
+                    if (!(part instanceof go.Node) || part instanceof go.Group) return;
+                    const key = String(part.data?.key || part.key || "");
+                    if (!key) return;
+                    const bounds = part.actualBounds.copy();
+                    memberSnapshots.set(key, {
+                        loc: part.location.copy(),
+                        bounds,
+                        wasInBody: oldBodyBounds ? rectContainsPart(oldBodyBounds, bounds) : true,
+                    });
+                });
+            }
             const laneHeader = isLaneGroup ? lane.findObject("LANE_HEADER_STRIP") as go.GraphObject | null : null;
             const laneHeaderWidth =
                 (isLaneGroup && typeof laneHeader?.actualBounds?.width === 'number' && Number.isFinite(laneHeader.actualBounds.width) && laneHeader.actualBounds.width > 0)
@@ -3375,6 +3467,111 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         groupNode.layout.doLayout(groupNode.memberParts);
     } else {
         myDiagram.layoutDiagram(true);
+    }
+
+    const isLaneFlowLayout =
+        layoutMode === "lane_content" &&
+        (myGroup?.groupLayout === "LaneFlow" || myGroup?.groupLayout === "LaneFlowLayout");
+    if (isLaneFlowLayout && laneMemberNodes.count > 0) {
+        const laneBody =
+            groupNode.findObject("LANE_SHAPE") ||
+            groupNode.findObject("LANE_BODY_SHAPE") ||
+            groupNode.findObject("BODY");
+        const bodyBounds = (laneBody?.actualBounds || groupNode.actualBounds).copy();
+        const horizontalInset = 24;
+        const verticalInset = 20;
+        const innerLeft = bodyBounds.left + horizontalInset;
+        const innerRight = Math.max(innerLeft, bodyBounds.right - horizontalInset);
+        const innerTop = bodyBounds.top + verticalInset;
+        const innerBottom = Math.max(innerTop, bodyBounds.bottom - verticalInset);
+        const inDegree = new Map<string, number>();
+        const outDegree = new Map<string, number>();
+        const nodes: go.Node[] = [];
+
+        laneMemberNodes.each((node: go.Node) => {
+            const key = String(node.data?.key || node.key || "");
+            if (!key) return;
+            nodes.push(node);
+            inDegree.set(key, 0);
+            outDegree.set(key, 0);
+        });
+        myDiagram.links.each((link: go.Link) => {
+            const fromKey = String(link.fromNode?.data?.key || link.data?.from || "");
+            const toKey = String(link.toNode?.data?.key || link.data?.to || "");
+            if (!laneMemberKeys.has(fromKey) || !laneMemberKeys.has(toKey)) return;
+            outDegree.set(fromKey, (outDegree.get(fromKey) || 0) + 1);
+            inDegree.set(toKey, (inDegree.get(toKey) || 0) + 1);
+        });
+
+        const looksLikeMarker = (node: go.Node, marker: "start" | "end") => {
+            const data: any = node.data || {};
+            const candidates = [
+                data.name,
+                data.template,
+                data.category,
+                data.typeName,
+                data.viewkind,
+                data.object?.name,
+                data.object?.type?.name,
+                data.objecttype?.name,
+                data.objtype?.name,
+            ];
+            return candidates.some((value) =>
+                typeof value === "string" && value.toLowerCase().includes(marker)
+            );
+        };
+        const explicitStarts = nodes.filter((node) => looksLikeMarker(node, "start"));
+        const explicitEnds = nodes.filter((node) => looksLikeMarker(node, "end"));
+        const startKeys = new Set(
+            (explicitStarts.length > 0
+                ? explicitStarts
+                : nodes.filter((node) => (inDegree.get(String(node.data?.key || node.key || "")) || 0) === 0)
+            ).map((node) => String(node.data?.key || node.key || ""))
+        );
+        const endKeys = new Set(
+            (explicitEnds.length > 0
+                ? explicitEnds
+                : nodes.filter((node) => (outDegree.get(String(node.data?.key || node.key || "")) || 0) === 0)
+            ).map((node) => String(node.data?.key || node.key || ""))
+        );
+        const naturalCenters = nodes.map((node) => node.actualBounds.centerX);
+        const naturalLeft = Math.min(...naturalCenters);
+        const naturalRight = Math.max(...naturalCenters);
+        const naturalSpan = Math.max(1, naturalRight - naturalLeft);
+
+        nodes.forEach((node) => {
+            const key = String(node.data?.key || node.key || "");
+            const bounds = node.actualBounds.copy();
+            let targetLeft: number;
+            if (startKeys.has(key) && !endKeys.has(key)) {
+                targetLeft = innerLeft;
+            } else if (endKeys.has(key) && !startKeys.has(key)) {
+                targetLeft = innerRight - bounds.width;
+            } else {
+                const ratio = (bounds.centerX - naturalLeft) / naturalSpan;
+                targetLeft = innerLeft + ratio * Math.max(0, innerRight - innerLeft - bounds.width);
+            }
+            node.move(new go.Point(targetLeft, bounds.top));
+        });
+
+        let contentBounds: go.Rect | null = null;
+        nodes.forEach((node) => {
+            const bounds = node.actualBounds;
+            contentBounds = contentBounds ? contentBounds.unionRect(bounds) : bounds.copy();
+        });
+        if (contentBounds) {
+            const availableHeight = innerBottom - innerTop;
+            const contentHeight = contentBounds.height;
+            const targetTop = contentHeight <= availableHeight
+                ? innerTop + (availableHeight - contentHeight) / 2
+                : innerTop;
+            const offsetY = targetTop - contentBounds.top;
+            if (Math.abs(offsetY) > 0.01) {
+                nodes.forEach((node) => {
+                    node.move(new go.Point(node.actualBounds.left, node.actualBounds.top + offsetY));
+                });
+            }
+        }
     }
     // Calculate offset for LayeredDigraphLayout
     if (lay instanceof go.LayeredDigraphLayout && firstNode && originalPos !== null) {

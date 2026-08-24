@@ -2955,12 +2955,43 @@ function addLinkTemplateName(name: string) {
           return;
         }
         if (isLane && lane.containingGroup !== null && this.isLengthening()) {
-          // Match alpha44: resize all lane bodies together, leaving their heights unchanged.
-          lane.containingGroup.memberParts.each((part) => {
+          const pool = lane.containingGroup;
+          // A lane may not be shortened past the rightmost member of any lane.
+          const nextWidth = Math.max(newr.width, computeMinPoolSize(pool).width);
+          let resizedLane: go.Group | null = null;
+          pool.memberParts.each((part) => {
             if (!(part instanceof go.Group)) return;
             const shape = part.resizeObject;
-            if (shape !== null) shape.width = newr.width;
+            if (shape === null) return;
+            const currentHeight = Math.max(
+              MINBREADTH,
+              shape.desiredSize.height || shape.actualBounds.height || MINBREADTH,
+            );
+            const nextSize = new go.Size(nextWidth, currentHeight);
+            shape.desiredSize = nextSize;
+            if (part.data) {
+              this.diagram.model.setDataProperty(part.data, "size", go.Size.stringify(nextSize));
+              if (part.data.objectview) part.data.objectview.size = go.Size.stringify(nextSize);
+            }
+            if (part === lane) resizedLane = part;
           });
+          // The active pool template reserves a fixed header area. Keep that reservation by
+          // deriving the pool-body width from its current relationship to the lane body.
+          const poolShape = pool.resizeObject || pool.findObject("POOL_BODY_SHAPE");
+          const laneShape = resizedLane?.resizeObject || lane.resizeObject;
+          if (poolShape && laneShape) {
+            const currentPoolWidth = poolShape.actualBounds.width || poolShape.desiredSize.width;
+            const currentLaneWidth = laneShape.actualBounds.width || laneShape.desiredSize.width;
+            const headerWidth = Math.max(0, currentPoolWidth - currentLaneWidth);
+            const nextPoolSize = new go.Size(nextWidth + headerWidth, poolShape.desiredSize.height || poolShape.actualBounds.height);
+            poolShape.desiredSize = nextPoolSize;
+            if (pool.data) {
+              this.diagram.model.setDataProperty(pool.data, "size", go.Size.stringify(nextPoolSize));
+              if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(nextPoolSize);
+            }
+          }
+          pool.ensureBounds();
+          pool.diagram?.requestUpdate();
           return;
         }
         super.resize.call(this, newr);

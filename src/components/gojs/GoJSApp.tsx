@@ -2776,6 +2776,56 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
   }
 
+  private syncSwimlaneNameToState(source: any, name: string) {
+    const aliases = new Set(
+      [
+        source?.key, source?.id, source?.objviewRef, source?.objectRef,
+        source?.objectview?.id, source?.object?.id,
+      ]
+        .filter((id) => id !== undefined && id !== null && id !== '')
+        .map((id) => String(id))
+    );
+    if (aliases.size === 0) return;
+    this.setState((previous) => {
+      let changed = false;
+      const nodeDataArray = (previous.nodeDataArray || []).map((node: any) => {
+        const nodeIds = [node?.key, node?.id, node?.objviewRef, node?.objectRef, node?.objectview?.id, node?.object?.id]
+          .filter((id) => id !== undefined && id !== null && id !== '')
+          .map((id) => String(id));
+        if (!nodeIds.some((id) => aliases.has(id))) return node;
+        changed = true;
+        return {
+          ...node,
+          name,
+          objectview: node.objectview ? { ...node.objectview, name } : node.objectview,
+          object: node.object ? { ...node.object, name } : node.object,
+        };
+      });
+      const selectedData = previous.selectedData && [
+        previous.selectedData.key,
+        previous.selectedData.id,
+        previous.selectedData.objviewRef,
+        previous.selectedData.objectview?.id,
+      ].some((id) => aliases.has(String(id)))
+        ? { ...previous.selectedData, name }
+        : previous.selectedData;
+      return changed || selectedData !== previous.selectedData
+        ? { nodeDataArray, selectedData, skipsDiagramUpdate: false }
+        : null;
+    });
+  }
+
+  public handleInputChange = (props: any, value: string, _isBlur: boolean) => {
+    uim.handleInputChange(this.state.myMetis, props, value);
+    const category = String(props?.obj?.template || props?.obj?.category || '');
+    if (
+      props?.id === 'name' &&
+      (category === 'Pool' || category === 'Lane' || category === 'Lane_w_handles')
+    ) {
+      this.syncSwimlaneNameToState(props.obj, value);
+    }
+  }
+
   public addToNode(myToNodes: any, n: any) {
     const myToNode = {
       "key": n.data.key,
@@ -4005,6 +4055,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               goNode.name = gjsData.name;
               break;
             }
+          }
+          const swimlaneCategory = String(gjsData?.template || gjsData?.category || '');
+          if (
+            sel instanceof go.Group &&
+            (swimlaneCategory === 'Pool' || swimlaneCategory === 'Lane' || swimlaneCategory === 'Lane_w_handles')
+          ) {
+            this.syncSwimlaneNameToState(gjsData, text);
           }
         }
         // Relationship or Relationship type

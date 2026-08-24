@@ -6748,9 +6748,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 copyable: false,
                 resizable: true,
                 contextMenu: contextMenu,
-                selectionObjectName: "LANE_TABLE",
+                // The lane frame owns selection bounds.  The Table can be wider while
+                // GoJS is arranging members, which made its selection outline extend
+                // beyond the visible white lane body.
+                selectionObjectName: "LANE_MAIN_SHAPE",
                 resizeObjectName: "LANE_SHAPE",  // Point to the shape for resizing
-                locationObjectName: "LANE_TABLE",
+                locationObjectName: "LANE_MAIN_SHAPE",
                 locationSpot: go.Spot.TopLeft,
                 // No explicit desiredSize - let Auto panel compute from children
                 layout: null,
@@ -6772,6 +6775,24 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
+
+            // Match alpha44: use a fixed, transparent full-lane frame for selection
+            // and location.  `size` remains the body size, so add the header width.
+            $(go.Shape, "Rectangle",
+                {
+                    name: "LANE_MAIN_SHAPE",
+                    isPanelMain: true,
+                    fill: "transparent",
+                    stroke: "transparent",
+                    pickable: false,
+                },
+                new go.Binding("desiredSize", "size", (s) => {
+                    const size = go.Size.parse(typeof s === "string" ? s : "");
+                    const width = Number.isFinite(size.width) && size.width > 0 ? size.width : MINLENGTH;
+                    const height = Number.isFinite(size.height) && size.height > 0 ? size.height : MINBREADTH;
+                    return new go.Size(SWIM_HEADER_WIDTH + width, height);
+                })
+            ),
             
             // Table panel with header and body
             $(go.Panel, "Table",

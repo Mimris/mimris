@@ -2844,10 +2844,8 @@ function addLinkTemplateName(name: string) {
         pool.memberParts.each(function (lane) {
             if (!(lane instanceof go.Group)) return;
             const data = lane.data || {};
-            const isLane =
-                lane.category === "Lane" ||
-                data.category === "Lane" ||
-                data.template === "Lane";
+            const template = String(data.template || data.category || lane.category || "");
+            const isLane = template === "Lane" || template === "Lane_w_handles" || template.startsWith("Lane");
             if (!isLane) return;
             len = Math.max(len, computeLaneContentSize(lane).width);
         });
@@ -2903,6 +2901,39 @@ function addLinkTemplateName(name: string) {
             if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(poolSize);
         }
     };
+
+    // A Pool and all of its Lanes share one right edge.  Keep the lane body size
+    // as the canonical value; the Pool body has one additional lane-header column.
+    const resizePoolAndLanes = (pool: go.Group, requestedLaneBodyWidth: number) => {
+        const laneBodyWidth = Math.max(requestedLaneBodyWidth, computeMinPoolSize(pool).width);
+        pool.memberParts.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            const template = String(part.data?.template || part.data?.category || part.category || "");
+            if (!(template === "Lane" || template === "Lane_w_handles" || template.startsWith("Lane"))) return;
+            const shape = part.resizeObject as go.Shape | null;
+            if (!shape) return;
+            const height = Math.max(MINBREADTH, shape.desiredSize.height || shape.actualBounds.height || MINBREADTH);
+            const size = new go.Size(laneBodyWidth, height);
+            shape.desiredSize = size;
+            if (part.data) {
+                pool.diagram?.model.setDataProperty(part.data, "size", go.Size.stringify(size));
+                if (part.data.objectview) part.data.objectview.size = go.Size.stringify(size);
+            }
+        });
+
+        const poolBody = pool.findObject("POOL_BODY_SHAPE") as go.Shape | null;
+        if (poolBody && pool.data) {
+            const height = Math.max(MINBREADTH, poolBody.desiredSize.height || poolBody.actualBounds.height || MINBREADTH);
+            const bodySize = new go.Size(SWIM_HEADER_WIDTH + laneBodyWidth, height);
+            poolBody.desiredSize = bodySize;
+            const poolSize = new go.Size(SWIM_HEADER_WIDTH + bodySize.width, height);
+            pool.diagram?.model.setDataProperty(pool.data, "size", go.Size.stringify(poolSize));
+            if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(poolSize);
+        }
+        pool.ensureBounds();
+        pool.diagram?.requestUpdate();
+        return laneBodyWidth;
+    };
     
     // determine the minimum size of a Lane Group, even if collapsed
     function computeMinLaneSize(lane: go.Group) {
@@ -2926,7 +2957,11 @@ function addLinkTemplateName(name: string) {
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.computeMinSize.call(this);
         if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
-          return go.ResizingTool.prototype.computeMinSize.call(this);
+          const min = go.ResizingTool.prototype.computeMinSize.call(this);
+          const contentMin = computeMinPoolSize(lane).width;
+          // The Pool resize object includes the lane header column.
+          min.width = Math.max(min.width, SWIM_HEADER_WIDTH + contentMin);
+          return min;
         }
         // assert(lane instanceof go.Group && lane.category !== "Pool");
         const msz = computeMinLaneSize(lane); // get the absolute minimum size
@@ -2951,43 +2986,18 @@ function addLinkTemplateName(name: string) {
         const isPool = category === "Pool";
         const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
         if (isPool) {
+          // The Pool body is one lane-header wider than the shared Lane body.
+          // Apply the same clamped width to every Lane for both extending and shortening.
+          if (this.handle.alignment.x === 1) {
+            resizePoolAndLanes(lane, newr.width - SWIM_HEADER_WIDTH);
+            return;
+          }
           super.resize.call(this, newr);
           return;
         }
         if (isLane && lane.containingGroup !== null && this.isLengthening()) {
           const pool = lane.containingGroup;
-          // A lane may not be shortened past the rightmost member of any lane.
-          const nextWidth = Math.max(newr.width, computeMinPoolSize(pool).width);
-          pool.memberParts.each((part) => {
-            if (!(part instanceof go.Group)) return;
-            const shape = part.resizeObject;
-            if (shape === null) return;
-            const currentHeight = Math.max(
-              MINBREADTH,
-              shape.desiredSize.height || shape.actualBounds.height || MINBREADTH,
-            );
-            const nextSize = new go.Size(nextWidth, currentHeight);
-            shape.desiredSize = nextSize;
-            if (part.data) {
-              this.diagram.model.setDataProperty(part.data, "size", go.Size.stringify(nextSize));
-              if (part.data.objectview) part.data.objectview.size = go.Size.stringify(nextSize);
-            }
-          });
-          // POOL_BODY_SHAPE contains the lane stack and its header. The pool's persisted
-          // size additionally contains the pool header, matching PoolLayout below.
-          const poolBody = pool.findObject("POOL_BODY_SHAPE") as go.Shape | null;
-          if (poolBody) {
-            const poolHeight = poolBody.desiredSize.height || poolBody.actualBounds.height || MINBREADTH;
-            const nextPoolBodySize = new go.Size(SWIM_HEADER_WIDTH + nextWidth, poolHeight);
-            poolBody.desiredSize = nextPoolBodySize;
-            if (pool.data) {
-              const nextPoolSize = new go.Size(SWIM_HEADER_WIDTH + nextPoolBodySize.width, poolHeight);
-              this.diagram.model.setDataProperty(pool.data, "size", go.Size.stringify(nextPoolSize));
-              if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(nextPoolSize);
-            }
-          }
-          pool.ensureBounds();
-          pool.diagram?.requestUpdate();
+          resizePoolAndLanes(pool, newr.width);
           return;
         }
         super.resize.call(this, newr);
@@ -3002,16 +3012,17 @@ function addLinkTemplateName(name: string) {
         const containingPool = isLane && adornedPart instanceof go.Group
           ? adornedPart.containingGroup
           : null;
-        const resizedShape = isPool
-          ? adornedPart?.findObject("POOL_SHAPE")
-          : isLane
-            ? adornedPart?.findObject("LANE_BODY_SHAPE")
-            : null;
+        const resizedShape = adornedPart?.resizeObject as go.Shape | null;
         const resizedSize = resizedShape?.desiredSize || resizedShape?.actualBounds?.size || null;
         super.doDeactivate();
         if (!diagram || !resizedSize || !(adornedPart instanceof go.Group)) return;
         if (!Number.isFinite(resizedSize.width) || !Number.isFinite(resizedSize.height)) return;
-        diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(resizedSize));
+        if (isPool) {
+          const poolSize = new go.Size(SWIM_HEADER_WIDTH + resizedSize.width, resizedSize.height);
+          diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(poolSize));
+        } else {
+          diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(resizedSize));
+        }
         // Do the structural layout once at the end of the drag. It reconciles the
         // persisted lane width with the pool body without fighting the live resize.
         if (containingPool?.layout) {

@@ -208,7 +208,10 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   if (isSwimlaneRename) {
     const myDiagram = context?.myDiagram || myMetis?.myDiagram;
     const identityAliases = new Set(
-      [obj?.key, obj?.id, obj?.objviewRef, obj?.objectview?.id, obj?.data?.key, obj?.data?.objviewRef]
+      [
+        obj?.key, obj?.id, obj?.objviewRef, obj?.objectRef, obj?.objectview?.id, obj?.object?.id,
+        obj?.data?.key, obj?.data?.objviewRef, obj?.data?.objectRef, obj?.data?.object?.id,
+      ]
         .filter((id) => id !== undefined && id !== null && id !== '')
         .map((id) => String(id))
     );
@@ -218,7 +221,10 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         myDiagram?.nodes?.each?.((candidate: any) => {
           if (part) return;
           const candidateData = candidate?.data || {};
-          const candidateIds = [candidateData.key, candidateData.id, candidateData.objviewRef, candidateData.objectview?.id]
+          const candidateIds = [
+            candidateData.key, candidateData.id, candidateData.objviewRef, candidateData.objectRef,
+            candidateData.objectview?.id, candidateData.object?.id,
+          ]
             .filter((id) => id !== undefined && id !== null && id !== '')
             .map((id) => String(id));
           if (candidateIds.some((id) => identityAliases.has(id))) part = candidate;
@@ -247,6 +253,12 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     try { obj.name = value; } catch (_) {}
     try { if (objectview) objectview.name = value; } catch (_) {}
     try { if (object) object.name = value; } catch (_) {}
+    // Pool headers are structural group content and can retain their old rendered
+    // text until the next layout. Refresh the live label directly as well.
+    try {
+      const headerText = part?.findObject?.('name');
+      if (headerText) headerText.text = value;
+    } catch (_) {}
     try { myDiagram?.updateAllTargetBindings?.('name'); myDiagram?.requestUpdate?.(); } catch (_) {}
     try {
       if (objectview) {

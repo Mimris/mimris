@@ -207,14 +207,43 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     (swimlaneCategory === 'Pool' || swimlaneCategory === 'Lane' || swimlaneCategory === 'Lane_w_handles');
   if (isSwimlaneRename) {
     const myDiagram = context?.myDiagram || myMetis?.myDiagram;
-    const part = myDiagram?.findPartForKey?.(obj?.key) || myDiagram?.findNodeForKey?.(obj?.key);
+    const identityAliases = new Set(
+      [obj?.key, obj?.id, obj?.objviewRef, obj?.objectview?.id, obj?.data?.key, obj?.data?.objviewRef]
+        .filter((id) => id !== undefined && id !== null && id !== '')
+        .map((id) => String(id))
+    );
+    let part = myDiagram?.findPartForKey?.(obj?.key) || myDiagram?.findNodeForKey?.(obj?.key);
+    if (!part && identityAliases.size > 0) {
+      try {
+        myDiagram?.nodes?.each?.((candidate: any) => {
+          if (part) return;
+          const candidateData = candidate?.data || {};
+          const candidateIds = [candidateData.key, candidateData.id, candidateData.objviewRef, candidateData.objectview?.id]
+            .filter((id) => id !== undefined && id !== null && id !== '')
+            .map((id) => String(id));
+          if (candidateIds.some((id) => identityAliases.has(id))) part = candidate;
+        });
+      } catch (_) {
+        // Leave the selected data as a fallback below.
+      }
+    }
     const data = part?.data || obj?.data || obj;
     const objectview =
       myMetis?.findObjectView?.(data?.key || obj?.key) ||
       data?.objectview ||
       obj?.objectview;
     const object = objectview?.object || data?.object || obj?.object;
-    try { myDiagram?.model?.setDataProperty?.(data, 'name', value); } catch (_) { data.name = value; }
+    const applyLiveName = () => {
+      try { myDiagram?.model?.setDataProperty?.(data, 'name', value); } catch (_) { data.name = value; }
+      try { if (data?.objectview) myDiagram?.model?.setDataProperty?.(data, 'objectview', data.objectview); } catch (_) {}
+    };
+    try {
+      if (myDiagram?.isInTransaction) applyLiveName();
+      else if (myDiagram?.commit) myDiagram.commit(applyLiveName, 'rename swimlane');
+      else applyLiveName();
+    } catch (_) {
+      applyLiveName();
+    }
     try { obj.name = value; } catch (_) {}
     try { if (objectview) objectview.name = value; } catch (_) {}
     try { if (object) object.name = value; } catch (_) {}

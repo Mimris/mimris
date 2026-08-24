@@ -2944,81 +2944,52 @@ function addLinkTemplateName(name: string) {
         if (this.adornedObject === null) return;
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.resize.call(this, newr);
-        if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
-          return go.ResizingTool.prototype.resize.call(this, newr);
-        }
-        if (lane instanceof go.Group && lane.containingGroup !== null && this.isLengthening()) {
-          // changing the length of all of the lanes
-          const pool = lane.containingGroup;
-          const minimumWidth = computeMinPoolSize(pool).width;
-          const nextWidth = Math.max(newr.width, minimumWidth);
-          pool.memberParts.each((l) => {
-            if (!(l instanceof go.Group)) return;
-            const data = l.data || {};
-            if (!(l.category === "Lane" || data.category === "Lane" || data.template === "Lane")) return;
-            const shape = l.resizeObject;
-            if (shape !== null) {
-              const dataSize = go.Size.parse(String(l.data?.size || ""));
-              const height = Number.isFinite(shape.desiredSize.height) && shape.desiredSize.height > 0
-                ? shape.desiredSize.height
-                : dataSize.height;
-              shape.desiredSize = new go.Size(nextWidth, height);
-              if (l.data && l.diagram) {
-                l.diagram.model.setDataProperty(
-                  l.data,
-                  "size",
-                  go.Size.stringify(new go.Size(nextWidth, height))
-                );
-                if (l.data.objectview) l.data.objectview.size = go.Size.stringify(new go.Size(nextWidth, height));
-              }
-              l.ensureBounds();
-              l.updateAdornments();
-            }
-          });
-          syncPoolFrameToLanes(pool);
-          pool.ensureBounds();
-          pool.diagram?.requestUpdate();
-        } else {
-          // changing the breadth of a single lane
+        const category = String(lane.data?.template || lane.data?.category || lane.category || "");
+        const isPool = category === "Pool";
+        const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+        if (isPool) {
           super.resize.call(this, newr);
-          const shape = lane.resizeObject;
-          if (shape && lane.data && lane.diagram) {
-            const minimumHeight = computeLaneSize(lane).height;
-            const height = Math.max(shape.desiredSize.height, minimumHeight);
-            const width = shape.desiredSize.width;
-            shape.desiredSize = new go.Size(width, height);
-            lane.diagram.model.setDataProperty(
-              lane.data,
-              "size",
-              go.Size.stringify(new go.Size(width, height))
-            );
-            if (lane.data.objectview) lane.data.objectview.size = go.Size.stringify(new go.Size(width, height));
-          }
-          if (lane.containingGroup instanceof go.Group) syncPoolFrameToLanes(lane.containingGroup);
-          lane.ensureBounds();
-          lane.updateAdornments();
-          lane.diagram?.requestUpdate();
+          return;
         }
+        if (isLane && lane.containingGroup !== null && this.isLengthening()) {
+          // Match alpha44: resize all lane bodies together, leaving their heights unchanged.
+          lane.containingGroup.memberParts.each((part) => {
+            if (!(part instanceof go.Group)) return;
+            const shape = part.resizeObject;
+            if (shape !== null) shape.width = newr.width;
+          });
+          return;
+        }
+        super.resize.call(this, newr);
       }
 
-      public doMouseUp(): void {
-        super.doMouseUp();
-        // Relayout pool/lanes after resize completes
+      public doDeactivate(): void {
+        const adornedPart = this.adornedObject?.part;
+        const category = String(adornedPart?.data?.template || adornedPart?.data?.category || adornedPart?.category || "");
+        const isPool = category === "Pool";
+        const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
         const diagram = this.diagram;
-        if (diagram) {
-            diagram.layout.invalidateLayout();
-            diagram.findTopLevelGroups().each(function (g) { 
-                if (g.category === 'Pool' && g.layout !== null) g.layout.invalidateLayout(); 
-            });
-            diagram.layoutDiagram();
-        }
+        const resizedShape = isPool
+          ? adornedPart?.findObject("POOL_SHAPE")
+          : isLane
+            ? adornedPart?.findObject("LANE_BODY_SHAPE")
+            : null;
+        const resizedSize = resizedShape?.desiredSize || resizedShape?.actualBounds?.size || null;
+        super.doDeactivate();
+        if (!diagram || !resizedSize || !(adornedPart instanceof go.Group)) return;
+        if (!Number.isFinite(resizedSize.width) || !Number.isFinite(resizedSize.height)) return;
+        diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(resizedSize));
       }
   }
   // end LaneResizingTool class
 
   // Function to install the custom LaneResizingTool on a diagram
-  export function installLaneResizingTool(diagram: go.Diagram) {
-      diagram.toolManager.resizingTool = new LaneResizingTool({});
+  export function installLaneResizingTool(diagram: go.Diagram, myMetis?: akm.cxMetis) {
+      myDiagram = diagram;
+      const tool = new LaneResizingTool({});
+      (tool as any).__myMetis = myMetis;
+      tool.isGridSnapEnabled = true;
+      diagram.toolManager.resizingTool = tool;
   }
 
     // hide links between lanes when either lane is collapsed
@@ -5673,6 +5644,26 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             dragged.each((part: go.Part) => {
                 if (!isLaneGroupPart(part)) return;
                 markActiveSwimlaneDrag(diagram, part);
+            });
+
+            // A palette lane can arrive with an uninitialized body size. Normalize it before
+            // PoolLayout runs so the new lane immediately has the same usable body/header height.
+            dragged.each((part: go.Part) => {
+                if (!isLaneGroupPart(part)) return;
+                const laneBody = part.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+                const laneHeader = part.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+                const fromData = part.data?.size ? go.Size.parse(String(part.data.size)) : null;
+                const width = Math.max(160, fromData?.width || laneBody?.actualBounds.width || 160);
+                const height = Math.max(
+                    65,
+                    fromData?.height || 0,
+                    laneBody?.actualBounds.height || 0,
+                    laneHeader?.actualBounds.height || 0,
+                );
+                const size = new go.Size(width, height);
+                if (laneBody) laneBody.desiredSize = size;
+                diagram.model.setDataProperty(part.data, "size", go.Size.stringify(size));
+                if (part.data?.objectview) part.data.objectview.size = go.Size.stringify(size);
             });
         }
 

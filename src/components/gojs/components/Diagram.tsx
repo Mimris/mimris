@@ -2626,7 +2626,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
     
     // Install custom LaneResizingTool for pool/lane resizing
-    uit.installLaneResizingTool(myDiagram);
+    uit.installLaneResizingTool(myDiagram, myMetis);
     
     myMetis.myDiagram = myDiagram;
     

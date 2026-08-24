@@ -1354,6 +1354,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                             overflow: go.TextBlock.OverflowEllipsis,
                             textAlign: "center",
                             verticalAlignment: go.Spot.Center,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -1535,6 +1536,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             margin: new go.Margin(0, 0, 0, 0),
                             wrap: go.TextBlock.None,
                             overflow: go.TextBlock.OverflowEllipsis,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -1555,6 +1557,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             margin: new go.Margin(0, 0, 0, 0),
                             wrap: go.TextBlock.None,
                             overflow: go.TextBlock.OverflowEllipsis,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -6172,6 +6175,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             this.wrappingColumn = 1;
             this.wrappingWidth = Infinity;
             this.isRealtime = false;  // don't continuously layout while dragging
+            this.isOngoing = false;   // defer pool reflow until the resize transaction completes
             this.alignment = go.GridLayout.Position;
             this.spacing = new go.Size(0, 0);  // No gaps between lanes
             // Sort based on Y location for lane reordering

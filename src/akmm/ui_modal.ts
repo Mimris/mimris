@@ -201,6 +201,38 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     return Number.isFinite(numericValue) ? numericValue : rawValue;
   };
   const nextObjectviewValue = coerceNumericObjectviewValue(propname, value);
+  const swimlaneCategory = String(obj?.template || obj?.category || '');
+  const isSwimlaneRename =
+    propname === 'name' &&
+    (swimlaneCategory === 'Pool' || swimlaneCategory === 'Lane' || swimlaneCategory === 'Lane_w_handles');
+  if (isSwimlaneRename) {
+    const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+    const part = myDiagram?.findPartForKey?.(obj?.key) || myDiagram?.findNodeForKey?.(obj?.key);
+    const data = part?.data || obj?.data || obj;
+    const objectview =
+      myMetis?.findObjectView?.(data?.key || obj?.key) ||
+      data?.objectview ||
+      obj?.objectview;
+    const object = objectview?.object || data?.object || obj?.object;
+    try { myDiagram?.model?.setDataProperty?.(data, 'name', value); } catch (_) { data.name = value; }
+    try { obj.name = value; } catch (_) {}
+    try { if (objectview) objectview.name = value; } catch (_) {}
+    try { if (object) object.name = value; } catch (_) {}
+    try { myDiagram?.updateAllTargetBindings?.('name'); myDiagram?.requestUpdate?.(); } catch (_) {}
+    try {
+      if (objectview) {
+        const data = safeClone(new jsn.jsnObjectView(objectview));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      }
+      if (object) {
+        const data = safeClone(new jsn.jsnObject(object));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+      }
+    } catch (_) {
+      // Do nothing
+    }
+    return;
+  }
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
     const node = obj; 

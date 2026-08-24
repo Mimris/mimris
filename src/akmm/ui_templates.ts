@@ -6686,9 +6686,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     {
                         angle: 270,
                         font: "bold 14pt sans-serif",
-                        margin: 5
+                        margin: 5,
+                        name: "name",
+                        editable: true,
+                        doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                     },
-                    new go.Binding("text", "name")
+                    new go.Binding("text", "name").makeTwoWay()
                 )
             ),
             
@@ -6819,9 +6822,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         {
                             angle: 270,
                             font: "bold 11pt sans-serif",
-                            margin: 5
+                            margin: 5,
+                            name: "name",
+                            editable: true,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                         },
-                        new go.Binding("text", "name")
+                        new go.Binding("text", "name").makeTwoWay()
                     )
                 ),
                 

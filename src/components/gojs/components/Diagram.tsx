@@ -2026,17 +2026,151 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    // clamp/snap back into the source lane.
 	    class SwimlaneDraggingTool extends go.DraggingTool {
 	      private constraintLaneCache: Map<go.Part, go.Group> = new Map();
+	      private laneContentAtDragStart = new Map<go.Group, {
+	        bounds: go.Rect;
+	        location: go.Point;
+	        nodes: Array<{ node: go.Node; location: go.Point }>;
+	      }>();
+
+	      private captureLaneContentAtDragStart(diagram: go.Diagram) {
+	        this.laneContentAtDragStart.clear();
+	        const lanes: Array<{ group: go.Group; bounds: go.Rect }> = [];
+	        diagram.nodes.each((part: go.Node) => {
+	          if (!(part instanceof go.Group)) return;
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          if (!(category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane"))) return;
+	          const body =
+	            (part.findObject("LANE_BODY_SHAPE") || part.findObject("BODY")) as go.GraphObject | null;
+	          const bounds = body ? body.getDocumentBounds() : part.actualBounds;
+	          if (bounds.isReal()) lanes.push({ group: part, bounds: bounds.copy() });
+	        });
+	        for (const lane of lanes) {
+	          const nodes: Array<{ node: go.Node; location: go.Point }> = [];
+	          diagram.nodes.each((node: go.Node) => {
+	            if (node instanceof go.Group || !node.actualBounds.isReal()) return;
+	            if (lane.bounds.containsPoint(node.actualBounds.center)) {
+	              nodes.push({ node, location: node.location.copy() });
+	            }
+	          });
+	          this.laneContentAtDragStart.set(lane.group, {
+	            bounds: lane.bounds,
+	            location: lane.group.location.copy(),
+	            nodes,
+	          });
+	        }
+	      }
+
+	      private restoreLaneContentAfterLayout(diagram: go.Diagram) {
+	        this.laneContentAtDragStart.forEach((snapshot, lane) => {
+	          lane.ensureBounds();
+	          const body =
+	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
+	          const currentBounds = body ? body.getDocumentBounds() : lane.actualBounds;
+	          const currentLocation = lane.location;
+	          // The body displacement preserves a node's position inside the visible lane.
+	          // Use group location only when a body has no real bounds.
+	          const deltaX = currentBounds.isReal()
+	            ? currentBounds.x - snapshot.bounds.x
+	            : currentLocation.x - snapshot.location.x;
+	          const deltaY = currentBounds.isReal()
+	            ? currentBounds.y - snapshot.bounds.y
+	            : currentLocation.y - snapshot.location.y;
+	          if (!Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+	          for (const { node, location } of snapshot.nodes) {
+	            if (node.diagram !== diagram) continue;
+	            const target = new go.Point(location.x + deltaX, location.y + deltaY);
+	            node.move(target);
+	            diagram.model.setDataProperty(node.data, "loc", go.Point.stringify(target));
+	          }
+	        });
+	      }
+
+	      override computeEffectiveCollection(parts: Iterable<go.Part>, options?: go.DraggingOptions) {
+	        // Keep ordinary group drags unchanged, but include a dragged lane's formal
+	        // members *and* nodes visually contained in its body. Some legacy models only
+	        // record the latter relationship geometrically rather than as Group membership.
+	        // The base GoJS implementation requires a GoJS collection with an `iterator`.
+	        // Do not turn this into a plain JavaScript array before passing it back.
+	        const selectedParts = new go.Set<go.Part>();
+	        for (const part of parts) selectedParts.add(part);
+	        const lanes = new go.Set<go.Group>();
+	        const pools: go.Group[] = [];
+	        for (const part of selectedParts) {
+	          if (!(part instanceof go.Group)) continue;
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          if (category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	            lanes.add(part);
+	          } else if (category === "Pool") {
+	            pools.push(part);
+	          }
+	        }
+	        const diagram = this.diagram;
+	        const isLane = (part: go.Part) => {
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          return category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+	        };
+	        // A Pool drag must include its lanes before their content can be expanded.
+	        // Prefer the persisted group tree and also support legacy visual containment.
+	        for (const pool of pools) {
+	          pool.memberParts.each((member: go.Part) => {
+	            if (member instanceof go.Group && isLane(member)) lanes.add(member);
+	          });
+	          const poolBody =
+	            (pool.findObject("POOL_SHAPE") || pool.findObject("SHAPE") || pool.findObject("BODY")) as go.GraphObject | null;
+	          const poolBounds = poolBody ? poolBody.getDocumentBounds() : pool.actualBounds;
+	          if (!poolBounds.isReal()) continue;
+	          diagram?.nodes.each((candidate: go.Node) => {
+	            if (candidate instanceof go.Group && isLane(candidate) &&
+	                candidate.actualBounds.isReal() && poolBounds.containsPoint(candidate.actualBounds.center)) {
+	              lanes.add(candidate);
+	            }
+	          });
+	        }
+	        if (lanes.count === 0) {
+	          return super.computeEffectiveCollection(selectedParts, options as go.DraggingOptions);
+	        }
+
+	        const dragParts = new go.Set<go.Part>();
+	        selectedParts.forEach((part) => dragParts.add(part));
+	        for (const lane of lanes) {
+	          dragParts.add(lane);
+	          const body =
+	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
+	          const bodyBounds = body ? body.getDocumentBounds() : lane.actualBounds;
+	          if (!bodyBounds.isReal()) continue;
+	          diagram?.nodes.each((candidate: go.Node) => {
+	            if (candidate instanceof go.Group || !candidate.actualBounds.isReal()) return;
+	            if (candidate.containingGroup === lane || bodyBounds.containsPoint(candidate.actualBounds.center)) {
+	              dragParts.add(candidate);
+	            }
+	          });
+	        }
+
+	        const previousDragsTree = this.dragsTree;
+	        this.dragsTree = true;
+	        try {
+	          return super.computeEffectiveCollection(dragParts, options as go.DraggingOptions);
+	        } finally {
+	          this.dragsTree = previousDragsTree;
+	        }
+	      }
 
 	      override doActivate() {
 	        const diagram = this.diagram;
 	        const draggedParts = this.draggedParts;
 	        let ordinaryNodeDrag = false;
+	        let swimlaneDrag = false;
 	        if (draggedParts) {
 	          for (let it = draggedParts.iterator; it?.next();) {
 	            const part: go.Part = it.key;
+	            if (part instanceof go.Group) {
+	              const category = String(part.data?.template || part.data?.category || part.category || "");
+	              if (category === "Pool" || category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	                swimlaneDrag = true;
+	              }
+	            }
 	            if (part instanceof go.Node && !(part instanceof go.Group)) {
 	              ordinaryNodeDrag = true;
-	              break;
 	            }
 	          }
 	        }
@@ -2046,6 +2180,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          } catch (_) { }
 	        }
 	        super.doActivate();
+	        // At this point GoJS has finalized `draggedParts`. The collection can be empty
+	        // before activation, which previously skipped this repair for an empty lane.
+	        if (!swimlaneDrag) {
+	          const activeDraggedParts = this.draggedParts;
+	          for (let it = activeDraggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Group)) continue;
+	            const category = String(part.data?.template || part.data?.category || part.category || "");
+	            if (category === "Pool" || category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	              swimlaneDrag = true;
+	              break;
+	            }
+	          }
+	        }
+	        // Remember visual ownership before the dragged lane can overlap another lane.
+	        // This lets lane stacking move content with its original lane, even for legacy
+	        // models that do not persist lane membership on every node.
+	        if (diagram && swimlaneDrag) this.captureLaneContentAtDragStart(diagram);
 	        this.constraintLaneCache.clear();
 	      }
 
@@ -2253,15 +2405,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        try {
 	          const dragged = this.draggedParts;
 	          let lanesWereDragged = false;
+	          let poolWasDragged = false;
 	          if (dragged && diagram) {
 	            for (let it = dragged.iterator; it?.next();) {
 	              const part: go.Part = it.key;
-	              if (part instanceof go.Group && part.category === "Lane") {
+	              if (!(part instanceof go.Group)) continue;
+	              const category = String(part.data?.template || part.data?.category || part.category || "");
+	              if (category === "Pool") {
+	                poolWasDragged = true;
+	              } else if (category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
 	                lanesWereDragged = true;
-	                break;
 	              }
 	            }
-	            if (lanesWereDragged) {
+	            // A pool drag now includes its lanes so their content follows. Do not mistake
+	            // those included lanes for a direct lane drag and run a second pool relayout.
+	            if (lanesWereDragged && !poolWasDragged) {
 	              // Re-layout all pools to stack lanes properly
 	              diagram.startTransaction("relayout pools");
 	              diagram.findTopLevelGroups().each((g: go.Part) => {
@@ -2271,11 +2429,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	              });
 	              diagram.layoutDiagram();
 	              diagram.commitTransaction("relayout pools");
+	              // Apply the saved content positions after the pool layout transaction has
+	              // fully committed. Otherwise GoJS can leave live node bounds stale until
+	              // a reload, even though the persisted `loc` is correct.
+	              diagram.commit((d: go.Diagram) => {
+	                this.restoreLaneContentAfterLayout(d);
+	              }, "restore lane content after layout");
+	              diagram.updateAllTargetBindings();
+	              diagram.requestUpdate();
 	            }
 	          }
 	        } catch {
 	          // Best-effort only
 	        }
+	        this.laneContentAtDragStart.clear();
 	        
 		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
 		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
@@ -2329,7 +2496,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 		                      bestLane = group;
 		                      centerContained = true;
 		                    } else if (!centerContained && nodeBounds.isReal() && laneBounds.isReal() && nodeBounds.intersectsRect(laneBounds)) {
-		                      const intersection = nodeBounds.intersect(laneBounds);
+		                      // `Rect.intersect` accepts x/y/width/height, not a Rect.  Work on a
+		                      // copy as well: actualBounds is GoJS-owned and must not be mutated.
+		                      const intersection = nodeBounds.copy().intersectRect(laneBounds);
 		                      const overlapArea = intersection.width * intersection.height;
 		                      
 		                      if (overlapArea > bestOverlapArea && isFinite(overlapArea)) {

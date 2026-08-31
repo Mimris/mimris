@@ -201,6 +201,79 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     return Number.isFinite(numericValue) ? numericValue : rawValue;
   };
   const nextObjectviewValue = coerceNumericObjectviewValue(propname, value);
+  const swimlaneCategory = String(obj?.template || obj?.category || '');
+  const isSwimlaneRename =
+    propname === 'name' &&
+    (swimlaneCategory === 'Pool' || swimlaneCategory === 'Lane' || swimlaneCategory === 'Lane_w_handles');
+  if (isSwimlaneRename) {
+    const myDiagram = context?.myDiagram || myMetis?.myDiagram;
+    const identityAliases = new Set(
+      [
+        obj?.key, obj?.id, obj?.objviewRef, obj?.objectRef, obj?.objectview?.id, obj?.object?.id,
+        obj?.data?.key, obj?.data?.objviewRef, obj?.data?.objectRef, obj?.data?.object?.id,
+      ]
+        .filter((id) => id !== undefined && id !== null && id !== '')
+        .map((id) => String(id))
+    );
+    let part = myDiagram?.findPartForKey?.(obj?.key) || myDiagram?.findNodeForKey?.(obj?.key);
+    if (!part && identityAliases.size > 0) {
+      try {
+        myDiagram?.nodes?.each?.((candidate: any) => {
+          if (part) return;
+          const candidateData = candidate?.data || {};
+          const candidateIds = [
+            candidateData.key, candidateData.id, candidateData.objviewRef, candidateData.objectRef,
+            candidateData.objectview?.id, candidateData.object?.id,
+          ]
+            .filter((id) => id !== undefined && id !== null && id !== '')
+            .map((id) => String(id));
+          if (candidateIds.some((id) => identityAliases.has(id))) part = candidate;
+        });
+      } catch (_) {
+        // Leave the selected data as a fallback below.
+      }
+    }
+    const data = part?.data || obj?.data || obj;
+    const objectview =
+      myMetis?.findObjectView?.(data?.key || obj?.key) ||
+      data?.objectview ||
+      obj?.objectview;
+    const object = objectview?.object || data?.object || obj?.object;
+    const applyLiveName = () => {
+      try { myDiagram?.model?.setDataProperty?.(data, 'name', value); } catch (_) { data.name = value; }
+      try { if (data?.objectview) myDiagram?.model?.setDataProperty?.(data, 'objectview', data.objectview); } catch (_) {}
+    };
+    try {
+      if (myDiagram?.isInTransaction) applyLiveName();
+      else if (myDiagram?.commit) myDiagram.commit(applyLiveName, 'rename swimlane');
+      else applyLiveName();
+    } catch (_) {
+      applyLiveName();
+    }
+    try { obj.name = value; } catch (_) {}
+    try { if (objectview) objectview.name = value; } catch (_) {}
+    try { if (object) object.name = value; } catch (_) {}
+    // Pool headers are structural group content and can retain their old rendered
+    // text until the next layout. Refresh the live label directly as well.
+    try {
+      const headerText = part?.findObject?.('name');
+      if (headerText) headerText.text = value;
+    } catch (_) {}
+    try { myDiagram?.updateAllTargetBindings?.('name'); myDiagram?.requestUpdate?.(); } catch (_) {}
+    try {
+      if (objectview) {
+        const data = safeClone(new jsn.jsnObjectView(objectview));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      }
+      if (object) {
+        const data = safeClone(new jsn.jsnObject(object));
+        myDiagram?.dispatch?.({ type: 'UPDATE_OBJECT_PROPERTIES', data });
+      }
+    } catch (_) {
+      // Do nothing
+    }
+    return;
+  }
   // Handle object types
   if (obj.category === constants.gojs.C_OBJECTTYPE) {
     const node = obj; 

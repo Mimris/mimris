@@ -208,12 +208,14 @@ function mergeIncomingDiagramNodeDataWithLiveState(
     const nextGroup = liveData?.group ?? incoming.group;
     const nextScale = liveData?.scale ?? incoming.scale;
     const nextScale1 = liveData?.scale1 ?? incoming.scale1;
+    const nextIcon = liveData?.icon ?? incoming.icon;
 
     if (
       String(incoming.loc || '') === String(liveLoc || '') &&
       String(incoming.group ?? '') === String(nextGroup ?? '') &&
       Number(incoming.scale ?? 1) === Number(nextScale ?? 1) &&
-      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1)
+      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1) &&
+      incoming.icon === nextIcon
     ) {
       return incoming;
     }
@@ -224,6 +226,7 @@ function mergeIncomingDiagramNodeDataWithLiveState(
       group: nextGroup,
       scale: nextScale,
       scale1: nextScale1,
+      icon: nextIcon,
     };
   });
   liveNodes.forEach((node) => {
@@ -2273,12 +2276,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
         try {
           const data = action.data;
-          const nodeData = myDiagram.model.findNodeDataForKey(data.id) || 
-                          Array.from(myDiagram.nodes).find((n: any) => 
-                            n.data?.id === data.id || 
-                            n.data?.objviewRef === data.id ||
-                            n.data?.key === data.id
-                          )?.data;
+          let nodePart: any = myDiagram.findNodeForKey?.(data.id) || null;
+          if (!nodePart) {
+            myDiagram.nodes.each((part: any) => {
+              const partData = part?.data;
+              if (!nodePart && (
+                partData?.id === data.id ||
+                partData?.key === data.id ||
+                partData?.objviewRef === data.id ||
+                partData?.objectview?.id === data.id
+              )) {
+                nodePart = part;
+              }
+            });
+          }
+          const nodeData = nodePart?.data || myDiagram.model.findNodeDataForKey(data.id);
           
           if (nodeData) {
             // Skip undo/redo and prevent selection changes
@@ -2292,6 +2304,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
               if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
             }, null);
+
+            if (data.icon !== undefined) {
+              if (nodeData.objectview) nodeData.objectview.icon = data.icon;
+              nodePart?.updateTargetBindings?.();
+              uit.forceUpdateAllIconSources?.(myDiagram);
+              myDiagram.requestUpdate?.();
+            }
             
             // Restore settings - but ONLY restore allowSelect if it was true before
             // If it was already false (e.g., from handleCloseModal), keep it false

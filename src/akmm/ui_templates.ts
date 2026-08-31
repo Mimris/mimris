@@ -1354,6 +1354,7 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                             overflow: go.TextBlock.OverflowEllipsis,
                             textAlign: "center",
                             verticalAlignment: go.Spot.Center,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -1398,6 +1399,8 @@ export function laneTop(contextMenu: any, notation: string, textscale: number) {
                         isPanelMain: true, // This controls the panel size, preventing Placeholder from expanding it
                         cursor: "move",
                         fill: "white",
+                        // The body is only visual; clicks must reach members in the lane.
+                        pickable: false,
                         stroke: "transparent",
                         strokeWidth: 0,
                     },
@@ -1533,6 +1536,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             margin: new go.Margin(0, 0, 0, 0),
                             wrap: go.TextBlock.None,
                             overflow: go.TextBlock.OverflowEllipsis,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -1553,6 +1557,7 @@ export function poolTop(contextMenu: any, notation: string, textscale: number) {
                             margin: new go.Margin(0, 0, 0, 0),
                             wrap: go.TextBlock.None,
                             overflow: go.TextBlock.OverflowEllipsis,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                             name: "name",
                         },
                         new go.Binding("background", "fillcolor", (c) => sanitizeColor(c)),
@@ -2839,10 +2844,8 @@ function addLinkTemplateName(name: string) {
         pool.memberParts.each(function (lane) {
             if (!(lane instanceof go.Group)) return;
             const data = lane.data || {};
-            const isLane =
-                lane.category === "Lane" ||
-                data.category === "Lane" ||
-                data.template === "Lane";
+            const template = String(data.template || data.category || lane.category || "");
+            const isLane = template === "Lane" || template === "Lane_w_handles" || template.startsWith("Lane");
             if (!isLane) return;
             len = Math.max(len, computeLaneContentSize(lane).width);
         });
@@ -2898,6 +2901,39 @@ function addLinkTemplateName(name: string) {
             if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(poolSize);
         }
     };
+
+    // A Pool and all of its Lanes share one right edge.  Keep the lane body size
+    // as the canonical value; the Pool body has one additional lane-header column.
+    const resizePoolAndLanes = (pool: go.Group, requestedLaneBodyWidth: number) => {
+        const laneBodyWidth = Math.max(requestedLaneBodyWidth, computeMinPoolSize(pool).width);
+        pool.memberParts.each((part: go.Part) => {
+            if (!(part instanceof go.Group)) return;
+            const template = String(part.data?.template || part.data?.category || part.category || "");
+            if (!(template === "Lane" || template === "Lane_w_handles" || template.startsWith("Lane"))) return;
+            const shape = part.resizeObject as go.Shape | null;
+            if (!shape) return;
+            const height = Math.max(MINBREADTH, shape.desiredSize.height || shape.actualBounds.height || MINBREADTH);
+            const size = new go.Size(laneBodyWidth, height);
+            shape.desiredSize = size;
+            if (part.data) {
+                pool.diagram?.model.setDataProperty(part.data, "size", go.Size.stringify(size));
+                if (part.data.objectview) part.data.objectview.size = go.Size.stringify(size);
+            }
+        });
+
+        const poolBody = pool.findObject("POOL_BODY_SHAPE") as go.Shape | null;
+        if (poolBody && pool.data) {
+            const height = Math.max(MINBREADTH, poolBody.desiredSize.height || poolBody.actualBounds.height || MINBREADTH);
+            const bodySize = new go.Size(SWIM_HEADER_WIDTH + laneBodyWidth, height);
+            poolBody.desiredSize = bodySize;
+            const poolSize = new go.Size(SWIM_HEADER_WIDTH + bodySize.width, height);
+            pool.diagram?.model.setDataProperty(pool.data, "size", go.Size.stringify(poolSize));
+            if (pool.data.objectview) pool.data.objectview.size = go.Size.stringify(poolSize);
+        }
+        pool.ensureBounds();
+        pool.diagram?.requestUpdate();
+        return laneBodyWidth;
+    };
     
     // determine the minimum size of a Lane Group, even if collapsed
     function computeMinLaneSize(lane: go.Group) {
@@ -2921,7 +2957,11 @@ function addLinkTemplateName(name: string) {
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.computeMinSize.call(this);
         if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
-          return go.ResizingTool.prototype.computeMinSize.call(this);
+          const min = go.ResizingTool.prototype.computeMinSize.call(this);
+          const contentMin = computeMinPoolSize(lane).width;
+          // The Pool resize object includes the lane header column.
+          min.width = Math.max(min.width, SWIM_HEADER_WIDTH + contentMin);
+          return min;
         }
         // assert(lane instanceof go.Group && lane.category !== "Pool");
         const msz = computeMinLaneSize(lane); // get the absolute minimum size
@@ -2942,81 +2982,64 @@ function addLinkTemplateName(name: string) {
         if (this.adornedObject === null) return;
         const lane = this.adornedObject.part;
         if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.resize.call(this, newr);
-        if (lane.category === "Pool" || lane.data?.category === "Pool" || lane.data?.template === "Pool") {
-          return go.ResizingTool.prototype.resize.call(this, newr);
-        }
-        if (lane instanceof go.Group && lane.containingGroup !== null && this.isLengthening()) {
-          // changing the length of all of the lanes
-          const pool = lane.containingGroup;
-          const minimumWidth = computeMinPoolSize(pool).width;
-          const nextWidth = Math.max(newr.width, minimumWidth);
-          pool.memberParts.each((l) => {
-            if (!(l instanceof go.Group)) return;
-            const data = l.data || {};
-            if (!(l.category === "Lane" || data.category === "Lane" || data.template === "Lane")) return;
-            const shape = l.resizeObject;
-            if (shape !== null) {
-              const dataSize = go.Size.parse(String(l.data?.size || ""));
-              const height = Number.isFinite(shape.desiredSize.height) && shape.desiredSize.height > 0
-                ? shape.desiredSize.height
-                : dataSize.height;
-              shape.desiredSize = new go.Size(nextWidth, height);
-              if (l.data && l.diagram) {
-                l.diagram.model.setDataProperty(
-                  l.data,
-                  "size",
-                  go.Size.stringify(new go.Size(nextWidth, height))
-                );
-                if (l.data.objectview) l.data.objectview.size = go.Size.stringify(new go.Size(nextWidth, height));
-              }
-              l.ensureBounds();
-              l.updateAdornments();
-            }
-          });
-          syncPoolFrameToLanes(pool);
-          pool.ensureBounds();
-          pool.diagram?.requestUpdate();
-        } else {
-          // changing the breadth of a single lane
-          super.resize.call(this, newr);
-          const shape = lane.resizeObject;
-          if (shape && lane.data && lane.diagram) {
-            const minimumHeight = computeLaneSize(lane).height;
-            const height = Math.max(shape.desiredSize.height, minimumHeight);
-            const width = shape.desiredSize.width;
-            shape.desiredSize = new go.Size(width, height);
-            lane.diagram.model.setDataProperty(
-              lane.data,
-              "size",
-              go.Size.stringify(new go.Size(width, height))
-            );
-            if (lane.data.objectview) lane.data.objectview.size = go.Size.stringify(new go.Size(width, height));
+        const category = String(lane.data?.template || lane.data?.category || lane.category || "");
+        const isPool = category === "Pool";
+        const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+        if (isPool) {
+          // The Pool body is one lane-header wider than the shared Lane body.
+          // Apply the same clamped width to every Lane for both extending and shortening.
+          if (this.handle.alignment.x === 1) {
+            resizePoolAndLanes(lane, newr.width - SWIM_HEADER_WIDTH);
+            return;
           }
-          if (lane.containingGroup instanceof go.Group) syncPoolFrameToLanes(lane.containingGroup);
-          lane.ensureBounds();
-          lane.updateAdornments();
-          lane.diagram?.requestUpdate();
+          super.resize.call(this, newr);
+          return;
         }
+        if (isLane && lane.containingGroup !== null && this.isLengthening()) {
+          const pool = lane.containingGroup;
+          resizePoolAndLanes(pool, newr.width);
+          return;
+        }
+        super.resize.call(this, newr);
       }
 
-      public doMouseUp(): void {
-        super.doMouseUp();
-        // Relayout pool/lanes after resize completes
+      public doDeactivate(): void {
+        const adornedPart = this.adornedObject?.part;
+        const category = String(adornedPart?.data?.template || adornedPart?.data?.category || adornedPart?.category || "");
+        const isPool = category === "Pool";
+        const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
         const diagram = this.diagram;
-        if (diagram) {
-            diagram.layout.invalidateLayout();
-            diagram.findTopLevelGroups().each(function (g) { 
-                if (g.category === 'Pool' && g.layout !== null) g.layout.invalidateLayout(); 
-            });
-            diagram.layoutDiagram();
+        const containingPool = isLane && adornedPart instanceof go.Group
+          ? adornedPart.containingGroup
+          : null;
+        const resizedShape = adornedPart?.resizeObject as go.Shape | null;
+        const resizedSize = resizedShape?.desiredSize || resizedShape?.actualBounds?.size || null;
+        super.doDeactivate();
+        if (!diagram || !resizedSize || !(adornedPart instanceof go.Group)) return;
+        if (!Number.isFinite(resizedSize.width) || !Number.isFinite(resizedSize.height)) return;
+        if (isPool) {
+          const poolSize = new go.Size(SWIM_HEADER_WIDTH + resizedSize.width, resizedSize.height);
+          diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(poolSize));
+        } else {
+          diagram.model.setDataProperty(adornedPart.data, "size", go.Size.stringify(resizedSize));
+        }
+        // Do the structural layout once at the end of the drag. It reconciles the
+        // persisted lane width with the pool body without fighting the live resize.
+        if (containingPool?.layout) {
+          containingPool.layout.invalidateLayout();
+          diagram.layoutDiagram(true);
         }
       }
   }
   // end LaneResizingTool class
 
   // Function to install the custom LaneResizingTool on a diagram
-  export function installLaneResizingTool(diagram: go.Diagram) {
-      diagram.toolManager.resizingTool = new LaneResizingTool({});
+  export function installLaneResizingTool(diagram: go.Diagram, myMetis?: akm.cxMetis) {
+      myDiagram = diagram;
+      const tool = new LaneResizingTool({});
+      (tool as any).__myMetis = myMetis;
+      tool.isGridSnapEnabled = true;
+      diagram.toolManager.resizingTool = tool;
   }
 
     // hide links between lanes when either lane is collapsed
@@ -3587,9 +3610,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
                         new go.Binding("text", "", 
                             function (d) { 
-                                const tt = uid.nodeInfo(d, myMetis); 
+                                const tt = uid.nodeInfo(d, myMetis);
                                 if (debug) console.log('234 tooltip', tt);
-                                return tt;               
+                                return tt;
                             }
                         )
                     )
@@ -3597,16 +3620,16 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
             },
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                    cursor: "alias", 
-                    name: 'SHAPE', 
-                    fill: 'transparent', 
-                    stroke: "#aaa",  
-                    strokeWidth: 2, 
+                    cursor: "alias",
+                    name: 'SHAPE',
+                    fill: 'transparent',
+                    stroke: "#aaa",
+                    strokeWidth: 2,
                     margin: new go.Margin(0, 0, 0, 0),
                     shadowVisible: true,
                     desiredSize: new go.Size(199, 69), // outer Shape size with icon
                     // set the port properties
-                    portId: "", 
+                    portId: "",
                     fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                     toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                 },
@@ -3740,10 +3763,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
                         new go.Binding("text", "", 
-                            function (d) { 
-                                const tt = uid.nodeInfo(d, myMetis); 
+                            function (d) {
+                                const tt = uid.nodeInfo(d, myMetis);
                                 if (debug) console.log('234 tooltip', tt);
-                                return tt;               
+                                return tt;
                             }
                         )
                     )
@@ -4234,162 +4257,87 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
 
     nodeTemplateMap.add("ActivityNode", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("isSelected", "isSelected").makeTwoWay(),
+            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            // new go.Binding("scale", "scale1").makeTwoWay(),
+            new go.Binding("scale", "scale1").makeTwoWay(),
             {
-                selectionObjectName: "SHAPE",
-                // resizable: true, 
-                resizeObjectName: "SHAPE",
-                contextMenu: contextMenu ,    
+                mouseEnter: (e, node) => node.isHighlighted = true,
+                mouseLeave: (e, node) => node.isHighlighted = false,
             },
-            { // Tooltip
+            { // Tooltips
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
                     $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                        new go.Binding("text", "", 
-                            function (d) { 
-                                return uid.nodeInfo(d, myMetis);                
+                        new go.Binding("text", "",
+                            function (d) {
+                                const tt = uid.nodeInfo(d, myMetis);
+                                if (debug) console.log('234 tooltip', tt);
+                                return tt;
                             }
                         )
                     )
                 )
             },
-            {
-                locationObjectName: 'SHAPE', 
-                locationSpot: go.Spot.Center,
-                resizable: true, 
-                resizeObjectName: 'PANEL',
-                selectionAdorned: false,  // use a Binding on the Shape.stroke to show selection
-                //itemTemplate: boundaryEventItemTemplate
-            },
-            $(go.Panel, 'Spot',
+            $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
-                name: 'PANEL',
-                minSize: new go.Size(160, 80),
-                desiredSize: new go.Size(160, 80)
+                    cursor: "alias",
+                    name: 'SHAPE',
+                    fill: 'transparent',
+                    stroke: "#aaa",
+                    strokeWidth: 2,
+                    margin: new go.Margin(0, 0, 0, 0),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(169, 69), // outer Shape size with icon
+                    portId: "",
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                 },
-                $(go.Panel, 'Spot',
-                    $(go.Shape, 'RoundedRectangle',  // the outside rounded rectangle
-                        {
-                            cursor: 'alias',
-                            name: 'SHAPE',
-                            fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
-                            stroke: '#CDAA7D',
-                            strokeWidth: 3,
-                            parameter1: 10, // corner size
-                            portId: '', 
-                            fromLinkable: true,
-                            fromSpot: go.Spot.RightSide, 
-                            toSpot: go.Spot.LeftSide,
-                            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-                        },
-                        new go.Binding('fill', 'fillcolor'),
-                        new go.Binding("stroke", "strokecolor"),
-                        new go.Binding('strokeWidth', 'strokewidth', function(val) { 
-                            return typeof val === 'number' ? val : parseInt(val) || 1; 
-                        }),
-                    ),
-                ), 
-            ),  // end main body rectangles spot panel
-        
-            $(go.Panel, 'Auto',  // make an area around text for move cursor
-                $(go.Shape, 'Rectangle',  // area around the text
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('stroke', 'strokecolor'),
+                new go.Binding("stroke", "isHighlighted",
+                    function(h, shape) {
+                        return h ? "lightblue" : shape.part.data.strokecolor || "black";
+                    }).ofObject(),
+                new go.Binding('strokeWidth', 'strokewidth', function(val) {
+                    return typeof val === 'number' ? val : parseInt(val) || 1;
+                }),
+                { contextMenu: contextMenu },
+            ),
+            $(go.Shape, 'RoundedRectangle',  // smaller transparent rectangle to set cursor to move
+                {
+                    cursor: "move",
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 10,
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: false,
+                }
+            ),
+            $(go.Panel, "Table", // Panel for text ------------------------
+                { 
+                    defaultAlignment: go.Spot.Left,
+                    margin: 1,
+                    cursor: "move"
+                },
+                $(go.RowColumnDefinition,
                     {
-                        cursor: 'alias',
-                        name: 'SHAPE',
-                        fill: $(go.Brush, 'Linear', { 0: 'OldLace', 1: 'PapayaWhip' }), 
-                        stroke: '#CDAA7D',
-                        strokeWidth: 3,
-                        parameter1: 10, // corner size
-                        portId: 'activityPort',  // the main port
-                        fromLinkable: true,
-                        fromSpot: go.Spot.RightSide, 
-                        toSpot: go.Spot.LeftSide,
-                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+                        column: 1,
+                        width: 4
+                    }
+                ),
+                $(go.Panel, "Horizontal",
+                    {
+                        defaultAlignment: go.Spot.Center,
                     },
+                    addNodeText0(contextMenu),
                 ),
             ),
-            $(go.TextBlock,  // the center text
-            {
-                alignment: go.Spot.Center, 
-                // background: 'gray',
-                cursor: 'move',
-                textAlign: 'center', 
-                margin: 4,
-                editable: true,
-                scale: 1,
-                isMultiline: true,
-                wrap: go.TextBlock.WrapFit,
-                overflow: go.TextBlock.OverflowEllipsis,
-                maxSize: new go.Size(150, NaN),  // limit width, allow height to grow
-            },
-            new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("scale", "textscale").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay(),
-            ),
-            $(go.Picture,
-                { 
-                    name: "nodeImage", 
-                    desiredSize: new go.Size(30, 30),
-                    alignmentFocus: go.Spot.TopLeft,
-                    alignment: new go.Spot(0, 0, 5, 5),
-                    margin: 50, //new go.Margin(5, 5, 5, 5),
-                    cursor: "move",
-                    stretch: go.GraphObject.Fill,
-                    imageStretch: go.GraphObject.Fill,
-                },
-                new go.Binding("source", "icon", getIconSource),
-                new go.Binding("visible", "icon", shouldShowIconPicture),
-            ),
-
-            $(go.Picture,
-                { 
-                    name: "nodeImage", 
-                    desiredSize: new go.Size(30, 30),
-                    alignmentFocus: go.Spot.TopLeft,
-                    alignment: new go.Spot(0, 0, 30, 65),
-                    margin: 50, //new go.Margin(5, 5, 5, 5),
-                    cursor: "move",
-                    stretch: go.GraphObject.Fill,
-                    imageStretch: go.GraphObject.Fill,
-                },
-                new go.Binding("source", "icon1", findImage),
-            ),
-
-            $(go.Picture,
-                { 
-                    name: "nodeImage", 
-                    desiredSize: new go.Size(30, 30),
-                    alignmentFocus: go.Spot.TopLeft,
-                    alignment: new go.Spot(0, 0, 65, 65),
-                    margin: 50, //new go.Margin(5, 5, 5, 5),
-                    cursor: "move",
-                    stretch: go.GraphObject.Fill,
-                    imageStretch: go.GraphObject.Fill,
-                },
-                new go.Binding("source", "icon2", findImage),
-            ),
-
-            $(go.Picture,
-                { 
-                    name: "nodeImage", 
-                    desiredSize: new go.Size(30, 30),
-                    alignmentFocus: go.Spot.TopLeft,
-                    alignment: new go.Spot(0, 0, 100, 65),
-                    margin: 50, //new go.Margin(5, 5, 5, 5),
-                    cursor: "move",
-                    stretch: go.GraphObject.Fill,
-                    imageStretch: go.GraphObject.Fill,
-                },
-                new go.Binding("source", "icon3", findImage),
-            ),
-        ));  
-        
+        )
+    );
     addNodeTemplateName('ActivityNode');
 
     nodeTemplateMap.add("EventNode",
@@ -5751,6 +5699,26 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 if (!isLaneGroupPart(part)) return;
                 markActiveSwimlaneDrag(diagram, part);
             });
+
+            // A palette lane can arrive with an uninitialized body size. Normalize it before
+            // PoolLayout runs so the new lane immediately has the same usable body/header height.
+            dragged.each((part: go.Part) => {
+                if (!isLaneGroupPart(part)) return;
+                const laneBody = part.findObject("LANE_BODY_SHAPE") as go.GraphObject | null;
+                const laneHeader = part.findObject("LANE_HEADER_STRIP") as go.GraphObject | null;
+                const fromData = part.data?.size ? go.Size.parse(String(part.data.size)) : null;
+                const width = Math.max(160, fromData?.width || laneBody?.actualBounds.width || 160);
+                const height = Math.max(
+                    65,
+                    fromData?.height || 0,
+                    laneBody?.actualBounds.height || 0,
+                    laneHeader?.actualBounds.height || 0,
+                );
+                const size = new go.Size(width, height);
+                if (laneBody) laneBody.desiredSize = size;
+                diagram.model.setDataProperty(part.data, "size", go.Size.stringify(size));
+                if (part.data?.objectview) part.data.objectview.size = go.Size.stringify(size);
+            });
         }
 
         // Optional insertion behavior: when a Lane is dropped "on a lane", insert above/below that
@@ -6258,6 +6226,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             this.wrappingColumn = 1;
             this.wrappingWidth = Infinity;
             this.isRealtime = false;  // don't continuously layout while dragging
+            this.isOngoing = false;   // defer pool reflow until the resize transaction completes
             this.alignment = go.GridLayout.Position;
             this.spacing = new go.Size(0, 0);  // No gaps between lanes
             // Sort based on Y location for lane reordering
@@ -6721,9 +6690,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     {
                         angle: 270,
                         font: "bold 14pt sans-serif",
-                        margin: 5
+                        margin: 5,
+                        name: "name",
+                        editable: true,
+                        doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                     },
-                    new go.Binding("text", "name")
+                    new go.Binding("text", "name").makeTwoWay()
                 )
             ),
             
@@ -6783,9 +6755,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                 copyable: false,
                 resizable: true,
                 contextMenu: contextMenu,
-                selectionObjectName: "LANE_TABLE",
+                // The lane frame owns selection bounds.  The Table can be wider while
+                // GoJS is arranging members, which made its selection outline extend
+                // beyond the visible white lane body.
+                selectionObjectName: "LANE_MAIN_SHAPE",
                 resizeObjectName: "LANE_SHAPE",  // Point to the shape for resizing
-                locationObjectName: "LANE_TABLE",
+                locationObjectName: "LANE_MAIN_SHAPE",
                 locationSpot: go.Spot.TopLeft,
                 // No explicit desiredSize - let Auto panel compute from children
                 layout: null,
@@ -6807,6 +6782,24 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
             },
             new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("isSubGraphExpanded", "isExpanded").makeTwoWay(),
+
+            // Match alpha44: use a fixed, transparent full-lane frame for selection
+            // and location.  `size` remains the body size, so add the header width.
+            $(go.Shape, "Rectangle",
+                {
+                    name: "LANE_MAIN_SHAPE",
+                    isPanelMain: true,
+                    fill: "transparent",
+                    stroke: "transparent",
+                    pickable: false,
+                },
+                new go.Binding("desiredSize", "size", (s) => {
+                    const size = go.Size.parse(typeof s === "string" ? s : "");
+                    const width = Number.isFinite(size.width) && size.width > 0 ? size.width : MINLENGTH;
+                    const height = Number.isFinite(size.height) && size.height > 0 ? size.height : MINBREADTH;
+                    return new go.Size(SWIM_HEADER_WIDTH + width, height);
+                })
+            ),
             
             // Table panel with header and body
             $(go.Panel, "Table",
@@ -6833,9 +6826,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                         {
                             angle: 270,
                             font: "bold 11pt sans-serif",
-                            margin: 5
+                            margin: 5,
+                            name: "name",
+                            editable: true,
+                            doubleClick: (e, obj) => e.diagram.commandHandler.editTextBlock(obj as go.TextBlock),
                         },
-                        new go.Binding("text", "name")
+                        new go.Binding("text", "name").makeTwoWay()
                     )
                 ),
                 

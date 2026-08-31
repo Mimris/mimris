@@ -3560,11 +3560,9 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             contentBounds = contentBounds ? contentBounds.unionRect(bounds) : bounds.copy();
         });
         if (contentBounds) {
-            const availableHeight = innerBottom - innerTop;
-            const contentHeight = contentBounds.height;
-            const targetTop = contentHeight <= availableHeight
-                ? innerTop + (availableHeight - contentHeight) / 2
-                : innerTop;
+            // Lane Flow is a left-to-right process layout. Anchor its content at the
+            // top of the lane body rather than vertically centering it in the lane.
+            const targetTop = innerTop;
             const offsetY = targetTop - contentBounds.top;
             if (Math.abs(offsetY) > 0.01) {
                 nodes.forEach((node) => {

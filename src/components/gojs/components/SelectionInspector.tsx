@@ -306,6 +306,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
+    const isSwimlane = category === 'Pool' || category === 'Lane' || category === 'Lane_w_handles';
     // If category is missing/non-object but we have object refs, treat as object to show form fields
     if (category !== constants.gojs.C_OBJECT && category !== constants.gojs.C_RELATIONSHIP) {
       if (selObj?.object || selObj?.objectview || selObj?.isGroup || selObj?.viewkind === 'Container') {
@@ -1016,6 +1017,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'id' || k === 'typeid' || k === 'typename' || k === 'typedescription') {
             disabled = true;
           }
+        }
+        // Pools and lanes are named model objects, even though their GoJS category
+        // is their template key rather than the standard Object category.
+        if (isSwimlane && k === 'name') {
+          readonly = false;
+          disabled = false;
         }
 
         row = <InspectorRow

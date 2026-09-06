@@ -308,7 +308,7 @@ export function getFigure2Names() {
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 
 let groupTemplateNames = []; 
-const NESTED_GROUP_SIZE_RATIO = 0.35;
+const NESTED_GROUP_SIZE_RATIO = constants.params.MEMBERSCALE;
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
@@ -595,9 +595,9 @@ export function groupTop1(contextMenu: any, notation: string) {
                 shadowVisible: true,
                 desiredSize: new go.Size(220, 120),
                 minSize: new go.Size(160, 65),
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                portId: null,
+                fromLinkable: false, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: false, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
@@ -790,7 +790,7 @@ export function groupTop1(contextMenu: any, notation: string) {
 export function groupTop2(
     contextMenu: any,
     notation: string,
-    bodyLinkable: boolean = true,
+    bodyLinkable: boolean = false,
     restrictBodyHitArea: boolean = false
 ) {
     const DEBUG_HIT_AREAS = false;
@@ -5336,7 +5336,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon', true, true),
+            groupTop2(contextMenu, 'Icon', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5393,7 +5393,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Geometry', true, true),
+            groupTop2(contextMenu, 'Geometry', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5444,7 +5444,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Figure', true, true),
+            groupTop2(contextMenu, 'Figure', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -7391,9 +7391,9 @@ function getParentMemberScale(grp: go.Group | null): number {
         data?.memberscale ??
         data?.objectview?.memberscale ??
         data?.typeview?.memberscale ??
-        1;
+        constants.params.MEMBERSCALE;
     const parsed = Number(raw);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : constants.params.MEMBERSCALE;
 }
 
 function getAncestorMemberScaleProduct(grp: go.Group | null): number {

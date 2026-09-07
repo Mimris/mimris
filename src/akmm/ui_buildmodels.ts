@@ -38,10 +38,15 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       for (let i = 0; i < allObjtypes.length; i++) {
         const objtype = allObjtypes[i];
         if (objtype) {
+          if (
+            isCoreMetamodel &&
+            (objtype.name === "Generic" || objtype.name === "Label")
+          ) {
+            continue;
+          }
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
-            if (isCoreMetamodel) {              
-              objtype.abstract = false;
-            }
+            // EntityType is a metamodel abstraction in the CORE metamodel.
+            // Keep it abstract so it is not offered as a concrete palette type.
             if (isCoreMetamodel || !metamodel.includeSystemtypes) {
               mmtypenames.push(objtype.name);
               objtypes.push(objtype);

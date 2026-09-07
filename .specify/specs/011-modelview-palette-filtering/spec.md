@@ -2,6 +2,7 @@
 
 **Feature Branch**: `alpha-pre`
 **Created**: 2026-08-06
+**Updated**: 2026-09-07
 **Status**: Implemented
 **Input**: Use named Modelviews as submodel perspectives and restrict the creation palette for each perspective without introducing a separate submodel entity.
 
@@ -27,8 +28,20 @@ A modeller switches between named Modelviews in one semantic model and sees only
 - **FR-004**: Hydrated palette nodes and links MUST retain primitive ObjectType and RelationshipType references.
 - **FR-005**: Remote-universe routes and proxies MUST preserve initial named Modelview metadata supplied by the workspace.
 
+## CORE Palette Eligibility
+
+- CORE palette construction excludes Generic and Label creation entries. Other metamodels retain their existing eligibility rules.
+- Palette construction MUST preserve the declared abstract flag on EntityType instead of mutating it to concrete. Abstract EntityType entries remain absent from the final palette.
+- These restrictions affect creation choices only; persisted types and existing model content are not deleted or migrated.
+
 ## Verification
 
 - Pure palette-filter tests cover unrestricted, object-filtered, and relationship-filtered behavior.
 - TypeScript passes with incremental cache output disabled where required by the test environment.
 - Visual verification confirms a shared model opens with named Modelviews and that switching from `Goals Model` to `Business Process Model` changes the palette from `Goal` to `Process`.
+
+### September 2026 follow-up
+
+- Automated suite: 57 tests passed.
+- TypeScript and production build: passed.
+- Visual CORE palette verification remains pending: browser access to the local app returned ERR_BLOCKED_BY_CLIENT.

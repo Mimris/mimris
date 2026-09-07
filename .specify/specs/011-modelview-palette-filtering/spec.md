@@ -45,3 +45,7 @@ A modeller switches between named Modelviews in one semantic model and sees only
 - Automated suite: 57 tests passed.
 - TypeScript and production build: passed.
 - Visual CORE palette verification remains pending: browser access to the local app returned ERR_BLOCKED_BY_CLIENT.
+
+### Clean deployment follow-up
+
+Declare the existing rehype-slug, classnames and camelcase imports as direct dependencies, remove an unused bcrypt import, and track the TypeScript configuration so clean builds use the same settings as local validation. The first remote build exposed an undeclared dependency; verification of the corrected remote build is pending.

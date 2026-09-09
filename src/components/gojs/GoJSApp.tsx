@@ -3337,6 +3337,68 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
+        // Lanes are sibling rows in a pool. Repair any stale nested lane
+        // membership before a drag so moving one lane cannot move the other
+        // lanes (and their activities) as descendants of it.
+        laneInfos.forEach((info) => {
+          const lanePart = info.lane;
+          if (lanePart.containingGroup !== poolNode) {
+            const laneSet = new go.Set<go.Part>();
+            laneSet.add(lanePart);
+            poolNode.addMembers(laneSet, true);
+          }
+        });
+
+        // Rebuild object membership from the visible lane row. Older snapshots
+        // can have every object persisted with the first lane's group key even
+        // though the objects are drawn in different lanes. That makes a drag
+        // of the first lane move the entire pool tree.
+        const orderedLaneInfos = [...laneInfos].sort((a, b) => a.area - b.area);
+        const containsTypeName = constants.types.AKM_CONTAINS;
+        const containsType = myMetamodel.findRelationshipTypeByName(containsTypeName);
+        const getPartObjectId = (part: go.Part): string => String(
+          part.data?.objRef ||
+          part.data?.object?.id ||
+          part.data?.objectview?.object?.id ||
+          ''
+        );
+        const laneContainsObject = (lane: go.Group, objectId: string): boolean => {
+          if (!objectId) return false;
+          const laneObjectId = getPartObjectId(lane);
+          if (!laneObjectId) return false;
+          return (myModel?.relships || []).some((rel: any) =>
+            !rel?.markedAsDeleted &&
+            String(rel?.fromObject?.id || rel?.fromObjRef || '') === laneObjectId &&
+            String(rel?.toObject?.id || rel?.toObjRef || '') === objectId &&
+            (
+              String(rel?.type?.name || rel?.relshipkind || '') === containsTypeName ||
+              Boolean(containsType?.id && String(rel?.type?.id || rel?.typeRef || '') === String(containsType.id))
+            )
+          );
+        };
+        myDiagram.nodes.each((part: go.Part) => {
+          if (!(part instanceof go.Node) || part instanceof go.Group || !part.data) return;
+          const center = part.actualBounds?.center;
+          if (!center || !poolNode.actualBounds.containsPoint(center)) return;
+          const objectId = getPartObjectId(part);
+          const targetLane =
+            orderedLaneInfos.find((info) => laneContainsObject(info.lane, objectId)) ||
+            orderedLaneInfos.find((info) => info.mainBounds?.containsPoint(center));
+          if (!targetLane) return;
+          const laneKey = targetLane.key;
+          if (part.containingGroup === targetLane.lane && String(part.data.group || '') === laneKey) return;
+          const memberSet = new go.Set<go.Part>();
+          memberSet.add(part);
+          targetLane.lane.addMembers(memberSet, true);
+          if (typeof (myDiagram.model as any)?.setGroupKeyForNodeData === 'function') {
+            (myDiagram.model as any).setGroupKeyForNodeData(part.data, laneKey);
+          } else {
+            myDiagram.model.setDataProperty(part.data, 'group', laneKey);
+          }
+          const objview = myModelview.findObjectView(part.data.key) || myMetis.findObjectView(part.data.objviewRef);
+          if (objview) objview.group = laneKey;
+        });
+
         laneInfos.forEach((info) => {
           const part = info.lane;
           const laneKey = info.key;
@@ -3431,13 +3493,15 @@ class GoJSApp extends React.Component<{}, AppState> {
 	          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
 	          normalizedViews.add(key);
 	        };
-	        dispatchNormalizedObjectView(poolNode);
-	        laneInfos.forEach((info) => dispatchNormalizedObjectView(info.lane));
-	        poolNode.memberParts.each((part: go.Part) => {
-	          if (part instanceof go.Node && !(part instanceof go.Group)) {
-	            dispatchNormalizedObjectView(part);
-	          }
-	        });
+        dispatchNormalizedObjectView(poolNode);
+        laneInfos.forEach((info) => dispatchNormalizedObjectView(info.lane));
+        laneInfos.forEach((info) => {
+          info.lane.memberParts.each((part: go.Part) => {
+            if (part instanceof go.Node && !(part instanceof go.Group)) {
+              dispatchNormalizedObjectView(part);
+            }
+          });
+        });
 	        myDiagram.model.commitTransaction("normalizeSwimlanePool");
 	      } finally {
 	        (myDiagram as any).__isSwimlaneNormalizeInProgress = false;
@@ -3750,7 +3814,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           });
           poolKeysToNormalize.forEach((poolKey) => {
             const poolPart = myDiagram.findNodeForKey(poolKey);
-            if (poolPart instanceof go.Group && hasAuthoritativeSwimlaneLayout(poolPart)) return;
             normalizeSwimlanePool(poolKey);
             if (poolPart instanceof go.Group) {
               relayoutPoolGroupAfterLaneChanges(myDiagram, poolPart);
@@ -3824,7 +3887,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               const stablePoolKeys = new Set<string>(scheduledPoolKeys);
               stablePoolKeys.forEach((poolKey) => {
                 const poolPart = myDiagram.findNodeForKey(poolKey);
-                if (poolPart instanceof go.Group && hasAuthoritativeSwimlaneLayout(poolPart)) return;
                 normalizeSwimlanePool(poolKey);
               });
               try { myDiagram.requestUpdate(); } catch (_) { }
@@ -4251,11 +4313,70 @@ class GoJSApp extends React.Component<{}, AppState> {
         dragTool.dragsTree = true;
         const myParts = dragTool.draggedParts;
         dragTool.dragsTree = previousDragsTree;
+        const movedSelection = e.subject;
+        const selectedGroupKeys = new Set<string>();
+        for (let it = movedSelection?.iterator; it?.next();) {
+          const part = it.value;
+          if (part instanceof go.Group && part.key !== undefined && part.key !== null) {
+            selectedGroupKeys.add(String(part.key));
+          }
+        }
+        const isDescendantOfSelectedGroup = (part: go.Part | null | undefined): boolean => {
+          let parent = part?.containingGroup || null;
+          while (parent instanceof go.Group) {
+            if (selectedGroupKeys.has(String(parent.key))) return true;
+            parent = parent.containingGroup;
+          }
+          return false;
+        };
+        // GoJS can retain stale memberParts after earlier grouping operations.
+        // Remove direct members that are outside the group's body before their
+        // translated position is persisted as part of the group drag.
+        for (let it = movedSelection?.iterator; it?.next();) {
+          const group = it.value;
+          if (!(group instanceof go.Group)) continue;
+          const originalGroupPoint = myParts.get(group)?.point;
+          if (!originalGroupPoint) continue;
+          const dx = group.location.x - originalGroupPoint.x;
+          const dy = group.location.y - originalGroupPoint.y;
+          const staleMembers: go.Part[] = [];
+          for (let memberIt = group.memberParts.iterator; memberIt?.next();) {
+            const member = memberIt.value;
+            if (member instanceof go.Link || member instanceof go.Group) continue;
+            if (myDiagram.selection.contains(member)) continue;
+            if (!isPartVisuallyInsideGroup(member, group)) staleMembers.push(member);
+          }
+          staleMembers.forEach((member) => {
+            const restoredLocation = member.location.copy();
+            restoredLocation.offset(-dx, -dy);
+            detachPartToTopLevel(myDiagram, member, member.data);
+            member.location = restoredLocation;
+            const data: any = member.data || {};
+            const objview =
+              myModelview.findObjectView(data?.key) ||
+              myMetis.findObjectView(data?.objviewRef || data?.key) ||
+              data?.objectview;
+            if (objview) {
+              objview.group = "";
+              objview.loc = `${restoredLocation.x} ${restoredLocation.y}`;
+              uic.addItemToList(modifiedObjectViews, {
+                id: objview.id,
+                group: "",
+                loc: objview.loc,
+              });
+            }
+          });
+        }
         const myFromNodes = [];
         for (let it = myParts.iterator; it?.next();) {
           let n = it.value;
           let loc = it.value.point.x + " " + it.value.point.y;
           if (!(it.key.data.category === 'Object'))
+            continue;
+          // Group moves are persisted by the group path below. Do not process
+          // descendant objects a second time, or their relationships and lane
+          // membership can be rewritten during the same mouse-up event.
+          if (isDescendantOfSelectedGroup(it.key))
             continue;
           let objectview = myModelview.findObjectView(it.key.data.key);
           if (!objectview)
@@ -4291,7 +4412,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         // Then remember the new locs
         let myToNodes = [];
-        const movedSelection = e.subject;
         const movedGroupSelection = e.subject;
         for (let it = movedGroupSelection?.iterator; it?.next();) {
           let n = it.value;
@@ -4299,6 +4419,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // Group moves are persisted in a dedicated block later; keep this path
           // scoped to regular nodes to avoid accidental group membership rewrites.
           if (n instanceof go.Group) continue;
+          if (isDescendantOfSelectedGroup(n)) continue;
           // Use the Part.location, not `data.loc`. After group drags, `data.loc` can lag behind
           // the rendered position and cause membership/loc persistence to drift.
           const loc = `${n.location.x} ${n.location.y}`;
@@ -4560,8 +4681,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let inoutRelviews = new Array();
                 let inputRelviews = myObjectview?.inputrelviews; // Possibly a member relship
                 if (inputRelviews?.length > 0) {
-                  myObjectview.purgeInputRelviews();
-                  inputRelviews = myObjectview.inputrelviews;
+                  inputRelviews = inputRelviews.filter((relview: any) => relview?.relship && !relview.markedAsDeleted);
                 } else {
 
                   const parentObj = parentObjview?.object;
@@ -4598,7 +4718,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 for (let i = 0; i < inputRelviews?.length; i++) {
                   let relview = inputRelviews[i];
-                  if (relview) {
+                  if (relview?.relship) {
                     let fromObjview = relview.fromObjview;
                     // Handle the relationship from group to its member
                     if (true && fromObjview?.isGroup) {
@@ -4635,11 +4755,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 let outputRelviews = myObjectview?.outputrelviews;
                 if (outputRelviews?.length > 0) {
-                  myObjectview.purgeOutputRelviews();
-                  outputRelviews = myObjectview.outputrelviews;
+                  outputRelviews = outputRelviews.filter((relview: any) => relview?.relship && !relview.markedAsDeleted);
                 }
                 for (let i = 0; i < outputRelviews?.length; i++) {
                   let relview = outputRelviews[i];
+                  if (!relview?.relship) continue;
                   if (relview) {
                     let toObjview = relview.toObjview;
                     // Handle the relationship from group to its member
@@ -4681,11 +4801,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                       break;
                     }
                   }
-                  const jsnRelship = new jsn.jsnRelationship(relview.relship);
-                  uic.addItemToList(modifiedRelships, jsnRelship);
+                  if (relview?.relship) {
+                    const jsnRelship = new jsn.jsnRelationship(relview.relship);
+                    uic.addItemToList(modifiedRelships, jsnRelship);
+                  }
                 }
               } else {
-                myMetis.purgeInputRelships(myModel);
                 // goToNode is NOT visually member of a group.
                 // Structural containment may still exist, but it must not force group membership.
                 if (reparentAllowedForNode && myToNode.n?.containingGroup instanceof go.Group) {
@@ -4750,7 +4871,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Check if the node has a relationship FROM a group
                 let inputRelviews = movedObjview?.inputrelviews;
                 if (inputRelviews?.length > 0) {
-                  movedObjview.purgeInputRelviews();
+                  inputRelviews = inputRelviews.filter((relview: any) => relview?.relship && !relview.markedAsDeleted);
                 }
                 const inputRelships = movedObj?.inputrels;
                 for (let i = 0; i < inputRelships?.length; i++) {
@@ -4763,7 +4884,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const isContainsRel = relship?.type?.name === constants.types.AKM_CONTAINS;
                   if (fromObjview?.isGroup && isContainsRel) {
                     // YES
-                    myModel.purgeInputRelships(myModel);
                     const fromGroup = fromObjview.object;
                     const fromGroupView = fromObjview;
                     if (reparentAllowedForNode) {
@@ -5229,6 +5349,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (parentObj?.id && candidateObj?.id && parentObj.id === candidateObj.id) {
                 return;
               }
+              // Visual overlap alone must not establish group membership.
+              // Require the persisted contains relationship to keep groups
+              // consistent when a group is moved.
+              const existingContainsRel =
+                parentObj && candidateObj && containsType
+                  ? myModel.findRelationship1(parentObj, candidateObj, containsType, null, null)
+                  : null;
+              if (!existingContainsRel) return;
               if (
                 containsType &&
                 (wouldCreateGroupCycle(candidate as any, sel) ||

@@ -970,10 +970,11 @@ const page = () => {
         >
             <div className="workarea p-1 w-100 position-relative" style={{ backgroundColor: "#bcc" }}>
                 {canSaveFocusedModelToWorkspace && (
-                    <div className="px-3 py-2 small text-muted d-flex gap-3 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.82)' }}>
+                    <div className="px-1 py-0 small text-muted d-flex gap-1 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.82)' }}>
                         <button
                             type="button"
-                            className="btn btn-success btn-sm"
+                            className="btn btn-success btn-sm py-0 px-1"
+                            style={{ fontSize: '0.75rem' }}
                             disabled={isSavingRemote || isRefreshingRemote}
                             onClick={handleSaveFocusedModelToWorkspace}
                         >
@@ -981,7 +982,8 @@ const page = () => {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-outline-secondary btn-sm"
+                            className="btn btn-outline-secondary btn-sm py-0 px-1"
+                            style={{ fontSize: '0.75rem' }}
                             disabled={isSavingRemote || isRefreshingRemote}
                             onClick={handleRefreshFocusedModelFromWorkspace}
                             title="Reload the current model from workspace and discard local unsaved changes"

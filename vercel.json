@@ -5,7 +5,7 @@
             "src": "package.json",
             "use": "@vercel/next",
             "config": {
-                "installCommand": "npm install --force && npm rebuild"
+                "installCommand": "corepack pnpm install --frozen-lockfile"
             }
         }
     ],

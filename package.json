@@ -31,6 +31,7 @@
     "@svgr/webpack": "^8.1.0",
     "@types/cheerio": "^0.22.35",
     "@uiw/react-md-editor": "^4.0.5",
+    "@vercel/analytics": "2.0.1",
     "async-file": "^2.0.2",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.3",

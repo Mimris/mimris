@@ -49,3 +49,9 @@ A modeller switches between named Modelviews in one semantic model and sees only
 ### Clean deployment follow-up
 
 Declare the existing rehype-slug, classnames and camelcase imports as direct dependencies, remove an unused bcrypt import, and track the TypeScript configuration so clean builds use the same settings as local validation. The first remote build exposed an undeclared dependency; verification of the corrected remote build is pending.
+
+### Vercel Analytics (September 2026)
+
+- The Next.js pages app renders `Analytics` from `@vercel/analytics/next` in the shared `_app` wrapper so page views are collected across routes.
+- `@vercel/analytics` MUST remain a direct production dependency and be captured in `pnpm-lock.yaml`, ensuring clean Vercel builds reproduce the instrumentation.
+- Analytics instrumentation is privacy-friendly page-view telemetry; no custom events or Speed Insights integration are currently configured.

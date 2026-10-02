@@ -196,8 +196,8 @@ function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, l
     if (!local || typeof local !== "object") return incoming;
     const incomingPoints = normalizeLinkPoints(incoming.points);
     const localPoints = normalizeLinkPoints(local.points);
-    const incomingHasManualPoints = Array.isArray(incomingPoints) && incomingPoints.length >= 4;
-    const localHasManualPoints = Array.isArray(localPoints) && localPoints.length >= 4;
+    const incomingHasManualPoints = Boolean(incoming.__manualPath) && incomingPoints.length >= 4;
+    const localHasManualPoints = Boolean(local.__manualPath) && localPoints.length >= 4;
     if (!localHasManualPoints) return incoming;
     if (incomingHasManualPoints) return incoming;
     if (debug) {
@@ -500,6 +500,7 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
     points: normalizeLinkPoints(link.points),
   };
   const hasPersistableManualPoints =
+    Boolean(nextLink.__manualPath) &&
     Array.isArray(nextLink.points) &&
     nextLink.points.length >= 4;
   // For routed links, ignore default auto-route geometry, but keep explicit reshaped paths.
@@ -509,7 +510,11 @@ function sanitizeModifiedLinkDataForReact(link: any): any {
   return nextLink;
 }
 
-function reanchorManualLinkPoints(link: go.Link, rawPoints: any): number[] | null {
+function reanchorManualLinkPoints(
+  link: go.Link,
+  rawPoints: any,
+  options: { anchorFrom?: boolean; anchorTo?: boolean } = {}
+): number[] | null {
   const points = normalizeLinkPoints(rawPoints);
   if (!Array.isArray(points) || points.length < 4) return null;
   const nextPoints = [...points];
@@ -518,23 +523,26 @@ function reanchorManualLinkPoints(link: go.Link, rawPoints: any): number[] | nul
   const fromPort = (link.fromPort as any) || fromNode?.port || fromNode;
   const toPort = (link.toPort as any) || toNode?.port || toNode;
 
-  if (fromNode && fromPort && nextPoints.length >= 4) {
+  if (options.anchorFrom !== false && fromNode && fromPort && nextPoints.length >= 4) {
     const currentFrom = new go.Point(nextPoints[0], nextPoints[1]);
     const nextAfterFrom = new go.Point(nextPoints[2], nextPoints[3]);
     const anchoredFrom = new go.Point(currentFrom.x, currentFrom.y);
     try {
       link.getLinkPointFromPoint(fromNode, fromPort, currentFrom, nextAfterFrom, true, anchoredFrom);
-      const dx = anchoredFrom.x - currentFrom.x;
-      const dy = anchoredFrom.y - currentFrom.y;
       nextPoints[0] = anchoredFrom.x;
       nextPoints[1] = anchoredFrom.y;
-      nextPoints[2] += dx;
-      nextPoints[3] += dy;
+      // Preserve the direction of the first user-authored segment. Moving the
+      // adjacent bend in both axes turns an orthogonal segment into a diagonal.
+      if (Math.abs(nextAfterFrom.y - currentFrom.y) <= Math.abs(nextAfterFrom.x - currentFrom.x)) {
+        nextPoints[3] = anchoredFrom.y;
+      } else {
+        nextPoints[2] = anchoredFrom.x;
+      }
     } catch (_) {
     }
   }
 
-  if (toNode && toPort && nextPoints.length >= 4) {
+  if (options.anchorTo !== false && toNode && toPort && nextPoints.length >= 4) {
     const last = nextPoints.length - 2;
     const prev = nextPoints.length - 4;
     const beforeTo = new go.Point(nextPoints[prev], nextPoints[prev + 1]);
@@ -542,12 +550,14 @@ function reanchorManualLinkPoints(link: go.Link, rawPoints: any): number[] | nul
     const anchoredTo = new go.Point(currentTo.x, currentTo.y);
     try {
       link.getLinkPointFromPoint(toNode, toPort, currentTo, beforeTo, false, anchoredTo);
-      const dx = anchoredTo.x - currentTo.x;
-      const dy = anchoredTo.y - currentTo.y;
       nextPoints[last] = anchoredTo.x;
       nextPoints[last + 1] = anchoredTo.y;
-      nextPoints[prev] += dx;
-      nextPoints[prev + 1] += dy;
+      // Preserve the direction of the final user-authored segment too.
+      if (Math.abs(beforeTo.y - currentTo.y) <= Math.abs(beforeTo.x - currentTo.x)) {
+        nextPoints[prev + 1] = anchoredTo.y;
+      } else {
+        nextPoints[prev] = anchoredTo.x;
+      }
     } catch (_) {
     }
   }
@@ -565,22 +575,15 @@ function shiftManualLinkEndpointSegments(
   const points = normalizeLinkPoints(rawPoints);
   if (!Array.isArray(points) || points.length < 4) return null;
   const nextPoints = [...points];
-  const pointCount = Math.floor(nextPoints.length / 2);
-  if (options.moveFrom && nextPoints.length >= 4) {
-    const { dx, dy } = options.moveFrom;
-    const movedPointCount = Math.max(2, Math.ceil(pointCount / 2));
-    for (let i = 0; i < movedPointCount; i++) {
-      nextPoints[i * 2] += dx;
-      nextPoints[i * 2 + 1] += dy;
-    }
-  }
-  if (options.moveTo && nextPoints.length >= 4) {
-    const { dx, dy } = options.moveTo;
-    const movedPointCount = Math.max(2, Math.ceil(pointCount / 2));
-    for (let i = 0; i < movedPointCount; i++) {
-      const pointIndex = pointCount - 1 - i;
-      nextPoints[pointIndex * 2] += dx;
-      nextPoints[pointIndex * 2 + 1] += dy;
+  // When both endpoints move together (a Pool/Lane drag), translate the full
+  // route.  For one-endpoint drags, preserve the user’s bends and only
+  // re-anchor the endpoint segment afterwards.
+  if (options.moveFrom && options.moveTo &&
+      Math.abs(options.moveFrom.dx - options.moveTo.dx) < 0.01 &&
+      Math.abs(options.moveFrom.dy - options.moveTo.dy) < 0.01) {
+    for (let i = 0; i + 1 < nextPoints.length; i += 2) {
+      nextPoints[i] += options.moveFrom.dx;
+      nextPoints[i + 1] += options.moveFrom.dy;
     }
   }
   return nextPoints;
@@ -3827,6 +3830,49 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (poolPart instanceof go.Group && hasAuthoritativeSwimlaneLayout(poolPart)) return;
                 normalizeSwimlanePool(poolKey);
               });
+              // Pool normalization can move lane contents after the initial
+              // diagram route pass. Rebuild automatic routes only now, when
+              // their endpoint nodes have reached their final positions.
+              const belongsToNormalizedPool = (node: go.Node | null): boolean => {
+                if (!(node instanceof go.Node)) return false;
+                for (let group = node.containingGroup; group; group = group.containingGroup) {
+                  if (group.data?.key && stablePoolKeys.has(String(group.data.key))) return true;
+                }
+                if (!node.actualBounds.isReal()) return false;
+                let contained = false;
+                stablePoolKeys.forEach((poolKey) => {
+                  if (contained) return;
+                  const pool = myDiagram.findNodeForKey(poolKey) as go.Group | null;
+                  if (!(pool instanceof go.Group)) return;
+                  const body = (pool.findObject("POOL_SHAPE") || pool.findObject("SHAPE") || pool.findObject("BODY")) as go.GraphObject | null;
+                  const bounds = body ? body.getDocumentBounds() : pool.actualBounds;
+                  if (bounds.isReal() && bounds.containsPoint(node.actualBounds.center)) contained = true;
+                });
+                return contained;
+              };
+              myDiagram.commit((diagram: go.Diagram) => {
+                diagram.links.each((link: go.Link) => {
+                  if (!belongsToNormalizedPool(link.fromNode) && !belongsToNormalizedPool(link.toNode)) return;
+                  const data: any = link.data;
+                  const relview =
+                    myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+                    data?.relshipview;
+                  const routing = String(data?.routing || relview?.routing || "").trim();
+                  const isAutomaticRoutedLink = routing === "Orthogonal" || routing === "AvoidsNodes";
+                  const isManualPath = Boolean(data?.__manualPath || relview?.__manualPath);
+                  if (!isAutomaticRoutedLink || isManualPath) return;
+                  try { diagram.model.setDataProperty(data, "points", []); } catch (_) { data.points = []; }
+                  try { link.points = new go.List<go.Point>(); } catch (_) { }
+                  if (relview) {
+                    relview.points = [];
+                    try { uic.addItemToList(modifiedRelshipViews, new jsn.jsnRelshipView(relview)); } catch (_) { }
+                  }
+                  try { link.fromNode?.invalidateConnectedLinks(); } catch (_) { }
+                  try { link.toNode?.invalidateConnectedLinks(); } catch (_) { }
+                  try { link.invalidateRoute(); } catch (_) { }
+                  try { link.updateRoute(); } catch (_) { }
+                });
+              }, "reroute normalized pool links");
               try { myDiagram.requestUpdate(); } catch (_) { }
             }, 0);
           }
@@ -3902,6 +3948,32 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         // Re-apply swimlane contains hiding after initial load.
         applySwimlaneContainsVisibility();
+        // Older saves can contain GoJS-generated Orthogonal route points. Clear
+        // them after node templates have their final bounds, so the route is
+        // rebuilt from the ports instead of replaying a stale endpoint.
+        try {
+          myDiagram.commit((diagram: go.Diagram) => {
+            diagram.links.each((link: go.Link) => {
+              const data: any = link.data;
+              const relview =
+                myModelview.findRelationshipView(data?.relviewRef || data?.key) ||
+                data?.relshipview;
+              const routing = String(data?.routing || relview?.routing || "").trim();
+              const isAutomaticRoutedLink = routing === "Orthogonal" || routing === "AvoidsNodes";
+              const isManualPath = Boolean(data?.__manualPath || relview?.__manualPath);
+              if (!isAutomaticRoutedLink || isManualPath) return;
+              try { diagram.model.setDataProperty(data, "points", []); } catch (_) { data.points = []; }
+              try { link.points = new go.List<go.Point>(); } catch (_) { }
+              if (relview) {
+                relview.points = [];
+                try { uic.addItemToList(modifiedRelshipViews, new jsn.jsnRelshipView(relview)); } catch (_) { }
+              }
+              try { link.invalidateRoute(); } catch (_) { }
+              try { link.updateRoute(); } catch (_) { }
+            });
+          }, "reset automatic link routes after reload");
+          myDiagram.requestUpdate();
+        } catch (_) { }
         break;
       }
       case 'TextEdited': {
@@ -5645,11 +5717,34 @@ class GoJSApp extends React.Component<{}, AppState> {
             ((myDiagram as any)?.__manualLinkMovePreview instanceof Map)
               ? (myDiagram as any).__manualLinkMovePreview
               : new Map<string, number[]>();
+          const laneManualPointsBeforeMove: Map<string, number[]> =
+            ((myDiagram as any)?.__laneManualLinkPointsBeforeMove instanceof Map)
+              ? (myDiagram as any).__laneManualLinkPointsBeforeMove
+              : new Map<string, number[]>();
+          // The dragging tool records a reshaped route before GoJS starts its
+          // automatic re-route.  This is deliberately separate from the Lane
+          // snapshot: manual routes must survive an ordinary node drag too.
+          const manualPointsBeforeMove: Map<string, number[]> =
+            ((myDiagram as any)?.__manualLinkPointsBeforeMove instanceof Map)
+              ? (myDiagram as any).__manualLinkPointsBeforeMove
+              : new Map<string, number[]>();
+          const reshapedRoutePoints: Map<string, number[]> =
+            ((myDiagram as any)?.__reshapedLinkRoutes instanceof Map)
+              ? (myDiagram as any).__reshapedLinkRoutes
+              : new Map<string, number[]>();
           for (let it = movedSelection?.iterator; it?.next();) {
             const part = it.value;
             if (part instanceof go.Node && part.data?.key) {
               movedNodeKeys.add(String(part.data.key));
             }
+          }
+          // Group drags (notably Pools) move their nested nodes too, but the
+          // SelectionMoved subject contains only the selected Group. Include the
+          // effective node collection captured by the dragging tool so manual link
+          // routes connected to Pool content are preserved on drop.
+          const effectiveDraggedNodeKeys = (myDiagram as any)?.__effectiveDraggedNodeKeys;
+          if (effectiveDraggedNodeKeys instanceof Set) {
+            effectiveDraggedNodeKeys.forEach((key: any) => movedNodeKeys.add(String(key)));
           }
           const links = myDiagram.links;
           for (let it = links.iterator; it?.next();) {
@@ -5671,8 +5766,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               (link.fromNode && link.toNode && link.fromNode === link.toNode) ||
               (rview?.fromObjview?.id && rview?.toObjview?.id && rview.fromObjview.id === rview.toObjview.id) ||
               (rview?.fromObjview?.object?.id && rview?.toObjview?.object?.id && rview.fromObjview.object.id === rview.toObjview.object.id);
-            const normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
-            const normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
+            let normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
+            let normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
             const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
             const preservedRouting = getPreservedRouting(
               ldata?.routing,
@@ -5683,6 +5778,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             const isRoutedLink = isTransientRoutedLink(liveRouting);
             const previewPoints =
               ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
+            const laneManualPoints =
+              ldata?.key ? normalizeLinkPoints(laneManualPointsBeforeMove.get(String(ldata.key))) : null;
+            const manualPointsAtDragStart =
+              ldata?.key ? normalizeLinkPoints(manualPointsBeforeMove.get(String(ldata.key))) : null;
+            const manuallyReshapedPoints =
+              ldata?.key ? normalizeLinkPoints(reshapedRoutePoints.get(String(ldata.key))) : null;
             const persistedPointsBeforeMove = pickFirstNonEmptyLinkPoints(ldata?.points, rview?.points);
             const livePoints = pickFirstNonEmptyLinkPoints(
               previewPoints,
@@ -5695,7 +5796,33 @@ class GoJSApp extends React.Component<{}, AppState> {
               Array.isArray(persistedPointsBeforeMove) && persistedPointsBeforeMove.length >= 4;
             const hasManualPathMarker = Boolean(ldata?.__manualPath || rview?.__manualPath);
             const preserveSelfLoopPathOnMove = isSelfLoop && hadPersistedManualPath;
-            const preserveManualPathOnMove = preserveSelfLoopPathOnMove || (!isSelfLoop && hadPersistedManualPath && hasManualPathMarker);
+            const preserveLaneManualPathOnMove =
+              linkTouchesMovedNode &&
+              hasManualPathMarker &&
+              Array.isArray(laneManualPoints) && laneManualPoints.length >= 4;
+            const preserveCapturedManualPathOnMove =
+              linkTouchesMovedNode &&
+              Array.isArray(manualPointsAtDragStart) && manualPointsAtDragStart.length >= 4;
+            const preserveCachedManualPathOnMove =
+              linkTouchesMovedNode &&
+              Array.isArray(manuallyReshapedPoints) && manuallyReshapedPoints.length >= 4;
+            const preserveManualPathOnMove =
+              preserveSelfLoopPathOnMove ||
+              preserveCapturedManualPathOnMove ||
+              preserveCachedManualPathOnMove ||
+              preserveLaneManualPathOnMove ||
+              (!isSelfLoop && hadPersistedManualPath && hasManualPathMarker);
+            // An edge selected while drawing is a useful initial anchor, but it
+            // must not lock an ordinary link to that edge forever.  Once either
+            // endpoint moves, let GoJS choose the nearest facing sides again.
+            // A reshaped link is different: its breakpoints are intentional, so
+            // its saved edge ports remain intact.
+            if (linkTouchesMovedNode && !preserveManualPathOnMove && !isSelfLoop) {
+              normalizedFromPort = "";
+              normalizedToPort = "";
+              try { rview.fromPortid = ""; } catch (_) { }
+              try { rview.toPortid = ""; } catch (_) { }
+            }
             if (isSelfLoop && hadPersistedManualPath && ldata?.key) {
               movedSelfLoopKeysWithPersistedPath.add(String(ldata.key));
             }
@@ -5792,12 +5919,18 @@ class GoJSApp extends React.Component<{}, AppState> {
               rview.points = [];
             }
             if (linkTouchesMovedNode && preserveManualPathOnMove) {
-              const directLivePoints = pickFirstNonEmptyLinkPoints(previewPoints, link?.points);
+              // A snapshot means the link has user-authored bends.  Do not use
+              // GoJS's transient route here: it may already be the new automatic
+              // diagonal.  Shift/re-anchor the route captured before the drag.
+              const savedManualPoints = manualPointsAtDragStart || manuallyReshapedPoints || laneManualPoints;
+              const directLivePoints = savedManualPoints
+                ? null
+                : pickFirstNonEmptyLinkPoints(previewPoints, link?.points);
               const shiftedPoints =
                 Array.isArray(directLivePoints) && directLivePoints.length >= 4
                   ? directLivePoints
                   : shiftManualLinkEndpointSegments(
-                      livePoints,
+                      savedManualPoints || livePoints,
                       {
                         moveFrom: liveFromKey ? movedNodeDeltas.get(liveFromKey) || null : null,
                         moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
@@ -5806,11 +5939,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               const adjustedPoints =
                 (Array.isArray(directLivePoints) && directLivePoints.length >= 4)
                   ? directLivePoints
-                  : (reanchorManualLinkPoints(link, shiftedPoints) || shiftedPoints);
+                  : (reanchorManualLinkPoints(link, shiftedPoints, {
+                    anchorFrom: Boolean(liveFromKey && movedNodeKeys.has(liveFromKey)),
+                    anchorTo: Boolean(liveToKey && movedNodeKeys.has(liveToKey)),
+                  }) || shiftedPoints);
               if (Array.isArray(adjustedPoints) && adjustedPoints.length >= 4) {
                 if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
                 try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
                 try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
+                try { myDiagram.model.setDataProperty(ldata, "__manualPath", true); } catch (_) { ldata.__manualPath = true; }
                 try {
                   const pointList = new go.List<go.Point>();
                   for (let i = 0; i + 1 < adjustedPoints.length; i += 2) {
@@ -5821,10 +5958,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
                 rview.routing = preservedRouting;
                 rview.points = adjustedPoints;
+                rview.__manualPath = true;
                 try {
                   if (ldata?.relshipview) {
                     ldata.relshipview.points = adjustedPoints;
                     ldata.relshipview.routing = preservedRouting;
+                    ldata.relshipview.__manualPath = true;
                     if (ldata.relshipview.id !== rview.id) ldata.relshipview = rview;
                   }
                 } catch (_) { }
@@ -5881,7 +6020,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const points = pickFirstNonEmptyLinkPoints(link?.points, ldata?.points, relview?.points);
                   relview.points = points;
                 }
-                // myModelview.addRelationshipView(relview);
+                // A node move invalidates an automatic route. Persist the cleared
+                // geometry as well as the endpoint/routing changes; otherwise an old
+                // points array survives in Redux and is reapplied on Reload.
+                if (resetRoute) {
+                  const jsnRelview = new jsn.jsnRelshipView(relview);
+                  uic.addItemToList(modifiedRelshipViews, jsnRelview);
+                }
               }
             }
           }
@@ -5967,11 +6112,45 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const isSelfLoop =
                     (liveLink.fromNode && liveLink.toNode && liveLink.fromNode === liveLink.toNode) ||
                     (liveRelview?.fromObjview?.id && liveRelview?.toObjview?.id && liveRelview.fromObjview.id === liveRelview.toObjview.id);
-                  const keepSelfLoopManualPath =
-                    isSelfLoop && Boolean(liveLink.data?.__manualPath || liveRelview?.__manualPath);
-                  if (keepSelfLoopManualPath) {
-                    try { liveLink.invalidateRoute(); } catch (_) { }
-                    try { liveLink.updateRoute(); } catch (_) { }
+                  const capturedManualPoints = normalizeLinkPoints(manualPointsBeforeMove.get(linkKey));
+                  const cachedReshapedPoints = normalizeLinkPoints(reshapedRoutePoints.get(linkKey));
+                  const keepManualPath =
+                    (Array.isArray(capturedManualPoints) && capturedManualPoints.length >= 4) ||
+                    (Array.isArray(cachedReshapedPoints) && cachedReshapedPoints.length >= 4) ||
+                    (Boolean(liveLink.data?.__manualPath || liveRelview?.__manualPath) &&
+                      hasExplicitSavedLinkPath(liveLink.data?.points, liveRelview?.points));
+                  if (keepManualPath) {
+                    // Do not invalidate an explicit route here. Calling
+                    // updateRoute() after a node drag lets GoJS replace the
+                    // user-authored bends with its automatic route.
+                    const savedManualPoints = pickFirstNonEmptyLinkPoints(
+                      capturedManualPoints,
+                      cachedReshapedPoints,
+                      liveLink.data?.points,
+                      liveRelview?.points
+                    );
+                    const liveFromKey = liveLink.fromNode?.data?.key ? String(liveLink.fromNode.data.key) : "";
+                    const liveToKey = liveLink.toNode?.data?.key ? String(liveLink.toNode.data.key) : "";
+                    const manualPoints = reanchorManualLinkPoints(liveLink, savedManualPoints, {
+                      anchorFrom: Boolean(liveFromKey && movedNodeKeys.has(liveFromKey)),
+                      anchorTo: Boolean(liveToKey && movedNodeKeys.has(liveToKey)),
+                    }) || savedManualPoints;
+                    if (Array.isArray(manualPoints) && manualPoints.length >= 4) {
+                      try { myDiagram.model.setDataProperty(liveLink.data, "points", manualPoints); } catch (_) { liveLink.data.points = manualPoints; }
+                      try { myDiagram.model.setDataProperty(liveLink.data, "__manualPath", true); } catch (_) { liveLink.data.__manualPath = true; }
+                      try {
+                        const pointList = new go.List<go.Point>();
+                        for (let i = 0; i + 1 < manualPoints.length; i += 2) {
+                          pointList.add(new go.Point(manualPoints[i], manualPoints[i + 1]));
+                        }
+                        liveLink.points = pointList;
+                      } catch (_) { }
+                      if (liveRelview) {
+                        liveRelview.points = manualPoints;
+                        liveRelview.__manualPath = true;
+                      }
+                      try { reshapedRoutePoints.set(linkKey, [...manualPoints]); } catch (_) { }
+                    }
                     return;
                   }
                   const liveFromKey = liveLink.fromNode?.data?.key ? String(liveLink.fromNode.data.key) : "";
@@ -5982,6 +6161,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (liveToKey) {
                     try { myDiagram.model.setDataProperty(liveLink.data, "to", liveToKey); } catch (_) { liveLink.data.to = liveToKey; }
                   }
+                  // This is an automatic route, so discard the temporary edge
+                  // ports chosen during the original draw.  The unported node
+                  // body then selects the closest facing sides after a move.
+                  try { myDiagram.model.setDataProperty(liveLink.data, "fromPort", ""); } catch (_) { liveLink.data.fromPort = ""; }
+                  try { myDiagram.model.setDataProperty(liveLink.data, "toPort", ""); } catch (_) { liveLink.data.toPort = ""; }
                   const desiredRouting = getDefaultRoutingForRelshipType(
                     liveRelview?.name || liveRelview?.relship?.name || liveRelview?.typeview?.name,
                     liveRelview?.routing || liveRelview?.typeview?.routing || myModelview?.routing || "Normal"
@@ -5994,6 +6178,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       liveRelview.points = [];
                       liveRelview.__manualPath = false;
                       liveRelview.routing = desiredRouting;
+                      liveRelview.fromPortid = "";
+                      liveRelview.toPortid = "";
                     }
                   } catch (_) { }
                   try { liveLink.points = new go.List<go.Point>(); } catch (_) { }
@@ -6193,6 +6379,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             } catch (_) { }
           }
           try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
+          try { delete (myDiagram as any).__laneManualLinkPointsBeforeMove; } catch (_) {}
+          try { delete (myDiagram as any).__manualLinkPointsBeforeMove; } catch (_) {}
+          try { delete (myDiagram as any).__effectiveDraggedNodeKeys; } catch (_) {}
+          try { delete (myDiagram as any).__preserveLinkRoutesDuringDrag; } catch (_) {}
         }
         // Persist only relationship views whose visibility actually changed.
         // Relationship views affected by the move have already been added to
@@ -8621,8 +8811,13 @@ break;
       objview.loc = n.data.loc;
       objview.size = n.data.size;
       let myNode = myGoModel.findNodeByViewId(n.data.key);
-      myNode.size = objview.size;
-      myNode.key = objview.id;
+      // Imported/legacy view data can be present in the Diagram before its
+      // mirrored Go-model node has been created. Persist the view regardless,
+      // but do not dereference a missing mirror.
+      if (myNode) {
+        myNode.size = objview.size;
+        myNode.key = objview.id;
+      }
       if (category === 'Pool') {
         affectedPoolKeys.add(n.data.key);
         resizedPoolKeys.add(n.data.key);
@@ -9085,9 +9280,12 @@ break;
       if (!linkData) continue;
       const relview = linkData.relshipview;
       if (!relview) continue;
+      // GoJS creates transient point arrays for Orthogonal/AvoidsNodes links.
+      // They are not user-authored paths and must not be persisted, otherwise a
+      // reload can replay endpoints calculated before the nodes' final bounds.
       const hadExplicitSavedPath =
-        hasExplicitSavedLinkPath(relview?.points, linkData?.points) ||
-        !!linkData?.__manualLinkMovePreview;
+        Boolean(linkData?.__manualPath || relview?.__manualPath) &&
+        hasExplicitSavedLinkPath(relview?.points, linkData?.points);
       if (!hadExplicitSavedPath) {
         relview.points = [];
         continue;
@@ -9299,7 +9497,17 @@ break;
     const shouldFreezeManualRoute =
       points.length >= 4 &&
       (currentRouting === "Orthogonal" || currentRouting === "AvoidsNodes");
-    const hasManualPath = points.length >= 4;
+    const hasManualPath = true;
+    try {
+      const routes: Map<string, number[]> =
+        (myDiagram as any).__reshapedLinkRoutes instanceof Map
+          ? (myDiagram as any).__reshapedLinkRoutes
+          : new Map<string, number[]>();
+      const linkKey = String(data?.key || key || "");
+      if (linkKey && hasManualPath) routes.set(linkKey, [...points]);
+      else if (linkKey) routes.delete(linkKey);
+      (myDiagram as any).__reshapedLinkRoutes = routes;
+    } catch (_) { }
     try { if (data?.relshipview) data.relshipview.points = points; } catch (_) {}
     try { if (data?.relshipview && data.relshipview.id !== relview.id) data.relshipview = relview; } catch (_) {}
     try {
@@ -9339,6 +9547,7 @@ break;
           ...entry,
           points: [...points],
           routing: data?.routing || entry.routing,
+          __manualPath: hasManualPath,
           relshipview: relview,
           relviewRef: relview?.id || entry.relviewRef,
         };

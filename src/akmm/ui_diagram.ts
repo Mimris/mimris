@@ -54,8 +54,12 @@ function snapSizeEven(n: number): number {
 }
 const GROUP_LAYOUT_PADDING = 15;
 
-function shouldPersistLinkPoints(routing: string | undefined | null, points?: any): boolean {
-    if (Array.isArray(points) && points.length >= 4) return true;
+function shouldPersistLinkPoints(
+    routing: string | undefined | null,
+    points?: any,
+    isManualPath = false
+): boolean {
+    if (isManualPath && Array.isArray(points) && points.length >= 4) return true;
     return routing !== 'Orthogonal' && routing !== 'AvoidsNodes';
 }
 
@@ -3416,6 +3420,24 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         }
     });
 
+    // Links are not group members in GoJS.  Passing only memberParts to a
+    // LayeredDigraphLayout therefore gives it a set of disconnected nodes,
+    // allowing it to place a gateway before its predecessors.  Build the
+    // lane's layout collection explicitly so the directed relationships take
+    // part in the layout network.
+    const laneLayoutParts = new go.Set<go.Part>();
+    if (layoutMode === "lane_content") {
+        laneMemberNodes.each((node: go.Node) => laneLayoutParts.add(node));
+        myDiagram.links.each((link: go.Link) => {
+            if (!link.visible) return;
+            const fromKey = String(link.fromNode?.data?.key || link.data?.from || "");
+            const toKey = String(link.toNode?.data?.key || link.data?.to || "");
+            if (laneMemberKeys.has(fromKey) && laneMemberKeys.has(toKey)) {
+                laneLayoutParts.add(link);
+            }
+        });
+    }
+
     const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
     const shouldResetLinkForLayout = (link: go.Link): boolean => {
         if (!(link instanceof go.Link)) return false;
@@ -3454,18 +3476,79 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
         modifiedRelshipViews.push(new jsn.jsnRelshipView(relview));
     });
     
-    // Assign the layout to the group
-    groupNode.layout = lay;
-    if (layoutMode === "lane_content" && groupNode.layout instanceof go.LayeredDigraphLayout) {
-        groupNode.layout.isOngoing = false;
-        groupNode.layout.isInitial = false;
-    }
-    groupNode.invalidateLayout();
-    if (layoutMode === "lane_content" && groupNode.layout !== null) {
-        // Keep lane "Do Layout" scoped to the selected lane only.
-        groupNode.layout.isValidLayout = false;
-        groupNode.layout.doLayout(groupNode.memberParts);
+    const isLaneLayout = layoutMode === "lane_content" && myGroup?.groupLayout === "LaneLayout";
+    const layoutLaneByDirectedRanks = () => {
+        const nodes: go.Node[] = [];
+        laneMemberNodes.each((node: go.Node) => nodes.push(node));
+        if (nodes.length === 0) return;
+        if (nodes.some((node) => !node.actualBounds.isReal())) return;
+
+        // Legacy relationship views can have endpoint direction that disagrees
+        // with their rendered process arrows.  LaneLayout therefore preserves
+        // the established visual process order rather than rewriting endpoints.
+        const markerKind = (node: go.Node): "start" | "end" | "" => {
+            const data: any = node.data || {};
+            const renderedLabel = node.findObject("name") as go.TextBlock | null;
+            const text = [
+                data.name,
+                data.template,
+                data.category,
+                data.typeName,
+                data.viewkind,
+                data.objectview?.name,
+                data.objectview?.object?.name,
+                data.object?.name,
+                renderedLabel?.text,
+            ]
+                .filter((value) => typeof value === "string")
+                .join(" ")
+                .toLowerCase();
+            if (text.includes("start")) return "start";
+            if (text.includes("end")) return "end";
+            return "";
+        };
+        const orderedNodes = [...nodes].sort((a, b) => {
+            const aKind = markerKind(a);
+            const bKind = markerKind(b);
+            const order = (kind: "start" | "end" | "") => kind === "start" ? 0 : kind === "end" ? 2 : 1;
+            return order(aKind) - order(bKind) ||
+                a.actualBounds.centerX - b.actualBounds.centerX ||
+                a.actualBounds.centerY - b.actualBounds.centerY;
+        });
+        const visualLaneBounds = groupNode.actualBounds.copy();
+        if (!visualLaneBounds.isReal()) return;
+        const left = visualLaneBounds.left + LANE_LAYOUT_LEFT_INSET;
+        const right = Math.max(left, visualLaneBounds.right - LANE_LAYOUT_LEFT_INSET);
+        const maxWidth = Math.max(...orderedNodes.map((node) => node.actualBounds.width));
+        if (![left, right, maxWidth, visualLaneBounds.centerY].every(Number.isFinite)) return;
+        const step = orderedNodes.length > 1
+            ? Math.max(maxWidth + 80, (right - left - maxWidth) / (orderedNodes.length - 1))
+            : 0;
+        orderedNodes.forEach((node, index) => {
+            const bounds = node.actualBounds;
+            const x = left + index * step;
+            const y = visualLaneBounds.centerY - bounds.height / 2;
+            if (Number.isFinite(x) && Number.isFinite(y)) node.move(new go.Point(x, y));
+        });
+    };
+
+    if (isLaneLayout) {
+        // LaneLayout is a process-flow layout, not a generic graph layout.
+        // Explicit ranks keep all directed paths progressing left-to-right.
+        layoutLaneByDirectedRanks();
+    } else if (layoutMode === "lane_content" && lay !== null) {
+        // A Group layout is subsequently invoked with group.memberParts, which
+        // excludes normal links.  Run this as a one-off layout instead, using
+        // the explicit node-and-link collection above, so it cannot be
+        // overwritten by an automatic link-less Group layout pass.
+        lay.isOngoing = false;
+        lay.isInitial = false;
+        lay.isValidLayout = false;
+        lay.doLayout(laneLayoutParts);
     } else {
+        // Non-lane groups retain their normal assigned-layout behaviour.
+        groupNode.layout = lay;
+        groupNode.invalidateLayout();
         myDiagram.layoutDiagram(true);
     }
 
@@ -3478,12 +3561,16 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             groupNode.findObject("LANE_BODY_SHAPE") ||
             groupNode.findObject("BODY");
         const bodyBounds = (laneBody?.actualBounds || groupNode.actualBounds).copy();
+        // Legacy lane templates can keep BODY at the content's minimum height while
+        // the visible lane frame is much taller. Use the frame for vertical placement.
+        groupNode.ensureBounds();
+        const laneBounds = groupNode.actualBounds.copy();
         const horizontalInset = 24;
         const verticalInset = 20;
         const innerLeft = bodyBounds.left + horizontalInset;
         const innerRight = Math.max(innerLeft, bodyBounds.right - horizontalInset);
-        const innerTop = bodyBounds.top + verticalInset;
-        const innerBottom = Math.max(innerTop, bodyBounds.bottom - verticalInset);
+        const innerTop = laneBounds.top + verticalInset;
+        const innerBottom = Math.max(innerTop, laneBounds.bottom - verticalInset);
         const inDegree = new Map<string, number>();
         const outDegree = new Map<string, number>();
         const nodes: go.Node[] = [];
@@ -3560,9 +3647,9 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
             contentBounds = contentBounds ? contentBounds.unionRect(bounds) : bounds.copy();
         });
         if (contentBounds) {
-            // Lane Flow is a left-to-right process layout. Anchor its content at the
-            // top of the lane body rather than vertically centering it in the lane.
-            const targetTop = innerTop;
+            // Lane Flow is a left-to-right process layout. Centre the complete flow
+            // in the usable lane body, keeping the Start and End at the same height.
+            const targetTop = innerTop + Math.max(0, (innerBottom - innerTop - contentBounds.height) / 2);
             const offsetY = targetTop - contentBounds.top;
             if (Math.abs(offsetY) > 0.01) {
                 nodes.forEach((node) => {
@@ -3737,7 +3824,11 @@ export function doGroupLayout(myGroup: akm.cxObjectView, myDiagram: any, myMetis
 
                 // For default-routed Orthogonal/AvoidsNodes links we should not persist
                 // the auto-generated route as an explicit manual path.
-                const persistPoints = shouldPersistLinkPoints(liveRouting, link.data?.points);
+                const persistPoints = shouldPersistLinkPoints(
+                    liveRouting,
+                    link.data?.points,
+                    Boolean(link.data?.__manualPath || relview?.__manualPath)
+                );
                 if (persistPoints) {
                     relview.points = livePoints;
                     try { myDiagram.model.setDataProperty(link.data, "points", livePoints); } catch (_) {

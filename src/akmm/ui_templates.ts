@@ -1829,6 +1829,30 @@ function addResizeAdornment(groupName: string) {
     );
 }
 
+// A palette part is copied into the diagram before its persistent object view is
+// created.  Depending on that timing, the type can be present either as the
+// flattened `typename` field or only on the copied object/type data.  Keep the
+// lower type row independent of that implementation detail so a newly dropped
+// object never loses its type label.
+function resolveNodeTypeLabel(data: any): string {
+    const candidates = [
+        data?.typename,
+        data?.typeName,
+        data?.object?.type?.name,
+        data?.objecttype?.name,
+        data?.objectview?.object?.type?.name,
+        data?.typeview?.objecttype?.name,
+        data?.typeview?.objtype?.name,
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+        const value = candidates[i];
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value;
+        }
+    }
+    return "";
+}
+
 function addNodeText0(contextMenu: any) {
     return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
@@ -1928,7 +1952,7 @@ function addNodeText(contextMenu: any, typeviewContextMenu: any) {
                 name: "typename",
                 contextMenu: typeviewContextMenu
             },
-            new go.Binding("text", "typename")
+            new go.Binding("text", "", resolveNodeTypeLabel)
         ),
     )
 }
@@ -3622,6 +3646,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 {
                     cursor: "alias",
                     name: 'SHAPE',
+                    portId: "",
+                    fromLinkable: true,
+                    toLinkable: true,
                     fill: 'transparent',
                     stroke: "#aaa",
                     strokeWidth: 2,
@@ -3648,6 +3675,89 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     margin: new go.Margin(1, 1, 1, 1),
                     shadowVisible: false,
                 }    
+            ),
+            // Edge ports preserve the sides used while drawing a relationship.
+            // Their ids are stored in `fromPort`/`toPort`, so the chosen anchors
+            // remain in effect after saving and reloading the model.
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Left,
+                    alignmentFocus: go.Spot.Left,
+                    stretch: go.GraphObject.Vertical,
+                    width: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-left",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Left,
+                    toSpot: go.Spot.Left,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Right,
+                    alignmentFocus: go.Spot.Right,
+                    stretch: go.GraphObject.Vertical,
+                    width: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-right",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Right,
+                    toSpot: go.Spot.Right,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Top,
+                    alignmentFocus: go.Spot.Top,
+                    stretch: go.GraphObject.Horizontal,
+                    height: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-top",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Top,
+                    toSpot: go.Spot.Top,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Bottom,
+                    alignmentFocus: go.Spot.Bottom,
+                    stretch: go.GraphObject.Horizontal,
+                    height: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-bottom",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Bottom,
+                    toSpot: go.Spot.Bottom,
+                },
             ),
 
             $(go.Panel, "Table", // Panel for text and icon ------------------------

@@ -308,7 +308,7 @@ export function getFigure2Names() {
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 
 let groupTemplateNames = []; 
-const NESTED_GROUP_SIZE_RATIO = 0.35;
+const NESTED_GROUP_SIZE_RATIO = constants.params.MEMBERSCALE;
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
@@ -595,9 +595,9 @@ export function groupTop1(contextMenu: any, notation: string) {
                 shadowVisible: true,
                 desiredSize: new go.Size(220, 120),
                 minSize: new go.Size(160, 65),
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                portId: null,
+                fromLinkable: false, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: false, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
@@ -790,7 +790,7 @@ export function groupTop1(contextMenu: any, notation: string) {
 export function groupTop2(
     contextMenu: any,
     notation: string,
-    bodyLinkable: boolean = true,
+    bodyLinkable: boolean = false,
     restrictBodyHitArea: boolean = false
 ) {
     const DEBUG_HIT_AREAS = false;
@@ -4896,8 +4896,10 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
         const toIsPool = toCat === "Pool";
         const fromKey = String(from?.data?.key ?? d?.from ?? "");
         const toKey = String(to?.data?.key ?? d?.to ?? "");
-        const fromGroup = String(from?.data?.group ?? "");
-        const toGroup = String(to?.data?.group ?? "");
+        const fromGroup = String(from?.data?.group ?? from?.data?.objectview?.group ?? from?.containingGroup?.key ?? "");
+        const toGroup = String(to?.data?.group ?? to?.data?.objectview?.group ?? to?.containingGroup?.key ?? "");
+        const fromIsContainer = from instanceof go.Group || from?.data?.isGroup === true || from?.data?.viewkind === "Container";
+        const toIsContainer = to instanceof go.Group || to?.data?.isGroup === true || to?.data?.viewkind === "Container";
 
         // Swimlane invariant: membership ("contains") relationships should never be rendered for Pools/Lanes.
         // We hide them unconditionally when either endpoint is a Pool or Lane group. This is robust even
@@ -4909,8 +4911,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
         // Also hide membership links when the member is grouped to the parent (for non-swimlane containers),
         // using stable model membership (data.group) rather than transient `containingGroup`.
         if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
-            if (fromIsLane && to && toGroup === fromKey) return false;
-            if (toIsLane && from && fromGroup === toKey) return false;
+            if (fromIsContainer && to && toGroup === fromKey) return false;
+            if (toIsContainer && from && fromGroup === toKey) return false;
         }
         return true;
     };
@@ -5077,14 +5079,16 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         const toIsPool = toCat === "Pool";
         const fromKey = String(from?.data?.key ?? d?.from ?? "");
         const toKey = String(to?.data?.key ?? d?.to ?? "");
-        const fromGroup = String(from?.data?.group ?? "");
-        const toGroup = String(to?.data?.group ?? "");
+        const fromGroup = String(from?.data?.group ?? from?.data?.objectview?.group ?? from?.containingGroup?.key ?? "");
+        const toGroup = String(to?.data?.group ?? to?.data?.objectview?.group ?? to?.containingGroup?.key ?? "");
+        const fromIsContainer = from instanceof go.Group || from?.data?.isGroup === true || from?.data?.viewkind === "Container";
+        const toIsContainer = to instanceof go.Group || to?.data?.isGroup === true || to?.data?.viewkind === "Container";
         if (typeName === constants.types.AKM_CONTAINS && (fromIsLane || toIsLane || fromIsPool || toIsPool)) {
             return false;
         }
         if (typeName === constants.types.AKM_CONTAINS || fromIsLane || toIsLane) {
-            if (fromIsLane && to && toGroup === fromKey) return false;
-            if (toIsLane && from && fromGroup === toKey) return false;
+            if (fromIsContainer && to && toGroup === fromKey) return false;
+            if (toIsContainer && from && fromGroup === toKey) return false;
         }
         return true;
     };
@@ -5442,7 +5446,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon', true, true),
+            groupTop2(contextMenu, 'Icon', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5499,7 +5503,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Geometry', true, true),
+            groupTop2(contextMenu, 'Geometry', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5550,7 +5554,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Figure', true, true),
+            groupTop2(contextMenu, 'Figure', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -7497,9 +7501,9 @@ function getParentMemberScale(grp: go.Group | null): number {
         data?.memberscale ??
         data?.objectview?.memberscale ??
         data?.typeview?.memberscale ??
-        1;
+        constants.params.MEMBERSCALE;
     const parsed = Number(raw);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : constants.params.MEMBERSCALE;
 }
 
 function getAncestorMemberScaleProduct(grp: go.Group | null): number {

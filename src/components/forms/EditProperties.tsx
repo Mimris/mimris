@@ -12,6 +12,7 @@ import FieldDiv from './FieldDiv'
 import { selectIcons } from './selectIcons'
 import { selectSharedUniverseState } from '../../sharedUniverse'
 import { persistMemoryState } from '../utils/memoryStateStorage'
+import * as uit from '../../akmm/ui_templates'
 // import SelectColor from './SelectColor'
 // import { colorOptions } from './data';
 
@@ -86,6 +87,55 @@ const EditProperties = (props) => {
                 if (data.strokecolor !== undefined) node.strokecolor = data.strokecolor;
                 if (data.strokewidth !== undefined) node.strokewidth = data.strokewidth;
                 if (data.icon !== undefined) node.icon = data.icon;
+              }
+            }
+
+            // The custom model and the live GoJS diagram are separate objects.
+            // Updating only the former leaves the rendered ObjectView unchanged
+            // until the model is rebuilt (for example, after a reload).
+            const diagram = props.myMetis.myDiagram;
+            if (diagram && data.icon !== undefined) {
+              const diagramNodes: any[] = [];
+              const addDiagramNode = (part: any) => {
+                if (part && !diagramNodes.includes(part)) diagramNodes.push(part);
+              };
+              addDiagramNode(diagram.findNodeForKey?.(data.id));
+              if (diagram.nodes?.each) {
+                diagram.nodes.each((part: any) => {
+                  const partData = part?.data;
+                  if (
+                    partData?.id === data.id ||
+                    partData?.key === data.id ||
+                    partData?.objviewRef === data.id ||
+                    partData?.objectview?.id === data.id
+                  ) addDiagramNode(part);
+                });
+              }
+
+              // The focused ObjectView is the selected node in the properties
+              // dialog. Use it when the generated key is unrelated to its id.
+              if (diagramNodes.length === 0 && diagram.selection?.each) {
+                diagram.selection.each((part: any) => {
+                  if (part?.data?.category === 'Object' || part?.data?.objectview || part?.data?.objviewRef) {
+                    addDiagramNode(part);
+                  }
+                });
+              }
+              if (diagramNodes.length === 0) {
+                addDiagramNode(diagram.findPartForKey?.(props.myMetis.currentNode?.key));
+              }
+
+              diagramNodes.forEach((diagramNode) => {
+                const diagramData = diagramNode?.data;
+                if (!diagramData || !diagram.model?.setDataProperty) return;
+                diagram.model.setDataProperty(diagramData, 'icon', data.icon);
+                if (diagramData.objectview) diagramData.objectview.icon = data.icon;
+                diagramNode.updateTargetBindings?.();
+              });
+              if (diagramNodes.length > 0) {
+                diagram.updateAllTargetBindings?.('icon');
+                uit.forceUpdateAllIconSources?.(diagram);
+                diagram.requestUpdate?.();
               }
             }
           }

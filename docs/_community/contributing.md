@@ -48,11 +48,7 @@ refactor/: Code improvements
 💻 Development Workflow
 Running the App
 # Start development server
-<<<<<<< HEAD
-npm dev
-=======
 npm run dev
->>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 
 # Build production bundle
 npm run build
@@ -60,9 +56,6 @@ npm run build
 TypeScript
 Strict mode enabled (strict: true in tsconfig)
 
-<<<<<<< HEAD
-Update documentation if needed
-=======
 All components must have TypeScript interfaces
 
 Use generics with Redux hooks:
@@ -92,7 +85,6 @@ Next.js Pages
 Client components in src/components
 Dynamic routes follow [param]/page.tsx convention
 documentation if needed
->>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 
 Include screenshots for UI changes
 
@@ -102,13 +94,10 @@ Describe changes in conventional commit format:
 Updating Docs
 Modify Markdown files in /docs
 
-<<<<<<< HEAD
-=======
 🆘 Need Help?
 Join our Discord Server
 Ask in GitHub Discussions
 Attend our weekly Office Hours (Wednesdays 3PM UTC)
->>>>>>> 5309607e6bc14960eb09d70fc1107799f4189a78
 🙌 Thank you for contributing to GraphicModelingApp! Your work helps build better creative tools for everyone.
 
 This guide includes:

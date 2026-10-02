@@ -2,6 +2,7 @@
 
 **Feature Branch**: `alpha-pre`
 **Created**: 2026-08-06
+**Updated**: 2026-09-07
 **Status**: Implemented
 **Input**: Use named Modelviews as submodel perspectives and restrict the creation palette for each perspective without introducing a separate submodel entity.
 
@@ -27,8 +28,30 @@ A modeller switches between named Modelviews in one semantic model and sees only
 - **FR-004**: Hydrated palette nodes and links MUST retain primitive ObjectType and RelationshipType references.
 - **FR-005**: Remote-universe routes and proxies MUST preserve initial named Modelview metadata supplied by the workspace.
 
+## CORE Palette Eligibility
+
+- CORE palette construction excludes Generic and Label creation entries. Other metamodels retain their existing eligibility rules.
+- Palette construction MUST preserve the declared abstract flag on EntityType instead of mutating it to concrete. Abstract EntityType entries remain absent from the final palette.
+- These restrictions affect creation choices only; persisted types and existing model content are not deleted or migrated.
+
 ## Verification
 
 - Pure palette-filter tests cover unrestricted, object-filtered, and relationship-filtered behavior.
 - TypeScript passes with incremental cache output disabled where required by the test environment.
 - Visual verification confirms a shared model opens with named Modelviews and that switching from `Goals Model` to `Business Process Model` changes the palette from `Goal` to `Process`.
+
+### September 2026 follow-up
+
+- Automated suite: 57 tests passed.
+- TypeScript and production build: passed.
+- Visual CORE palette verification remains pending: browser access to the local app returned ERR_BLOCKED_BY_CLIENT.
+
+### Clean deployment follow-up
+
+Declare the existing rehype-slug, classnames and camelcase imports as direct dependencies, remove an unused bcrypt import, and track the TypeScript configuration so clean builds use the same settings as local validation. The first remote build exposed an undeclared dependency; verification of the corrected remote build is pending.
+
+### Vercel Analytics (September 2026)
+
+- The Next.js pages app renders `Analytics` from `@vercel/analytics/next` in the shared `_app` wrapper so page views are collected across routes.
+- `@vercel/analytics` MUST remain a direct production dependency and be captured in `pnpm-lock.yaml`, ensuring clean Vercel builds reproduce the instrumentation.
+- Analytics instrumentation is privacy-friendly page-view telemetry; no custom events or Speed Insights integration are currently configured.

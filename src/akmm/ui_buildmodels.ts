@@ -38,10 +38,15 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       for (let i = 0; i < allObjtypes.length; i++) {
         const objtype = allObjtypes[i];
         if (objtype) {
+          if (
+            isCoreMetamodel &&
+            (objtype.name === "Generic" || objtype.name === "Label")
+          ) {
+            continue;
+          }
           if (objtype.name === constants.types.AKM_ENTITY_TYPE) {
-            if (isCoreMetamodel) {              
-              objtype.abstract = false;
-            }
+            // EntityType is a metamodel abstraction in the CORE metamodel.
+            // Keep it abstract so it is not offered as a concrete palette type.
             if (isCoreMetamodel || !metamodel.includeSystemtypes) {
               mmtypenames.push(objtype.name);
               objtypes.push(objtype);
@@ -737,7 +742,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (relview.visible == false && isMetamodelStructuralRelationship(rel, relview))
         relview.visible = true;
       if (includeRelview) {
-        if (!relview.strokewidth) relview.strokewidth = 1;
+        if (!relview.appearanceMode && !relview.strokewidth) relview.strokewidth = 1;
         const explicitRelviewOverrides = {
           textcolor: relview.textcolor,
           fromArrow: relview.fromArrow,
@@ -745,11 +750,13 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           fromArrowColor: relview.fromArrowColor,
           toArrowColor: relview.toArrowColor,
         };
-        relview.setFromArrow2(rel?.relshipkind);
-        relview.setToArrow2(rel?.relshipkind);
+        if (!relview.appearanceMode) {
+          relview.setFromArrow2(rel?.relshipkind);
+          relview.setToArrow2(rel?.relshipkind);
+        }
         Object.keys(explicitRelviewOverrides).forEach((prop) => {
           const nextValue = explicitRelviewOverrides[prop];
-          if (nextValue !== undefined && nextValue !== null && nextValue !== "") {
+          if (!relview.appearanceMode && nextValue !== undefined && nextValue !== null && nextValue !== "") {
             relview[prop] = nextValue;
           }
         });

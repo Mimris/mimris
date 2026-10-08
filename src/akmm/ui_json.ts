@@ -4,6 +4,7 @@ const debug = false;
 import * as akm from './metamodeller';
 import * as utils from './utilities';
 import * as constants from './constants';
+import { serializeAppearance } from './viewAppearance';
 
 let jsnMetis: akm.cxMetis;
 
@@ -1771,6 +1772,11 @@ export class jsnObjectView {
         if (shouldStore(objview?.scale, 'scale')) this.scale = objview.scale;
         if (shouldStore(objview?.memberscale, 'memberscale')) this.memberscale = objview.memberscale;
         if (shouldStore(objview?.arrowscale, 'arrowscale')) this.arrowscale = objview.arrowscale;
+        // Geometry is always view-local, even when it equals a type default.
+        this.size = objview.size;
+        this.scale = objview.scale;
+        this.memberscale = objview.memberscale;
+        serializeAppearance(this, objview);
     }
 }
 export class jsnRelshipView {
@@ -1844,6 +1850,7 @@ export class jsnRelshipView {
         if (shouldStore(relview?.toArrow, 'toArrow')) this.toArrow = relview.toArrow;
         if (shouldStore(relview?.fromArrowColor, 'fromArrowColor')) this.fromArrowColor = relview.fromArrowColor;
         if (shouldStore(relview?.toArrowColor, 'toArrowColor')) this.toArrowColor = relview.toArrowColor;
+        serializeAppearance(this, relview);
     }
 }
 export class jsnImportMetis {

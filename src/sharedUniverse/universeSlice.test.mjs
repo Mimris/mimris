@@ -21,7 +21,15 @@ const loadUniverseSlice = () => {
   vm.runInNewContext(outputText, {
     exports: module.exports,
     module,
-    require,
+    require: specifier => {
+      if (specifier !== '../akmm/viewAppearance') return require(specifier);
+      const appearanceModule = { exports: {} };
+      const appearanceSource = readFileSync(new URL('../akmm/viewAppearance.ts', import.meta.url), 'utf8');
+      vm.runInNewContext(ts.transpileModule(appearanceSource, {
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+      }).outputText, { module: appearanceModule, exports: appearanceModule.exports });
+      return appearanceModule.exports;
+    },
   }, { filename: 'universeSlice.ts' });
 
   return module.exports;
@@ -762,4 +770,49 @@ test('metamodel collection mutations update current and target metamodels', () =
     stateWithTargetProperty.world.worldModel.metis.metamodels[1].properties[0].name,
     'Renamed target property',
   );
+});
+
+test('relationship definition and appearance updates survive a saved universe snapshot', () => {
+  const original = createState();
+  const changedType = universeReducer(original, {
+    type: 'UPDATE_RELSHIPTYPE_PROPERTIES',
+    data: { id: 'rt-1', name: 'depends on', fromobjtypeRef: 'ot-1', toobjtypeRef: 'ot-1', cardinalityFrom: '0..1', cardinalityTo: '1..*', typeviewRef: 'rv-1' },
+  });
+  const changedView = universeReducer(changedType, {
+    type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES',
+    data: { id: 'rv-1', typeRef: 'rt-1', strokecolor: 'blue', strokewidth: 2, toArrow: 'Diamond' },
+  });
+  const reopened = JSON.parse(JSON.stringify(changedView));
+  const metamodel = reopened.world.worldModel.metis.metamodels[0];
+  assert.equal(metamodel.relshiptypes.find(type => type.id === 'rt-1').name, 'depends on');
+  assert.equal(metamodel.relshiptypes.find(type => type.id === 'rt-1').cardinalityTo, '1..*');
+  assert.equal(metamodel.relshiptypeviews.find(view => view.id === 'rv-1').strokecolor, 'blue');
+  assert.equal(original.world.worldModel.metis.metamodels[0].relshiptypes[0].name, 'Rel type 1');
+});
+
+test('appearance override maps replace previous maps and remove flat copies while preserving geometry', () => {
+  const initial = universeReducer(createState(), {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: { id: 'ov-1', fillcolor: 'red', loc: '20 30', size: '90 45', scale: 2 },
+  });
+  const overridden = universeReducer(initial, {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: { id: 'ov-1', appearanceMode: 'inherit', appearanceOverrides: { fillcolor: '', textscale: 0 } },
+  });
+  const saved = JSON.parse(JSON.stringify(overridden.world.worldModel.metis.models[0].modelviews[0].objectviews[0]));
+  assert.deepEqual(saved.appearanceOverrides, { fillcolor: '', textscale: 0 });
+  assert.equal(Object.hasOwn(saved, 'fillcolor'), false);
+  const reset = universeReducer(overridden, {
+    type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: { id: 'ov-1', appearanceMode: 'inherit', appearanceOverrides: {} },
+  });
+  const view = reset.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
+  assert.equal(Object.keys(view.appearanceOverrides).length, 0);
+  assert.equal(view.loc, '20 30'); assert.equal(view.size, '90 45'); assert.equal(view.scale, 2);
+  const rel = universeReducer(reset, {
+    type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: { id: 'rv-1', appearanceMode: 'inherit', appearanceOverrides: { toArrow: '', strokewidth: 0 }, points: [1, 2, 3, 4], fromobjviewRef: 'ov-1', toobjviewRef: 'ov-1', fromPortid: 'p' },
+  });
+  const relReset = universeReducer(rel, {
+    type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: { id: 'rv-1', appearanceMode: 'inherit', appearanceOverrides: {} },
+  });
+  const link = JSON.parse(JSON.stringify(relReset.world.worldModel.metis.models[0].modelviews[0].relshipviews[0]));
+  assert.deepEqual(link.appearanceOverrides, {}); assert.deepEqual(link.points, [1, 2, 3, 4]);
+  assert.equal(link.fromobjviewRef, 'ov-1'); assert.equal(link.toobjviewRef, 'ov-1'); assert.equal(link.fromPortid, 'p');
 });

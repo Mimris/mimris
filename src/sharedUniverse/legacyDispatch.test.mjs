@@ -23,7 +23,15 @@ const loadUniverseSlice = () => {
   vm.runInNewContext(transpileCommonJs(new URL('./universeSlice.ts', import.meta.url)), {
     exports: module.exports,
     module,
-    require,
+    require: specifier => {
+      if (specifier !== '../akmm/viewAppearance') return require(specifier);
+      const appearanceModule = { exports: {} };
+      const appearanceSource = readFileSync(new URL('../akmm/viewAppearance.ts', import.meta.url), 'utf8');
+      vm.runInNewContext(ts.transpileModule(appearanceSource, {
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+      }).outputText, { module: appearanceModule, exports: appearanceModule.exports });
+      return appearanceModule.exports;
+    },
   }, { filename: 'universeSlice.ts' });
   return module.exports;
 };

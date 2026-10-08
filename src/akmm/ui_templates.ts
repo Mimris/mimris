@@ -308,7 +308,7 @@ export function getFigure2Names() {
 let nodeTemplateNames = []; 
 let linkTemplateNames = []; 
 let groupTemplateNames = []; 
-const NESTED_GROUP_SIZE_RATIO = 0.35;
+const NESTED_GROUP_SIZE_RATIO = constants.params.MEMBERSCALE;
 
 function makeGeoIcon() {
     return $(go.Picture,  // the image -------------------------------------       
@@ -595,9 +595,9 @@ export function groupTop1(contextMenu: any, notation: string) {
                 shadowVisible: true,
                 desiredSize: new go.Size(220, 120),
                 minSize: new go.Size(160, 65),
-                portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
+                portId: null,
+                fromLinkable: false, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: false, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor", (c) => sanitizeColor(c)),
             new go.Binding("stroke", "strokecolor", (c) => sanitizeColor(c, "black")),
@@ -790,7 +790,7 @@ export function groupTop1(contextMenu: any, notation: string) {
 export function groupTop2(
     contextMenu: any,
     notation: string,
-    bodyLinkable: boolean = true,
+    bodyLinkable: boolean = false,
     restrictBodyHitArea: boolean = false
 ) {
     const DEBUG_HIT_AREAS = false;
@@ -1829,6 +1829,30 @@ function addResizeAdornment(groupName: string) {
     );
 }
 
+// A palette part is copied into the diagram before its persistent object view is
+// created.  Depending on that timing, the type can be present either as the
+// flattened `typename` field or only on the copied object/type data.  Keep the
+// lower type row independent of that implementation detail so a newly dropped
+// object never loses its type label.
+function resolveNodeTypeLabel(data: any): string {
+    const candidates = [
+        data?.typename,
+        data?.typeName,
+        data?.object?.type?.name,
+        data?.objecttype?.name,
+        data?.objectview?.object?.type?.name,
+        data?.typeview?.objecttype?.name,
+        data?.typeview?.objtype?.name,
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+        const value = candidates[i];
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value;
+        }
+    }
+    return "";
+}
+
 function addNodeText0(contextMenu: any) {
     return $(go.Panel, "Table", // separator  name typename ---------------------------------
         {   
@@ -1928,7 +1952,7 @@ function addNodeText(contextMenu: any, typeviewContextMenu: any) {
                 name: "typename",
                 contextMenu: typeviewContextMenu
             },
-            new go.Binding("text", "typename")
+            new go.Binding("text", "", resolveNodeTypeLabel)
         ),
     )
 }
@@ -3622,6 +3646,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                 {
                     cursor: "alias",
                     name: 'SHAPE',
+                    portId: "",
+                    fromLinkable: true,
+                    toLinkable: true,
                     fill: 'transparent',
                     stroke: "#aaa",
                     strokeWidth: 2,
@@ -3648,6 +3675,89 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, portCon
                     margin: new go.Margin(1, 1, 1, 1),
                     shadowVisible: false,
                 }    
+            ),
+            // Edge ports preserve the sides used while drawing a relationship.
+            // Their ids are stored in `fromPort`/`toPort`, so the chosen anchors
+            // remain in effect after saving and reloading the model.
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Left,
+                    alignmentFocus: go.Spot.Left,
+                    stretch: go.GraphObject.Vertical,
+                    width: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-left",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Left,
+                    toSpot: go.Spot.Left,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Right,
+                    alignmentFocus: go.Spot.Right,
+                    stretch: go.GraphObject.Vertical,
+                    width: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-right",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Right,
+                    toSpot: go.Spot.Right,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Top,
+                    alignmentFocus: go.Spot.Top,
+                    stretch: go.GraphObject.Horizontal,
+                    height: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-top",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Top,
+                    toSpot: go.Spot.Top,
+                },
+            ),
+            $(go.Shape, "Rectangle",
+                {
+                    alignment: go.Spot.Bottom,
+                    alignmentFocus: go.Spot.Bottom,
+                    stretch: go.GraphObject.Horizontal,
+                    height: 16,
+                    fill: "transparent",
+                    stroke: null,
+                    cursor: "alias",
+                    portId: "edge-bottom",
+                    fromLinkable: true,
+                    toLinkable: true,
+                    fromLinkableSelfNode: true,
+                    fromLinkableDuplicates: true,
+                    toLinkableSelfNode: true,
+                    toLinkableDuplicates: true,
+                    fromSpot: go.Spot.Bottom,
+                    toSpot: go.Spot.Bottom,
+                },
             ),
 
             $(go.Panel, "Table", // Panel for text and icon ------------------------
@@ -4892,6 +5002,14 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             ),
             // cardinality from
             $(go.TextBlock, "",
+                { segmentIndex: NaN, segmentFraction: 0.15, segmentOffset: new go.Point(0, -12) },
+                new go.Binding("text", "", d => d.category === constants.gojs.C_RELSHIPTYPE ? (d.nameFrom || "") : ""),
+            ),
+            $(go.TextBlock, "",
+                { segmentIndex: NaN, segmentFraction: 0.85, segmentOffset: new go.Point(0, 12) },
+                new go.Binding("text", "", d => d.category === constants.gojs.C_RELSHIPTYPE ? (d.nameTo || "") : ""),
+            ),
+            $(go.TextBlock, "",
                 { segmentIndex: NaN, segmentFraction: 0.15},
                 { segmentOffset: new go.Point(0, 10) },
                 new go.Binding("text", "cardinalityFrom"),
@@ -5036,6 +5154,14 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // cardinality from
+            $(go.TextBlock, "",
+                { segmentIndex: NaN, segmentFraction: 0.15, segmentOffset: new go.Point(0, -12) },
+                new go.Binding("text", "", d => d.category === constants.gojs.C_RELSHIPTYPE ? (d.nameFrom || "") : ""),
+            ),
+            $(go.TextBlock, "",
+                { segmentIndex: NaN, segmentFraction: 0.85, segmentOffset: new go.Point(0, 12) },
+                new go.Binding("text", "", d => d.category === constants.gojs.C_RELSHIPTYPE ? (d.nameTo || "") : ""),
+            ),
             $(go.TextBlock, "",
                 { segmentIndex: NaN, segmentFraction: 0.15},
                 { segmentOffset: new go.Point(0, 10) },
@@ -5336,7 +5462,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Icon', true, true),
+            groupTop2(contextMenu, 'Icon', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5393,7 +5519,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Geometry', true, true),
+            groupTop2(contextMenu, 'Geometry', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -5444,7 +5570,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, portC
                     )
                 )
             },
-            groupTop2(contextMenu, 'Figure', true, true),
+            groupTop2(contextMenu, 'Figure', false, true),
             groupWithPortsSelectionPadding(PORT_OUT_X, PORT_OUT_Y),
             // And now the ports
             addLeftPorts(portContextMenu, PORT_ALIGN_X, 0),
@@ -7391,9 +7517,9 @@ function getParentMemberScale(grp: go.Group | null): number {
         data?.memberscale ??
         data?.objectview?.memberscale ??
         data?.typeview?.memberscale ??
-        1;
+        constants.params.MEMBERSCALE;
     const parsed = Number(raw);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : constants.params.MEMBERSCALE;
 }
 
 function getAncestorMemberScaleProduct(grp: go.Group | null): number {

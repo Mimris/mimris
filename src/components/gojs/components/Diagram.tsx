@@ -4,7 +4,6 @@
 */
 
 import * as go from 'gojs';
-import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
@@ -25,9 +24,13 @@ import classnames from 'classnames';
 // import 'reactjs-popup/dist/index.css';
 
 import { SelectionInspector } from '../components/SelectionInspector';
+import { RelationshipTypeEditor, RELATIONSHIP_TYPE_FORM_ID } from './RelationshipTypeEditor';
+import relationshipEditorStyles from './RelationshipTypeEditor.module.css';
+import { applyRelationshipTypeDraft } from '../../utils/relationshipTypeEditor';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as jsn from '../../../akmm/ui_json';
+import { setAppearanceOverride } from '../../../akmm/viewAppearance';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
@@ -431,11 +434,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const link = e.subject as go.Link;
       const linkData: any = link?.data;
       if (!(diagram instanceof go.Diagram) || !(link instanceof go.Link) || !linkData) return;
-      const relview =
-        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
-        linkData?.relshipview ||
-        null;
-      if (!relview) return;
       const points: number[] = [];
       try {
         for (let it = link.points.iterator; it?.next();) {
@@ -445,6 +443,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } catch (_) {
         return;
       }
+      // LinkReshaped is emitted only for an explicit user reshape.  Do not try
+      // to infer intent from point count: it differs between link templates.
+      const hasManualPath = true;
+      // Keep a diagram-local copy too. React reconciliation can briefly replace
+      // link data between LinkReshaped and the following node drag, while the
+      // user still expects this route to be treated as their explicit edit.
+      try {
+        const routes: Map<string, number[]> =
+          (diagram as any).__reshapedLinkRoutes instanceof Map
+            ? (diagram as any).__reshapedLinkRoutes
+            : new Map<string, number[]>();
+        const linkKey = String(linkData?.key || link?.key || "");
+        if (linkKey && hasManualPath) routes.set(linkKey, [...points]);
+        else if (linkKey) routes.delete(linkKey);
+        (diagram as any).__reshapedLinkRoutes = routes;
+      } catch (_) { }
+      const relview =
+        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
+        linkData?.relshipview ||
+        null;
+      if (!relview) return;
+      try { diagram.model.setDataProperty(linkData, '__manualPath', hasManualPath); } catch (_) {
+        try { linkData.__manualPath = hasManualPath; } catch (_err) { }
+      }
+      try { relview.__manualPath = hasManualPath; } catch (_) { }
       relview.points = points;
       try { if (linkData?.relshipview) linkData.relshipview.points = points; } catch (_) {}
       try { if (linkData?.relshipview && linkData.relshipview.id !== relview.id) linkData.relshipview = relview; } catch (_) {}
@@ -464,7 +487,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } catch (_) {}
       const shouldFreezeManualRoute =
         Array.isArray(points) &&
-        points.length >= 4 &&
+        hasManualPath &&
         (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
          String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
       if (shouldFreezeManualRoute) {
@@ -1421,6 +1444,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
+
+  private applyRelationshipTypeEdit = (draft: any) => {
+    const context = this.state.modalContext;
+    const type = context?.myContext?.relshiptype;
+    const metamodel = context?.myContext?.metamodel;
+    const diagram = context?.myDiagram;
+    if (!type || !metamodel || !diagram) return;
+    const oldFrom = type.fromobjtypeRef;
+    const oldTo = type.toobjtypeRef;
+    const result = applyRelationshipTypeDraft(type, draft, metamodel.getObjectTypes());
+    if (Object.keys(result.errors).length) return;
+    metamodel.addRelationshipTypeView(result.view);
+    this.myMetis.addRelationshipTypeView(result.view);
+    const findTypeNode = (id: string) => {
+      let found = null;
+      diagram.nodes.each(node => { if (node.data?.objecttype?.id === id) found = node; });
+      return found;
+    };
+    diagram.model.commit(model => {
+      diagram.links.each(link => {
+        const data = link.data;
+        if (data?.category !== constants.gojs.C_RELSHIPTYPE) return;
+        if (data?.reltype?.id !== type.id && data?.relshiptype?.id !== type.id && data?.reltypeRef !== type.id) return;
+        for (const key of ['name', 'description', 'cardinalityFrom', 'cardinalityTo', 'nameFrom', 'nameTo']) model.setDataProperty(data, key, type[key]);
+        for (const key of ['strokecolor', 'strokewidth', 'dash', 'fromArrow', 'toArrow']) model.setDataProperty(data, key, result.view.data[key]);
+        model.setDataProperty(data, 'reltype', type);
+        model.setDataProperty(data, 'typeview', result.view);
+        const from = findTypeNode(type.fromobjtypeRef);
+        const to = findTypeNode(type.toobjtypeRef);
+        if (from && to) {
+          model.setFromKeyForLinkData(data, from.key);
+          model.setToKeyForLinkData(data, to.key);
+          // Runtime Go-model mirrors need the same endpoint nodes as GoJS.
+          data.fromNode = from.data;
+          data.toNode = to.data;
+        }
+        if (oldFrom !== type.fromobjtypeRef || oldTo !== type.toobjtypeRef) model.setDataProperty(data, 'points', []);
+        link.updateTargetBindings();
+        link.invalidateRoute();
+      });
+    }, 'edit-relationship-type');
+    const dispatch = diagram.dispatch || bindLegacyUniverseDispatch(this.props.dispatch);
+    dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelationshipType(type, true))) });
+    dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelshipTypeView(result.view))) });
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
+  };
   
   private normalizeReldir = (val?: string): string => {
     const v = (val || '').trim().toLowerCase();
@@ -1851,11 +1920,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const context = props.context;
     const pattern = props.pattern;
 
-    let run = false;
-    this.setState(
-      produce((draft: DiagramProps) => {
-        if (run === false) {
-          run = true;
+    // Diagram data contains cyclic runtime references. Only the selected field
+    // needs a shallow React update; Immer would recursively finalize that graph.
+    this.setState((previous: any) => {
+          const draft = { ...previous };
           const nextSelectedData = {
             ...(draft.selectedData || {}),
             [propname]: value,
@@ -1880,9 +1948,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (currentNode) currentNode[propname] = nextValue;
             } catch (_) {}
           }
-        }
-      })
-    );
+          return { selectedData: draft.selectedData };
+    });
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -2029,6 +2096,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    // clamp/snap back into the source lane.
 	    class SwimlaneDraggingTool extends go.DraggingTool {
 	      private constraintLaneCache: Map<go.Part, go.Group> = new Map();
+	      private linkRoutesAtDragStart = new Map<string, number[]>();
+	      private linkRouteEndpointsAtDragStart = new Map<string, { from: go.Point | null; to: go.Point | null }>();
 	      private laneContentAtDragStart = new Map<go.Group, {
 	        bounds: go.Rect;
 	        location: go.Point;
@@ -2063,8 +2132,179 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        }
 	      }
 
-	      private restoreLaneContentAfterLayout(diagram: go.Diagram) {
-	        this.laneContentAtDragStart.forEach((snapshot, lane) => {
+	      private captureLinkRoutesAtDragStart() {
+	        this.linkRoutesAtDragStart.clear();
+	        this.linkRouteEndpointsAtDragStart.clear();
+	        const draggedParts = this.draggedParts;
+	        const nodes = new go.Set<go.Node>();
+	        const nodeKeys = new Set<string>();
+	        const collectNodes = (part: go.Part) => {
+	          if (part instanceof go.Node && !(part instanceof go.Group)) nodes.add(part);
+	          if (!(part instanceof go.Group)) return;
+	          part.memberParts.each((member: go.Part) => collectNodes(member));
+	        };
+	        for (let it = draggedParts?.iterator; it?.next();) {
+	          collectNodes(it.key as go.Part);
+	        }
+	        nodes.each((part: go.Node) => {
+	          if (part.data?.key !== undefined && part.data?.key !== null) {
+	            nodeKeys.add(String(part.data.key));
+	          }
+	          part.linksConnected.each((link: go.Link) => {
+	            const key = link.data?.key;
+	            if (!key || this.linkRoutesAtDragStart.has(String(key))) return;
+	            if (link.routing !== go.Link.Orthogonal && link.routing !== go.Link.AvoidsNodes) return;
+	            const points: number[] = [];
+	            try {
+	              for (let pt = link.points.iterator; pt?.next();) {
+	                const point = pt.value;
+	                if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) {
+	                  points.push(point.x, point.y);
+	                }
+	              }
+	            } catch (_) { }
+	            if (points.length >= 4) {
+	              const linkKey = String(key);
+	              this.linkRoutesAtDragStart.set(linkKey, points);
+	              this.linkRouteEndpointsAtDragStart.set(linkKey, {
+	                from: link.fromNode?.location?.copy() || null,
+	                to: link.toNode?.location?.copy() || null,
+	              });
+	            }
+	          });
+	        });
+	        if (this.diagram) (this.diagram as any).__effectiveDraggedNodeKeys = nodeKeys;
+	      }
+
+	      // A reshaped link belongs to the user, not to the router.  Capture it at
+	      // drag start for every node (not just Lane members), before GoJS gets a
+	      // chance to replace its bends with an automatic route.
+	      private captureManualLinkRoutesAtDragStart() {
+	        const diagram = this.diagram;
+	        if (!diagram) return;
+	        const routes = new Map<string, number[]>();
+	        const reshapedRoutes: Map<string, number[]> =
+	          (diagram as any).__reshapedLinkRoutes instanceof Map
+	            ? (diagram as any).__reshapedLinkRoutes
+	            : new Map<string, number[]>();
+	        const nodes = new go.Set<go.Node>();
+	        const collectNodes = (part: go.Part) => {
+	          if (part instanceof go.Node && !(part instanceof go.Group)) nodes.add(part);
+	          if (part instanceof go.Group) part.memberParts.each((member: go.Part) => collectNodes(member));
+	        };
+	        for (let it = this.draggedParts?.iterator; it?.next();) collectNodes(it.key as go.Part);
+	        nodes.each((node: go.Node) => {
+	          node.linksConnected.each((link: go.Link) => {
+	            const key = link.data?.key;
+	            const relview = link.data?.relshipview;
+	            const linkKey = String(key || "");
+	            const cachedPoints = reshapedRoutes.get(linkKey);
+	            if (!key || routes.has(linkKey) ||
+	              (!link.data?.__manualPath && !relview?.__manualPath && !cachedPoints)) return;
+	            const readPoints = (source: any): number[] => {
+	              if (Array.isArray(source)) return source.filter((value: any) => Number.isFinite(value));
+	              const result: number[] = [];
+	              try {
+	                for (let pointIt = source?.iterator; pointIt?.next();) {
+	                  const point = pointIt.value;
+	                  if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) result.push(point.x, point.y);
+	                }
+	              } catch (_) { }
+	              return result;
+	            };
+	            // React/model reconciliation can have already recalculated the
+	            // live GoJS route by this point. The saved relationship route is
+	            // the authoritative source for a link marked as manually shaped.
+	            const points = [cachedPoints, link.data?.points, relview?.points, link.points]
+	              .map(readPoints)
+	              .find((candidate) => candidate.length >= 4) || [];
+            if (points.length < 4) return;
+	            routes.set(linkKey, points);
+	            this.linkRoutesAtDragStart.set(linkKey, points);
+	            this.linkRouteEndpointsAtDragStart.set(linkKey, {
+	              from: link.fromNode?.location?.copy() || null,
+	              to: link.toNode?.location?.copy() || null,
+	            });
+	            try {
+	              const pointList = new go.List<go.Point>();
+	              for (let i = 0; i + 1 < points.length; i += 2) pointList.add(new go.Point(points[i], points[i + 1]));
+	              link.points = pointList;
+	            } catch (_) { }
+	          });
+	        });
+	        if (routes.size > 0) {
+	          // Keep the old Lane-specific property while older drop handling is
+	          // still present, and expose a general snapshot for ordinary nodes.
+	          (diagram as any).__manualLinkPointsBeforeMove = routes;
+	          (diagram as any).__laneManualLinkPointsBeforeMove = routes;
+	          (diagram as any).__manualLinkMovePreview = new Map(routes);
+	          (diagram as any).__preserveLinkRoutesDuringDrag = true;
+	        } else {
+	          delete (diagram as any).__manualLinkPointsBeforeMove;
+	          delete (diagram as any).__laneManualLinkPointsBeforeMove;
+	        }
+	      }
+
+	      private reanchorRouteToCurrentEndpoints(link: go.Link, source: number[]): number[] {
+	        const points = [...source];
+	        if (points.length < 4) return points;
+	        const anchor = (isFrom: boolean) => {
+	          const node = isFrom ? link.fromNode : link.toNode;
+	          const port = (isFrom ? link.fromPort : link.toPort) || node?.port || node;
+	          if (!node || !port) return;
+	          const endpoint = isFrom ? 0 : points.length - 2;
+	          const adjacent = isFrom ? 2 : points.length - 4;
+	          const current = new go.Point(points[endpoint], points[endpoint + 1]);
+	          const next = new go.Point(points[adjacent], points[adjacent + 1]);
+	          const anchored = current.copy();
+	          try {
+	            link.getLinkPointFromPoint(node, port as go.GraphObject, current, next, isFrom, anchored);
+	            points[endpoint] = anchored.x;
+	            points[endpoint + 1] = anchored.y;
+	            if (Math.abs(next.y - current.y) <= Math.abs(next.x - current.x)) {
+	              points[adjacent + 1] = anchored.y;
+	            } else {
+	              points[adjacent] = anchored.x;
+	            }
+	          } catch (_) { }
+	        };
+	        anchor(true);
+	        anchor(false);
+	        return points;
+	      }
+
+	      private keepLinkRoutesDuringDrag() {
+	        const diagram = this.diagram;
+	        this.linkRoutesAtDragStart.forEach((points, key) => {
+	          const link = diagram?.findLinkForKey(key);
+	          if (!(link instanceof go.Link)) return;
+	          const endpoints = this.linkRouteEndpointsAtDragStart.get(key);
+	          const fromDelta = endpoints?.from && link.fromNode
+	            ? new go.Point(link.fromNode.location.x - endpoints.from.x, link.fromNode.location.y - endpoints.from.y)
+	            : null;
+	          const toDelta = endpoints?.to && link.toNode
+	            ? new go.Point(link.toNode.location.x - endpoints.to.x, link.toNode.location.y - endpoints.to.y)
+	            : null;
+	          const movesTogether = fromDelta && toDelta &&
+	            Math.abs(fromDelta.x - toDelta.x) < 0.01 && Math.abs(fromDelta.y - toDelta.y) < 0.01;
+	          const anchored = movesTogether
+	            ? points.map((value, index) => value + (index % 2 === 0 ? fromDelta!.x : fromDelta!.y))
+	            : this.reanchorRouteToCurrentEndpoints(link, points);
+	          try {
+	            const list = new go.List<go.Point>();
+	            for (let i = 0; i + 1 < anchored.length; i += 2) {
+	              list.add(new go.Point(anchored[i], anchored[i + 1]));
+	            }
+	            link.points = list;
+	          } catch (_) { }
+	        });
+	      }
+
+	      private restoreLaneContentAfterLayout(
+	        diagram: go.Diagram,
+	        snapshots: Map<go.Group, { bounds: go.Rect; location: go.Point; nodes: Array<{ node: go.Node; location: go.Point }> }> = this.laneContentAtDragStart
+	      ) {
+	        snapshots.forEach((snapshot, lane) => {
 	          lane.ensureBounds();
 	          const body =
 	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
@@ -2085,6 +2325,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	            node.move(target);
 	            diagram.model.setDataProperty(node.data, "loc", go.Point.stringify(target));
 	          }
+	        });
+	      }
+
+	      private persistRestoredLaneContent(
+	        diagram: go.Diagram,
+	        snapshots: Map<go.Group, { bounds: go.Rect; location: go.Point; nodes: Array<{ node: go.Node; location: go.Point }> }>
+	      ) {
+	        const dispatch = (diagram as any).dispatch;
+	        if (typeof dispatch !== "function") return;
+	        snapshots.forEach((snapshot) => {
+	          snapshot.nodes.forEach(({ node }) => {
+	            const data = node.data;
+	            const objectview = data?.objectview;
+	            const id = objectview?.id || data?.objviewRef || data?.key;
+	            if (!id || !node.location?.isReal()) return;
+	            const payload = {
+	              ...(objectview || {}),
+	              id,
+	              loc: go.Point.stringify(node.location),
+	              ...(typeof data?.group === "string" ? { group: data.group } : {}),
+	            };
+	            try { dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data: payload }); } catch (_) { }
+	          });
 	        });
 	      }
 
@@ -2136,26 +2399,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        const dragParts = new go.Set<go.Part>();
 	        selectedParts.forEach((part) => dragParts.add(part));
 	        for (const lane of lanes) {
-	          dragParts.add(lane);
+	          // A Pool already translates Lane members that are formally grouped in it.
+	          // Adding them again makes a subsequent Pool drag apply the translation twice.
+	          const laneAlreadyMovesWithSelectedPool = pools.some((pool) => lane.containingGroup === pool);
+	          if (!laneAlreadyMovesWithSelectedPool) dragParts.add(lane);
 	          const body =
 	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
 	          const bodyBounds = body ? body.getDocumentBounds() : lane.actualBounds;
 	          if (!bodyBounds.isReal()) continue;
 	          diagram?.nodes.each((candidate: go.Node) => {
 	            if (candidate instanceof go.Group || !candidate.actualBounds.isReal()) return;
-	            if (candidate.containingGroup === lane || bodyBounds.containsPoint(candidate.actualBounds.center)) {
+	            // Formal Lane members move when their Lane moves. Only add legacy nodes
+	            // that are visually inside a Lane but have no matching group membership.
+	            if (candidate.containingGroup !== lane && bodyBounds.containsPoint(candidate.actualBounds.center)) {
 	              dragParts.add(candidate);
 	            }
 	          });
 	        }
 
-	        const previousDragsTree = this.dragsTree;
-	        this.dragsTree = true;
-	        try {
-	          return super.computeEffectiveCollection(dragParts, options as go.DraggingOptions);
-	        } finally {
-	          this.dragsTree = previousDragsTree;
-	        }
+	        return super.computeEffectiveCollection(dragParts, options as go.DraggingOptions);
 	      }
 
 	      override doActivate() {
@@ -2200,21 +2462,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        // Remember visual ownership before the dragged lane can overlap another lane.
 	        // This lets lane stacking move content with its original lane, even for legacy
 	        // models that do not persist lane membership on every node.
-	        if (diagram && swimlaneDrag) this.captureLaneContentAtDragStart(diagram);
+	        if (diagram && swimlaneDrag) {
+	          this.captureLaneContentAtDragStart(diagram);
+	        }
+	        if (diagram && swimlaneDrag) {
+	          // Pool/Lane drags translate many endpoints together. Keep their
+	          // preview route only for that container operation. For an ordinary
+	          // node drag GoJS must own live endpoint attachment at all times.
+	          this.captureLinkRoutesAtDragStart();
+	          (diagram as any).__preserveLinkRoutesDuringDrag = true;
+	          if (this.linkRoutesAtDragStart.size > 0) {
+	            (diagram as any).__manualLinkMovePreview = new Map(this.linkRoutesAtDragStart);
+	          }
+	        } else if (diagram) {
+	          this.linkRoutesAtDragStart.clear();
+	          this.linkRouteEndpointsAtDragStart.clear();
+	          delete (diagram as any).__manualLinkMovePreview;
+	          delete (diagram as any).__effectiveDraggedNodeKeys;
+	          delete (diagram as any).__preserveLinkRoutesDuringDrag;
+	          this.captureManualLinkRoutesAtDragStart();
+	        }
 	        this.constraintLaneCache.clear();
 	      }
 
 	      override doMouseMove() {
 	        const diagram = this.diagram;
+	        if ((diagram as any)?.__preserveLinkRoutesDuringDrag) {
 	        try {
 	          const draggedParts = this.draggedParts;
-	          const manualLinkMovePreview = new Map<string, number[]>();
+	          const existingPreview = (diagram as any)?.__manualLinkMovePreview;
+	          const manualLinkMovePreview =
+	            existingPreview instanceof Map && existingPreview.size > 0
+	              ? existingPreview
+	              : new Map<string, number[]>();
+	          if (!(existingPreview instanceof Map) || existingPreview.size === 0) {
 	          for (let it = draggedParts?.iterator; it?.next();) {
 	            const part = it.key as go.Part;
 	            if (!(part instanceof go.Node) || !part.data?.key) continue;
 	            part.linksConnected.each((link: go.Link) => {
 	              const linkKey = link?.data?.key;
 	              if (!linkKey) return;
+	              // Keep a route snapshot before GoJS moves the node. On drop, the
+	              // endpoint segments are re-anchored but the route's bends remain in
+	              // place, avoiding a visually unrelated automatic re-route.
 	              const points: number[] = [];
 	              try {
 	                for (let pt = link.points.iterator; pt?.next();) {
@@ -2230,8 +2520,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	              }
 	            });
 	          }
+	          }
 	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	        } catch (_) {
+	        }
 	        }
 	          // Temporary drag vibration tracing removed.
 	        super.doMouseMove();
@@ -2240,15 +2532,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	      override doDeactivate() {
 	        const diagram = this.diagram;
 	        try {
+	          if ((diagram as any)?.__preserveLinkRoutesDuringDrag) {
 	          try {
 	            const draggedParts = this.draggedParts;
-	            const manualLinkMovePreview = new Map<string, number[]>();
+	            const existingPreview = (diagram as any)?.__manualLinkMovePreview;
+	            const manualLinkMovePreview =
+	              existingPreview instanceof Map && existingPreview.size > 0
+	                ? existingPreview
+	                : new Map<string, number[]>();
+	            if (!(existingPreview instanceof Map) || existingPreview.size === 0) {
 	            for (let it = draggedParts?.iterator; it?.next();) {
 	              const part = it.key as go.Part;
 	              if (!(part instanceof go.Node) || !part.data?.key) continue;
 	              part.linksConnected.each((link: go.Link) => {
 	                const linkKey = link?.data?.key;
 	                if (!linkKey) return;
+	                // Do not overwrite the pre-move snapshot captured by doMouseMove.
 	                const points: number[] = [];
 	                try {
 	                  for (let pt = link.points.iterator; pt?.next();) {
@@ -2264,10 +2563,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	                }
 	              });
 	            }
+	            }
 	            if (manualLinkMovePreview.size > 0) {
 	              (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	            }
 	          } catch (_) {
+	          }
 	          }
 	          try {
 	            if ((diagram as any)?.__manualLinkMovePreview instanceof Map &&
@@ -2423,6 +2724,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	            // A pool drag now includes its lanes so their content follows. Do not mistake
 	            // those included lanes for a direct lane drag and run a second pool relayout.
 	            if (lanesWereDragged && !poolWasDragged) {
+	              // Keep this snapshot alive for one turn of the event loop. A PoolLayout
+	              // can apply its final lane position immediately after this tool finishes;
+	              // without the follow-up pass, content remains at the temporary drag offset.
+	              const contentSnapshot = this.laneContentAtDragStart;
+	              this.laneContentAtDragStart = new Map();
 	              // Re-layout all pools to stack lanes properly
 	              diagram.startTransaction("relayout pools");
 	              diagram.findTopLevelGroups().each((g: go.Part) => {
@@ -2436,10 +2742,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	              // fully committed. Otherwise GoJS can leave live node bounds stale until
 	              // a reload, even though the persisted `loc` is correct.
 	              diagram.commit((d: go.Diagram) => {
-	                this.restoreLaneContentAfterLayout(d);
+	                this.restoreLaneContentAfterLayout(d, contentSnapshot);
 	              }, "restore lane content after layout");
 	              diagram.updateAllTargetBindings();
 	              diagram.requestUpdate();
+	              setTimeout(() => {
+	                if (diagram.isDisposed) return;
+	                diagram.commit((d: go.Diagram) => {
+	                  this.restoreLaneContentAfterLayout(d, contentSnapshot);
+	                }, "settle lane content after layout");
+	                diagram.updateAllTargetBindings();
+	                diagram.requestUpdate();
+	                this.persistRestoredLaneContent(diagram, contentSnapshot);
+	              }, 0);
 	            }
 	          }
 	        } catch {
@@ -2466,11 +2781,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 		            let mostRestrictiveOffsetY = offset.y;
 		            let mostRestrictiveOffsetX = offset.x;
 		            
-		            for (let it = parts.iterator; it.next();) {
-		              const part = it.key;
-		              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-		              
-		              // Get the cached lane or find it geometrically
+	            for (let it = parts.iterator; it.next();) {
+	              const part = it.key;
+	              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	              // Pool/lane drags explicitly include their descendant nodes so the
+	              // content follows the container. Those nodes must not then be
+	              // constrained against their moving (and briefly stale) lane bounds;
+	              // doing so can turn a leftward Pool drag into a rightward offset.
+	              let isMovingWithAncestor = false;
+	              for (let ancestor = part.containingGroup; ancestor; ancestor = ancestor.containingGroup) {
+	                if (parts.has(ancestor)) {
+	                  isMovingWithAncestor = true;
+	                  break;
+	                }
+	              }
+	              if (isMovingWithAncestor) continue;
+
+	              // Get the cached lane or find it geometrically
 		              let lane = this.constraintLaneCache.get(part);
 		              
 		              if (!lane) {
@@ -2595,8 +2922,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 		          }
 		        }
 		        
-		        super.moveParts(parts, constrainedOffset, check);
-		      }
+	        super.moveParts(parts, constrainedOffset, check);
+	        // GoJS normally routes connected links immediately after moving a node.
+	        // Restore the pre-drag route with only its endpoint segments re-anchored.
+	        if ((this.diagram as any)?.__preserveLinkRoutesDuringDrag || this.linkRoutesAtDragStart.size > 0) {
+	          this.keepLinkRoutesDuringDrag();
+	        }
+	      }
 		    }
 
 	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
@@ -7688,7 +8020,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
         uid.doGroupLayout(objview, targetDiagram, myMetis);
-        handleGroupSaveLayout(targetDiagram, part);
+        // doGroupLayout persists the object and relationship geometry it changes.
+        // Do not immediately serialize the whole Group here: that snapshot can be
+        // stale and reapply an old lane template or old link points over the
+        // freshly calculated layout.
         targetDiagram.requestUpdate();
       }
 
@@ -8780,7 +9115,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           includeInheritedReltypes = true;
           myModelview.includeInheritedReltypes = true;
         }
-        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -8795,9 +9129,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
-        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
-        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -8825,6 +9157,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           what: "selectDropdown",
           title: "Select Relationship Type",
           case: "Change Relationship type",
+          relationshipViewRef: data.key,
+          relationshipRef: relship.id,
           myDiagram: diagram,
           args,
         };
@@ -9367,7 +9701,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.fillcolor = val;
+                                    setAppearanceOverride(objview, 'fillcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9457,7 +9791,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.fillcolor = val;
+                                        setAppearanceOverride(objview, 'fillcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -9509,7 +9843,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.strokecolor = val;
+                                    setAppearanceOverride(objview, 'strokecolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9582,7 +9916,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.strokecolor = val;
+                                        setAppearanceOverride(objview, 'strokecolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -9637,7 +9971,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                   // Then update the objview
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.textcolor = val;
+                                    setAppearanceOverride(objview, 'textcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9710,7 +10044,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.textcolor = val;
+                                        setAppearanceOverride(objview, 'textcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -10508,7 +10842,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.fillcolor = val;
+                                            setAppearanceOverride(objview, 'fillcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -10598,7 +10932,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.fillcolor = val;
+                                                setAppearanceOverride(objview, 'fillcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -10650,7 +10984,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.strokecolor = val;
+                                            setAppearanceOverride(objview, 'strokecolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -10724,7 +11058,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.strokecolor = val;
+                                                setAppearanceOverride(objview, 'strokecolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -10779,7 +11113,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                           // Then update the objview
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.textcolor = val;
+                                            setAppearanceOverride(objview, 'textcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -10853,7 +11187,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.textcolor = val;
+                                                setAppearanceOverride(objview, 'textcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -11258,6 +11592,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         } catch (_) {}
         if (!items) items = buildPartMenuItems(targetPart);
+        // Every instance menu, including icon and group menus, exposes reset.
+        // Type menus edit the defaults themselves and have nothing to inherit.
+        const instanceCategory = targetPart.data?.category;
+        if (
+          myMetis.modelType !== 'Metamodelling' &&
+          (instanceCategory === constants.gojs.C_OBJECT || instanceCategory === constants.gojs.C_RELATIONSHIP) &&
+          !items.some(item => item.label === 'Reset to Typeview')
+        ) {
+          items.push({
+            label: 'Reset to Typeview',
+            action: (targetDiagram) => {
+              if (!targetDiagram) return;
+              uid.resetToTypeview(targetPart.data, myMetis, targetDiagram);
+            },
+          });
+        }
         // Ensure a sensible heading is present for object/relationship menus, but
         // preserve any existing heading (e.g., 'Icon Menu') that may have been set
         // when building a special-case menu earlier.
@@ -13282,7 +13632,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </div>
         }
         break;
-      case 'editRelationshipType':
+      case 'editRelationshipType': {
+        header = 'Edit Relationship Type';
+        const type = modalContext.myContext?.relshiptype;
+        const metamodel = modalContext.myContext?.metamodel;
+        if (type && metamodel) modalContent = <RelationshipTypeEditor
+          key={type.id}
+          type={type}
+          objectTypes={metamodel.getObjectTypes() || []}
+          onApply={this.applyRelationshipTypeEdit}
+        />;
+        break;
+      }
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
@@ -13378,7 +13739,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })()}
         {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 
-        <Modal isOpen={this.state.showModal}  >
+        {modalContext?.what === 'editRelationshipType' ? (
+          <Modal isOpen={this.state.showModal} modalClassName={relationshipEditorStyles.modal} toggle={() => this.handleCloseModal('x')}>
+            <ModalHeader toggle={() => this.handleCloseModal('x')}>Edit Relationship Type</ModalHeader>
+            <ModalBody>{modalContent}</ModalBody>
+            <ModalFooter>
+              <Button color="link" onClick={() => this.handleCloseModal('x')}>Cancel</Button>
+              <Button color="primary" type="submit" form={RELATIONSHIP_TYPE_FORM_ID}>Apply</Button>
+            </ModalFooter>
+          </Modal>
+        ) : <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}
           <div className="modal-content">
             <div className="modal-head px-2 ">
@@ -13423,7 +13793,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </ModalFooter>
           </div>
           {/* </div> */}
-        </Modal>
+        </Modal>}
         <ChangeIconModal 
           isOpen={this.state.showChangeIconModal}
           onClose={() => this.setState({ showChangeIconModal: false })}

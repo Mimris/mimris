@@ -1,4 +1,5 @@
 import { createAction, type AnyAction } from '@reduxjs/toolkit';
+import { OBJECT_APPEARANCE_FIELDS, RELATIONSHIP_APPEARANCE_FIELDS } from '../akmm/viewAppearance';
 
 export type LegacyUniverseRoot = {
     universe?: SharedUniverseState;
@@ -584,11 +585,12 @@ const updateModelviewCollection = (
 
     const collection: any[] = Array.isArray(modelview?.[collectionName]) ? modelview[collectionName] : [];
     const targetIndex = target.itemIndex >= 0 ? target.itemIndex : collection.length;
-    const nextCollection = replaceArrayItem(
-        collection,
-        targetIndex,
-        mergeAndPruneOptionalEmptyFields(collection[targetIndex], sanitizedPatch, optionalFields),
-    );
+    const nextItem = mergeAndPruneOptionalEmptyFields(collection[targetIndex], sanitizedPatch, optionalFields);
+    if (nextItem.appearanceMode === 'inherit') {
+        const fields = collectionName === 'objectviews' ? OBJECT_APPEARANCE_FIELDS : RELATIONSHIP_APPEARANCE_FIELDS;
+        for (const field of fields) delete nextItem[field];
+    }
+    const nextCollection = replaceArrayItem(collection, targetIndex, nextItem);
     const nextModelviews = replaceArrayItem(modelviews, target.modelviewIndex, {
         ...modelview,
         [collectionName]: nextCollection,

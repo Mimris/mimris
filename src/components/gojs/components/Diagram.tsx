@@ -4,7 +4,6 @@
 */
 
 import * as go from 'gojs';
-import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
@@ -25,9 +24,13 @@ import classnames from 'classnames';
 // import 'reactjs-popup/dist/index.css';
 
 import { SelectionInspector } from '../components/SelectionInspector';
+import { RelationshipTypeEditor, RELATIONSHIP_TYPE_FORM_ID } from './RelationshipTypeEditor';
+import relationshipEditorStyles from './RelationshipTypeEditor.module.css';
+import { applyRelationshipTypeDraft } from '../../utils/relationshipTypeEditor';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as jsn from '../../../akmm/ui_json';
+import { setAppearanceOverride } from '../../../akmm/viewAppearance';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
@@ -1441,6 +1444,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
+
+  private applyRelationshipTypeEdit = (draft: any) => {
+    const context = this.state.modalContext;
+    const type = context?.myContext?.relshiptype;
+    const metamodel = context?.myContext?.metamodel;
+    const diagram = context?.myDiagram;
+    if (!type || !metamodel || !diagram) return;
+    const oldFrom = type.fromobjtypeRef;
+    const oldTo = type.toobjtypeRef;
+    const result = applyRelationshipTypeDraft(type, draft, metamodel.getObjectTypes());
+    if (Object.keys(result.errors).length) return;
+    metamodel.addRelationshipTypeView(result.view);
+    this.myMetis.addRelationshipTypeView(result.view);
+    const findTypeNode = (id: string) => {
+      let found = null;
+      diagram.nodes.each(node => { if (node.data?.objecttype?.id === id) found = node; });
+      return found;
+    };
+    diagram.model.commit(model => {
+      diagram.links.each(link => {
+        const data = link.data;
+        if (data?.category !== constants.gojs.C_RELSHIPTYPE) return;
+        if (data?.reltype?.id !== type.id && data?.relshiptype?.id !== type.id && data?.reltypeRef !== type.id) return;
+        for (const key of ['name', 'description', 'cardinalityFrom', 'cardinalityTo', 'nameFrom', 'nameTo']) model.setDataProperty(data, key, type[key]);
+        for (const key of ['strokecolor', 'strokewidth', 'dash', 'fromArrow', 'toArrow']) model.setDataProperty(data, key, result.view.data[key]);
+        model.setDataProperty(data, 'reltype', type);
+        model.setDataProperty(data, 'typeview', result.view);
+        const from = findTypeNode(type.fromobjtypeRef);
+        const to = findTypeNode(type.toobjtypeRef);
+        if (from && to) {
+          model.setFromKeyForLinkData(data, from.key);
+          model.setToKeyForLinkData(data, to.key);
+          // Runtime Go-model mirrors need the same endpoint nodes as GoJS.
+          data.fromNode = from.data;
+          data.toNode = to.data;
+        }
+        if (oldFrom !== type.fromobjtypeRef || oldTo !== type.toobjtypeRef) model.setDataProperty(data, 'points', []);
+        link.updateTargetBindings();
+        link.invalidateRoute();
+      });
+    }, 'edit-relationship-type');
+    const dispatch = diagram.dispatch || bindLegacyUniverseDispatch(this.props.dispatch);
+    dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelationshipType(type, true))) });
+    dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelshipTypeView(result.view))) });
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
+  };
   
   private normalizeReldir = (val?: string): string => {
     const v = (val || '').trim().toLowerCase();
@@ -1871,11 +1920,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const context = props.context;
     const pattern = props.pattern;
 
-    let run = false;
-    this.setState(
-      produce((draft: DiagramProps) => {
-        if (run === false) {
-          run = true;
+    // Diagram data contains cyclic runtime references. Only the selected field
+    // needs a shallow React update; Immer would recursively finalize that graph.
+    this.setState((previous: any) => {
+          const draft = { ...previous };
           const nextSelectedData = {
             ...(draft.selectedData || {}),
             [propname]: value,
@@ -1900,9 +1948,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (currentNode) currentNode[propname] = nextValue;
             } catch (_) {}
           }
-        }
-      })
-    );
+          return { selectedData: draft.selectedData };
+    });
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -9068,7 +9115,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           includeInheritedReltypes = true;
           myModelview.includeInheritedReltypes = true;
         }
-        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -9083,9 +9129,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
-        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
-        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -9113,6 +9157,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           what: "selectDropdown",
           title: "Select Relationship Type",
           case: "Change Relationship type",
+          relationshipViewRef: data.key,
+          relationshipRef: relship.id,
           myDiagram: diagram,
           args,
         };
@@ -9655,7 +9701,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.fillcolor = val;
+                                    setAppearanceOverride(objview, 'fillcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9745,7 +9791,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.fillcolor = val;
+                                        setAppearanceOverride(objview, 'fillcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -9797,7 +9843,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.strokecolor = val;
+                                    setAppearanceOverride(objview, 'strokecolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9870,7 +9916,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.strokecolor = val;
+                                        setAppearanceOverride(objview, 'strokecolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -9925,7 +9971,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                   // Then update the objview
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.textcolor = val;
+                                    setAppearanceOverride(objview, 'textcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -9998,7 +10044,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.textcolor = val;
+                                        setAppearanceOverride(objview, 'textcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -10796,7 +10842,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.fillcolor = val;
+                                            setAppearanceOverride(objview, 'fillcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -10886,7 +10932,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.fillcolor = val;
+                                                setAppearanceOverride(objview, 'fillcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -10938,7 +10984,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.strokecolor = val;
+                                            setAppearanceOverride(objview, 'strokecolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -11012,7 +11058,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.strokecolor = val;
+                                                setAppearanceOverride(objview, 'strokecolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -11067,7 +11113,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                           // Then update the objview
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.textcolor = val;
+                                            setAppearanceOverride(objview, 'textcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -11141,7 +11187,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.textcolor = val;
+                                                setAppearanceOverride(objview, 'textcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -11546,6 +11592,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         } catch (_) {}
         if (!items) items = buildPartMenuItems(targetPart);
+        // Every instance menu, including icon and group menus, exposes reset.
+        // Type menus edit the defaults themselves and have nothing to inherit.
+        const instanceCategory = targetPart.data?.category;
+        if (
+          myMetis.modelType !== 'Metamodelling' &&
+          (instanceCategory === constants.gojs.C_OBJECT || instanceCategory === constants.gojs.C_RELATIONSHIP) &&
+          !items.some(item => item.label === 'Reset to Typeview')
+        ) {
+          items.push({
+            label: 'Reset to Typeview',
+            action: (targetDiagram) => {
+              if (!targetDiagram) return;
+              uid.resetToTypeview(targetPart.data, myMetis, targetDiagram);
+            },
+          });
+        }
         // Ensure a sensible heading is present for object/relationship menus, but
         // preserve any existing heading (e.g., 'Icon Menu') that may have been set
         // when building a special-case menu earlier.
@@ -13570,7 +13632,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </div>
         }
         break;
-      case 'editRelationshipType':
+      case 'editRelationshipType': {
+        header = 'Edit Relationship Type';
+        const type = modalContext.myContext?.relshiptype;
+        const metamodel = modalContext.myContext?.metamodel;
+        if (type && metamodel) modalContent = <RelationshipTypeEditor
+          key={type.id}
+          type={type}
+          objectTypes={metamodel.getObjectTypes() || []}
+          onApply={this.applyRelationshipTypeEdit}
+        />;
+        break;
+      }
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
@@ -13666,7 +13739,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })()}
         {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 
-        <Modal isOpen={this.state.showModal}  >
+        {modalContext?.what === 'editRelationshipType' ? (
+          <Modal isOpen={this.state.showModal} modalClassName={relationshipEditorStyles.modal} toggle={() => this.handleCloseModal('x')}>
+            <ModalHeader toggle={() => this.handleCloseModal('x')}>Edit Relationship Type</ModalHeader>
+            <ModalBody>{modalContent}</ModalBody>
+            <ModalFooter>
+              <Button color="link" onClick={() => this.handleCloseModal('x')}>Cancel</Button>
+              <Button color="primary" type="submit" form={RELATIONSHIP_TYPE_FORM_ID}>Apply</Button>
+            </ModalFooter>
+          </Modal>
+        ) : <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}
           <div className="modal-content">
             <div className="modal-head px-2 ">
@@ -13711,7 +13793,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </ModalFooter>
           </div>
           {/* </div> */}
-        </Modal>
+        </Modal>}
         <ChangeIconModal 
           isOpen={this.state.showChangeIconModal}
           onClose={() => this.setState({ showChangeIconModal: false })}

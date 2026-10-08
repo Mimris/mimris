@@ -14,6 +14,7 @@ import { core } from './constants';
 import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
+import { resolveAppearance } from './viewAppearance';
 import { getCurrentStore } from '../store';
 
 const grabIsAllowed = true;
@@ -1718,6 +1719,7 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 }
 
 export function updateRelationshipView(relview: akm.cxRelationshipView): akm.cxRelationshipView {
+    if (relview?.appearanceMode) return relview;
     if (relview) {
         if (!relview.textscale)
             relview.textscale = 1.0;
@@ -4892,6 +4894,10 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
                 }
             }
         }
+        if (objview?.appearanceMode) {
+            for (const [prop, value] of Object.entries(resolveAppearance(objview)))
+                diagram.model.setDataProperty(node, prop, value);
+        }
         diagram.model.setDataProperty(node, 'typename', node.typename);
         if (goModel) {
             goModel.updateNode(node);
@@ -4932,11 +4938,15 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
             }
         }
     }
+    if (relview?.appearanceMode) {
+        for (const [prop, value] of Object.entries(resolveAppearance(relview)))
+            diagram.model.setDataProperty(data, prop, value);
+    }
     if (relview) {
         const link = diagram.findLinkForKey(data.key);
         if (link) {
             if (debug) console.log('3329 data, link, relview', data, link, relview);
-            relview.arrowscale = relview.textscale * 1.3;
+            if (!relview.appearanceMode) relview.arrowscale = relview.textscale * 1.3;
             diagram.model.setDataProperty(link.data, 'relship', relview.relship);
             diagram.model.setDataProperty(link.data, 'name', relview.name);
             diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);

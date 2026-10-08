@@ -12,6 +12,7 @@ import * as uic from '../../../akmm/ui_common';
 import * as uit from '../../../akmm/ui_templates';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
+import { isAppearanceField } from '../../../akmm/viewAppearance';
 import { is } from 'cheerio/lib/api/traversing';
 
 const debug = false;
@@ -1640,6 +1641,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             fieldType = "text";
         }
         
+        // Empty arrow overrides are displayed as the inspector's None option.
+        if ((what === 'editObjectview' || what === 'editRelshipview') && instview?.appearanceMode && isAppearanceField(instview, k)) {
+          val = instview[k];
+          if ((k === 'fromArrow' || k === 'toArrow') && val === '') val = 'None';
+        }
         // Determine if value is inherited from typeview
         let isInherited = false;
         if (what === 'editObjectview' && instview && typeview) {
@@ -1656,6 +1662,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                         (typeviewValue !== undefined && typeviewValue !== null && typeviewValue !== "");
         }
         
+        if ((what === 'editObjectview' || what === 'editRelshipview') && instview?.appearanceMode && isAppearanceField(instview, k)) {
+          isInherited = instview.appearanceMode === 'inherit' && !Object.prototype.hasOwnProperty.call(instview.appearanceOverrides, k);
+        }
         row = <InspectorRow
           key={k}
           id={k}

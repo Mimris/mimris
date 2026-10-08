@@ -12,6 +12,7 @@ Functions:      None
 import * as ui_mtd from './ui_methods';
 import * as utils from './utilities';
 import * as constants from './constants';
+import { initializeAppearance, resetAppearance } from './viewAppearance';
 
 import * as gjs from './ui_gojs';
 import { i } from '../components/utils/SvgLetters';
@@ -1487,6 +1488,7 @@ export class cxMetis {
                     }
                     objview.viewkind = item.viewkind;
                     this.sanitizeObjectViewAfterImport(objview, item);
+                    initializeAppearance(objview, item);
                     if (debug) console.log('1201 objview.markedAsDeleted', objview.markedAsDeleted, objview);
                     object.addObjectView(objview);
                     if (debug) console.log('1203 item, objview', item, objview);
@@ -1594,6 +1596,7 @@ export class cxMetis {
                 relview.template = item.template;
                 relview.template2 = item.template2;
                 this.sanitizeRelshipViewAfterImport(relview, item);
+                initializeAppearance(relview, item);
                 if (relship) relship.addRelationshipView(relview);
                 if (fromobjview && toobjview) modelview.addRelationshipView(relview);
             }
@@ -10126,6 +10129,7 @@ export class cxObjectView extends cxMetaObject {
         this.image = "";
         this.ports = null;
         }
+        initializeAppearance(this);
     }
     // Methods
     setModelView(modelview: cxModelView) {
@@ -10505,51 +10509,10 @@ export class cxObjectView extends cxMetaObject {
         return "";
     }
     applyTypeview() {
-        let viewdata = this.typeview?.data;
-        if (!viewdata) {
-            const obj = this.getObject();
-            if (obj) {
-                const objtype = obj.getType();
-                if (objtype) {
-                    const typeview = objtype.typeview;
-                    if (typeview) {
-                        viewdata = typeview.data;
-                    }
-                }
-            }
-        }
-        for (let k in viewdata) {
-            if (k === 'class') continue;
-            if (k === 'abstract') continue;
-            if (k === 'isGroup') continue;
-            if (k === 'group') continue;
-            if (k === 'viewkind') continue;
-            this[k] = viewdata[k];
-        }
-
+        resetAppearance(this);
     }
     clearViewdata() {
-        let viewdata = this.typeview?.data;
-        if (!viewdata) {
-            const obj = this.getObject();
-            if (obj) {
-                const objtype = obj.getType();
-                if (objtype) {
-                    const typeview = objtype.typeview;
-                    if (typeview) {
-                        viewdata = typeview.data;
-                    }
-                }
-            }
-        }
-        for (let k in viewdata) {
-            if (k === 'class') continue;
-            if (k === 'abstract') continue;
-            if (k === 'isGroup') continue;
-            if (k === 'group') continue;
-            if (k === 'viewkind') continue;
-            this[k] = "";
-        }
+        resetAppearance(this);
     }
     addPort(port: cxPort) {
         let ports;
@@ -10681,6 +10644,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.visible = true;
         this.readonly = false;
         this.isLayoutPositioned = false;
+        initializeAppearance(this);
     }
     // Methods
     getRelationship(): cxRelationship | null {
@@ -10714,13 +10678,7 @@ export class cxRelationshipView extends cxMetaObject {
         return this.toObjview;
     }
     clearViewdata() {
-        const viewdata = this.typeview.data;
-        for (let k in viewdata) {
-            if (k === 'class') continue;
-            if (k === 'abstract') continue;
-            if (k === 'relshipkind') continue;
-            this[k] = "";
-        }
+        resetAppearance(this);
     }
     relocate(newFromObjview: cxObjectView, newToObjview: cxObjectView) {
         if (newFromObjview) {

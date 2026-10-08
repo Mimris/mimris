@@ -14,6 +14,7 @@ import * as ui_mtd from './ui_methods';
 import * as uib from './ui_buildmodels';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
+import { resetAppearance, resolveAppearance } from './viewAppearance';
 import * as gjs from './ui_gojs';
 import * as constants from './constants';
 
@@ -977,8 +978,8 @@ export function editRelshipTypeview(link: any, myMetis: akm.cxMetis, myDiagram: 
     let relshipview = null;
     
     // Check if this is a relationship type in Metamodelling mode
-    if (link?.relshiptype || link?.reltypeRef) {
-        relshiptype = myMetis.findRelationshipType(link.relshiptype?.id || link.reltypeRef);
+    if (link?.reltype || link?.relshiptype || link?.reltypeRef) {
+        relshiptype = myMetis.findRelationshipType(link.reltype?.id || link.relshiptype?.id || link.reltypeRef) || link.reltype || link.relshiptype;
         relshiptypeview = relshiptype?.typeview;
     } else {
         // It's a relationship instance in Modelling mode
@@ -1029,6 +1030,21 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
 }    
 
 export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const objectview = myMetis.findObjectView(goInst?.key);
+    const relview = objectview ? null : myMetis.findRelationshipView(goInst?.key);
+    const view = objectview || relview;
+    if (view?.appearanceMode) {
+        const part = objectview ? myDiagram.findNodeForKey(goInst.key) : myDiagram.findLinkForKey(goInst.key);
+        if (!part) return;
+        resetAppearance(view);
+        myDiagram.model.commit((model: any) => {
+            for (const [field, value] of Object.entries(resolveAppearance(view)))
+                model.setDataProperty(part.data, field, value);
+        }, 'reset-view-appearance');
+        const saved = objectview ? new jsn.jsnObjectView(objectview) : new jsn.jsnRelshipView(relview);
+        myDiagram.dispatch({ type: objectview ? 'UPDATE_OBJECTVIEW_PROPERTIES' : 'UPDATE_RELSHIPVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(saved)) });
+        return;
+    }
     const n = myDiagram.findNodeForKey(goInst?.key);
     if (n) {
         const oview = myMetis.findObjectView(goInst.key);

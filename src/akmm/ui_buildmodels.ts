@@ -742,7 +742,7 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
       if (relview.visible == false && isMetamodelStructuralRelationship(rel, relview))
         relview.visible = true;
       if (includeRelview) {
-        if (!relview.strokewidth) relview.strokewidth = 1;
+        if (!relview.appearanceMode && !relview.strokewidth) relview.strokewidth = 1;
         const explicitRelviewOverrides = {
           textcolor: relview.textcolor,
           fromArrow: relview.fromArrow,
@@ -750,11 +750,13 @@ export function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: 
           fromArrowColor: relview.fromArrowColor,
           toArrowColor: relview.toArrowColor,
         };
-        relview.setFromArrow2(rel?.relshipkind);
-        relview.setToArrow2(rel?.relshipkind);
+        if (!relview.appearanceMode) {
+          relview.setFromArrow2(rel?.relshipkind);
+          relview.setToArrow2(rel?.relshipkind);
+        }
         Object.keys(explicitRelviewOverrides).forEach((prop) => {
           const nextValue = explicitRelviewOverrides[prop];
-          if (nextValue !== undefined && nextValue !== null && nextValue !== "") {
+          if (!relview.appearanceMode && nextValue !== undefined && nextValue !== null && nextValue !== "") {
             relview[prop] = nextValue;
           }
         });

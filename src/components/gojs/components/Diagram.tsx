@@ -639,7 +639,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       });
 
-      diagram.addModelChangedListener(this.props.onModelChange);
+      // ReactDiagram owns completed-transaction conversion and listener cleanup.
 
       const diagramDiv = diagram.div;
       const diagramDoc = diagramDiv?.ownerDocument;
@@ -842,7 +842,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
 
-      diagram.removeChangedListener(this.props.onModelChange);
 
       const diagramAny: any = diagram as any;
       if (diagramAny?.__layoutGuardInstalled && typeof diagramAny.__originalLayoutDiagram === 'function') {

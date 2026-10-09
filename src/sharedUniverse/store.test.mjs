@@ -25,6 +25,13 @@ const loadUniverseSlice = () => {
     exports: module.exports,
     module,
     require: specifier => {
+      if (specifier === './diagramPreferences') {
+        const preferenceModule = { exports: {} };
+        vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./diagramPreferences.ts', import.meta.url), 'utf8'), {
+          compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+        }).outputText, { module: preferenceModule, exports: preferenceModule.exports, require });
+        return preferenceModule.exports;
+      }
       if (specifier !== '../akmm/viewAppearance') return require(specifier);
       const appearanceModule = { exports: {} };
       const appearanceSource = readFileSync(new URL('../akmm/viewAppearance.ts', import.meta.url), 'utf8');
@@ -84,11 +91,8 @@ const legacyReducer = (state = createLegacyInitialState(), action) => {
     };
   }
 
-  if (action.type === 'LEGACY_ONLY_SOURCE') {
-    return {
-      ...state,
-      phSource: action.data,
-    };
+  if (action.type === 'FAILURE') {
+    return { ...state, error: action.error };
   }
 
   if (action.type === 'SET_GOJS_MODEL') {
@@ -130,6 +134,12 @@ const loadStoreModule = () => {
 };
 
 const { rootReducer } = loadStoreModule();
+const selectorsModule = { exports: {} };
+vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./selectors.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+}).outputText, { module: selectorsModule, exports: selectorsModule.exports, require });
+const compat = selectorsModule.exports.selectMimrisCompatibilityProps;
+
 
 test('root reducer mirrors shared objectview updates back to legacy phData', () => {
   const initialState = rootReducer(undefined, { type: '@@INIT' });
@@ -146,20 +156,21 @@ test('root reducer mirrors shared objectview updates back to legacy phData', () 
 
   assert.equal(sharedObjectviews.length, 1);
   assert.equal(sharedObjectviews[0].id, 'ov-new');
-  assert.equal(nextState.phData.metis.models[0].modelviews[0].objectviews[0].id, 'ov-new');
-  assert.equal(nextState.phData.metis.legacyMutationShouldBeMirroredAway, undefined);
+  assert.equal(compat(nextState).phData.metis.models[0].modelviews[0].objectviews[0].id, 'ov-new');
+  assert.equal(compat(nextState).phData.metis.legacyMutationShouldBeMirroredAway, undefined);
 });
 
-test('root reducer rebuilds shared universe from legacy-only state changes', () => {
+test('host failure state does not rebuild canonical universe', () => {
   const initialState = rootReducer(undefined, { type: '@@INIT' });
   const nextState = rootReducer(initialState, {
-    type: 'LEGACY_ONLY_SOURCE',
-    data: 'legacy-only-source',
+    type: 'FAILURE',
+    error: 'host failure',
   });
 
-  assert.equal(nextState.phSource, 'legacy-only-source');
-  assert.equal(nextState.universe.source, 'legacy-only-source');
-  assert.equal(nextState.phGojs.keep, true);
+  assert.equal(compat(nextState).phSource, compat(initialState).phSource);
+  assert.equal(nextState.error, 'host failure');
+  assert.equal(nextState.universe, initialState.universe);
+  assert.equal(nextState.phGojs, undefined);
 });
 
 test('root reducer mirrors direct legacy phData loads to compatibility props', () => {
@@ -181,9 +192,9 @@ test('root reducer mirrors direct legacy phData loads to compatibility props', (
   });
 
   assert.equal(nextState.universe.world.worldDefinition.domain.name, 'Loaded domain');
-  assert.equal(nextState.phData.domain.name, 'Loaded domain');
-  assert.equal(nextState.phData.metis.models[0].id, 'loaded-model');
-  assert.equal(nextState.phData.documents[0].id, 'doc-1');
+  assert.equal(compat(nextState).phData.domain.name, 'Loaded domain');
+  assert.equal(compat(nextState).phData.metis.models[0].id, 'loaded-model');
+  assert.equal(compat(nextState).phData.documents[0].id, 'doc-1');
 });
 
 test('root reducer mirrors shared model list loads to legacy phList', () => {
@@ -195,7 +206,7 @@ test('root reducer mirrors shared model list loads to legacy phList', () => {
   });
 
   assert.deepEqual(nextState.universe.compatibility.modelList, modelList);
-  assert.deepEqual(nextState.phList, modelList);
+  assert.deepEqual(compat(nextState).phList, modelList);
 });
 
 test('root reducer mirrors legacy objectview name updates to legacy phData', () => {
@@ -210,13 +221,13 @@ test('root reducer mirrors legacy objectview name updates to legacy phData', () 
     },
   });
   const sharedObjectview = nextState.universe.world.worldModel.metis.models[0].modelviews[0].objectviews[0];
-  const legacyObjectview = nextState.phData.metis.models[0].modelviews[0].objectviews[0];
+  const legacyObjectview = compat(nextState).phData.metis.models[0].modelviews[0].objectviews[0];
 
   assert.equal(sharedObjectview.name, 'Renamed object view');
   assert.equal(legacyObjectview.name, 'Renamed object view');
 });
 
-test('root reducer keeps runtime GoJS actions out of shared universe', () => {
+test('retired runtime GoJS actions cannot write mutable runtime into Redux', () => {
   const initialState = rootReducer(undefined, { type: '@@INIT' });
   const gojsModel = { nodeDataArray: [{ key: 'node-1' }], linkDataArray: [] };
   const nextState = rootReducer(initialState, {
@@ -224,6 +235,6 @@ test('root reducer keeps runtime GoJS actions out of shared universe', () => {
     gojsModel,
   });
 
-  assert.deepEqual(nextState.phGojs.gojsModel, gojsModel);
+  assert.equal(nextState, initialState);
   assert.equal(nextState.universe, initialState.universe);
 });

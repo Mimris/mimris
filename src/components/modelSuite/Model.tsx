@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { reorderUniverseModels } from '../../sharedUniverse/universeSlice';
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -206,13 +207,7 @@ const Page1 = (props) => {
     const sourceModelId = dragModelIdRef.current;
     dragModelIdRef.current = null;
     if (!sourceModelId || sourceModelId === targetModelId) return;
-    dispatch({
-      type: 'REORDER_MODELS',
-      data: {
-        sourceId: sourceModelId,
-        targetId: targetModelId,
-      }
-    });
+    dispatch(reorderUniverseModels({ sourceId: sourceModelId, targetId: targetModelId }));
   };
 
   const selmods = modelList.filter((m: any) => m && m?.markedAsDeleted !== true)

@@ -22,6 +22,13 @@ const loadUniverseSlice = () => {
     exports: module.exports,
     module,
     require: specifier => {
+      if (specifier === './diagramPreferences') {
+        const preferenceModule = { exports: {} };
+        vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./diagramPreferences.ts', import.meta.url), 'utf8'), {
+          compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+        }).outputText, { module: preferenceModule, exports: preferenceModule.exports, require });
+        return preferenceModule.exports;
+      }
       if (specifier !== '../akmm/viewAppearance') return require(specifier);
       const appearanceModule = { exports: {} };
       const appearanceSource = readFileSync(new URL('../akmm/viewAppearance.ts', import.meta.url), 'utf8');

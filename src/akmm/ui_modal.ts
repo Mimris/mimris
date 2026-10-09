@@ -15,8 +15,7 @@ import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 import * as constants from './constants';
-import { getCurrentStore } from '../store';
-import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
+import { getEditorHost, resolveEditorDispatch } from '../editorHost/access';
 import { dispatchUniversePhData } from '../sharedUniverse';
 // const RegexParser = require("regex-parser");
 // const utils = require('./utilities');
@@ -161,7 +160,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   const persistRelshipviewEdit = (data: any) => {
     if (!data?.id) return;
     try {
-      const store = getCurrentStore();
+      const store = getEditorHost(myMetis);
       const state = store?.getState?.();
       const currentPhData = state?.phData;
       if (!currentPhData?.metis) return;
@@ -184,7 +183,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         phUser: state?.phUser,
         phSource: state?.phSource,
       };
-      persistMemoryState(snapshot);
+      store?.persistence?.saveDraft(snapshot);
     } catch (_) {
       // Do nothing
     }
@@ -766,10 +765,7 @@ export function handleSelectDropdownChange(selected, context) {
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
   const dispatchUpdate = (action: any) => {
-    try { myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.dispatch?.(action); } catch (_) {}
-    try { context?.dispatch?.(action); } catch (_) {}
+    resolveEditorDispatch(myMetis, myDiagram, myMetis?.myDiagram, myMetis, context)?.(action);
   };
   const selectedOption = selected.value;
   const objectview = modalContext.objectview;
@@ -1443,41 +1439,31 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   }
 
   const dispatchUpdate = (action: any) => {
-    const store = getCurrentStore();
-    try { myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.dispatch?.(action); } catch (_) {}
-    try { props?.dispatch?.(action); } catch (_) {}
-    try { modalContext?.context?.dispatch?.(action); } catch (_) {}
-    try { store?.dispatch?.(action); } catch (_) {}
-    const getPersistedBase = () => ({
-      phData: props?.phData ? JSON.parse(JSON.stringify(props.phData)) : undefined,
-      phFocus: props?.phFocus ? JSON.parse(JSON.stringify(props.phFocus)) : undefined,
-      phUser: props?.phUser ? JSON.parse(JSON.stringify(props.phUser)) : undefined,
-      phSource: props?.phSource ? JSON.parse(JSON.stringify(props.phSource)) : undefined,
-    });
+    const store = getEditorHost(myMetis);
+    resolveEditorDispatch(myMetis, myDiagram, myMetis?.myDiagram, myMetis, props, modalContext?.context)?.(action);
+    const getPersistedBase = () => JSON.parse(JSON.stringify(store?.getState() || {
+      phData: props?.phData,
+      phFocus: props?.phFocus,
+      phUser: props?.phUser,
+      phSource: props?.phSource,
+    }));
     const updatePersistedMemoryState = (applyUpdate: (phData: any) => void) => {
       try {
-        const rawStored = window?.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) || window?.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
-        const parsedStored = rawStored ? JSON.parse(rawStored) : getPersistedBase();
+        const parsedStored = store?.persistence?.readDraft() || getPersistedBase();
         applyUpdate(parsedStored?.phData);
-        persistMemoryState(parsedStored);
+        store?.persistence?.saveDraft(parsedStored);
       } catch (_) {}
     };
     if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyObjectviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyObjectviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyRelshipviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshipviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPE_PROPERTIES' && action?.data?.id) {
-      try { applyRelshiptypeUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshiptypeUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyRelshiptypeviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshiptypeviewUpdateById(phData, action.data));
     }
   }
@@ -1485,36 +1471,35 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const pushPhDataUpdate = (data: any) => {
     if (!props?.phData?.metis || !data?.id) return;
     try {
-      const store = getCurrentStore();
-      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      const store = getEditorHost(myMetis);
+      const phDataClone = JSON.parse(JSON.stringify(store?.getState().phData || props.phData));
       applyObjectviewUpdateById(phDataClone, data);
-      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
+      const dispatch = resolveEditorDispatch(myMetis, props, modalContext?.context, myDiagram, myMetis?.myDiagram, myMetis);
+      if (dispatch) dispatchUniversePhData(dispatch, phDataClone);
     } catch (_) {}
   }
 
   const pushPhDataRelshipviewUpdate = (data: any) => {
     if (!props?.phData?.metis || !data?.id) return;
     try {
-      const store = getCurrentStore();
-      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      const store = getEditorHost(myMetis);
+      const phDataClone = JSON.parse(JSON.stringify(store?.getState().phData || props.phData));
       applyRelshipviewUpdateById(phDataClone, data);
-      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
+      const dispatch = resolveEditorDispatch(myMetis, props, modalContext?.context, myDiagram, myMetis?.myDiagram, myMetis);
+      if (dispatch) dispatchUniversePhData(dispatch, phDataClone);
       try {
         const persistSnapshot = () => {
-          const snapshot = {
+          const current = store?.getState() || props;
+          const snapshot = JSON.parse(JSON.stringify({
             phData: phDataClone,
-            phFocus: props?.phFocus,
-            phUser: props?.phUser,
-            phSource: props?.phSource,
-          };
-          persistMemoryState(snapshot);
+            phFocus: current?.phFocus,
+            phUser: current?.phUser,
+            phSource: current?.phSource,
+          }));
+          store?.persistence?.saveDraft(snapshot);
         };
         persistSnapshot();
-        window?.setTimeout?.(persistSnapshot, 150);
+        store?.persistence?.saveCurrentDraftAfter(150);
       } catch (_) {}
     } catch (_) {}
   }
@@ -2465,22 +2450,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         pushPhDataRelshipviewUpdate(data)
       });
       
-      // Save to localStorage after Redux reducer completes
-      setTimeout(() => {
-        try {
-          const store = getCurrentStore();
-          const state = store?.getState?.();
-          if (state) {
-            const persistedState = {
-              phData: state.phData,
-              phFocus: state.phFocus,
-              phUser: state.phUser,
-              phSource: state.phSource,
-            };
-            persistMemoryState(persistedState);
-          }
-        } catch (err) {}
-      }, 100);
+      // The host owns deferred draft persistence and its lifecycle.
+      getEditorHost(myMetis)?.persistence?.saveCurrentDraftAfter(100);
       
       // Clear selection immediately
       try {

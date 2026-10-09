@@ -15,7 +15,7 @@ import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
 import { resolveAppearance } from './viewAppearance';
-import { getCurrentStore } from '../store';
+import { getEditorHost } from '../editorHost/access';
 
 const grabIsAllowed = true;
 const NESTED_GROUP_SCALE_MULTIPLIER = 0.45;
@@ -2973,7 +2973,7 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                 // Get potential members of the group. Snapshot candidates first so membership
                 // changes do not interfere with the iteration order.
                 const liveGroupPart = myDiagram?.findNodeForKey?.(group.key);
-                const storeState = getCurrentStore?.()?.getState?.();
+                const storeState = getEditorHost(myMetis)?.getState();
                 let storedGroupObjview: any = null;
                 if (storeState?.phData?.metis?.models) {
                     outer: for (let mi = 0; mi < storeState.phData.metis.models.length; mi++) {

@@ -10,7 +10,7 @@ import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import Modelling from "../components/Modelling";
+import Modelling from "../standalone/StandaloneModelling";
 import ContextView from "../defs/ContextView"
 import Context from "../components/FocusDetails"
 import Tasks from '../components/Tasks'

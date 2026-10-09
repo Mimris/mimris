@@ -1,12 +1,23 @@
 # Implementation plan: RTK completion and reusable modelling packages
 
-Date: 2026-10-08. Status: proposed; no runtime implementation authorized by this planning task.
+Date: 2026-10-08. Status: P0 inventory in progress; P1 scoped host reads implemented and global store singleton removed; P1 gate pending; P2 hydration isolation and modal reducer characterization started; P2 gate pending; first isolated P3 diagram-preference leaf migrated and focus, session, model/view reorder and model/view, relationship and metamodel collection/property ownership consolidated with typed Toolkit actions; graph reducer conversion remains pending; default middleware checks enabled with performance/acceptance gates open; stored legacy mirrors removed; remaining P4 gates and P5–P6 pending.
 Scope: item 1 of the agreed repository split, entirely in `mimris`.
 Specification: [spec.md](./spec.md). Branch evidence: [branch-audit.md](./branch-audit.md).
+Implementation evidence and remaining checks: [progress.md](./progress.md). Initial action inventory: [action-inventory.md](./action-inventory.md). Runtime findings: [runtime-audit.md](./runtime-audit.md).
 
 ## Starting point
 
-The current branch is `codex/swimlane-membership-release`. Relevant migration work is already incorporated; do not restart from the old RTK branch. The working tree contains existing modelling/diagram changes that must remain intact. Establish an implementation baseline from the agreed integration branch and account for those changes before editing overlapping files; do not reset, stash or commit them implicitly.
+The implementation branch is `codex/rtk-implementation`, pushed to origin and checked out locally. Its baseline is merge commit `d2bfac08`, combining planning commit `21f98439` from `codex/rtk-modelling-plan` with fetched `origin/alpha` at `3ffbde8e`. Both are verified ancestors. The working tree was clean after the merge. Preserve this integrated baseline; do not restart from an old RTK branch or reapply the earlier migration patches.
+
+The original source inspection and branch audit used `codex/swimlane-membership-release`. Treat that evidence as historical and reconcile the inventory against this implementation baseline, including alpha's relationship type editor, inherited view appearance and TypeScript configuration changes.
+
+### Baseline preparation completed
+
+- Created and pushed `codex/rtk-implementation` from the planning branch, then merged latest alpha as observed at preparation time (`3ffbde8e`).
+- Resolved the sole merge conflict in `package.json` by retaining both branches' test entries: remote Metis hydration, relationship type editing and GoJS tests remain in the combined command.
+- Ran `npm test`: 77 passed, 0 failed, 0 skipped. This is the merge baseline, not validation of the future RTK refactor.
+- Checked the resolved `package.json` diff for whitespace errors. Broader merge diff checking reported inherited CRLF/trailing whitespace in GoJS sample configuration files; these were preserved, not silently reformatted.
+- Typecheck, production build, visual diagram checks, package-consumer checks and performance measurements remain pending for this baseline. No P1–P6 implementation is claimed.
 
 Inspected code:
 
@@ -64,13 +75,13 @@ Core must import neither React/GoJS nor browser, filesystem, network or host app
 
 ### P0 — Baseline and coverage inventory
 
-1. Record base SHA, working-tree changes and branch audit; use the current integrated migration code.
+1. Use recorded baseline `d2bfac08` and branch `codex/rtk-implementation`; recheck working-tree status and reconcile the historical branch audit with the merged code before implementation edits.
 2. Inventory every legacy action and reducer case: producers, consumers, canonical equivalent, persistence effect, test fixture and retirement condition. Include string dispatch, aliases, load success cases, target-model edits and runtime-only actions.
 3. Map all store consumers, mutable runtime aliases, import/export formats, routes/APIs and dynamic registrations. Follow transitive editor dependencies and case-sensitive loader paths.
-4. Run existing tests, non-emitting typecheck and production build; record exact baseline failures separately from new regressions. Capture representative standalone diagram screenshots and load/edit/save timings.
+4. Preserve the recorded 77-test passing merge baseline. Complete non-emitting typecheck and production build; record exact baseline failures separately from new regressions. Capture representative standalone diagram screenshots and load/edit/save timings. Rerun tests after implementation changes or if the baseline advances.
 5. Reconcile tooling before dependency changes: AGENTS lists npm commands, while package.json declares pnpm 10.15.0 and pnpm-lock.yaml exists. Verify CI and installed dependencies; document one lockfile/install workflow rather than mixing installers.
 
-Deliverables: action migration matrix, dependency map, baseline results and representative fixtures. Gate: each migrated family has known behavior and an acceptance fixture; existing dirty work is accounted for.
+Deliverables: action migration matrix, dependency map, baseline results and representative fixtures. Gate: each migrated family has known behavior and an acceptance fixture; all pending baseline checks are recorded and any new working-tree changes are accounted for.
 
 ### P1 — Host seam and first operation
 
@@ -153,7 +164,7 @@ Gate: no verified unused migration code remains; intentional compatibility is do
 | Performance | Compare representative load, edit and drag behavior with P0; investigate regressions before acceptance |
 | Repository | Existing tests, package tests/build, non-emitting typecheck, production build and git diff --check |
 
-Use `npm test` and `npm run build` as existing script entry points; use the reconciled package manager for dependency installation. A non-incremental `tsc --noEmit --incremental false` run avoids rewriting tracked tsbuildinfo. Do not claim typecheck/build or browser success from unit tests alone. No runtime checks have been run for this planning-only change.
+Use `npm test` and `npm run build` as existing script entry points; use the reconciled package manager for dependency installation. A non-incremental `tsc --noEmit --incremental false` run avoids rewriting tracked tsbuildinfo. Do not claim typecheck/build or browser success from unit tests alone. The merge baseline has 77 passing automated tests; browser behavior and the remaining verification rows are not yet validated for this baseline.
 
 ## Delivery and rollback
 

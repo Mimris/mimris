@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { reorderUniverseModelviews } from '../sharedUniverse/universeSlice';
 // modeller
 
 import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
@@ -17,7 +18,7 @@ import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./export/ReportModule";
 import * as uib from '../akmm/ui_buildmodels';
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
-import { loadLegacyUniverseSnapshot } from "../sharedUniverse";
+import { loadLegacyUniverseSnapshot, setDiagramShowDeleted, setDiagramShowModified } from "../sharedUniverse";
 
 import classnames from 'classnames';
 
@@ -478,13 +479,7 @@ const Modeller = React.forwardRef((props: any, ref) => {
         const sourceModelviewId = dragModelviewIdRef.current;
         dragModelviewIdRef.current = null;
         if (!sourceModelviewId || sourceModelviewId === targetModelviewId) return;
-        dispatch({
-            type: 'REORDER_MODELVIEWS',
-            data: {
-                sourceId: sourceModelviewId,
-                targetId: targetModelviewId,
-            }
-        });
+        dispatch(reorderUniverseModelviews({ sourceId: sourceModelviewId, targetId: targetModelviewId }));
     };
 
     function filterObject(obj: { [x: string]: any; hasOwnProperty: (arg0: string) => any }) {
@@ -768,7 +763,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             {/* <button className="btn btn-sm bg-secondary mt-1 py-0 mx-2 px-2 "
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide modified object/relship-views" style={{ fontSize: "12px" }}
         onClick={() => {
-          dispatch({ type: 'SET_USER_SHOWMODIFIED', data: !showModified });
+          dispatch(setDiagramShowModified(!showModified));
           dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showModified) ? ' Hide modified' : 'Show modified'}
       </button> */}
@@ -776,7 +771,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted object/relship-views" style={{ fontSize: "12px" }}
         style={{ fontSize: "12px", maxHeight: "20px" }}
         onClick={() => {
-          dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }); setRefresh(!refresh)
+          dispatch(setDiagramShowDeleted(!showDeleted)); setRefresh(!refresh)
           // dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: 'name' } })
         }} > {(showDeleted) ? ' Show deleted' : 'Hide deleted'}
       </button> */}

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { hydrateEditorRuntime } from '../editorRuntime/hydrate';
 
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
@@ -98,7 +99,7 @@ const GenGojsModel = async (props: any, myMetis: any, options: { skipImport?: bo
     // myMetis = props.myMetis;
 
     if (debug) console.log('81 GenGojsModel: metis', metis, myMetis);
-    if (!options.skipImport) myMetis?.importData(metis, true);
+    if (!options.skipImport && myMetis) hydrateEditorRuntime(myMetis, metis, true);
     adminModel = uib.buildAdminModel(myMetis);
 
     if (debug) clogBlue('83 GenGojsModel :', myMetis)

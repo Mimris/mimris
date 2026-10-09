@@ -1,56 +1,61 @@
 import { createSelector } from '@reduxjs/toolkit';
-import type { RootState } from '../store';
 import type { LegacyUniverseRoot, SharedUniverseState } from './universeSlice';
 
 const EMPTY_DOCUMENTS: unknown[] = [];
 
-const asLegacyRoot = (state: RootState | LegacyUniverseRoot): LegacyUniverseRoot => state as LegacyUniverseRoot;
+const asLegacyRoot = (state: LegacyUniverseRoot): LegacyUniverseRoot => state as LegacyUniverseRoot;
 
-export const selectPhData = (state: RootState | LegacyUniverseRoot) => asLegacyRoot(state).phData;
+export const selectPhData = (state: LegacyUniverseRoot) => selectMimrisCompatibilityProps(state).phData;
 
-export const selectPhFocus = (state: RootState | LegacyUniverseRoot) => asLegacyRoot(state).phFocus;
+export const selectPhFocus = (state: LegacyUniverseRoot) => selectSharedUniverseState(state).world.focus;
 
-export const selectPhUser = (state: RootState | LegacyUniverseRoot) => asLegacyRoot(state).phUser;
+export const selectPhUser = (state: LegacyUniverseRoot) => selectSharedUniverseState(state).user;
 
-export const selectPhSource = (state: RootState | LegacyUniverseRoot) => asLegacyRoot(state).phSource;
+export const selectPhSource = (state: LegacyUniverseRoot) => selectSharedUniverseState(state).source;
 
-export const selectWorldDefinitionDomain = (state: RootState | LegacyUniverseRoot) => {
+export const selectWorldDefinitionDomain = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.world?.worldDefinition?.domain ?? legacyRoot.phData?.domain ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.world.worldDefinition.domain : legacyRoot.phData?.domain ?? null;
 };
 
-export const selectWorldModelMetis = (state: RootState | LegacyUniverseRoot) => {
+export const selectWorldModelMetis = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.world?.worldModel?.metis ?? legacyRoot.phData?.metis ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.world.worldModel.metis : legacyRoot.phData?.metis ?? null;
 };
 
-const selectUniverseFocus = (state: RootState | LegacyUniverseRoot) => {
+const selectUniverseFocus = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.world?.focus ?? legacyRoot.phFocus ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.world.focus : legacyRoot.phFocus ?? null;
 };
 
-const selectUniverseUser = (state: RootState | LegacyUniverseRoot) => {
+const selectUniverseUser = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.user ?? legacyRoot.phUser ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.user : legacyRoot.phUser ?? null;
 };
 
-const selectUniverseSource = (state: RootState | LegacyUniverseRoot) => {
+const selectUniverseSource = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.source ?? legacyRoot.phSource ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.source : legacyRoot.phSource ?? null;
 };
 
-const selectCompatibilityDocuments = (state: RootState | LegacyUniverseRoot) => {
+const selectCompatibilityDocuments = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    const documents = legacyRoot.universe?.compatibility?.documents ?? legacyRoot.phData?.documents;
+    const documents = legacyRoot.universe ? legacyRoot.universe.compatibility.documents : legacyRoot.phData?.documents;
     return Array.isArray(documents) ? documents : EMPTY_DOCUMENTS;
 };
 
-const selectCompatibilityModelList = (state: RootState | LegacyUniverseRoot) => {
+const selectCompatibilityModelList = (state: LegacyUniverseRoot) => {
     const legacyRoot = asLegacyRoot(state);
-    return legacyRoot.universe?.compatibility?.modelList ?? legacyRoot.phList ?? null;
+    return legacyRoot.universe ? legacyRoot.universe.compatibility.modelList : legacyRoot.phList ?? null;
 };
 
-export const selectSharedUniverseState = createSelector(
+const selectPhDataMetadata = createSelector([(state: LegacyUniverseRoot) => state.universe, (state: LegacyUniverseRoot) => state.phData], (universe, phData) => {
+    if (universe) return universe.compatibility.phDataMetadata;
+    const { domain, metis, documents, ...metadata } = phData ?? {};
+    return Object.keys(metadata).length ? metadata : undefined;
+});
+
+const selectLegacyUniverseProjection = createSelector(
     [
         selectWorldDefinitionDomain,
         selectWorldModelMetis,
@@ -59,8 +64,9 @@ export const selectSharedUniverseState = createSelector(
         selectUniverseSource,
         selectCompatibilityDocuments,
         selectCompatibilityModelList,
+        selectPhDataMetadata,
     ],
-    (domain, metis, focus, user, source, documents, modelList): SharedUniverseState => ({
+    (domain, metis, focus, user, source, documents, modelList, phDataMetadata): SharedUniverseState => ({
         world: {
             worldDefinition: {
                 domain,
@@ -75,14 +81,20 @@ export const selectSharedUniverseState = createSelector(
         compatibility: {
             documents,
             modelList,
+            ...(phDataMetadata ? { phDataMetadata } : {}),
         },
     }),
 );
+
+/** A present canonical universe is authoritative, including intentional null values. */
+export const selectSharedUniverseState = (state: LegacyUniverseRoot): SharedUniverseState =>
+    state.universe ?? selectLegacyUniverseProjection(state);
 
 export const selectMimrisCompatibilityProps = createSelector(
     [selectSharedUniverseState],
     (sharedUniverse) => ({
         phData: {
+            ...sharedUniverse.compatibility.phDataMetadata,
             domain: sharedUniverse.world.worldDefinition.domain,
             metis: sharedUniverse.world.worldModel.metis,
             documents: sharedUniverse.compatibility.documents,

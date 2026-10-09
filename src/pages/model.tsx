@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import Modelling from '../components/Modelling';
+import Modelling from '../standalone/StandaloneModelling';
 import Layout from '../components/Layout';
 import { searchGithub } from '../components/githubServices/githubService';
 import { InitialState } from '../reducers/reducer';

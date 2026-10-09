@@ -14,7 +14,7 @@ import {
     setUniverseSource,
     setUniverseUser,
 } from "../../sharedUniverse";
-import { getCurrentStore } from "../../store";
+import { getEditorHost, type EditorHostAccess } from "../../editorHost/access";
 
 const debug = false
 const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
@@ -40,8 +40,8 @@ const resolveFocusableModelview = (model: any, requestedModelview: any = null) =
     return modelviews.find(hasRenderableModelviewContent) || requested || modelviews[0] || null;
 }
 
-const buildSourcePropsFromSharedUniverse = (fallbackProps) => {
-    const store = getCurrentStore?.();
+const buildSourcePropsFromSharedUniverse = (fallbackProps, host?: EditorHostAccess) => {
+    const store = host ?? getEditorHost(fallbackProps?.myMetis);
     if (!store) return fallbackProps || {};
     const sharedUniverse = selectSharedUniverseState(store.getState() as any);
     if (!sharedUniverse) return fallbackProps || {};
@@ -102,11 +102,10 @@ export const ReadProjectFromFile = async (props, dispatch, e) => { // Read Proje
     reader.readAsText(e.target.files[0])
 }
 
-export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
+export const ReadModelFromFile = async (props, dispatch, e, host?: EditorHostAccess) => { // Read Project from file
     e.preventDefault();
     const reader = new FileReader();
     const legacySourceProps = props?.phData ? props : props?.ph
-    const sourceProps = buildSourcePropsFromSharedUniverse(legacySourceProps)
     const resetFileInput = () => {
         if (e?.target) e.target.value = ''
     }
@@ -118,6 +117,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         return null
     }
     reader.onload = async (e) => {
+        const sourceProps = buildSourcePropsFromSharedUniverse(legacySourceProps, host)
         const text = (e.target.result)
         if (debug) console.log('46 ReadModelFromFile', text)
         let importedfile = JSON.parse(text)
@@ -667,13 +667,13 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     reader.readAsText(e.target.files[0])
 }
 
-export const ReadMetamodelFromFile = async (props, dispatch, e) => {
+export const ReadMetamodelFromFile = async (props, dispatch, e, host?: EditorHostAccess) => {
     e.preventDefault()
     const reader = new FileReader()
     reader.onload = async (e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
-        const sourceProps = buildSourcePropsFromSharedUniverse(props)
+        const sourceProps = buildSourcePropsFromSharedUniverse(props, host)
         //   alert(text)
         if (debug) console.log('170 ReadModelFromFile', sourceProps);
         let mmmindex = sourceProps.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index

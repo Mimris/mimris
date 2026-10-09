@@ -2,9 +2,19 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { createRequire } from 'node:module';
 import ts from 'typescript';
 import { applyRelationshipTypeDraft, createRelationshipTypeDraft, isValidCardinality, validateRelationshipTypeDraft } from './relationshipTypeEditor.js';
 
+const nativeRequire = createRequire(import.meta.url);
+const loadHostModule = (relativePath, require) => {
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(readFileSync(new URL(relativePath, import.meta.url), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
+  }).outputText, { module, exports: module.exports, require });
+  return module.exports;
+};
+const editorAccess = loadHostModule('../../editorHost/access.ts', nativeRequire);
 const modules = new Map();
 function loadKernel(name) {
   if (modules.has(name)) return modules.get(name).exports;
@@ -26,6 +36,8 @@ const akm = loadKernel('metamodeller');
 const jsn = loadKernel('ui_json');
 const appearance = loadKernel('viewAppearance');
 const gjs = loadKernel('ui_gojs');
+const universe = loadHostModule('../../sharedUniverse/universeSlice.ts', path =>
+  path === '../akmm/viewAppearance' ? loadKernel('viewAppearance') : path === './diagramPreferences' ? loadHostModule('../../sharedUniverse/diagramPreferences.ts', nativeRequire) : nativeRequire(path));
 const setup = () => {
   const types = ['a', 'b', 'c'].map(id => new akm.cxObjectType(id, id, ''));
   const type = new akm.cxRelationshipType('rel', 'supports', types[0], types[1], 'original');
@@ -117,7 +129,10 @@ test('the legacy relationship Typeview Done handler saves a link without a match
   const selected = { key: 'link', category: 'Relationship type', reltype: type, typeview: view, from: 'node-a', to: 'node-b', relshipkind: 'Association' };
   const actions = [];
   let persisted;
-  const snapshot = { phData: { metis: { metamodels: [{ id: 'mm', relshiptypeviews: [{ id: view.id, strokecolor: 'black' }] }] } } };
+  const snapshot = { phFocus: { focusModel: { id: 'model' } }, phData: { metis: { models: [{ id: 'model', metamodelRef: 'mm', modelviews: [] }], metamodels: [{ id: 'mm', relshiptypeviews: [{ id: view.id, strokecolor: 'black' }] }] } } };
+  const propsData = JSON.parse(JSON.stringify(snapshot.phData));
+  const freeze = value => { Object.values(value).forEach(child => { if (child && typeof child === 'object') freeze(child); }); return Object.freeze(value); };
+  freeze(propsData);
   const module = { exports: {} };
   const source = readFileSync(new URL('../../akmm/ui_modal.ts', import.meta.url), 'utf8');
   vm.runInNewContext(ts.transpileModule(source, {
@@ -128,8 +143,7 @@ test('the legacy relationship Typeview Done handler saves a link without a match
     window: { sessionStorage: { getItem: () => JSON.stringify(snapshot) } },
     require: path => {
       const dependency = path.split('/').pop();
-      if (dependency === 'store') return { getCurrentStore: () => null };
-      if (dependency === 'memoryStateStorage') return { MEMORY_STATE_STORAGE_KEY: 'memorystate', persistMemoryState: value => { persisted = value; } };
+      if (dependency === 'access') return editorAccess;
       return ['constants', 'utilities', 'metamodeller', 'ui_gojs', 'ui_json', 'viewAppearance', 'ui_common', 'ui_buildmodels', 'ui_modal'].includes(dependency) ? loadKernel(dependency) : {};
     },
   });
@@ -143,19 +157,29 @@ test('the legacy relationship Typeview Done handler saves a link without a match
     findNodeForKey: () => null,
     findLinkForKey: () => ({ data: selected }),
     model: { setDataProperty: (data, key, value) => { data[key] = value; } },
-    dispatch: action => actions.push(action),
+    dispatch: () => { throw new Error('scoped host must take precedence'); },
     clearSelection() {},
   };
   const metis = { currentMetamodel: metamodel, addRelationshipTypeView() {} };
-  module.exports.handleCloseModal(selected, { myMetis: metis }, { what: 'editTypeview', myDiagram: diagram, myContext: { relshiptype: type } });
+  let state = universe.universeReducer(undefined, universe.loadLegacyUniverseSnapshot(snapshot));
+  const detach = editorAccess.bindEditorHost(metis, {
+    getState: () => snapshot,
+    dispatch: action => { actions.push(action); state = universe.universeReducer(state, action); },
+    persistence: { readDraft: () => JSON.parse(JSON.stringify(snapshot)), saveDraft: value => { persisted = value; } },
+  });
+  module.exports.handleCloseModal(selected, { myMetis: metis, phData: propsData }, { what: 'editTypeview', myDiagram: diagram, myContext: { relshiptype: type } });
   const action = actions.find(item => item.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES');
   assert.ok(action, 'Done must dispatch a persisted typeview update');
+  assert.equal(actions.filter(item => item.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES').length, 1);
   assert.equal(action.data.id, 'view');
   assert.equal(action.data.strokecolor, 'blue');
   assert.equal(action.data.toArrow, 'Diamond');
   assert.equal(selected.from, 'node-a');
   assert.equal(selected.to, 'node-b');
   assert.equal(persisted.phData.metis.metamodels[0].relshiptypeviews[0].strokecolor, 'blue');
+  assert.equal(propsData.metis.metamodels[0].relshiptypeviews[0].strokecolor, 'black');
+  assert.equal(state.world.worldModel.metis.metamodels[0].relshiptypeviews[0].strokecolor, 'blue');
+  detach();
 });
 
 function appearanceSetup() {
@@ -345,4 +369,22 @@ test('relationship type confirmation uses dialog identity when currentLink has b
   close([], { myMetis: metis }, { ...context, relationshipViewRef: 'removed' });
   close([], { myMetis: metis }, { ...context, selected: undefined });
   assert.equal(actions.length, 1);
+});
+
+
+test('editor hydration gives the real legacy importer detached data from a frozen Redux snapshot', () => {
+  const { hydrateEditorRuntime } = loadHostModule('../../editorRuntime/hydrate.ts', nativeRequire);
+  const snapshot = JSON.parse(readFileSync(new URL('../../startupModel/Mimris-template_PR.json', import.meta.url), 'utf8')).phData.metis;
+  const original = JSON.stringify(snapshot);
+  const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } };
+  freeze(snapshot);
+  const first = new akm.cxMetis(), second = new akm.cxMetis();
+  hydrateEditorRuntime(first, snapshot, true);
+  hydrateEditorRuntime(second, snapshot, true);
+  assert.ok(first.models.length > 0);
+  assert.ok(first.metamodels.length > 0);
+  assert.notEqual(first.models[0], second.models[0]);
+  first.models[0].name = 'Runtime edit';
+  assert.notEqual(second.models[0].name, 'Runtime edit');
+  assert.equal(JSON.stringify(snapshot), original);
 });

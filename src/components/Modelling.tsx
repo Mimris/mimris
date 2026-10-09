@@ -1,10 +1,10 @@
 // @ts-nocheck
+import { reorderUniverseModels } from '../sharedUniverse/universeSlice';
 // modelling
 
 const debug = false;
 
 // import React from "react";
-import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { connect, useSelector, useDispatch, useStore } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
@@ -18,24 +18,12 @@ import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
 import TargetMeta from "./TargetMetaPalette";
 import GenGojsModel from './GenGojsModel'
-import LoadServer from '../components/loadModelData/LoadServer'
-import LoginServer from './loadModelData/LoginServer'
-import LoadRecovery from '../components/loadModelData/LoadRecovery'
-import LoadFile from './loadModelData/LoadFile'
-import LoadGitHub from '../components/loadModelData/LoadGitHub'
-import LoadNewModelProjectFromGithub from './loadModelData/LoadNewModelProjectFromGitHub'
-import LoadMetamodelFromGithub from './loadModelData/LoadMetamodelFromGitHub'
-import LoadJsonFile from '../components/loadModelData/LoadJsonFile'
-import { ReadModelFromFile } from './utils/ReadModelFromFile';
-import { SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 import ProjectDetailsForm from "./forms/ProjectDetailsForm";
-import useLocalStorage from '../hooks/use-local-storage'
-import useSessionStorage from '../hooks/use-session-storage'
 import * as akm from '../akmm/metamodeller';
 import genGqlSchema from "../../pagestmp/genGqlSchema";
-import { setMymetisModel } from "../actions/actions";
 import { bindLegacyUniverseDispatch, selectMimrisCompatibilityProps } from "../sharedUniverse";
-import { MEMORY_STATE_STORAGE_KEY } from "./utils/memoryStateStorage";
+import { bindEditorHost } from '../editorHost/access';
+import { hydrateEditorRuntime } from '../editorRuntime/hydrate';
 
 const clog = console.log.bind(console, '%c %s', // green colored cosole log
   'background: blue; color: white');
@@ -43,62 +31,6 @@ const useEfflog = console.log.bind(console, '%c %s', // green colored console lo
   'background: red; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
   'background: blue; color: white');
-
-const LAST_FOCUS_MODEL_STORAGE_KEY = 'mimris.modelling.focusModelId';
-const WORKSPACE_SNAPSHOT_META_KEY = '__workspaceUniverse';
-
-const trimPersistedStateForBrowserStorage = (state: any) => {
-  const phUser = state?.phUser || {};
-  const workspaceMeta = phUser?.[WORKSPACE_SNAPSHOT_META_KEY];
-  if (!workspaceMeta) return state;
-
-  return {
-    ...state,
-    phUser: {
-      ...phUser,
-      [WORKSPACE_SNAPSHOT_META_KEY]: {
-        ...workspaceMeta,
-        snapshot: undefined,
-        worldOperation: undefined,
-      },
-    },
-  };
-};
-
-const countRenderableModelviewItems = (state: any) => {
-  const models = state?.phData?.metis?.models;
-  if (!Array.isArray(models)) return 0;
-  return models.reduce((count: number, model: any) => {
-    const modelviews = Array.isArray(model?.modelviews) ? model.modelviews : [];
-    return count + modelviews.reduce((viewCount: number, modelview: any) => {
-      const objectviews = Array.isArray(modelview?.objectviews) ? modelview.objectviews.filter(Boolean) : [];
-      const relshipviews = Array.isArray(modelview?.relshipviews) ? modelview.relshipviews.filter(Boolean) : [];
-      return viewCount + objectviews.length + relshipviews.length;
-    }, 0);
-  }, 0);
-};
-
-const readStoredMemoryState = (storage: Storage | undefined) => {
-  if (!storage) return null;
-  try {
-    const raw = storage.getItem(MEMORY_STATE_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (_) {
-    return null;
-  }
-};
-
-const shouldSkipSparseStartupPersist = (nextState: any) => {
-  if (typeof window === 'undefined') return false;
-  if (nextState?.phFocus?.focusRefresh?.id) return false;
-  const nextScore = countRenderableModelviewItems(nextState);
-  const storedStates = [
-    readStoredMemoryState(window.sessionStorage),
-    readStoredMemoryState(window.localStorage),
-  ];
-  const storedScore = Math.max(0, ...storedStates.map(countRenderableModelviewItems));
-  return storedScore > nextScore;
-};
 
 const Modelling = (props: any) => {
 
@@ -113,7 +45,6 @@ const Modelling = (props: any) => {
   const modellerRef = useRef<any>(null);
   const paletteRef = useRef<any>(null); // metamodel palette
   const paletteObjRef = useRef<any>(null); // objects palette (left column)
-  const didRestoreStoredFocusModelRef = useRef(false);
   const dragModelIdRef = useRef<string | null>(null);
   const renameModelInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -124,9 +55,6 @@ const Modelling = (props: any) => {
   const [pendingRenameModel, setPendingRenameModel] = useState<any>(null);
   const [renameModelModalName, setRenameModelModalName] = useState('');
   const [renameModelModalDescription, setRenameModelModalDescription] = useState('');
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
-  const [memorySessionState, setMemorySessionState] = useSessionStorage('memorystate', {});
-  const [memoryAkmmUser, setMemoryAkmmUser] = useLocalStorage('akmmUser', '');
 
   const [activeTab, setActiveTab] = useState();
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -167,17 +95,8 @@ const Modelling = (props: any) => {
   const focusRelshiptype = phFocus?.focusRelshiptype
   if (debug) console.log('69 Modelling', focusModel, focusModelview);
 
-  const getPersistedState = () => {
-    return trimPersistedStateForBrowserStorage(selectMimrisCompatibilityProps(store.getState() as any));
-  }
-
-  const persistCurrentStateToBrowserStorage = () => {
-    const persistedProps = getPersistedState();
-    if (shouldSkipSparseStartupPersist(persistedProps)) return false;
-    setMemorySessionState(persistedProps)
-    setMemoryLocState(persistedProps)
-    return true;
-  }
+  const persistCurrentStateToBrowserStorage = () =>
+    props.persistState?.(selectMimrisCompatibilityProps(store.getState())) ?? false;
 
   const models = metis?.models?.filter((m: any) => m); // Filter out empty models
   const modelList = models || [];
@@ -230,8 +149,18 @@ const Modelling = (props: any) => {
     myMetisRef.current = new akm.cxMetis();
   }
   const myMetis = myMetisRef.current;
+  useLayoutEffect(() => {
+    const getState = () => selectMimrisCompatibilityProps(store.getState());
+    const draft = props.createDraftPersistence?.(getState);
+    const unbind = bindEditorHost(myMetis, {
+      getState,
+      dispatch: action => dispatch(action),
+      persistence: draft?.persistence,
+    });
+    return () => { unbind(); draft?.dispose(); };
+  }, [myMetis, store, dispatch, props.createDraftPersistence]);
   if (metis && myMetis?.importData && importedGenerationContentKeyRef.current !== generationContentKey) {
-    myMetis.importData(metis, true);
+    hydrateEditorRuntime(myMetis, metis, true);
     importedGenerationContentKeyRef.current = generationContentKey;
     const hydratedModel =
       (focusModel?.id && myMetis.findModel?.(focusModel.id)) ||
@@ -297,41 +226,6 @@ const Modelling = (props: any) => {
       renameModelInputRef.current.select();
     }
   }, [editingModelId]);
-
-  useEffect(() => {
-    if (didRestoreStoredFocusModelRef.current) return;
-    if (typeof window === 'undefined') return;
-
-    // Embedded/workspace sessions can request an exact model. That explicit
-    // focus must win over the model remembered from an earlier Mimris tab.
-    const requestedModelRef = new URLSearchParams(window.location.search).get('currentModelRef');
-    if (requestedModelRef) {
-      didRestoreStoredFocusModelRef.current = true;
-      return;
-    }
-    if (!models?.length) return;
-    didRestoreStoredFocusModelRef.current = true;
-
-    const storedFocusModelId = window.sessionStorage.getItem(LAST_FOCUS_MODEL_STORAGE_KEY);
-    if (!storedFocusModelId) return;
-    if (focusModel?.id === storedFocusModelId) return;
-
-    const storedModel = models.find((m: any) => m?.id === storedFocusModelId);
-    if (!storedModel) return;
-
-    const storedModelview = storedModel?.modelviews?.find((mv: any) => mv) || storedModel?.modelviews?.[0];
-    dispatch({ type: 'SET_FOCUS_MODEL', data: { id: storedModel.id, name: storedModel.name } });
-    if (storedModelview) {
-      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: { id: storedModelview.id, name: storedModelview.name } });
-    }
-  }, [dispatch, models, focusModel?.id])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!focusModel?.id) return;
-    window.sessionStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, focusModel.id);
-  }, [focusModel?.id])
-
 
   const handleShowProjectModal = () => {
     // if (minimized) {
@@ -413,13 +307,7 @@ const Modelling = (props: any) => {
     const sourceModelId = dragModelIdRef.current;
     dragModelIdRef.current = null;
     if (!sourceModelId || sourceModelId === targetModelId) return;
-    dispatch({
-      type: 'REORDER_MODELS',
-      data: {
-        sourceId: sourceModelId,
-        targetId: targetModelId,
-      }
-    });
+    dispatch(reorderUniverseModels({ sourceId: sourceModelId, targetId: targetModelId }));
   };
 
   const projectModalDiv = (
@@ -508,7 +396,7 @@ const Modelling = (props: any) => {
               className={classnames({ active: activeTab == strindex })}
               onClick={() => {
                 if (editingModelId === m.id) return;
-                if (typeof window !== 'undefined') window.localStorage.setItem(LAST_FOCUS_MODEL_STORAGE_KEY, m.id);
+                props.rememberModelSelection?.(m.id);
                 dispatch({ type: "SET_FOCUS_MODEL", data });
                 dispatch({ type: "SET_FOCUS_MODELVIEW", data: data2 });
                 dispatch({ type: 'SET_FOCUS_REFRESH', data: { id: Math.random().toString(36).substring(7), name: m.name || 'model-tab' } });
@@ -573,7 +461,7 @@ const Modelling = (props: any) => {
         phUser={phUser}
         modelType='metamodel'
         phSource={phSource}
-        userSettings={memoryAkmmUser}
+        userSettings={props.userSettings}
         visibleFocusDetails={props.visibleFocusDetails}
         setVisibleFocusDetails={props.setVisibleFocusDetails}
       />
@@ -770,7 +658,7 @@ const Modelling = (props: any) => {
                       phUser={phUser}
                       modelType='model'
                       phSource={phSource}
-                      userSettings={memoryAkmmUser}
+                      userSettings={props.userSettings}
                       visibleFocusDetails={props.visibleFocusDetails}
                       setVisibleFocusDetails={props.setVisibleFocusDetails}
                       exportTab={props.exportTab}
@@ -838,12 +726,6 @@ const Modelling = (props: any) => {
     )
 
     if (debug) console.log('583 Modelling', activeTab);
-    const loadjsonfile = (typeof window !== 'undefined') && <LoadJsonFile buttonLabel='OSDU Import' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
-    const loadgithub = (typeof window !== 'undefined') && <LoadGitHub buttonLabel='GitHub' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
-    const loadnewModelproject = (typeof window !== 'undefined') && <LoadNewModelProjectFromGithub buttonLabel='New Modelproject' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
-    const loadMetamodel = (typeof window !== 'undefined') && <LoadMetamodelFromGithub buttonLabel='Load Metamodel' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
-    const loadfile = (typeof window !== 'undefined') && <LoadFile buttonLabel='' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
-    const loadrecovery = (typeof window !== 'undefined') && <LoadRecovery buttonLabel='Recovery' className='ContextModal' ph={compatibilityProps} refresh={refresh} setRefresh={setRefresh} />
 
     const modellingDiv = // this is the button row and the modelling area with OSDU import and load options and Reload button
       <>
@@ -853,23 +735,7 @@ const Modelling = (props: any) => {
             {/* <button className="btn bg-secondary py-1 pe-2 ps-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Use the 'New' button in the Project-bar at top-left" 
               onClick={handleGetNewProject}
               ><i className="fab fa-github fa-lg me-2 ms-0 "></i> New Modelproject </button> */}
-            <span className="btn bg-success me-1 d-flex justify-content-center align-items-center"
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Load downloaded Schema from OSDU (Jsonfiles)"
-              // style={{ backgroundColor: "#b0b", color: "#cdc"}} 
-            >
-              {/* <i className="fa fa-house-tsunami fa-lg"></i> */}
-              {loadjsonfile}
-            </span>
-            <span
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Save and Load models (import/export) from/to files"
-              style={{ whiteSpace: "nowrap", marginRight: "6px" }}
-            >
-              {loadfile}
-            </span>
+            {props.renderFileControls?.({ ph: compatibilityProps, refresh, setRefresh })}
           </div>
           <span className="btn ps-auto mt-0 pt-1 text-light" onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} </span>
           {/* <span className="btn me-1 d-flex justify-content-center align-items-center bg-secondary" onClick={exportToClipboard}>
@@ -895,25 +761,8 @@ const Modelling = (props: any) => {
           <div className="me-4">
             {/* <span className="" data-bs-toggle="tooltip" data-bs-placement="top" title="Load models from GitHub" > {loadgithub} </span> */}
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load a Metamodel from GitHub" > {loadMetamodel} </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Load downloaded Schema from OSDU (Jsonfiles)"  > {loadjsonfile} </span> */}
-            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (import/export) from/to files" style={{ whiteSpace: "nowrap" }}> {loadfile} </span> */}
           </div>
-          {/* <div className="d-flex justify-content-end align-items-center bg-light border border-2 p-1 border-solid border-primary py-1 mt-0 mx-2" style={{ minHeight: "34px" }}>
-              <div className=" d-flex align-items-center me-0 pe-0">
-                <i className="fa fa-folder text-secondary px-1"></i>
-                <div className=""  style={{ whiteSpace: "nowrap" }}></div>
-              </div>
-              <div className="">
-                <div className="input text-primary" style={{ maxHeight: "32px", backgroundColor: "transparent" }} data-bs-toggle="tooltip" data-bs-placement="top" title="Choose a local Project file to load">
-                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} style={{width: "380px"}}/>
-                </div>
-              </div>
-              <button className="border border-solid border-radius-4 px-2 mx-0 py-0"
-                data-toggle="tooltip" data-placement="top" data-bs-html="true"
-                title="Click here to Save the Project file &#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-                onClick={handleSaveAllToFile}>Save
-              </button>
-            </div> */}
+
           <span className="btn px-4 me-4 py-0 ps-auto mt-0 pt-1 bg-light text-secondary"
             onClick={doRefresh} data-toggle="tooltip" data-placement="top" title="Reload the model" > {refresh ? 'reload' : 'reload'} 
           </span>

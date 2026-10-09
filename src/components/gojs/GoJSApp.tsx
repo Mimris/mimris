@@ -1,4 +1,8 @@
 // @ts-nocheck
+import { persistObjectViewDraft } from '../../editorHost/objectViewDraft';
+import { createDeferredCallbacks } from '../../editorRuntime/deferredCallbacks';
+import { getDragProtection, clearDragProtection } from '../../editorRuntime/dragProtection';
+import { reconcileLiveNode, getEditedObjectViews } from '../../editorRuntime/reconcileNode';
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -22,7 +26,7 @@ import * as uit from '../../akmm/ui_templates';
 import * as constants from '../../akmm/constants';
 import * as utils from '../../akmm/utilities';
 import { applyDropLayout, deriveDropLayoutConfig, applyDropLayoutToGroup } from './layout/DropLayoutManager';
-import { getCurrentStore } from '../../store';
+import { getEditorHost } from '../../editorHost/access';
 import { isAutomaticallyDroppedSelfRelationship } from '../utils/modelviewPalette';
 
 const debug = false;
@@ -70,11 +74,6 @@ function installSafeLinkCategoryGuard() {
 
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
-
-// Module-level lock storage - survives component state changes, focus changes, etc.
-// These Maps are never cleared by React re-renders or diagram instance changes
-const globalPreserveNodeStateByKey = new Map<string, number>();
-const globalLockMovedNodeLocByKey = new Map<string, { loc: string; until: number }>();
 
 function isBooleanLikeKey(key: string): boolean {
   return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
@@ -281,10 +280,9 @@ function mergeIncomingNodeDataWithLocalState(
 ): any[] {
   if (!Array.isArray(incomingNodes)) return incomingNodes as any;
 
-  // Use GLOBAL lock maps instead of diagram instance properties
-  // This survives React re-renders, focus changes, and state updates
-  const preserveByKey = globalPreserveNodeStateByKey;
-  const lockByKey = globalLockMovedNodeLocByKey;
+  // Keep drag protection within this diagram across React rerenders.
+  const preserveByKey = getDragProtection(diagram).preserve;
+  const lockByKey = getDragProtection(diagram).locations;
 
   const now = Date.now();
   const localMap = new Map<string, any>();
@@ -601,58 +599,6 @@ function getMetisModels(phData: any): any[] {
   return Array.isArray(phData?.metis?.models) ? phData.metis.models.filter(Boolean) : [];
 }
 
-const MEMORY_STATE_STORAGE_KEY = 'memorystate';
-
-function applyObjectViewPatchToPhData(phData: any, patch: any): boolean {
-  if (!patch?.id) return false;
-  const modelviewId = patch.modelviewId || patch.modelviewRef || "";
-  const sanitizedPatch = { ...patch };
-  delete sanitizedPatch.modelviewId;
-  delete sanitizedPatch.modelviewRef;
-  const models = getMetisModels(phData);
-
-  for (let mi = 0; mi < models.length; mi += 1) {
-    const modelviews = models[mi]?.modelviews || [];
-    for (let mvi = 0; mvi < modelviews.length; mvi += 1) {
-      const modelview = modelviews[mvi];
-      if (modelviewId && modelview?.id !== modelviewId) continue;
-      const objectviews = modelview?.objectviews || [];
-      for (let ovi = 0; ovi < objectviews.length; ovi += 1) {
-        const objectview = objectviews[ovi];
-        if (objectview?.id !== patch.id) continue;
-        objectviews[ovi] = {
-          ...objectview,
-          ...sanitizedPatch,
-        };
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function persistObjectViewPatchToMemoryState(patch: any) {
-  if (typeof window === "undefined" || !patch?.id) return;
-  if (new URLSearchParams(window.location.search).get("workspaceAuthority") === "redux") return;
-  try {
-    const rawStored =
-      window.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) ||
-      window.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
-    if (!rawStored) return;
-
-    const parsed = JSON.parse(rawStored);
-    const didUpdate = applyObjectViewPatchToPhData(parsed?.phData, patch);
-    if (!didUpdate) return;
-
-    const serialized = JSON.stringify(parsed);
-    try { window.sessionStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
-    try { window.localStorage?.setItem(MEMORY_STATE_STORAGE_KEY, serialized); } catch (_) { }
-  } catch (_) {
-    // Best-effort draft persistence; Redux remains authoritative in memory.
-  }
-}
-
 function safeJsonCloneForDispatch(value: any): any {
   const seen = new WeakSet<object>();
   return JSON.parse(JSON.stringify(value, (_key, current) => {
@@ -683,8 +629,19 @@ function safeJsonCloneForDispatch(value: any): any {
   }));
 }
 
+function disposeQueuedViewDispatches(instance: any) {
+  instance.__viewDispatchDisposed = true;
+  for (const kind of ['Object', 'Relship']) {
+    const timerKey = `__queued${kind}ViewDispatchTimer`;
+    if (instance[timerKey] != null) clearTimeout(instance[timerKey]);
+    instance[timerKey] = null;
+    instance[`__queued${kind}ViewDispatches`]?.clear();
+    instance[`__queued${kind}ViewDispatches`] = new Map();
+  }
+}
+
 function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
-  if (!instance || typeof dispatch !== "function" || !data?.id) return;
+  if (!instance || instance.__viewDispatchDisposed || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedObjectViewDispatches) {
     (instance as any).__queuedObjectViewDispatches = new Map<string, any>();
   }
@@ -705,8 +662,8 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
     (instance as any).__queuedObjectViewDispatchTimer = null;
     pendingQueue.forEach((payload) => {
       try {
-        dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-        persistObjectViewPatchToMemoryState(payload);
+        dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
+        persistObjectViewDraft(instance.state?.myMetis, payload);
 
         // CRITICAL: Update myMetis nodes AND their objectviews with new positions
         // BEFORE calling setState, so React has the correct data to render
@@ -714,6 +671,8 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
           const nodes = instance.state.myMetis.gojsModel.nodes;
           const node = nodes.find((n: any) => n.id === payload.id || n.key === payload.id || n.objviewRef === payload.id);
           if (node) {
+            if (payload.name !== undefined) node.name = payload.name;
+            if (payload.text !== undefined) node.text = payload.text;
             if (payload.loc) node.loc = payload.loc;
             if (payload.size) node.size = payload.size;
             if (payload.fillcolor !== undefined) node.fillcolor = payload.fillcolor;
@@ -722,6 +681,8 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
             if (payload.icon !== undefined) node.icon = payload.icon;
             // Update the underlying objectview as well
             if (node.objectview) {
+              if (payload.name !== undefined) node.objectview.name = payload.name;
+              if (payload.text !== undefined) node.objectview.text = payload.text;
               if (payload.loc) node.objectview.loc = payload.loc;
               if (payload.size) node.objectview.size = payload.size;
               if (payload.fillcolor !== undefined) node.objectview.fillcolor = payload.fillcolor;
@@ -749,6 +710,8 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
         pendingQueue.forEach((payload) => {
           const nodeData = m.findNodeDataForKey(payload.id);
           if (nodeData) {
+            if (payload.name !== undefined) m.set(nodeData, 'name', payload.name);
+            if (payload.text !== undefined) m.set(nodeData, 'text', payload.text);
             if (payload.loc) m.set(nodeData, 'loc', payload.loc);
             if (payload.size) m.set(nodeData, 'size', payload.size);
             if (payload.fillcolor !== undefined) m.set(nodeData, 'fillcolor', payload.fillcolor);
@@ -763,7 +726,7 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
 }
 
 function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
-  if (!instance || typeof dispatch !== "function" || !data?.id) return;
+  if (!instance || instance.__viewDispatchDisposed || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedRelshipViewDispatches) {
     (instance as any).__queuedRelshipViewDispatches = new Map<string, any>();
   }
@@ -782,7 +745,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     (instance as any).__queuedRelshipViewDispatchTimer = null;
     pendingQueue.forEach((payload) => {
       try {
-        dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+        dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
 
         // CRITICAL: Update myMetis links with new data
         if (instance.state?.myMetis?.gojsModel?.links) {
@@ -837,7 +800,7 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
 }
 
 function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
-  if (!instance || typeof dispatch !== "function") return;
+  if (!instance || instance.__viewDispatchDisposed || typeof dispatch !== "function") return;
 
   const objectTimer = (instance as any).__queuedObjectViewDispatchTimer;
   if (objectTimer) {
@@ -848,8 +811,8 @@ function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
   (instance as any).__queuedObjectViewDispatches = new Map();
   pendingObjectQueue.forEach((payload) => {
     try {
-      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-      persistObjectViewPatchToMemoryState(payload);
+      dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
+      persistObjectViewDraft(instance.state?.myMetis, payload);
     } catch (_) {
     }
   });
@@ -863,7 +826,7 @@ function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
   (instance as any).__queuedRelshipViewDispatches = new Map();
   pendingRelQueue.forEach((payload) => {
     try {
-      dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
+      dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
     } catch (_) {
     }
   });
@@ -1132,7 +1095,7 @@ function groupAllowsGrab(
 ): boolean {
   if (!(group instanceof go.Group)) return false;
   const data: any = group.data || {};
-  const storeState = getCurrentStore?.()?.getState?.();
+  const storeState = getEditorHost(myMetis)?.getState();
   let storedObjview: any = null;
   const storeModels = getMetisModels(storeState?.phData);
   if (storeModels.length) {
@@ -2085,6 +2048,7 @@ function normalizeNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
+  private readonly deferredCallbacks = createDeferredCallbacks();
   constructor(props: object) {
     super(props);
     if (debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
@@ -2282,57 +2246,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('[COMPONENT-UPDATE] No structural change - checking visual props only');
         try {
           const incomingNodes = this.props.nodeDataArray || [];
-          const currentNodes = this.state.nodeDataArray || [];
-          const liveUpdateProps = ['name', 'text', 'fillcolor', 'strokecolor', 'strokewidth', 'icon'];
-
           diagram.model.commit((m: any) => {
-            incomingNodes.forEach((incomingNode: any) => {
-              if (!incomingNode || !incomingNode.key) return;
-              const currentNode = currentNodes.find((n: any) =>
-                n?.key === incomingNode.key ||
-                n?.id === incomingNode.id ||
-                n?.objviewRef === incomingNode.objviewRef
-              );
-
-              // Check if any live-bound label or visual properties changed.
-              const hasLiveUpdate = liveUpdateProps.some(prop =>
-                incomingNode[prop] !== undefined &&
-                incomingNode[prop] !== currentNode?.[prop]
-              );
-
-              if (hasLiveUpdate) {
-                const nodeData = m.findNodeDataForKey(incomingNode.key);
-                if (nodeData) {
-                  liveUpdateProps.forEach(prop => {
-                    if (incomingNode[prop] !== undefined && incomingNode[prop] !== currentNode?.[prop]) {
-                      const incomingText = prop === 'name' || prop === 'text'
-                        ? String(incomingNode[prop] ?? '').trim()
-                        : '';
-                      const currentDefaultName = String(
-                        nodeData.name || nodeData.object?.name || nodeData.typename || nodeData.objecttype?.name || ''
-                      ).trim();
-                      // A generated palette may publish one stale blank node
-                      // snapshot immediately after the drop. Do not let it erase
-                      // the ObjectType-name default already assigned live.
-                      if ((prop === 'name' || prop === 'text') && !incomingText && currentDefaultName) {
-                        return;
-                      }
-                      m.set(nodeData, prop, incomingNode[prop]);
-                    }
-                  });
-                  if (incomingNode.object?.name !== undefined &&
-                      (String(incomingNode.object.name).trim() || !String(nodeData.object?.name || nodeData.name || nodeData.typename || '').trim()) &&
-                      incomingNode.object?.name !== nodeData.object?.name) {
-                    m.set(nodeData, 'object', { ...(nodeData.object || {}), ...incomingNode.object });
-                  }
-                  if (incomingNode.objectview?.name !== undefined &&
-                      (String(incomingNode.objectview.name).trim() || !String(nodeData.objectview?.name || nodeData.name || nodeData.typename || '').trim()) &&
-                      incomingNode.objectview?.name !== nodeData.objectview?.name) {
-                    m.set(nodeData, 'objectview', { ...(nodeData.objectview || {}), ...incomingNode.objectview });
-                  }
-                }
-              }
-            });
+            incomingNodes.forEach((incomingNode: any) => reconcileLiveNode(m, incomingNode));
           }, 'apply live label and visual property changes');
         } catch (err) {
           console.error('Error applying visual updates:', err);
@@ -2404,7 +2319,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       // Check if there are active position locks - if so, defer myMetis update
       const now = Date.now();
       let hasActiveLocks = false;
-      globalLockMovedNodeLocByKey.forEach((lockInfo) => {
+      getDragProtection(diagram).locations.forEach((lockInfo) => {
         if (lockInfo.until > now) hasActiveLocks = true;
       });
 
@@ -2443,7 +2358,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         incomingNodes.some((n) => n?.objecttype) &&
         incomingNodes.every((n) => !n?.loc)
       ) {
-        setTimeout(() => this._applyMetamodelAutoLayoutIfNeeded(this._ownDiagram), 200);
+        this.deferredCallbacks.schedule(() => this._applyMetamodelAutoLayoutIfNeeded(this._ownDiagram), 200);
       }
       return;
     }
@@ -2601,8 +2516,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           try { myDiagram.select(nextLink); } catch (_) {}
         };
         rerouteFinalLink();
-        setTimeout(rerouteFinalLink, 0);
-        setTimeout(rerouteFinalLink, 50);
+        this.deferredCallbacks.schedule(rerouteFinalLink, 0);
+        this.deferredCallbacks.schedule(rerouteFinalLink, 50);
       }
       try { myDiagram.layoutDiagram(true); } catch (_) {}
       try { myDiagram.requestUpdate(); } catch (_) {}
@@ -2620,7 +2535,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }, () => {
       // Let the completed GoJS transaction and its structural model-change
       // event settle before parent reconciliation is allowed again.
-      setTimeout(() => this.setState({ skipsDiagramUpdate: false }), 0);
+      this.deferredCallbacks.schedule(() => this.setState({ skipsDiagramUpdate: false }), 0);
     });
   }
 
@@ -2630,6 +2545,12 @@ class GoJSApp extends React.Component<{}, AppState> {
    * This can be done via setState in React or another preferred state management method.
    * @param obj a JSON-formatted string
    */
+  public componentWillUnmount() {
+    disposeQueuedViewDispatches(this);
+    this.deferredCallbacks.dispose();
+    clearDragProtection(this._ownDiagram || this.state?.myMetis?.myDiagram);
+  }
+
   public handleModelChange(obj: go.IncrementalData) {
     const insertedNodeKeys = obj.insertedNodeKeys;
     const modifiedNodeData = (obj as any).modifiedNodeData;
@@ -2779,7 +2700,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
   }
 
-  private syncSwimlaneNameToState(source: any, name: string) {
+  private syncNodeNameToState(source: any, name: string) {
     const aliases = new Set(
       [
         source?.key, source?.id, source?.objviewRef, source?.objectRef,
@@ -2825,7 +2746,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       props?.id === 'name' &&
       (category === 'Pool' || category === 'Lane' || category === 'Lane_w_handles')
     ) {
-      this.syncSwimlaneNameToState(props.obj, value);
+      this.syncNodeNameToState(props.obj, value);
     }
   }
 
@@ -3232,7 +3153,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (laneObjview) {
           laneObjview.size = `${laneBodyWidth} ${laneHeight}`;
           const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(laneObjview)));
-          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
         }
         try { part.updateTargetBindings(); } catch (_) { }
         try { part.ensureBounds(); } catch (_) { }
@@ -3493,7 +3414,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 	          if (typeof part.data.size === "string") objview.size = part.data.size;
 	          if (typeof part.data.group === "string") objview.group = part.data.group;
 	          const payload = JSON.parse(JSON.stringify(new jsn.jsnObjectView(objview)));
-	          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
+	          myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: safeJsonCloneForDispatch(payload) });
 	          normalizedViews.add(key);
 	        };
         dispatchNormalizedObjectView(poolNode);
@@ -3885,7 +3806,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (reloadPoolKeys.size > 0) {
           const scheduledPoolKeys = Array.from(reloadPoolKeys);
           if (!(myDiagram as any).__pendingReloadPoolNormalizeTimer) {
-            (myDiagram as any).__pendingReloadPoolNormalizeTimer = setTimeout(() => {
+            (myDiagram as any).__pendingReloadPoolNormalizeTimer = this.deferredCallbacks.schedule(() => {
               delete (myDiagram as any).__pendingReloadPoolNormalizeTimer;
               const stablePoolKeys = new Set<string>(scheduledPoolKeys);
               stablePoolKeys.forEach((poolKey) => {
@@ -4133,7 +4054,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               text = prompt('Enter name');
               gjsData.name = text;
             }
-            const objview = myModelview.findObjectView(key);
+            const viewId = gjsData.objviewRef || gjsData.objectview?.id || key;
+            const objview = myModelview.findObjectView(viewId) || myMetis.findObjectView(viewId) || gjsData.objectview;
+            reconcileLiveNode(myDiagram.model, { key, name: text, text: textvalue });
             if (objview) {
               if (!goNode) {
                 goNode = myGoModel.findNodeByViewId(objview.id);
@@ -4151,25 +4074,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (obj) {
                   obj.name = text;
                   obj.text = textvalue;
-                  const objviews = obj.objectviews;
+                  const objviews = getEditedObjectViews(obj, objview);
                   for (let i = 0; i < objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = text;
                     objview.text = textvalue;
-                    let node = myGoModel.findNodeByViewId(objview?.id);
-                    if (node) {
-                      const gjsNodeData = myDiagram.findNodeForKey(node.key);
-                      if (gjsNodeData) {
-                        gjsNodeData.text = textvalue;
-                        gjsNodeData.name = text;
-                        const jsnObjview = new jsn.jsnObjectView(objview);
-                        jsnObjview.name = text;
-                        jsnObjview.text = text;
-                        modifiedObjectViews.push(jsnObjview);
-                        let data = JSON.parse(JSON.stringify(jsnObjview));
-                        context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                      }
+                    const node = myGoModel.findNodeByViewId(objview?.id);
+                    const livePart = findLiveNodeByAliases(myDiagram, { key: node?.key || objview.id, objviewRef: objview.id });
+                    if (livePart?.data) {
+                      reconcileLiveNode(myDiagram.model, { key: livePart.data.key, name: text, text: textvalue });
                     }
+                    // Persist the view even when the mutable GoJS reverse index is incomplete.
+                    const jsnObjview = new jsn.jsnObjectView(objview);
+                    jsnObjview.name = text;
+                    jsnObjview.text = text;
+                    context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: safeJsonCloneForDispatch(jsnObjview) });
                   }
                 }
                 if (obj) {
@@ -4190,13 +4109,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               break;
             }
           }
-          const swimlaneCategory = String(gjsData?.template || gjsData?.category || '');
-          if (
-            sel instanceof go.Group &&
-            (swimlaneCategory === 'Pool' || swimlaneCategory === 'Lane' || swimlaneCategory === 'Lane_w_handles')
-          ) {
-            this.syncSwimlaneNameToState(gjsData, text);
-          }
+          if (field === 'name') this.syncNodeNameToState(gjsData, text);
         }
         // Relationship or Relationship type
         if (sel instanceof go.Link) {
@@ -4620,9 +4533,9 @@ class GoJSApp extends React.Component<{}, AppState> {
 
               console.log(`[NODE-LOCK-UPDATE-END] key=${myToNode.key} group=${liveGroupKey} updating lock from PRE-DRAG to POST-DRAG position: ${actualLoc}`);
 
-              // Use GLOBAL lock maps - survives React re-renders and focus changes
-              const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
-              const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
+              // Preserve locks within this diagram across React rerenders.
+              const preserveIncomingNodeStateByKey = getDragProtection(myDiagram).preserve;
+              const lockMovedNodeLocByKey = getDragProtection(myDiagram).locations;
 
               const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
               const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
@@ -5117,7 +5030,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = it.value;
           if (!(sel instanceof go.Group)) continue;
           const data = sel.data;
-          const storeState = getCurrentStore?.()?.getState?.();
+          const storeState = getEditorHost(myMetis)?.getState();
           let storedGroupObjview: any = null;
           const storeModels = getMetisModels(storeState?.phData);
           if (storeModels.length) {
@@ -5163,9 +5076,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
 
           // CRITICAL: Update lock from PRE-DRAG to POST-DRAG position
-          // Use GLOBAL lock maps - survives React re-renders and focus changes
-          const preserveIncomingNodeStateByKey = globalPreserveNodeStateByKey;
-          const lockMovedNodeLocByKey = globalLockMovedNodeLocByKey;
+          // Preserve locks within this diagram across React rerenders.
+          const preserveIncomingNodeStateByKey = getDragProtection(myDiagram).preserve;
+          const lockMovedNodeLocByKey = getDragProtection(myDiagram).locations;
 
           const preserveNodeStateUntil = Date.now() + 15000; // 15 seconds - survive focus changes
           const lockNodeLocUntil = Date.now() + 12000; // 12 seconds - protect through multiple operations
@@ -6217,8 +6130,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               });
             } catch (_) {
             }
-            setTimeout(rerouteMovedLinks, 0);
-            setTimeout(rerouteMovedLinks, 50);
+            this.deferredCallbacks.schedule(rerouteMovedLinks, 0);
+            this.deferredCallbacks.schedule(rerouteMovedLinks, 50);
           }
           const rerouteConnectedLinksForMovedNodes = () => {
             try {
@@ -6333,8 +6246,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             } catch (_) {
             }
           };
-          setTimeout(rerouteConnectedLinksForMovedNodes, 0);
-          setTimeout(rerouteConnectedLinksForMovedNodes, 60);
+          this.deferredCallbacks.schedule(rerouteConnectedLinksForMovedNodes, 0);
+          this.deferredCallbacks.schedule(rerouteConnectedLinksForMovedNodes, 60);
           if (movedManualLinkKeys.size > 0) {
             try {
               const liveNodeDataArray = Array.isArray((myDiagram?.model as any)?.nodeDataArray)
@@ -6376,8 +6289,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               } catch (_) {
               }
             };
-            setTimeout(persistMovedManualLinks, 0);
-            setTimeout(persistMovedManualLinks, 50);
+            this.deferredCallbacks.schedule(persistMovedManualLinks, 0);
+            this.deferredCallbacks.schedule(persistMovedManualLinks, 50);
           }
           let persistedTouchedSelfLoop = false;
           const movedSelfLoopKeys = new Set<string>();
@@ -6495,8 +6408,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 });
               } catch (_) { }
             };
-            setTimeout(persistMovedSelfLoops, 0);
-            setTimeout(persistMovedSelfLoops, 50);
+            this.deferredCallbacks.schedule(persistMovedSelfLoops, 0);
+            this.deferredCallbacks.schedule(persistMovedSelfLoops, 50);
           }
           if (persistedTouchedSelfLoop) {
             try {
@@ -6727,14 +6640,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             return false;
           })();
-          const preserveIncomingNodeStateByKey: Map<string, number> =
-            (myDiagram as any).__preserveIncomingNodeStateByKey instanceof Map
-              ? (myDiagram as any).__preserveIncomingNodeStateByKey
-              : new Map<string, number>();
-          const lockMovedNodeLocByKey: Map<string, { loc: string; until: number }> =
-            (myDiagram as any).__lockMovedNodeLocByKey instanceof Map
-              ? (myDiagram as any).__lockMovedNodeLocByKey
-              : new Map<string, { loc: string; until: number }>();
+          const preserveIncomingNodeStateByKey = getDragProtection(myDiagram).preserve;
+          const lockMovedNodeLocByKey = getDragProtection(myDiagram).locations;
 
           const desiredMovedNodeLocByKey = new Map<string, { x: number; y: number }>();
           // Ordinary node drags can still receive delayed Redux/modelview refreshes
@@ -6843,11 +6750,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             // Only reschedule if still the current generation
             if ((myDiagram as any).__watchdogGeneration === watchdogGeneration) {
-              (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+              (myDiagram as any).__movedNodeLockWatchdog = this.deferredCallbacks.schedule(runMovedNodeWatchdog, 120);
             }
           };
-          window.setTimeout(reinforceMovedNodeLocations, 0);
-          (myDiagram as any).__movedNodeLockWatchdog = window.setTimeout(runMovedNodeWatchdog, 120);
+          this.deferredCallbacks.schedule(reinforceMovedNodeLocations, 0);
+          (myDiagram as any).__movedNodeLockWatchdog = this.deferredCallbacks.schedule(runMovedNodeWatchdog, 120);
           */
           if (movedAnyGroup) {
             (myDiagram as any).__suppressObjectSingleClickUntil = Math.max(
@@ -8975,7 +8882,7 @@ break;
     if ((myDiagram as any).__pendingPoolResizeRelayoutTimer) {
       clearTimeout((myDiagram as any).__pendingPoolResizeRelayoutTimer);
     }
-    (myDiagram as any).__pendingPoolResizeRelayoutTimer = setTimeout(() => {
+    (myDiagram as any).__pendingPoolResizeRelayoutTimer = this.deferredCallbacks.schedule(() => {
       delete (myDiagram as any).__pendingPoolResizeRelayoutTimer;
       const pendingKeys = new Set<string>((myDiagram as any).__pendingResizedPoolKeys || []);
       delete (myDiagram as any).__pendingResizedPoolKeys;
@@ -9705,11 +9612,11 @@ break;
       if (n instanceof go.Part) affectedParts.push(n);
     });
   }
-  affectedParts.forEach(function (n) {
+  affectedParts.forEach((n) => {
     const data = n.data;
     if (n instanceof go.Group) {
       syncLiveGroupExpandedState(myDiagram, n, expanded);
-      setTimeout(() => {
+      this.deferredCallbacks.schedule(() => {
         try {
           const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
           if (liveGroup instanceof go.Group) {
@@ -9720,7 +9627,7 @@ break;
         }
       }, 0);
       if (expanded) {
-        setTimeout(() => {
+        this.deferredCallbacks.schedule(() => {
           try {
             const liveGroup = (data?.key !== undefined ? myDiagram.findPartForKey(data.key) : null) as go.Group | null;
             if (liveGroup instanceof go.Group) {
@@ -9803,7 +9710,7 @@ break;
 if (true) { // Dispatches to store individual objects/types
   if (debug) console.log('1928 modifiedObjectViews', modifiedObjectViews);
   const dispatchedObjectViewPayloads = new Set<string>();
-  const storeState = getCurrentStore?.()?.getState?.();
+  const storeState = getEditorHost(myMetis)?.getState();
   const sharedMetis = storeState?.universe?.world?.worldModel?.metis;
   const storedMetis = sharedMetis || storeState?.phData?.metis || {};
   const coalescedObjectViews = new Map<string, any>();

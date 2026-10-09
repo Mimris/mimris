@@ -1,3 +1,5 @@
+import { diagramPreferencesReducer, isDiagramPreferenceAction } from './diagramPreferences';
+export { isDiagramPreferenceAction } from './diagramPreferences';
 import { createAction, type AnyAction } from '@reduxjs/toolkit';
 import { OBJECT_APPEARANCE_FIELDS, RELATIONSHIP_APPEARANCE_FIELDS } from '../akmm/viewAppearance';
 
@@ -5,6 +7,7 @@ export type LegacyUniverseRoot = {
     universe?: SharedUniverseState;
     phList?: unknown;
     phData?: {
+        [key: string]: unknown;
         domain?: unknown;
         metis?: unknown;
         documents?: unknown;
@@ -15,6 +18,7 @@ export type LegacyUniverseRoot = {
 };
 
 type LegacyPhData = {
+    [key: string]: unknown;
     domain?: unknown;
     metis?: unknown;
     documents?: unknown;
@@ -35,6 +39,7 @@ export type SharedUniverseState = {
     compatibility: {
         documents: unknown[];
         modelList: unknown;
+        phDataMetadata?: Record<string, unknown>;
     };
 };
 
@@ -65,6 +70,12 @@ const mergeDomainPatch = (domain: unknown, patch: unknown) => {
     return patch;
 };
 
+const legacyPhDataMetadata = (data: unknown): Record<string, unknown> => {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+    const { domain, metis, documents, ...metadata } = data as Record<string, unknown>;
+    return metadata;
+};
+
 const mergeObjectPatch = (value: unknown, patch: Record<string, unknown>) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
         return {
@@ -76,7 +87,7 @@ const mergeObjectPatch = (value: unknown, patch: Record<string, unknown>) => {
     return patch;
 };
 
-const legacyFocusFieldByActionType: Record<string, string> = {
+export const legacyFocusFieldByActionType = {
     SET_FOCUS_TAB: 'focusTab',
     SET_FOCUS_MODEL: 'focusModel',
     SET_FOCUS_MODELVIEW: 'focusModelview',
@@ -97,7 +108,12 @@ const legacyFocusFieldByActionType: Record<string, string> = {
     SET_FOCUS_ISSUE: 'focusIssue',
     SET_FOCUS_SOURCE: 'focusSource',
     SET_FOCUS_REFRESH: 'focusRefresh',
-};
+} as const;
+
+export type UniverseFocusField = typeof legacyFocusFieldByActionType[keyof typeof legacyFocusFieldByActionType];
+export const setUniverseFocusField = createAction<{ field: UniverseFocusField; value: unknown }>('universe/setFocusField');
+export const isUniverseFocusFieldAction = (action: AnyAction): boolean =>
+    setUniverseFocusField.match(action) || Object.prototype.hasOwnProperty.call(legacyFocusFieldByActionType, action.type);
 
 const asRecord = (value: unknown): Record<string, any> =>
     value && typeof value === 'object' && !Array.isArray(value)
@@ -483,9 +499,27 @@ const updateCurrentModelCollection = (
         ...(collection[targetIndex] || {}),
         ...patch,
     });
+    const previousItem = collection[targetIndex];
+    let modelviews = model.modelviews;
+    if (collectionName === 'objects' && patch.name && previousItem?.name !== patch.name && Array.isArray(modelviews)) {
+        modelviews = modelviews.map((view: any) => {
+            if (!Array.isArray(view?.objectviews)) return view;
+            let changed = false;
+            const objectviews = view.objectviews.map((objectview: any) => {
+                if (objectview?.objectRef !== patch.id) return objectview;
+                const name = objectview.name;
+                if (name !== undefined && name !== null && name !== '' && name !== previousItem?.name) return objectview;
+                changed = true;
+                return { ...objectview, name: patch.name };
+            });
+            return changed ? { ...view, objectviews } : view;
+        });
+        if (modelviews.every((view: any, index: number) => view === model.modelviews[index])) modelviews = model.modelviews;
+    }
     const nextModels = replaceArrayItem(models, modelIndex, {
         ...model,
         [collectionName]: nextCollection,
+        ...(modelviews !== model.modelviews ? { modelviews } : {}),
     });
 
     return updateMetis(state, {
@@ -711,30 +745,34 @@ export const initialUniverseState: SharedUniverseState = {
 };
 
 export const buildUniverseStateFromLegacy = (state?: LegacyUniverseRoot | null): SharedUniverseState => {
-    const documents = Array.isArray(state?.phData?.documents) ? state.phData.documents : EMPTY_DOCUMENTS;
-    const metis = state?.universe?.world?.worldModel?.metis ?? state?.phData?.metis ?? null;
+    const canonical = state?.universe;
+    const sourceDocuments = canonical ? canonical.compatibility.documents : state?.phData?.documents;
+    const documents = Array.isArray(sourceDocuments) ? sourceDocuments : EMPTY_DOCUMENTS;
+    const metis = canonical ? canonical.world.worldModel.metis : state?.phData?.metis ?? null;
+    const phDataMetadata = canonical ? canonical.compatibility.phDataMetadata ?? {} : legacyPhDataMetadata(state?.phData);
     const normalizedMetis = normalizeModelviewObjectviewIdentities(metis);
-    const modelList = state?.universe?.compatibility?.modelList ?? state?.phList ?? null;
+    const modelList = canonical ? canonical.compatibility.modelList : state?.phList ?? null;
     const focus = normalizeFocusForMetis(
         normalizedMetis,
-        state?.universe?.world?.focus ?? state?.phFocus ?? null,
+        canonical ? canonical.world.focus : state?.phFocus ?? null,
     );
 
     return {
         world: {
             worldDefinition: {
-                domain: state?.universe?.world?.worldDefinition?.domain ?? state?.phData?.domain ?? null,
+                domain: canonical ? canonical.world.worldDefinition.domain : state?.phData?.domain ?? null,
             },
             worldModel: {
                 metis: normalizedMetis,
             },
             focus,
         },
-        user: state?.universe?.user ?? state?.phUser ?? null,
-        source: state?.universe?.source ?? state?.phSource ?? null,
+        user: canonical ? canonical.user : state?.phUser ?? null,
+        source: canonical ? canonical.source : state?.phSource ?? null,
         compatibility: {
             documents,
             modelList,
+            ...(Object.keys(phDataMetadata).length ? { phDataMetadata } : {}),
         },
     };
 };
@@ -756,11 +794,104 @@ export const setUniverseDomain = createAction<unknown>('universe/setUniverseDoma
 export const setUniverseUser = createAction<unknown>('universe/setUniverseUser');
 export const setUniverseSource = createAction<unknown>('universe/setUniverseSource');
 export const setUniverseFocus = createAction<unknown>('universe/setUniverseFocus');
+export const loadUniverseFocus = createAction<unknown>('universe/loadFocus');
+export const universeLoadTypes = {
+    legacySnapshot: 'LOAD_TOSTORE_DATA',
+    serverData: 'LOAD_DATA_SUCCESS',
+    githubSnapshot: 'LOAD_DATAGITHUB_SUCCESS',
+    model: 'LOAD_DATAMODEL_SUCCESS',
+    modelList: 'LOAD_DATAMODELLIST_SUCCESS',
+    newModel: 'LOAD_TOSTORE_NEWMODEL',
+    modelWithNewView: 'LOAD_TOSTORE_NEWMODELVIEW',
+} as const;
+export type UniverseLoadKind = keyof typeof universeLoadTypes;
+/** Host transport is already complete; this action applies its serializable result. */
+export const loadUniverseResult = createAction<{ kind: UniverseLoadKind; data: unknown }>('universe/loadResult');
+export const isUniverseLoadAction = (action: AnyAction): boolean =>
+    loadUniverseResult.match(action) || Object.values(universeLoadTypes).some(type => type === action.type)
+    || setUniverseState.match(action) || replaceUniverseState.match(action);
+
+export const isUniversePartialLoadAction = (action: AnyAction): boolean =>
+    loadUniverseFocus.match(action) || setUniversePhData.match(action) || replaceUniversePhData.match(action)
+    || setUniverseUser.match(action) || setUniverseSource.match(action)
+    || ['LOAD_TOSTORE_PHDATA', 'LOAD_TOSTORE_PHFOCUS', 'LOAD_TOSTORE_PHUSER', 'LOAD_TOSTORE_PHSOURCE'].includes(action.type);
+export const setUniverseFocusUser = createAction<unknown>('universe/setFocusUser');
+export const setUniverseVisibleContext = createAction<unknown>('universe/setVisibleContext');
+export type UniversePropertyPatch = Record<string, unknown>;
+export const updateUniverseProject = createAction<UniversePropertyPatch>('universe/updateProject');
+export const setUniverseCurrentMetamodel = createAction<{ id?: string }>('universe/setCurrentMetamodel');
+export const isUniverseProjectAction = (action: AnyAction): boolean =>
+    updateUniverseProject.match(action) || setUniverseCurrentMetamodel.match(action) || setUniverseDomain.match(action)
+    || ['UPDATE_PROJECT_PROPERTIES', 'UPDATE_DOMAIN_PROPERTIES', 'SET_CURRENT_METAMODEL'].includes(action.type);
+
+/** Legacy routing is intentionally preserved, including historically surprising aliases. */
+export const legacyMetamodelCollectionRoutes = {
+    UPDATE_OBJECTTYPE_PROPERTIES: { scope: 'current', collection: 'objecttypes' },
+    UPDATE_TARGETOBJECTTYPE_PROPERTIES: { scope: 'target', collection: 'objecttypes' },
+    UPDATE_OBJECTTYPEVIEW_PROPERTIES: { scope: 'current', collection: 'objecttypeviews' },
+    UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES: { scope: 'target', collection: 'objecttypeviews' },
+    UPDATE_OBJECTTYPEGEOS_PROPERTIES: { scope: 'current', collection: 'objtypegeos' },
+    UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES: { scope: 'target', collection: 'objtypegeos' },
+    UPDATE_RELSHIPTYPE_PROPERTIES: { scope: 'current', collection: 'relshiptypes' },
+    UPDATE_TARGETRELSHIPTYPE_PROPERTIES: { scope: 'target', collection: 'relshiptypes' },
+    UPDATE_RELSHIPTYPEVIEW_PROPERTIES: { scope: 'current', collection: 'relshiptypeviews' },
+    UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES: { scope: 'current', collection: 'relshiptypeviews' },
+    UPDATE_VIEWSTYLE_PROPERTIES: { scope: 'current', collection: 'viewstyles' },
+    UPDATE_PROPERTY_PROPERTIES: { scope: 'current', collection: 'properties' },
+    UPDATE_TARGETPROPERTY_PROPERTIES: { scope: 'target', collection: 'properties' },
+    UPDATE_DATATYPE_PROPERTIES: { scope: 'target', collection: 'datatypes' },
+    UPDATE_TARGETDATATYPE_PROPERTIES: { scope: 'target', collection: 'datatypes' },
+    UPDATE_METHOD_PROPERTIES: { scope: 'current', collection: 'methods' },
+    UPDATE_TARGETMETHOD_PROPERTIES: { scope: 'target', collection: 'methods' },
+    UPDATE_METHODTYPE_PROPERTIES: { scope: 'target', collection: 'methodtypes' },
+    UPDATE_VALUE_PROPERTIES: { scope: 'current', collection: 'objecttypes' },
+    UPDATE_TARGETVALUE_PROPERTIES: { scope: 'current', collection: 'objecttypes' },
+} as const;
+export type MetamodelCollection = typeof legacyMetamodelCollectionRoutes[keyof typeof legacyMetamodelCollectionRoutes]['collection'];
+export const updateUniverseMetamodelItem = createAction<{
+    scope: 'current' | 'target'; collection: MetamodelCollection; patch: UniversePropertyPatch;
+}>('universe/updateMetamodelItem');
+export const isUniverseMetamodelItemAction = (action: AnyAction): boolean =>
+    updateUniverseMetamodelItem.match(action) || Object.prototype.hasOwnProperty.call(legacyMetamodelCollectionRoutes, action.type);
+
+export const updateUniverseMetamodel = createAction<UniversePropertyPatch>('universe/updateMetamodel');
+export const updateUniverseTargetMetamodel = createAction<UniversePropertyPatch>('universe/updateTargetMetamodel');
+export const isUniverseMetamodelPropertyAction = (action: AnyAction): boolean =>
+    updateUniverseMetamodel.match(action) || updateUniverseTargetMetamodel.match(action)
+    || action.type === 'UPDATE_METAMODEL_PROPERTIES' || action.type === 'UPDATE_TARGETMETAMODEL_PROPERTIES';
+export const updateUniverseObjectview = createAction<UniversePropertyPatch>('universe/updateObjectview');
+export const updateUniverseRelationshipview = createAction<UniversePropertyPatch>('universe/updateRelationshipview');
+export const isUniverseViewPropertyAction = (action: AnyAction): boolean =>
+    updateUniverseObjectview.match(action) || updateUniverseRelationshipview.match(action)
+    || ['UPDATE_OBJECTVIEW_PROPERTIES', 'UPDATE_OBJECTVIEW_NAME', 'UPDATE_RELSHIPVIEW_PROPERTIES'].includes(action.type);
+export const updateUniverseObject = createAction<UniversePropertyPatch>('universe/updateObject');
+export const isUniverseObjectPropertyAction = (action: AnyAction): boolean =>
+    updateUniverseObject.match(action) || action.type === 'UPDATE_OBJECT_PROPERTIES';
+export const updateUniverseRelationship = createAction<UniversePropertyPatch>('universe/updateRelationship');
+export const isUniverseRelationshipPropertyAction = (action: AnyAction): boolean =>
+    updateUniverseRelationship.match(action) || action.type === 'UPDATE_RELSHIP_PROPERTIES';
+export const updateUniverseModel = createAction<UniversePropertyPatch>('universe/updateModel');
+export const updateUniverseModelview = createAction<UniversePropertyPatch>('universe/updateModelview');
+export const isUniverseModelPropertyAction = (action: AnyAction): boolean =>
+    updateUniverseModel.match(action) || updateUniverseModelview.match(action)
+    || ['UPDATE_MODEL_PROPERTIES', 'UPDATE_TARGETMODEL_PROPERTIES', 'UPDATE_MODELVIEW_PROPERTIES'].includes(action.type);
+export interface UniverseReorder { sourceId: string; targetId: string }
+export const reorderUniverseModels = createAction<UniverseReorder>('universe/reorderModels');
+export const reorderUniverseModelviews = createAction<UniverseReorder>('universe/reorderModelviews');
+export const isUniverseReorderAction = (action: AnyAction): boolean =>
+    reorderUniverseModels.match(action) || reorderUniverseModelviews.match(action)
+    || action.type === 'REORDER_MODELS' || action.type === 'REORDER_MODELVIEWS';
+export const isUniverseSessionAction = (action: AnyAction): boolean =>
+    setUniverseFocus.match(action) || setUniverseFocusUser.match(action) || setUniverseVisibleContext.match(action)
+    || ['SET_FOCUS_PHFOCUS', 'SET_FOCUS_USER', 'SET_VISIBLE_CONTEXT'].includes(action.type);
 
 export const universeReducer = (
     state: SharedUniverseState = initialUniverseState,
     action: AnyAction,
 ): SharedUniverseState => {
+    if (loadUniverseResult.match(action)) {
+        return universeReducer(state, { type: universeLoadTypes[action.payload.kind], data: action.payload.data });
+    }
     if (replaceUniverseState.match(action)) {
         const normalizedMetis = normalizeModelviewObjectviewIdentities(
             action.payload.world.worldModel.metis,
@@ -821,6 +952,8 @@ export const universeReducer = (
             compatibility: {
                 ...state.compatibility,
                 documents,
+                ...((state.compatibility.phDataMetadata || Object.keys(legacyPhDataMetadata(payload)).length)
+                    ? { phDataMetadata: { ...state.compatibility.phDataMetadata, ...legacyPhDataMetadata(payload) } } : {}),
             },
         };
     }
@@ -851,6 +984,8 @@ export const universeReducer = (
             compatibility: {
                 ...state.compatibility,
                 documents,
+                ...((state.compatibility.phDataMetadata || Object.keys(legacyPhDataMetadata(payload)).length)
+                    ? { phDataMetadata: { ...state.compatibility.phDataMetadata, ...legacyPhDataMetadata(payload) } } : {}),
             },
         };
     }
@@ -932,27 +1067,17 @@ export const universeReducer = (
     if (action.type === 'LOAD_TOSTORE_PHDATA') {
         return universeReducer(state, setUniversePhData(asRecord(action.data) as LegacyPhData));
     }
-    if (action.type === 'LOAD_TOSTORE_PHFOCUS') {
+    if (loadUniverseFocus.match(action) || action.type === 'LOAD_TOSTORE_PHFOCUS') {
         return {
             ...state,
             world: {
                 ...state.world,
-                focus: normalizeFocusForMetis(state.world.worldModel.metis, action.data),
+                focus: normalizeFocusForMetis(state.world.worldModel.metis, loadUniverseFocus.match(action) ? action.payload : action.data),
             },
         };
     }
-    if (action.type === 'LOAD_TOSTORE_PHUSER') {
-        return {
-            ...state,
-            user: action.data,
-        };
-    }
-    if (action.type === 'LOAD_TOSTORE_PHSOURCE') {
-        return {
-            ...state,
-            source: action.data,
-        };
-    }
+    if (action.type === 'LOAD_TOSTORE_PHUSER') return universeReducer(state, setUniverseUser(action.data));
+    if (action.type === 'LOAD_TOSTORE_PHSOURCE') return universeReducer(state, setUniverseSource(action.data));
     if (action.type === 'LOAD_TOSTORE_NEWMODEL') {
         const metis = asRecord(state.world.worldModel.metis);
         const models = Array.isArray(metis.models) ? metis.models : [];
@@ -1004,119 +1129,91 @@ export const universeReducer = (
         };
     }
     if (setUniverseUser.match(action)) {
+        if (state.user === action.payload) return state;
         return {
             ...state,
             user: action.payload,
         };
     }
     if (setUniverseSource.match(action)) {
+        if (state.source === action.payload) return state;
         return {
             ...state,
             source: action.payload,
         };
     }
-    if (setUniverseFocus.match(action)) {
-        return {
-            ...state,
-            world: {
-                ...state.world,
-                focus: action.payload,
-            },
-        };
+    if (setUniverseFocus.match(action) || action.type === 'SET_FOCUS_PHFOCUS') {
+        const focus = setUniverseFocus.match(action) ? action.payload : action.data;
+        if (state.world.focus === focus) return state;
+        return { ...state, world: { ...state.world, focus } };
     }
-    if (action.type === 'SET_FOCUS_PHFOCUS') {
-        return {
-            ...state,
-            world: {
-                ...state.world,
-                focus: action.data,
-            },
-        };
+    if (setUniverseFocusUser.match(action) || action.type === 'SET_FOCUS_USER') {
+        const user = asRecord(state.user);
+        const focusUser = setUniverseFocusUser.match(action) ? action.payload : action.data;
+        if (Object.prototype.hasOwnProperty.call(user, 'focusUser') && user.focusUser === focusUser) return state;
+        return { ...state, user: { ...user, focusUser } };
     }
-    if (action.type === 'SET_FOCUS_USER') {
-        return {
-            ...state,
-            user: mergeObjectPatch(state.user, { focusUser: action.data }),
-        };
-    }
-    if (action.type === 'SET_USER_SHOWDELETED' || action.type === 'SET_USER_SHOWMODIFIED') {
+    if (isDiagramPreferenceAction(action)) {
         const user = asRecord(state.user);
         const focusUser = asRecord(user.focusUser);
         const diagram = asRecord(focusUser.diagram);
-        return {
-            ...state,
-            user: {
-                ...user,
-                focusUser: {
-                    ...focusUser,
-                    diagram: {
-                        ...diagram,
-                        ...(action.type === 'SET_USER_SHOWDELETED'
-                            ? { showDeleted: action.data }
-                            : { showModified: action.data }),
-                    },
-                },
-            },
-        };
+        const nextDiagram = diagramPreferencesReducer(diagram, action);
+        if (nextDiagram === diagram) return state;
+        return { ...state, user: { ...user, focusUser: { ...focusUser, diagram: nextDiagram } } };
     }
-    if (action.type === 'SET_VISIBLE_CONTEXT') {
+    if (setUniverseVisibleContext.match(action) || action.type === 'SET_VISIBLE_CONTEXT') {
         const user = asRecord(state.user);
         const appSkin = asRecord(user.appSkin);
+        const visibleContext = setUniverseVisibleContext.match(action) ? action.payload : action.data;
+        if (Object.prototype.hasOwnProperty.call(appSkin, 'visibleContext') && appSkin.visibleContext === visibleContext) return state;
         return {
             ...state,
             user: {
                 ...user,
                 appSkin: {
                     ...appSkin,
-                    visibleContext: action.data,
+                    visibleContext,
                 },
             },
         };
     }
-    const legacyFocusField = legacyFocusFieldByActionType[action.type];
-    if (legacyFocusField) {
+    const legacyFocusField = legacyFocusFieldByActionType[action.type as keyof typeof legacyFocusFieldByActionType];
+    if (isUniverseFocusFieldAction(action)) {
+        const field = setUniverseFocusField.match(action) ? action.payload.field : legacyFocusField;
+        const value = setUniverseFocusField.match(action) ? action.payload.value : action.data;
+        const focus = asRecord(state.world.focus);
+        if (Object.prototype.hasOwnProperty.call(focus, field) && focus[field] === value) return state;
         return {
             ...state,
             world: {
                 ...state.world,
-                focus: mergeObjectPatch(state.world.focus, { [legacyFocusField]: action.data }),
+                focus: mergeObjectPatch(state.world.focus, { [field]: value }),
             },
         };
     }
-    if (action.type === 'UPDATE_DOMAIN_PROPERTIES') {
-        return {
-            ...state,
-            world: {
-                ...state.world,
-                worldDefinition: {
-                    ...state.world.worldDefinition,
-                    domain: mergeDomainPatch(state.world.worldDefinition.domain, asRecord(action.data)),
-                },
-            },
-        };
-    }
-    if (action.type === 'UPDATE_PROJECT_PROPERTIES') {
+    if (action.type === 'UPDATE_DOMAIN_PROPERTIES') return universeReducer(state, setUniverseDomain(asRecord(action.data)));
+    if (updateUniverseProject.match(action) || action.type === 'UPDATE_PROJECT_PROPERTIES') {
         const metis = asRecord(state.world.worldModel.metis);
         return updateMetis(state, {
             ...metis,
-            ...asRecord(action.data),
+            ...asRecord(updateUniverseProject.match(action) ? action.payload : action.data),
         });
     }
-    if (action.type === 'SET_CURRENT_METAMODEL') {
+    if (setUniverseCurrentMetamodel.match(action) || action.type === 'SET_CURRENT_METAMODEL') {
         const metis = asRecord(state.world.worldModel.metis);
         if (!Object.keys(metis).length) return state;
 
         return updateMetis(state, {
             ...metis,
-            currentMetamodelRef: asRecord(action.data).id,
+            currentMetamodelRef: asRecord(setUniverseCurrentMetamodel.match(action) ? action.payload : action.data).id,
         });
     }
-    if (action.type === 'UPDATE_MODEL_PROPERTIES' || action.type === 'UPDATE_TARGETMODEL_PROPERTIES') {
+    if (updateUniverseModel.match(action) || action.type === 'UPDATE_MODEL_PROPERTIES' || action.type === 'UPDATE_TARGETMODEL_PROPERTIES') {
         const metis = asRecord(state.world.worldModel.metis);
         const models: any[] = Array.isArray(metis.models) ? metis.models : [];
         if (!models.length) return state;
 
-        const patch = asRecord(action.data);
+        const patch = asRecord(updateUniverseModel.match(action) ? action.payload : action.data);
         const modelIndex = findModelIndex(models, asRecord(state.world.focus), patch.id);
         if (modelIndex < 0 || !models[modelIndex]) return state;
 
@@ -1131,10 +1228,11 @@ export const universeReducer = (
             models: nextModels,
         }, focus);
     }
-    if (action.type === 'REORDER_MODELS') {
+    if (reorderUniverseModels.match(action) || action.type === 'REORDER_MODELS') {
+        const reorder = reorderUniverseModels.match(action) ? action.payload : action.data;
         const metis = asRecord(state.world.worldModel.metis);
         const models: any[] = Array.isArray(metis.models) ? metis.models : [];
-        const reorderedModels = reorderById(models, action?.data?.sourceId, action?.data?.targetId);
+        const reorderedModels = reorderById(models, reorder?.sourceId, reorder?.targetId);
         if (reorderedModels === models) return state;
 
         return updateMetis(state, {
@@ -1142,7 +1240,7 @@ export const universeReducer = (
             models: reorderedModels,
         });
     }
-    if (action.type === 'UPDATE_MODELVIEW_PROPERTIES') {
+    if (updateUniverseModelview.match(action) || action.type === 'UPDATE_MODELVIEW_PROPERTIES') {
         const metis = asRecord(state.world.worldModel.metis);
         const models: any[] = Array.isArray(metis.models) ? metis.models : [];
         if (!models.length) return state;
@@ -1151,7 +1249,7 @@ export const universeReducer = (
         const modelIndex = findModelIndex(models, focus);
         const model = models[modelIndex];
         const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
-        const patch = sanitizeModelviewPatch(asRecord(action.data));
+        const patch = sanitizeModelviewPatch(asRecord(updateUniverseModelview.match(action) ? action.payload : action.data));
         const modelviewIndex = patch.id
             ? modelviews.findIndex((modelview) => modelview?.id === patch.id)
             : -1;
@@ -1171,7 +1269,8 @@ export const universeReducer = (
             models: nextModels,
         }, nextFocus);
     }
-    if (action.type === 'REORDER_MODELVIEWS') {
+    if (reorderUniverseModelviews.match(action) || action.type === 'REORDER_MODELVIEWS') {
+        const reorder = reorderUniverseModelviews.match(action) ? action.payload : action.data;
         const metis = asRecord(state.world.worldModel.metis);
         const models: any[] = Array.isArray(metis.models) ? metis.models : [];
         if (!models.length) return state;
@@ -1180,7 +1279,7 @@ export const universeReducer = (
         const modelIndex = findModelIndex(models, focus);
         const model = models[modelIndex];
         const modelviews: any[] = Array.isArray(model?.modelviews) ? model.modelviews : [];
-        const reorderedModelviews = reorderById(modelviews, action?.data?.sourceId, action?.data?.targetId);
+        const reorderedModelviews = reorderById(modelviews, reorder?.sourceId, reorder?.targetId);
         if (reorderedModelviews === modelviews) return state;
 
         const nextModels = replaceArrayItem(models, modelIndex, {
@@ -1193,96 +1292,71 @@ export const universeReducer = (
             models: nextModels,
         });
     }
-    if (action.type === 'UPDATE_OBJECT_PROPERTIES') {
-        return updateCurrentModelCollection(state, 'objects', asRecord(action.data));
+    if (isUniverseObjectPropertyAction(action)) {
+        return updateCurrentModelCollection(state, 'objects', asRecord(updateUniverseObject.match(action) ? action.payload : action.data));
     }
-    if (action.type === 'UPDATE_RELSHIP_PROPERTIES') {
-        return updateCurrentModelCollection(state, 'relships', asRecord(action.data));
+    if (isUniverseRelationshipPropertyAction(action)) {
+        return updateCurrentModelCollection(state, 'relships', asRecord(updateUniverseRelationship.match(action) ? action.payload : action.data));
     }
-    if (action.type === 'UPDATE_OBJECTVIEW_PROPERTIES' || action.type === 'UPDATE_OBJECTVIEW_NAME') {
+    if (updateUniverseObjectview.match(action) || action.type === 'UPDATE_OBJECTVIEW_PROPERTIES' || action.type === 'UPDATE_OBJECTVIEW_NAME') {
         return updateModelviewCollection(
             state,
             'objectviews',
-            asRecord(action.data),
+            asRecord(updateUniverseObjectview.match(action) ? action.payload : action.data),
             OPTIONAL_OBJECTVIEW_FIELDS,
         );
     }
-    if (action.type === 'UPDATE_RELSHIPVIEW_PROPERTIES') {
+    if (updateUniverseRelationshipview.match(action) || action.type === 'UPDATE_RELSHIPVIEW_PROPERTIES') {
         return updateModelviewCollection(
             state,
             'relshipviews',
-            asRecord(action.data),
+            asRecord(updateUniverseRelationshipview.match(action) ? action.payload : action.data),
             OPTIONAL_RELSHIPVIEW_FIELDS,
         );
     }
-    if (action.type === 'UPDATE_METAMODEL_PROPERTIES') {
-        const patch = asRecord(action.data);
+    if (updateUniverseMetamodel.match(action) || action.type === 'UPDATE_METAMODEL_PROPERTIES') {
+        const patch = asRecord(updateUniverseMetamodel.match(action) ? action.payload : action.data);
         return updateMetamodelPatch(state, patch.id, patch);
     }
-    if (action.type === 'UPDATE_TARGETMETAMODEL_PROPERTIES') {
+    if (updateUniverseTargetMetamodel.match(action) || action.type === 'UPDATE_TARGETMETAMODEL_PROPERTIES') {
         const metis = asRecord(state.world.worldModel.metis);
         const model = findFocusedModel(metis, asRecord(state.world.focus));
-        return updateMetamodelPatch(state, model?.targetMetamodelRef, asRecord(action.data));
+        return updateMetamodelPatch(state, model?.targetMetamodelRef, asRecord(updateUniverseTargetMetamodel.match(action) ? action.payload : action.data));
     }
-    if (action.type === 'UPDATE_OBJECTTYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETOBJECTTYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'objecttypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_OBJECTTYPEVIEW_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'objecttypeviews', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'objecttypeviews', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_OBJECTTYPEGEOS_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'objtypegeos', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'objtypegeos', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_RELSHIPTYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'relshiptypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'relshiptypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'relshiptypeviews', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'relshiptypeviews', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_VIEWSTYLE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'viewstyles', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_PROPERTY_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'properties', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETPROPERTY_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'properties', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_DATATYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'datatypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETDATATYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'datatypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_METHOD_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'methods', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETMETHOD_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'methods', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_METHODTYPE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'target', 'methodtypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_VALUE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
-    }
-    if (action.type === 'UPDATE_TARGETVALUE_PROPERTIES') {
-        return updateMetamodelCollection(state, 'current', 'objecttypes', asRecord(action.data));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (isUniverseMetamodelItemAction(action)) {
+        const route = updateUniverseMetamodelItem.match(action)
+            ? action.payload
+            : legacyMetamodelCollectionRoutes[action.type as keyof typeof legacyMetamodelCollectionRoutes];
+        const patch = updateUniverseMetamodelItem.match(action) ? action.payload.patch : action.data;
+        return updateMetamodelCollection(state, route.scope, route.collection, asRecord(patch));
     }
     return state;
 };
+
+/** Canonical no-ops must not re-enter a retired legacy handler. */
+export const isUniverseOwnedAction = (action: AnyAction): boolean =>
+    isDiagramPreferenceAction(action) || isUniverseFocusFieldAction(action) || isUniverseSessionAction(action)
+    || isUniverseReorderAction(action) || isUniverseModelPropertyAction(action)
+    || isUniverseRelationshipPropertyAction(action) || isUniverseObjectPropertyAction(action)
+    || isUniverseViewPropertyAction(action) || isUniverseMetamodelPropertyAction(action)
+    || isUniverseMetamodelItemAction(action) || isUniverseProjectAction(action) || isUniversePartialLoadAction(action) || isUniverseLoadAction(action);

@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, useStore } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 import Select from "react-select"
 import { UniqueDirectiveNamesRule } from 'graphql';
@@ -12,12 +12,11 @@ import useLocalStorage from '../../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from '../utils/SetStoreFromLocalStorage'
 import GenGojsModel from '../GenGojsModel'
-import { ReadModelFromFile, ReadMetamodelFromFile } from '../utils/ReadModelFromFile';
-import { SaveModelviewToFile, SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate } from '../utils/SaveModelToFile';
+import { createStandaloneFileCommands } from '../../standalone/fileCommands';
 import CreateNewModel from '../akmm-api/CreateNewModel';
 import { ReadConvertJSONFromFile } from '../utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from '../utils/ConvertModelToJSON';
-import { selectSharedUniverseState } from '../../sharedUniverse';
+import { selectSharedUniverseState, selectMimrisCompatibilityProps } from '../../sharedUniverse';
 
 const LoadFile = (props: any) => {
 
@@ -26,7 +25,12 @@ const LoadFile = (props: any) => {
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
   const [refresh, setRefresh] = useState(false);
   const debug = false
+  const store = useStore();
   const dispatch = useDispatch()
+  const files = useMemo(() => createStandaloneFileCommands({
+    getState: () => selectMimrisCompatibilityProps(store.getState()),
+    dispatch: action => dispatch(action),
+  }), [store, dispatch]);
   const sharedUniverse = useSelector(selectSharedUniverseState);
   const ph = {
     ...props.ph,
@@ -93,7 +97,7 @@ const LoadFile = (props: any) => {
   // Save all models and metamodels in current templates to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     if (debug) console.log('37 LoadFile', data);
-    SaveAllToFile(data, projectName, '_PR', universeCategory)
+    files.exportJson({ kind: 'project', data, name: projectName, type: '_PR', universe: universeCategory })
     // SaveAllToFile(data, templatesname, 'AKMM-Project', universe)
   }
 
@@ -102,7 +106,7 @@ const LoadFile = (props: any) => {
     if (debug) console.log('37 LoadFile', data);
 
     // SaveAllToFileDate(data, templatesname, 'Project', universe)
-    SaveAllToFileDate(data, projectName, '_PR', universeCategory)
+    files.exportJson({ kind: 'project', data, name: projectName, type: '_PR', universe: universeCategory, dated: true })
   }
 
   // Save current model, metamodel, modelview, container to a file to the downloads folder
@@ -113,7 +117,7 @@ const LoadFile = (props: any) => {
       return
     }
     const model = { metamodels: currentMetamodel, models: currentModel }
-    SaveModelToFile(model, currentModel.name, "_MO", universeCategory)
+    files.exportJson({ kind: 'model', data: model, name: currentModel.name, type: '_MO', universe: universeCategory })
   }
   function handleSaveModelviewToFile() {
     if (!currentModel || !currentModelview) {
@@ -124,7 +128,7 @@ const LoadFile = (props: any) => {
     const curmodelviewobjs = (currentModel.objects || []).filter(obj => currentModelview.objectviews?.find(ov => ov.objectRef === obj.id))
     const curmodelviewrelships = (currentModel.relships || []).filter(rel => currentModelview.relshipviews?.find(rv => rv.relshipRef === rel.id))
     const modelview = { metamodels: currentMetamodel, modelviews: currentModelview, objects: curmodelviewobjs, relships: curmodelviewrelships }
-    SaveModelviewToFile(modelview, currentModel.name, "_MV", universeCategory)
+    files.exportJson({ kind: 'modelview', data: modelview, name: currentModel.name, type: '_MV', universe: universeCategory })
   }
 
   // Save current metamodel to a file with date and time in the name to the downloads folder
@@ -133,7 +137,7 @@ const LoadFile = (props: any) => {
       alert('No current metamodel to export')
       return
     }
-    SaveMetamodelToFile(currentMetamodel, currentMetamodel.name, '_META', universeCategory)
+    files.exportJson({ kind: 'metamodel', data: currentMetamodel, name: currentMetamodel.name, type: '_META', universe: universeCategory })
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel', universe)
   }
 
@@ -166,7 +170,7 @@ const LoadFile = (props: any) => {
 
     if (!debug) console.log('199 Loadfile', newmm, filename)
 
-    SaveAllToFile(templates, filename, '_PR', universeCategory)
+    files.exportJson({ kind: 'project', data: templates, name: filename, type: '_PR', universe: universeCategory })
 
     // More robust template checking
     if (template) {
@@ -178,13 +182,13 @@ const LoadFile = (props: any) => {
         filename.includes('BPMN')
       ) {
         console.log('159 Loadfile', template, filename)
-        SaveAllToFile(template, 'Mimris-template', '_PR', universeCategory)
+        files.exportJson({ kind: 'project', data: template, name: 'Mimris-template', type: '_PR', universe: universeCategory })
       }
     }
 
     if (newmm) {
       const metamodelname = newmm.name.replace('_META', '') // remove _META to avoid twice
-      SaveMetamodelToFile(newmm, metamodelname, '_META', universeCategory)
+      files.exportJson({ kind: 'metamodel', data: newmm, name: metamodelname, type: '_META', universe: universeCategory })
     }
   }
 
@@ -308,7 +312,8 @@ const LoadFile = (props: any) => {
                           alert(`Warning: The selected file name does not match the current project/universe.\nExpected prefix: ${expectedPrefix}`);
                         }
                       }
-                      ReadModelFromFile(ph, dispatch, e);
+                      if (file) void files.importFile(file, 'model');
+                      e.target.value = '';
                     }}
                     placeholder="Choose a file"
                   />
@@ -333,7 +338,7 @@ const LoadFile = (props: any) => {
                 <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current)</h6>
-                  <input className="select-input" title="Select a file" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(ph, dispatch, e)} />
+                  <input className="select-input" title="Select a file" type="file" accept=".json" onChange={(e) => { const file = e.target.files?.[0]; if (file) void files.importFile(file, 'metamodel'); e.target.value = ''; }} />
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export Metamodel to file </h6>

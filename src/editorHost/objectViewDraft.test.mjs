@@ -5,13 +5,13 @@ import vm from 'node:vm';
 import ts from 'typescript';
 const load = (name, dependencies = {}) => {
   const module = { exports: {} };
-  vm.runInNewContext(ts.transpileModule(readFileSync(new URL(`./${name}.ts`, import.meta.url), 'utf8'), {
+  vm.runInNewContext(ts.transpileModule(readFileSync(new URL(`../../packages/modelling-editor/src/host/${name}.ts`, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, { module, exports: module.exports, require: name => dependencies[name] });
   return module.exports;
 };
 const access = load('access');
-const { persistObjectViewDraft } = load('objectViewDraft', { './access': access });
+const { persistObjectViewDraft } = load('objectViewDraft', { './access.js': access });
 const snapshot = name => ({ phSource: name, phData: { metis: { models: [{ id: 'm', modelviews: [
   { id: 'first', objectviews: [{ id: 'same', loc: '1 2' }] },
   { id: 'second', objectviews: [{ id: 'same', loc: '3 4', custom: 'preserved' }] },

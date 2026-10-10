@@ -18,13 +18,13 @@ const loadTs = (path, dependencies = {}, extra = {}) => {
   });
   return module.exports;
 };
-const selectors = loadTs('../../sharedUniverse/selectors.ts');
+const selectors = loadTs('../../../packages/modelling-core/src/selectors.ts');
 const readers = [];
 class Reader {
   constructor() { readers.push(this); }
   readAsText() {}
 }
-const slice = loadTs('../../sharedUniverse/universeSlice.ts', { '../akmm/viewAppearance': loadTs('../../akmm/viewAppearance.ts'), './diagramPreferences': loadTs('../../sharedUniverse/diagramPreferences.ts') });
+const slice = loadTs('../../../packages/modelling-core/src/universeSlice.ts', { './viewAppearance.js': loadTs('../../../packages/modelling-core/src/viewAppearance.ts'), './diagramPreferences.js': loadTs('../../../packages/modelling-core/src/diagramPreferences.ts') });
 const { ReadMetamodelFromFile, ReadModelFromFile } = loadTs('./ReadModelFromFile.ts', {
   '../../reducers/reducer': { InitialState: {} },
   '../../actions/actions': {}, './SvgLetters': {}, './workspaceUniverseAdapter': { isWorkspaceUniverseSnapshot: () => false },

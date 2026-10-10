@@ -14,13 +14,13 @@ const loadHostModule = (relativePath, require) => {
   }).outputText, { module, exports: module.exports, require });
   return module.exports;
 };
-const editorAccess = loadHostModule('../../editorHost/access.ts', nativeRequire);
+const editorAccess = loadHostModule('../../../packages/modelling-editor/src/host/access.ts', nativeRequire);
 const modules = new Map();
 function loadKernel(name) {
   if (modules.has(name)) return modules.get(name).exports;
   const module = { exports: {} };
   modules.set(name, module);
-  const source = readFileSync(new URL(`../../akmm/${name}.ts`, import.meta.url), 'utf8');
+  const source = readFileSync(new URL(name === 'viewAppearance' ? '../../../packages/modelling-core/src/viewAppearance.ts' : `../../akmm/${name}.ts`, import.meta.url), 'utf8');
   vm.runInNewContext(ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, {
@@ -36,8 +36,8 @@ const akm = loadKernel('metamodeller');
 const jsn = loadKernel('ui_json');
 const appearance = loadKernel('viewAppearance');
 const gjs = loadKernel('ui_gojs');
-const universe = loadHostModule('../../sharedUniverse/universeSlice.ts', path =>
-  path === '../akmm/viewAppearance' ? loadKernel('viewAppearance') : path === './diagramPreferences' ? loadHostModule('../../sharedUniverse/diagramPreferences.ts', nativeRequire) : nativeRequire(path));
+const universe = loadHostModule('../../../packages/modelling-core/src/universeSlice.ts', path =>
+  path === './viewAppearance.js' ? loadKernel('viewAppearance') : path === './diagramPreferences.js' ? loadHostModule('../../../packages/modelling-core/src/diagramPreferences.ts', nativeRequire) : nativeRequire(path));
 const setup = () => {
   const types = ['a', 'b', 'c'].map(id => new akm.cxObjectType(id, id, ''));
   const type = new akm.cxRelationshipType('rel', 'supports', types[0], types[1], 'original');
@@ -373,7 +373,7 @@ test('relationship type confirmation uses dialog identity when currentLink has b
 
 
 test('editor hydration gives the real legacy importer detached data from a frozen Redux snapshot', () => {
-  const { hydrateEditorRuntime } = loadHostModule('../../editorRuntime/hydrate.ts', nativeRequire);
+  const { hydrateEditorRuntime } = loadHostModule('../../../packages/modelling-editor/src/runtime/hydrate.ts', nativeRequire);
   const snapshot = JSON.parse(readFileSync(new URL('../../startupModel/Mimris-template_PR.json', import.meta.url), 'utf8')).phData.metis;
   const original = JSON.stringify(snapshot);
   const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } };

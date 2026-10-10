@@ -1,4 +1,4 @@
-import { configureStore, type AnyAction, type Middleware } from '@reduxjs/toolkit';
+import { configureStore, createNextState, type AnyAction, type Middleware } from '@reduxjs/toolkit';
 import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
@@ -55,9 +55,15 @@ const discardRetiredRuntimeWrites: Middleware = () => next => action => {
     return next(action);
 };
 
+/** Freeze durable store snapshots; mutable runtimes hydrate detached data at the host boundary. */
+export const readonlyRootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
+    const next = rootReducer(state, action);
+    return next === state ? next : createNextState(next, () => {});
+};
+
 export const makeStore = (_context?: Context) => {
     const store = configureStore({
-        reducer: rootReducer,
+        reducer: readonlyRootReducer,
         devTools: process.env.NODE_ENV !== 'production',
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().prepend(discardRetiredRuntimeWrites),

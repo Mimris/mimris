@@ -7,6 +7,8 @@ import { reconcileLiveNode, getEditedObjectViews } from '../../editorRuntime/rec
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 
+import { normalizeEmptyBooleanFieldsInPlace } from '../../../packages/modelling-editor/dist/runtime/paletteData.js';
+import { normalizeLinkPortData, normalizeLinkPoints, pickBestLinkPoints, pickFirstNonEmptyLinkPoints, hasExplicitSavedLinkPath } from '../../../packages/modelling-editor/dist/runtime/linkData.js';
 import * as go from 'gojs';
 import * as React from 'react';
 import Select, { components } from "react-select"
@@ -74,117 +76,6 @@ function installSafeLinkCategoryGuard() {
 
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
-
-function isBooleanLikeKey(key: string): boolean {
-  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
-    key === "visible" ||
-    key === "readOnly" ||
-    key === "markedAsDeleted" ||
-    key === "selectable" ||
-    key === "deletable" ||
-    key === "reshapable" ||
-    key === "resegmentable" ||
-    key === "relinkableFrom" ||
-    key === "relinkableTo" ||
-    key === "avoidable" ||
-    key === "shadowVisible";
-}
-
-function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
-  if (!value || typeof value !== "object") return value;
-  if (seen.has(value)) return value;
-  seen.add(value);
-  if (Array.isArray(value)) {
-    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
-    return value;
-  }
-  Object.keys(value).forEach((key) => {
-    const current = value[key];
-    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
-      value[key] = false;
-      return;
-    }
-    if (current && typeof current === "object") {
-      normalizeEmptyBooleanFieldsInPlace(current, seen);
-    }
-  });
-  return value;
-}
-
-function normalizeLinkPortData(linkDataArray: any[] | undefined): any[] {
-  if (!Array.isArray(linkDataArray)) return linkDataArray as any;
-  return linkDataArray.map((link) => {
-    if (!link || typeof link !== "object") return link;
-    normalizeEmptyBooleanFieldsInPlace(link);
-    const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
-    const normalizedToPort = typeof link.toPort === "string" ? link.toPort : "";
-    const normalizedPoints = normalizeLinkPoints(link.points);
-    if (
-      link.fromPort === normalizedFromPort &&
-      link.toPort === normalizedToPort &&
-      normalizedPoints === link.points
-    ) {
-      return link;
-    }
-    return {
-      ...link,
-      fromPort: normalizedFromPort,
-      toPort: normalizedToPort,
-      points: normalizedPoints,
-    };
-  });
-}
-
-function normalizeLinkPoints(points: any): any {
-  if (Array.isArray(points)) return points;
-  const flattened: number[] = [];
-  try {
-    if (points?.iterator) {
-      for (let it = points.iterator; it?.next();) {
-        const point = it.value;
-        if (point && typeof point.x === "number" && typeof point.y === "number") {
-          flattened.push(point.x, point.y);
-        } else if (typeof point === "number") {
-          flattened.push(point);
-        }
-      }
-      return flattened.length > 0 ? flattened : [];
-    }
-  } catch (_) {
-  }
-  return points;
-}
-
-function pickBestLinkPoints(...sources: any[]): number[] {
-  let best: number[] = [];
-  for (let i = 0; i < sources.length; i++) {
-    const normalized = normalizeLinkPoints(sources[i]);
-    if (Array.isArray(normalized) && normalized.length > best.length) {
-      best = normalized;
-    }
-  }
-  return best;
-}
-
-function pickFirstNonEmptyLinkPoints(...sources: any[]): number[] {
-  for (let i = 0; i < sources.length; i++) {
-    const normalized = normalizeLinkPoints(sources[i]);
-    if (Array.isArray(normalized) && normalized.length > 0) {
-      return normalized;
-    }
-  }
-  return [];
-}
-
-function hasExplicitSavedLinkPath(...sources: any[]): boolean {
-  for (let i = 0; i < sources.length; i++) {
-    const normalized = normalizeLinkPoints(sources[i]);
-    if (Array.isArray(normalized) && normalized.length >= 4) {
-      return true;
-    }
-  }
-  return false;
-}
 
 function mergeIncomingLinkDataWithLocalState(incomingLinks: any[] | undefined, localLinks: any[] | undefined): any[] {
   if (!Array.isArray(incomingLinks)) return incomingLinks as any;
@@ -3707,6 +3598,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     switch (name) {
 	      case "InitialLayoutCompleted": {
         if (debug) console.log("Begin: After Reload:");
+        if (!myModelview) break;
         let objviews = myModelview.objectviews;
         myModelview.objectviews = utils.removeArrayDuplicates(objviews);
         objviews = myModelview.objectviews;

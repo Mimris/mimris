@@ -21,20 +21,20 @@ const transpileCommonJs = (url) => {
 
 const loadUniverseSlice = () => {
   const module = { exports: {} };
-  vm.runInNewContext(transpileCommonJs(new URL('./universeSlice.ts', import.meta.url)), {
+  vm.runInNewContext(transpileCommonJs(new URL('../../packages/modelling-core/src/universeSlice.ts', import.meta.url)), {
     exports: module.exports,
     module,
     require: specifier => {
-      if (specifier === './diagramPreferences') {
+      if (specifier === './diagramPreferences.js') {
         const preferenceModule = { exports: {} };
-        vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./diagramPreferences.ts', import.meta.url), 'utf8'), {
+        vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../../packages/modelling-core/src/diagramPreferences.ts', import.meta.url), 'utf8'), {
           compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
         }).outputText, { module: preferenceModule, exports: preferenceModule.exports, require });
         return preferenceModule.exports;
       }
-      if (specifier !== '../akmm/viewAppearance') return require(specifier);
+      if (specifier !== './viewAppearance.js') return require(specifier);
       const appearanceModule = { exports: {} };
-      const appearanceSource = readFileSync(new URL('../akmm/viewAppearance.ts', import.meta.url), 'utf8');
+      const appearanceSource = readFileSync(new URL('../../packages/modelling-core/src/viewAppearance.ts', import.meta.url), 'utf8');
       vm.runInNewContext(ts.transpileModule(appearanceSource, {
         compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
       }).outputText, { module: appearanceModule, exports: appearanceModule.exports });
@@ -135,7 +135,7 @@ const loadStoreModule = () => {
 
 const { rootReducer } = loadStoreModule();
 const selectorsModule = { exports: {} };
-vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./selectors.ts', import.meta.url), 'utf8'), {
+vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../../packages/modelling-core/src/selectors.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText, { module: selectorsModule, exports: selectorsModule.exports, require });
 const compat = selectorsModule.exports.selectMimrisCompatibilityProps;

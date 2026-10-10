@@ -1,11 +1,2 @@
-/** The legacy importer mutates records and retains nested arrays. Give it session-owned data. */
-export const hydrateEditorRuntime = <T>(
-    runtime: { importData(data: T, includeDeleted: boolean): void },
-    snapshot: T,
-    includeDeleted: boolean,
-): void => {
-    const detached = typeof structuredClone === 'function'
-        ? structuredClone(snapshot)
-        : JSON.parse(JSON.stringify(snapshot)) as T;
-    runtime.importData(detached, includeDeleted);
-};
+/** Transitional editor import path; implementation belongs to modelling-editor. */
+export * from '../../packages/modelling-editor/dist/runtime/hydrate.js';

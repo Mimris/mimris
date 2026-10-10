@@ -6,7 +6,7 @@ import ts from 'typescript';
 import * as go from 'gojs';
 function load(name) {
   const module = { exports: {} };
-  vm.runInNewContext(ts.transpileModule(readFileSync(new URL(`./${name}.ts`, import.meta.url), 'utf8'), {
+  vm.runInNewContext(ts.transpileModule(readFileSync(new URL(`../../packages/modelling-editor/src/runtime/${name}.ts`, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, { module, exports: module.exports });
   return module.exports;

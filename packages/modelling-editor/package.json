@@ -1,0 +1,57 @@
+{
+  "name": "@mimris/modelling-editor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "files": [
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./relationship-type-editor.css": "./dist/components/RelationshipTypeEditor.module.css",
+    "./assets/*": "./dist/assets/*",
+    "./gojs": {
+      "types": "./dist/gojs/index.d.ts",
+      "import": "./dist/gojs/index.js"
+    },
+    "./inspector-row": {
+      "types": "./dist/components/InspectorRow.d.ts",
+      "import": "./dist/components/InspectorRow.js"
+    },
+    "./selection-inspector": {
+      "types": "./dist/components/SelectionInspector.d.ts",
+      "import": "./dist/components/SelectionInspector.js"
+    },
+    "./palette": {
+      "types": "./dist/components/Palette.d.ts",
+      "import": "./dist/components/Palette.js"
+    }
+  },
+  "peerDependencies": {
+    "@mimris/modelling-core": "0.0.0",
+    "@reduxjs/toolkit": "^2.2.7",
+    "react": "^18.2.0 || ^19.0.0",
+    "gojs": "3.1.10",
+    "gojs-react": "^1.1.3"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "regex-parser": "^2.3.1",
+    "colornames": "^1.1.1",
+    "printf": "^0.6.1"
+  }
+}

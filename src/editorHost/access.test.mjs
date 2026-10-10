@@ -14,8 +14,8 @@ const load = path => {
   }).outputText, { module, exports: module.exports, require });
   return module.exports;
 };
-const { bindEditorHost, getEditorHost, resolveEditorDispatch } = load('./access.ts');
-const { selectMimrisCompatibilityProps } = load('../sharedUniverse/selectors.ts');
+const { bindEditorHost, getEditorHost, resolveEditorDispatch } = load('../../packages/modelling-editor/src/host/access.ts');
+const { selectMimrisCompatibilityProps } = load('../../packages/modelling-core/src/selectors.ts');
 
 const host = (name, nest) => {
   let root = nest({

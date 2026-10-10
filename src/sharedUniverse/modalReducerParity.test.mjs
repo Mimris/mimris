@@ -21,7 +21,7 @@ function load(path) {
     require: specifier => {
       if (specifier === 'next-redux-wrapper') return { createWrapper: () => ({}) };
       if (!specifier.startsWith('.')) return nativeRequire(specifier);
-      const base = resolve(dirname(path), specifier);
+      const base = resolve(dirname(path), specifier.replace(/\.js$/, ''));
       return load(['', '.ts', '.tsx', '.js'].map(ext => base + ext).find(existsSync));
     },
   }, { filename: path });
@@ -106,7 +106,7 @@ for (const [typed, legacy, field] of [
   assert.equal(compat(result).phUser.focusUser.diagram.scale, 2);
   assert.equal(result.universe.world, state.universe.world);
   assert.equal(compat(result).phData.metis, compat(state).phData.metis);
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false, 'Immer must not freeze the runtime-facing model graph');
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
   assert.equal(rootReducer(result, typed(true)), result);
   assert.equal(rootReducer(result, { type: legacy, data: true }), result);
   const cleared = rootReducer(result, typed(false));
@@ -134,8 +134,8 @@ for (const [legacy, field] of Object.entries(legacyFocusFieldByActionType)) {
     assert.equal(compat(result).phData.metis, compat(state).phData.metis);
     assert.equal(compat(result).phUser, compat(state).phUser);
     assert.equal(compat(result).phFocus.custom, 'keep');
-    assert.equal(Object.isFrozen(value), false);
-    assert.equal(Object.isFrozen(compat(result).phData.metis), false);
+    assert.equal(Object.isFrozen(value), true);
+    assert.equal(Object.isFrozen(compat(result).phData.metis), true);
     assert.equal(rootReducer(result, setUniverseFocusField({ field, value })), result);
     assert.equal(rootReducer(result, { type: legacy, data: value }), result);
     assert.deepEqual(plain(other), otherBefore);
@@ -251,7 +251,7 @@ test('typed model edits target explicit IDs and leave unrelated models and focus
   assert.equal(compat(result).phData.metis.models[1].name, 'new');
   assert.equal(compat(result).phData.metis.models[1].unknown, 'keep');
   assert.equal(compat(result).phFocus, state.universe.world.focus);
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false);
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
   assert.equal(input.phData.metis.models[1].name, 'old');
 });
 test('typed model-view creation appends a view without importing stale collections', () => {
@@ -297,14 +297,14 @@ for (const id of ['r', 'added']) test(`relationship ${id}: typed/raw patches pre
   }
 });
 
-test('relationship property updates keep independent model graphs mutable and empty-state no-ops canonical', () => {
+test('relationship property updates keep independent canonical graphs readonly and empty-state no-ops canonical', () => {
   const input = fixture();
   const state = rootReducer(input, { type: '@@INIT' });
   const result = rootReducer(state, sessionActions.updateUniverseRelationship({ id: 'r', name: 'new' }));
   assert.equal(input.phData.metis.models[0].relships.length, 0);
   assert.equal(compat(result).phData.metis.models[0].relships.length, 1);
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false);
-  assert.equal(Object.isFrozen(compat(result).phData.metis.models[0].relships[0]), false);
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
+  assert.equal(Object.isFrozen(compat(result).phData.metis.models[0].relships[0]), true);
   const emptyInput = fixture(); emptyInput.phData.metis.models = [];
   const empty = rootReducer(emptyInput, { type: '@@INIT' });
   assert.equal(rootReducer(empty, sessionActions.updateUniverseRelationship({ id: 'r' })), empty);
@@ -341,14 +341,14 @@ for (const name of ['new name', '', undefined]) test(`object rename ${String(nam
   else assert.equal(views, model.modelviews);
 });
 
-test('object creation and description-only updates preserve unrelated views and keep graphs outside Immer', () => {
+test('object creation and description-only updates preserve unrelated views and keep canonical graphs readonly', () => {
   const input = fixture();
   input.phData.metis.models[0].objects = [{ id: 'o', name: 'old' }];
   const state = rootReducer(input, { type: '@@INIT' });
   const result = rootReducer(state, sessionActions.updateUniverseObject({ id: 'o', description: 'new' }));
   assert.equal(compat(result).phData.metis.models[0].modelviews, input.phData.metis.models[0].modelviews);
   assert.equal(input.phData.metis.models[0].objects[0].description, undefined);
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false);
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
   const added = rootReducer(result, sessionActions.updateUniverseObject({ id: 'added', name: 'new', unknown: 'keep' }));
   assert.equal(compat(added).phData.metis.models[0].objects.length, 2);
   assert.equal(compat(added).phData.metis.models[0].modelviews, compat(result).phData.metis.models[0].modelviews);
@@ -406,7 +406,7 @@ test('typed view inheritance prunes overrides while preserving durable geometry 
   assert.equal(view.fillcolor, undefined);
   assert.equal(view.loc, '10 20');
   assert.equal(view.custom, 'keep');
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false);
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
   const emptyInput = fixture(); emptyInput.phData.metis.models = [];
   const empty = rootReducer(emptyInput, { type: '@@INIT' });
   for (const typed of [sessionActions.updateUniverseObjectview, sessionActions.updateUniverseRelationshipview]) assert.equal(rootReducer(empty, typed({ id: 'missing' })), empty);
@@ -445,8 +445,8 @@ test('typed metamodel creation appends durable records and preserves the origina
   assert.equal(input.phData.metis.metamodels.length, 1);
   assert.equal(compat(result).phData.metis.metamodels[0], input.phData.metis.metamodels[0]);
   assert.deepEqual(plain(compat(result).phData.metis.metamodels[1]), patch);
-  assert.equal(Object.isFrozen(compat(result).phData.metis), false);
-  assert.equal(Object.isFrozen(patch.objecttypes), false);
+  assert.equal(Object.isFrozen(compat(result).phData.metis), true);
+  assert.equal(Object.isFrozen(patch.objecttypes), true);
 });
 test('typed target-metamodel patch follows the selected model target rather than current metamodel', () => {
   const input = fixture();
@@ -788,10 +788,46 @@ test('retired cyclic runtime writes are discarded before serialization diagnosti
     assert.deepEqual(errors, []);
   } finally { console.error = previousError; }
 });
-test('Toolkit mutation middleware detects an external mutation of canonical state', () => {
+test('read-only store snapshots reject external mutation before dispatch', () => {
   const store = makeStore();
   store.dispatch(sessionActions.openLegacyUniverseSnapshot(fixture()));
   const model = store.getState().universe.world.worldModel.metis.models[0];
-  model.name = 'external mutation';
-  assert.throws(() => store.dispatch({ type: 'EXTERNAL/UNKNOWN' }), /mutation/i);
+  assert.equal(Object.isFrozen(model), true);
+  assert.throws(() => { model.name = 'external mutation'; }, /read only|extensible|assign/i);
+  assert.doesNotThrow(() => store.dispatch({ type: 'EXTERNAL/UNKNOWN' }));
+});
+
+test('read-only updates preserve sharing and isolated editor runtimes can still mutate detached geometry', () => {
+  const store = makeStore();
+  store.dispatch(sessionActions.openLegacyUniverseSnapshot(fixture()));
+  const before = store.getState();
+  assert.equal(Object.isFrozen(before), true);
+  const { hydrateEditorRuntime } = load(resolve(base, '../editorRuntime/hydrate.ts'));
+  const imported = [];
+  const runtime = { importData(data) { imported.push(data); data.models[0].modelviews[0].objectviews[0].loc = '90 100'; } };
+  hydrateEditorRuntime(runtime, before.universe.world.worldModel.metis, false);
+  assert.equal(before.universe.world.worldModel.metis.models[0].modelviews[0].objectviews[0].loc, '10 20');
+  assert.equal(imported[0].models[0].modelviews[0].objectviews[0].loc, '90 100');
+  store.dispatch(sessionActions.setUniverseSource('new source'));
+  assert.equal(store.getState().universe.world, before.universe.world);
+  assert.equal(Object.isFrozen(store.getState()), true);
+  const current = store.getState();
+  store.dispatch({ type: 'EXTERNAL/UNKNOWN' });
+  assert.equal(store.getState(), current);
+});
+
+test('Toolkit universe reducer owns readonly finalization and preserves unknown-action identity', () => {
+  assert.equal(typeof sessionActions.universeReducer.getInitialState, 'function');
+  const initial = sessionActions.universeReducer.getInitialState();
+  assert.equal(Object.isFrozen(initial), true);
+  const state = buildUniverseStateFromLegacy(fixture());
+  const next = sessionActions.universeReducer(state, sessionActions.updateUniverseObject({ id: 'o', name: 'new' }));
+  assert.equal(Object.isFrozen(next), true);
+  assert.equal(Object.isFrozen(next.world.worldModel.metis.models[0].objects[0]), true);
+  assert.equal(sessionActions.universeReducer(next, { type: 'EXTERNAL/UNKNOWN' }), next);
+  const imported = [];
+  const { hydrateEditorRuntime } = load(resolve(base, '../editorRuntime/hydrate.ts'));
+  hydrateEditorRuntime({ importData(data) { imported.push(data); data.models[0].objects[0].name = 'runtime-only'; } }, next.world.worldModel.metis, false);
+  assert.equal(imported[0].models[0].objects[0].name, 'runtime-only');
+  assert.equal(next.world.worldModel.metis.models[0].objects[0].name, 'new');
 });

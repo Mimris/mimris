@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
 const module = { exports: {} };
-vm.runInNewContext(ts.transpileModule(readFileSync(new URL('./deferredCallbacks.ts', import.meta.url), 'utf8'), {
+vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../../packages/modelling-editor/src/runtime/deferredCallbacks.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText, { module, exports: module.exports, setTimeout, clearTimeout });
 const { createDeferredCallbacks } = module.exports;

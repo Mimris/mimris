@@ -277,3 +277,133 @@ No legacy reducer, dependency or file compatibility adapter has been deleted. Th
 ## Implementation checkpoint — 2026-10-09
 
 Increments 1–28 are included in this implementation checkpoint: scoped editor hosts, standalone file/persistence composition, runtime hydration/lifecycle isolation, typed canonical actions, legacy handler retirement, canonical-only Redux roots, saved metadata projection and enabled Toolkit diagnostics. Verification at this checkpoint: 252 tests, non-incremental typecheck, production build and diff check passed; development drop/rename passed without serialization/mutation errors. Middleware performance, Toolkit graph reducer conversion, remaining acceptance checks and package extraction remain pending.
+
+## Twenty-ninth increment — read-only store snapshots and diagnostic performance
+
+- Added a standalone store reducer boundary using Toolkit createNextState auto-freezing. Changed durable roots are read-only; unchanged roots preserve identity. The underlying immutable operation reducer remains independently usable, and editor runtime hydration continues to clone snapshot data.
+- Default diagnostic middleware stays enabled with unchanged thresholds and no active-path exclusions. Frozen snapshots let mutation tracking skip immutable subtrees; serializer caching can reuse frozen shared records.
+- Added actual-store coverage for immediate mutation rejection, structural sharing/no-op identity, and a mutable runtime importer operating on detached geometry while the canonical snapshot remains unchanged. 253 tests and non-incremental typecheck passed; the test run emitted no middleware timing warnings.
+- Development-browser comparison repeated Information palette drop, inline rename to `Readonly Redux` and drag to a new position. All succeeded with matching labels and empty warning/error logs, unlike the previous 52–354 ms mutation-check warnings on the same small fixture flow. Screenshot: /tmp/mimris-readonly-redux.jpg. Initial page navigation timed out during development compilation; the existing created tab loaded successfully when inspected after compilation. Temporary tab/server were closed/stopped before the final build.
+- This is evidence for the checked fixture flow, not a large-model benchmark. Broad graph reducer conversion, imported-data serialization acceptance, independent-editor/undo/reopen checks and package extraction remain open. Changes since checkpoint 786c39d2 remain uncommitted.
+- Final production build and diff check passed; existing duplicate GoJS-global warning remains.
+
+## Thirtieth increment — Toolkit universe reducer finalization
+
+- Public universeReducer now uses Toolkit createReducer. Its default case supplies current(draft) to the characterized immutable operation implementation, preserving mature update/normalization logic and no-op identity while Toolkit owns readonly finalization. Internal alias/load delegation uses the immutable operation function directly to avoid nested reducer-finalization work.
+- Direct reducer results are now readonly as well as standalone-store snapshots. Updated earlier mutable-canonical assertions to the readonly contract; separate runtime-hydration tests continue to prove mutable editor copies do not change durable snapshots. Retired runtime payloads remain unfrozen/no-op.
+- Added Toolkit getInitialState/finalization/no-op identity and detached-runtime mutation coverage. 254 tests, non-incremental typecheck and diff check passed. Existing saved-shape, geometry, raw/typed alias, metadata and multi-host reducer checks remain green.
+- No new browser check is claimed: standalone store snapshots were already frozen and the immediately prior browser drop/rename/drag check passed with empty diagnostics. Public reducer consumers now receive the same readonly guarantee; package/consumer acceptance remains pending.
+- Immutable operation helpers are intentionally retained rather than rewritten as draft mutations. Remaining work includes package extraction/consumer builds, larger-model performance, independent-editor acceptance and undo/file-reopen checks. Changes since 786c39d2 remain uncommitted.
+- Final production build passed with the existing duplicate GoJS-global warning.
+
+## Thirty-first increment — extract modelling-core package
+
+- Moved canonical universe types/actions/reducer, selectors, compatibility dispatch, diagram preferences and pure appearance helpers into packages/modelling-core. Original application paths are thin re-exports of built package artifacts; there are no duplicate implementations.
+- Added private 0.0.0 package metadata, GPL license, explicit ESM/types exports, Toolkit peer dependency, independent NodeNext/declaration build and automatic prepack build. Package compilation uses ES2020 without DOM libraries. Generated dist output is ignored.
+- Standalone dev/build/test/typecheck/start-build scripts build core first; watch:core supports package edits alongside development. Root tests include public core consumer/boundary tests. Documentation: docs/architecture/modelling-core-package.md.
+- Verified public ESM import in Node without a DOM, independent host-owned stores under a different enclosing root, readonly state, saved metadata and a dependency boundary allowing only local core modules/Toolkit. Packed tarball installs into /tmp/mimris-core-consumer and its runtime/declaration consumer passed. The core was installed from its tarball, not symlinked; already-installed Toolkit/runtime dependencies were supplied as physical directories to avoid registry network access. Final pack includes JS/declarations, README and LICENSE; prepack build passed.
+- Initial standalone webpack and Turbopack source-import checks failed on Node ESM .js source suffixes. A webpack extension fallback fixed only webpack and was removed. Final standalone re-exports consume real emitted .js files, avoiding resolver-specific configuration. Production build passed; Turbopack editor rendered and Information drop passed after reload with no new warning/error logs during that interaction. Screenshot: /tmp/mimris-extracted-core.jpg. Temporary tab/server were closed/stopped.
+- Final root test suite: 256 passed (254 existing application tests plus 2 package tests). Independent core tests: 2 passed. Global typecheck, core build, packed consumer declaration check and diff check passed. Existing duplicate GoJS-global warning remains.
+- Full editor-package extraction, standalone public package-name dependency wiring, clean browser editor consumers and Workspace integration remain pending. Changes since checkpoint 786c39d2 remain uncommitted; nothing was published.
+
+## Thirty-second increment — portable modelling-editor foundation
+
+- Moved scoped host access, optional draft patching, detached hydration, drag protection, reconciliation and deferred callbacks into packages/modelling-editor. Application paths are thin re-exports of emitted artifacts; mutable-runtime behavior is unchanged.
+- Added private ESM/types manifest, license, declaration build and prepack hook. Core/Toolkit are public type peers; local compiler paths resolve sibling core declarations. App dev/build/test/typecheck commands build both packages first; editor source watch is available separately.
+- Added public-entry tests for no-DOM import, host/runtime isolation, callback teardown, dependency/storage boundaries and shared host-registry identity across draft/binding helpers. Final root suite: 260 passed (254 application, 2 core-package, 4 editor-foundation tests).
+- Installed the editor tarball alongside the core tarball in the temporary consumer. A public core/editor pair used a host-owned store, mutable detached runtime and scoped binding/cleanup without a DOM. Runtime and declaration checks passed. Peer runtime packages were supplied as physical directories from the existing installation; neither Mimris package was symlinked and no registry network was needed.
+- Global typecheck, ordered package builds, production build and diff check passed. Turbopack standalone rendered and Information drop/inline rename to `Packaged Editor` passed with matching list/diagram labels and empty warning/error logs. Screenshot: /tmp/mimris-editor-foundation.jpg. Temporary tab/server were closed/stopped.
+- This is an editor foundation, not a full React/GoJS package. Modelling's project form/schema generation, Modeller's SVG/user persistence, GoJSApp's helper graph and Diagram's icon/CSS/helper assets are documented in docs/architecture/modelling-editor-package.md. Rendering components and their host/asset seams remain pending; React/GoJS peer and full browser-consumer validation follow that move.
+- Changes since checkpoint 786c39d2 remain uncommitted. Nothing was published; no Workspace repository was changed.
+
+## Thirty-third increment — standalone user-settings host capability (2026-10-10)
+
+- Removed direct SaveAkmmUser invocation from Modeller. It now requests an optional scheduleUserSettingsSave callback, propagated through Modelling and supplied by standalone composition. Hosts without this capability do not trigger browser user-settings writes.
+- New standalone scheduler retains the existing writer, akmmUser key and 250 ms delay. Cleanup cancels only its timer and guards callbacks already queued; Workspace authority suppresses scheduling and rechecks authority before the delayed write.
+- Removed unused SVG writer imports from Modeller and unused Node os/schema-generator imports from Modelling. The existing SVG handler only serializes to an unused string; this increment does not claim a working SVG download or replace that incomplete behavior.
+- Added writer/key/snapshot, independent cancellation and initial/late Workspace-authority tests. 263 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warning remains. No new browser check is claimed; diagram behavior/markup is unchanged.
+- React review: standalone callback identity is module-stable, the editor effect depends on it and focus ID, and returned cleanup cancels the owning request. No new subscriptions or render-state effects were added. Existing user-setting behavior remains a host policy.
+- Remaining React/GoJS extraction seams include project form/page-shell rendering, runtime/UI helper graph, icon/CSS assets and explicit SVG capability decisions. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-fourth increment — remove dormant project/page dependencies (2026-10-10)
+
+- Audited Modelling's Page/project form dependencies. Page/connect existed only as an unused import/commented historical export. The project dialog's open handler had no callers; show state started false and no reachable path set it true. The secondary projectModalOpen setter/ref were unused.
+- Removed those imports, dormant state/handlers/form dialog and its render reference. This removes unreachable application coupling rather than introducing a host callback for a feature with no reachable editor UI.
+- Retained ProjectDetailsForm and its live Project/ProjectMenuBar call sites. Active standalone page composition and model-rename dialogs are unchanged.
+- 263 tests, non-incremental typecheck, production build and diff check passed. No new tests or browser check were added for unreachable-code cleanup; no diagram behavior/active markup changed. Existing duplicate GoJS-global warning remains.
+- Remaining extraction concerns are the runtime/UI helper graph, reports/forms that are actually used, icon/CSS assets, SVG capability decisions and a full React/GoJS consumer. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-fifth increment — packaged relationship form/helpers/CSS (2026-10-10)
+
+- Moved relationship draft/validation/apply helpers, the React RelationshipTypeEditor and its CSS module into modelling-editor. Original helper/component paths are thin re-exports; Diagram imports the emitted stylesheet. Helper code received explicit TypeScript annotations without changing behavior.
+- Added a separate client `@mimris/modelling-editor/react` entry, React peer, CSS asset export and asset-copy build step. The root entry remains React/DOM-free. Asset tests caught a root build command that omitted copying CSS; both package and root build commands now include that step.
+- 264 tests, global typecheck, ordered package builds, production build and diff check passed. Tests assert separate client entry and exact emitted/source stylesheet contents, alongside existing real-runtime relationship validation/parity coverage.
+- Packed tarball includes React JS/declarations and CSS. Installed consumer root remains no-DOM safe; public React-entry declaration consumption passed with compatible physical peer/type packages supplied from the existing installation. No Mimris package was symlinked and no registry network was needed.
+- Turbopack browser: switched to metamodel, opened performs -> Edit Relationship Type, verified Definition and Appearance layouts, entered invalid source cardinality and confirmed validation blocked Apply. Canceled the draft; no valid model changes were applied. Browser errors were empty; one 33 ms serialization timing warning exceeded the default 32 ms threshold. Screenshot: /tmp/mimris-packaged-relationship-form.jpg. Temporary tab/server were closed/stopped.
+- React review: extracted component is unchanged apart from local imports/client directive; lazy draft initialization, validation, accessibility IDs and callback flow remain. Parent modal stays host-owned. Existing Bootstrap utility/form classes remain a consumer styling requirement.
+- Full GoJS canvas, remaining runtime/UI graph and icon assets still require extraction and browser-consumer validation. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-sixth increment — portable catalogs and packaged local assets (2026-10-10)
+
+- Split iconList/iconList2/imageLibrary data from the application React selector into modelling-editor's Node-safe runtime exports. Diagram now imports pure package catalog code; the legacy form keeps its JSX selector and re-exports catalog functions.
+- Copied 43 referenced local image/icon files into package-owned assets and emitted them under dist/assets with an explicit wildcard export. Standalone public files remain to preserve existing URLs; byte-equality tests detect drift between package source, emitted assets and retained public copies.
+- Asset audit found 44 unique local references; property.png was already absent. Preserved that identifier, reported it via unresolvedEditorAssetNames and did not invent/substitute a resource. Remote URLs remain unchanged and were not downloaded or claimed verified.
+- Added resolveEditorAssetUrl for host opt-in base URLs. Known packaged identifiers resolve against that base; unknown and remote values are returned unchanged. Existing standalone rendering paths and saved values are unchanged.
+- 265 tests, non-incremental typecheck, ordered package builds, production build and diff check passed. Installed tarball catalog/asset exports passed without DOM or application-source imports; archive contains exactly 43 asset files. Existing duplicate GoJS-global warning remains.
+- No new browser check is claimed for this pure data/byte-preserving move. Package-owned asset serving/public dependency wiring, the full GoJS/React canvas/helper graph and remaining independent-host acceptance still need work. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-seventh increment — GoJS tool/layout entry (2026-10-10)
+
+- Moved GuidedDraggingTool and DropLayoutManager into a separate modelling-editor/gojs entry. Original application paths are thin artifact re-exports. Removed DropLayoutManager's unused ui_json import; runtime algorithms are unchanged.
+- Declared the tested GoJS 3.1.10 host peer and retained the extension's original Northwoods notices, with a packaged provenance notice. The library is not bundled, and root helper imports remain GoJS-free.
+- Added shared host-peer instanceof/tool-manager checks, independent tool configuration, guideline cleanup and nested layout-config isolation/default-preservation checks. 267 tests passed.
+- Initial global typecheck raced new artifact generation and reported missing declarations; rerunning after package generation passed. Production build and diff check passed. Installed tarball GoJS-entry consumer shared its physical host peer and worked headlessly.
+- Turbopack browser: expanded palette, retargeted a drop after palette reflow, dropped Information and dragged it to a new position. Final object position was visibly updated and warning/error logs were empty. Screenshot: /tmp/mimris-packaged-gojs-tools.jpg. Temporary tab/server were closed/stopped.
+- Multi-node layout/alignment, group/swimlane behavior, undo/reopen and full canvas/browser-consumer acceptance remain pending. This moves two self-contained runtime modules; the main Diagram/GoJSApp/runtime-helper graph remains in application source. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-eighth increment — portable palette data helpers (2026-10-10)
+
+- Extracted palette node/link normalization and shallow change detection from GoJSPaletteApp into the Node-safe editor root. The application uses emitted package code; helper algorithms remain unchanged. Retained the originating module copyright notice.
+- Tests cover saved identifiers, geometry, unknown fields, category defaults, nested boolean normalization, cyclic mutable runtime data and shallow comparison/NaN behavior. Documentation explicitly restricts normalization to detached mutable runtime data rather than readonly Redux snapshots.
+- 270 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global build warning remains. No new visual check is claimed for this unchanged pure-helper extraction.
+- SelectionInspector and main canvas still depend on AKM/application utilities; full editor extraction and independent-host browser acceptance remain pending. Changes since 786c39d2 remain uncommitted.
+
+## Thirty-ninth increment — packaged inspector row (2026-10-10)
+
+- Moved InspectorRow into modelling-editor with an explicit client inspector-row entry. The original path is a thin re-export. React remains a host peer; regex-parser is declared as a runtime dependency. Original Northwoods notice and existing behavior are retained.
+- Added public-entry checks for unknown saved select options, empty options, inherited styling, textarea rendering, checkbox callbacks, numeric drafts/host refresh and patterned blur validation. 273 tests, non-incremental typecheck, production build and diff check passed.
+- Turbopack browser: dropped Information, opened its canvas Objectview -> Edit Object View dialog and visually verified the packaged text/number/textarea/select rows. No property edits were applied. Screenshot: /tmp/mimris-packaged-inspector-row.jpg. Temporary tab/server closed/stopped.
+- Browser inspection also surfaced a rows=NaN React warning from the separate ObjectForm in src/components/forms/ObjectDetails.tsx; the source computes textarea rows from possibly absent lengths. It is outside the extracted row and remains unresolved. Existing duplicate GoJS-global production-build warning remains.
+- React review retained existing class/state/callback behavior and rendering; legacy ts-nocheck/narrow props remain explicitly documented. Full SelectionInspector still depends on AKM/application helpers; the main canvas and independent-host browser acceptance remain pending. Changes since 786c39d2 remain uncommitted.
+
+## Fortieth increment — selection inspector with explicit runtime adapter (2026-10-10)
+
+- Moved SelectionInspector and its nested object-type property editor into modelling-editor/selection-inspector. A component factory accepts the property constructor, row policy, template/figure catalogs, GUID/numeric helpers, constants and appearance-field policy. Standalone creates one stable adapter outside render using its existing AKM modules. No store/application modules are imported by the packaged component.
+- Preserved runtime algorithms and the original copyright notice; internal AKM type annotations become opaque runtime types. Removed the unused private cheerio import. Legacy ts-nocheck/narrow prop declarations and mutable-runtime rendering effects remain documented, rather than claimed redesigned. A source comparison confirmed the implementation matches after adapter/type-only transformations.
+- Added public-entry tests for separate adapters with independent row policies, saved unknown layout values, numeric selected values and absent context. 275 tests, non-incremental typecheck and diff check passed.
+- Turbopack browser: dropped Information, opened Objectview -> Edit Object View, changed memberscale from 1 to 2, completed Done and reopened the dialog showing 2. No browser errors; Redux serialization checks emitted 35 and 44 ms timing warnings after edits. Screenshot: /tmp/mimris-packaged-selection-inspector.jpg. Temporary tab/server closed/stopped.
+- First production build exited successfully but showed missing helpblog manifest messages and zero shared chunks, suggesting stale development artifacts. Preserved generated .next outside the repo and reran with no active development listener. Clean production build passed; existing duplicate GoJS-global warnings remain.
+- Full canvas/runtime helper extraction, object-type property create/delete and relationship inspector browser acceptance, package installation in Workspace and two simultaneous browser editors remain pending. Changes since 786c39d2 remain uncommitted.
+
+## Forty-first increment — palette wrapper with explicit rendering adapter (2026-10-10)
+
+- Moved PaletteWrapper into modelling-editor/palette with a stable component factory accepting tooltip and template/icon capabilities. Standalone supplies existing helpers; the package imports no application runtime modules. React, GoJS and gojs-react are host peers (tested gojs-react 1.1.3). Retained original Northwoods notice.
+- Removed duplicate palette boolean/category normalization in favor of the existing package helpers. Saved identifiers, geometry and unknown fields retain the same behavior. Legacy ts-nocheck and mutable runtime props remain documented.
+- Initial new headless initialization test failed because the existing initializer requires HTMLDivElement. Corrected verification scope to independent runtime props/React refs and rendered normalization; diagram construction is covered in the real browser, not claimed Node-safe. Final 277 tests, non-incremental typecheck, clean production build and diff check passed.
+- Turbopack browser: verified IRTV palette icons/layout and dragged Information onto the canvas; the object appeared and the Objects palette updated. No browser errors; one Redux serialization timing warning of 55 ms exceeded the default 32 ms threshold. Screenshot: /tmp/mimris-packaged-palette-wrapper.jpg. Temporary tab/server closed/stopped before production build. Generated development .next artifacts were preserved outside the repo before the clean build; existing duplicate GoJS-global build warning remains.
+- Existing idempotent category guards still modify the shared host GoJS model prototype when the factory runs. Full two-editor isolation, alternate palettes, relationship links/context menus, main canvas/runtime-helper extraction and Workspace package consumption remain pending. Changes since 786c39d2 remain uncommitted.
+
+## Forty-second increment — portable link data and shared normalization (2026-10-10)
+
+- Moved link port/point normalization, longest-path selection, first-nonempty-path selection and explicit saved-path detection into the Node-safe editor root. GoJSApp consumes emitted helpers; a source comparison confirmed extracted algorithms match the original implementation.
+- Replaced duplicated boolean normalization in GoJSApp, Diagram and GoJSPaletteTargetApp with the existing package helper. Local category policies and target-palette link handling remain unchanged.
+- Added checks for saved-array identity, point/number iterators, missing points, distinct path-selection policies, saved port identifiers, detached changed records, unknown fields and routing preservation. 280 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warning remains.
+- No browser check is claimed for this pure-helper extraction; no rendering/layout behavior changed. Main canvas/runtime-helper extraction, complete host isolation and Workspace package consumption remain pending. Changes since 786c39d2 remain uncommitted.
+
+## Package checkpoint review and commit (2026-10-10)
+
+- Reviewed increments 29–42 as one scoped checkpoint: canonical Toolkit finalization/readonly snapshots, portable core, editor host/runtime helpers, relationship form/CSS, catalogs/assets, GoJS tools, inspector/palette adapters, standalone settings capability and unreachable-code cleanup. No new blocking regression found.
+- Preserved unrelated metamodel palette visibility/model-loading edits in the working tree, including a separate appearance alias in tsconfig; they are excluded from this checkpoint.
+- Normalized whitespace in newly tracked package source. Copied asset bytes remain unchanged; staged diff checking passes with inherited blank-at-EOF reporting disabled for the pre-existing SVG formatting. No generated dist/node_modules/Next artifacts are included.
+- Exported the exact staged code to a temporary checkout using the existing dependency installation. All 280 tests, non-incremental typecheck and a fresh production build passed there, independently of unrelated working-tree changes. Existing GoJS duplicate-global warning and previously recorded browser timing/acceptance caveats remain. No new browser verification is claimed for the review/whitespace pass.
+- This is a local checkpoint commit; complete canvas extraction, installed consumer/two-editor browser acceptance and Workspace integration remain pending.

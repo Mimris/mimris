@@ -93,3 +93,7 @@ Standalone Redux now stores a canonical universe and host metadata only. Legacy 
 ## Middleware checks enabled (2026-10-09)
 
 Default Toolkit mutation/serialization middleware is enabled for development; retired runtime-action strings are discarded before diagnostic traversal. Active paths are not ignored. Actual-store tests detect state mutation and accept representative durable edits without serialization errors. Browser drop/rename passed without serialization/mutation failures. Development mutation checks took 52–354 ms across several drop dispatches, so performance remains an explicit open gate; no suppressions were added.
+
+## Read-only standalone snapshots (2026-10-09)
+
+Standalone stores freeze changed canonical roots through Toolkit createNextState, while mutable editor instances hydrate detached records. Default diagnostics are retained. Tests reject direct state mutation and retain structural sharing. Development drop/rename/drag repeated the prior small-flow check with no warning/error logs; earlier 52–354 ms mutation timing warnings did not recur. Larger-model timing and wider acceptance remain pending; no thresholds or state-path checks were relaxed.

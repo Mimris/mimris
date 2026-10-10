@@ -3,6 +3,7 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 
+import { normalizeEmptyBooleanFieldsInPlace } from '../../../../packages/modelling-editor/dist/runtime/paletteData.js';
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
@@ -25,7 +26,7 @@ import classnames from 'classnames';
 
 import { SelectionInspector } from '../components/SelectionInspector';
 import { RelationshipTypeEditor, RELATIONSHIP_TYPE_FORM_ID } from './RelationshipTypeEditor';
-import relationshipEditorStyles from './RelationshipTypeEditor.module.css';
+import relationshipEditorStyles from '../../../../packages/modelling-editor/dist/components/RelationshipTypeEditor.module.css';
 import { applyRelationshipTypeDraft } from '../../utils/relationshipTypeEditor';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
@@ -45,7 +46,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
-import { iconList, imageLibrary } from '../../forms/selectIcons';
+import { iconList, imageLibrary } from '../../../../packages/modelling-editor/dist/runtime/assetCatalog.js';
 import ChangeIconModal from '../../modals/ChangeIconModal';
 import ChangeImageModal from '../../modals/ChangeImageModal';
 // import { stringify } from 'querystring';
@@ -106,42 +107,6 @@ function installSafeLinkCategoryGuard() {
 
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
-
-function isBooleanLikeKey(key: string): boolean {
-  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
-    key === "visible" ||
-    key === "readOnly" ||
-    key === "markedAsDeleted" ||
-    key === "selectable" ||
-    key === "deletable" ||
-    key === "reshapable" ||
-    key === "resegmentable" ||
-    key === "relinkableFrom" ||
-    key === "relinkableTo" ||
-    key === "avoidable" ||
-    key === "shadowVisible";
-}
-
-function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
-  if (!value || typeof value !== "object") return value;
-  if (seen.has(value)) return value;
-  seen.add(value);
-  if (Array.isArray(value)) {
-    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
-    return value;
-  }
-  Object.keys(value).forEach((key) => {
-    const current = value[key];
-    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
-      value[key] = false;
-      return;
-    }
-    if (current && typeof current === "object") {
-      normalizeEmptyBooleanFieldsInPlace(current, seen);
-    }
-  });
-  return value;
-}
 
 function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;

@@ -4,6 +4,7 @@ import Modelling from '../components/Modelling';
 import { selectSharedUniverseState, setUniverseFocusField } from '../sharedUniverse';
 import { StandaloneFileControls, type StandaloneFileControlProps } from './StandaloneFileControls';
 import { createStandaloneEditorPersistence } from './editorPersistence';
+import { scheduleStandaloneUserSettingsSave } from './userSettings';
 import { persistStandaloneModellingState, rememberStandaloneModel } from './modellingPersistence';
 
 const renderFileControls = (props: StandaloneFileControlProps) => <StandaloneFileControls {...props} />;
@@ -40,6 +41,7 @@ const StandaloneModellingClient = (props: any) => {
     return <Modelling {...props} userSettings={userSettings}
         createDraftPersistence={createStandaloneEditorPersistence}
         persistState={persistStandaloneModellingState}
+        scheduleUserSettingsSave={scheduleStandaloneUserSettingsSave}
         rememberModelSelection={rememberStandaloneModel}
         renderFileControls={renderFileControls} />;
 };

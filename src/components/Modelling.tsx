@@ -6,21 +6,17 @@ const debug = false;
 
 // import React from "react";
 import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
-import { connect, useSelector, useDispatch, useStore } from 'react-redux';
+import { useSelector, useDispatch, useStore } from 'react-redux';
 import { Modal, Button } from 'react-bootstrap';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-import { type } from "os";
 import classnames from 'classnames';
 
-import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import TargetModeller from "./TargetModeller";
 import TargetMeta from "./TargetMetaPalette";
 import GenGojsModel from './GenGojsModel'
-import ProjectDetailsForm from "./forms/ProjectDetailsForm";
 import * as akm from '../akmm/metamodeller';
-import genGqlSchema from "../../pagestmp/genGqlSchema";
 import { bindLegacyUniverseDispatch, selectMimrisCompatibilityProps } from "../sharedUniverse";
 import { bindEditorHost } from '../editorHost/access';
 import { hydrateEditorRuntime } from '../editorRuntime/hydrate';
@@ -41,7 +37,6 @@ const Modelling = (props: any) => {
   const dispatch = useMemo(() => bindLegacyUniverseDispatch(rawDispatch), [rawDispatch]);
   const store = useStore();
 
-  const projectModalRef = useRef(null);
   const modellerRef = useRef<any>(null);
   const paletteRef = useRef<any>(null); // metamodel palette
   const paletteObjRef = useRef<any>(null); // objects palette (left column)
@@ -70,8 +65,6 @@ const Modelling = (props: any) => {
   })
   const [palettesOpen, setPalettesOpen] = useState(true) // parent-level toggle state for both palettes
   const [loaded, setLoaded] = useState(false)
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [projectModalOpen, setProjectModalOpen] = useState(false);
   // const [visibleContext, setVisibleContext] = useState(true)
   // const [visibleFocusDetails, setVisibleFocusDetails] = useState(true) // show/hide the focus details (right side)
 
@@ -227,19 +220,6 @@ const Modelling = (props: any) => {
     }
   }, [editingModelId]);
 
-  const handleShowProjectModal = () => {
-    // if (minimized) {
-    //   setMinimized(true);
-    // }
-    setShowProjectModal(true);
-  };
-
-  const handleCloseProjectModal = () => setShowProjectModal(false);
-
-  const handleSubmit = (details: any) => {
-    props.onSubmit(details);
-  };
-
   const handleShowRenameModelModal = () => setShowRenameModelModal(true);
 
   const handleCloseRenameModelModal = () => {
@@ -309,21 +289,6 @@ const Modelling = (props: any) => {
     if (!sourceModelId || sourceModelId === targetModelId) return;
     dispatch(reorderUniverseModels({ sourceId: sourceModelId, targetId: targetModelId }));
   };
-
-  const projectModalDiv = (
-    <Modal show={showProjectModal} onHide={handleCloseProjectModal}
-      className={`projectModalOpen ${!projectModalOpen ? "d-block" : "d-none"}`} style={{ marginLeft: "200px", marginTop: "100px", backgroundColor: "#fee", zIndex: "9999" }} ref={projectModalRef}>
-      <Modal.Header closeButton>GitHub Settings: </Modal.Header>
-      <Modal.Body >
-        <ProjectDetailsForm props={compatibilityProps} onSubmit={handleSubmit} />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button color="link" onClick={handleCloseProjectModal} >Exit</Button>
-      </Modal.Footer>
-    </Modal>
-  );
-
-  // Keep GitHub Settings modal closed by default; open explicitly via UI actions only.
 
   useEffect(() => {
     if (debug) useEfflog('163 Modelling useEffect 3 [phSource]', phSource)
@@ -462,6 +427,7 @@ const Modelling = (props: any) => {
         modelType='metamodel'
         phSource={phSource}
         userSettings={props.userSettings}
+        scheduleUserSettingsSave={props.scheduleUserSettingsSave}
         visibleFocusDetails={props.visibleFocusDetails}
         setVisibleFocusDetails={props.setVisibleFocusDetails}
       />
@@ -659,6 +625,7 @@ const Modelling = (props: any) => {
                       modelType='model'
                       phSource={phSource}
                       userSettings={props.userSettings}
+                      scheduleUserSettingsSave={props.scheduleUserSettingsSave}
                       visibleFocusDetails={props.visibleFocusDetails}
                       setVisibleFocusDetails={props.setVisibleFocusDetails}
                       exportTab={props.exportTab}
@@ -793,7 +760,6 @@ const Modelling = (props: any) => {
               </>
             )}
           </div>
-          {projectModalDiv}
         </>
       : <>
           <div className="diagramtabs pb-0 " >
@@ -810,4 +776,3 @@ const Modelling = (props: any) => {
 }
 
 export default Modelling;
-// export default Page(connect(state => state)(page));

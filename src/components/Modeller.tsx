@@ -13,8 +13,6 @@ import { gojs } from "../akmm/constants";
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 import Selector from './utils/Selector'
-import { SaveModelviewToSvgFile, SaveModelviewToSvgFileAuto } from "./utils/SaveModelToFile";
-import { SaveAkmmUser } from "./utils/SaveAkmmUser";
 import ReportModule from "./export/ReportModule";
 import * as uib from '../akmm/ui_buildmodels';
 import { setColorsTopOSDUTypes } from "./utils/SetColorsTopOSDUTypes";
@@ -283,11 +281,9 @@ const Modeller = React.forwardRef((props: any, ref) => {
         if (debug) console.log('163 Modeller useEffect 2, phFocus.focusModelview?.id] : ', phFocus.focusModelview?.id, propps);
         if (props.userSetting) (setMemoryLocState(propps))
         // setMemoryLocState(SaveModelToLocState(propps, memoryLocState))
-        const timer = setTimeout(() => {
-            SaveAkmmUser(legacyProps, 'akmmUser')
-        }, 250);
-        return () => clearTimeout(timer);
-    }, [phFocus?.focusObjectview?.id])
+        const cancelSave = props.scheduleUserSettingsSave?.(legacyProps);
+        return () => cancelSave?.();
+    }, [phFocus?.focusObjectview?.id, props.scheduleUserSettingsSave])
 
     // put current modell on top 
     const selmods = (models) 

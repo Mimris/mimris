@@ -60,3 +60,51 @@ Legacy ts-nocheck and opaque runtime props remain. Parent containers and global 
 The Node-safe root exports link-port normalization, runtime point conversion and saved-path selection helpers. Existing point arrays keep their identity; GoJS-style iterators flatten to coordinate arrays. Longest-path and first-nonempty-path policies remain distinct. Valid port identifiers, unknown fields and routing values are preserved; missing/non-string ports retain the existing empty-string normalization. These helpers accept detached mutable runtime data and are not a persisted-data validator.
 
 GoJSApp consumes emitted package helpers. The main canvas and target palette also reuse package boolean normalization, removing duplicate code. No render/layout algorithms were changed in this extraction.
+
+## Manual-link geometry
+
+The GoJS peer entry exports routing preservation, modified-link sanitization, manual endpoint reanchoring and joint endpoint translation. Explicit saved manual paths remain durable; automatic orthogonal/avoid-node routes omit transient points. Joint endpoint movement translates all bends, while single-endpoint movement leaves bends for the separate reanchoring operation. Reanchoring preserves the direction of endpoint segments. These operations copy point arrays when moving/reanchoring and do not create a store or import application code. GoJSApp uses the emitted package helpers.
+
+## Node identity
+
+The GoJS entry exports saved alias extraction, live-node lookup and structural node-array comparison. Aliases retain the existing priority order across key, object-view/object references and drag-session tokens. Lookup searches only the supplied diagram, using the host GoJS peer. Structural comparison detects membership changes independently of ordering or geometry; identity-less records retain their existing conservative changed result. GoJSApp and Diagram share the alias implementation without changing their reconciliation policies.
+
+## Node reconciliation
+
+The GoJS entry exports incoming-node reconciliation. Position locks and drag-preservation windows belong to the supplied diagram, with expired entries removed during reconciliation. Live geometry retains precedence unless the incoming node carries a different explicit layout revision. Blank incoming names keep runtime defaults; saved unknown fields remain intact. GoJSApp consumes the emitted helper. Existing diagnostic logging and reconciliation policies are retained.
+
+## Link reconciliation
+
+The Node-safe root exports incoming-link reconciliation. During background updates a local explicit manual path survives when the incoming record lacks a valid manual path; a valid incoming manual path takes precedence. Local routing and relationship-view metadata follow the retained path, with incoming values as fallback. Incoming unknown fields and unchanged record identities are preserved. Missing, non-array and short normalized paths are treated as absent manual paths, avoiding a crash from manual flags without coordinates. This helper does not replace the host's separate file-replacement policy.
+
+## Queued view dispatch
+
+The Node-safe root exports view-dispatch cloning, object/relationship queues, immediate flushing and disposal. Each editor instance owns its pending maps and timers; object edits coalesce by modelview and view ID, while relationship edits retain the existing view-ID key. Dispatch payloads are JSON-detached from mutable runtime geometry, omitting functions, repeated/cyclic objects and recognized GoJS runtime objects. Object drafts use the optional host persistence capability. Deferred flushes retain the existing React/runtime/model synchronization, while immediate flushes dispatch and persist before cancelling deferred duplicates. Disposal cancels only that instance and rejects later queued edits. These are compatibility helpers for the current canvas, not a new store or persistence backend.
+
+## Rendered scale queries
+
+The GoJS entry exports group member-scale resolution, ancestor scale multiplication, live part/text scale and relationship endpoint averaging. Saved field precedence and invalid-value defaults remain unchanged. Queries operate on the supplied host GoJS objects and do not modify persisted data. GoJSApp retains the mutating scale application and relationship binding synchronization; only the query calculations are extracted here.
+
+## Scale application
+
+The GoJS entry exports derived scale application and relationship text-scale synchronization. Application updates the live part, model scale/scale1 and supplied mutable runtime projections; a missing group restores scale one. Relationship references are deduplicated by saved ID, their text scale derives from live endpoints and target bindings are refreshed. Existing fallback and exception handling are retained. These helpers operate on detached mutable editor data, never canonical Redux snapshots. Nested-group sizing remains in the canvas.
+
+## Nested-group sizing
+
+The GoJS entry exports the existing nested-group sizing operation, group-like recognition and shared ratio. Despite its legacy HalfSize name, the retained ratio is 0.35 of parent width/height, clamped to at least one. Parent saved size takes precedence over live bounds. Updates synchronize the resize object, model size/desiredSize and mutable objectview/runtime projections. Native groups, saved group flags and group-prefixed templates retain their existing recognition rules; ordinary nodes and invalid parent dimensions remain untouched.
+
+## Group containment queries
+
+The GoJS entry exports native group-cycle detection and runtime object-descendant lookup. Native checks reject self/descendant targets using the supplied peer group hierarchy. Object lookup follows active relationships matching the supplied containment type name, using saved object IDs and a visited set to terminate existing object-graph cycles. Algorithms and malformed-input defaults remain unchanged. Drop-target geometry and containment application still belong to the current canvas.
+
+## Drop-target geometry
+
+The GoJS entry exports group body bounds, containing-group selection and visual containment queries. Body lookup retains SHAPE, LANE_BODY_SHAPE, BODY and resize-object precedence. Target selection uses the smallest containing body area and excludes self/descendant-cycle targets. Visual containment accepts a fully contained part, a contained center or at least 45 percent overlap. These queries use the supplied diagram and peer objects; grab permissions and containment application remain in the current canvas. Algorithms are unchanged. Controlled native-object geometry tests do not establish browser layout or drag/drop acceptance.
+
+## Group grab permissions
+
+The GoJS entry exports the existing group grab query and model-list projection. The query resolves optional saved objectviews through the supplied runtime's host binding, retaining runtime/modelview lookup precedence and strict boolean flags. Each host supplies its own projected state; there is no global store or server authorization in this helper. These are modelling interaction flags, not user access-control permissions. Containment application remains in the current canvas.
+
+## Containment application
+
+The GoJS entry exports hierarchy lookup, group-state clearing, detachment, attachment and consistency diagnostics. Detachment retains live position while clearing model/runtime membership. Attachment retains the existing detach-first policy: a rejected add leaves the part at top level. Operations use the supplied diagram and mutable runtime data. Guarded legacy removeMembers/updateAllTargetBindings attempts remain, even though those methods are absent from current peer declarations; their existing exception handling is preserved. Full browser containment acceptance remains pending.

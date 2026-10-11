@@ -407,3 +407,110 @@ Increments 1–28 are included in this implementation checkpoint: scoped editor 
 - Normalized whitespace in newly tracked package source. Copied asset bytes remain unchanged; staged diff checking passes with inherited blank-at-EOF reporting disabled for the pre-existing SVG formatting. No generated dist/node_modules/Next artifacts are included.
 - Exported the exact staged code to a temporary checkout using the existing dependency installation. All 280 tests, non-incremental typecheck and a fresh production build passed there, independently of unrelated working-tree changes. Existing GoJS duplicate-global warning and previously recorded browser timing/acceptance caveats remain. No new browser verification is claimed for the review/whitespace pass.
 - This is a local checkpoint commit; complete canvas extraction, installed consumer/two-editor browser acceptance and Workspace integration remain pending.
+
+## Packed-package browser consumer check (2026-10-11)
+
+- Tested committed checkpoint 608c2f6a in a separate temporary app with physical core/editor tarball contents and reused installed peers. No current dirty application/package edits were consumed.
+- Verified independent name edits, node movement, host save/reset/reload with unknown-field/geometry preservation and scoped callback cancellation after closing A. Fresh final logs were clean.
+- Retained the fixture and evidence/limitations in consumer-verification.md. This covers the available row/palette/tool/core/host/lifecycle cluster using a consumer-owned canvas and minimal runtime; complete two-editor Mimris/Workspace acceptance remains pending. No production/package code changes or commit/push were made for this test.
+
+## Forty-third increment — portable manual-link geometry (2026-10-11)
+
+- Extracted routing preservation, modified-link sanitization, manual endpoint reanchoring and joint endpoint translation from GoJSApp into modelling-editor/gojs. Source comparison confirms algorithms match after export/import changes; original copyright retained.
+- Added checks for peer enum/string routing, transient versus explicit manual paths, saved identifiers/unknown fields, copied coordinate arrays, joint endpoint translation and orthogonal endpoint segment preservation. All 284 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global build warnings remain.
+- No new browser verification is claimed for this unchanged helper extraction. Earlier packed consumer acceptance covers controls/store/lifecycle only; full Mimris canvas and saved manual-link browser acceptance remain pending. Existing unrelated working-tree edits were preserved. This increment is uncommitted.
+
+## Forty-fourth increment — shared node identity helpers (2026-10-11)
+
+- Moved node alias extraction, live-node lookup and structural node-array comparison from GoJSApp into modelling-editor/gojs. Diagram's identical alias implementation now reuses the package helper. Existing alias priority, fallback IDs and reconciliation policies are unchanged; original notice retained.
+- Added saved-ID/ordered deduplication, geometry/order versus membership checks and live native-GoJS lookup tests proving saved aliases resolve only within the supplied diagram. All 287 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global build warnings remain.
+- No new visual check is claimed for this unchanged identity-helper extraction. Full canvas/reconciliation extraction and broader browser acceptance remain pending. Unrelated edits preserved; this increment remains uncommitted.
+
+## Forty-fifth increment — portable node reconciliation (2026-10-11)
+
+- Moved incoming-node reconciliation unchanged from GoJSApp into modelling-editor/gojs. The package uses its existing diagram-scoped drag protection and identity helpers, with no application imports. Original copyright and diagnostic logging retained.
+- Added coverage for alias-based position locks isolated between native GoJS diagrams, expired protection cleanup, live geometry versus explicit new layout revisions, default-name preservation, unknown fields and unchanged incoming records. All 291 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new browser verification is claimed for this unchanged helper extraction. Incoming-link reconciliation, the full canvas extraction and broader browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Forty-sixth increment — portable link reconciliation (2026-10-11)
+
+- Extracted incoming-link reconciliation from GoJSApp into the Node-safe editor root. Retained saved-route precedence, metadata fallback and unchanged-record identity, with original copyright preserved.
+- Fixed an existing crash when a manual-path flag accompanied missing points: only normalized arrays with at least four coordinates count as manual paths. Non-array and short paths no longer override valid local routes.
+- Added coverage for local versus incoming manual routes, unknown-field and input preservation, missing/malformed/short coordinates, iterator points and routing/relationship-view fallback. All 295 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for this runtime-data extraction and malformed-input fix. Full canvas browser acceptance and extraction of queued dispatch/remaining runtime helpers remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Forty-seventh increment — portable queued view dispatch (2026-10-11)
+
+- Extracted safe dispatch cloning, object/relationship queues, immediate flushing and disposal into the Node-safe editor root. GoJSApp consumes emitted helpers, and optional draft writes use the package's existing host capability. Comparison with committed source confirms queue algorithms match after exports/imports and queue type annotations; original copyright retained.
+- Added public-entry checks for runtime/cycle stripping, detached geometry, coalescing, native GoJS model synchronization, optional host draft persistence, per-editor teardown and immediate flush without duplicates. Existing source-driven regression tests now target the extracted functions, retaining the application rename test.
+- Initial suite failed the dependency guard because it allowed only same-folder imports. Updated it to verify resolved relative imports stay within package src, retaining rejection of application/external dependencies. Final 299 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual verification is claimed for this unchanged queue extraction. Remaining canvas/runtime helpers and full canvas/browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Forty-eighth increment — portable rendered-scale queries (2026-10-11)
+
+- Extracted group member-scale resolution, ancestor multiplication, live part/text scaling and relationship endpoint averaging into modelling-editor/gojs. GoJSApp consumes emitted queries; mutating scale application and binding synchronization remain in the canvas. Comparison with committed source confirms unchanged algorithms, with original copyright retained.
+- Added native GoJS coverage for saved-field precedence, invalid-value defaults, nested ancestor products isolated by host hierarchy, live versus saved scale, endpoint averaging, absent endpoints and unchanged saved records. All 303 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for these unchanged read-only calculations. Remaining runtime helpers, scale application and full canvas browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Forty-ninth increment — portable scale application (2026-10-11)
+
+- Extracted derived scale application and relationship text-scale synchronization into modelling-editor/gojs. GoJSApp consumes emitted helpers. Comparison with committed source confirms unchanged algorithms after import/export changes; original copyright retained. Nested-group sizing remains in the canvas.
+- Added native GoJS checks for live/model/runtime scale agreement, separate host diagrams, relationship deduplication, endpoint-derived label scale, ungrouping and missing contexts/links. Initial test counted binding refreshes, which also occur automatically in GoJS; corrected it to count the intended textscale model writes. Final 307 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for this unchanged extraction. Full canvas browser acceptance, nested-group sizing and remaining runtime helper extraction remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fiftieth increment — portable nested-group sizing (2026-10-11)
+
+- Extracted nested-group sizing, group-like recognition and the shared 0.35 size ratio into modelling-editor/gojs. GoJSApp consumes emitted helpers and ratio. Comparison with committed source confirms unchanged algorithms after import/export changes; original copyright retained.
+- Added native GoJS checks for resize/model/runtime agreement, independent host diagrams, saved IDs/unknown fields, minimum dimensions, invalid parent sizes, group flags/template recognition and ordinary-node/missing-context handling. All 311 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for this unchanged extraction. Live-bounds fallback and full nested-group browser acceptance remain pending alongside remaining modelling-area helpers. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-first increment — portable group containment queries (2026-10-11)
+
+- Extracted native group-cycle detection and runtime object-descendant lookup into modelling-editor/gojs. GoJSApp consumes emitted queries. Comparison with committed source confirms unchanged algorithms after import/export changes; original copyright retained.
+- Added native hierarchy checks for self/descendant rejection, ancestor/separate-group allowance and independent hosts. Object-graph tests cover active matching containment relationships, saved IDs, existing cycles, deleted/unrelated relationships and malformed inputs. All 314 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for these unchanged queries. Drop-target geometry, containment application and full modelling-area browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-second increment — portable drop-target geometry (2026-10-11)
+
+- Extracted body-bound lookup, smallest containing group selection and visual containment into modelling-editor/gojs. GoJSApp consumes emitted helpers. Comparison with committed source confirms unchanged algorithms after import/export changes; original copyright retained.
+- Added controlled native-GoJS geometry tests for named-body precedence/resize fallback, smallest-area selection, self/descendant rejection, full/center/45-percent-overlap policies, independent diagram targets and missing contexts. All 318 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- Controlled geometry tests do not prove browser layout or drag/drop acceptance; no new visual check is claimed for this unchanged extraction. Grab permissions, containment application and broader modelling-area browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-third increment — portable group grab permissions (2026-10-11)
+
+- Extracted group grab permission lookup and model-list projection into modelling-editor/gojs. GoJSApp consumes emitted queries. Host access comes from the package's existing scoped registry; there is no global store or server access-control logic. Comparison with committed source confirms unchanged algorithms after import/export changes; original copyright retained.
+- Added checks for host isolation/unbinding, saved-reference fallback, runtime lookup precedence, strict boolean flags, receiver binding, invalid contexts and unchanged model lists. All 322 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain.
+- No new visual check is claimed for these unchanged queries. Containment application and broader modelling-area browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-fourth increment — portable containment application (2026-10-11)
+
+- Extracted hierarchy lookup, group-state clearing, detachment/attachment and consistency diagnostics into modelling-editor/gojs. GoJSApp consumes emitted helpers. Comparison with committed source confirms unchanged algorithms after import/export and type-only casts; original copyright retained.
+- Package compilation exposed legacy method attempts absent from current peer declarations (removeMembers/updateAllTargetBindings). Retained their guarded behavior with narrow casts rather than changing algorithms. Native GoJS tests cover location/unknown-field preservation, host isolation, parent reassignment, hierarchy lookup, missing contexts and retained detach-first behavior on rejected membership.
+- All 326 tests, non-incremental typecheck, production build and diff check passed. Existing duplicate GoJS-global warnings remain. No new visual verification is claimed for this unchanged extraction; complete grouping/ungrouping browser acceptance remains pending alongside remaining modelling-area helpers. Unrelated edits preserved; this increment is uncommitted.
+
+## Modelling-area browser containment check — partial (2026-10-11)
+
+- Started this checkout's Turbopack server on isolated origin localhost:3103, consuming current emitted packages and preserving the user's existing localhost:3000 tab/data. Initial IRTV palette was blank; switching through the visible TypeDef CORE model rendered its palette. No conclusion about the initial palette cause is claimed.
+- Visually created a Container and EntityType from the CORE palette, then moved EntityType from outside into the container body. Opened and completed Edit Object View. No browser error/warning logs were captured; server served modelling and user routes successfully, with its existing duplicate GoJS warning.
+- Actual membership, collapse/expand and ungroup position preservation remain unverified. Collapse attempts timed out or left the view unchanged; coordinate/context-menu automation also intermittently timed out. Visual overlap is not proof of grouping. Stopped at this observability/control gap instead of claiming containment acceptance.
+- Screenshot: /tmp/mimris-containment-browser-partial.jpg. Temporary browser tab closed and server stopped. No implementation changes, new commit or push. Next browser acceptance needs reliable membership evidence and a known grab-enabled test container before checking group/ungroup/save/reopen.
+
+## Second-container-drag protection fix (2026-10-11)
+
+- User reported standalone localhost:3000 container moving once and snapping back on the next move. Confirmed port 3000 serves this checkout. Inspection found prior post-move location locks remain for 12 seconds and Diagram's loc-write guard rejects different positions during that window.
+- Added scoped alias-based release of previous drag protection when a new user drag begins. Release selected parts and group members before activation, then effective dragged parts (including lane/pool content) after activation. Other objects and hosts retain protection; completed moves continue installing fresh locks.
+- All 327 tests and non-incremental typecheck passed. Regression test proves an active prior lock stops overriding the second move, unrelated objects/hosts remain protected and a fresh completed-position lock still rejects stale data.
+- Isolated localhost:3103 browser: created CORE Container and moved it repeatedly to distinct stable locations; final logs contained no errors/warnings. Automation took about 14 seconds between the closest observed move completions, exceeding the 12-second lock window; exact rapid-repeat browser acceptance remains pending and is not claimed. Screenshot /tmp/mimris-second-drag-fixed.jpg. Temporary tab/server closed/stopped; user's port 3000 server left running. No production build run during live developer-server use. Changes uncommitted.
+
+## Missing generic type during deletion — safeguard (2026-10-11)
+
+- User reported null defRelType.typeview during SelectionDeleting. Reassignment previously set rel.type to null before crashing when the model lacked its generic relationship replacement.
+- Added read-only preflight before any deletion/reassignment mutations. If instantiated relationship/object types lack a different active generic replacement, show a specific message, clear GoJS selection and return. Models with no instances remain deletable without a replacement. Existing explicitly chosen instance-deletion path is retained.
+- All 330 tests and non-incremental typecheck passed, including missing/deleted/self replacement checks and a native GoJS deletion transaction proving selection clearing cancels removal. No new browser verification or production build claimed; user's localhost:3000 developer server remains running. Changes uncommitted.
+
+## Reviewed package/runtime checkpoint (2026-10-11)
+
+- Reviewed increments 43–54, scoped consumer/browser evidence and the reported second-drag/type-deletion fixes as one local checkpoint. Preserved unrelated metamodel visibility, inspector appearance, palette/model loading, tsconfig alias and automatic-layout route edits outside the index.
+- Review found the selection-lock release block had been inserted in route capture rather than drag activation. Moved it into doActivate before super, retaining effective-part cleanup afterward; added an integration placement regression. This correction has not received new browser verification. Earlier repeated-movement observations do not prove rapid-repeat acceptance.
+- Exported the exact staged implementation to /tmp/mimris-reviewed-checkpoint-i0wfepdh using the existing dependency installation. All 331 tests, non-incremental typecheck and fresh production build passed independently of excluded working-tree edits. Staged whitespace check passed. Existing duplicate GoJS-global build warnings remain.
+- This checkpoint is local only. Manual rapid-repeat movement, safe type deletion, full grouping/ungrouping/save-reopen acceptance, remaining modelling-area extraction and Workspace integration remain pending.

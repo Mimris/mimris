@@ -4,6 +4,7 @@
 */
 
 import { normalizeEmptyBooleanFieldsInPlace } from '../../../../packages/modelling-editor/dist/runtime/paletteData.js';
+import { getNodeIdentityAliases as getDiagramNodeAliases, releaseNodeDragProtection } from '../../../../packages/modelling-editor/dist/gojs/nodeIdentity.js';
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
@@ -122,21 +123,6 @@ function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any
       category,
     };
   });
-}
-
-function getDiagramNodeAliases(data: any): string[] {
-  if (!data || typeof data !== 'object') return [];
-  const aliases = [
-    data?.key,
-    data?.objviewRef,
-    data?.objectview?.id,
-    data?.objRef,
-    data?.object?.id,
-    data?.__dragSessionToken,
-  ]
-    .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
-    .map((v: any) => String(v));
-  return Array.from(new Set(aliases));
 }
 
 function mergeIncomingDiagramNodeDataWithLiveState(
@@ -2386,6 +2372,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
 	      override doActivate() {
 	        const diagram = this.diagram;
+	        // A fresh drag supersedes post-move locks before GoJS writes locations.
+	        const releasePart = (part: go.Part) => {
+	          releaseNodeDragProtection(diagram, part.data);
+	          if (part instanceof go.Group) part.memberParts.each(releasePart);
+	        };
+	        diagram?.selection.each(releasePart);
 	        const draggedParts = this.draggedParts;
 	        let ordinaryNodeDrag = false;
 	        let swimlaneDrag = false;
@@ -2409,6 +2401,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          } catch (_) { }
 	        }
 	        super.doActivate();
+	        // Effective dragged parts may include additional lane/pool content.
+	        for (let it = this.draggedParts?.iterator; it?.next();) {
+	          releaseNodeDragProtection(diagram, it.key?.data);
+	        }
 	        // At this point GoJS has finalized `draggedParts`. The collection can be empty
 	        // before activation, which previously skipped this repair for an empty lane.
 	        if (!swimlaneDrag) {

@@ -36,7 +36,12 @@ test('public lifecycle helpers cancel only the disposed editor pending work', ()
 test('editor foundation imports only its public peers and local modules', () => {
   for (const area of ['host', 'runtime']) for (const name of readdirSync(new URL('../src/' + area + '/', import.meta.url))) {
     const source = readFileSync(new URL('../src/' + area + '/' + name, import.meta.url), 'utf8');
-    for (const [, dependency] of source.matchAll(/from\s+['"]([^'"]+)['"]/g)) assert.ok(dependency.startsWith('./') || ['@mimris/modelling-core', '@reduxjs/toolkit'].includes(dependency), dependency);
+    for (const [, dependency] of source.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+      const packageSource = new URL('../src/', import.meta.url);
+      const sourceFile = new URL(area + '/' + name, packageSource);
+      const local = dependency.startsWith('.') && new URL(dependency, sourceFile).href.startsWith(packageSource.href);
+      assert.ok(local || ['@mimris/modelling-core', '@reduxjs/toolkit'].includes(dependency), dependency);
+    }
     assert.equal(/(?:window|document)\.|(?:localStorage|sessionStorage)/.test(source), false, name);
   }
 });

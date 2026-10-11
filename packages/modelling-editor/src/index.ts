@@ -9,3 +9,5 @@ export * from './runtime/assetCatalog.js';
 export * from './runtime/editorAssets.js';
 export * from './runtime/paletteData.js';
 export * from './runtime/linkData.js';
+export * from './runtime/linkReconciliation.js';
+export * from './runtime/viewDispatch.js';

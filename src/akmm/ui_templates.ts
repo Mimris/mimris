@@ -2,6 +2,7 @@
 const debug = false; 
 
 import * as go from 'gojs';
+import { resizeGroupWithoutMovingMembers, releaseNodeDragProtection } from '@mimris/modelling-editor/gojs';
 import * as uid from './ui_diagram';
 import * as akm from './metamodeller';
 import * as jsn from './ui_json';
@@ -2972,6 +2973,17 @@ function addLinkTemplateName(name: string) {
       if (init) Object.assign(this, init);
     }
 
+    public doActivate(): void {
+      // A resize from the left/top changes location as well as size. Previous
+      // drag locks must not reject those new location writes.
+      const part = this.handle?.part?.adornedPart;
+      if (part) releaseNodeDragProtection(this.diagram, part.data);
+      super.doActivate();
+      if (this.adornedObject?.part) {
+        releaseNodeDragProtection(this.diagram, this.adornedObject.part.data);
+      }
+    }
+
     isLengthening() {
       return this.handle.alignment === go.Spot.Right;
     }
@@ -3024,7 +3036,11 @@ function addLinkTemplateName(name: string) {
           resizePoolAndLanes(pool, newr.width);
           return;
         }
-        super.resize.call(this, newr);
+        if (isLane) {
+          super.resize.call(this, newr);
+        } else {
+          resizeGroupWithoutMovingMembers(lane, () => super.resize(newr));
+        }
       }
 
       public doDeactivate(): void {

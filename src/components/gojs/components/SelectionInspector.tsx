@@ -1,5 +1,5 @@
 'use client';
-import { createSelectionInspector } from '../../../../packages/modelling-editor/dist/components/SelectionInspector.js';
+import { createSelectionInspector } from '@mimris/modelling-editor/selection-inspector';
 import * as runtime from '../../../akmm/metamodeller';
 import * as common from '../../../akmm/ui_common';
 import * as templates from '../../../akmm/ui_templates';

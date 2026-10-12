@@ -1,2 +1,2 @@
 /** Transitional editor import path; implementation belongs to modelling-editor. */
-export * from '../../packages/modelling-editor/dist/runtime/dragProtection.js';
+export * from '@mimris/modelling-editor';

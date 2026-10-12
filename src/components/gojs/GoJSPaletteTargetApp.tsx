@@ -3,7 +3,7 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 
-import { normalizeEmptyBooleanFieldsInPlace } from '../../../packages/modelling-editor/dist/runtime/paletteData.js';
+import { normalizeEmptyBooleanFieldsInPlace } from '@mimris/modelling-editor';
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';

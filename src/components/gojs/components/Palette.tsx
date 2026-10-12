@@ -1,5 +1,5 @@
 'use client';
-import { createPaletteWrapper } from '../../../../packages/modelling-editor/dist/components/Palette.js';
+import { createPaletteWrapper } from '@mimris/modelling-editor/palette';
 import * as diagram from '../../../akmm/ui_diagram';
 import * as templates from '../../../akmm/ui_templates';
 

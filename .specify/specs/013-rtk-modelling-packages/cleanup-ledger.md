@@ -17,3 +17,9 @@
 | Repeated boolean normalization in GoJSApp, Diagram and target palette | Same helper body as packaged paletteData | Reuse emitted package helper; retain local category/link policies | 280 tests and unchanged-source comparison |
 
 Runtime/reducer retirements and transitional package paths are documented in action-inventory.md and progress.md. A missing import alone does not establish that a route, asset, saved identifier or externally used API can be deleted.
+
+| Diagram unused React/UI/icon/http/process/immer-internal/file helpers | Compiler-symbol reference audit found no active references | Removed imports; active controls supplied by stable UI adapter | Full tests/typecheck and public diagram factory tests |
+| BalloonLink.js | Repository reference search found no active imports, dynamic names, route/script references; old commented import removed during diagram extraction | Deleted unused non-exported extension; Git history retains it | Package/standalone tests and build |
+| Diagram.tsx.backup-20260723-104157 | Tracked historical backup, no repository references; not a compiled TSX module or route | Deleted stale implementation duplicate; Git history retains it | Package/standalone tests and build |
+| Old GoJSApp/Diagram implementations | Replaced by public package factories with explicit host adapters | Thin compatibility composition paths retained; no duplicate implementation | Public factory/import tests, standalone and clean consumer builds |
+| Transitional runtime/sharedUniverse helper paths | Existing callers and tests still import original paths | Retained small public-package facades for compatibility | Import boundary and parity tests |

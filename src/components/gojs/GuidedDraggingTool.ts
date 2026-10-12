@@ -1,2 +1,2 @@
 /** Transitional GoJS extension path. */
-export * from '../../../packages/modelling-editor/dist/gojs/GuidedDraggingTool.js';
+export * from '@mimris/modelling-editor/gojs';

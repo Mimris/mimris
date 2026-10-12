@@ -1,4 +1,4 @@
-export { iconList, iconList2, imageLibrary } from '../../../packages/modelling-editor/dist/runtime/assetCatalog.js';
+export { iconList, iconList2, imageLibrary } from '@mimris/modelling-editor';
 
 export const selectIcons = (curitem: any, p: any, iconvalue: any, register: any, handleChangesicon: any) => {
 

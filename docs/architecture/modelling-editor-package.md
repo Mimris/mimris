@@ -108,3 +108,71 @@ The GoJS entry exports the existing group grab query and model-list projection. 
 ## Containment application
 
 The GoJS entry exports hierarchy lookup, group-state clearing, detachment, attachment and consistency diagnostics. Detachment retains live position while clearing model/runtime membership. Attachment retains the existing detach-first policy: a rejected add leaves the part at top level. Operations use the supplied diagram and mutable runtime data. Guarded legacy removeMembers/updateAllTargetBindings attempts remain, even though those methods are absent from current peer declarations; their existing exception handling is preserved. Full browser containment acceptance remains pending.
+
+## Interaction selection
+
+The GoJS entry exports clicked-port resolution and focused-object peer flags. Port lookup walks at most eight panel levels, retaining saved side/identifier and native node-port detection. Focus flags match conceptual object IDs through the existing alias precedence within the supplied diagram. They update detached runtime flags/bindings, never canonical Redux data. Algorithms remain unchanged; full visual interaction acceptance remains pending.
+
+## Drop-layout data helpers
+
+The Node-safe root exports runtime object-type lookup, sorted unique string values, normalized comparison keys and node type-reference lookup. Runtime method/array/metamodel precedence and saved reference priority remain unchanged. Type arrays are copied while mutable runtime objects retain identity. The rule builder still resides in Mimris because its classification depends on host viewkind constants; these helpers select no storage or store.
+
+## Host-configured drop-layout rules
+
+The Node-safe root exports buildDropLayoutOverridesFromMetis with explicit CONT/POOL/LANE viewkind settings supplied by the host. Existing classification precedence, runtime isContainer capability, rule ordering, anchors, grid/circle spacing and metadata remain unchanged. Standalone supplies its constants during initial construction and refresh. The package stores no shared configuration and imports no Mimris constants.
+
+## Group sizing queries and centering
+
+The GoJS entry exports size-string parsing, persisted group-size resolution and node centering. Saved lane/pool size retains precedence over rendered dimensions; ordinary group size prefers desired dimensions, then actual dimensions, then saved size. Centering retains padding/offset/fill-parent behavior and synchronizes location, desired size and runtime model fields. The legacy reshapeObject fallback is preserved through a narrow compatibility cast. Native controlled-geometry tests do not establish browser layout or color validation.
+
+## Initial group sizing and refresh
+
+The GoJS entry exports initial group sizing and guarded rendering refresh. Viewport-based minimums, fallback dimensions, saved-size preservation and preferred-dimension clamps retain their existing behavior. Model size/desiredSize and native resize objects are synchronized; refresh retains binding, bounds, adornment and update calls. Legacy property access and fallback branches use narrow compatibility casts without changing algorithms. Browser layout acceptance remains separate from native-object tests.
+
+## Parent sizing and group expansion
+
+The GoJS entry exports missing-child parent-relative sizing and group expansion/member-location helpers. Existing positive child size remains authoritative; otherwise dimensions use the shared 0.35 parent ratio. Collapse captures direct member locations in the supplied diagram's existing runtime snapshot map, hides members recursively and retains runtime/model expansion flags. Expand restores those locations and bindings. This preserves existing snapshot lifetime and behavior; native tests do not establish browser collapse/grouping acceptance.
+
+## Node-group synchronization
+
+The Node-safe root exports node/group key lookup, runtime group promotion and group assignment. Saved key precedence, numeric zero/empty keys, direct self-assignment prevention and model-method/data fallback remain unchanged. Group promotion retains the existing runtime flag behavior; it is not a template migration. Ancestor-cycle policy remains the separate containment query and caller responsibility.
+
+## Layout policies and remaining component boundary
+
+The Node-safe root exports the retained pool/lane/process size defaults and relationship routing defaults. Options are fresh per call, and explicit/unknown routing strings remain unchanged. Main GoJSApp still imports the host modelling runtime, serializer, common/diagram/modal/template helpers, constants and utilities. A complete component export requires explicit adapters for those services; helper extraction alone does not establish full Workspace consumption.
+
+## Main modelling component host services
+
+CanvasHostServices explicitly names the runtime constructors, serializers, common/diagram/modal/template functions, utilities and constant groups used by GoJSApp. createCanvasHostServices freezes the outer binding while preserving namespace and constructor identities, receiver behavior and host-owned mutable runtimes. Standalone supplies its existing modules through src/editorHost/canvasServices.ts; GoJSApp no longer directly imports AKM modules.
+
+This is a transitional service boundary with opaque legacy constructor/function signatures and existing ts-nocheck canvas types. It does not move the complete component into the package, validate a server permission model or establish full type safety. Components, dialogs and remaining helper policies still require integration before a public canvas factory can be exported. The contract coverage test inventories actual transpiled runtime namespace access rather than type-only references.
+
+## Main modelling component UI boundary
+
+CanvasHostComponents names DiagramWrapper, SelectionInspector, the connected-object dialog, select/Option and modal/button components. Standalone supplies the existing component references via editorHost/canvasComponents.ts, preserving identities and host-owned styling. GoJSApp consumes this binding rather than importing those UI modules directly. The contract uses type-only React imports so the Node-safe root gains no React runtime dependency. Props remain opaque during the legacy extraction. This completes a transitional UI dependency boundary, not a public full-canvas export or visual dialog acceptance.
+
+## Public modelling canvas factory
+
+`@mimris/modelling-editor/canvas` exports createModellingCanvas. Call it once outside host rendering with CanvasHostServices, CanvasHostComponents and the host's automatic-self-relationship policy. It returns the legacy React class component, retaining its current props, state and diagram editing algorithms. Standalone's original GoJSApp path is now a small factory adapter. Internal imports stay within the package or React/GoJS peers; type-deletion preflight now resides in the Node-safe runtime with its original app path as a facade.
+
+This moves the main orchestration component, not DiagramWrapper/templates or all AKM runtime code. The host still supplies those implementations, global CSS and scoped persistence/store access. Legacy ts-nocheck, opaque props and shared GoJS category prototype guards remain; factory instances alone do not prove complete browser host isolation. Tests cover construction/dialog binding and import boundaries. An isolated standalone production browser smoke covered IRTV palette drop and opening/editing an objectview inspector; full two-editor/group/save-reopen/Workspace acceptance remains pending.
+
+## Diagram runtime/template services
+
+DiagramHostServices names constructors, serialization, common/diagram/modal/template functions, method execution, type generation, utilities and constants actually accessed by DiagramWrapper. Standalone supplies existing modules through editorHost/diagramServices.ts; the diagram reads stable namespace bindings rather than importing those runtime modules directly. Only the outer binding is frozen. Legacy opaque signatures/ts-nocheck and mutable runtimes remain.
+
+This boundary does not package DiagramWrapper or relocate generation/persistence authority. Diagram UI controls, appearance and generated-project persistence still need explicit adapters before exporting it. Contract coverage is checked against transpiled runtime member accesses, so type-only references do not enlarge the capability surface.
+
+## Diagram UI components
+
+DiagramHostComponents names the existing select, modal/tab/navigation, dialog/button, inspector, relationship editor and icon/image modal components together with form identifiers and CSS mappings. Standalone supplies stable references through editorHost/diagramComponents.ts. The package contract uses type-only React with opaque legacy props and freezes only the outer binding. Diagram rendering behavior and host CSS remain unchanged. Unused imports identified through compiler symbol references were removed; appearance and generated-project persistence are still direct host dependencies.
+
+## Public diagram factory and project capabilities
+
+`@mimris/modelling-editor/diagram` exports createDiagramEditor with runtime/template services, UI components and DiagramProjectServices. Appearance and compatible dispatch use public core exports. Project construction/update/file selection/download remain explicit host capabilities; standalone file operations reside in editorHost/generatedProjectFiles.ts. The original Diagram path is a small stable factory adapter. Main and diagram implementations have no static or dynamic application imports. Root package dependencies/workspaces and lockfile now describe public package consumption. See modelling-workspace-handoff.md for composition, styling, installation and remaining acceptance gates.
+
+### Geometry history
+
+The editor supplies Undo/Redo in the background context menu and diagram command-handler shortcuts for completed moves, resizing and link reshaping. History belongs to each diagram instance and retains at most 100 gesture snapshots. It stores only serializable geometry and converts GoJS point lists into plain coordinates. Full GoJS UndoManager recording remains disabled because legacy diagram data embeds cyclic runtime objects.
+
+Structural or semantic changes clear this history; it does not reverse object/type creation, deletion, renaming or regrouping. Reload starts a new history. Undo/Redo flush pending view writes, release old move locks, restore changed geometry and persist through the existing host-owned object/relationship view commands. Menu availability is evaluated when the background context menu opens; no history toolbar or ReactDiagram rerender is needed.

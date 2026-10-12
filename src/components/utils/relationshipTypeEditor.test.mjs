@@ -305,7 +305,7 @@ test('production import and model building retain sparse overrides without regen
 });
 
 test('Change Relationship Type opens its chooser after resolving endpoint types', () => {
-  const source = readFileSync(new URL('../gojs/components/Diagram.tsx', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('../../../packages/modelling-editor/src/components/DiagramEditor.tsx', import.meta.url), 'utf8');
   const start = source.indexOf('      const handleChangeRelationshipType =');
   const end = source.indexOf('      const handleDeletePart =', start);
   const { types, type } = setup();

@@ -113,7 +113,9 @@
     "svgo": "^3.3.2",
     "utf8": "^3.0.0",
     "uuid": "^11.1.0",
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "@mimris/modelling-core": "0.0.0",
+    "@mimris/modelling-editor": "0.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
@@ -146,5 +148,9 @@
     "fsevents": "^2.3.3",
     "utf-8-validate": "^6.0.5"
   },
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b",
+  "workspaces": [
+    "packages/modelling-core",
+    "packages/modelling-editor"
+  ]
 }

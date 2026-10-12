@@ -31,3 +31,23 @@ Drop-target geometry helpers retain the Northwoods notice from their original Go
 Group grab permission queries retain the Northwoods notice from their original GoJSApp module.
 
 Containment application helpers retain the Northwoods notice from their original GoJSApp module.
+
+Interaction selection helpers retain the Northwoods notice from their original GoJSApp module.
+
+Drop-layout data helpers retain the Northwoods notice from their original GoJSApp module.
+
+Drop-layout rule builder retains the Northwoods notice from its original GoJSApp module.
+
+Group sizing helpers retain the Northwoods notice from their original GoJSApp module.
+
+Initial group sizing and rendering refresh retain the Northwoods notice from their original GoJSApp module.
+
+Parent-relative sizing and group expansion helpers retain the Northwoods notice from their original GoJSApp module.
+
+Node-group synchronization helpers retain the Northwoods notice from their original GoJSApp module.
+
+Layout policy helpers retain the Northwoods notice from their original GoJSApp module.
+
+ModellingCanvas retains the Northwoods notice from its original GoJSApp module.
+
+DiagramEditor retains the Northwoods notice from its original Diagram module.

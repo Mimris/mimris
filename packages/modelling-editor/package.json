@@ -19,7 +19,10 @@
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js"
     },
-    "./relationship-type-editor.css": "./dist/components/RelationshipTypeEditor.module.css",
+    "./relationship-type-editor.css": {
+      "types": "./dist/components/RelationshipTypeEditorStyles.d.ts",
+      "default": "./dist/components/RelationshipTypeEditor.module.css"
+    },
     "./assets/*": "./dist/assets/*",
     "./gojs": {
       "types": "./dist/gojs/index.d.ts",
@@ -36,6 +39,14 @@
     "./palette": {
       "types": "./dist/components/Palette.d.ts",
       "import": "./dist/components/Palette.js"
+    },
+    "./canvas": {
+      "types": "./dist/components/ModellingCanvas.d.ts",
+      "import": "./dist/components/ModellingCanvas.js"
+    },
+    "./diagram": {
+      "types": "./dist/components/DiagramEditor.d.ts",
+      "import": "./dist/components/DiagramEditor.js"
     }
   },
   "peerDependencies": {
@@ -53,5 +64,8 @@
     "regex-parser": "^2.3.1",
     "colornames": "^1.1.1",
     "printf": "^0.6.1"
+  },
+  "devDependencies": {
+    "@mimris/modelling-core": "0.0.0"
   }
 }

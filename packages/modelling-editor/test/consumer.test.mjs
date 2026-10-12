@@ -40,7 +40,8 @@ test('editor foundation imports only its public peers and local modules', () => 
       const packageSource = new URL('../src/', import.meta.url);
       const sourceFile = new URL(area + '/' + name, packageSource);
       const local = dependency.startsWith('.') && new URL(dependency, sourceFile).href.startsWith(packageSource.href);
-      assert.ok(local || ['@mimris/modelling-core', '@reduxjs/toolkit'].includes(dependency), dependency);
+      const reactTypeOnly = dependency === 'react' && /import type \{ ComponentType \} from ['"]react['"]/.test(source);
+      assert.ok(local || reactTypeOnly || ['@mimris/modelling-core', '@reduxjs/toolkit'].includes(dependency), dependency);
     }
     assert.equal(/(?:window|document)\.|(?:localStorage|sessionStorage)/.test(source), false, name);
   }
@@ -62,7 +63,9 @@ test('public draft helpers share the same scoped host registry as host bindings'
 test('React entry and CSS assets are emitted separately from the Node-safe root', () => {
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
   assert.equal(manifest.exports['./react'].import, './dist/components/index.js');
-  assert.equal(manifest.exports['./relationship-type-editor.css'], './dist/components/RelationshipTypeEditor.module.css');
+  assert.equal(manifest.exports['./relationship-type-editor.css'].default, './dist/components/RelationshipTypeEditor.module.css');
+  assert.equal(manifest.exports['./relationship-type-editor.css'].types, './dist/components/RelationshipTypeEditorStyles.d.ts');
+  assert.ok(readFileSync(new URL('../dist/components/RelationshipTypeEditorStyles.d.ts', import.meta.url), 'utf8').includes('export default styles'));
   assert.equal(readFileSync(new URL('../dist/components/RelationshipTypeEditor.module.css', import.meta.url), 'utf8'), readFileSync(new URL('../src/components/RelationshipTypeEditor.module.css', import.meta.url), 'utf8'));
   const reactEntry = readFileSync(new URL('../dist/components/index.js', import.meta.url), 'utf8');
   assert.match(reactEntry, /^['"]use client['"]/);

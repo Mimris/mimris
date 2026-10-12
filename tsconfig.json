@@ -18,11 +18,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "target": "ES2017",
-    "paths": {
-      "@mimris/modelling-core": [
-        "./packages/modelling-core/dist/index.d.ts"
-      ]
-    }
+    "paths": {}
   },
   "include": [
     "next-env.d.ts",

@@ -6,14 +6,16 @@ import ts from 'typescript';
 import * as go from 'gojs';
 
 // Execute the production queue functions without mounting the application shell.
-const source = readFileSync(new URL('../components/gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../../packages/modelling-editor/src/components/ModellingCanvas.tsx', import.meta.url), 'utf8');
 const parsed = ts.createSourceFile('GoJSApp.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const names = ['safeJsonCloneForDispatch', 'disposeQueuedViewDispatches', 'queueObjectViewDispatch', 'queueRelshipViewDispatch', 'flushQueuedDiagramDispatches'];
 const queueSource = readFileSync(new URL('../../packages/modelling-editor/src/runtime/viewDispatch.ts', import.meta.url), 'utf8');
 const queueParsed = ts.createSourceFile('viewDispatch.ts', queueSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 const functions = queueParsed.statements.filter(node => ts.isFunctionDeclaration(node) && names.includes(node.name?.text));
 assert.equal(functions.length, names.length);
-const editorClass = parsed.statements.find(node => ts.isClassDeclaration(node) && node.members.some(member => member.name?.getText(parsed) === 'syncNodeNameToState'));
+let editorClass;
+function findEditor(node) { if (ts.isClassDeclaration(node) && node.members.some(member => member.name?.getText(parsed) === 'syncNodeNameToState')) editorClass = node; ts.forEachChild(node, findEditor); }
+findEditor(parsed);
 const syncMethod = editorClass.members.find(member => member.name?.getText(parsed) === 'syncNodeNameToState');
 const syncCode = syncMethod.getText(parsed).replace('private syncNodeNameToState', 'function syncNodeNameToState');
 const code = functions.map(node => node.getText(queueParsed).replace(/^export /, '')).join('\n') + '\n' + syncCode + '\nmodule.exports = { queueObjectViewDispatch, queueRelshipViewDispatch, disposeQueuedViewDispatches, syncNodeNameToState, flushQueuedDiagramDispatches };';

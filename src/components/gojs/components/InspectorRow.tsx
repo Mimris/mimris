@@ -1,2 +1,2 @@
 'use client';
-export { InspectorRow } from '../../../../packages/modelling-editor/dist/components/InspectorRow.js';
+export { InspectorRow } from '@mimris/modelling-editor/inspector-row';

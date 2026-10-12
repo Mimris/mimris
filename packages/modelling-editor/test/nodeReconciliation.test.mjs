@@ -76,7 +76,7 @@ test('a second user drag supersedes the first location lock without releasing ot
 
 test('standalone drag activation releases selection locks before GoJS activation', async () => {
   const { readFileSync } = await import('node:fs');
-  const source = readFileSync(new URL('../../../src/components/gojs/components/Diagram.tsx', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('../src/components/DiagramEditor.tsx', import.meta.url), 'utf8');
   const activation = source.slice(source.indexOf('override doActivate() {'), source.indexOf('override doDeactivate()', source.indexOf('override doActivate() {')));
   assert.ok(activation.indexOf('diagram?.selection.each(releasePart)') < activation.indexOf('super.doActivate()'));
   assert.ok(activation.includes('releaseNodeDragProtection(diagram, it.key?.data)'));

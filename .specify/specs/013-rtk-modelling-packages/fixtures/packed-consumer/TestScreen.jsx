@@ -1,3 +1,5 @@
+import {createModellingCanvas} from '@mimris/modelling-editor/canvas';
+import {createDiagramEditor} from '@mimris/modelling-editor/diagram';
 import React, {useState,useEffect,useCallback} from 'react';
 import * as go from 'gojs';
 import {ReactDiagram} from 'gojs-react';

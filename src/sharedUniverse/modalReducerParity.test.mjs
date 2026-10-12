@@ -1,3 +1,5 @@
+import * as portableEditor from '@mimris/modelling-editor';
+import * as portableCore from '@mimris/modelling-core';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -19,6 +21,8 @@ function load(path) {
   }).outputText, {
     module, exports: module.exports, console: { log() {} }, process,
     require: specifier => {
+      if (specifier === '@mimris/modelling-editor') return portableEditor;
+      if (specifier === '@mimris/modelling-core') return portableCore;
       if (specifier === 'next-redux-wrapper') return { createWrapper: () => ({}) };
       if (!specifier.startsWith('.')) return nativeRequire(specifier);
       const base = resolve(dirname(path), specifier.replace(/\.js$/, ''));

@@ -29,3 +29,26 @@ Archive SHA-256:
 ## Remaining acceptance
 
 This passes the scoped component/store/lifecycle consumer check, not full two-editor Mimris acceptance. Full canvas and AKM integration, palette-to-canvas creation with durable persistence, relationships, groups/swimlanes, undo/redo, file reopening, package asset serving, clean dependency installation and Workspace integration remain pending. The relationship form/CSS and SelectionInspector factory were not mounted in this fixture. Existing GoJS prototype guards still have shared effects; the observed flow does not establish complete host isolation.
+
+## Clean installed current package checkpoint (2026-10-12)
+
+- Built current artifacts and installed their tarballs with npm into /tmp/mimris-clean-consumer-7iwhmmr3 with no source/dependency symlinks. The final installation reused registry cache after the first clean install. Public core/editor/canvas/diagram imports and consumer production build passed. npm dependency listing showed React 18.3.1 and GoJS 3.1.10 deduplicated with gojs-react 1.1.3; Toolkit 2.12.0 and Next 15.5.19 were used. This verifies package dependency resolution, unlike the earlier reused-peer fixture.
+- Confirmed 43 installed packaged asset files. Final editor artifact includes the corrected dynamic template service usage; no static/dynamic application imports remain in canvas/diagram implementations.
+- Browser on localhost:3104: changed A name, saved/reset/reloaded; B stayed unchanged. Moved A from 40 40 to 110 80, saved, closed/restored/reloaded and recovered that geometry and name with unknown fields intact. Closed A while both hosts had delayed edits; only B completed. Final browser logs were clean. Screenshot /tmp/mimris-clean-consumer-verified.jpg. Temporary tab/server closed/stopped.
+- This fixture still uses a consumer-owned canvas with packaged row/palette/tools. Public main/diagram factories were imported and separately construction-tested, but full simultaneous Mimris-editor rendering and complete runtime/template adapter integration are not established by this consumer check. Grouping, routes/ports/swimlanes, undo/redo, native file reopening and performance acceptance remain open.
+
+Final artifact SHA-256:
+- mimris-modelling-core-0.0.0.tgz: 79319ceb6502c872cc75f0a16b2f67900b743902a031c030582097599a4e76c4
+- mimris-modelling-editor-0.0.0.tgz: ff27b750980b4f327c046b800d06e4d1ea1815bf7c6e025c62ebfc5028d3a273
+
+The final public CSS export includes its own class-mapping declaration. An installed consumer TypeScript check imported that stylesheet without a Mimris-specific ambient shim and passed. Final package metadata uses workspace-linked 0.0.0 build dependencies; the corrected artifact was reinstalled from an empty consumer node_modules with the existing registry cache.
+
+## Two complete packaged editors with standalone adapters (2026-10-12)
+
+- Retained fixture: fixtures/full-editor/AcceptanceScreen.jsx and README.md. Unlike the earlier consumer-owned test canvas, this mounts actual createModellingCanvas/createDiagramEditor composition and native GoJS interactions, using existing standalone runtime/template/UI adapters, independent stores and identical saved IDs.
+- Fixture host dispatch initially omitted legacy-action adaptation for its core-only reducer. Added bindLegacyUniverseDispatch; live node movement then updated the owning canonical store. Stable memoized props prevent diagnostic polling from triggering reconciliation during a drag. Fresh page reloads were used after fixture changes; HMR-preserved native state is not acceptance evidence.
+- A node moved from 40 80 to 100 110, then 140 130; live/saved membership matched the registered container. Placed it clearly in the container at 500 244. Native collapse hid it; expand restored visibility and the same location. Host save/reload restored membership, geometry and unknown fields; B remained at its original values.
+- Ported container movement verified from the white body (header/edge hits can initiate linking). Two consecutive container drops at 08:16:39.547 and 08:16:39.959 UTC were 0.412 seconds apart, inside the old 12-second lock window. Live and saved positions advanced from 436.9868995633188 204.36681222707426 to 458.73362445414847 215.2401746724891 and remained stable. B's container stayed at 350 150.
+- Current ported-template member save/reload also retained group membership and location 295.5240174672489 106.09606986899567, with unknown fields kept and B unchanged. Screenshot /tmp/mimris-full-editor-acceptance.png includes both complete editor instances.
+- Automated Shift+drag did not detach; the recorded native event had shift=false. This is not evidence of a product detach failure or pass. Manual Shift-drag, native file opening, complex routes/swimlanes/ports, undo/redo and long-session/performance acceptance remain pending.
+- Full-editor rendering exposed an empty style jsx block warning in the emitted package. Removed the empty block (no CSS content) and added a regression assertion; no visual styling behavior changed. Old warning logs from before that correction are not fresh-run errors.

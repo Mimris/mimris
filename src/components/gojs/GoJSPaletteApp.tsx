@@ -14,7 +14,7 @@ import * as jsn from '../../akmm/ui_json';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { normalizePaletteNodeCategoryData, normalizePaletteLinkData, arePaletteArraysEquivalent } from '../../../packages/modelling-editor/dist/runtime/paletteData.js';
+import { normalizePaletteNodeCategoryData, normalizePaletteLinkData, arePaletteArraysEquivalent } from '@mimris/modelling-editor';
 
 // import './GoJSApp.css';
 

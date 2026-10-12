@@ -1,0 +1,4 @@
+packages:
+  - packages/modelling-core
+  - packages/modelling-editor
+linkWorkspacePackages: true

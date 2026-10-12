@@ -1,2 +1,2 @@
 /** Transitional drop-layout path. */
-export * from '../../../../packages/modelling-editor/dist/gojs/DropLayoutManager.js';
+export * from '@mimris/modelling-editor/gojs';

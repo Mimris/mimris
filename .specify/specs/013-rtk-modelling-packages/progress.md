@@ -514,3 +514,136 @@ Increments 1–28 are included in this implementation checkpoint: scoped editor 
 - Review found the selection-lock release block had been inserted in route capture rather than drag activation. Moved it into doActivate before super, retaining effective-part cleanup afterward; added an integration placement regression. This correction has not received new browser verification. Earlier repeated-movement observations do not prove rapid-repeat acceptance.
 - Exported the exact staged implementation to /tmp/mimris-reviewed-checkpoint-i0wfepdh using the existing dependency installation. All 331 tests, non-incremental typecheck and fresh production build passed independently of excluded working-tree edits. Staged whitespace check passed. Existing duplicate GoJS-global build warnings remain.
 - This checkpoint is local only. Manual rapid-repeat movement, safe type deletion, full grouping/ungrouping/save-reopen acceptance, remaining modelling-area extraction and Workspace integration remain pending.
+
+## Fifty-fifth increment — portable interaction selection (2026-10-11)
+
+- Extracted clicked-port resolution and focused-object peer flag synchronization into modelling-editor/gojs. GoJSApp consumes emitted helpers. Comparison with checkpoint source confirms unchanged algorithms after import/export changes; original copyright retained.
+- Added checks for panel traversal limit, saved port identity/side, native node ports, conceptual object aliases, clearing focus, saved unknown fields and independent diagram hosts. All 333 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new visual verification or production build claimed for this unchanged helper extraction. User's developer server remains running; broader interaction and pending manual bug-fix acceptance remain outstanding. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-sixth increment — portable drop-layout data helpers (2026-10-11)
+
+- Extracted object-type lookup, sorted unique string values, normalized comparison keys and node type-reference resolution into the Node-safe editor root. Retained runtime lookup and saved reference precedence, copied array/runtime-object identity behavior and original copyright. Host viewkind-dependent rule builder remains in Mimris.
+- Added checks for method receiver binding, array/metamodel fallback, sorted numeric/string IDs, absent values and legacy node reference representations. All 336 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new production build or visual check claimed for this data-helper extraction. Remaining rule builder/modelling-area work and manual browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-seventh increment — host-configured drop-layout rules (2026-10-11)
+
+- Extracted drop-layout rule generation into the Node-safe editor root with explicit host CONT/POOL/LANE settings. Standalone passes existing constants during constructor and refresh; package imports no application constants and maintains no shared configuration. Retained classification, rule order, layout values/metadata and original copyright.
+- Added checks for all six rule families, existing spacing/anchors, classification precedence, runtime container receiver binding, deduplication, deleted/missing IDs and independent host settings. All 339 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new visual verification or production build claimed. Remaining modelling-area helpers and pending manual acceptance remain outstanding. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-eighth increment — portable group sizing and centering (2026-10-11)
+
+- Extracted size-string parsing, persisted group-size resolution and node centering into modelling-editor/gojs. Saved lane/pool precedence, padding/offset/fill behavior and model/runtime synchronization retain existing algorithms. Original copyright and guarded legacy reshapeObject fallback retained.
+- Added parsing, desired/actual/saved precedence and controlled native-GoJS geometry checks. Initial compilation required a narrow cast for undeclared legacy reshapeObject. Initial invalid-color assertion depended on DOM color validation unavailable in Node; changed scope to preserved valid color and geometry without altering production behavior.
+- All 342 tests, package compilation, non-incremental typecheck and diff check passed. No new production build or visual acceptance claimed. Initial sizing/render refresh and remaining modelling-area extraction/manual acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Fifty-ninth increment — portable initial group sizing and refresh (2026-10-11)
+
+- Extracted initial group sizing and guarded rendering refresh into modelling-editor/gojs. Existing viewport minimums, fallback sizes, preferred dimensions and saved-size preservation remain unchanged; original copyright retained. Narrow compatibility casts preserve legacy resize/adornment properties and existing fallback branches under package type checking.
+- Added checks for viewport/fallback sizing, unknown fields, preserved saved sizes, preferred-dimension clamps, native model/resize-object agreement and absent contexts. All 345 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new production build or visual verification claimed. Parent-relative group sizing, expansion/member-location helpers and pending manual browser acceptance remain outstanding. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixtieth increment — portable parent sizing and group expansion (2026-10-11)
+
+- Extracted missing-child parent-relative sizing and recursive visibility/member-location snapshot/expansion helpers into modelling-editor/gojs. Standalone consumes emitted functions. Retained positive saved-size precedence, 0.35 parent ratio, direct-member snapshots scoped on each diagram and existing runtime/model synchronization. Original copyright and narrow legacy property casts retained.
+- Added native GoJS checks for parent sizing, preserved child dimensions, collapse/expand flags, member visibility, restored geometry/unknown fields and independent snapshot maps. All 347 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new visual verification or production build claimed. Browser collapse/grouping and rapid-repeat bug acceptance remain pending, alongside remaining modelling-area extraction. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-first increment — portable node-group synchronization (2026-10-11)
+
+- Extracted node/group key lookup, runtime group promotion and model-backed group assignment into the Node-safe editor root. Saved key precedence, zero/empty handling, self-key guard, group flag behavior and model/data fallback retain existing algorithms; original copyright retained.
+- Added checks for native group assignment/detachment, saved unknown fields, direct self-assignment rejection, key edge cases and legacy runtime promotion/fallback behavior. All 350 tests, package compilation, non-incremental typecheck and diff check passed.
+- No new production build or visual verification claimed. Remaining modelling-area extraction and manual browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-second increment — portable layout policies and component boundary inventory (2026-10-11)
+
+- Extracted pool/lane/process sizing policies and relationship routing defaults into the Node-safe editor root. Retained original dimensions, normalization behavior and explicit/unknown routing strings; original copyright retained.
+- Added checks for all sizing defaults, independent option objects and routing default/override behavior. All 352 tests, package compilation, non-incremental typecheck and diff check passed.
+- Inventoried remaining GoJSApp host imports: modelling runtime, serializer, common/diagram/modal/template services, constants and utilities. Complete component extraction requires explicit adapters for those services; remaining work cannot be represented as only helper movement.
+- No new production build or visual acceptance claimed. Pending manual bug acceptance and full modelling-area browser/package integration remain outstanding. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-third increment — main modelling component host service boundary (2026-10-11)
+
+- Added CanvasHostServices naming runtime constructors, serializers, common/diagram/modal/template functions, utilities and constant groups actually accessed by the transpiled GoJSApp. Standalone creates the binding from its existing modules in editorHost/canvasServices.ts. GoJSApp consumes that adapter and no longer directly imports AKM modules.
+- Preserve namespace/constructor identity and receiver behavior; freeze only the outer service binding, leaving host-owned runtime objects mutable. Legacy function/constructor signatures remain opaque and GoJSApp retains ts-nocheck; this is an explicit transitional boundary, not a full typed canvas API or completed package component export.
+- Added checks for independent service bindings, receiver/constructor behavior and exact runtime member contract coverage. All 354 tests, package compilation, non-incremental typecheck and diff check passed. No new production build or visual acceptance claimed. Component/dialog integration, remaining policies and manual browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-fourth increment — main modelling component UI boundary (2026-10-11)
+
+- Added CanvasHostComponents and a standalone binding for the existing diagram, inspector, connected-object dialog, react-select Option and modal/button components. GoJSApp consumes stable references from the adapter instead of direct UI module imports. Removed an unused fs.read import. Host styling, component identity and behavior remain unchanged.
+- Contract uses type-only React and opaque legacy props. Initial dependency test rejected the type-only React import; explicitly allowed that form while retaining the existing runtime dependency guard. Public binding test verifies reference identity and separate host rendering policies.
+- All 355 tests, package compilation, non-incremental typecheck and diff check passed. No new production build or visual verification claimed. Full component export/integration, remaining policy helpers and manual browser acceptance remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-fifth increment — public modelling canvas factory (2026-10-11)
+
+- Moved the main GoJSApp orchestration implementation into modelling-editor/canvas as createModellingCanvas with explicit runtime/UI services and automatic-self-relationship policy. Standalone original path creates the component once. Internal imports use package helpers and React/GoJS peers; deletion preflight moved to runtime with an application facade. Retained editing algorithms, original notice, legacy ts-nocheck/opaque props and shared category prototype guards.
+- Updated source-based regression tests for the package implementation/nested factory class. Public factory tests cover independent construction/lifecycle helpers, host dialog binding and absence of application imports. All 357 tests, package compilation and non-incremental typecheck passed. Fresh production build passed in /tmp/mimris-canvas-factory-wto67lk9 using current source and existing installed dependencies; existing duplicate GoJS warning remains.
+- React review: factory is created outside rendering; component references and event behavior retained. Host CSS/UI remain supplied; legacy render mutations/type gaps are not redesigned here.
+- Isolated production browser on localhost:3103 rendered IRTV palette, dropped Information, opened Objectview -> Edit Object View and changed memberscale from 1 to 2. Screenshot /tmp/mimris-packaged-canvas.jpg shows modelling area after Done interaction. No browser errors/warnings captured. Reopen/persisted inspector value was not checked. One context-menu automation timeout still produced the menu, confirmed via fresh state. Temporary tab/server closed/stopped; user's port 3000 left running.
+- Main orchestration is now packaged, but DiagramWrapper/templates/runtime implementations remain host-provided. Full two-editor isolation, grouping, rapid-repeat movement, file/save-reopen and Workspace integration remain pending. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-sixth increment — diagram runtime/template service boundary (2026-10-12)
+
+- Added DiagramHostServices for actual DiagramWrapper constructor/serializer/common/diagram/modal/template/method/generation/utility/constant accesses. Standalone binds existing modules through editorHost/diagramServices.ts; diagram runtime namespace imports now come through this adapter. Outer binding is frozen; identities, receivers and mutable host runtime remain intact.
+- Added independent binding and transpiled runtime contract coverage tests. Initial direct-import assertion matched a commented legacy import; corrected it to inspect active import lines. All 359 tests, package compilation, non-incremental typecheck and diff check passed.
+- DiagramWrapper remains outside the package. UI controls, appearance and generated-project persistence still require adapters. No new production build or visual acceptance claimed for this boundary wiring. Unrelated edits preserved; this increment is uncommitted.
+
+## Sixty-seventh increment — diagram UI component boundary (2026-10-12)
+
+- Added DiagramHostComponents and standalone bindings for existing select/modal/tab/navigation/dialog/button/inspector/relationship/icon/image controls, form identifiers and CSS mappings. Diagram reads stable component references through this adapter; existing rendering and styles remain unchanged. Legacy props stay opaque.
+- Compiler-symbol import audit found unused useEffect/Input/Row/Col/Tooltip/icons/http/immer-internal/process/printf/GuidedDraggingTool/LoadLocal/Toggle/SvgLetters imports; removed them without touching active functions. Preserved unrelated automatic-layout edits in Diagram.
+- Added public binding checks for identities, independent form/style policies and rendering. All 360 tests, package compilation, non-incremental typecheck and diff check passed. No new visual verification or production build claimed. Appearance/generated-project persistence adapters and diagram package export remain pending; this increment is uncommitted.
+
+## Remaining package implementation, dependency wiring, cleanup and handoff (2026-10-12)
+
+- Added DiagramProjectServices; moved browser file selection/download to standalone generatedProjectFiles.ts. Appearance and compatible Redux dispatch use public core exports. Exported the full DiagramEditor factory with explicit runtime/template/UI/project capabilities, and replaced the original Diagram path with stable host composition. Main canvas and diagram implementations import no application modules.
+- Declared matching 0.0.0 root package dependencies and npm/pnpm workspace membership with explicit linking; updated the authoritative pnpm lockfile with 40 additive lines. Kept auto peer installation policy intact by declaring the editor's local core build dependency. Replaced standalone emitted-path imports with public entries. Removed the transitional core declaration-only path alias; preserved the unrelated appearance alias.
+- Public loading exposed regex-parser's invalid named import; corrected to its default export. Updated CommonJS-style parity test loading to consume the public ESM namespaces. Updated source tests to follow the moved diagram implementation and added factory construction/import boundary tests.
+- Browser production verification caught one dynamic require of host ui_templates inside InitialLayoutCompleted. Replaced it with the existing injected template capability and added a no-require regression. Rebuilt and reinstalled corrected artifacts. Final standalone browser renders IRTV palette and drops Information with no error/warning logs; screenshot /tmp/mimris-public-editor-final.jpg. Earlier container/relationship-chooser attempts are not a grouping/rapid-repeat pass. Temporary tab/server closed/stopped; user's port 3000 remains untouched.
+- All 362 tests, package compilation, non-incremental typecheck and isolated standalone production build passed. Clean installed tarballs passed public import and consumer build checks; browser evidence and final hashes are in consumer-verification.md. The clean consumer verifies scoped store/runtime/lifecycle behavior, not two complete simultaneous Mimris editors. Existing duplicate GoJS-global build/import warnings remain.
+- Removed the unreferenced BalloonLink extension and stale tracked Diagram backup after repository reference checks. Other compatibility facades remain intentionally small public-entry bridges. Cleanup evidence is recorded in cleanup-ledger.md.
+- Added docs/architecture/modelling-workspace-handoff.md with versions, exports, owned fields/capabilities, factory composition, styles/assets, installation and limits. Actual Workspace integration remains a separate repo task per the plan; no server/auth/sharing work is claimed here.
+- Package implementation/export/public wiring and scoped cleanup/handoff are implemented. Full grouping/ungrouping, rapid-repeat bug acceptance, file/save-reopen, manual paths/swimlanes/ports, undo/redo, long-session/performance and two full-editor acceptance gates remain open. Unrelated edits preserved; current changes are uncommitted and unpushed.
+
+- Final packaging check added a declaration to the public relationship stylesheet export and verified it in the clean installed consumer. Replaced file-directory development references with matched workspace versions/explicit linking so a fresh source checkout does not depend on prebuilt copied artifacts. Lockfile remains 40 additive lines with its existing peer policy. Final 362 tests/typecheck and standalone/consumer builds passed; no release/commit/push performed.
+
+## Full-editor acceptance fixture and rapid-move verification (2026-10-12)
+
+- Built a retained temporary fixture with two actual packaged canvas/diagram editors, standalone adapters, independent core-only stores, visible native/saved reports and recorded drag modifiers. Corrected fixture legacy dispatch and stable rendering; these are test-host fixes rather than a change to standalone store ownership.
+- Verified node movement reaches durable state, grouping is reflected in native and saved IDs, collapse/expand preserves position, host save/remount/reload preserves membership/unknown fields, and A actions leave B unchanged. Verified two ported-container body drags 0.412 seconds apart remain in live and saved state inside the old lock window.
+- Removed an empty emitted style jsx block that caused a React warning; added a no-style-jsx assertion to the package boundary test. All 362 tests passed. Detailed evidence and limits are in consumer-verification.md; fixture reproduction instructions retained.
+- Shift-drag automation recorded shift=false, so manual detach remains open. Native file dialogs, complex relationships/swimlanes/ports, undo/redo, long-session/performance and actual Workspace integration remain pending. Changes remain uncommitted; no deployment/push performed.
+
+- Final acceptance run: 362 tests, non-incremental typecheck and diff check passed. The successful full-editor tab was closed and the fixture server stopped; port 3106 has no listener. An initial browser-generated connection-error tab could not be accessed for explicit closure under URL policy and is left to temporary-tab cleanup. No product route was added; only the retained fixture/README and empty-style warning fix changed in this acceptance pass. No commit/push/deployment performed.
+
+### Container resize regression — 2026-10-12
+
+Ordinary container resizing now preserves member document positions, including nested groups, instead of retaining the member translation caused by GoJS group resizing. Pool/lane structural resizing remains unchanged. Native GoJS regression coverage checks nested positions, saved location bindings, unrelated nodes and retained resized dimensions. Package builds, all 363 tests, nonincremental typecheck and diff check passed. Browser verification on standalone localhost:3000 enlarged and then restored the user's selected container; Information, Task, the nested container and Role stayed in place. Screenshot: `/tmp/mimris-container-resize-verified.png`. This verifies the bottom-right handle; other resize handles and undo/redo remain separate acceptance checks.
+
+### Upper-left resize follow-up — 2026-10-12
+
+The diagram's post-drag location-write lock could reject the new location produced by a left/top resize while accepting its size. The resizing tool now releases the adorned part's prior move protection on activation. Member restoration measures the resized group before restoring positions. Added coverage for the lock release and tool integration. Browser gestures verified the upper-left handle remains at its dragged position, including a resize shortly after moving the container. Screenshot: `/tmp/mimris-upper-left-resize-verified.png`. Exact member geometry persistence and undo/redo remain separate acceptance checks.
+
+### Live resize flicker follow-up — 2026-10-12
+
+Canvas prop reconciliation and focus-highlight binding refresh now skip active resizing; nonstructural model-change feedback also treats resizing like dragging. Regression tests instantiate the actual public editor factories and verify an active ResizingTool cannot apply parent snapshots, commit model changes, or force highlight redraws. Browser check verifies upper-left resize completion; screenshots alone do not prove absence of transient flicker during a sustained gesture. Manual smoothness confirmation remains pending. Screenshot: `/tmp/mimris-resize-flicker-check.png`.
+
+### Geometry Undo/Redo — 2026-10-12
+
+User confirmed save/reopen and resize smoothness. Added visible Undo/Redo controls above the modelling area and wired them to the diagram command handler, including Mac Command-Z/Command-Shift-Z shortcuts. History is per editor, limited to 100 completed move/resize/link-reshape gestures, stores detached geometry, and resets across structural/semantic changes and reload. Creation, deletion, renaming and regrouping are not advertised as undoable.
+
+The complete gesture is one history step, including final resize dimension adjustment. Undo flushes pending view writes, releases old move locks, restores only changed geometry fields and persists object/link view updates through existing RTK commands. Native GoJS point lists are converted into plain coordinates before persistence. Full GoJS UndoManager serialization remains disabled because diagram data includes cyclic runtime Metis objects.
+
+Browser checks in standalone localhost:3000 verified move Undo/Redo buttons, Mac keyboard Undo/Redo, side-handle container resize Undo/Redo and reload after Undo. The final resize restored in one Undo step and reapplied in one Redo step. Fresh final error log had no errors; older development failures remain in the captured log. Screenshot: `/tmp/mimris-undo-redo-verified.png`. Native file reopen after Undo and complex pool/lane/link geometry remain separate manual acceptance checks. No commit, push or deployment performed.
+
+### Background history menu — 2026-10-12
+
+Moved Undo/Redo into the main background context menu and removed the history toolbar and its button-ref listeners. Menu actions call the same per-editor command handler and evaluate availability on opening. Browser verification: move → background menu Undo enabled → Undo → reopen menu Redo enabled. Screenshot: `/tmp/mimris-background-undo-redo.png`. Keyboard shortcuts remain unchanged.
+
+## Reviewed extraction checkpoint — 2026-10-12
+
+Reviewed and selectively staged the full canvas/diagram factories, host adapters, public package/workspace wiring, helper extraction, scoped obsolete-code removal, container resize safeguards and background-menu geometry history. The exact staged source was exported to `/tmp/mimris-reviewed-rtk-8zhaktyo` with linked existing dependency installations and its own local package outputs. All 374 tests, nonincremental typecheck, fresh production build and staged diff check passed. This is an isolated source validation, not a new dependency installation or deployment.
+
+Excluded unrelated visibility specification, inspector type-information, abstract palette, model-page UI, appearance alias and automatic-layout route-clearing edits. The latter two mixed-file changes remain in the working tree. User has confirmed save/reopen and resize smoothness; browser verification covers background-menu history and Mac shortcuts for geometry. Full semantic Undo/Redo, native file reopen after Undo, manual Shift-drag, complex ports/swimlanes/relationships, performance and actual AI Workspace integration remain open gates.

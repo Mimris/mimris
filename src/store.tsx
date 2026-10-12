@@ -1,20 +1,19 @@
-import { configureStore, type AnyAction } from '@reduxjs/toolkit';
+import { configureStore, createNextState, type AnyAction, type Middleware } from '@reduxjs/toolkit';
 import { Context, createWrapper } from 'next-redux-wrapper';
 import legacyReducer from './reducers/reducer';
 import {
     buildUniverseStateFromLegacy,
+    isUniverseOwnedAction,
     universeReducer,
     type LegacyUniverseRoot,
     type SharedUniverseState,
 } from './sharedUniverse/universeSlice';
 
-type RootReducerState = LegacyUniverseRoot & {
-    universe: SharedUniverseState;
-};
+export type RootReducerState = { universe: SharedUniverseState; [key: string]: unknown };
 
 const reduceLegacyState = legacyReducer as (state: LegacyUniverseRoot | undefined, action: AnyAction) => LegacyUniverseRoot;
 
-const legacyRuntimeActionTypes = new Set([
+const retiredLegacyRuntimeActionTypes = new Set([
     'SET_MYMETIS_MODEL',
     'SET_MYMETIS_PARAMETER',
     'SET_MY_GOMODEL',
@@ -28,75 +27,47 @@ const legacyRuntimeActionTypes = new Set([
     'SET_GOJS_TARGETMETAMODEL',
 ]);
 
-const mirrorUniverseToLegacy = (
-    legacyState: LegacyUniverseRoot,
-    universe: SharedUniverseState,
-): LegacyUniverseRoot => ({
-    ...legacyState,
-    phData: {
-        ...legacyState.phData,
-        ...(universe.world.worldDefinition.domain !== null && universe.world.worldDefinition.domain !== undefined
-            ? { domain: universe.world.worldDefinition.domain }
-            : {}),
-        ...(universe.world.worldModel.metis !== null && universe.world.worldModel.metis !== undefined
-            ? { metis: universe.world.worldModel.metis }
-            : {}),
-        ...(Array.isArray(universe.compatibility.documents)
-            ? { documents: universe.compatibility.documents }
-            : {}),
-    },
-    ...(universe.world.focus !== null && universe.world.focus !== undefined
-        ? { phFocus: universe.world.focus }
-        : {}),
-    ...(universe.user !== null && universe.user !== undefined
-        ? { phUser: universe.user }
-        : {}),
-    ...(universe.source !== null && universe.source !== undefined
-        ? { phSource: universe.source }
-        : {}),
-    ...(universe.compatibility.modelList !== null && universe.compatibility.modelList !== undefined
-        ? { phList: universe.compatibility.modelList }
-        : {}),
-});
+const legacyAliasKeys = ['phData', 'phFocus', 'phUser', 'phSource', 'phList', 'phMymetis', 'phGojs', 'phMyGoModel', 'phMyGoMetamodel'];
+const canonicalRoot = (root: LegacyUniverseRoot, universe: SharedUniverseState): RootReducerState => {
+    if (root.universe && !legacyAliasKeys.some(key => Object.prototype.hasOwnProperty.call(root, key))) return root as RootReducerState;
+    const metadata = { ...root } as Record<string, unknown>;
+    for (const key of legacyAliasKeys) delete metadata[key];
+    return { ...metadata, universe };
+};
 
-export const rootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
-    const legacyBaseState = state ?? reduceLegacyState(undefined, { type: '@@INIT' });
-    const previousUniverse = state?.universe ?? buildUniverseStateFromLegacy(legacyBaseState);
+/** Redux stores one durable universe; legacy file/editor shapes are selector projections. */
+export const rootReducer = (state: RootReducerState | LegacyUniverseRoot | undefined, action: AnyAction): RootReducerState => {
+    const seed = state ?? reduceLegacyState(undefined, { type: '@@INIT' });
+    const previousUniverse = seed.universe ?? buildUniverseStateFromLegacy(seed);
+    const base = canonicalRoot(seed, previousUniverse);
+    if (retiredLegacyRuntimeActionTypes.has(action.type)) return base;
     const reducedUniverse = universeReducer(previousUniverse, action);
+    if (reducedUniverse !== previousUniverse) return { ...base, universe: reducedUniverse };
+    if (isUniverseOwnedAction(action)) return base;
+    const hostState = reduceLegacyState(base, action);
+    return hostState === base ? base : { ...hostState, universe: previousUniverse } as RootReducerState;
+};
 
-    if (reducedUniverse !== previousUniverse) {
-        return {
-            ...mirrorUniverseToLegacy(legacyBaseState, reducedUniverse),
-            universe: reducedUniverse,
-        } as RootReducerState;
-    }
+/** Drop retired runtime writes before diagnostic middleware traverses their instance payloads. */
+const discardRetiredRuntimeWrites: Middleware = () => next => action => {
+    if (action && typeof action === 'object' && 'type' in action
+        && retiredLegacyRuntimeActionTypes.has((action as AnyAction).type)) return action;
+    return next(action);
+};
 
-    const legacyState = reduceLegacyState(state, action);
-    if (legacyRuntimeActionTypes.has(action.type)) {
-        return {
-            ...legacyState,
-            universe: previousUniverse,
-        } as RootReducerState;
-    }
-
-    return {
-        ...legacyState,
-        universe: buildUniverseStateFromLegacy({ ...legacyState, universe: undefined }),
-    } as RootReducerState;
+/** Freeze durable store snapshots; mutable runtimes hydrate detached data at the host boundary. */
+export const readonlyRootReducer = (state: RootReducerState | undefined, action: AnyAction): RootReducerState => {
+    const next = rootReducer(state, action);
+    return next === state ? next : createNextState(next, () => {});
 };
 
 export const makeStore = (_context?: Context) => {
     const store = configureStore({
-        reducer: rootReducer,
+        reducer: readonlyRootReducer,
         devTools: process.env.NODE_ENV !== 'production',
         middleware: (getDefaultMiddleware) =>
-            getDefaultMiddleware({
-                immutableCheck: false,
-                serializableCheck: false,
-            }),
+            getDefaultMiddleware().prepend(discardRetiredRuntimeWrites),
     });
-
-    currentStore = store;
 
     return store;
 };
@@ -104,9 +75,5 @@ export const makeStore = (_context?: Context) => {
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<AppStore['getState']>;
 export type AppDispatch = AppStore['dispatch'];
-
-let currentStore: AppStore | null = null;
-
-export const getCurrentStore = (): AppStore | null => currentStore;
 
 export const wrapper = createWrapper<AppStore>(makeStore as any);

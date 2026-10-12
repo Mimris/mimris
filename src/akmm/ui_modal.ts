@@ -9,13 +9,13 @@ import { RegexParser } from 'regex-parser';
 
 import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
+import { isAppearanceField, setAppearanceOverride, serializeAppearance } from './viewAppearance';
 import * as uic from './ui_common';
 import * as uid from './ui_diagram';
 import * as uit from './ui_templates';
 import * as gjs from './ui_gojs';
 import * as constants from './constants';
-import { getCurrentStore } from '../store';
-import { MEMORY_STATE_STORAGE_KEY, persistMemoryState } from '../components/utils/memoryStateStorage';
+import { getEditorHost, resolveEditorDispatch } from '../editorHost/access';
 import { dispatchUniversePhData } from '../sharedUniverse';
 // const RegexParser = require("regex-parser");
 // const utils = require('./utilities');
@@ -160,7 +160,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   const persistRelshipviewEdit = (data: any) => {
     if (!data?.id) return;
     try {
-      const store = getCurrentStore();
+      const store = getEditorHost(myMetis);
       const state = store?.getState?.();
       const currentPhData = state?.phData;
       if (!currentPhData?.metis) return;
@@ -183,7 +183,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         phUser: state?.phUser,
         phSource: state?.phSource,
       };
-      persistMemoryState(snapshot);
+      store?.persistence?.saveDraft(snapshot);
     } catch (_) {
       // Do nothing
     }
@@ -326,6 +326,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     // CRITICAL: Mark this property as explicitly touched by the user
     // so handleCloseModal knows to persist the change to Redux/localStorage
     if (context?.what === "editObjectview") {
+        if (myInstview?.appearanceMode) setAppearanceOverride(myInstview, propname, nextObjectviewValue);
         // Store in myMetis since context/obj are frozen
         if (!myMetis.__editTracking) myMetis.__editTracking = {};
         const objKey = obj?.key || obj?.id;
@@ -441,6 +442,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
         if (typeview) {
           data = applyDeltaStorage(data, typeview);
         }
+        serializeAppearance(data, myInstview);
         myDiagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
       } catch {
         // Do nothing
@@ -451,6 +453,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     const objview = myMetis.findObjectView(obj?.id || obj?.key);
     if (objview) {
       myItem = objview;
+      if (context?.what === "editObjectview" && objview.appearanceMode) setAppearanceOverride(objview, propname, value);
       const myDiagram = context?.myDiagram || myMetis?.myDiagram;
       let startedTxn = false;
       try {
@@ -620,6 +623,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       // CRITICAL: Mark this property as explicitly touched by the user
       // so handleCloseModal knows to persist the change to Redux/localStorage
       if (context?.what === "editRelshipview") {
+          if (myRelview?.appearanceMode) setAppearanceOverride(myRelview, propname, value);
           // Store in myMetis since context/obj are frozen
           if (!myMetis.__editTracking) myMetis.__editTracking = {};
           const linkKey = obj?.key || obj?.id || link?.key;
@@ -761,10 +765,7 @@ export function handleSelectDropdownChange(selected, context) {
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
   const dispatchUpdate = (action: any) => {
-    try { myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.dispatch?.(action); } catch (_) {}
-    try { context?.dispatch?.(action); } catch (_) {}
+    resolveEditorDispatch(myMetis, myDiagram, myMetis?.myDiagram, myMetis, context)?.(action);
   };
   const selectedOption = selected.value;
   const objectview = modalContext.objectview;
@@ -1438,41 +1439,31 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   }
 
   const dispatchUpdate = (action: any) => {
-    const store = getCurrentStore();
-    try { myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.myDiagram?.dispatch?.(action); } catch (_) {}
-    try { myMetis?.dispatch?.(action); } catch (_) {}
-    try { props?.dispatch?.(action); } catch (_) {}
-    try { modalContext?.context?.dispatch?.(action); } catch (_) {}
-    try { store?.dispatch?.(action); } catch (_) {}
-    const getPersistedBase = () => ({
-      phData: props?.phData ? JSON.parse(JSON.stringify(props.phData)) : undefined,
-      phFocus: props?.phFocus ? JSON.parse(JSON.stringify(props.phFocus)) : undefined,
-      phUser: props?.phUser ? JSON.parse(JSON.stringify(props.phUser)) : undefined,
-      phSource: props?.phSource ? JSON.parse(JSON.stringify(props.phSource)) : undefined,
-    });
+    const store = getEditorHost(myMetis);
+    resolveEditorDispatch(myMetis, myDiagram, myMetis?.myDiagram, myMetis, props, modalContext?.context)?.(action);
+    const getPersistedBase = () => JSON.parse(JSON.stringify(store?.getState() || {
+      phData: props?.phData,
+      phFocus: props?.phFocus,
+      phUser: props?.phUser,
+      phSource: props?.phSource,
+    }));
     const updatePersistedMemoryState = (applyUpdate: (phData: any) => void) => {
       try {
-        const rawStored = window?.sessionStorage?.getItem(MEMORY_STATE_STORAGE_KEY) || window?.localStorage?.getItem(MEMORY_STATE_STORAGE_KEY);
-        const parsedStored = rawStored ? JSON.parse(rawStored) : getPersistedBase();
+        const parsedStored = store?.persistence?.readDraft() || getPersistedBase();
         applyUpdate(parsedStored?.phData);
-        persistMemoryState(parsedStored);
+        store?.persistence?.saveDraft(parsedStored);
       } catch (_) {}
     };
     if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyObjectviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyObjectviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyRelshipviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshipviewUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPE_PROPERTIES' && action?.data?.id) {
-      try { applyRelshiptypeUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshiptypeUpdateById(phData, action.data));
     }
     if (action?.type === 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES' && action?.data?.id) {
-      try { applyRelshiptypeviewUpdateById(props?.phData, action.data); } catch (_) {}
       updatePersistedMemoryState((phData: any) => applyRelshiptypeviewUpdateById(phData, action.data));
     }
   }
@@ -1480,36 +1471,35 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const pushPhDataUpdate = (data: any) => {
     if (!props?.phData?.metis || !data?.id) return;
     try {
-      const store = getCurrentStore();
-      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      const store = getEditorHost(myMetis);
+      const phDataClone = JSON.parse(JSON.stringify(store?.getState().phData || props.phData));
       applyObjectviewUpdateById(phDataClone, data);
-      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
+      const dispatch = resolveEditorDispatch(myMetis, props, modalContext?.context, myDiagram, myMetis?.myDiagram, myMetis);
+      if (dispatch) dispatchUniversePhData(dispatch, phDataClone);
     } catch (_) {}
   }
 
   const pushPhDataRelshipviewUpdate = (data: any) => {
     if (!props?.phData?.metis || !data?.id) return;
     try {
-      const store = getCurrentStore();
-      const phDataClone = JSON.parse(JSON.stringify(props.phData));
+      const store = getEditorHost(myMetis);
+      const phDataClone = JSON.parse(JSON.stringify(store?.getState().phData || props.phData));
       applyRelshipviewUpdateById(phDataClone, data);
-      try { dispatchUniversePhData(props?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(modalContext?.context?.dispatch, phDataClone); } catch (_) {}
-      try { dispatchUniversePhData(store?.dispatch, phDataClone); } catch (_) {}
+      const dispatch = resolveEditorDispatch(myMetis, props, modalContext?.context, myDiagram, myMetis?.myDiagram, myMetis);
+      if (dispatch) dispatchUniversePhData(dispatch, phDataClone);
       try {
         const persistSnapshot = () => {
-          const snapshot = {
+          const current = store?.getState() || props;
+          const snapshot = JSON.parse(JSON.stringify({
             phData: phDataClone,
-            phFocus: props?.phFocus,
-            phUser: props?.phUser,
-            phSource: props?.phSource,
-          };
-          persistMemoryState(snapshot);
+            phFocus: current?.phFocus,
+            phUser: current?.phUser,
+            phSource: current?.phSource,
+          }));
+          store?.persistence?.saveDraft(snapshot);
         };
         persistSnapshot();
-        window?.setTimeout?.(persistSnapshot, 150);
+        store?.persistence?.saveCurrentDraftAfter(150);
       } catch (_) {}
     } catch (_) {}
   }
@@ -1667,8 +1657,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myDiagram.model.setDataProperty(gjsData, 'name', relship.name);
       } catch (e) {}
       // if (relship.relshipkind !== constants.relkinds.REL) {
-        relview.setFromArrow2(relship.relshipkind);
-        relview.setToArrow2(relship.relshipkind);
+        if (!relview.appearanceMode) {
+          relview.setFromArrow2(relship.relshipkind);
+          relview.setToArrow2(relship.relshipkind);
+        }
         let fromArrow = relview.fromArrow;
         if (fromArrow === "None") fromArrow = "";
         let toArrow = relview.toArrow;
@@ -1807,6 +1799,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (!view) return;
         for (let i = 0; i < optionalObjectviewProps.length; i++) {
           const prop = optionalObjectviewProps[i];
+          if (view.appearanceMode && isAppearanceField(objview, prop)) continue;
           if (isUnsetObjectviewValue(view[prop])) {
             delete view[prop];
           }
@@ -1826,6 +1819,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       
       // Apply persistence filtering to visual properties
       for (const prop of persistableProps) {
+        if (objview.appearanceMode && isAppearanceField(objview, prop)) {
+          if (touchedExplicitProps?.[prop]) setAppearanceOverride(objview, prop, selObj[prop]);
+          continue;
+        }
         const userValue = selObj[prop];
         const currentValue = objview[prop];
         const typeviewValue = typeviewValueFor(prop);
@@ -1950,6 +1947,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   else delete data.arrowscale;
   if (objview.textscale !== undefined) data.textscale = objview.textscale;
   else delete data.textscale;
+  serializeAppearance(data, objview);
   removeEmptyOptionalObjectviewFields(data);
   dispatchUpdate({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
   pushPhDataUpdate(data)
@@ -2203,16 +2201,18 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       else if (modalContext.case === 'Change Relationship type') {
         const selectedValue = modalContext.selected?.value;
-        const reltype = myMetamodel.findRelationshipTypeByName(selectedValue);
-        let link = myMetis.currentLink;
-        link = myDiagram.findLinkForKey(link.key);
-        link.data.relshiptype = reltype;
-        const relshipRef = link.data.relshipRef;
-        let relship = myModel.findRelationship(relshipRef);
+        const reltype = myMetamodel.findRelationshipTypeByName(selectedValue) || myMetis.findRelationshipTypeByName?.(selectedValue);
+        const linkKey = modalContext.relationshipViewRef || myMetis.currentLink?.key;
+        const link = linkKey ? myDiagram.findLinkForKey(linkKey) : null;
+        if (!selectedValue || !reltype || !link?.data) break;
+        const relshipRef = modalContext.relationshipRef || link.data.relshipRef;
+        let relship = myModel?.findRelationship(relshipRef);
         if (!relship)
-          relship = myMetis.findRelationshipType(relshipRef);
+          relship = myMetis.findRelationship(relshipRef);
+        if (!relship) break;
+        myDiagram.model.setDataProperty(link.data, 'relshiptype', reltype);
         const fromReltype = relship.type;
-        if ( relship.name === fromReltype.name) {
+        if ( relship.name === fromReltype?.name) {
           relship.name = reltype.name;
           // link.name = reltype.name;
           myDiagram.model.setDataProperty(link.data, 'name', relship.name);
@@ -2294,6 +2294,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (!view) return;
         for (let i = 0; i < optionalRelshipviewProps.length; i++) {
           const prop = optionalRelshipviewProps[i];
+          if (view.appearanceMode && isAppearanceField(relview, prop)) continue;
           if (isUnsetRelshipviewValue(view[prop])) {
             delete view[prop];
           }
@@ -2389,6 +2390,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             const storedValue = shouldFilterByDefault
               ? (touchedExplicitProps?.[prop] === true ? nextValue : persistRelshipviewValue(nextValue, currentValue, fallbackValue))
               : nextValue;
+            if (relview.appearanceMode && isAppearanceField(relview, prop)) {
+              if (touchedExplicitProps?.[prop]) setAppearanceOverride(relview, prop, nextValue);
+              try { m.set(data, prop, relview[prop]); } catch (_) {}
+              return;
+            }
             if (storedValue === undefined) {
               try { delete relview[prop]; } catch (_) {}
               try { if (relview?.data) delete relview.data[prop]; } catch (_) {}
@@ -2435,6 +2441,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         });
       }
       
+      serializeAppearance(jsnRelview, relview);
       modifiedRelviews.push(jsnRelview);
       modifiedRelviews.map(mn => {
         const data = safeClone(mn);
@@ -2443,22 +2450,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         pushPhDataRelshipviewUpdate(data)
       });
       
-      // Save to localStorage after Redux reducer completes
-      setTimeout(() => {
-        try {
-          const store = getCurrentStore();
-          const state = store?.getState?.();
-          if (state) {
-            const persistedState = {
-              phData: state.phData,
-              phFocus: state.phFocus,
-              phUser: state.phUser,
-              phSource: state.phSource,
-            };
-            persistMemoryState(persistedState);
-          }
-        } catch (err) {}
-      }, 100);
+      // The host owns deferred draft persistence and its lifecycle.
+      getEditorHost(myMetis)?.persistence?.saveCurrentDraftAfter(100);
       
       // Clear selection immediately
       try {
@@ -2497,11 +2490,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myMetis?.modelType === 'Metamodelling' &&
         (!!selObj?.objecttype || !!selObj?.objtypeRef);
       const node = myDiagram.findNodeForKey(selObj.key);
-      if (!node)
+      const isLinkTypeview = selObj.category === constants.gojs.C_RELSHIPTYPE || selObj.category === constants.gojs.C_RELATIONSHIP;
+      if (!node && !isLinkTypeview)
         break;
       if (node) node.isSelected = true;
       // Do a fix
-      if (selObj.typeview) {
+      if (selObj.typeview && !isLinkTypeview) {
         const tview = myMetamodel.findObjectTypeView(selObj.typeview.id);
         if (!tview)
           break;
@@ -2574,30 +2568,28 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
+        if (!link) break;
         data = link.data;
-        
-        let reltype = data.reltype;
-        reltype = myMetamodel.findRelationshipType(reltype.id);
+        let reltype = modalContext.myContext?.relshiptype || data.reltype || data.relshiptype;
+        reltype = myMetamodel.findRelationshipType(reltype?.id) || reltype;
         if (reltype) {
           typeview = reltype.typeview;
-          typeview = myMetamodel.findRelationshipTypeView(typeview.id);
+          typeview = myMetamodel.findRelationshipTypeView(typeview?.id) || typeview;
           reltype.typeview = typeview;
         } else {
           reltypeview = data.typeview;
-          typeview = myMetamodel.findRelationshipTypeView(reltypeview.id);
+          typeview = myMetamodel.findRelationshipTypeView(reltypeview?.id) || reltypeview;
         }
         
         if (typeview) {
-          // Set arrows based on relationship kind if specified
-          if (selObj.relshipkind) {
-            typeview.setFromArrow2(selObj.relshipkind);
-            typeview.setToArrow2(selObj.relshipkind);
-          }
-          
-          // **FIX: Ensure all properties are synced from typeview to link data**
-          // Most updates happen in handleInputChange, but ensure arrows and special cases are handled
-          if (link.updateLink) {
-            link.updateLink(data, myDiagram);
+          // The inspector has already updated the typeview. Preserve explicit
+          // arrows rather than regenerating them from the relationship kind.
+          for (const prop in typeview.data) {
+            if (prop === 'from' || prop === 'to') continue;
+            const value = typeview.data[prop];
+            if (value !== undefined && (value === null || typeof value !== 'object')) {
+              myDiagram.model.setDataProperty(data, prop, value);
+            }
           }
           
           myMetamodel.addRelationshipTypeView(typeview);
@@ -2606,7 +2598,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
             const data = safeClone(mn);
-            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+            dispatchUpdate({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
       }

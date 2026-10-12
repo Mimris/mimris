@@ -2,7 +2,7 @@
 
 **Feature Branch**: `alpha`
 **Created**: 2026-08-17
-**Updated**: 2026-08-18
+**Updated**: 2026-09-07
 **Status**: Implemented
 **Input**: Preserve reviewed Pool and Lane geometry supplied by an upstream workspace, while keeping interactive Lane movement and resizing contained by a stable Pool frame.
 
@@ -16,10 +16,10 @@ After opening the model, the modeller expects Lane edits to change Lane frames w
 
 ### Acceptance Scenarios
 
-1. Given a Pool and all its Lane objectviews share a non-empty `layoutRevision` and valid `loc` and `size` values, when the model initially renders, then Mimris preserves their imported positions and dimensions.
+1. Given a Pool and all its Lane objectviews share a non-empty `layoutRevision` and valid `loc` and `size` values, when the model initially renders, then Mimris retains their reviewed geometry as the starting point and repairs stale membership before normalizing Lane frames.
 2. Given a Pool does not have complete revised Lane geometry, when the model initially renders, then Mimris may normalize membership and auto-layout that Pool.
 3. Given an authoritative revised model is exported and re-imported, then its `layoutRevision` survives the object-view serialization round trip.
-4. Given an authoritative Pool contains multiple Lanes, when GoJS discovers Lane membership through either contained groups or the Pool key, then every Lane must satisfy the same revision and geometry checks before layout is skipped.
+4. Given an authoritative Pool contains multiple Lanes, when GoJS discovers Lane membership through either contained groups or the Pool key, then every Lane must satisfy the same revision and geometry checks before geometry is treated as authoritative; a revision does not exempt stale membership from repair.
 5. Given a revised Pool or Lane is rendered, when its template initializes, then layout-only placeholder content must not alter the reviewed geometry.
 6. Given a Pool contains multiple Lanes, when it is rendered or a Lane edit finishes, then all Lane frames have the same width, form a contiguous vertical stack, and fit exactly inside the Pool below its header.
 7. Given objects are positioned inside a Lane, when that Lane is moved or resized, then their relative positions are preserved and no automatic content layout is applied.
@@ -41,7 +41,7 @@ After opening the model, the modeller expects Lane edits to change Lane frames w
 ## Requirements
 
 - **FR-001**: Object-view import, runtime GoJS node construction, and export MUST preserve `layoutRevision`.
-- **FR-002**: Initial swimlane normalization and pool re-layout MUST be skipped only when the Pool and every contained Lane share the same non-empty revision and valid geometry.
+- **FR-002**: Initial swimlane normalization MUST repair membership even for revised Pools. A layout revision MUST NOT prevent repair of nested Lanes or incorrectly grouped members.
 - **FR-003**: Existing normalization behavior MUST remain available for incomplete or legacy swimlane models.
 - **FR-004**: Revised Pool and Lane templates MUST suppress layout-only placeholder content that can change authoritative geometry.
 - **FR-005**: A newer incoming `layoutRevision` MUST be treated as a meaningful node update even when the diagram structure is unchanged.
@@ -71,3 +71,23 @@ After opening the model, the modeller expects Lane edits to change Lane frames w
 - Confirm a legacy or incomplete Pool still follows the normalization path.
 - Visually verify Lane dragging, content-preserving resizing, equal Lane widths, Pool containment, and border alignment.
 - Confirm through reducer tests that explicit file opens restore saved geometry while ordinary refreshes preserve active geometry.
+
+## September 2026 Membership and Workspace Refinements
+
+- Lanes MUST be sibling groups under their Pool. For ordinary nodes inside a Pool, membership repair prefers an existing Lane contains relationship, then the visible Lane frame. Repaired group keys MUST reach persisted objectviews.
+- Moving a group MUST detach unselected, ordinary members outside its visible body and restore their pre-drag positions. Descendants of selected groups MUST use group-move persistence only, avoiding duplicate relationship rewrites.
+- Visual overlap alone MUST NOT adopt an object into a moved group: an existing contains relationship is required.
+- Drag handling MUST ignore deleted or missing relationship views without globally purging model relationships.
+- Group bodies MUST default to non-linkable; explicit ports remain the linking surfaces. Default nested scaling MUST use the shared MEMBERSCALE constant, while valid explicit member scale values remain supported.
+- The workspace Save and Refresh toolbar MUST use compact spacing and smaller buttons while retaining labels, handlers, and busy-state disabling.
+
+### Release Verification (2026-09-07)
+
+- Automated suite: 57 tests passed.
+- Standalone TypeScript check: passed.
+- Production build: passed. Visual interaction checks: blocked because the browser rejected localhost with ERR_BLOCKED_BY_CLIENT; drag, ports, scaling and toolbar checks remain pending.
+- Compatibility: no schema migration; existing group keys are repaired through normal objectview persistence. Revision metadata remains supported, but no longer suppresses initial normalization.
+
+### Build reproducibility
+
+Replace the conflicted npm lockfile with the validated pnpm lockfile. Vercel installation and the Pages workflow use frozen pnpm installation, consistent with package.json. Remove stale conflict markers from the contributor guide.

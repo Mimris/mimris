@@ -20,7 +20,7 @@ const transpileCommonJs = (url) => {
 
 const loadSelectors = () => {
   const module = { exports: {} };
-  vm.runInNewContext(transpileCommonJs(new URL('./selectors.ts', import.meta.url)), {
+  vm.runInNewContext(transpileCommonJs(new URL('../../packages/modelling-core/src/selectors.ts', import.meta.url)), {
     exports: module.exports,
     module,
     require,

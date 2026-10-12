@@ -1,6 +1,6 @@
 # Partial implementation branch audit
 
-Checked 2026-10-08 without checkout, merge, fetch or worktree changes.
+Initial audit: 2026-10-08, without checkout, merge, fetch or worktree changes. The initial findings below refer to the branches inspected then; subsequent implementation-branch preparation is recorded separately below.
 
 ## Mimris
 
@@ -35,3 +35,15 @@ Local branch codex/shared-universe-rtk ends at 406f9bac. Its tip is an ancestor 
 Live remote checks failed with GitHub DNS resolution errors over SSH and HTTPS; remote branch existence/status is unverified. The local ancestry findings remain valid.
 
 Neither current repository tree has a top-level packages directory. This audit found partial state migration, not completed reusable editor/core packaging. It is a targeted audit of relevant branches and commits, not an exhaustive semantic review of every historical branch.
+
+## Implementation baseline follow-up
+
+- Planning documents were isolated in commit `21f98439` on `codex/rtk-modelling-plan` and submitted as PR #39.
+- The remote planning branch was no longer available when preparing implementation; its local commit was retained and used as the branch base.
+- Created `codex/rtk-implementation`, merged fetched `origin/alpha` at `3ffbde8e`, and pushed the result. Merge commit: `d2bfac08`; parents: `21f98439` and `3ffbde8e`.
+- Verified both planning and alpha commits are ancestors of the new branch. The post-merge working tree was clean.
+- The only merge conflict was the test command in `package.json`; resolution preserved the union of both test lists. `npm test` passed all 77 tests, with no failures or skipped tests.
+- Whitespace checking found existing CRLF/trailing whitespace in alpha's GoJS sample configuration files. These were left unchanged. The resolved package.json diff passed its scoped whitespace check.
+- Typecheck, production build and browser checks were not run for this merge. Incorporation and passing unit tests do not establish completion of the RTK migration or package extraction.
+
+Use `d2bfac08` as the recorded implementation baseline. Reconcile the original audit and source inventory against it before P1; do not describe the earlier development branch as the current implementation branch.

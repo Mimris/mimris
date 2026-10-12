@@ -38,20 +38,6 @@ const page = (props:any) => {
   const focusRelshiptype = phFocus?.focusRelshiptype;
   // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
-  let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
-  let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
-  let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
-  let gojsmodel =  props.phGojs?.gojsModel 
-  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
-  let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-
-  if (debug) console.log('49 Modelling', gojsmodel, gojsmodelobjects, props);
-  
-  let myMetis = props.phMymetis?.myMetis
-  let myGoModel = props.phMyGoModel?.myGoModel
-  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
-  //let myGoMetamodel = props.phGojs?.gojsMetamodel
   const compatibilityProps = {
     ...props,
     phData: { ...props.phData, metis },

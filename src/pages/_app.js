@@ -1,4 +1,5 @@
 import { Provider } from 'react-redux';
+import { Analytics } from '@vercel/analytics/next';
 import { makeStore } from '../store'; // Adjust path as needed
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -62,6 +63,7 @@ const MyApp = ({ Component, pageProps }) => {
       </Head>
       <Provider store={store}>
         <Component {...props} />
+        <Analytics />
       </Provider>
     </>
   );

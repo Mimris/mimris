@@ -1,0 +1,29 @@
+{
+  "name": "@mimris/modelling-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./appearance": {
+      "types": "./dist/viewAppearance.d.ts",
+      "import": "./dist/viewAppearance.js"
+    }
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^2.2.7"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build"
+  }
+}

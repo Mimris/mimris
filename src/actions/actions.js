@@ -42,18 +42,7 @@ import {
   SET_USER_SHOWMODIFIED,
   SET_VISIBLE_CONTEXT,
 
-  SET_MYMETIS_MODEL,
-  SET_MYMETIS_PARAMETER,
-  SET_MY_GOMODEL,
-  SET_MY_GOMETAMODEL,
 
-  SET_GOJS_MODEL,
-  SET_GOJS_TARGETMODEL,
-  SET_GOJS_MODELOBJECTS,
-  SET_GOJS_METAMODEL,
-  SET_GOJS_METAMODELPALETTE,
-  SET_GOJS_METAMODELMODEL,
-  SET_GOJS_TARGETMETAMODEL,
 
 
   UPDATE_PROJECT_PROPERTIES,
@@ -253,83 +242,6 @@ export const setFocusTargetModelview = (data) => {
   // if (debug) console.log('21---', data.value);
   return {
     type: SET_FOCUS_TARGETMODELVIEW,
-    data: JSON.parse(data.value)
-  }
-}
-export const setMymetisModel = (data) => {
-  if (debug) console.log('103---myMetis', data);
-  return {
-    type: SET_MYMETIS_MODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setMyMetisParameter = (data) => {
-  if (debug) console.log('110---MyMetisParameter', data);
-  return {
-    type: SET_MYMETIS_PARAMETER,
-    data: JSON.parse(data.value)
-  }
-}
-export const setMyGoModel = (data) => {
-  if (debug) console.log('21---myMetis', data);
-  return {
-    type: SET_MY_GOMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setMyGoMetamodel = (data) => {
- if (debug)  console.log('100---myGoMetamodel', data);
-  return {
-    type: SET_MY_GOMETAMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsMetamodelPalette = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_METAMODELPALETTE,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsMetamodelModel = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_METAMODELMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsTargetMetamodel = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_TARGETMETAMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsMetamodel = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_METAMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsModel = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_MODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsTargetModel = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_TARGETMODEL,
-    data: JSON.parse(data.value)
-  }
-}
-export const setGojsModelObjects = (data) => {
-  // if (debug) console.log('21---', data);
-  return {
-    type: SET_GOJS_MODELOBJECTS,
     data: JSON.parse(data.value)
   }
 }

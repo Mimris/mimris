@@ -5,6 +5,7 @@ import * as constants from './constants';
 import * as vkc from './viewkinds';
 import * as utils from './utilities';
 import * as akm from './metamodeller';
+import { resolveAppearance } from './viewAppearance';
 
 /*
 Module:         Interface to GoJS
@@ -643,6 +644,7 @@ export class goObjectNode extends goNode {
                         this[prop] = Number(this[prop]);
                     }
                 }
+                if (objview.appearanceMode) Object.assign(this, resolveAppearance(objview));
                 // Handle groups
                 // If objectview refers to a group, 
                 //     find the corresponding node's group reference    
@@ -1177,6 +1179,7 @@ export class goRelshipLink extends goLink {
         //         }
         //     }
         // }
+        if (relview?.appearanceMode) Object.assign(this, resolveAppearance(relview));
         const hasExplicitPoints = Array.isArray(this.points) && this.points.length >= 4;
         if (hasExplicitPoints) {
             this.routing = relview?.routing || "Normal";
@@ -1193,7 +1196,7 @@ export class goRelshipLink extends goLink {
             this.cardinalityFrom = "";
             this.cardinalityTo = "";
         }
-        if (!this.fromArrow && !this.toArrow) {
+        if (!this.fromArrow && !this.toArrow && !relview?.appearanceMode) {
             this.fromArrow = '';
             this.toArrow = 'OpenTriangle';
         }
@@ -1312,6 +1315,10 @@ export class goRelshipTypeLink extends goLink {
                         const data: any = typeview.getData();
                         this.addData(data);
                         this.setName(this.reltype.getName());
+                        // Type-view data also declares from/to fields. Those are
+                        // styling data, not the keys of this diagram's type nodes.
+                        this.from = this.fromNode.key;
+                        this.to = this.toNode.key;
                         if (!this.strokewidth)
                             this.strokewidth = '1.0';
                         if (!this.strokecolor)

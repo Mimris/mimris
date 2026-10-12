@@ -18,3 +18,16 @@
 - [x] Run TypeScript verification.
 - [x] Run the full test suite and production build.
 - [x] Visually verify the embedded BPMN Pool/Lane layout.
+
+## September 2026 follow-up
+
+- [x] Repair Lane membership even when layoutRevision is present.
+- [x] Persist repaired Lane member objectviews.
+- [x] Detach stale members and prevent duplicate descendant drag processing.
+- [x] Require containment before adopting overlapping objects.
+- [x] Avoid broad relationship purges during movement.
+- [x] Use explicit group ports and shared member-scale defaults.
+- [x] Compact workspace Save and Refresh controls.
+- [x] Run 57 tests and standalone TypeScript verification.
+- [x] Verify production build for this release.
+- [ ] Visually verify Lane/group dragging, ports, scale and workspace toolbar for this release.

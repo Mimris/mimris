@@ -1,6 +1,6 @@
 # Complete Redux Toolkit migration and extract modelling packages
 
-Created: 2026-10-08. Status: proposed implementation; planning only.
+Created: 2026-10-08. Status: implementation started on `codex/rtk-implementation`; first host-access increment implemented, migration and package extraction incomplete. See [plan.md](./plan.md) and [progress.md](./progress.md) for evidence and remaining gates.
 
 ## Objective
 

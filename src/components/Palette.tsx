@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { hydrateEditorRuntime } from '../editorRuntime/hydrate';
 import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useDispatch } from 'react-redux';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -107,7 +108,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     // const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === props.metis?.currentMetamodel);
     const mmodel = props.metis?.metamodels?.find((m: any) => m?.id === model?.metamodelRef);
     if (props.myMetis && props.metis) {
-      props.myMetis.importData(props.metis, true);
+      hydrateEditorRuntime(props.myMetis, props.metis, true);
     }
     setSelMetamodelName(mmodel?.name);
     if (debug) useEfflog('91 Palette useEffect 1 ', model, mmodel, phFocus);

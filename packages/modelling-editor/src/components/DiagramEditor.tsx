@@ -1,204 +1,46 @@
 // @ts-nocheck
+"use client";
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 
+import { normalizeEmptyBooleanFieldsInPlace } from '../runtime/paletteData.js';
+import { getNodeIdentityAliases as getDiagramNodeAliases, releaseNodeDragProtection } from '../gojs/nodeIdentity.js';
 import * as go from 'gojs';
-import { produce } from 'immer';
+import { installGeometryHistory } from '../gojs/geometryHistory.js';
 import { ReactDiagram } from 'gojs-react';
-import React, { useEffect } from 'react';
-import Select, { components } from "react-select"
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
-import { Input } from '../../ui/input';
-import { Button as UiButton } from '../../ui/button';
-import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
-import { FaSleigh, FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
-import { METHODS } from 'http';
-import { set } from 'immer/dist/internal';
-import { on } from 'process';
-import { RegexParser } from 'regex-parser';
-import printf from 'printf';
-import classnames from 'classnames';
-// import * as ReactModal from 'react-modal';
-// import Popup from 'reactjs-popup';
-// import 'reactjs-popup/dist/index.css';
+import React from 'react';
+import RegexParser from 'regex-parser';
 
-import { SelectionInspector } from '../components/SelectionInspector';
-import * as akm from '../../../akmm/metamodeller';
-import * as gjs from '../../../akmm/ui_gojs';
-import * as jsn from '../../../akmm/ui_json';
-import * as uic from '../../../akmm/ui_common';
-import * as uid from '../../../akmm/ui_diagram';
-import * as uim from '../../../akmm/ui_modal';
-import * as swimlane from '../../../akmm/ui_swimlane';
-import * as uit from '../../../akmm/ui_templates';
-// import * as ui_mnu from '../../../akmm/ui_menus';
-import * as ui_mtd from '../../../akmm/ui_methods';
-import * as gen from '../../../akmm/ui_generateTypes';
-import * as utils from '../../../akmm/utilities';
-import * as constants from '../../../akmm/constants';
-import { applyDropLayout, deriveDropLayoutConfig } from '../layout/DropLayoutManager';
-import { GuidedDraggingTool } from '../GuidedDraggingTool';
-import LoadLocal from '../../../components/LoadLocal'
-// import * as svgs from '../../utils/SvgLetters'
-// import svgs from '../../utils/Svgs'
-import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
-import { iconList, imageLibrary } from '../../forms/selectIcons';
-import ChangeIconModal from '../../modals/ChangeIconModal';
-import ChangeImageModal from '../../modals/ChangeImageModal';
-// import { stringify } from 'querystring';
-// import './Diagram.css';
-// import "../../../styles/styles.css"
-// import "../BalloonLink.js";
-import Toggle from '../../utils/Toggle';
-import { i } from '../../utils/SvgLetters';
+import { applyRelationshipTypeDraft } from '../runtime/relationshipTypeEditor.js';
+import { setAppearanceOverride } from '@mimris/modelling-core';
+import { applyDropLayout, deriveDropLayoutConfig } from '../gojs/DropLayoutManager.js';
+import { iconList, imageLibrary } from '../runtime/assetCatalog.js';
+import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '@mimris/modelling-core';
+
+
+import type { DiagramHostServices } from '../host/diagramServices.js';
+import type { DiagramHostComponents } from '../host/diagramComponents.js';
+import type { DiagramProjectServices } from '../host/diagramProjectServices.js';
+
+export interface DiagramEditorOptions {
+  services: DiagramHostServices;
+  components: DiagramHostComponents;
+  projects: DiagramProjectServices;
+}
+
+/** Create once outside rendering with host-owned capabilities. */
+export function createDiagramEditor(options: DiagramEditorOptions): React.ComponentType<any> {
+const { services, components: hostComponents, projects } = options;
+const { akm, gjs, jsn, uic, uid, uim, uit, ui_mtd, gen, utils, constants } = services;
+
+
+const { Select, Button, Modal, ModalHeader, ModalBody, ModalFooter, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, UiButton, TabContent, TabPane, Nav, NavItem, NavLink, SelectionInspector, RelationshipTypeEditor, ChangeIconModal, ChangeImageModal, classNames: classnames, selectComponents: components, RELATIONSHIP_TYPE_FORM_ID, relationshipEditorStyles } = hostComponents;
+
+const { buildGenerationProvenance, createGeneratedMetamodelProject, inspectGeneratedProjectTarget, updateGeneratedMetamodelProject, downloadGeneratedProject, chooseGeneratedProjectFile } = projects;
 
 const linkToLink = false;
 const AllowTopLevel = true;
-
-function collectLaneOwnedNodes(
-  diagram: go.Diagram,
-  lane: go.Group,
-): go.Node[] {
-  if (!diagram || !(lane instanceof go.Group)) return [];
-  const laneKey = String(lane.data?.key || lane.key || "");
-  const poolKey =
-    lane.containingGroup instanceof go.Group
-      ? String(lane.containingGroup.data?.key || lane.containingGroup.key || "")
-      : String(lane.data?.group || "");
-  const laneBody =
-    (lane.findObject("LANE_BODY_SHAPE") ||
-      lane.findObject("LANE_SHAPE") ||
-      lane.findObject("BODY")) as go.GraphObject | null;
-  const laneBodyBounds =
-    laneBody?.getDocumentBounds?.() || lane.actualBounds?.copy?.() || null;
-  const ownedNodes: go.Node[] = [];
-  const seen = new Set<string>();
-  const registerNode = (candidate: go.Part | null | undefined) => {
-    if (!(candidate instanceof go.Node) || candidate instanceof go.Group) return;
-    const candidateKey = String(candidate.data?.key || candidate.key || "");
-    if (!candidateKey || seen.has(candidateKey)) return;
-    seen.add(candidateKey);
-    ownedNodes.push(candidate);
-  };
-  
-  // CRITICAL: First priority - use data.group membership (most reliable)
-  try {
-    diagram.nodes.each((node: go.Node) => {
-      if (node instanceof go.Group) return;
-      const dataGroup = String(node.data?.group || "");
-      if (dataGroup === laneKey) {
-        registerNode(node);
-      }
-    });
-  } catch (_) { }
-  
-  // Second priority - lane.memberParts (for nodes that have visual group membership)
-  try {
-    lane.memberParts.each((member: go.Part) => {
-      registerNode(member);
-    });
-  } catch (_) { }
-  
-  // Third priority - containingGroup (for nodes that have runtime group membership)
-  try {
-    diagram.nodes.each((node: go.Node) => {
-      if (node instanceof go.Group) return;
-      const containingLane = node.containingGroup;
-      if (containingLane === lane) {
-        registerNode(node);
-      }
-    });
-  } catch (_) { }
-  
-  // Last resort - spatial containment (least reliable, only for orphaned nodes)
-  try {
-    if (laneBodyBounds?.isReal?.()) {
-      diagram.nodes.each((node: go.Node) => {
-        if (node instanceof go.Group) return;
-        if (seen.has(String(node.data?.key || node.key || ""))) return; // Already registered
-        
-        const nodeBounds = node.actualBounds;
-        if (!nodeBounds?.isReal?.()) return;
-        const nodeCenter = nodeBounds.center;
-        if (!laneBodyBounds.containsPoint(nodeCenter)) return;
-        
-        const containingLane = node.containingGroup;
-        const dataGroup = String(node.data?.group || "");
-        const containingKey =
-          containingLane instanceof go.Group
-            ? String(containingLane.data?.key || containingLane.key || "")
-            : "";
-        
-        // Only include if not explicitly assigned to another lane
-        if (containingKey && containingKey !== poolKey && containingKey !== laneKey) return;
-        if (dataGroup && dataGroup !== laneKey && dataGroup !== poolKey) return;
-        if (
-          node.containingGroup instanceof go.Group &&
-          node.containingGroup !== lane &&
-          node.containingGroup !== lane.containingGroup &&
-          String(node.containingGroup.data?.group || "") !== poolKey
-        ) {
-          return;
-        }
-        registerNode(node);
-      });
-    }
-  } catch (_) { }
-  return ownedNodes;
-}
-
-function normalizeLaneOwnedNodes(
-  diagram: go.Diagram,
-  lane: go.Group,
-): go.Node[] {
-  const ownedNodes = collectLaneOwnedNodes(diagram, lane);
-  if (!diagram || !(lane instanceof go.Group) || ownedNodes.length === 0) return ownedNodes;
-  const laneKey = String(lane.data?.key || lane.key || "");
-  if (!laneKey) return ownedNodes;
-  ownedNodes.forEach((node: go.Node) => {
-    if (!(node instanceof go.Node) || node instanceof go.Group || !node.data) return;
-    const currentGroup = String(node.data?.group || "");
-    const containingGroupKey =
-      node.containingGroup instanceof go.Group
-        ? String(node.containingGroup.data?.key || node.containingGroup.key || "")
-        : "";
-    if (containingGroupKey === laneKey && currentGroup === laneKey) return;
-    const savedLoc = node.location?.copy?.() || null;
-    try {
-      const model: any = diagram.model;
-      if (typeof model?.setGroupKeyForNodeData === "function") {
-        model.setGroupKeyForNodeData(node.data, laneKey);
-      }
-      diagram.model.setDataProperty(node.data, "group", laneKey);
-      if (savedLoc instanceof go.Point && !node.location.equals(savedLoc)) {
-        node.location = savedLoc.copy();
-        try {
-          diagram.model.setDataProperty(node.data, "loc", go.Point.stringify(savedLoc));
-        } catch (_) { }
-      }
-    } catch (_) { }
-  });
-  return ownedNodes;
-}
-
-function getCapturedLaneOwnedNodes(lane: go.Group): go.Node[] {
-  const captured = (lane as any).__laneDragOwnedNodes;
-  if (!Array.isArray(captured)) return [];
-  return captured.filter(
-    (member): member is go.Node => member instanceof go.Node && member.diagram !== null,
-  );
-}
-
-function getLaneOwnedNodesForDrag(diagram: go.Diagram, lane: go.Group): go.Node[] {
-  const captured = getCapturedLaneOwnedNodes(lane);
-  return captured.length > 0 ? captured : collectLaneOwnedNodes(diagram, lane);
-}
-
-function clearCapturedLaneOwnedNodes(lane: go.Group): void {
-  delete (lane as any).__laneDragOwnedNodes;
-}
 
 function installSafeNodeCategoryGuard() {
   const proto: any = go.GraphLinksModel && (go.GraphLinksModel as any).prototype;
@@ -241,115 +83,20 @@ function installSafeLinkCategoryGuard() {
 installSafeNodeCategoryGuard();
 installSafeLinkCategoryGuard();
 
-function isBooleanLikeKey(key: string): boolean {
-  return /^(is[A-Z_]|has[A-Z_]|can[A-Z_]|allow[A-Z_]|show[A-Z_]|include[A-Z_])/.test(key) ||
-    key === "visible" ||
-    key === "readOnly" ||
-    key === "markedAsDeleted" ||
-    key === "selectable" ||
-    key === "deletable" ||
-    key === "reshapable" ||
-    key === "resegmentable" ||
-    key === "relinkableFrom" ||
-    key === "relinkableTo" ||
-    key === "avoidable" ||
-    key === "shadowVisible";
-}
-
-function normalizeEmptyBooleanFieldsInPlace(value: any, seen = new WeakSet<object>()): any {
-  if (!value || typeof value !== "object") return value;
-  if (seen.has(value)) return value;
-  seen.add(value);
-  if (Array.isArray(value)) {
-    value.forEach((item) => normalizeEmptyBooleanFieldsInPlace(item, seen));
-    return value;
-  }
-  Object.keys(value).forEach((key) => {
-    const current = value[key];
-    if (isBooleanLikeKey(key) && (current === "" || current === null)) {
-      value[key] = false;
-      return;
-    }
-    if (current && typeof current === "object") {
-      normalizeEmptyBooleanFieldsInPlace(current, seen);
-    }
-  });
-  return value;
-}
-
 function normalizeDiagramNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
   if (!Array.isArray(nodeDataArray)) return nodeDataArray as any;
   return nodeDataArray.map((node) => {
     if (!node || typeof node !== 'object') return node;
     normalizeEmptyBooleanFieldsInPlace(node);
     const category = node.category || node.template || constants.gojs.C_NODETEMPLATE;
-    const swimlaneKind = getDiagramSwimlaneKind(node);
-    const normalizedScale = swimlaneKind ? 1 : node.scale;
-    const normalizedScale1 = swimlaneKind ? 1 : node.scale1;
-    const normalizedObjectview =
-      swimlaneKind && node.objectview
-        ? { ...node.objectview, scale: 1 }
-        : node.objectview;
-    if (
-      typeof category === 'string' &&
-      category.length > 0 &&
-      node.category === category &&
-      normalizedScale === node.scale &&
-      normalizedScale1 === node.scale1 &&
-      normalizedObjectview === node.objectview
-    ) {
+    if (typeof category === 'string' && category.length > 0 && node.category === category) {
       return node;
     }
     return {
       ...node,
       category,
-      scale: normalizedScale,
-      scale1: normalizedScale1,
-      objectview: normalizedObjectview,
     };
   });
-}
-
-function getDiagramNodeAliases(data: any): string[] {
-  if (!data || typeof data !== 'object') return [];
-  const aliases = [
-    data?.key,
-    data?.objviewRef,
-    data?.objectview?.id,
-    data?.objRef,
-    data?.object?.id,
-    data?.__dragSessionToken,
-  ]
-    .filter((v: any) => v !== undefined && v !== null && String(v).length > 0)
-    .map((v: any) => String(v));
-  return Array.from(new Set(aliases));
-}
-
-function getDiagramSwimlaneKind(data: any): string {
-  const candidates = [
-    data?.category,
-    data?.template,
-    data?.viewkind,
-    data?.name,
-    data?.objectview?.category,
-    data?.objectview?.template,
-    data?.objectview?.viewkind,
-    data?.objectview?.name,
-  ]
-    .map((value: any) => String(value || '').toLowerCase())
-    .filter((value: string) => value.length > 0);
-  if (candidates.some((value: string) => value === 'pool' || value.includes('pool'))) return 'pool';
-  if (candidates.some((value: string) => value === 'lane' || value.includes('lane'))) return 'lane';
-  return '';
-}
-
-function shouldPreserveIncomingDiagramGeometry(data: any): boolean {
-  return (
-    getDiagramSwimlaneKind(data) !== '' ||
-    data?.isGroup === true ||
-    data?.objectview?.isGroup === true ||
-    String(data?.viewkind || data?.objectview?.viewkind || '').toLowerCase() === 'container'
-  );
 }
 
 function mergeIncomingDiagramNodeDataWithLiveState(
@@ -359,15 +106,19 @@ function mergeIncomingDiagramNodeDataWithLiveState(
   if (!Array.isArray(incomingNodes) || !(diagram instanceof go.Diagram)) return incomingNodes as any;
 
   const liveNodeByAlias = new Map<string, go.Node>();
+  const liveNodes: go.Node[] = [];
   for (let it = diagram.nodes.iterator; it?.next();) {
     const node = it.value as go.Node;
+    liveNodes.push(node);
     const aliases = getDiagramNodeAliases(node?.data);
     aliases.forEach((alias) => liveNodeByAlias.set(alias, node));
   }
 
-  return incomingNodes.map((incoming: any) => {
+  const incomingAliases = new Set<string>();
+  const mergedNodes = incomingNodes.map((incoming: any) => {
     if (!incoming || typeof incoming !== 'object') return incoming;
     const aliases = getDiagramNodeAliases(incoming);
+    aliases.forEach((alias) => incomingAliases.add(alias));
     if (aliases.length === 0) return incoming;
 
     let liveNode: go.Node | undefined;
@@ -381,19 +132,18 @@ function mergeIncomingDiagramNodeDataWithLiveState(
     if (!(liveNode instanceof go.Node)) return incoming;
 
     const liveData: any = liveNode.data || {};
-    if (shouldPreserveIncomingDiagramGeometry(incoming) || shouldPreserveIncomingDiagramGeometry(liveData)) {
-      return incoming;
-    }
     const liveLoc = `${liveNode.location.x} ${liveNode.location.y}`;
     const nextGroup = liveData?.group ?? incoming.group;
     const nextScale = liveData?.scale ?? incoming.scale;
     const nextScale1 = liveData?.scale1 ?? incoming.scale1;
+    const nextIcon = liveData?.icon ?? incoming.icon;
 
     if (
       String(incoming.loc || '') === String(liveLoc || '') &&
       String(incoming.group ?? '') === String(nextGroup ?? '') &&
       Number(incoming.scale ?? 1) === Number(nextScale ?? 1) &&
-      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1)
+      Number(incoming.scale1 ?? 1) === Number(nextScale1 ?? 1) &&
+      incoming.icon === nextIcon
     ) {
       return incoming;
     }
@@ -404,8 +154,19 @@ function mergeIncomingDiagramNodeDataWithLiveState(
       group: nextGroup,
       scale: nextScale,
       scale1: nextScale1,
+      icon: nextIcon,
     };
   });
+  liveNodes.forEach((node) => {
+    const liveData = node?.data;
+    if (!liveData || typeof liveData !== 'object') return;
+    const aliases = getDiagramNodeAliases(liveData);
+    if (aliases.length === 0) return;
+    if (aliases.some((alias) => incomingAliases.has(alias))) return;
+    if (liveData.category !== constants.gojs.C_OBJECT && !liveData.objectview && !liveData.objviewRef) return;
+    mergedNodes.push(liveData);
+  });
+  return mergedNodes;
 }
 
 function normalizeLiveLinkPoints(points: any): number[] | undefined {
@@ -503,7 +264,7 @@ interface DiagramProps {
   onModelChange: (e: go.IncrementalData) => void;
   diagramStyle: React.CSSProperties;
   onExportSvgReady: any;
-  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: string[]; reltypeOptions?: string[] }) => void;
+  onOpenSelectConnectedObjects?: (payload: { diagram: go.Diagram; part: go.Part; relOptions?: Array<string | { value: string; label: string }>; reltypeOptions?: string[] }) => void;
 }
 
 interface DiagramState {
@@ -522,9 +283,9 @@ interface DiagramState {
   selectConnectedReldir?: string;
   selectConnectedReltypeOptions?: string[];
   selectConnectedIncludeAllRels?: boolean;
+  selectConnectedCreateMissingViews?: boolean;
   pendingSelectContext?: { part: go.Part; diagram: go.Diagram } | null;
-  selectConnectedIncludeAllRels?: boolean;
-  selectConnectedRelOptions?: string[];
+  selectConnectedRelOptions?: Array<string | { value: string; label: string }>;
   selectConnectedRelChoice?: string | string[];
   addConnectedDialogOpen?: boolean;
   addConnectedLevels?: string;
@@ -539,7 +300,8 @@ interface DiagramState {
 
 
 
-export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
+class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
+  private disposeHistory?: () => void;
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
@@ -579,6 +341,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectConnectedReldir: 'All',
       selectConnectedReltypeOptions: ['All'],
       selectConnectedIncludeAllRels: false,
+      selectConnectedCreateMissingViews: false,
       pendingSelectContext: null,
       selectConnectedRelOptions: ['All'],
       selectConnectedRelChoice: ['All'],
@@ -597,11 +360,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const link = e.subject as go.Link;
       const linkData: any = link?.data;
       if (!(diagram instanceof go.Diagram) || !(link instanceof go.Link) || !linkData) return;
-      const relview =
-        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
-        linkData?.relshipview ||
-        null;
-      if (!relview) return;
       const points: number[] = [];
       try {
         for (let it = link.points.iterator; it?.next();) {
@@ -611,6 +369,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } catch (_) {
         return;
       }
+      // LinkReshaped is emitted only for an explicit user reshape.  Do not try
+      // to infer intent from point count: it differs between link templates.
+      const hasManualPath = true;
+      // Keep a diagram-local copy too. React reconciliation can briefly replace
+      // link data between LinkReshaped and the following node drag, while the
+      // user still expects this route to be treated as their explicit edit.
+      try {
+        const routes: Map<string, number[]> =
+          (diagram as any).__reshapedLinkRoutes instanceof Map
+            ? (diagram as any).__reshapedLinkRoutes
+            : new Map<string, number[]>();
+        const linkKey = String(linkData?.key || link?.key || "");
+        if (linkKey && hasManualPath) routes.set(linkKey, [...points]);
+        else if (linkKey) routes.delete(linkKey);
+        (diagram as any).__reshapedLinkRoutes = routes;
+      } catch (_) { }
+      const relview =
+        this.myMetis.findRelationshipView(linkData?.relviewRef || linkData?.key) ||
+        linkData?.relshipview ||
+        null;
+      if (!relview) return;
+      try { diagram.model.setDataProperty(linkData, '__manualPath', hasManualPath); } catch (_) {
+        try { linkData.__manualPath = hasManualPath; } catch (_err) { }
+      }
+      try { relview.__manualPath = hasManualPath; } catch (_) { }
       relview.points = points;
       try { if (linkData?.relshipview) linkData.relshipview.points = points; } catch (_) {}
       try { if (linkData?.relshipview && linkData.relshipview.id !== relview.id) linkData.relshipview = relview; } catch (_) {}
@@ -630,7 +413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } catch (_) {}
       const shouldFreezeManualRoute =
         Array.isArray(points) &&
-        points.length >= 4 &&
+        hasManualPath &&
         (String(relview?.routing || linkData?.routing || "").trim() === "Orthogonal" ||
          String(relview?.routing || linkData?.routing || "").trim() === "AvoidsNodes");
       if (shouldFreezeManualRoute) {
@@ -674,8 +457,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const diagram = this.diagramRef?.current?.getDiagram();
     this.myMetis.dispatch = this.props.dispatch;
     if (diagram instanceof go.Diagram) {
-      swimlane.installSwimlaneCore(diagram);
-      this.syncSwimlaneCoreFeatureFlag(diagram);
       const diagramAny: any = diagram as any;
       if (typeof diagramAny.layoutDiagram === 'function' && !diagramAny.__layoutGuardInstalled) {
         const originalLayoutDiagram = diagramAny.layoutDiagram.bind(diagramAny);
@@ -697,6 +478,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const originalSetDataProperty = modelAny.setDataProperty.bind(modelAny);
         modelAny.__originalSetDataProperty = originalSetDataProperty;
         modelAny.setDataProperty = (data: any, propname: string, value: any) => {
+          if (!data || typeof data !== 'object') {
+            return data;
+          }
           try {
             if (propname === 'loc' && data) {
               const lockMap: Map<string, { loc: string; until: number }> | undefined =
@@ -742,31 +526,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         (diagram.model.modelData as any)._viewportScale = diagram.scale || 1;
       }
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
+      this.disposeHistory = installGeometryHistory(diagram,
+        () => this.props.onDiagramEvent({ name: 'BeforeGeometryHistory', diagram }),
+        () => this.props.onDiagramEvent({ name: 'GeometryHistoryChanged', diagram }));
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
-      // Trigger pool layout when lanes are moved - but defer it slightly to avoid conflicts during drag
-      diagram.addDiagramListener('SelectionMoved', (e: go.DiagramEvent) => {
-        setTimeout(() => {
-          const selection = e.diagram.selection;
-          const affectedPools = new Set<go.Group>();
-          
-          selection.each((part: go.Part) => {
-            if (part instanceof go.Group && part.data?.category?.includes('Lane')) {
-              const pool = part.containingGroup;
-              if (pool instanceof go.Group && pool.data?.category === 'Pool') {
-                affectedPools.add(pool);
-              }
-            }
-          });
-          
-          // Trigger layout for all affected pools
-          affectedPools.forEach((pool) => {
-            if (pool.layout) {
-              console.log('[SELECTION-MOVED] Triggering pool layout after lane move');
-              pool.layout.invalidateLayout();
-            }
-          });
-        }, 100);  // Small delay to let drag complete
-      });
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
@@ -791,29 +554,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
-      (diagram as any).__refreshResizeAdornments = () => {
-        try {
-          this.refreshResizeAdornments({ diagram } as go.DiagramEvent);
-        } catch (_) {}
-      };
-      // Prevent the first auto-layout pass from being persisted back into Redux before
-      // InitialLayoutCompleted restores the saved modelview geometry.
-      (diagram as any).__suppressLayoutPersistenceUntilInitialLoad = true;
       this.updateFocusPeerHighlight(diagram);
-      
+
       // Add listener to force update emoji icons after model is loaded
       diagram.addDiagramListener('InitialLayoutCompleted', () => {
         console.log("Diagram InitialLayoutCompleted - forcing icon source update for emoji support");
         // Import and call the force update function
         try {
-          const uit = require('../../../akmm/ui_templates');
           uit.forceUpdateAllIconSources(diagram);
         } catch (e) {
           console.error("Failed to force update icon sources:", e);
         }
       });
 
-      diagram.addModelChangedListener(this.props.onModelChange);
+      // ReactDiagram owns completed-transaction conversion and listener cleanup.
 
       const diagramDiv = diagram.div;
       const diagramDoc = diagramDiv?.ownerDocument;
@@ -921,7 +675,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public componentDidUpdate(prevProps: DiagramProps) {
-    this.syncSwimlaneCoreFeatureFlag();
     if (
       prevProps.phFocus?.focusObject?.id !== this.props.phFocus?.focusObject?.id ||
       prevProps.phFocus?.focusObjectview?.id !== this.props.phFocus?.focusObjectview?.id ||
@@ -934,6 +687,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private updateFocusPeerHighlight(diagram?: go.Diagram) {
     const currentDiagram = diagram ?? this.diagramRef.current?.getDiagram();
     if (!(currentDiagram instanceof go.Diagram)) return;
+    // Updating all bindings during resizing can reapply stale loc/size values.
+    if (currentDiagram.currentTool instanceof go.ResizingTool && currentDiagram.currentTool.isActive) return;
     const focusObjectId = String(this.props?.phFocus?.focusObject?.id || '');
     for (let it = currentDiagram.nodes.iterator; it?.next();) {
       const node = it.value as go.Node;
@@ -957,181 +712,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     try { currentDiagram.requestUpdate(); } catch (_) { }
   }
 
-  private syncSwimlaneCoreFeatureFlag(diagram?: go.Diagram) {
-    const currentDiagram = diagram ?? this.diagramRef.current?.getDiagram();
-    if (!(currentDiagram instanceof go.Diagram)) return;
-    const modelData: any = currentDiagram.model?.modelData || {};
-    const enabled = swimlane.isGoJSSwimlaneCoreEnabled(modelData);
-    (currentDiagram as any).__useGoJSSwimlaneCore = enabled;
-    (currentDiagram as any).__legacySwimlaneOwnerQuarantined = true;
-  }
-
-  /**
-   * Migrate orphaned lanes into pools
-   */
-  private attemptLaneMigrationStatic(diagram: go.Diagram) {
-    console.log("[LANE-MIGRATION-STATIC] Checking for orphaned lanes...");
-    const pools: go.Group[] = [];
-    const orphanedLanes: go.Group[] = [];
-    const allLanes: go.Group[] = [];
-    
-    diagram.nodes.each((node) => {
-      if (!(node instanceof go.Group)) return;
-      const category = node.data?.category || '';
-      const template = node.data?.template || '';
-      
-      // Check multiple properties for pool detection
-      const isPool = category === 'Pool' || template === 'Pool';
-      const isLane = category === 'Lane' || 
-                     category === 'Lane_w_handles' || 
-                     category.startsWith('Lane') ||
-                     template === 'Lane' ||
-                     template === 'Lane_w_handles' ||
-                     template.startsWith('Lane');
-      
-      if (isPool) {
-        pools.push(node);
-        console.log("[LANE-MIGRATION-STATIC] Found pool:", {
-          key: node.data?.key,
-          category,
-          template,
-          memberCount: node.memberParts.count
-        });
-      } else if (isLane) {
-        allLanes.push(node);
-        const groupKey = node.data?.group;
-        console.log("[LANE-MIGRATION-STATIC] Found lane:", {
-          key: node.data?.key,
-          category,
-          template,
-          groupKey: groupKey,
-          hasGroup: !!groupKey
-        });
-        
-        if (!groupKey || groupKey === null || groupKey === undefined || groupKey === '') {
-          orphanedLanes.push(node);
-          console.log("[LANE-MIGRATION-STATIC] -> This lane is orphaned");
-        }
-      }
-    });
-    
-    console.log("[LANE-MIGRATION-STATIC] Summary: pools:", pools.length, "lanes:", allLanes.length, "orphaned:", orphanedLanes.length);
-    
-    // Handle orphaned lanes if any exist
-    if (orphanedLanes.length > 0 && pools.length > 0) {
-      console.log("[LANE-MIGRATION-STATIC] Migrating", orphanedLanes.length, "orphaned lanes...");
-      diagram.startTransaction('migrate-orphaned-lanes-static');
-      try {
-        for (const lane of orphanedLanes) {
-        let targetPool: go.Group | null = null;
-        const laneBounds = lane.actualBounds;
-        
-        for (const pool of pools) {
-          const poolBounds = pool.actualBounds;
-          if (poolBounds.containsRect(laneBounds) || poolBounds.intersectsRect(laneBounds)) {
-            targetPool = pool;
-            break;
-          }
-        }
-        
-        if (!targetPool) {
-          targetPool = pools[0];
-        }
-        
-        const poolKey = targetPool.data?.key;
-        if (poolKey !== null && poolKey !== undefined) {
-          console.log("[LANE-MIGRATION-STATIC] Assigning lane", lane.data?.key, "to pool", poolKey);
-          diagram.model.setDataProperty(lane.data, 'group', poolKey);
-        }
-      }
-      diagram.commitTransaction('migrate-orphaned-lanes-static');
-      console.log("[LANE-MIGRATION-STATIC] Migration complete");
-    } catch (e) {
-      diagram.rollbackTransaction();
-      console.error("[LANE-MIGRATION-STATIC] Migration failed:", e);
-    }
-    }
-    
-    // Trigger pool layout only for pools that had orphaned lanes migrated
-    // This prevents unnecessary layout thrashing when just moving nodes
-    if (orphanedLanes.length > 0 && pools.length > 0) {
-      console.log("[LANE-MIGRATION-STATIC] Triggering layout for", pools.length, "pools...");
-      
-      // Use requestAnimationFrame + delay to ensure lane is fully added to pool
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          for (const pool of pools) {
-            const poolKey = pool.data?.key;
-            const poolSize = pool.data?.size ? go.Size.parse(pool.data.size) : null;
-            const hasDefaultSize = poolSize && Math.abs(poolSize.width - 1200) < 1 && Math.abs(poolSize.height - 400) < 1;
-            
-            // Re-check member count at execution time (not planning time)
-            const currentMemberCount = pool.memberParts.count;
-            const hasMemberLanes = currentMemberCount > 0;
-            
-            console.log("[LANE-MIGRATION-STATIC] Pool check at layout time:", poolKey, {
-              hasDefaultSize,
-              hasMemberLanes,
-              memberCount: currentMemberCount,
-              poolSize: poolSize ? `${poolSize.width}x${poolSize.height}` : 'none'
-            });
-            
-            if ((hasDefaultSize || hasMemberLanes) && currentMemberCount > 0) {
-              console.log("[LANE-MIGRATION-STATIC] Triggering pool layout for:", poolKey);
-              
-              // Try to get the object view and call doGroupLayout directly
-              const poolData = pool.data;
-              const myMetis = this.myMetis;  // Use class member instead of diagram property
-              
-              if (poolData && myMetis && poolData.objectview) {
-                console.log("[LANE-MIGRATION-STATIC] Calling doGroupLayout directly with objectview");
-                
-                // Temporarily clear pool size to force recalculation (otherwise early return treats this as reload)
-                const savedPoolSize = poolData.size;
-                if (savedPoolSize) {
-                  console.log("[LANE-MIGRATION-STATIC] Temporarily clearing pool size to force recalculation:", savedPoolSize);
-                  diagram.model.setDataProperty(poolData, 'size', undefined);
-                }
-                
-                const { doGroupLayout } = require('../../../akmm/ui_diagram');
-                try {
-                  doGroupLayout(poolData.objectview, diagram, myMetis);
-                  
-                  // After doGroupLayout, trigger PoolLayout to run with lanes as members
-                  if (pool.layout) {
-                    console.log("[LANE-MIGRATION-STATIC] Invalidating PoolLayout to re-run with members");
-                    pool.layout.invalidateLayout();
-                  }
-                  diagram.layoutDiagram(false);
-                } catch (e) {
-                  console.error("[LANE-MIGRATION-STATIC] doGroupLayout failed:", e);
-                }
-              } else {
-                console.warn("[LANE-MIGRATION-STATIC] Missing data for doGroupLayout:", {
-                  hasPoolData: !!poolData,
-                  hasMetis: !!myMetis,
-                  hasObjectview: !!(poolData && poolData.objectview)
-                });
-                
-                // Fallback to invalidateLayout
-                if (pool.layout) {
-                  pool.layout.invalidateLayout();
-                }
-                diagram.layoutDiagram(false);
-              }
-            } else if (currentMemberCount === 0) {
-              console.warn("[LANE-MIGRATION-STATIC] Skipping layout - pool has no members yet:", poolKey);
-            }
-          }
-        });
-      }, 500);
-    }
-  }
-
   /**
    * Get the diagram reference and remove listeners that were added during mounting.
    */
   public componentWillUnmount() {
+    this.disposeHistory?.();
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
@@ -1188,7 +773,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ViewportBoundsChanged', this.refreshResizeAdornments);
 
-      diagram.removeChangedListener(this.props.onModelChange);
 
       const diagramAny: any = diagram as any;
       if (diagramAny?.__layoutGuardInstalled && typeof diagramAny.__originalLayoutDiagram === 'function') {
@@ -1214,7 +798,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Is implemented in "render" at the bottom of this file
     const isChangeIconModal = modalContext?.case === 'Change Icon';
     const isSetGroupImageModal = modalContext?.case === 'Set Group Image';
-    
+
     // CRITICAL: Store original data so we can revert if user cancels
     let originalData = null;
     if (node && node.category === 'Relationship') {
@@ -1237,7 +821,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       }
     }
-    
+
     this.setState({
       selectedData: node,
       modalContext: { ...modalContext, originalData }, // Store original data in modalContext
@@ -1333,24 +917,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
     const modalContext = this.state.modalContext;
-    
+
     // Handle Change Icon directly here for immediate update
     if (modalContext?.case === 'Change Icon') {
       const currentNode = modalContext.currentNode || myMetis?.currentNode;
       const myDiagram = modalContext.myDiagram || myMetis?.myDiagram;
       const myModelview = myMetis?.currentModelview;
-      
+
       if (!currentNode || !myDiagram) {
         console.warn('Change Icon: missing currentNode or myDiagram');
         return;
       }
-      
+
       // Get the new icon value
       let newIcon = selected;
       if (typeof selected === 'object') {
         newIcon = selected?.value || selected?.label || selected?.icon;
       }
-      
+
       if (!newIcon) {
         console.warn('Change Icon: no icon selected');
         return;
@@ -1365,7 +949,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis?.gojsModel?.findNodeByViewId?.(liveNodeData?.objviewRef || liveNodeData?.key) ||
         myMetis?.gojsModel?.findNode?.(liveNodeData?.key) ||
         null;
-      
+
       // Find the objectview
       let objview = null;
       if (liveNodeData?.key) {
@@ -1380,17 +964,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (!objview) {
         objview = liveNodeData?.objectview || currentNode?.objectview;
       }
-      
+
       // Start diagram transaction
       myDiagram.startTransaction('change-icon');
-      
+
       // Update the node data in the GoJS model
       myDiagram.model.setDataProperty(liveNodeData, 'icon', newIcon);
       try { currentNode.icon = newIcon; } catch (_) {}
       try { liveNodeData.icon = newIcon; } catch (_) {}
       try { if (goModelNode) goModelNode.icon = newIcon; } catch (_) {}
       try { if (goModelNode?.data) goModelNode.data.icon = newIcon; } catch (_) {}
-      
+
       // Update the embedded objectview if present
       try {
         if (liveNodeData?.objectview) {
@@ -1408,7 +992,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           goModelNode.objectview.icon = newIcon;
         }
       } catch (_) {}
-      
+
       // Update the actual objectview object
       if (objview) {
         objview.icon = newIcon;
@@ -1416,9 +1000,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           objview.setModified();
         }
       }
-      
+
       myDiagram.commitTransaction('change-icon');
-      
+
       try { liveNodePart?.updateTargetBindings?.(); } catch (_) {}
       try { myDiagram.model.updateTargetBindings?.(liveNodeData); } catch (_) {}
       try {
@@ -1428,7 +1012,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       try {
         uit.forceUpdateAllIconSources?.(myDiagram);
       } catch (_) {}
-      
+
       // Dispatch to Redux to persist the change
       if (objview) {
         const jsnObjview = new jsn.jsnObjectView(objview);
@@ -1438,20 +1022,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           dispatchFn({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
         }
       }
-      
+
       // Request diagram update
       try { myDiagram.updateAllTargetBindings?.('icon'); } catch (_) {}
       try { myDiagram.updateAllTargetBindings?.(); } catch (_) {}
       myDiagram.requestUpdate();
       return;
     }
-    
+
     // Handle Set Icon Colors directly here
     if (modalContext?.case === 'Set Icon Colors') {
       // This case is handled inline in the menu action, not through modal
       return;
     }
-    
+
     // For all other cases, delegate to uim.handleSelectDropdownChange
     const context = {
       "myMetis": myMetis,
@@ -1758,7 +1342,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const myContext = modalContext.myContext;
       let myDiagram = modalContext.myDiagram;
       if (!myDiagram) myDiagram = myContext?.myDiagram;
-      
+
       // Revert any immediate visual changes applied during editing
       const originalData = modalContext.originalData;
       if (originalData && originalData.category === 'Relationship') {
@@ -1775,7 +1359,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }, 'revert-on-cancel');
         }
       }
-      
+
       for (let i = 0; i < links?.length; i++) {
         myDiagram?.model?.removeLinkData(links[i]);
       }
@@ -1786,11 +1370,57 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const props = this.props;
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
-    
+
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
-  
+
+  private applyRelationshipTypeEdit = (draft: any) => {
+    const context = this.state.modalContext;
+    const type = context?.myContext?.relshiptype;
+    const metamodel = context?.myContext?.metamodel;
+    const diagram = context?.myDiagram;
+    if (!type || !metamodel || !diagram) return;
+    const oldFrom = type.fromobjtypeRef;
+    const oldTo = type.toobjtypeRef;
+    const result = applyRelationshipTypeDraft(type, draft, metamodel.getObjectTypes());
+    if (Object.keys(result.errors).length) return;
+    metamodel.addRelationshipTypeView(result.view);
+    this.myMetis.addRelationshipTypeView(result.view);
+    const findTypeNode = (id: string) => {
+      let found = null;
+      diagram.nodes.each(node => { if (node.data?.objecttype?.id === id) found = node; });
+      return found;
+    };
+    diagram.model.commit(model => {
+      diagram.links.each(link => {
+        const data = link.data;
+        if (data?.category !== constants.gojs.C_RELSHIPTYPE) return;
+        if (data?.reltype?.id !== type.id && data?.relshiptype?.id !== type.id && data?.reltypeRef !== type.id) return;
+        for (const key of ['name', 'description', 'cardinalityFrom', 'cardinalityTo', 'nameFrom', 'nameTo']) model.setDataProperty(data, key, type[key]);
+        for (const key of ['strokecolor', 'strokewidth', 'dash', 'fromArrow', 'toArrow']) model.setDataProperty(data, key, result.view.data[key]);
+        model.setDataProperty(data, 'reltype', type);
+        model.setDataProperty(data, 'typeview', result.view);
+        const from = findTypeNode(type.fromobjtypeRef);
+        const to = findTypeNode(type.toobjtypeRef);
+        if (from && to) {
+          model.setFromKeyForLinkData(data, from.key);
+          model.setToKeyForLinkData(data, to.key);
+          // Runtime Go-model mirrors need the same endpoint nodes as GoJS.
+          data.fromNode = from.data;
+          data.toNode = to.data;
+        }
+        if (oldFrom !== type.fromobjtypeRef || oldTo !== type.toobjtypeRef) model.setDataProperty(data, 'points', []);
+        link.updateTargetBindings();
+        link.invalidateRoute();
+      });
+    }, 'edit-relationship-type');
+    const dispatch = diagram.dispatch || bindLegacyUniverseDispatch(this.props.dispatch);
+    dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelationshipType(type, true))) });
+    dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(new jsn.jsnRelshipTypeView(result.view))) });
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
+  };
+
   private normalizeReldir = (val?: string): string => {
     const v = (val || '').trim().toLowerCase();
     if (v === 'in' || v === 'out') return v;
@@ -1798,18 +1428,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     return 'All';
   }
 
-  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+  private buildConnectedRelationshipOptions = (part: go.Part, includeAllRels: boolean = false): Array<{ value: string; label: string }> => {
     try {
-      if (!part || !part.data) return ['All'];
-      const Sorrykey = (part.data as any).key;
+      if (!part || !part.data) return [{ value: 'All', label: 'All' }];
+      const key = (part.data as any).key;
       const myMetis = this.myMetis;
       let modelview = myMetis?.currentModelview;
-      if (!modelview) return ['All'];
+      if (!modelview) return [{ value: 'All', label: 'All' }];
       modelview = myMetis.findModelView(modelview.id);
       const objview = myMetis.findObjectView(key);
-      if (!objview) return ['All'];
+      if (!objview) return [{ value: 'All', label: 'All' }];
 
-      const names: string[] = [];
+      const options: Array<{ value: string; label: string }> = [];
+      const seen = new Set<string>();
+      const addOption = (rel: any, label: string) => {
+        const value = rel?.id ? `rel:${rel.id}` : '';
+        if (!value || seen.has(value)) return;
+        seen.add(value);
+        options.push({ value, label });
+      };
 
       // Gather relationship types touching this object from the current modelview
       const relviews = modelview.relshipviews || [];
@@ -1824,8 +1461,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const toId = rv?.toObjview?.id;
         const otherNameFrom = rv?.toObjview?.name || rv?.toObjview?.object?.name || rv?.relship?.toObject?.name || '';
         const otherNameTo = rv?.fromObjview?.name || rv?.fromObjview?.object?.name || rv?.relship?.fromObject?.name || '';
-        if (fromId === objview.id) names.push(`${nm} > ${otherNameFrom}`.trim());
-        if (toId === objview.id) names.push(`${nm} < ${otherNameTo}`.trim());
+        if (fromId === objview.id) addOption(rel, `${nm} > ${otherNameFrom}`.trim());
+        if (toId === objview.id) addOption(rel, `${nm} < ${otherNameTo}`.trim());
       }
 
       // Optionally include relationships not currently represented in this modelview
@@ -1846,17 +1483,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (!nm) continue;
               const otherObj = useinp ? rel.fromObject : rel.toObject;
               const otherName = otherObj?.name || '';
-              names.push(`${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
+              addOption(rel, `${nm} ${useinp ? '<' : '>'} ${otherName}`.trim());
             }
           }
         }
       }
 
-      const list = Array.from(new Set(names)).sort();
-      return ['All', ...list];
+      const list = options.sort((a, b) => a.label.localeCompare(b.label));
+      return [{ value: 'All', label: 'All' }, ...list];
     } catch {
-      return ['All'];
+      return [{ value: 'All', label: 'All' }];
     }
+  };
+
+  private buildReltypeOptions = (part: go.Part, includeAllRels: boolean = false): string[] => {
+    return this.buildConnectedRelationshipOptions(part, includeAllRels).map(opt => opt.label);
   };
 
   private buildModelReltypeOptions = (): string[] => {
@@ -1895,15 +1536,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private openSelectConnectedDialog = (diagram: go.Diagram, part: go.Part) => {
     if (!diagram || !part || !part.data || part.data.category !== constants.gojs.C_OBJECT) return;
     const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-    const options = this.buildReltypeOptions(part, includeAllRels);
+    const options = this.buildConnectedRelationshipOptions(part, includeAllRels);
     const reltypeOptions = this.buildModelReltypeOptions();
     this.setState({
       selectConnectedDialogOpen: true,
       pendingSelectContext: { diagram, part },
       selectConnectedLevels: this.state.selectConnectedLevels || '1',
       selectConnectedReltypes: 'All',
-      selectConnectedRelChoice: [options?.[0] || 'All'],
-      selectConnectedRelOptions: options || ['All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
+      selectConnectedRelOptions: options || [{ value: 'All', label: 'All' }],
       selectConnectedReltypeOptions: reltypeOptions || ['All'],
       selectConnectedReldir: this.normalizeReldir(this.state.selectConnectedReldir) || 'All',
       selectConnectedIncludeAllRels: includeAllRels,
@@ -1940,12 +1581,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   private handleSelectConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const includeAllRels = event.target.checked;
     const part = this.state.pendingSelectContext?.part;
-    const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || ['All']);
+    const options = part ? this.buildConnectedRelationshipOptions(part, includeAllRels) : (this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]);
     this.setState({
       selectConnectedIncludeAllRels: includeAllRels,
       selectConnectedRelOptions: options,
-      selectConnectedRelChoice: [options?.[0] || 'All'],
+      selectConnectedRelChoice: [options?.[0]?.value || 'All'],
     });
+  };
+
+  private handleSelectConnectedCreateMissingViewsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ selectConnectedCreateMissingViews: event.target.checked });
   };
 
   private handleSelectConnectedCancel = () => {
@@ -1957,45 +1602,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const levelsParsed = parseInt(this.state.selectConnectedLevels || '1', 10);
     const levels = Number.isFinite(levelsParsed) && levelsParsed > 0 ? levelsParsed : 1;
     const reldir = (this.state.selectConnectedReldir || 'All').trim();
+    const createMissingViews = !!this.state.selectConnectedCreateMissingViews;
 
     this.setState({ selectConnectedDialogOpen: false, pendingSelectContext: null }, () => {
       if (pendingSelectContext) {
         const normalize = (val: string) => (val || '').trim();
-        let reltypesFinal = '';
-        if (levels === 1) {
-          // For level 1, only use the selected relationship(s) as strict tokens
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || ''])
+        const selectedFirstHopRelIds = (Array.isArray(this.state.selectConnectedRelChoice)
+          ? this.state.selectConnectedRelChoice
+          : [this.state.selectConnectedRelChoice || ''])
+          .map(normalize)
+          .filter(v => v.length > 0 && v !== 'All')
+          .map(v => v.startsWith('rel:') ? v.slice(4) : v)
+          .filter(v => v.length > 0);
+        const rawReltypesInput = this.state.selectConnectedReltypes || 'All';
+        const reltypesInput = rawReltypesInput === 'All'
+          ? []
+          : rawReltypesInput
+            .split(',')
             .map(normalize)
             .filter(v => v.length > 0 && v !== 'All');
-          if (selectedReltypes.length === 0) {
-            // Do not proceed if nothing is selected or 'All' is selected
-            alert('Please select a specific relationship to add.');
-            return;
-          }
-          reltypesFinal = selectedReltypes.join(',');
-        } else {
-          // For deeper levels, allow broader filter
-          const reltypesInput = (this.state.selectConnectedReltypes || '') === 'All'
-            ? []
-            : (this.state.selectConnectedReltypes || '')
-              .split(',')
-              .map(normalize)
-              .filter(v => v.length > 0);
-          const selectedReltypes = (Array.isArray(this.state.selectConnectedRelChoice)
-            ? this.state.selectConnectedRelChoice
-            : [this.state.selectConnectedRelChoice || 'All'])
-            .map(normalize)
-            .filter(v => v.length > 0);
-          reltypesFinal = reltypesInput.length > 0
-            ? reltypesInput.join(',')
-            : (selectedReltypes.length === 0 ? '' : selectedReltypes.join(','));
-        }
         this.runSelectConnectedFromContext(pendingSelectContext, {
           levels,
-          reltypes: reltypesFinal,
+          reltypes: reltypesInput.join(','),
           reldir,
+          firstHopRelIds: selectedFirstHopRelIds,
+          createMissingViews,
         });
       }
     });
@@ -2003,7 +1634,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   private runSelectConnectedFromContext = (
     ctx: { diagram: go.Diagram; part: go.Part },
-    params: { levels: number; reltypes: string; reldir: string }
+    params: { levels: number; reltypes: string; reldir: string; firstHopRelIds?: string[]; createMissingViews?: boolean }
   ) => {
     const diagram = ctx?.diagram;
     const part = ctx?.part;
@@ -2011,10 +1642,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const nodeData: any = part.data;
     const myMetis = this.myMetis;
+    myMetis.myDiagram = diagram;
     let modelview = myMetis?.currentModelview;
     if (!modelview) return;
     modelview = myMetis.findModelView(modelview.id);
-    const goModel = myMetis.gojsModel;
+    let goModel = myMetis.gojsModel;
+    if (!goModel) {
+      goModel = new gjs.goModel(modelview.id, "myModel", modelview);
+      myMetis.setGojsModel(goModel);
+    }
     const objview = myMetis.findObjectView(nodeData.key);
     if (!objview) return;
 
@@ -2023,15 +1659,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const dir = (params.reldir || 'All').toLowerCase();
     const viewCollection = new akm.cxCollectionOfViews(modelview, [], []);
 
-    if (dir === 'all') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    } else if (dir === 'out' || dir === 'in') {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection);
-    } else {
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'out', viewCollection);
-      uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, 'in', viewCollection);
-    }
+    uid.selectConnectedObjects1(modelview, objview, goModel, myMetis, levels, reltypes, dir, viewCollection, {
+      firstHopRelIds: params.firstHopRelIds || [],
+      createMissingViews: !!params.createMissingViews,
+    });
 
     const mySelection = new go.Set<go.Part | go.Link>();
     const objviews = viewCollection.objectviews || [];
@@ -2041,7 +1672,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const ov = objviews[i];
       if (!ov || ov.id === nodeData.key) continue;
       const goNode = goModel.findNodeByViewId(ov.id);
-      const gjsNode = diagram.findNodeForKey(goNode?.key) || diagram.findNodeForData(goNode);
+      const gjsNode = diagram.findNodeForKey(goNode?.key || ov.id) ||
+        (goNode ? diagram.findNodeForData(goNode) : null);
       if (gjsNode) mySelection.add(gjsNode);
     }
 
@@ -2049,22 +1681,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const rv = relviews[i];
       if (!rv) continue;
       const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
-      if (gjsLink) mySelection.add(gjsLink);
-    }
-
-    // Always include relationships directly connected to the source node (first step)
-    const rootObjview = objview;
-    const firstHopRelviews = (modelview?.relshipviews || []).filter((rv: any) => {
-      const fromId = rv?.fromObjview?.id;
-      const toId = rv?.toObjview?.id;
-      return fromId === rootObjview?.id || toId === rootObjview?.id;
-    });
-    for (let i = 0; i < firstHopRelviews.length; i++) {
-      const rv = firstHopRelviews[i];
-      if (!rv) continue;
-      const goLink = goModel.findLinkByViewId(rv.id);
-      const gjsLink = diagram.findLinkForKey(goLink?.key);
+      const gjsLink = diagram.findLinkForKey(goLink?.key || rv.id);
       if (gjsLink) mySelection.add(gjsLink);
     }
 
@@ -2128,7 +1745,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   };
 
   private handleAddConnectedIncludeAllRelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    
+
     const includeAllRels = event.target.checked;
     const part = this.state.pendingAddContext?.part;
     const options = part ? this.buildReltypeOptions(part, includeAllRels) : (this.state.addConnectedRelOptions || ['All']);
@@ -2233,11 +1850,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const context = props.context;
     const pattern = props.pattern;
 
-    let run = false;
-    this.setState(
-      produce((draft: DiagramProps) => {
-        if (run === false) {
-          run = true;
+    // Diagram data contains cyclic runtime references. Only the selected field
+    // needs a shallow React update; Immer would recursively finalize that graph.
+    this.setState((previous: any) => {
+          const draft = { ...previous };
           const nextSelectedData = {
             ...(draft.selectedData || {}),
             [propname]: value,
@@ -2262,9 +1878,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (currentNode) currentNode[propname] = nextValue;
             } catch (_) {}
           }
-        }
-      })
-    );
+          return { selectedData: draft.selectedData };
+    });
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -2276,7 +1891,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    * The model's data should not be set here, as the ReactDiagram component handles that.
    */
 
-  
+
 
   private initDiagram(): go.Diagram {
     go.Diagram.licenseKey = "73f944e5b16131b700ca0d2a113f69ec5ef62e33c9820ce00b5645f4ed5b381476c9eb7c55d783c3d7ff46f41e2fc6deddcc6a2f951e556be238c1cc45b6d6f1b23724e740014588a50b2fca9dfb23f5f87875f0c2b770a7d82adff0efad90ce5fbff48140c91cab2f2d5637562cff4ba5ebda7afa06d34a7464";
@@ -2337,8 +1952,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myDiagram =
         $(go.Diagram,
           {
-            initialContentAlignment: go.Spot.TopLeft,  // Keep original positions
-            // initialAutoScale: go.Diagram.Uniform,  // Removed to preserve zoom/scale
+            initialContentAlignment: go.Spot.Center,       // center the content
+            initialAutoScale: go.Diagram.Uniform,
             "contextMenuTool.standardMouseSelect": guardedStandardMouseSelect,
             // layout: new go.TreeLayout({ isOngoing: false }),
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
@@ -2392,11 +2007,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 nodeCategoryProperty: "template",
                 linkCategoryProperty: "template",
                 nodeKeyProperty: 'key',
-                linkKeyProperty: 'key',                  
+                linkKeyProperty: 'key',
                 makeUniqueKeyFunction: (m: go.Model, data: any) => {
                   let k = utils.createGuid();
                   return k;
-                },  
+                },
                 makeUniqueLinkKeyFunction: (m: go.GraphLinksModel, data: any) => {
                   let k = utils.createGuid();
                   return k;
@@ -2410,2228 +2025,490 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	    // lanes visually (Shift) but still keep their old `containingGroup`, causing the next drag to
 	    // clamp/snap back into the source lane.
 	    class SwimlaneDraggingTool extends go.DraggingTool {
-        private isCopyLikeDrag(): boolean {
-          try {
-            return !!this.copiedParts && this.copiedParts.count > 0;
-          } catch (_) {
-            return false;
-          }
-        }
-
-        private isLanePart(part: go.Part | null | undefined): part is go.Group {
-          if (!(part instanceof go.Group)) return false;
-          // Check data.template first, then data.category, then part.category as fallback
-          const category = String(part.data?.template || part.data?.category || part.category || "");
-          return category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
-        }
-
-        private isPoolPart(part: go.Part | null | undefined): part is go.Group {
-          if (!(part instanceof go.Group)) return false;
-          const category = String(part.data?.template || part.data?.category || part.category || "");
-          return category === "Pool";
-        }
-
-        private getLaneLocationPoint(lane: go.Group): go.Point | null {
-          return lane.location?.copy?.() || null;
-        }
-
-        private isWithinNamedObject(target: go.GraphObject | null | undefined, name: string): boolean {
-          let probe: any = target;
-          for (let depth = 0; probe && depth < 12; depth++) {
-            if (probe.name === name) return true;
-            probe = probe.panel;
-          }
-          return false;
-        }
-
-        override canStart(): boolean {
-          if (!super.canStart()) return false;
-          const diagram = this.diagram;
-          if (!diagram) return false;
-          const startPoint =
-            diagram.firstInput?.documentPoint ||
-            diagram.lastInput?.documentPoint ||
-            null;
-          if (!startPoint) return true;
-
-          const clickedObject = diagram.findObjectAt(startPoint);
-          const clickedPart = clickedObject?.part instanceof go.Part ? clickedObject.part : null;
-
-          console.log(`[CAN-START] clickedPart:`, {
-            hasPart: clickedPart !== null,
-            isGroup: clickedPart instanceof go.Group,
-            key: clickedPart?.data?.key,
-            objectName: clickedObject?.name
-          });
-
-          if (clickedPart instanceof go.Group) {
-            const partData: any = clickedPart.data || {};
-            const isPool =
-              partData?.category === "Pool" ||
-              partData?.template === "Pool" ||
-              clickedPart.category === "Pool";
-            const isLane = this.isLanePart(clickedPart);
-
-            if (isPool) {
-              (this as any).__clickedPool = clickedPart;
-              // Check if clicking on POOL_HEADER (new template) or POOL_HEADER_STRIP (old template)
-              const canStartResult = 
-                this.isWithinNamedObject(clickedObject, "POOL_HEADER") ||
-                this.isWithinNamedObject(clickedObject, "POOL_HEADER_STRIP");
-              console.log(`[CAN-START] Pool click, canStart=${canStartResult}`, {
-                withinPOOL_HEADER: this.isWithinNamedObject(clickedObject, "POOL_HEADER"),
-                withinPOOL_HEADER_STRIP: this.isWithinNamedObject(clickedObject, "POOL_HEADER_STRIP")
-              });
-              return canStartResult;
-            }
-            if (isLane && clickedPart.containingGroup instanceof go.Group) {
-              (this as any).__clickedLane = clickedPart;
-              delete (this as any).__clickedPool;
-              const canStartResult =
-                this.isWithinNamedObject(clickedObject, "LANE_HEADER_STRIP") ||
-                this.isWithinNamedObject(clickedObject, "LANE_BODY_SHAPE") ||
-                this.isWithinNamedObject(clickedObject, "BODY");
-              console.log(`[CAN-START] Lane click, canStart=${canStartResult}`, {
-                withinLANE_HEADER_STRIP: this.isWithinNamedObject(clickedObject, "LANE_HEADER_STRIP"),
-                withinLANE_BODY_SHAPE: this.isWithinNamedObject(clickedObject, "LANE_BODY_SHAPE"),
-                withinBODY: this.isWithinNamedObject(clickedObject, "BODY"),
-              });
-              return canStartResult;
-            }
-          }
-
-          // Clear any previously stored lane if not starting a lane drag
-          delete (this as any).__clickedLane;
-          delete (this as any).__clickedPool;
-          console.log(`[CAN-START] Default return true`);
-          return true;
-        }
-
-        override computeEffectiveCollection(
-          parts: Iterable<go.Part>,
-          options: go.DraggingOptions
-        ): go.Map<go.Part, go.DraggingInfo> {
-          if (this.isCopyLikeDrag()) {
-            return super.computeEffectiveCollection(parts, options);
-          }
-          const directLaneDragRequested = Boolean((this.diagram as any)?.__directLaneDragRequested);
-          const directPoolDragRequested = Boolean((this.diagram as any)?.__directPoolDragRequested);
-          const explicitlySelectedLanes = new Set<go.Group>();
-          const explicitlySelectedPools = new Set<go.Group>();
-          const expandedParts = new go.Set<go.Part>();
-
-          console.log(`[COMPUTE-EFFECTIVE] Starting, parts count:`, Array.from(parts).length);
-
-          for (const part of parts) {
-            expandedParts.add(part);
-            if (this.isLanePart(part)) {
-              explicitlySelectedLanes.add(part);
-              console.log(`[COMPUTE-EFFECTIVE] Found lane:`, part.data?.key);
-            } else if (this.isPoolPart(part)) {
-              explicitlySelectedPools.add(part);
-            }
-          }
-
-          // For direct lane drags we move owned nodes ourselves in moveParts().
-          // If GoJS also includes those nodes in the effective drag collection,
-          // the lane contents get moved by two competing paths and appear to
-          // follow randomly or snap back on release.
-          if (!directLaneDragRequested) {
-            explicitlySelectedLanes.forEach((lane: go.Group) => {
-              lane.memberParts.each((member: go.Part) => {
-                if (!(member instanceof go.Node) || member instanceof go.Group) return;
-                expandedParts.add(member);
-              });
-            });
-          }
-
-          const map = super.computeEffectiveCollection(expandedParts, options);
-          
-          console.log(`[COMPUTE-EFFECTIVE] After super.computeEffectiveCollection:`, {
-            mapSize: map.count,
-            explicitLanesCount: explicitlySelectedLanes.size
-          });
-
-          const swimlaneCoreEnabled = swimlane.isGoJSSwimlaneCoreEnabled(this.diagram);
-          if (
-            explicitlySelectedPools.size > 0 &&
-            (explicitlySelectedLanes.size === 0 || directPoolDragRequested)
-          ) {
-            // In the GoJS swimlane-core path, pooled lanes must stay in the effective
-            // drag collection so the live drag preview keeps the pool and all lanes
-            // together. Removing them here causes the pool group to move independently
-            // from its lane visuals until a later relayout snaps everything back.
-            if (swimlaneCoreEnabled) {
-              console.log(`[COMPUTE-EFFECTIVE] Pool drag in swimlane core, preserving pooled lanes in map`);
-            } else {
-            const pooledLanePartsToRemove: go.Part[] = [];
-            for (let it = map.iterator; it.next();) {
-              const part = it.key;
-              if (!this.isLanePart(part)) continue;
-              if (!(part.containingGroup instanceof go.Group)) continue;
-              if (!explicitlySelectedPools.has(part.containingGroup)) continue;
-              pooledLanePartsToRemove.push(part);
-            }
-            for (const part of pooledLanePartsToRemove) {
-              map.delete(part);
-            }
-            console.log(`[COMPUTE-EFFECTIVE] Pool drag, removed ${pooledLanePartsToRemove.length} pooled lanes from map`);
-            }
-            if (directPoolDragRequested) {
-              explicitlySelectedLanes.clear();
-            }
-          }
-
-          // Ordinary node drags inside a lane must not drag the ancestor lane.
-          // If the lane ends up in the effective collection, the rest of the tool
-          // misclassifies the gesture as a direct lane drag and the lane "follows"
-          // the node toward the upper-left.
-          if (explicitlySelectedLanes.size === 0 && explicitlySelectedPools.size === 0) {
-            const lanePartsToRemove: go.Part[] = [];
-            for (let it = map.iterator; it.next();) {
-              const part = it.key;
-              if (this.isLanePart(part)) lanePartsToRemove.push(part);
-            }
-            for (const part of lanePartsToRemove) {
-              map.delete(part);
-            }
-            console.log(`[COMPUTE-EFFECTIVE] No explicit lanes or pools, removed ${lanePartsToRemove.length} lanes from map`);
-            return map;
-          }
-
-          const draggedLanes = new Set<go.Group>();
-          const ancestorGroupsToRemove = new Set<go.Group>();
-
-          for (let it = map.iterator; it.next();) {
-            const part = it.key;
-            if (!this.isLanePart(part)) continue;
-            draggedLanes.add(part);
-            const info = it.value;
-            // For pooled lanes, keep GoJS's default drag anchor. Overriding it here
-            // causes a horizontal preview shift equal to the lane header width.
-            if (!(part.containingGroup instanceof go.Group)) {
-              const dragAnchor = this.getVisibleLaneAnchor(part);
-              if (info && dragAnchor) {
-                info.point = dragAnchor.copy();
-              }
-            }
-          }
-          if (draggedLanes.size === 0) return map;
-
-          // Only remove ancestor pools when this is an explicit lane drag.
-          // If a Pool is the selected drag target, its member lanes must stay in the
-          // effective collection and follow the pool; removing the Pool here turns the
-          // gesture into a lane-only drag and causes the pool/lane split seen on screen.
-          if (explicitlySelectedLanes.size > 0) {
-            if (directLaneDragRequested) {
-              const laneMemberPartsToRemove: go.Part[] = [];
-              for (let it = map.iterator; it.next();) {
-                const part = it.key;
-                if (this.isLanePart(part)) continue;
-                const containingGroup = part.containingGroup;
-                if (!(containingGroup instanceof go.Group)) continue;
-                if (!draggedLanes.has(containingGroup)) continue;
-                laneMemberPartsToRemove.push(part);
-              }
-              for (const part of laneMemberPartsToRemove) {
-                map.delete(part);
-              }
-              console.log(
-                `[COMPUTE-EFFECTIVE] Direct lane drag, removed ${laneMemberPartsToRemove.length} owned parts from map`
-              );
-            }
-            draggedLanes.forEach((lane: go.Group) => {
-              let ancestor = lane.containingGroup;
-              while (ancestor instanceof go.Group) {
-                if (!explicitlySelectedLanes.has(ancestor)) {
-                  ancestorGroupsToRemove.add(ancestor);
-                }
-                ancestor = ancestor.containingGroup;
-              }
-            });
-            ancestorGroupsToRemove.forEach((ancestor) => map.delete(ancestor));
-          }
-
-          return map;
-        }
-
-	        override moveParts(
-	          parts: go.Map<go.Part, go.DraggingInfo>,
-	          offset: go.Point,
-	          check?: boolean
-	        ): void {
-          if (this.isCopyLikeDrag()) {
-            super.moveParts(parts, offset, check);
-            return;
-          }
-	          const diagram = this.diagram;
-          const directLaneDragRequested = Boolean((diagram as any)?.__directLaneDragRequested);
-          const directPoolDragRequested = Boolean((diagram as any)?.__directPoolDragRequested);
-          
-          console.log(`[MOVE-PARTS] Called:`, {
-            partsCount: parts.count,
-            offsetY: offset?.y?.toFixed(2),
-            directLaneDragRequested,
-            directPoolDragRequested,
-            check
-          });
-          
-	          const { lanes: pooledDraggedLanes } =
-            directLaneDragRequested
-              ? this.collectPooledDraggedLanes(parts, diagram)
-              : { lanes: [], laneKeys: new Set<string>() };
-
-          console.log(`[MOVE-PARTS] Pooled lanes:`, pooledDraggedLanes.length);
-
-	          if (diagram && directLaneDragRequested && pooledDraggedLanes.length > 0) {
-	            // Drag pooled lanes live on the Y axis and keep the owning pool frozen.
-              // Do not rely on GoJS's default movement here: pooled swimlane groups can
-              // still end up visually pinned by group/layout state, which makes the drag
-              // look like a no-op and causes release-time snap-back.
-              try {
-                for (const lane of pooledDraggedLanes) {
-                  const savedLaneLoc =
-                    (lane as any).__laneOriginalLocation instanceof go.Point
-                      ? ((lane as any).__laneOriginalLocation as go.Point)
-                      : null;
-                  const containingPool = lane.containingGroup;
-                  const savedPoolLoc =
-                    containingPool instanceof go.Group &&
-                    (containingPool as any).__poolOriginalLocation instanceof go.Point
-                      ? ((containingPool as any).__poolOriginalLocation as go.Point)
-                      : null;
-                  let nextLaneLoc = lane.location.copy();
-                  if (savedLaneLoc) {
-                    nextLaneLoc = new go.Point(savedLaneLoc.x, savedLaneLoc.y + offset.y);
-                  }
-                  if (!lane.location.equals(nextLaneLoc)) {
-                    lane.location = nextLaneLoc;
-                  }
-                  if (lane.data) {
-                    console.log(`[MOVE-PARTS] Updating pooled lane live loc:`, {
-                      key: lane.data.key,
-                      x: lane.location.x.toFixed(2),
-                      y: lane.location.y.toFixed(2),
-                      offsetY: offset.y.toFixed(2),
-                      check
-                    });
-                    diagram.model.set(lane.data, 'loc', go.Point.stringify(lane.location));
-                  }
-                  try {
-                    getLaneOwnedNodesForDrag(diagram, lane).forEach((member: go.Node) => {
-                      const savedMemberLoc =
-                        (member as any).__laneDragOriginalLocation instanceof go.Point
-                          ? ((member as any).__laneDragOriginalLocation as go.Point)
-                          : member.location?.copy?.() || null;
-                      if (!(savedMemberLoc instanceof go.Point)) return;
-                      const nextMemberLoc = new go.Point(savedMemberLoc.x, savedMemberLoc.y + offset.y);
-                      if (!member.location.equals(nextMemberLoc)) {
-                        member.location = nextMemberLoc;
-                      }
-                      if (member.data) {
-                        try {
-                          diagram.model.set(member.data, 'loc', go.Point.stringify(nextMemberLoc));
-                        } catch (_) { }
-                      }
-                      try { member.invalidateConnectedLinks(); } catch (_) { }
-                      try {
-                        member.linksConnected.each((link: go.Link) => {
-                          try { link.invalidateRoute(); } catch (_) { }
-                          try { link.updateRoute(); } catch (_) { }
-                        });
-                      } catch (_) { }
-                    });
-                  } catch (memberMoveError) {
-                    console.error('[MOVE-PARTS] Error updating pooled lane members:', memberMoveError);
-                  }
-                  if (containingPool instanceof go.Group && savedPoolLoc) {
-                    if (!containingPool.location.equals(savedPoolLoc)) {
-                      containingPool.location = savedPoolLoc.copy();
-                    }
-                    if (containingPool.data) {
-                      diagram.model.set(containingPool.data, 'loc', go.Point.stringify(savedPoolLoc));
-                    }
-                  }
-                }
-                return;
-              } catch (e) {
-                console.error('[MOVE-PARTS] Error updating pooled lane loc:', e);
-              }
-	          }
-
-          console.log(`[MOVE-PARTS] Calling super.moveParts (not lane drag or check mode)`);
-	          super.moveParts(parts, offset, check);
-          if (diagram && directPoolDragRequested) {
-            try {
-              for (let it = parts.iterator; it.next();) {
-                const part = it.key;
-                if (!this.isPoolPart(part)) continue;
-                if (swimlane.isGoJSSwimlaneCoreEnabled(diagram)) {
-                  try {
-                    if (part.data) {
-                      diagram.model.setDataProperty(
-                        part.data,
-                        'loc',
-                        go.Point.stringify(part.location)
-                      );
-                    }
-                  } catch (_) { }
-                  continue;
-                }
-                const originalPoolLocation = (part as any).__poolOriginalLocation as go.Point | null;
-                if (!(originalPoolLocation instanceof go.Point)) continue;
-                const poolDelta = new go.Point(offset.x, offset.y);
-                const nextPoolLocation = new go.Point(
-                  originalPoolLocation.x + poolDelta.x,
-                  originalPoolLocation.y + poolDelta.y
-                );
-                try {
-                  if (!part.location.equals(nextPoolLocation)) {
-                    part.location = nextPoolLocation.copy();
-                  }
-                } catch (_) { }
-                try {
-                  if (part.data) {
-                    diagram.model.setDataProperty(part.data, 'loc', go.Point.stringify(nextPoolLocation));
-                  }
-                } catch (_) { }
-                try {
-                  part.memberParts.each((member: go.Part) => {
-                    if (!this.isLanePart(member)) return;
-                    const originalLaneLocation = (member as any).__lanePoolMoveOriginalLocation as go.Point | null;
-                    if (!(originalLaneLocation instanceof go.Point)) return;
-                    member.location = new go.Point(
-                      originalLaneLocation.x + poolDelta.x,
-                      originalLaneLocation.y + poolDelta.y
-                    );
-                    if (member.data) {
-                      try {
-                        diagram.model.setDataProperty(member.data, 'loc', go.Point.stringify(member.location));
-                      } catch (_) { }
-                    }
-                  });
-                } catch (_) { }
-              }
-              diagram.requestUpdate();
-            } catch (_) { }
-          }
-          try {
-            for (let it = parts.iterator; it.next();) {
-              const part = it.key;
-              if (!this.isLanePart(part)) continue;
-              this.invalidateLaneMemberLinks(part);
-            }
-            this.diagram?.requestUpdate();
-          } catch (_) { }
-        }
-
-        private getVisibleLaneAnchor(lane: go.Group): go.Point | null {
-          const laneHeader =
-            (lane.findObject("LANE_HEADER_STRIP") ||
-              lane.findObject("HEADER") ||
-              lane.findObject("LEFT_HEADER")) as go.GraphObject | null;
-          if (laneHeader?.getDocumentPoint) {
-            try {
-              return laneHeader.getDocumentPoint(go.Spot.TopLeft);
-            } catch (_) { }
-          }
-          const laneShape =
-            (lane.findObject("LANE_SHAPE") ||
-              lane.findObject("LANE_BODY_SHAPE")) as go.GraphObject | null;
-          if (laneShape?.getDocumentPoint) {
-            try {
-              const shapeTopLeft = laneShape.getDocumentPoint(go.Spot.TopLeft);
-              const headerWidth =
-                (typeof laneHeader?.actualBounds?.width === "number" &&
-                  Number.isFinite(laneHeader.actualBounds.width))
-                  ? laneHeader.actualBounds.width
-                  : 36;
-              return new go.Point(shapeTopLeft.x - headerWidth, shapeTopLeft.y);
-            } catch (_) { }
-          }
-          const laneTable =
-            (lane.findObject("LANE_TABLE") ||
-              lane.findObject("LANE_MAIN")) as go.GraphObject | null;
-          if (laneTable?.getDocumentPoint) {
-            try {
-              return laneTable.getDocumentPoint(go.Spot.TopLeft);
-            } catch (_) { }
-          }
-          return lane.location?.copy?.() || null;
-        }
-
-        private getSavedLaneBodySize(lane: go.Group): go.Size | null {
-          const saved = (lane as any).__savedLaneBodySize || (lane as any).__savedDesiredSize;
-          return saved && saved.isReal?.() ? saved : null;
-        }
-
-        private getSavedLaneTotalSize(lane: go.Group): go.Size | null {
-          const saved = (lane as any).__savedLaneTotalSize;
-          return saved && saved.isReal?.() ? saved : null;
-        }
-
-        private restoreLaneToSavedAnchor(lane: go.Group) {
-          const savedLocation = (lane as any).__laneOriginalLocation;
-          const savedVisibleAnchor = (lane as any).__laneVisibleAnchor;
-
-          if (savedVisibleAnchor instanceof go.Point) {
-            const currentVisibleAnchor = this.getVisibleLaneAnchor(lane) || lane.location.copy();
-            const dx = savedVisibleAnchor.x - currentVisibleAnchor.x;
-            const dy = savedVisibleAnchor.y - currentVisibleAnchor.y;
-            if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
-              const newLocation = lane.location.copy().offset(dx, dy);
-              lane.location = newLocation;
-            }
-          } else if (savedLocation instanceof go.Point && !lane.location.equals(savedLocation)) {
-            lane.location = savedLocation.copy();
-          }
-
-          this.restoreDraggedLaneSize(lane);
-        }
-
-        private restoreDraggedLaneSize(lane: go.Group) {
-          const savedTotalSize = this.getSavedLaneTotalSize(lane);
-          const savedBodySize = this.getSavedLaneBodySize(lane);
-          const laneTable =
-            (lane.findObject("LANE_TABLE") ||
-              lane.findObject("LANE_MAIN")) as go.GraphObject | null;
-          const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
-          const laneShape = lane.findObject("LANE_SHAPE") as go.Shape | null;
-
-          if (savedTotalSize) {
-            if (laneTable?.desiredSize?.isReal?.() && !laneTable.desiredSize.equalsApprox(savedTotalSize)) {
-              laneTable.desiredSize = savedTotalSize.copy();
-            }
-            try {
-              (lane as any).desiredSize = savedTotalSize.copy();
-            } catch (_) { }
-          }
-
-          if (savedBodySize) {
-            if (laneBodyPanel?.desiredSize?.isReal?.() && !laneBodyPanel.desiredSize.equalsApprox(savedBodySize)) {
-              laneBodyPanel.desiredSize = savedBodySize.copy();
-            }
-            if (laneShape?.desiredSize?.isReal?.() && !laneShape.desiredSize.equalsApprox(savedBodySize)) {
-              laneShape.desiredSize = savedBodySize.copy();
-            }
-          }
-        }
-
-        private invalidateLaneMemberLinks(lane: go.Group) {
-          try {
-            const seen = new Set<string>();
-            collectLaneOwnedNodes(this.diagram, lane).forEach((member: go.Node) => {
-              try { member.invalidateConnectedLinks(); } catch (_) { }
-              try {
-                member.linksConnected.each((link: go.Link) => {
-                  const key = String(link.data?.key || link.key || "");
-                  if (key && seen.has(key)) return;
-                  if (key) seen.add(key);
-                  try { link.invalidateRoute(); } catch (_) { }
-                  try { link.updateRoute(); } catch (_) { }
-                });
-              } catch (_) { }
-            });
-          } catch (_) { }
-        }
-
-        private getDraggedLaneGroups(parts: go.Map<go.Part, go.DraggingInfo> | null | undefined): Set<go.Group> {
-          const lanesBeingDragged = new Set<go.Group>();
-          try {
-            for (let it = parts?.iterator; it?.next();) {
-              const part = it.key;
-              if (this.isLanePart(part)) lanesBeingDragged.add(part);
-            }
-          } catch (_) { }
-          return lanesBeingDragged;
-        }
-
-        private getSelectedLaneGroups(diagram: go.Diagram | null | undefined): Set<go.Group> {
-          const selectedLaneGroups = new Set<go.Group>();
-          try {
-            diagram?.selection.each((part: go.Part) => {
-              if (this.isLanePart(part)) selectedLaneGroups.add(part);
-            });
-          } catch (_) { }
-          return selectedLaneGroups;
-        }
-
-        private collectMemberDraggedLanesToRestore(
-          parts: go.Map<go.Part, go.DraggingInfo> | null | undefined,
-          draggedLaneKeys: Set<string>,
-          selectedLaneGroups: Set<go.Group>
-        ): Map<go.Group, go.Point> {
-          const lanesToRestore = new Map<go.Group, go.Point>();
-          const lanesBeingDragged = this.getDraggedLaneGroups(parts);
-          try {
-            for (let it = parts?.iterator; it?.next();) {
-              const part = it.key;
-              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-              const containingGroup = part.containingGroup;
-              if (!this.isLanePart(containingGroup)) continue;
-              const laneKey =
-                containingGroup.data?.key !== undefined && containingGroup.data?.key !== null
-                  ? String(containingGroup.data.key)
-                  : String(containingGroup.key || "");
-              if (
-                lanesBeingDragged.has(containingGroup) ||
-                draggedLaneKeys.has(laneKey) ||
-                selectedLaneGroups.has(containingGroup)
-              ) {
-                continue;
-              }
-              const savedLoc = (containingGroup as any).__laneOriginalLocation;
-              if (savedLoc instanceof go.Point) {
-                lanesToRestore.set(containingGroup, savedLoc);
-              }
-            }
-          } catch (_) { }
-          return lanesToRestore;
-        }
-
-        private captureManualLinkMovePreview(
-          parts: go.Map<go.Part, go.DraggingInfo> | null | undefined,
-          draggedLaneKeys: Set<string>
-        ): Map<string, number[]> {
-          const manualLinkMovePreview = new Map<string, number[]>();
-          const lanesBeingDragged = this.getDraggedLaneGroups(parts);
-          try {
-            for (let it = parts?.iterator; it?.next();) {
-              const part = it.key as go.Part;
-              if (!(part instanceof go.Node) || !part.data?.key) continue;
-              const containingGroup = part.containingGroup;
-              const containingLaneKey =
-                containingGroup?.data?.key !== undefined && containingGroup?.data?.key !== null
-                  ? String(containingGroup.data.key)
-                  : String(containingGroup?.key || "");
-              const laneBeingDragged =
-                this.isLanePart(containingGroup) &&
-                (lanesBeingDragged.has(containingGroup) || draggedLaneKeys.has(containingLaneKey));
-              if (laneBeingDragged) continue;
-              part.linksConnected.each((link: go.Link) => {
-                const linkKey = link?.data?.key;
-                if (!linkKey) return;
-                const points: number[] = [];
-                try {
-                  for (let pt = link.points.iterator; pt?.next();) {
-                    const point = pt.value;
-                    if (point && typeof point.x === "number" && typeof point.y === "number") {
-                      points.push(point.x, point.y);
-                    }
-                  }
-                } catch (_) { }
-                if (points.length >= 4) {
-                  manualLinkMovePreview.set(String(linkKey), points);
-                }
-              });
-            }
-          } catch (_) { }
-          return manualLinkMovePreview;
-        }
-
-        private snapshotLaneDragState(lane: go.Group): go.Point {
-          const laneTable =
-            (lane.findObject("LANE_TABLE") ||
-              lane.findObject("LANE_MAIN")) as go.GraphObject | null;
-          const laneShape = lane.findObject("LANE_SHAPE") as go.Shape | null;
-          const laneBodyPanel = lane.findObject("BODY") as go.GraphObject | null;
-          const totalSize =
-            laneTable?.desiredSize?.isReal?.()
-              ? laneTable.desiredSize.copy()
-              : laneTable?.actualBounds
-                ? new go.Size(laneTable.actualBounds.width, laneTable.actualBounds.height)
-                : null;
-          const bodySize =
-            laneBodyPanel?.desiredSize?.isReal?.()
-              ? laneBodyPanel.desiredSize.copy()
-              : laneShape?.desiredSize?.isReal?.()
-                ? laneShape.desiredSize.copy()
-                : laneBodyPanel?.actualBounds
-                  ? new go.Size(laneBodyPanel.actualBounds.width, laneBodyPanel.actualBounds.height)
-                  : laneShape?.actualBounds
-                    ? new go.Size(laneShape.actualBounds.width, laneShape.actualBounds.height)
-                    : null;
-          if (totalSize?.isReal?.()) {
-            (lane as any).__savedLaneTotalSize = totalSize;
-          }
-          if (bodySize?.isReal?.()) {
-            (lane as any).__savedLaneBodySize = bodySize;
-            (lane as any).__savedDesiredSize = bodySize.copy();
-          }
-          const laneLocation = this.getLaneLocationPoint(lane) || lane.location.copy();
-          const laneAnchor = this.getVisibleLaneAnchor(lane) || laneLocation.copy();
-          (lane as any).__laneOriginalLocation = laneLocation.copy();
-          (lane as any).__laneVisibleAnchor = laneAnchor.copy();
-          return laneLocation;
-        }
-
-        private prepareDirectDraggedLane(lane: go.Group): void {
-          let ownedNodes: go.Node[] = [];
-          try {
-            ownedNodes = normalizeLaneOwnedNodes(this.diagram, lane);
-          } catch (_) { }
-          const laneLocation = this.snapshotLaneDragState(lane);
-          console.log(`[PREPARE-LANE] Preparing lane ${lane.data?.key}, saving location:`, {
-            loc: laneLocation ? `${laneLocation.x.toFixed(2)}, ${laneLocation.y.toFixed(2)}` : 'null',
-            memberCount: ownedNodes.length
-          });
-          
-          // CRITICAL: Track the furthest position reached during drag
-          (lane as any).__dragStartY = laneLocation?.y || 0;
-          (lane as any).__dragMinY = laneLocation?.y || 0;
-          (lane as any).__dragMaxY = laneLocation?.y || 0;
-          
-          // CRITICAL: Temporarily disable layout positioning to allow manual drag
-          // The layout will still run and reorder based on new position, but won't fight the drag
-          (lane as any).__savedIsLayoutPositioned = lane.isLayoutPositioned;
-          lane.isLayoutPositioned = false;
-          if ((lane as any).__savedLaneDragComputation === undefined) {
-            (lane as any).__savedLaneDragComputation = lane.dragComputation ?? null;
-          }
-          lane.dragComputation = (_part: go.Part, pt: go.Point) =>
-            new go.Point(laneLocation?.x ?? pt.x, pt.y);
-          
-          if (lane.containingGroup instanceof go.Group) {
-            const poolLocation = lane.containingGroup.location?.copy?.();
-            if (poolLocation) {
-              (lane.containingGroup as any).__poolOriginalLocation = poolLocation;
-            }
-          }
-          (lane as any).__laneDragOriginalLocation = laneLocation.copy();
-          (lane as any).__laneVisibleAnchor =
-            (this.getVisibleLaneAnchor(lane) || laneLocation.copy()).copy();
-          (lane as any).__savedResizable = lane.resizable;
-          lane.resizable = false;
-          try {
-            const normalizedOwnedNodes =
-              ownedNodes.length > 0 ? ownedNodes : normalizeLaneOwnedNodes(this.diagram, lane);
-            (lane as any).__laneDragOwnedNodes = normalizedOwnedNodes;
-            normalizedOwnedNodes.forEach((member: go.Node) => {
-              if ((member as any).__savedDragComputation === undefined) {
-                (member as any).__savedDragComputation = member.dragComputation ?? null;
-              }
-              (member as any).__laneDragOriginalLocation = member.location?.copy?.() || null;
-              member.dragComputation = (_memberPart: go.Part, pt: go.Point) => pt;
-            });
-          } catch (_) { }
-        }
-
-        private prepareDirectDraggedPool(pool: go.Group): void {
-          const poolLocation = pool.location?.copy?.() || null;
-          if (poolLocation) {
-            (pool as any).__poolOriginalLocation = poolLocation.copy();
-          }
-          (pool as any).__savedIsLayoutPositioned = pool.isLayoutPositioned;
-          pool.isLayoutPositioned = false;
-          try {
-            pool.memberParts.each((member: go.Part) => {
-              if (!this.isLanePart(member)) return;
-              const laneLocation = member.location?.copy?.() || null;
-              if (laneLocation) {
-                (member as any).__lanePoolMoveOriginalLocation = laneLocation.copy();
-              }
-              (member as any).__savedIsLayoutPositioned = member.isLayoutPositioned;
-              member.isLayoutPositioned = false;
-            });
-          } catch (_) { }
-        }
-
-        private lockLaneForMemberDrag(lane: go.Group): void {
-          this.snapshotLaneDragState(lane);
-          (lane as any).__savedMovable = lane.movable;
-          (lane as any).__savedIsLayoutPositioned = lane.isLayoutPositioned;
-          lane.movable = false;
-          lane.isLayoutPositioned = false;
-        }
-
-        private normalizeLaneSelectionForDrag(diagram: go.Diagram): boolean {
-          let directLaneDragRequested = false;
-          console.log(`[NORMALIZE-LANE] Checking selection, count=${diagram.selection.count}`);
-          diagram.selection.each((part: go.Part) => {
-            console.log(`[NORMALIZE-LANE] Selection part:`, {
-              key: part.data?.key,
-              isGroup: part instanceof go.Group,
-              isLane: this.isLanePart(part),
-              category: part.data?.category,
-              template: part.data?.template
-            });
-          });
-          try {
-            const ancestorPoolsToDeselect = new Set<go.Group>();
-            diagram.selection.each((part: go.Part) => {
-              if (!this.isLanePart(part)) return;
-              directLaneDragRequested = true;
-              if (part.containingGroup instanceof go.Group) {
-                ancestorPoolsToDeselect.add(part.containingGroup);
-              }
-              const savedLocation = this.getLaneLocationPoint(part);
-              const visibleAnchor = this.getVisibleLaneAnchor(part);
-              if (savedLocation) {
-                (part as any).__laneOriginalLocation = savedLocation.copy();
-              }
-              if (visibleAnchor) {
-                (part as any).__laneVisibleAnchor = visibleAnchor.copy();
-              }
-              const dragStartPoolKey =
-                part.containingGroup instanceof go.Group &&
-                part.containingGroup.data?.key !== undefined &&
-                part.containingGroup.data?.key !== null
-                  ? String(part.containingGroup.data.key)
-                  : "";
-              (part as any).__dragStartPoolKey = dragStartPoolKey;
-            });
-            ancestorPoolsToDeselect.forEach((pool: go.Group) => {
-              try { diagram.selection.remove(pool); } catch (_) { }
-            });
-          } catch (_) { }
-          console.log(`[NORMALIZE-LANE] Result: directLaneDragRequested=${directLaneDragRequested}`);
-          return directLaneDragRequested;
-        }
-
-        private collectActiveDraggedLanes(
-          diagram: go.Diagram | null | undefined,
-          draggedParts: go.Map<go.Part, go.DraggingInfo> | null | undefined
-        ): { activeDraggedLanes: go.Group[]; ordinaryNodeDrag: boolean } {
-          const activeDraggedLanes: go.Group[] = [];
-          let ordinaryNodeDrag = false;
-          if (draggedParts) {
-            for (let it = draggedParts.iterator; it?.next();) {
-              const part: go.Part = it.key;
-              if (this.isLanePart(part)) {
-                activeDraggedLanes.push(part);
-              }
-              if (part instanceof go.Node && !(part instanceof go.Group)) {
-                ordinaryNodeDrag = true;
-                break;
-              }
-            }
-          }
-          if (diagram && activeDraggedLanes.length === 0) {
-            try {
-              diagram.selection.each((part: go.Part) => {
-                if (this.isLanePart(part)) {
-                  activeDraggedLanes.push(part);
-                }
-              });
-            } catch (_) { }
-          }
-          return { activeDraggedLanes, ordinaryNodeDrag };
-        }
-
-        private getDraggedLaneKeys(
-          diagram: go.Diagram,
-          draggedParts: go.Map<go.Part, go.DraggingInfo> | null | undefined,
-          markDirectLaneDrag = false
-        ): Set<string> {
-          const draggedLaneKeys = new Set<string>();
-          try {
-            if (markDirectLaneDrag && draggedParts) {
-              for (let it = draggedParts.iterator; it?.next();) {
-                const part = it.key;
-                if (!this.isLanePart(part)) continue;
-                const key = part.data?.key ?? part.key;
-                if (key !== undefined && key !== null) {
-                  draggedLaneKeys.add(String(key));
-                }
-              }
-            }
-            if (draggedLaneKeys.size === 0) {
-              diagram.selection.each((part: go.Part) => {
-                if (!this.isLanePart(part)) return;
-                const key = part.data?.key ?? part.key;
-                if (key !== undefined && key !== null) {
-                  draggedLaneKeys.add(String(key));
-                }
-              });
-            }
-            (diagram as any).__draggedLaneGroupKeys = draggedLaneKeys;
-            if (markDirectLaneDrag) {
-              (diagram as any).__directLaneDragActive = true;
-            } else {
-              delete (diagram as any).__directLaneDragActive;
-            }
-          } catch (_) { }
-          return draggedLaneKeys;
-        }
-
-        private prepareOrdinaryNodeDrag(diagram: go.Diagram, draggedLaneKeys: Set<string>): void {
-          if (swimlane.isGoJSSwimlaneCoreEnabled(diagram)) {
-            return;
-          }
-          try {
-            (diagram as any).__suppressObjectSingleClickUntil = Date.now() + 1200;
-          } catch (_) { }
-          try {
-            if (!this.draggedParts) return;
-            const lanesBeingDragged = this.getDraggedLaneGroups(this.draggedParts);
-            try {
-              const currentDraggedLaneKeys: Set<string> =
-                ((diagram as any).__draggedLaneGroupKeys instanceof Set)
-                  ? (diagram as any).__draggedLaneGroupKeys
-                  : draggedLaneKeys;
-              lanesBeingDragged.forEach((lane: go.Group) => {
-                const key = lane.data?.key ?? lane.key;
-                this.snapshotLaneDragState(lane);
-                if (key !== undefined && key !== null) {
-                  currentDraggedLaneKeys.add(String(key));
-                }
-              });
-              (diagram as any).__draggedLaneGroupKeys = currentDraggedLaneKeys;
-            } catch (_) { }
-            for (let it = this.draggedParts.iterator; it?.next();) {
-              const part = it.key;
-              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-              const containingGroup = part.containingGroup;
-              const laneKey =
-                containingGroup?.data?.key !== undefined && containingGroup?.data?.key !== null
-                  ? String(containingGroup.data.key)
-                  : String(containingGroup?.key || "");
-              if (
-                this.isLanePart(containingGroup) &&
-                !lanesBeingDragged.has(containingGroup) &&
-                !draggedLaneKeys.has(laneKey)
-              ) {
-                this.lockLaneForMemberDrag(containingGroup);
-              }
-            }
-          } catch (_) { }
-        }
-
-        private collectPooledDraggedLanes(
-          parts: go.Map<go.Part, go.DraggingInfo> | null | undefined,
-          diagram: go.Diagram | null | undefined
-        ): { lanes: go.Group[]; laneKeys: Set<string> } {
-          const lanes: go.Group[] = [];
-          const laneKeys = new Set<string>();
-          const isPooledLane = (part: go.Group | null | undefined) => {
-            if (!(part instanceof go.Group)) return false;
-            const containingPoolKey =
-              part.containingGroup instanceof go.Group &&
-              part.containingGroup.data?.key !== undefined &&
-              part.containingGroup.data?.key !== null
-                ? String(part.containingGroup.data.key)
-                : "";
-            const persistedGroupKey =
-              typeof part.data?.group === "string"
-                ? String(part.data.group)
-                : "";
-            if (containingPoolKey) {
-              return persistedGroupKey === containingPoolKey;
-            }
-            return typeof (part as any).__dragStartPoolKey === "string" &&
-              String((part as any).__dragStartPoolKey).length > 0;
-          };
-          try {
-            for (let it = parts?.iterator; it?.next();) {
-              const part = it.key;
-              if (!this.isLanePart(part) || !isPooledLane(part)) continue;
-              lanes.push(part);
-              const laneKey = part.data?.key ?? part.key;
-              if (laneKey !== undefined && laneKey !== null) {
-                laneKeys.add(String(laneKey));
-              }
-            }
-          } catch (_) { }
-          const selectedLaneGroups = this.getSelectedLaneGroups(diagram);
-          selectedLaneGroups.forEach((part: go.Group) => {
-            if (!isPooledLane(part)) return;
-            const laneKey = part.data?.key ?? part.key;
-            const laneKeyString =
-              laneKey !== undefined && laneKey !== null ? String(laneKey) : "";
-            if (laneKeyString && laneKeys.has(laneKeyString)) return;
-            lanes.push(part);
-            if (laneKeyString) laneKeys.add(laneKeyString);
-          });
-          return { lanes, laneKeys };
-        }
-
-        private restoreMemberDraggedLanePositions(
-          diagram: go.Diagram | null | undefined,
-          draggedLaneKeys: Set<string>,
-          selectedLaneGroups: Set<go.Group>
-        ): void {
-          if (!diagram || !this.draggedParts) return;
-          const affectedLanes = this.collectMemberDraggedLanesToRestore(
-            this.draggedParts,
-            draggedLaneKeys,
-            selectedLaneGroups
-          );
-          if (affectedLanes.size === 0) return;
-          affectedLanes.forEach((_savedLoc: go.Point, lane: go.Group) => {
-            const swimlaneCoreEnabled = swimlane.isGoJSSwimlaneCoreEnabled(diagram);
-            const savedLoc = (lane as any).__laneOriginalLocation;
-            if (swimlaneCoreEnabled && savedLoc instanceof go.Point) {
-              if (!lane.location.equals(savedLoc)) {
-                lane.location = savedLoc.copy();
-              }
-              this.restoreDraggedLaneSize(lane);
-              return;
-            }
-            this.restoreLaneToSavedAnchor(lane);
-          });
-        }
-
-        private saveDraggedPartsSnapshot(): go.Part[] {
-          const savedDraggedParts: go.Part[] = [];
-          if (this.draggedParts) {
-            for (let it = this.draggedParts.iterator; it?.next();) {
-              const part = it.key;
-              if (part instanceof go.Part) {
-                try {
-                  (part as any).__dragReleaseLocation = part.location?.copy?.() || null;
-                } catch (_) { }
-              }
-              savedDraggedParts.push(part);
-            }
-          }
-          return savedDraggedParts;
-        }
-
-        private collectExternalLinksForDraggedLanes(lanesBeingDragged: Set<go.Group>): Set<string> {
-          const linksToClear = new Set<string>();
-          try {
-            lanesBeingDragged.forEach((lane: go.Group) => {
-              collectLaneOwnedNodes(this.diagram, lane).forEach((member: go.Node) => {
-                member.linksConnected.each((link: go.Link) => {
-                  if (!link.data?.key) return;
-                  const fromNode = link.fromNode;
-                  const toNode = link.toNode;
-                  const laneKey = String(lane.data?.key || lane.key || "");
-                  const fromInLane =
-                    fromNode &&
-                    (fromNode.containingGroup === lane || String(fromNode.data?.group || "") === laneKey);
-                  const toInLane =
-                    toNode &&
-                    (toNode.containingGroup === lane || String(toNode.data?.group || "") === laneKey);
-                  if (!fromInLane || !toInLane) {
-                    linksToClear.add(String(link.data.key));
-                  }
-                });
-              });
-            });
-          } catch (_) { }
-          return linksToClear;
-        }
-
-        private clearExternalLaneLinkRouting(
-          diagram: go.Diagram,
-          linksToClear: Set<string>,
-          myMetis: any
-        ): void {
-          if (linksToClear.size === 0) return;
-          const previewMap = (diagram as any).__manualLinkMovePreview;
-          if (previewMap instanceof Map) {
-            linksToClear.forEach((linkKey: string) => {
-              if (previewMap.has(linkKey)) {
-                previewMap.delete(linkKey);
-              }
-            });
-          }
-          diagram.startTransaction("clear lane link routing");
-          try {
-            linksToClear.forEach((linkKey: string) => {
-              const link = diagram.findLinkForKey(linkKey);
-              if (!link || !link.data) return;
-              diagram.model.setDataProperty(link.data, "points", []);
-              diagram.model.setDataProperty(link.data, "__manualPath", false);
-              const relviewRef = link.data?.relviewRef || link.data?.key;
-              if (relviewRef && myMetis) {
-                const modelview = myMetis.currentModelview;
-                if (modelview) {
-                  const relview = myMetis.findRelationshipView(relviewRef);
-                  if (relview) {
-                    relview.points = [];
-                    relview.__manualPath = false;
-                  }
-                }
-              }
-            });
-          } finally {
-            diagram.commitTransaction("clear lane link routing");
-          }
-          (diagram as any).__linksToAutoRoute = linksToClear;
-        }
-
-        private persistDirectDraggedLanes(diagram: go.Diagram, savedDraggedParts: go.Part[]): boolean {
-          let lanesWereDraggedDirectly = false;
-          const poolsToSkipRelayout = new Set<string>();
-          const draggedPools = new Set<go.Group>();
-          const preferredLaneOrders = new Map<string, string[]>();
-          const forcedLaneIndexes = new Map<string, number>();
-          const getPartKey = (part: go.Part | null | undefined): string => {
-            const key = part?.data?.key ?? part?.key;
-            return key !== undefined && key !== null ? String(key) : "";
-          };
-          const getOrderedPoolLanes = (
-            pool: go.Group,
-            explicitLane?: go.Group | null,
-          ): go.Group[] => {
-            const ordered: go.Group[] = [];
-            const seen = new Set<string>();
-            const poolKey = getPartKey(pool);
-            const poolGroupKey = String(pool.data?.group || "");
-            const registerLane = (lane: go.Group | null | undefined) => {
-              if (!(lane instanceof go.Group) || !this.isLanePart(lane)) return;
-              const laneKey = getPartKey(lane);
-              if (!laneKey || seen.has(laneKey)) return;
-              seen.add(laneKey);
-              ordered.push(lane);
-            };
-            try {
-              pool.memberParts.each((member: go.Part) => {
-                registerLane(member instanceof go.Group ? member : null);
-              });
-            } catch (_) { }
-            try {
-              diagram.nodes.each((node: go.Node) => {
-                if (!(node instanceof go.Group) || !this.isLanePart(node)) return;
-                const dataGroup = String(node.data?.group || "");
-                const containingPool =
-                  node.containingGroup instanceof go.Group ? node.containingGroup : null;
-                const containingPoolKey = getPartKey(containingPool);
-                if (
-                  dataGroup !== poolKey &&
-                  dataGroup !== poolGroupKey &&
-                  containingPoolKey !== poolKey &&
-                  containingPoolKey !== poolGroupKey
-                ) {
-                  return;
-                }
-                registerLane(node);
-              });
-            } catch (_) { }
-            registerLane(explicitLane);
-            ordered.sort((a, b) => {
-              const aIndex = Number.isFinite(Number(a.data?.laneIndex))
-                ? Number(a.data.laneIndex)
-                : Number.MAX_SAFE_INTEGER;
-              const bIndex = Number.isFinite(Number(b.data?.laneIndex))
-                ? Number(b.data.laneIndex)
-                : Number.MAX_SAFE_INTEGER;
-              if (aIndex !== bIndex) return aIndex - bIndex;
-              return Number(a.location?.y ?? 0) - Number(b.location?.y ?? 0);
-            });
-            return ordered;
-          };
-          const findTargetPoolAtPoint = (pt: go.Point | null | undefined): go.Group | null => {
-            if (!(pt instanceof go.Point)) return null;
-            let targetPool: go.Group | null = null;
-            const topGroups = diagram.findTopLevelGroups();
-            topGroups.each((g: go.Group) => {
-              if (targetPool) return;
-              const gdata = g?.data;
-              const isPool =
-                gdata?.category === "Pool" ||
-                gdata?.template === "Pool" ||
-                g?.category === "Pool";
-              if (!isPool) return;
-              const poolShape =
-                (g.findObject("POOL_SHAPE") ||
-                  g.findObject("POOL_PANEL")) as go.GraphObject | null;
-              const poolBounds = poolShape ? poolShape.getDocumentBounds() : g.actualBounds;
-              if (poolBounds?.containsPoint?.(pt)) {
-                targetPool = g;
-              }
-            });
-            return targetPool;
-          };
-          savedDraggedParts.forEach((part: go.Part) => {
-            if (part instanceof go.Group && !this.isLanePart(part)) {
-              draggedPools.add(part);
-            }
-          });
-          diagram.startTransaction("update dragged lane positions");
-          try {
-            for (const part of savedDraggedParts) {
-              if (!(part instanceof go.Group) || !this.isLanePart(part)) {
-                continue;
-              }
-              const dragStartPoolKey =
-                typeof (part as any).__dragStartPoolKey === "string"
-                  ? String((part as any).__dragStartPoolKey)
-                  : "";
-              const dragStartPool =
-                dragStartPoolKey.length > 0
-                  ? (diagram.findPartForKey(dragStartPoolKey) || diagram.findNodeForKey(dragStartPoolKey))
-                  : null;
-              const startedInsidePool = dragStartPool instanceof go.Group;
-              if (part.containingGroup instanceof go.Group && draggedPools.has(part.containingGroup)) {
-                const savedResizable = (part as any).__savedResizable;
-                if (savedResizable !== undefined) {
-                  part.resizable = savedResizable;
-                  delete (part as any).__savedResizable;
-                }
-                if ((part as any).__savedLaneDragComputation !== undefined) {
-                  part.dragComputation = (part as any).__savedLaneDragComputation;
-                  delete (part as any).__savedLaneDragComputation;
-                }
-                try {
-                  getLaneOwnedNodesForDrag(diagram, part).forEach((member: go.Node) => {
-                    if ((member as any).__savedDragComputation !== undefined) {
-                      member.dragComputation = (member as any).__savedDragComputation;
-                      delete (member as any).__savedDragComputation;
-                    }
-                    delete (member as any).__laneDragOriginalLocation;
-                  });
-                } catch (_) { }
-                clearCapturedLaneOwnedNodes(part);
-                delete (part as any).__savedDesiredSize;
-                delete (part as any).__savedLaneBodySize;
-                delete (part as any).__savedLaneTotalSize;
-                continue;
-              }
-              const isPooledLane =
-                startedInsidePool || part.containingGroup instanceof go.Group;
-              const savedLaneLoc =
-                ((part as any).__laneOriginalLocation instanceof go.Point)
-                  ? ((part as any).__laneOriginalLocation as go.Point)
-                  : null;
-              const releaseLoc =
-                (part as any).__dragReleaseLocation instanceof go.Point
-                  ? ((part as any).__dragReleaseLocation as go.Point).copy()
-                  : null;
-              let newLoc =
-                releaseLoc ||
-                (isPooledLane
-                  ? (this.getLaneLocationPoint(part) || part.location.copy())
-                  : (this.getVisibleLaneAnchor(part) || part.location.copy()));
-              if (isPooledLane) {
-                if (savedLaneLoc) {
-                  newLoc = new go.Point(savedLaneLoc.x, newLoc.y);
-                }
-              }
-              const dropPoint =
-                (diagram.lastInput?.documentPoint as go.Point | undefined) ||
-                part.actualBounds?.center ||
-                newLoc;
-              const targetPool = findTargetPoolAtPoint(dropPoint);
-              const targetPoolKey =
-                targetPool?.key !== undefined && targetPool?.key !== null
-                  ? String(targetPool.key)
-                  : "";
-              
-              // CRITICAL: Use tracked drag extents instead of final location
-              // because PoolLayout may have already repositioned the lane back
-              const dragStartY = (part as any).__dragStartY;
-              const dragMinY = (part as any).__dragMinY;
-              const dragMaxY = (part as any).__dragMaxY;
-              const hasTrackedMovement = typeof dragStartY === 'number' && 
-                                         typeof dragMinY === 'number' && 
-                                         typeof dragMaxY === 'number';
-              
-              let pooledLaneDy = 0;
-              if (hasTrackedMovement && savedLaneLoc) {
-                // Calculate the maximum vertical movement that occurred during drag
-                const upwardMovement = Math.abs(dragMinY - dragStartY);
-                const downwardMovement = Math.abs(dragMaxY - dragStartY);
-                pooledLaneDy = Math.max(upwardMovement, downwardMovement);
-              } else {
-                pooledLaneDy = savedLaneLoc ? Math.abs(newLoc.y - savedLaneLoc.y) : 0;
-              }
-              
-              const pooledLaneDx =
-                savedLaneLoc && releaseLoc ? Math.abs(releaseLoc.x - savedLaneLoc.x) : 0;
-              const containingGroupKey =
-                part.containingGroup?.data?.key !== undefined && part.containingGroup?.data?.key !== null
-                  ? String(part.containingGroup.data.key)
-                  : String(part.containingGroup?.key || "");
-              const effectiveDragPoolKey = dragStartPoolKey || containingGroupKey;
-              let crossedIntoNewLaneSlot = false;
-              let resolvedPooledLaneReleaseY: number | null = null;
-              console.log(`[LANE-REORDER-GATE] Lane ${part.data?.key}:`, {
-                isPooledLane,
-                hasSavedLaneLoc: !!savedLaneLoc,
-                dragStartPoolKey,
-                containingGroupKey,
-                effectiveDragPoolKey,
-              });
-              if (isPooledLane && savedLaneLoc && effectiveDragPoolKey) {
-                const sourcePool =
-                  (diagram.findPartForKey(effectiveDragPoolKey) || diagram.findNodeForKey(effectiveDragPoolKey)) as go.Group | null;
-                console.log(`[LANE-REORDER-SOURCE-POOL] Lane ${part.data?.key}:`, {
-                  dragStartPoolKey,
-                  effectiveDragPoolKey,
-                  sourcePoolFound: sourcePool instanceof go.Group,
-                  sourcePoolCategory: sourcePool?.category,
-                  sourcePoolTemplate: sourcePool?.data?.template,
-                });
-                if (sourcePool instanceof go.Group) {
-                  const orderedPoolLanes = getOrderedPoolLanes(sourcePool, part);
-                  const draggedLaneKey = getPartKey(part);
-                  const originalIndex = orderedPoolLanes.findIndex(
-                    (lane) => getPartKey(lane) === draggedLaneKey
-                  );
-                  console.log(`[LANE-REORDER-LANES] Lane ${part.data?.key}:`, {
-                    orderedLaneKeys: orderedPoolLanes.map((lane) => getPartKey(lane)),
-                    orderedLaneIndexes: orderedPoolLanes.map((lane) => lane.data?.laneIndex),
-                    originalIndex,
-                    laneCount: orderedPoolLanes.length,
-                  });
-                  if (originalIndex >= 0 && orderedPoolLanes.length > 1) {
-                    const laneHeight =
-                      Number(part.actualBounds?.height) ||
-                      Number(part.resizeObject?.naturalBounds?.height) ||
-                      Number(part.data?.size ? go.Size.parse(part.data.size).height : 0) ||
-                      0;
-                    const effectiveReleaseY = (() => {
-                      if (
-                        typeof dragStartY === "number" &&
-                        typeof dragMinY === "number" &&
-                        typeof dragMaxY === "number"
-                      ) {
-                        const upwardMovement = Math.abs(dragMinY - dragStartY);
-                        const downwardMovement = Math.abs(dragMaxY - dragStartY);
-                        if (downwardMovement > upwardMovement) return dragMaxY;
-                        if (upwardMovement > downwardMovement) return dragMinY;
-                      }
-                      return releaseLoc?.y ?? newLoc.y;
-                    })();
-                    resolvedPooledLaneReleaseY = effectiveReleaseY;
-                    const otherLanes = orderedPoolLanes.filter(
-                      (lane) => getPartKey(lane) !== draggedLaneKey
-                    );
-                    const effectiveLaneHeight = laneHeight > 0 ? laneHeight : 1;
-                    const effectiveDraggedCenterY = effectiveReleaseY + effectiveLaneHeight / 2;
-                    let targetIndex = otherLanes.length;
-                    for (let i = 0; i < otherLanes.length; i += 1) {
-                      const candidate = otherLanes[i];
-                      const candidateHeight =
-                        Number(candidate.actualBounds?.height) ||
-                        Number(candidate.resizeObject?.naturalBounds?.height) ||
-                        Number(
-                          candidate.data?.size
-                            ? go.Size.parse(String(candidate.data.size)).height
-                            : 0,
-                        ) ||
-                        effectiveLaneHeight;
-                      const candidateY =
-                        Number(candidate.location?.y) ||
-                        Number(parseFloat(String(candidate.data?.loc || "0 0").split(/[ ,]+/)[1] || "0")) ||
-                        0;
-                      const candidateCenterY = candidateY + candidateHeight / 2;
-                      if (effectiveDraggedCenterY < candidateCenterY) {
-                        targetIndex = i;
-                        break;
-                      }
-                    }
-                    targetIndex = Math.max(0, Math.min(otherLanes.length, targetIndex));
-                    crossedIntoNewLaneSlot = targetIndex !== originalIndex;
-                    console.log(`[LANE-REORDER-CALC] Lane ${draggedLaneKey}:`, {
-                      originalIndex,
-                      targetIndex,
-                      effectiveReleaseY,
-                      effectiveDraggedCenterY,
-                      otherLaneKeys: otherLanes.map((lane) => getPartKey(lane)),
-                      otherLaneYs: otherLanes.map((lane) => Number(lane.location?.y ?? 0)),
-                      crossedIntoNewLaneSlot,
-                    });
-                    if (crossedIntoNewLaneSlot) {
-                      const reordered = otherLanes.slice();
-                      reordered.splice(targetIndex, 0, part);
-                      console.log(`[LANE-REORDER-APPLY] Pool ${effectiveDragPoolKey}:`, {
-                        reorderedKeys: reordered.map((lane) => getPartKey(lane)),
-                      });
-                      reordered.forEach((lanePart, reorderedIndex) => {
-                        if (!lanePart?.data) return;
-                        const lanePartKey = getPartKey(lanePart);
-                        if (lanePartKey) forcedLaneIndexes.set(lanePartKey, reorderedIndex);
-                        try {
-                          diagram.model.setDataProperty(lanePart.data, "laneIndex", reorderedIndex);
-                          diagram.model.setDataProperty(lanePart.data, "__needsSwimlaneNormalization", true);
-                        } catch (_) {
-                          try { lanePart.data.laneIndex = reorderedIndex; } catch (_) { }
-                          try { lanePart.data.__needsSwimlaneNormalization = true; } catch (_) { }
-                        }
-                        try {
-                          if (lanePart.data?.objectview) {
-                            lanePart.data.objectview.laneIndex = reorderedIndex;
-                          }
-                        } catch (_) { }
-                      });
-                      preferredLaneOrders.set(
-                        effectiveDragPoolKey,
-                        reordered.map((lane) => getPartKey(lane))
-                      );
-                    }
-                  }
-                }
-              }
-              if (
-                isPooledLane &&
-                savedLaneLoc &&
-                typeof resolvedPooledLaneReleaseY === "number" &&
-                Number.isFinite(resolvedPooledLaneReleaseY)
-              ) {
-                newLoc = new go.Point(savedLaneLoc.x, resolvedPooledLaneReleaseY);
-              }
-              const isMeaningfulPooledLaneMove =
-                !isPooledLane ||
-                !savedLaneLoc ||
-                crossedIntoNewLaneSlot ||
-                (pooledLaneDy > 8 && pooledLaneDy >= pooledLaneDx);
-              
-              console.log(`[LANE-MOVE-CHECK] Lane ${part.data?.key}:`, {
-                savedLoc: savedLaneLoc ? `${savedLaneLoc.x.toFixed(2)}, ${savedLaneLoc.y.toFixed(2)}` : 'null',
-                newLoc: `${newLoc.x.toFixed(2)}, ${newLoc.y.toFixed(2)}`,
-                dragStartY: hasTrackedMovement ? dragStartY.toFixed(2) : 'N/A',
-                dragMinY: hasTrackedMovement ? dragMinY.toFixed(2) : 'N/A',
-                dragMaxY: hasTrackedMovement ? dragMaxY.toFixed(2) : 'N/A',
-                dx: pooledLaneDx.toFixed(2),
-                dy: pooledLaneDy.toFixed(2),
-                isMeaningful: isMeaningfulPooledLaneMove,
-                crossedIntoNewLaneSlot,
-                willSnapBack: !isMeaningfulPooledLaneMove && savedLaneLoc !== null
-              });
-              
-              if (!isMeaningfulPooledLaneMove && savedLaneLoc) {
-                newLoc = savedLaneLoc.copy();
-                try { part.location = savedLaneLoc.copy(); } catch (_) { }
-                const poolKey = effectiveDragPoolKey;
-                if (poolKey) poolsToSkipRelayout.add(poolKey);
-                
-                // CRITICAL: Restore member node positions when lane drag is cancelled
-                getLaneOwnedNodesForDrag(diagram, part).forEach((member: go.Node) => {
-                  const savedMemberLoc = (member as any).__laneDragOriginalLocation as go.Point | null;
-                  if (savedMemberLoc instanceof go.Point) {
-                    member.location = savedMemberLoc.copy();
-                    
-                    // Update data.loc so position persists
-                    if (member.data) {
-                      try {
-                        diagram.model.setDataProperty(member.data, "loc", go.Point.stringify(savedMemberLoc));
-                      } catch (_) {}
-                    }
-                    
-                    // Clean up saved location
-                    delete (member as any).__laneDragOriginalLocation;
-                  }
-                });
-                clearCapturedLaneOwnedNodes(part);
-              } else {
-                lanesWereDraggedDirectly = true;
-                
-                // CRITICAL: Mark pool for relayout to reposition lanes correctly
-                const poolKey = effectiveDragPoolKey;
-                if (poolKey) {
-                  // Remove from skip list if it was there
-                  poolsToSkipRelayout.delete(poolKey);
-                  console.log(`[LANE-DRAG-SUCCESS] Lane ${part.data?.key} moved, pool ${poolKey} needs relayout`);
-                }
-              }
-              let persistedPoolKey = "";
-              if (isPooledLane) {
-                if (!isMeaningfulPooledLaneMove && effectiveDragPoolKey) {
-                  persistedPoolKey = effectiveDragPoolKey;
-                } else if (targetPoolKey) {
-                  persistedPoolKey = targetPoolKey;
-                } else if (effectiveDragPoolKey) {
-                  // Reordering a lane within its current pool may finish without a fresh
-                  // target pool hit-test result. In that case the lane must remain grouped
-                  // to its original pool so the post-drop relayout can restack it.
-                  persistedPoolKey = effectiveDragPoolKey;
-                }
-              } else if (targetPoolKey) {
-                persistedPoolKey = targetPoolKey;
-              }
-
-              if (persistedPoolKey) {
-                const resolvedPool =
-                  (diagram.findPartForKey(persistedPoolKey) || diagram.findNodeForKey(persistedPoolKey)) as go.Group | null;
-                if (resolvedPool instanceof go.Group && part.containingGroup !== resolvedPool) {
-                  attachPartToGroup(diagram, part, resolvedPool, part.data);
-                }
-              } else if (part.containingGroup instanceof go.Group) {
-                detachPartToTopLevel(diagram, part, part.data);
-              }
-              try {
-                // Keep the live lane part aligned with the persisted drop position
-                // before relayout runs. Otherwise the relayout sorter still sees the
-                // old lane.y and restores the original order on mouse-up.
-                part.location = newLoc.copy();
-              } catch (_) { }
-              (part as any).__laneOriginalLocation = newLoc.copy();
-              (part as any).__laneVisibleAnchor = newLoc.copy();
-              delete (part as any).__dragReleaseLocation;
-              
-              // Clean up drag tracking properties
-              delete (part as any).__dragStartY;
-              delete (part as any).__dragMinY;
-              delete (part as any).__dragMaxY;
-              if (part.data) {
-                const locStr = go.Point.stringify(newLoc);
-                diagram.model.setDataProperty(part.data, "loc", locStr);
-                if (persistedPoolKey) {
-                  try {
-                    if (typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
-                      (diagram.model as any).setGroupKeyForNodeData(part.data, persistedPoolKey);
-                    }
-                    diagram.model.setDataProperty(part.data, "group", persistedPoolKey);
-                  } catch (_) { }
-                } else {
-                  try {
-                    if (typeof (diagram.model as any)?.setGroupKeyForNodeData === "function") {
-                      (diagram.model as any).setGroupKeyForNodeData(part.data, undefined);
-                    }
-                    diagram.model.setDataProperty(part.data, "group", "");
-                  } catch (_) { }
-                }
-                try {
-                  if (part.data.objectview) {
-                    part.data.objectview.loc = locStr;
-                    part.data.objectview.group = persistedPoolKey || "";
-                    if (typeof part.data.size === "string" && part.data.size.trim().length > 0) {
-                      part.data.objectview.size = part.data.size;
-                    }
-                  }
-                } catch (_) { }
-	                try {
-	                  const payload: any = {
-	                    id: part.data?.objectview?.id || part.data?.key || part.key,
-	                    loc: locStr,
-	                    group: persistedPoolKey || "",
-	                  };
-                    const forcedLaneIndex = forcedLaneIndexes.get(getPartKey(part));
-	                  if (typeof forcedLaneIndex === "number") {
-	                    payload.laneIndex = forcedLaneIndex;
-	                  } else if (typeof part.data?.laneIndex === "number") {
-	                    payload.laneIndex = part.data.laneIndex;
-	                  }
-                    console.log(`[LANE-DISPATCH-PAYLOAD] Lane ${getPartKey(part)}:`, {
-                      forcedLaneIndex,
-                      dataLaneIndex: part.data?.laneIndex,
-                      payloadLaneIndex: payload.laneIndex,
-                    });
-	                  if (typeof part.data?.size === "string" && part.data.size.trim().length > 0) {
-	                    payload.size = part.data.size;
-	                  }
-                  diagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-                } catch (_) { }
-              }
-              delete (part as any).__savedDesiredSize;
-              delete (part as any).__savedLaneBodySize;
-              delete (part as any).__savedLaneTotalSize;
-              const savedResizable = (part as any).__savedResizable;
-              if (savedResizable !== undefined) {
-                part.resizable = savedResizable;
-                delete (part as any).__savedResizable;
-              }
-              if ((part as any).__savedLaneDragComputation !== undefined) {
-                part.dragComputation = (part as any).__savedLaneDragComputation;
-                delete (part as any).__savedLaneDragComputation;
-              }
-              try {
-                getLaneOwnedNodesForDrag(diagram, part).forEach((member: go.Node) => {
-                  if ((member as any).__savedDragComputation !== undefined) {
-                    member.dragComputation = (member as any).__savedDragComputation;
-                    delete (member as any).__savedDragComputation;
-                  }
-                  delete (member as any).__laneDragOriginalLocation;
-                });
-              } catch (_) { }
-              clearCapturedLaneOwnedNodes(part);
-            }
-          } finally {
-            diagram.commitTransaction("update dragged lane positions");
-          }
-          
-          // CRITICAL: Clear drag flag BEFORE triggering pool layout
-          // This allows the layout we explicitly trigger to run
-          delete (diagram as any).__directLaneDragRequested;
-          
-          // CRITICAL: Trigger pool layout for pools with successfully dragged lanes
-          if (lanesWereDraggedDirectly) {
-            const poolsNeedingLayout = new Set<go.Group>();
-            for (const part of savedDraggedParts) {
-              if (!(part instanceof go.Group) || !this.isLanePart(part)) continue;
-              const dragStartPoolKey =
-                typeof (part as any).__dragStartPoolKey === "string"
-                  ? String((part as any).__dragStartPoolKey)
-                  : "";
-              const poolPart =
-                dragStartPoolKey.length > 0
-                  ? (diagram.findPartForKey(dragStartPoolKey) || diagram.findNodeForKey(dragStartPoolKey))
-                  : part.containingGroup;
-              if (poolPart instanceof go.Group) {
-                poolsNeedingLayout.add(poolPart);
-              }
-              if (part.containingGroup instanceof go.Group) {
-                poolsNeedingLayout.add(part.containingGroup);
-              }
-            }
-            poolsNeedingLayout.forEach((pool: go.Group) => {
-              console.log(`[LANE-DRAG-COMPLETE] Triggering layout for pool ${pool.data?.key}`);
-              try {
-                const preferredOrder = preferredLaneOrders.get(getPartKey(pool));
-                let memberLanes: go.Group[] = [];
-                if (preferredOrder && preferredOrder.length > 0) {
-                  console.log(`[LANE-RELAYOUT-PREFERRED-ORDER] Pool ${getPartKey(pool)}:`, {
-                    preferredOrder,
-                  });
-                  memberLanes = preferredOrder
-                    .map((laneKey) => {
-                      const lanePart =
-                        (diagram.findPartForKey(laneKey) || diagram.findNodeForKey(laneKey)) as go.Part | null;
-                      return lanePart instanceof go.Group && this.isLanePart(lanePart) ? lanePart : null;
-                    })
-                    .filter((lane): lane is go.Group => !!lane);
-                  memberLanes.forEach((lane) => {
-                    if (lane.containingGroup !== pool) {
-                      attachPartToGroup(diagram, lane, pool, lane.data);
-                    }
-                  });
-                } else {
-                  pool.memberParts.each((member) => {
-                    if (member instanceof go.Group && this.isLanePart(member)) {
-                      memberLanes.push(member);
-                    }
-                  });
-                  memberLanes.sort((a, b) => {
-                    const ay = Number(a.location?.y ?? 0);
-                    const by = Number(b.location?.y ?? 0);
-                    return ay - by;
-                  });
-                }
-                let nextLaneY = Number(pool.location?.y ?? 0);
-                memberLanes.forEach((lane, index) => {
-                    const previousLaneLoc = lane.location?.copy?.() || new go.Point(
-                      Number(lane.location?.x ?? 0),
-                      Number(lane.location?.y ?? 0),
-                    );
-                    const laneX = Number(previousLaneLoc.x ?? 0);
-                    const laneHeight =
-                      Number(lane.actualBounds?.height) ||
-                      Number(lane.resizeObject?.naturalBounds?.height) ||
-                      Number(
-                        lane.data?.size
-                          ? go.Size.parse(String(lane.data.size)).height
-                          : 0,
-                      ) ||
-                      0;
-                    const orderedLoc = new go.Point(laneX, nextLaneY);
-                    const laneOffset = orderedLoc.copy().subtract(previousLaneLoc);
-                    const originalLaneLoc =
-                      (lane as any).__laneDragOriginalLocation instanceof go.Point
-                        ? ((lane as any).__laneDragOriginalLocation as go.Point)
-                        : null;
-                    const returnedToOriginalSlot =
-                      originalLaneLoc instanceof go.Point &&
-                      orderedLoc.equalsApprox(originalLaneLoc);
-                    try { lane.location = orderedLoc.copy(); } catch (_) { }
-                    if (lane.data) {
-                      try {
-                        diagram.model.setDataProperty(
-                          lane.data,
-                          "loc",
-                          go.Point.stringify(orderedLoc),
-                        );
-                      } catch (_) { }
-                    }
-                    if (lane.data) {
-                      diagram.model.setDataProperty(lane.data, "laneIndex", index);
-                      diagram.model.setDataProperty(lane.data, "__needsSwimlaneNormalization", true);
-                    }
-                    if (lane.data?.objectview) {
-                      lane.data.objectview.loc = go.Point.stringify(orderedLoc);
-                      lane.data.objectview.laneIndex = index;
-                    }
-                    const laneOwnedNodes = collectLaneOwnedNodes(diagram, lane);
-                    if (
-                      !returnedToOriginalSlot &&
-                      !laneOffset.equalsApprox(new go.Point(0, 0))
-                    ) {
-                      const affectedLinks = new Set<go.Link>();
-                      laneOwnedNodes.forEach((member: go.Node) => {
-                        if (!(member instanceof go.Node) || member instanceof go.Group) {
-                          return;
-                        }
-              const savedMemberLoc = member.location?.copy?.();
-                        if (!(savedMemberLoc instanceof go.Point)) {
-                          return;
-                        }
-                        const shiftedLoc = savedMemberLoc.copy().add(laneOffset);
-                        try {
-                          member.location = shiftedLoc.copy();
-                        } catch (_) { }
-                        if (member.data) {
-                          try {
-                            diagram.model.setDataProperty(
-                              member.data,
-                              "loc",
-                              go.Point.stringify(shiftedLoc),
-                            );
-                          } catch (_) { }
-                          try {
-                            if (member.data.objectview) {
-                              member.data.objectview.loc = go.Point.stringify(shiftedLoc);
-                            }
-                          } catch (_) { }
-                          try {
-                            (diagram as any).dispatch?.({
-                              type: "UPDATE_OBJECTVIEW_PROPERTIES",
-                              data: {
-                                id:
-                                  member.data?.objectview?.id ||
-                                  member.data?.key ||
-                                  member.key,
-                                loc: go.Point.stringify(shiftedLoc),
-                                group: String(
-                                  member.data?.group || lane.data?.key || lane.key || "",
-                                ),
-                              },
-                            });
-                          } catch (_) { }
-                        }
-                        member.linksConnected.each((link: go.Link) => {
-                          try {
-                            affectedLinks.add(link);
-                          } catch (_) { }
-                        });
-                      });
-                      if (affectedLinks.size > 0) {
-                        affectedLinks.forEach((link) => {
-                          try { link.invalidateRoute(); } catch (_) { }
-                          try { diagram.updateAllTargetBindings(); } catch (_) { }
-                          try { diagram.requestUpdate(); } catch (_) { }
-                          try {
-                            if (typeof this.persistReshapedLinkPoints === 'function') {
-                              this.persistReshapedLinkPoints({
-                                diagram,
-                                subject: link,
-                              } as unknown as go.DiagramEvent);
-                            }
-                          } catch (_) { }
-                        });
-                      }
-                    }
-                    laneOwnedNodes.forEach((member: go.Node) => {
-                      if ((member as any).__savedDragComputation !== undefined) {
-                        member.dragComputation = (member as any).__savedDragComputation;
-                        delete (member as any).__savedDragComputation;
-                      }
-                      delete (member as any).__laneDragOriginalLocation;
-                    });
-                    delete (lane as any).__laneDragOriginalLocation;
-                    delete (lane as any).__laneDragOwnedNodes;
-                    nextLaneY += Math.max(1, laneHeight);
-                  });
-                (diagram as any).__forceLaneIndexOrderUntil = Date.now() + 2000;
-                (diagram as any).__preferLiveLaneOrderUntil = Date.now() + 2000;
-                const relayoutFn = (diagram as any).__relayoutPoolGroupAfterLaneChanges;
-                if (typeof relayoutFn === "function") {
-                  relayoutFn(diagram, pool);
-                } else {
-                  const { doGroupLayout } = require('../../../akmm/ui_diagram');
-                  if (pool.data?.objectview && doGroupLayout) {
-                    doGroupLayout(pool.data.objectview, diagram, myMetis);
-                  }
-                }
-                const persistPoolGeometry = (diagram as any).__persistInstalledSwimlanePoolGeometry;
-                if (typeof persistPoolGeometry === "function") {
-                  persistPoolGeometry(diagram, pool);
-                }
-              } catch (err) {
-                console.error(`[LANE-DRAG-COMPLETE] Layout failed for pool ${pool.data?.key}:`, err);
-              }
-            });
-            try {
-              const dispatchSnapshot = (diagram as any).__dispatchPhDataSnapshot;
-              if (typeof dispatchSnapshot === "function") {
-                dispatchSnapshot();
-              }
-            } catch (_) { }
-          }
-          
-          if (poolsToSkipRelayout.size > 0) {
-            const existing: Set<string> =
-              Number((diagram as any).__skipPoolRelayoutUntil || 0) > Date.now() &&
-              (diagram as any).__skipPoolRelayoutKeys instanceof Set
-                ? (diagram as any).__skipPoolRelayoutKeys as Set<string>
-                : new Set<string>();
-            poolsToSkipRelayout.forEach((key) => existing.add(key));
-            (diagram as any).__skipPoolRelayoutKeys = existing;
-            (diagram as any).__skipPoolRelayoutUntil = Date.now() + 5000;
-          }
-          return lanesWereDraggedDirectly;
-        }
-
-        private restoreLanesAfterDeactivate(diagram: go.Diagram, savedDraggedParts: go.Part[]): void {
-          if (savedDraggedParts.length === 0) return;
-          const savedDraggedPartsMap = new go.Map<go.Part, go.DraggingInfo>();
-          savedDraggedParts.forEach((part: go.Part) => {
-            savedDraggedPartsMap.add(part, new go.DraggingInfo(part.location.copy()));
-          });
-          const selectedLaneGroups = this.getSelectedLaneGroups(diagram);
-          const lanesToRestore = this.collectMemberDraggedLanesToRestore(
-            savedDraggedPartsMap,
-            new Set<string>(),
-            selectedLaneGroups
-          );
-
-          // Successful direct lane drags already persisted their lane order and member locations.
-          // Restoring them again here replays stale pre-drag member coordinates and causes the
-          // "jump back up" bug when a lane is dragged away and dropped back into place.
-          if ((diagram as any)?.__skipLaneRestoreAfterDirectDrag) {
-            delete (diagram as any).__skipLaneRestoreAfterDirectDrag;
-            return;
-          }
-          if ((diagram as any)?.__directLaneDragUntil > Date.now()) {
-            return;
-          }
-
-          if (lanesToRestore.size === 0) return;
-          diagram.startTransaction("restore lane positions");
-          try {
-            lanesToRestore.forEach((_savedLoc: go.Point, lane: go.Group) => {
-              const before = lane.location.copy();
-              this.restoreLaneToSavedAnchor(lane);
-              const after = lane.location.copy();
-              
-              // If lane position changed, restore member nodes too
-              if (!after.equalsApprox(before)) {
-                const laneOffset = after.copy().subtract(before);
-                console.log(`[RESTORE-LANE] Lane ${lane.data?.key} moved:`, {
-                  before: go.Point.stringify(before),
-                  after: go.Point.stringify(after),
-                  offset: go.Point.stringify(laneOffset)
-                });
-                
-                // Preserve the members' live drop positions while restoring the lane anchor.
-                collectLaneOwnedNodes(diagram, lane).forEach((member: go.Node) => {
-                  const savedMemberLoc = member.location?.copy?.();
-                  if (savedMemberLoc instanceof go.Point) {
-                    console.log(`[RESTORE-LANE] Restoring member node ${member.data?.key}:`, {
-                      savedLoc: go.Point.stringify(savedMemberLoc),
-                      currentLoc: go.Point.stringify(member.location)
-                    });
-                    member.location = savedMemberLoc.copy();
-                    
-                    // Update data.loc so position persists
-                    if (member.data && diagram.model) {
-                      try {
-                        diagram.model.setDataProperty(member.data, "loc", go.Point.stringify(savedMemberLoc));
-                      } catch (_) {}
-                    }
-                    
-                    // Clean up saved location
-                    delete (member as any).__laneDragOriginalLocation;
-                  }
-                });
-                
-                // Update lane data.loc
-                if (lane.data) {
-                  const locStr = go.Point.stringify(lane.location);
-                  diagram.model.setDataProperty(lane.data, "loc", locStr);
-                }
-              }
-            });
-          } finally {
-            diagram.commitTransaction("restore lane positions");
-          }
-        }
-
-        private restoreLaneLocksAfterDeactivate(diagram: go.Diagram, savedDraggedParts: go.Part[]): void {
-          if (savedDraggedParts.length === 0) return;
-          
-          // Clean up directly-dragged lanes first
-          savedDraggedParts.forEach((part: go.Part) => {
-            if (this.isLanePart(part) && part instanceof go.Group) {
-              const lane = part as go.Group;
-              // Clean up drag tracking flags
-              delete (lane as any).__dragStartY;
-              delete (lane as any).__dragMinY;
-              delete (lane as any).__dragMaxY;
-              // Restore isLayoutPositioned after drag
-              const savedIsLayoutPositioned = (lane as any).__savedIsLayoutPositioned;
-              if (savedIsLayoutPositioned !== undefined) {
-                lane.isLayoutPositioned = savedIsLayoutPositioned;
-                delete (lane as any).__savedIsLayoutPositioned;
-              }
-              if ((lane as any).__savedLaneDragComputation !== undefined) {
-                lane.dragComputation = (lane as any).__savedLaneDragComputation;
-                delete (lane as any).__savedLaneDragComputation;
-              }
-              delete (lane as any).__lanePoolMoveOriginalLocation;
-            } else if (this.isPoolPart(part) && part instanceof go.Group) {
-              const savedIsLayoutPositioned = (part as any).__savedIsLayoutPositioned;
-              if (savedIsLayoutPositioned !== undefined) {
-                part.isLayoutPositioned = savedIsLayoutPositioned;
-                delete (part as any).__savedIsLayoutPositioned;
-              }
-              try {
-                part.memberParts.each((member: go.Part) => {
-                  if (!this.isLanePart(member)) return;
-                  const savedMemberIsLayoutPositioned = (member as any).__savedIsLayoutPositioned;
-                  if (savedMemberIsLayoutPositioned !== undefined) {
-                    member.isLayoutPositioned = savedMemberIsLayoutPositioned;
-                    delete (member as any).__savedIsLayoutPositioned;
-                  }
-                });
-              } catch (_) { }
-              delete (part as any).__poolOriginalLocation;
-            }
-          });
-          
-          // Then restore locks for member nodes' containing lanes
-          for (const part of savedDraggedParts) {
-            if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-            const containingGroup = part.containingGroup;
-            if (!this.isLanePart(containingGroup)) continue;
-            const savedMovable = (containingGroup as any).__savedMovable;
-            const savedIsLayoutPositioned = (containingGroup as any).__savedIsLayoutPositioned;
-            if (savedMovable !== undefined) {
-              containingGroup.movable = savedMovable;
-              delete (containingGroup as any).__savedMovable;
-            }
-            if (savedIsLayoutPositioned !== undefined) {
-              containingGroup.isLayoutPositioned = savedIsLayoutPositioned;
-              delete (containingGroup as any).__savedIsLayoutPositioned;
-            }
-          }
-        }
-
-        private applyLaneReparentingAfterDrag(
-          diagram: go.Diagram,
-          dragged: go.Map<go.Part, go.DraggingInfo>,
-          dropPt: go.Point,
-          allowGlobal: boolean,
-          allowKeys?: Set<string>
-        ): void {
-          diagram.commit((d: go.Diagram) => {
-            const laneBodyBounds = (g: go.Group): go.Rect | null => {
-              const body =
-                (g.findObject("LANE_BODY_SHAPE") ||
-                  g.findObject("BODY")) as go.GraphObject | null;
-              return body ? body.getDocumentBounds() : null;
-            };
-            const findLaneAtPoint = (pt: go.Point): go.Group | null => {
-              let best: { area: number; lane: go.Group } | null = null;
-              d.nodes.each((n: go.Node) => {
-                if (!(n instanceof go.Group)) return;
-                const cat = String(n.data?.category || n.data?.template || n.category || "");
-                if (!cat.startsWith("Lane")) return;
-                const r = laneBodyBounds(n);
-                if (!r || !r.containsPoint(pt)) return;
-                const area = Math.max(1, r.width * r.height);
-                if (!best || area < best.area) best = { area, lane: n };
-              });
-              return best ? best.lane : null;
-            };
-            const findLaneByOverlap = (part: go.Node): go.Group | null => {
-              const nb = part.actualBounds;
-              let best: { overlap: number; area: number; lane: go.Group } | null = null;
-              d.nodes.each((n: go.Node) => {
-                if (!(n instanceof go.Group)) return;
-                const cat = String(n.data?.category || n.data?.template || n.category || "");
-                if (!cat.startsWith("Lane")) return;
-                const gb = laneBodyBounds(n);
-                if (!gb) return;
-                const ix1 = Math.max(nb.x, gb.x);
-                const iy1 = Math.max(nb.y, gb.y);
-                const ix2 = Math.min(nb.right, gb.right);
-                const iy2 = Math.min(nb.bottom, gb.bottom);
-                const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
-                if (overlap <= 0) return;
-                const area = Math.max(1, gb.width * gb.height);
-                if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
-                  best = { overlap, area, lane: n };
-                }
-              });
-              return best ? best.lane : null;
-            };
-
-            const targetLane = findLaneAtPoint(dropPt) || ((): go.Group | null => {
-              for (let it = dragged.iterator; it?.next();) {
-                const p: go.Part = it.key;
-                if (p instanceof go.Node && !(p instanceof go.Group)) return findLaneByOverlap(p);
-              }
-              return null;
-            })();
-            const targetKey = targetLane ? String(targetLane.data?.key || targetLane.key || "") : "";
-
-            for (let it = dragged.iterator; it?.next();) {
-              const part: go.Part = it.key;
-              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
-              const k = part.data?.key;
-              const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
-              if (!allowed) continue;
-              if (!targetLane || !targetKey) continue;
-              const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
-              if (cur === targetKey) continue;
-              const oldGrp = part.containingGroup;
-              if (oldGrp && oldGrp !== targetLane) {
-                const s = new go.Set<go.Part>();
-                s.add(part);
-                oldGrp.removeMembers(s, true);
-              }
-              if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
-                (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
-              } else {
-                d.model.setDataProperty(part.data, "group", targetKey);
-              }
-              targetLane.addMembers(new go.Set<go.Part>().add(part), true);
-            }
-          }, "SwimlaneShiftReparent");
-        }
-
-        override doMouseMove(): void {
-          super.doMouseMove();
-
-          // Track min/max Y after GoJS has applied the live drag position.
-          // Sampling before super.doMouseMove() records the previous location
-          // and can cause direct lane drags to be misclassified as no-ops.
-          const diagram = this.diagram;
-          if (diagram && this.draggedParts) {
-            for (let it = this.draggedParts.iterator; it?.next();) {
-              const part = it.key;
-              if (this.isLanePart(part)) {
-                const currentY = part.location.y;
-                const minY = (part as any).__dragMinY;
-                const maxY = (part as any).__dragMaxY;
-                const dragStartY = (part as any).__dragStartY;
-                
-                console.log(`[MOUSE-MOVE] Lane ${part.data?.key} location:`, {
-                  x: part.location.x.toFixed(2),
-                  y: currentY.toFixed(2),
-                  dragStartY: typeof dragStartY === 'number' ? dragStartY.toFixed(2) : 'N/A',
-                  minY: typeof minY === 'number' ? minY.toFixed(2) : 'N/A',
-                  maxY: typeof maxY === 'number' ? maxY.toFixed(2) : 'N/A',
-                  isLayoutPositioned: part.isLayoutPositioned,
-                  movable: part.movable
-                });
-                
-                if (typeof minY === 'number') {
-                  (part as any).__dragMinY = Math.min(minY, currentY);
-                }
-                if (typeof maxY === 'number') {
-                  (part as any).__dragMaxY = Math.max(maxY, currentY);
-                }
-              }
-            }
-          }
-        }
-
-        override doMouseUp(): void {
-          super.doMouseUp();
-        }
-
-	      override doActivate() {
-	        const diagram = this.diagram;
-          console.log(`[DOACTIVATE] Starting doActivate`);
-          
-          // Check for stored clicked lane instead of selection (selection is empty when doActivate runs)
-          const clickedLane = (this as any).__clickedLane;
-          const clickedPool = (this as any).__clickedPool;
-          const directLaneDragRequested = !!clickedLane && clickedLane instanceof go.Group && this.isLanePart(clickedLane);
-          const directPoolDragRequested = !!clickedPool && clickedPool instanceof go.Group && (
-            clickedPool.data?.category === "Pool" ||
-            clickedPool.data?.template === "Pool" ||
-            clickedPool.category === "Pool"
-          );
-          
-          console.log(`[DOACTIVATE] clickedLane:`, {
-            hasLane: !!clickedLane,
-            key: clickedLane?.data?.key || clickedPool?.data?.key,
-            directLaneDragRequested,
-            directPoolDragRequested
-          });
-          
-          if (diagram) {
-            if (directLaneDragRequested) {
-              (diagram as any).__directLaneDragRequested = true;
-              
-              // Keep pool's isOngoing=true so it continuously reorders lanes as we drag
-              // The layout's comparer will sort lanes by Y position in real-time
-              console.log(`[LANE-DRAG] Starting lane drag, pool layout will reorder continuously`);
-            } else if (directPoolDragRequested) {
-              (diagram as any).__directPoolDragRequested = true;
-            } else {
-              delete (diagram as any).__directLaneDragRequested;
-              delete (diagram as any).__directPoolDragRequested;
-              delete (diagram as any).__draggedLaneGroupKeys;
-              delete (diagram as any).__directLaneDragActive;
-            }
-          }
-          if (diagram && !directLaneDragRequested) {
-            try { delete (diagram as any).__pooledLaneDragContext; } catch (_) { }
-          }
-	        // MUST call super.doActivate() first so draggedParts is populated
-	        super.doActivate();
-          if (this.isCopyLikeDrag()) {
-            if (diagram) {
-              try { delete (diagram as any).__directLaneDragRequested; } catch (_) { }
-              try { delete (diagram as any).__directPoolDragRequested; } catch (_) { }
-              try { delete (diagram as any).__draggedLaneGroupKeys; } catch (_) { }
-              try { delete (diagram as any).__directLaneDragActive; } catch (_) { }
-            }
-            return;
-          }
-	        
-	        const draggedParts = this.draggedParts;
-	        const { activeDraggedLanes, ordinaryNodeDrag } =
-            this.collectActiveDraggedLanes(diagram, draggedParts);
-          let pooledDirectLaneDrag = false;
-          const pooledDraggedLaneKeys = new Set<string>();
-          const pooledDraggedPoolKeys = new Set<string>();
-          if (diagram && directLaneDragRequested && activeDraggedLanes.length > 0) {
-            try {
-              for (const part of activeDraggedLanes) {
-                if (!this.isLanePart(part)) continue;
-                if (part.containingGroup instanceof go.Group) {
-                  pooledDirectLaneDrag = true;
-                  const laneKey = part.data?.key ?? part.key;
-                  const poolKey = part.containingGroup.data?.key ?? part.containingGroup.key;
-                  if (laneKey !== undefined && laneKey !== null) {
-                    pooledDraggedLaneKeys.add(String(laneKey));
-                  }
-                  if (poolKey !== undefined && poolKey !== null) {
-                    pooledDraggedPoolKeys.add(String(poolKey));
-                  }
-                }
-                this.prepareDirectDraggedLane(part);
-              }
-            } catch (_) { }
-          }
-          if (pooledDirectLaneDrag) {
-            try {
-              (diagram as any).__pooledLaneDragContext = {
-                active: true,
-                until: Date.now() + 5000,
-                laneKeys: pooledDraggedLaneKeys,
-                poolKeys: pooledDraggedPoolKeys,
-              };
-            } catch (_) { }
-          }
-          if (diagram && directPoolDragRequested && draggedParts) {
-            try {
-              for (let it = draggedParts.iterator; it?.next();) {
-                const part = it.key;
-                if (!this.isPoolPart(part)) continue;
-                this.prepareDirectDraggedPool(part);
-              }
-            } catch (_) { }
-          }
-	        
-          if (diagram) {
-            const draggedLaneKeys = this.getDraggedLaneKeys(
-              diagram,
-              this.draggedParts,
-              directLaneDragRequested
-            );
-	        
-	          if (ordinaryNodeDrag) {
-	            this.prepareOrdinaryNodeDrag(diagram, draggedLaneKeys);
-	          }
+	      private constraintLaneCache: Map<go.Part, go.Group> = new Map();
+	      private linkRoutesAtDragStart = new Map<string, number[]>();
+	      private linkRouteEndpointsAtDragStart = new Map<string, { from: go.Point | null; to: go.Point | null }>();
+	      private laneContentAtDragStart = new Map<go.Group, {
+	        bounds: go.Rect;
+	        location: go.Point;
+	        nodes: Array<{ node: go.Node; location: go.Point }>;
+	      }>();
+
+	      private captureLaneContentAtDragStart(diagram: go.Diagram) {
+	        this.laneContentAtDragStart.clear();
+	        const lanes: Array<{ group: go.Group; bounds: go.Rect }> = [];
+	        diagram.nodes.each((part: go.Node) => {
+	          if (!(part instanceof go.Group)) return;
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          if (!(category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane"))) return;
+	          const body =
+	            (part.findObject("LANE_BODY_SHAPE") || part.findObject("BODY")) as go.GraphObject | null;
+	          const bounds = body ? body.getDocumentBounds() : part.actualBounds;
+	          if (bounds.isReal()) lanes.push({ group: part, bounds: bounds.copy() });
+	        });
+	        for (const lane of lanes) {
+	          const nodes: Array<{ node: go.Node; location: go.Point }> = [];
+	          diagram.nodes.each((node: go.Node) => {
+	            if (node instanceof go.Group || !node.actualBounds.isReal()) return;
+	            if (lane.bounds.containsPoint(node.actualBounds.center)) {
+	              nodes.push({ node, location: node.location.copy() });
+	            }
+	          });
+	          this.laneContentAtDragStart.set(lane.group, {
+	            bounds: lane.bounds,
+	            location: lane.group.location.copy(),
+	            nodes,
+	          });
 	        }
 	      }
 
-	      override doMouseMove() {
-          if (this.isCopyLikeDrag()) {
-            super.doMouseMove();
-            return;
-          }
-	        const diagram = this.diagram;
-	        const draggedLaneKeys: Set<string> =
-	          ((diagram as any)?.__draggedLaneGroupKeys instanceof Set)
-	            ? ((diagram as any).__draggedLaneGroupKeys as Set<string>)
-	            : new Set<string>();
-	        const selectedLaneGroups = this.getSelectedLaneGroups(diagram);
-          const directLaneDragRequested = Boolean((diagram as any)?.__directLaneDragRequested);
-	        const directLaneDragActive =
-	          directLaneDragRequested &&
-	          (draggedLaneKeys.size > 0 || selectedLaneGroups.size > 0);
-	        
-	        const swimlaneCoreEnabled = Boolean(diagram && swimlane.isGoJSSwimlaneCoreEnabled(diagram));
-	        // Legacy member-drag lane restoration conflicts with the installed swimlane core.
-	        // In core mode, ordinary node drags should not snapshot/restore parent-lane geometry.
-	        // CRITICAL: Restore lane positions BEFORE super.doMouseMove() to prevent visual jump
-	        try {
-	          if (diagram && this.draggedParts && !directLaneDragActive && !swimlaneCoreEnabled) {
-	            this.restoreMemberDraggedLanePositions(
-                diagram,
-                draggedLaneKeys,
-                selectedLaneGroups
-              );
+	      private captureLinkRoutesAtDragStart() {
+	        this.linkRoutesAtDragStart.clear();
+	        this.linkRouteEndpointsAtDragStart.clear();
+	        const draggedParts = this.draggedParts;
+	        const nodes = new go.Set<go.Node>();
+	        const nodeKeys = new Set<string>();
+	        const collectNodes = (part: go.Part) => {
+	          if (part instanceof go.Node && !(part instanceof go.Group)) nodes.add(part);
+	          if (!(part instanceof go.Group)) return;
+	          part.memberParts.each((member: go.Part) => collectNodes(member));
+	        };
+	        for (let it = draggedParts?.iterator; it?.next();) {
+	          collectNodes(it.key as go.Part);
+	        }
+	        nodes.each((part: go.Node) => {
+	          if (part.data?.key !== undefined && part.data?.key !== null) {
+	            nodeKeys.add(String(part.data.key));
 	          }
-	        } catch (_) {}
+	          part.linksConnected.each((link: go.Link) => {
+	            const key = link.data?.key;
+	            if (!key || this.linkRoutesAtDragStart.has(String(key))) return;
+	            if (link.routing !== go.Link.Orthogonal && link.routing !== go.Link.AvoidsNodes) return;
+	            const points: number[] = [];
+	            try {
+	              for (let pt = link.points.iterator; pt?.next();) {
+	                const point = pt.value;
+	                if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) {
+	                  points.push(point.x, point.y);
+	                }
+	              }
+	            } catch (_) { }
+	            if (points.length >= 4) {
+	              const linkKey = String(key);
+	              this.linkRoutesAtDragStart.set(linkKey, points);
+	              this.linkRouteEndpointsAtDragStart.set(linkKey, {
+	                from: link.fromNode?.location?.copy() || null,
+	                to: link.toNode?.location?.copy() || null,
+	              });
+	            }
+	          });
+	        });
+	        if (this.diagram) (this.diagram as any).__effectiveDraggedNodeKeys = nodeKeys;
+	      }
 
+	      // A reshaped link belongs to the user, not to the router.  Capture it at
+	      // drag start for every node (not just Lane members), before GoJS gets a
+	      // chance to replace its bends with an automatic route.
+	      private captureManualLinkRoutesAtDragStart() {
+	        const diagram = this.diagram;
+	        if (!diagram) return;
+	        const routes = new Map<string, number[]>();
+	        const reshapedRoutes: Map<string, number[]> =
+	          (diagram as any).__reshapedLinkRoutes instanceof Map
+	            ? (diagram as any).__reshapedLinkRoutes
+	            : new Map<string, number[]>();
+	        const nodes = new go.Set<go.Node>();
+	        const collectNodes = (part: go.Part) => {
+	          if (part instanceof go.Node && !(part instanceof go.Group)) nodes.add(part);
+	          if (part instanceof go.Group) part.memberParts.each((member: go.Part) => collectNodes(member));
+	        };
+	        for (let it = this.draggedParts?.iterator; it?.next();) collectNodes(it.key as go.Part);
+	        nodes.each((node: go.Node) => {
+	          node.linksConnected.each((link: go.Link) => {
+	            const key = link.data?.key;
+	            const relview = link.data?.relshipview;
+	            const linkKey = String(key || "");
+	            const cachedPoints = reshapedRoutes.get(linkKey);
+	            if (!key || routes.has(linkKey) ||
+	              (!link.data?.__manualPath && !relview?.__manualPath && !cachedPoints)) return;
+	            const readPoints = (source: any): number[] => {
+	              if (Array.isArray(source)) return source.filter((value: any) => Number.isFinite(value));
+	              const result: number[] = [];
+	              try {
+	                for (let pointIt = source?.iterator; pointIt?.next();) {
+	                  const point = pointIt.value;
+	                  if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) result.push(point.x, point.y);
+	                }
+	              } catch (_) { }
+	              return result;
+	            };
+	            // React/model reconciliation can have already recalculated the
+	            // live GoJS route by this point. The saved relationship route is
+	            // the authoritative source for a link marked as manually shaped.
+	            const points = [cachedPoints, link.data?.points, relview?.points, link.points]
+	              .map(readPoints)
+	              .find((candidate) => candidate.length >= 4) || [];
+            if (points.length < 4) return;
+	            routes.set(linkKey, points);
+	            this.linkRoutesAtDragStart.set(linkKey, points);
+	            this.linkRouteEndpointsAtDragStart.set(linkKey, {
+	              from: link.fromNode?.location?.copy() || null,
+	              to: link.toNode?.location?.copy() || null,
+	            });
+	            try {
+	              const pointList = new go.List<go.Point>();
+	              for (let i = 0; i + 1 < points.length; i += 2) pointList.add(new go.Point(points[i], points[i + 1]));
+	              link.points = pointList;
+	            } catch (_) { }
+	          });
+	        });
+	        if (routes.size > 0) {
+	          // Keep the old Lane-specific property while older drop handling is
+	          // still present, and expose a general snapshot for ordinary nodes.
+	          (diagram as any).__manualLinkPointsBeforeMove = routes;
+	          (diagram as any).__laneManualLinkPointsBeforeMove = routes;
+	          (diagram as any).__manualLinkMovePreview = new Map(routes);
+	          (diagram as any).__preserveLinkRoutesDuringDrag = true;
+	        } else {
+	          delete (diagram as any).__manualLinkPointsBeforeMove;
+	          delete (diagram as any).__laneManualLinkPointsBeforeMove;
+	        }
+	      }
+
+	      private reanchorRouteToCurrentEndpoints(link: go.Link, source: number[]): number[] {
+	        const points = [...source];
+	        if (points.length < 4) return points;
+	        const anchor = (isFrom: boolean) => {
+	          const node = isFrom ? link.fromNode : link.toNode;
+	          const port = (isFrom ? link.fromPort : link.toPort) || node?.port || node;
+	          if (!node || !port) return;
+	          const endpoint = isFrom ? 0 : points.length - 2;
+	          const adjacent = isFrom ? 2 : points.length - 4;
+	          const current = new go.Point(points[endpoint], points[endpoint + 1]);
+	          const next = new go.Point(points[adjacent], points[adjacent + 1]);
+	          const anchored = current.copy();
+	          try {
+	            link.getLinkPointFromPoint(node, port as go.GraphObject, current, next, isFrom, anchored);
+	            points[endpoint] = anchored.x;
+	            points[endpoint + 1] = anchored.y;
+	            if (Math.abs(next.y - current.y) <= Math.abs(next.x - current.x)) {
+	              points[adjacent + 1] = anchored.y;
+	            } else {
+	              points[adjacent] = anchored.x;
+	            }
+	          } catch (_) { }
+	        };
+	        anchor(true);
+	        anchor(false);
+	        return points;
+	      }
+
+	      private keepLinkRoutesDuringDrag() {
+	        const diagram = this.diagram;
+	        this.linkRoutesAtDragStart.forEach((points, key) => {
+	          const link = diagram?.findLinkForKey(key);
+	          if (!(link instanceof go.Link)) return;
+	          const endpoints = this.linkRouteEndpointsAtDragStart.get(key);
+	          const fromDelta = endpoints?.from && link.fromNode
+	            ? new go.Point(link.fromNode.location.x - endpoints.from.x, link.fromNode.location.y - endpoints.from.y)
+	            : null;
+	          const toDelta = endpoints?.to && link.toNode
+	            ? new go.Point(link.toNode.location.x - endpoints.to.x, link.toNode.location.y - endpoints.to.y)
+	            : null;
+	          const movesTogether = fromDelta && toDelta &&
+	            Math.abs(fromDelta.x - toDelta.x) < 0.01 && Math.abs(fromDelta.y - toDelta.y) < 0.01;
+	          const anchored = movesTogether
+	            ? points.map((value, index) => value + (index % 2 === 0 ? fromDelta!.x : fromDelta!.y))
+	            : this.reanchorRouteToCurrentEndpoints(link, points);
+	          try {
+	            const list = new go.List<go.Point>();
+	            for (let i = 0; i + 1 < anchored.length; i += 2) {
+	              list.add(new go.Point(anchored[i], anchored[i + 1]));
+	            }
+	            link.points = list;
+	          } catch (_) { }
+	        });
+	      }
+
+	      private restoreLaneContentAfterLayout(
+	        diagram: go.Diagram,
+	        snapshots: Map<go.Group, { bounds: go.Rect; location: go.Point; nodes: Array<{ node: go.Node; location: go.Point }> }> = this.laneContentAtDragStart
+	      ) {
+	        snapshots.forEach((snapshot, lane) => {
+	          lane.ensureBounds();
+	          const body =
+	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
+	          const currentBounds = body ? body.getDocumentBounds() : lane.actualBounds;
+	          const currentLocation = lane.location;
+	          // The body displacement preserves a node's position inside the visible lane.
+	          // Use group location only when a body has no real bounds.
+	          const deltaX = currentBounds.isReal()
+	            ? currentBounds.x - snapshot.bounds.x
+	            : currentLocation.x - snapshot.location.x;
+	          const deltaY = currentBounds.isReal()
+	            ? currentBounds.y - snapshot.bounds.y
+	            : currentLocation.y - snapshot.location.y;
+	          if (!Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+	          for (const { node, location } of snapshot.nodes) {
+	            if (node.diagram !== diagram) continue;
+	            const target = new go.Point(location.x + deltaX, location.y + deltaY);
+	            node.move(target);
+	            diagram.model.setDataProperty(node.data, "loc", go.Point.stringify(target));
+	          }
+	        });
+	      }
+
+	      private persistRestoredLaneContent(
+	        diagram: go.Diagram,
+	        snapshots: Map<go.Group, { bounds: go.Rect; location: go.Point; nodes: Array<{ node: go.Node; location: go.Point }> }>
+	      ) {
+	        const dispatch = (diagram as any).dispatch;
+	        if (typeof dispatch !== "function") return;
+	        snapshots.forEach((snapshot) => {
+	          snapshot.nodes.forEach(({ node }) => {
+	            const data = node.data;
+	            const objectview = data?.objectview;
+	            const id = objectview?.id || data?.objviewRef || data?.key;
+	            if (!id || !node.location?.isReal()) return;
+	            const payload = {
+	              ...(objectview || {}),
+	              id,
+	              loc: go.Point.stringify(node.location),
+	              ...(typeof data?.group === "string" ? { group: data.group } : {}),
+	            };
+	            try { dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data: payload }); } catch (_) { }
+	          });
+	        });
+	      }
+
+	      override computeEffectiveCollection(parts: Iterable<go.Part>, options?: go.DraggingOptions) {
+	        // Keep ordinary group drags unchanged, but include a dragged lane's formal
+	        // members *and* nodes visually contained in its body. Some legacy models only
+	        // record the latter relationship geometrically rather than as Group membership.
+	        // The base GoJS implementation requires a GoJS collection with an `iterator`.
+	        // Do not turn this into a plain JavaScript array before passing it back.
+	        const selectedParts = new go.Set<go.Part>();
+	        for (const part of parts) selectedParts.add(part);
+	        const lanes = new go.Set<go.Group>();
+	        const pools: go.Group[] = [];
+	        for (const part of selectedParts) {
+	          if (!(part instanceof go.Group)) continue;
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          if (category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	            lanes.add(part);
+	          } else if (category === "Pool") {
+	            pools.push(part);
+	          }
+	        }
+	        const diagram = this.diagram;
+	        const isLane = (part: go.Part) => {
+	          const category = String(part.data?.template || part.data?.category || part.category || "");
+	          return category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+	        };
+	        // A Pool drag must include its lanes before their content can be expanded.
+	        // Prefer the persisted group tree and also support legacy visual containment.
+	        for (const pool of pools) {
+	          pool.memberParts.each((member: go.Part) => {
+	            if (member instanceof go.Group && isLane(member)) lanes.add(member);
+	          });
+	          const poolBody =
+	            (pool.findObject("POOL_SHAPE") || pool.findObject("SHAPE") || pool.findObject("BODY")) as go.GraphObject | null;
+	          const poolBounds = poolBody ? poolBody.getDocumentBounds() : pool.actualBounds;
+	          if (!poolBounds.isReal()) continue;
+	          diagram?.nodes.each((candidate: go.Node) => {
+	            if (candidate instanceof go.Group && isLane(candidate) &&
+	                candidate.actualBounds.isReal() && poolBounds.containsPoint(candidate.actualBounds.center)) {
+	              lanes.add(candidate);
+	            }
+	          });
+	        }
+	        if (lanes.count === 0) {
+	          return super.computeEffectiveCollection(selectedParts, options as go.DraggingOptions);
+	        }
+
+	        const dragParts = new go.Set<go.Part>();
+	        selectedParts.forEach((part) => dragParts.add(part));
+	        for (const lane of lanes) {
+	          // A Pool already translates Lane members that are formally grouped in it.
+	          // Adding them again makes a subsequent Pool drag apply the translation twice.
+	          const laneAlreadyMovesWithSelectedPool = pools.some((pool) => lane.containingGroup === pool);
+	          if (!laneAlreadyMovesWithSelectedPool) dragParts.add(lane);
+	          const body =
+	            (lane.findObject("LANE_BODY_SHAPE") || lane.findObject("BODY")) as go.GraphObject | null;
+	          const bodyBounds = body ? body.getDocumentBounds() : lane.actualBounds;
+	          if (!bodyBounds.isReal()) continue;
+	          diagram?.nodes.each((candidate: go.Node) => {
+	            if (candidate instanceof go.Group || !candidate.actualBounds.isReal()) return;
+	            // Formal Lane members move when their Lane moves. Only add legacy nodes
+	            // that are visually inside a Lane but have no matching group membership.
+	            if (candidate.containingGroup !== lane && bodyBounds.containsPoint(candidate.actualBounds.center)) {
+	              dragParts.add(candidate);
+	            }
+	          });
+	        }
+
+	        return super.computeEffectiveCollection(dragParts, options as go.DraggingOptions);
+	      }
+
+	      override doActivate() {
+	        const diagram = this.diagram;
+	        // A fresh drag supersedes post-move locks before GoJS writes locations.
+	        const releasePart = (part: go.Part) => {
+	          releaseNodeDragProtection(diagram, part.data);
+	          if (part instanceof go.Group) part.memberParts.each(releasePart);
+	        };
+	        diagram?.selection.each(releasePart);
+	        const draggedParts = this.draggedParts;
+	        let ordinaryNodeDrag = false;
+	        let swimlaneDrag = false;
+	        if (draggedParts) {
+	          for (let it = draggedParts.iterator; it?.next();) {
+	            const part: go.Part = it.key;
+	            if (part instanceof go.Group) {
+	              const category = String(part.data?.template || part.data?.category || part.category || "");
+	              if (category === "Pool" || category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	                swimlaneDrag = true;
+	              }
+	            }
+	            if (part instanceof go.Node && !(part instanceof go.Group)) {
+	              ordinaryNodeDrag = true;
+	            }
+	          }
+	        }
+	        if (diagram && ordinaryNodeDrag) {
+	          try {
+	            (diagram as any).__suppressObjectSingleClickUntil = Date.now() + 1200;
+	          } catch (_) { }
+	        }
+	        super.doActivate();
+	        // Effective dragged parts may include additional lane/pool content.
+	        for (let it = this.draggedParts?.iterator; it?.next();) {
+	          releaseNodeDragProtection(diagram, it.key?.data);
+	        }
+	        // At this point GoJS has finalized `draggedParts`. The collection can be empty
+	        // before activation, which previously skipped this repair for an empty lane.
+	        if (!swimlaneDrag) {
+	          const activeDraggedParts = this.draggedParts;
+	          for (let it = activeDraggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Group)) continue;
+	            const category = String(part.data?.template || part.data?.category || part.category || "");
+	            if (category === "Pool" || category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	              swimlaneDrag = true;
+	              break;
+	            }
+	          }
+	        }
+	        // Remember visual ownership before the dragged lane can overlap another lane.
+	        // This lets lane stacking move content with its original lane, even for legacy
+	        // models that do not persist lane membership on every node.
+	        if (diagram && swimlaneDrag) {
+	          this.captureLaneContentAtDragStart(diagram);
+	        }
+	        if (diagram && swimlaneDrag) {
+	          // Pool/Lane drags translate many endpoints together. Keep their
+	          // preview route only for that container operation. For an ordinary
+	          // node drag GoJS must own live endpoint attachment at all times.
+	          this.captureLinkRoutesAtDragStart();
+	          (diagram as any).__preserveLinkRoutesDuringDrag = true;
+	          if (this.linkRoutesAtDragStart.size > 0) {
+	            (diagram as any).__manualLinkMovePreview = new Map(this.linkRoutesAtDragStart);
+	          }
+	        } else if (diagram) {
+	          this.linkRoutesAtDragStart.clear();
+	          this.linkRouteEndpointsAtDragStart.clear();
+	          delete (diagram as any).__manualLinkMovePreview;
+	          delete (diagram as any).__effectiveDraggedNodeKeys;
+	          delete (diagram as any).__preserveLinkRoutesDuringDrag;
+	          this.captureManualLinkRoutesAtDragStart();
+	        }
+	        this.constraintLaneCache.clear();
+	      }
+
+	      override doMouseMove() {
+	        const diagram = this.diagram;
+	        if ((diagram as any)?.__preserveLinkRoutesDuringDrag) {
 	        try {
-	          const manualLinkMovePreview = this.captureManualLinkMovePreview(this.draggedParts, draggedLaneKeys);
+	          const draggedParts = this.draggedParts;
+	          const existingPreview = (diagram as any)?.__manualLinkMovePreview;
+	          const manualLinkMovePreview =
+	            existingPreview instanceof Map && existingPreview.size > 0
+	              ? existingPreview
+	              : new Map<string, number[]>();
+	          if (!(existingPreview instanceof Map) || existingPreview.size === 0) {
+	          for (let it = draggedParts?.iterator; it?.next();) {
+	            const part = it.key as go.Part;
+	            if (!(part instanceof go.Node) || !part.data?.key) continue;
+	            part.linksConnected.each((link: go.Link) => {
+	              const linkKey = link?.data?.key;
+	              if (!linkKey) return;
+	              // Keep a route snapshot before GoJS moves the node. On drop, the
+	              // endpoint segments are re-anchored but the route's bends remain in
+	              // place, avoiding a visually unrelated automatic re-route.
+	              const points: number[] = [];
+	              try {
+	                for (let pt = link.points.iterator; pt?.next();) {
+	                  const point = pt.value;
+	                  if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                    points.push(point.x, point.y);
+	                  }
+	                }
+	              } catch (_) {
+	              }
+	              if (points.length >= 4) {
+	                manualLinkMovePreview.set(String(linkKey), points);
+	              }
+	            });
+	          }
+	          }
 	          (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	        } catch (_) {
 	        }
-        super.doMouseMove();
-
-        // Track the actual vertical extent reached by directly dragged lanes.
-        // The release logic relies on these bounds to distinguish a real reorder
-        // from a cancelled/no-op drag. Without this update, mouse-up tends to
-        // restore the original lane order even though the lane moved on screen.
-        try {
-          if (diagram && this.draggedParts && directLaneDragActive) {
-            for (let it = this.draggedParts.iterator; it?.next();) {
-              const part = it.key;
-              if (!this.isLanePart(part)) continue;
-              const currentY = part.location.y;
-              const minY = (part as any).__dragMinY;
-              const maxY = (part as any).__dragMaxY;
-              if (typeof minY === 'number') {
-                (part as any).__dragMinY = Math.min(minY, currentY);
-              }
-              if (typeof maxY === 'number') {
-                (part as any).__dragMaxY = Math.max(maxY, currentY);
-              }
-            }
-          }
-        } catch (_) {}
-        
-        // CRITICAL: Prevent lanes from moving when their members are dragged
-        try {
-          if (diagram && this.draggedParts && !directLaneDragActive && !swimlaneCoreEnabled) {
-            this.restoreMemberDraggedLanePositions(
-              diagram,
-              draggedLaneKeys,
-              selectedLaneGroups
-            );
-          }
-        } catch (_) {}
-      }
+	        }
+	          // Temporary drag vibration tracing removed.
+	        super.doMouseMove();
+	      }
 
 	      override doDeactivate() {
-          if (this.isCopyLikeDrag()) {
-            try {
-              super.doDeactivate();
-            } finally {
-              const diagram = this.diagram;
-              if (diagram) {
-                try { delete (diagram as any).__directLaneDragRequested; } catch (_) { }
-                try { delete (diagram as any).__directPoolDragRequested; } catch (_) { }
-                try { delete (diagram as any).__draggedLaneGroupKeys; } catch (_) { }
-                try { delete (diagram as any).__directLaneDragActive; } catch (_) { }
-              }
-            }
-            return;
-          }
 	        const diagram = this.diagram;
-          const wasDirectPoolDrag = Boolean((diagram as any)?.__directPoolDragRequested);
-	        const linksToClear = new Set<string>();
 	        try {
+	          if ((diagram as any)?.__preserveLinkRoutesDuringDrag) {
 	          try {
-	            const manualLinkMovePreview = this.captureManualLinkMovePreview(
-                this.draggedParts,
-                new Set<string>()
-              );
-	            const lanesBeingDragged = this.getDraggedLaneGroups(this.draggedParts);
+	            const draggedParts = this.draggedParts;
+	            const existingPreview = (diagram as any)?.__manualLinkMovePreview;
+	            const manualLinkMovePreview =
+	              existingPreview instanceof Map && existingPreview.size > 0
+	                ? existingPreview
+	                : new Map<string, number[]>();
+	            if (!(existingPreview instanceof Map) || existingPreview.size === 0) {
+	            for (let it = draggedParts?.iterator; it?.next();) {
+	              const part = it.key as go.Part;
+	              if (!(part instanceof go.Node) || !part.data?.key) continue;
+	              part.linksConnected.each((link: go.Link) => {
+	                const linkKey = link?.data?.key;
+	                if (!linkKey) return;
+	                // Do not overwrite the pre-move snapshot captured by doMouseMove.
+	                const points: number[] = [];
+	                try {
+	                  for (let pt = link.points.iterator; pt?.next();) {
+	                    const point = pt.value;
+	                    if (point && typeof point.x === "number" && typeof point.y === "number") {
+	                      points.push(point.x, point.y);
+	                    }
+	                  }
+	                } catch (_) {
+	                }
+	                if (points.length >= 4) {
+	                  manualLinkMovePreview.set(String(linkKey), points);
+	                }
+	              });
+	            }
+	            }
 	            if (manualLinkMovePreview.size > 0) {
 	              (diagram as any).__manualLinkMovePreview = manualLinkMovePreview;
 	            }
-	            
-// CRITICAL: Clear saved link routing ONLY for links that cross lane boundaries
-            // When a lane is dragged, INTERNAL links (both nodes in same lane) should keep routing
-            // Only EXTERNAL links (connecting to nodes outside the lane) need re-routing
-            if (lanesBeingDragged.size > 0 && diagram) {
-              const linksToClear = this.collectExternalLinksForDraggedLanes(lanesBeingDragged);
-              this.clearExternalLaneLinkRouting(diagram, linksToClear, myMetis);
-            }
 	          } catch (_) {
+	          }
 	          }
 	          try {
 	            if ((diagram as any)?.__manualLinkMovePreview instanceof Map &&
@@ -4653,148 +2530,404 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	            const dropPt = diagram.lastInput?.documentPoint;
 	            const dragged = this.draggedParts;
 	            if (dropPt && dragged) {
-	              this.applyLaneReparentingAfterDrag(diagram, dragged, dropPt, allowGlobal, allowKeys);
+	              diagram.commit((d: go.Diagram) => {
+	                const laneBodyBounds = (g: go.Group): go.Rect | null => {
+	                  const body =
+	                    (g.findObject("LANE_BODY_SHAPE") ||
+	                      g.findObject("BODY")) as go.GraphObject | null;
+	                  return body ? body.getDocumentBounds() : null;
+	                };
+
+	                // Find any group at the drop point (lanes, containers, or other groups)
+	                const findGroupAtPoint = (pt: go.Point): go.Group | null => {
+	                  let best: { area: number; group: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    const isLane = cat.startsWith("Lane");
+
+	                    // For lanes, use lane body bounds; for other groups, use actual bounds
+	                    const bounds = isLane ? laneBodyBounds(n) : n.actualBounds;
+	                    if (!bounds || !bounds.containsPoint(pt)) return;
+
+	                    const area = Math.max(1, bounds.width * bounds.height);
+	                    if (!best || area < best.area) best = { area, group: n };
+	                  });
+	                  return best ? best.group : null;
+	                };
+
+	                const findGroupByOverlap = (part: go.Node): go.Group | null => {
+	                  const nb = part.actualBounds;
+	                  let best: { overlap: number; area: number; group: go.Group } | null = null;
+	                  d.nodes.each((n: go.Node) => {
+	                    if (!(n instanceof go.Group)) return;
+	                    const cat = String(n.data?.category || n.data?.template || n.category || "");
+	                    const isLane = cat.startsWith("Lane");
+
+	                    const gb = isLane ? laneBodyBounds(n) : n.actualBounds;
+	                    if (!gb) return;
+	                    const ix1 = Math.max(nb.x, gb.x);
+	                    const iy1 = Math.max(nb.y, gb.y);
+	                    const ix2 = Math.min(nb.right, gb.right);
+	                    const iy2 = Math.min(nb.bottom, gb.bottom);
+	                    const overlap = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+	                    if (overlap <= 0) return;
+	                    const area = Math.max(1, gb.width * gb.height);
+	                    if (!best || overlap > best.overlap || (overlap === best.overlap && area < best.area)) {
+	                      best = { overlap, area, group: n };
+	                    }
+	                  });
+	                  return best ? best.group : null;
+	                };
+
+	                const targetGroup = findGroupAtPoint(dropPt) || ((): go.Group | null => {
+	                  // If drop point is in header strip, overlap tends to still pick the correct group.
+	                  // Use the first moved node as probe.
+	                  for (let it = dragged.iterator; it?.next();) {
+	                    const p: go.Part = it.key;
+	                    if (p instanceof go.Node && !(p instanceof go.Group)) return findGroupByOverlap(p);
+	                  }
+	                  return null;
+	                })();
+
+	                const targetKey = targetGroup ? String(targetGroup.data?.key || targetGroup.key || "") : "";
+
+	                for (let it = dragged.iterator; it?.next();) {
+	                  const part: go.Part = it.key;
+	                  if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	                  const k = part.data?.key;
+	                  const allowed = allowGlobal || (allowKeys && k != null && allowKeys.has(String(k)));
+	                  if (!allowed) continue;
+
+	                  const cur = (typeof part.data?.group === "string") ? String(part.data.group) : "";
+
+	                  // If dropped on background (no target group), remove from current group
+	                  if (!targetGroup) {
+	                    if (cur !== "") {
+	                      // Remove from old group
+	                      const oldGrp = part.containingGroup;
+	                      if (oldGrp) {
+	                        const s = new go.Set<go.Part>();
+	                        s.add(part);
+	                        oldGrp.removeMembers(s, true);
+	                      }
+	                      // Set group to undefined/empty
+	                      if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                        (d.model as any).setGroupKeyForNodeData(part.data, undefined);
+	                      } else {
+	                        d.model.setDataProperty(part.data, "group", "");
+	                      }
+	                    }
+	                    continue;
+	                  }
+
+	                  // If already in target group, skip
+	                  if (cur === targetKey) continue;
+
+	                  // Reparent to target group
+	                  const oldGrp = part.containingGroup;
+	                  if (oldGrp && oldGrp !== targetGroup) {
+	                    const s = new go.Set<go.Part>();
+	                    s.add(part);
+	                    oldGrp.removeMembers(s, true);
+	                  }
+	                  if (typeof (d.model as any)?.setGroupKeyForNodeData === "function") {
+	                    (d.model as any).setGroupKeyForNodeData(part.data, targetKey);
+	                  } else {
+	                    d.model.setDataProperty(part.data, "group", targetKey);
+	                  }
+	                  targetGroup.addMembers(new go.Set<go.Part>().add(part), true);
+	                }
+	              }, "SwimlaneShiftReparent");
 	            }
 	          }
 	        } catch {
 	          // Best-effort only; never block drag completion.
 	        }
-	        
-	        const savedDraggedParts = this.saveDraggedPartsSnapshot();
-          const wasDirectLaneDragRequested = Boolean((diagram as any)?.__directLaneDragRequested);
-	        const draggedLaneParts = savedDraggedParts.filter(
-	          (part: go.Part): part is go.Group => part instanceof go.Group && this.isLanePart(part)
-	        );
-	        const hadDirectLaneDrag = wasDirectLaneDragRequested && draggedLaneParts.length > 0;
-	        let lanesWereDraggedDirectly = false;
-	        
-	        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
-	        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
+
+	        // Trigger pool layout if lanes were dragged
 	        try {
-	          super.doDeactivate();
-	        } catch (err) {
-	          console.error('[DEACTIVATE] Error in super.doDeactivate():', err);
-	          throw err; // Re-throw to maintain original behavior
-	        }
-	        try {
-	          if (diagram && !wasDirectPoolDrag && hadDirectLaneDrag) {
-	            lanesWereDraggedDirectly = this.persistDirectDraggedLanes(diagram, savedDraggedParts);
+	          const dragged = this.draggedParts;
+	          let lanesWereDragged = false;
+	          let poolWasDragged = false;
+	          if (dragged && diagram) {
+	            for (let it = dragged.iterator; it?.next();) {
+	              const part: go.Part = it.key;
+	              if (!(part instanceof go.Group)) continue;
+	              const category = String(part.data?.template || part.data?.category || part.category || "");
+	              if (category === "Pool") {
+	                poolWasDragged = true;
+	              } else if (category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane")) {
+	                lanesWereDragged = true;
+	              }
+	            }
+	            // A pool drag now includes its lanes so their content follows. Do not mistake
+	            // those included lanes for a direct lane drag and run a second pool relayout.
+	            if (lanesWereDragged && !poolWasDragged) {
+	              // Keep this snapshot alive for one turn of the event loop. A PoolLayout
+	              // can apply its final lane position immediately after this tool finishes;
+	              // without the follow-up pass, content remains at the temporary drag offset.
+	              const contentSnapshot = this.laneContentAtDragStart;
+	              this.laneContentAtDragStart = new Map();
+	              // Re-layout all pools to stack lanes properly
+	              diagram.startTransaction("relayout pools");
+	              diagram.findTopLevelGroups().each((g: go.Part) => {
+	                if (g instanceof go.Group && g.category === "Pool" && g.layout) {
+	                  g.layout.invalidateLayout();
+	                }
+	              });
+	              diagram.layoutDiagram();
+	              diagram.commitTransaction("relayout pools");
+	              // Apply the saved content positions after the pool layout transaction has
+	              // fully committed. Otherwise GoJS can leave live node bounds stale until
+	              // a reload, even though the persisted `loc` is correct.
+	              diagram.commit((d: go.Diagram) => {
+	                this.restoreLaneContentAfterLayout(d, contentSnapshot);
+	              }, "restore lane content after layout");
+	              diagram.updateAllTargetBindings();
+	              diagram.requestUpdate();
+	              setTimeout(() => {
+	                if (diagram.isDisposed) return;
+	                diagram.commit((d: go.Diagram) => {
+	                  this.restoreLaneContentAfterLayout(d, contentSnapshot);
+	                }, "settle lane content after layout");
+	                diagram.updateAllTargetBindings();
+	                diagram.requestUpdate();
+	                this.persistRestoredLaneContent(diagram, contentSnapshot);
+	              }, 0);
+	            }
 	          }
-	        } catch (_) {}
-          try {
-            if (diagram) {
-              delete (diagram as any).__draggedLaneGroupKeys;
-              if (lanesWereDraggedDirectly) {
-                (diagram as any).__directLaneDragUntil = Date.now() + 2000;
-                (diagram as any).__skipLaneRestoreAfterDirectDrag = true;
-              }
-              delete (diagram as any).__directLaneDragActive;
-              delete (diagram as any).__directPoolDragRequested;
-              if (!wasDirectPoolDrag && hadDirectLaneDrag) {
-                // Note: __directLaneDragRequested already cleared in persistDirectDraggedLanes
-                console.log(`[DRAG-END] Lane drag completed`);
-              }
-            }
-          } catch (_) { }
-        
-        // Restore lane positions only for cancelled/indirect lane movement.
-        // Successful direct lane drags already persisted the new order/locations above.
-        try {
-          if (
-            !wasDirectPoolDrag &&
-            hadDirectLaneDrag &&
-            !lanesWereDraggedDirectly &&
-            diagram &&
-            savedDraggedParts &&
-            savedDraggedParts.length > 0
-          ) {
-            this.restoreLanesAfterDeactivate(diagram, savedDraggedParts);
-          }
-        } catch (err) {
-          console.error('[DEACTIVATE-AFTER] Error restoring lane positions:', err);
-        }
-        
-        // CRITICAL: Clean up lane drag flags AFTER restoration
-        // This ensures GoJS has finished all internal processing while lanes were still locked
-        try {
-          if (
-            !wasDirectPoolDrag &&
-            hadDirectLaneDrag &&
-            diagram &&
-            savedDraggedParts &&
-            savedDraggedParts.length > 0
-          ) {
-            this.restoreLaneLocksAfterDeactivate(diagram, savedDraggedParts);
-          }
-        } catch (_) {}
+	        } catch {
+	          // Best-effort only
+	        }
+	        this.laneContentAtDragStart.clear();
+
+		        // Do not clear `__dragAllowReparent*` here: SelectionMoved uses those markers to decide
+		        // whether regrouping is allowed. They are cleared after persistence in GoJSApp.
+		        super.doDeactivate();
+		      }
+
+		      override moveParts(parts: go.Map<go.Part, go.DraggingInfo>, offset: go.Point, check: boolean) {
+		        const diagram = this.diagram;
+
+		        // Constrain nodes to stay within their lanes unless Shift is held (BEFORE moving, only during check)
+		        let constrainedOffset = offset;
+		        if (diagram && check) {
+		          // Check both shift and control (ctrl acts as shift on some systems)
+		          const shiftHeld = diagram.lastInput?.shift === true || diagram.lastInput?.control === true;
+
+		          if (!shiftHeld) {
+		            // Find the most restrictive constraint
+		            let mostRestrictiveOffsetY = offset.y;
+		            let mostRestrictiveOffsetX = offset.x;
+
+	            for (let it = parts.iterator; it.next();) {
+	              const part = it.key;
+	              if (!(part instanceof go.Node) || part instanceof go.Group) continue;
+	              // Pool/lane drags explicitly include their descendant nodes so the
+	              // content follows the container. Those nodes must not then be
+	              // constrained against their moving (and briefly stale) lane bounds;
+	              // doing so can turn a leftward Pool drag into a rightward offset.
+	              let isMovingWithAncestor = false;
+	              for (let ancestor = part.containingGroup; ancestor; ancestor = ancestor.containingGroup) {
+	                if (parts.has(ancestor)) {
+	                  isMovingWithAncestor = true;
+	                  break;
+	                }
+	              }
+	              if (isMovingWithAncestor) continue;
+
+	              // Get the cached lane or find it geometrically
+		              let lane = this.constraintLaneCache.get(part);
+
+		              if (!lane) {
+		                // Find lane geometrically using actualBounds
+		                const nodeBounds = part.actualBounds;
+		                const nodeCenter = nodeBounds.center;
+
+		                let bestLane: go.Group | null = null;
+		                let bestOverlapArea = 0;
+		                let centerContained = false;
+
+		                const nodeIterator = diagram.nodes;
+		                while (nodeIterator.next()) {
+		                  const group = nodeIterator.value;
+		                  if (!(group instanceof go.Group)) continue;
+
+		                  const groupData: any = group.data || {};
+		                  const category = String(groupData.template || groupData.category || group.category || "");
+		                  const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
+
+		                  if (isLane) {
+		                    const laneBounds = group.actualBounds;
+		                    const containsCenter = laneBounds.containsPoint(nodeCenter);
+
+		                    if (containsCenter && !centerContained) {
+		                      bestLane = group;
+		                      centerContained = true;
+		                    } else if (!centerContained && nodeBounds.isReal() && laneBounds.isReal() && nodeBounds.intersectsRect(laneBounds)) {
+		                      // `Rect.intersect` accepts x/y/width/height, not a Rect.  Work on a
+		                      // copy as well: actualBounds is GoJS-owned and must not be mutated.
+		                      const intersection = nodeBounds.copy().intersectRect(laneBounds);
+		                      const overlapArea = intersection.width * intersection.height;
+
+		                      if (overlapArea > bestOverlapArea && isFinite(overlapArea)) {
+		                        bestLane = group;
+		                        bestOverlapArea = overlapArea;
+		                      }
+		                    }
+		                  }
+		                }
+
+		                lane = bestLane;
+
+		                // Cache the lane for this part for the duration of this drag
+		                if (lane) {
+		                  this.constraintLaneCache.set(part, lane);
+		                }
+		              }
+
+		              if (!lane) continue;
+
+		              // Get lane content bounds
+		              const bodyPanel = lane.findObject('BODY') as go.Panel | null;
+		              let contentBounds: go.Rect;
+
+		              if (bodyPanel) {
+		                contentBounds = bodyPanel.getDocumentBounds();
+		              } else {
+		                const laneBounds = lane.actualBounds;
+		                const SWIMLANE_LANE_HEADER_WIDTH = 54;
+		                contentBounds = new go.Rect(
+		                  laneBounds.x + SWIMLANE_LANE_HEADER_WIDTH,
+		                  laneBounds.y,
+		                  laneBounds.width - SWIMLANE_LANE_HEADER_WIDTH,
+		                  laneBounds.height
+		                );
+		              }
+
+		              // Get the original drag start position from GoJS's draggedParts
+		              const dragInfo = this.draggedParts?.get(part);
+		              if (!dragInfo) continue;
+
+		              const originalLoc = dragInfo.point;
+		              const b = part.actualBounds;
+		              const margin = 5;
+
+		              // Calculate the stable offset from location to bounds based on locationSpot
+		              const locSpot = part.locationSpot;
+		              const locToBoundsOffset = new go.Point(
+		                -b.width * locSpot.x,
+		                -b.height * locSpot.y
+		              );
+
+		              // Calculate where bounds would be at the original location
+		              const originalBoundsX = originalLoc.x + locToBoundsOffset.x;
+		              const originalBoundsY = originalLoc.y + locToBoundsOffset.y;
+
+		              // Constrain Y axis
+		              const proposedBoundsTop = originalBoundsY + offset.y;
+		              const minBoundsY = contentBounds.y + margin;
+		              const maxBoundsY = contentBounds.bottom - b.height - margin;
+		              const constrainedBoundsY = Math.max(minBoundsY, Math.min(proposedBoundsTop, maxBoundsY));
+		              const constrainedLocY = constrainedBoundsY - locToBoundsOffset.y;
+		              const thisPartOffsetY = constrainedLocY - originalLoc.y;
+
+		              // Constrain X axis
+		              const proposedBoundsLeft = originalBoundsX + offset.x;
+		              const minBoundsX = contentBounds.x + margin;
+		              const maxBoundsX = contentBounds.right - b.width - margin;
+		              const constrainedBoundsX = Math.max(minBoundsX, Math.min(proposedBoundsLeft, maxBoundsX));
+		              const constrainedLocX = constrainedBoundsX - locToBoundsOffset.x;
+		              const thisPartOffsetX = constrainedLocX - originalLoc.x;
+
+		              // Take most restrictive (Y axis)
+		              if (offset.y > 0) {
+		                mostRestrictiveOffsetY = Math.min(mostRestrictiveOffsetY, thisPartOffsetY);
+		              } else if (offset.y < 0) {
+		                mostRestrictiveOffsetY = Math.max(mostRestrictiveOffsetY, thisPartOffsetY);
+		              }
+
+		              // Take most restrictive (X axis)
+		              if (offset.x > 0) {
+		                mostRestrictiveOffsetX = Math.min(mostRestrictiveOffsetX, thisPartOffsetX);
+		              } else if (offset.x < 0) {
+		                mostRestrictiveOffsetX = Math.max(mostRestrictiveOffsetX, thisPartOffsetX);
+		              }
+		            }
+
+		            if (Math.abs(mostRestrictiveOffsetY - offset.y) > 0.01 || Math.abs(mostRestrictiveOffsetX - offset.x) > 0.01) {
+		              constrainedOffset = new go.Point(mostRestrictiveOffsetX, mostRestrictiveOffsetY);
+		            }
+		          }
+		        }
+
+	        super.moveParts(parts, constrainedOffset, check);
+	        // GoJS normally routes connected links immediately after moving a node.
+	        // Restore the pre-drag route with only its endpoint segments re-anchored.
+	        if ((this.diagram as any)?.__preserveLinkRoutesDuringDrag || this.linkRoutesAtDragStart.size > 0) {
+	          this.keepLinkRoutesDuringDrag();
+	        }
+	      }
 		    }
-		    }
+
 	    myDiagram.toolManager.draggingTool = new SwimlaneDraggingTool();
-      console.log('[TOOL] SwimlaneDraggingTool installed:', myDiagram.toolManager.draggingTool.constructor.name);
       myDiagram.toolManager.clickSelectingTool.standardMouseSelect = guardedStandardMouseSelect;
 
 	    // when the user clicks on the background of the Diagram, remove all highlighting
 	    myDiagram.click = function (e) {
-	      e.diagram.commit(function (d) { 
-	        d.clearHighlighteds(); 
-	        
-	        // CRITICAL: Unlock any lanes that got stuck as unmovable
-	        d.nodes.each((n: go.Node) => {
-	          if (n instanceof go.Group) {
-	            const category = String(n.data?.category || n.data?.template || n.category || "");
-	            const isLane = category === "Lane" || category === "Lane_w_handles" || category.startsWith("Lane");
-	            if (isLane && (n as any).__savedMovable !== undefined) {
-	              console.log('[CLICK-CLEANUP] Unlocking stuck lane:', n.data?.key);
-	              n.movable = (n as any).__savedMovable;
-	              n.isLayoutPositioned = (n as any).__savedIsLayoutPositioned ?? true;
-	              delete (n as any).__savedMovable;
-	              delete (n as any).__savedIsLayoutPositioned;
-	              delete (n as any).__laneOriginalLocation;
-	            }
-	          }
-	        });
-	      }, "clear highlights and unlock lanes");
+	      e.diagram.commit(function (d) { d.clearHighlighteds(); }, "no highlighteds");
 	    };
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     this.myMetis.dispatch = this.props.dispatch;
-    
+
     // Wrap dispatch to intercept visual property updates and apply them immediately to the GoJS diagram.
     // This is necessary because updating myMetis.gojsModel doesn't change the array reference,
     // so React's componentDidUpdate never fires. The wrapper bypasses this by directly updating
     // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
-    const originalDispatch = this.props.dispatch || this.myMetis?.dispatch;
+    const originalDispatch = bindLegacyUniverseDispatch(this.props.dispatch || this.myMetis?.dispatch);
     const wrappedDispatch = (action: any) => {
       // Intercept view property updates for immediate visual feedback
       if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
         try {
           const data = action.data;
-          const nodeData = myDiagram.model.findNodeDataForKey(data.id) || 
-                          Array.from(myDiagram.nodes).find((n: any) => 
-                            n.data?.id === data.id || 
-                            n.data?.objviewRef === data.id ||
-                            n.data?.key === data.id
-                          )?.data;
-          
+          let nodePart: any = myDiagram.findNodeForKey?.(data.id) || null;
+          if (!nodePart) {
+            myDiagram.nodes.each((part: any) => {
+              const partData = part?.data;
+              if (!nodePart && (
+                partData?.id === data.id ||
+                partData?.key === data.id ||
+                partData?.objviewRef === data.id ||
+                partData?.objectview?.id === data.id
+              )) {
+                nodePart = part;
+              }
+            });
+          }
+          const nodeData = nodePart?.data || myDiagram.model.findNodeDataForKey(data.id);
+
           if (nodeData) {
             // Skip undo/redo and prevent selection changes
             myDiagram.skipsUndoManager = true;
             const oldAllowSelect = myDiagram.allowSelect;
             myDiagram.allowSelect = false;
-            
-	            myDiagram.model.commit((m: any) => {
-	              if (data.loc !== undefined) m.set(nodeData, 'loc', data.loc);
-	              if (data.size !== undefined) m.set(nodeData, 'size', data.size);
-	              if (data.group !== undefined) m.set(nodeData, 'group', data.group);
-	              if (data.laneIndex !== undefined) m.set(nodeData, 'laneIndex', data.laneIndex);
-	              if (data.scale !== undefined) m.set(nodeData, 'scale', data.scale);
-	              if (data.scale1 !== undefined) m.set(nodeData, 'scale1', data.scale1);
-	              if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
-	              if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
-	              if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
-	              if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
-	            }, null);
-            
+
+            myDiagram.model.commit((m: any) => {
+              if (data.fillcolor !== undefined) m.set(nodeData, 'fillcolor', data.fillcolor);
+              if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
+              if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
+              if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+            }, null);
+
+            if (data.icon !== undefined) {
+              if (nodeData.objectview) nodeData.objectview.icon = data.icon;
+              nodePart?.updateTargetBindings?.();
+              uit.forceUpdateAllIconSources?.(myDiagram);
+              myDiagram.requestUpdate?.();
+            }
+
             // Restore settings - but ONLY restore allowSelect if it was true before
             // If it was already false (e.g., from handleCloseModal), keep it false
             myDiagram.skipsUndoManager = false;
@@ -4808,7 +2941,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       } else if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
         try {
           const data = action.data;
-          
+
           // CRITICAL: If skipVisualUpdate flag is set, the visual update was already done
           // in handleCloseModal, so we just forward to Redux for persistence
           if (action.skipVisualUpdate) {
@@ -4818,9 +2951,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             originalDispatch(cleanAction);
             return;
           }
-          
+
           console.log('[Dispatch-Wrapper] Applying relshipview update for:', data.id);
-          
+
           // Check if this id belongs to a node (safety check)
           const nodeData = myDiagram.model.findNodeDataForKey(data.id);
           if (nodeData) {
@@ -4828,19 +2961,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             originalDispatch(action);
             return;
           }
-          
+
           // Try to find the link by key first, then search by various id fields
           let linkData = myDiagram.model.findLinkDataForKey(data.id);
           let link = null;
-          
+
           if (!linkData) {
             for (let it = myDiagram.links.iterator; it?.next();) {
               const l = it.value;
               const ld = l.data;
               if (!ld) continue;
-              
-              if (ld.id === data.id || 
-                  ld.key === data.id || 
+
+              if (ld.id === data.id ||
+                  ld.key === data.id ||
                   ld.relviewRef === data.id ||
                   ld.relshipview?.id === data.id) {
                 linkData = ld;
@@ -4849,25 +2982,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }
           }
-          
+
           if (linkData) {
             // Skip undo/redo and prevent selection changes
             myDiagram.skipsUndoManager = true;
             const oldAllowSelect = myDiagram.allowSelect;
             myDiagram.allowSelect = false;
-            
+
             myDiagram.model.commit((m: any) => {
               if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
               if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
             }, null);
-            
+
             // Restore settings - only restore allowSelect if it was true
             myDiagram.skipsUndoManager = false;
             if (oldAllowSelect === true) {
               myDiagram.allowSelect = true;
             }
           }
-          
+
           // Forward to Redux for persistence
           originalDispatch(action);
         } catch (err) {
@@ -4877,12 +3010,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // Apply typeview changes to all nodes using that typeview
         try {
           const data = action.data;
-          
+
           // Skip undo/redo and prevent selection changes
           myDiagram.skipsUndoManager = true;
           const oldAllowSelect = myDiagram.allowSelect;
           myDiagram.allowSelect = false;
-          
+
           myDiagram.model.commit((m: any) => {
             myDiagram.nodes.each((node: any) => {
               const nodeData = node.data;
@@ -4894,7 +3027,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             });
           }, null);
-          
+
           // Restore settings
           myDiagram.skipsUndoManager = false;
           myDiagram.allowSelect = oldAllowSelect;
@@ -4905,12 +3038,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // Apply typeview changes to all links using that typeview
         try {
           const data = action.data;
-          
+
           // Skip undo/redo and prevent selection changes
           myDiagram.skipsUndoManager = true;
           const oldAllowSelect = myDiagram.allowSelect;
           myDiagram.allowSelect = false;
-          
+
           myDiagram.model.commit((m: any) => {
             myDiagram.links.each((link: any) => {
               const linkData = link.data;
@@ -4920,7 +3053,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             });
           }, null);
-          
+
           // Restore settings
           myDiagram.skipsUndoManager = false;
           myDiagram.allowSelect = oldAllowSelect;
@@ -4928,11 +3061,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           console.error('[Dispatch-Wrapper] Error applying relship typeview updates:', err);
         }
       }
-      
+
       // Always forward to Redux for persistence
       return originalDispatch(action);
     };
-    
+
     myDiagram.dispatch = wrappedDispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
@@ -4951,13 +3084,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.grid.visible = true;
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = false;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
-    
+
     // Install custom LaneResizingTool for pool/lane resizing
-    uit.installLaneResizingTool(myDiagram);
-    
-    (myDiagram as any).myMetis = myMetis;
+    uit.installLaneResizingTool(myDiagram, myMetis);
+
     myMetis.myDiagram = myDiagram;
-    
+
     this.updateZoomInvariantHandles(myDiagram);
     myDiagram.model.linkFromPortIdProperty = "fromPort";  // necessary to remember portIds
     myDiagram.model.linkToPortIdProperty = "toPort";
@@ -5263,7 +3395,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     for (let it = mySelection.iterator; it?.next();) {
           //       let n = it.value;
           //       const node = n.data;
-          //       uid.addConnectedObjects(node, params, myMetis, myDiagram);                
+          //       uid.addConnectedObjects(node, params, myMetis, myDiagram);
           //     }
           //   },
           //   function (o: any) {
@@ -5879,7 +4011,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mySelection = myDiagram.selection;
               const selectedNodes = [];
               mySelection.each(function(n) {
-                if (n instanceof go.Link) 
+                if (n instanceof go.Link)
                   return;
                 else
                   selectedNodes.push(n);
@@ -5887,7 +4019,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.alignNodes(node, selectedNodes, 'vertical', myMetis);
               const selectedLinks = [];
               mySelection.each(function(l) {
-                if (l instanceof go.Node) 
+                if (l instanceof go.Node)
                   return;
                 else
                 selectedLinks.push(l);
@@ -5914,7 +4046,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mySelection = myDiagram.selection;
               const selectedNodes = [];
               mySelection.each(function(n) {
-                if (n instanceof go.Link) 
+                if (n instanceof go.Link)
                   return;
                 else
                   selectedNodes.push(n);
@@ -5922,7 +4054,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.alignNodes(node, selectedNodes, 'horizontal', myMetis);
               const selectedLinks = [];
               mySelection.each(function(l) {
-                if (l instanceof go.Node) 
+                if (l instanceof go.Node)
                   return;
                 else
                 selectedLinks.push(l);
@@ -5949,7 +4081,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mySelection = myDiagram.selection;
               const selectedNodes = [];
               mySelection.each(function(n) {
-                if (n instanceof go.Link) 
+                if (n instanceof go.Link)
                   return;
                 else
                   selectedNodes.push(n);
@@ -5957,7 +4089,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.spreadEven(node, selectedNodes, 'vertical', myMetis);
               const selectedLinks = [];
               mySelection.each(function(l) {
-                if (l instanceof go.Node) 
+                if (l instanceof go.Node)
                   return;
                 else
                 selectedLinks.push(l);
@@ -5984,7 +4116,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mySelection = myDiagram.selection;
               const selectedNodes = [];
               mySelection.each(function(n) {
-                if (n instanceof go.Link) 
+                if (n instanceof go.Link)
                   return;
                 else
                   selectedNodes.push(n);
@@ -5992,7 +4124,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               uid.spreadEven(node, selectedNodes, 'horizontal', myMetis);
               const selectedLinks = [];
               mySelection.each(function(l) {
-                if (l instanceof go.Node) 
+                if (l instanceof go.Node)
                   return;
                 else
                 selectedLinks.push(l);
@@ -6339,7 +4471,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
-    // A CONTEXT MENU for links    
+    // A CONTEXT MENU for links
     {
       advancedLinkContextMenu =
         $(go.Adornment, "Vertical",
@@ -6372,7 +4504,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     myMetis.currentLink = link;
           //     myMetis.myDiagram = myDiagram;
           //     myDiagram.handleOpenModal(link, modalContext);
-          //     // 
+          //     //
           //   },
           //   function (o: any) {
           //     const link = o.part.data;
@@ -6410,7 +4542,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     myMetis.currentLink = link;
           //     myMetis.myDiagram = myDiagram;
           //     myDiagram.handleOpenModal(link, modalContext);
-          //     // 
+          //     //
           //   },
           //   function (o: any) {
           //     const link = o.part.data;
@@ -6425,7 +4557,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o) {
               return false;
-              //return o.diagram.commandHandler.canCutSelection(); 
+              //return o.diagram.commandHandler.canCutSelection();
             }),
           makeButton("Delete",
             function (e, obj) {
@@ -6623,10 +4755,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     let toTypeId = relship.toObject.type.id;
           //     let toType = myMetamodel.findObjectType(toTypeId);
           //     if (!toType) toType = myMetis.findObjectType(toTypeId);
-          //     if (fromType?.name === constants.types.AKM_ENTITY_TYPE && 
+          //     if (fromType?.name === constants.types.AKM_ENTITY_TYPE &&
           //       toType?.name === constants.types.AKM_ENTITY_TYPE) {
           //         includeIsType = true;
-          //     }              
+          //     }
           //     let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
           //     const rtypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true);
           //     for (let i = 0; i < rtypes?.length; i++) {
@@ -6875,7 +5007,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //     let mySelection = myDiagram.selection;
           //     const selectedLinks = [];
           //     mySelection.each(function(l) {
-          //       if (l instanceof go.Node) 
+          //       if (l instanceof go.Node)
           //         return;
           //       else
           //       selectedLinks.push(l);
@@ -6907,7 +5039,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //       } catch (_) { }
           //     }
           //     mySelection.each(function(l) {
-          //       if (l instanceof go.Node) 
+          //       if (l instanceof go.Node)
           //         return;
           //       else {
           //         selectedLinks.push(l);
@@ -8214,7 +6346,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           lastAnchorElement = anchor;
         }
         const targetAnchor = anchor || lastAnchorElement;
-        
+
         // IMPORTANT: Always use targetAnchor directly for positioning, not fallbacks to parent menu
         // The targetAnchor should be the button that was clicked to open this submenu
         let anchorRect: DOMRect | null = null;
@@ -8264,7 +6396,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         } catch (e) {
           anchorRect = null;
         }
-        
+
         // If we couldn't get anchorRect from candidateButton, try the activeMenuDiv or other fallbacks
         if ((!anchorRect || (anchorRect.width === 0 && anchorRect.height === 0)) && activeMenuDiv) {
           try { anchorRect = activeMenuDiv.getBoundingClientRect() as DOMRect; } catch (_) { anchorRect = null; }
@@ -8276,7 +6408,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             console.debug('[renderSubMenu:rAF] anchorRect computed:', anchorRect);
             console.debug('[renderSubMenu:rAF] candidateButton:', candidateButton && (candidateButton as HTMLElement).outerHTML?.slice ? (candidateButton as HTMLElement).outerHTML.slice(0, 240) : candidateButton);
           } catch (_) {}
-          
+
           // If we still don't have an anchorRect, we cannot position the submenu properly
           // This should rarely happen if buttons are being passed correctly as the source parameter
           if (!anchorRect) {
@@ -8312,7 +6444,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const menuRect = menu.getBoundingClientRect();
             const viewportLeft = window.pageXOffset + 4;
             const viewportRight = window.pageXOffset + window.innerWidth - 4;
-            
+
             // If anchorRect appears to be the entire menu (width >= 190), try to find the hovered item instead
             if (anchorRect.width >= 190 && activeMenuDiv) {
               try {
@@ -8325,7 +6457,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 }
               } catch (_) { }
             }
-            
+
             // place submenu to the right of the anchor button
             let left = anchorRect.right + window.pageXOffset + 6;
             // align top of submenu with the top of the anchor button
@@ -9082,21 +7214,67 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         return true;
       };
 
-      const handleGenerateMetamodel = (diagram: go.Diagram | null | undefined, data: any) => {
+      const handleGenerateMetamodel = async (
+        diagram: go.Diagram | null | undefined,
+        data: any,
+        destination: 'current' | 'workspace' | 'new-project' | 'existing-project' = 'current'
+      ) => {
         if (!diagram || !data) return;
         if (!canGenerateMetamodelFromData(data)) return;
 
         const metamodelName = data.name;
         if (!metamodelName) return;
 
-        if (!confirm('Do you want to generate the metamodel ' + metamodelName + ' ?')) {
+        const provenance = buildGenerationProvenance({
+          sourceProjectId: myMetis.id,
+          sourceModelId: myMetis.currentModel?.id,
+          sourceModelviewId: myMetis.currentModelview?.id,
+          sourceMetamodelObjectId: data.object?.id,
+        });
+        let selectedProject: any = null;
+        let selectedProjectFileName = '';
+        let allowLegacyNameMatch = false;
+        let newProjectName = '';
+        let newModelName = '';
+
+        if (destination === 'new-project') {
+          newProjectName = prompt('Enter generated project name:', metamodelName.replace(/_META$/i, '')) || '';
+          if (!newProjectName.trim()) return;
+          newModelName = prompt('Enter initial model name:', newProjectName) || '';
+          if (!newModelName.trim()) return;
+        } else if (destination === 'existing-project') {
+          const selected = await chooseGeneratedProjectFile();
+          if (!selected) return;
+          selectedProject = selected.project;
+          selectedProjectFileName = selected.fileName;
+          try {
+            const inspected = inspectGeneratedProjectTarget(selectedProject, { name: metamodelName }, provenance);
+            if (inspected.matchType === 'legacy-name') {
+              allowLegacyNameMatch = confirm(
+                `The selected project contains “${metamodelName}” but has no generation provenance. Update that metamodel and establish the link?`
+              );
+              if (!allowLegacyNameMatch) return;
+            }
+          } catch (error: any) {
+            alert(error?.message || 'The selected file is not a compatible generated project.');
+            return;
+          }
+        } else if (destination === 'workspace') {
+          if (!confirm('Publish the generated metamodel ' + metamodelName + ' to the workspace without adding it to the current project?')) return;
+        } else if (!confirm('Do you want to generate or update the metamodel ' + metamodelName + ' in the current project?')) {
           return;
         }
 
-        let targetMetamodel = myMetis.findMetamodelByName(metamodelName);
+        const originalMetamodels = Array.isArray(myMetis.metamodels) ? [...myMetis.metamodels] : [];
+        const originalTargetMetamodelRef = myMetis.currentModel?.targetMetamodelRef || '';
+        let targetMetamodel = destination === 'workspace'
+          ? new akm.cxMetaModel(utils.createGuid(), metamodelName)
+          : myMetis.findMetamodelByName(metamodelName);
         const dispatchTarget = diagram.dispatch ?? myMetis.myDiagram?.dispatch;
 
-        if (!targetMetamodel) {
+        if (destination === 'workspace') {
+          myMetis.addMetamodel(targetMetamodel);
+        } else if (!targetMetamodel) {
           targetMetamodel = new akm.cxMetaModel(utils.createGuid(), metamodelName);
           myMetis.addMetamodel(targetMetamodel);
           myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
@@ -9124,7 +7302,88 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           "myDiagram": diagram,
           "dispatch": dispatchTarget
         };
-        gen.generateTargetMetamodel2(context);
+        let serializedMetamodel: any = null;
+        try {
+          const generated = gen.generateTargetMetamodel2(context);
+          if (!generated) return;
+          serializedMetamodel = JSON.parse(JSON.stringify(new jsn.jsnMetaModel(targetMetamodel, true)));
+        } finally {
+          if (destination === 'workspace') {
+            myMetis.metamodels = originalMetamodels;
+            if (myMetis.currentModel) myMetis.currentModel.targetMetamodelRef = originalTargetMetamodelRef;
+          }
+        }
+        if (!serializedMetamodel) return;
+        if (destination === 'current') return;
+        if (destination === 'workspace') {
+          const generatedObjectTypeIds = new Set(
+            (serializedMetamodel.objecttypes || []).map((type: any) => type?.id).filter(Boolean)
+          );
+          const interMetamodelRelationshipTypes = (myMetis.currentModel?.relships || []).flatMap((rel: any) => {
+            const fromTypeRef = rel?.fromObject?.generatedTypeId || '';
+            const toTypeRef = rel?.toObject?.generatedTypeId || '';
+            if (!fromTypeRef || !toTypeRef) return [];
+            const fromIsLocal = generatedObjectTypeIds.has(fromTypeRef);
+            const toIsLocal = generatedObjectTypeIds.has(toTypeRef);
+            if (fromIsLocal === toIsLocal) return [];
+            return [{
+              id: rel.generatedTypeId || rel.id,
+              name: rel.name || rel.type?.name || 'relationship',
+              description: rel.description || '',
+              sourceRelationshipId: rel.id,
+              fromobjtypeRef: fromTypeRef,
+              toobjtypeRef: toTypeRef,
+              relshipkind: rel.relshipkind || rel.type?.relshipkind || 'Association',
+              cardinality: rel.cardinality || '',
+            }];
+          });
+          if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'mimris:metamodel-generated',
+              metamodel: serializedMetamodel,
+              source: {
+                projectId: myMetis.id,
+                modelId: myMetis.currentModel?.id || '',
+                modelviewId: myMetis.currentModelview?.id || '',
+                metamodelObjectId: data.object?.id || '',
+              },
+              provenance,
+              interMetamodelRelationshipTypes,
+            }, '*');
+          }
+          return;
+        }
+        try {
+          const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_META);
+          const supportingMetamodels = adminMetamodel
+            ? [JSON.parse(JSON.stringify(new jsn.jsnMetaModel(adminMetamodel, true)))]
+            : [];
+          if (destination === 'new-project') {
+            const project = createGeneratedMetamodelProject({
+              serializedMetamodel,
+              provenance,
+              projectId: utils.createGuid(),
+              projectName: newProjectName.trim(),
+              modelId: utils.createGuid(),
+              modelName: newModelName.trim(),
+              modelviewId: utils.createGuid(),
+              modelviewName: 'Main',
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, newProjectName);
+          } else {
+            const project = updateGeneratedMetamodelProject({
+              project: selectedProject,
+              serializedMetamodel,
+              provenance,
+              allowLegacyNameMatch,
+              supportingMetamodels,
+            });
+            downloadGeneratedProject(project, selectedProjectFileName);
+          }
+        } catch (error: any) {
+          alert(error?.message || 'The generated project could not be created.');
+        }
       };
 
       function resolveObjectview(nodeData: any): any {
@@ -9557,83 +7816,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const members = groupPart.memberParts;
         const myModelview = myMetis.currentModelview;
         if (!myModelview) return;
-        const getSwimlaneCategory = (partData: any): string => {
-          const category = (partData?.category || partData?.template || '').toString();
-          if (category === 'Pool') return 'Pool';
-          if (category === 'Lane' || category === 'Lane_w_handles' || category.toLowerCase().includes('lane')) {
-            return 'Lane';
-          }
-          return '';
-        };
-        const addSizeCandidate = (candidateSizes: Array<{ width: number; height: number }>, candidate: any) => {
-          if (!candidate) return;
-          const width = Number(candidate.width);
-          const height = Number(candidate.height);
-          if (!Number.isFinite(width) || !Number.isFinite(height)) return;
-          if (width <= 0 || height <= 0) return;
-          candidateSizes.push({ width, height });
-        };
-        const collectPersistedSizeCandidates = (
-          memberPart: go.Part,
-          memberData: any,
-          candidateSizes: Array<{ width: number; height: number }>
-        ) => {
-          const swimlaneCategory = getSwimlaneCategory(memberData);
-          if (swimlaneCategory === 'Pool') {
-            const poolBodyShape =
-              memberPart.findObject?.('POOL_BODY_SHAPE') ||
-              memberPart.findObject?.('POOL_SHAPE') ||
-              (memberPart as any).resizeObject ||
-              null;
-            addSizeCandidate(candidateSizes, poolBodyShape?.desiredSize);
-            addSizeCandidate(candidateSizes, poolBodyShape?.actualBounds);
-            return;
-          }
-          if (swimlaneCategory === 'Lane') {
-            const laneTable =
-              memberPart.findObject?.('LANE_TABLE') ||
-              memberPart.findObject?.('LANE_MAIN') ||
-              null;
-            const laneMainShape =
-              memberPart.findObject?.('LANE_MAIN_SHAPE') ||
-              null;
-            const laneBodyShape =
-              memberPart.findObject?.('LANE_SHAPE') ||
-              memberPart.findObject?.('LANE_BODY_SHAPE') ||
-              (memberPart as any).resizeObject ||
-              null;
-            // Persist total lane width. The active lane template derives the visible
-            // body width by subtracting the lane header width from this stored size.
-            addSizeCandidate(candidateSizes, laneTable?.desiredSize);
-            addSizeCandidate(candidateSizes, laneTable?.actualBounds);
-            addSizeCandidate(candidateSizes, laneMainShape?.desiredSize);
-            addSizeCandidate(candidateSizes, laneMainShape?.actualBounds);
-            addSizeCandidate(candidateSizes, laneBodyShape?.desiredSize);
-            addSizeCandidate(candidateSizes, memberPart.actualBounds);
-            return;
-          }
-          const resizeObject: any = (memberPart as any).resizeObject || null;
-          if (resizeObject && resizeObject.desiredSize) {
-            addSizeCandidate(candidateSizes, resizeObject.desiredSize);
-          }
-          const desiredSize: any = (memberPart as any).desiredSize || null;
-          if (desiredSize) {
-            addSizeCandidate(candidateSizes, desiredSize);
-          }
-          const actualBounds = memberPart.actualBounds || null;
-          if (actualBounds) {
-            addSizeCandidate(candidateSizes, actualBounds);
-          }
-        };
-        const getPersistedSwimlaneLocationPoint = (memberPart: go.Part, memberData: any): go.Point | null => {
-          const swimlaneCategory = getSwimlaneCategory(memberData);
-          if (!swimlaneCategory) {
-            return memberPart.location ? memberPart.location.copy() : null;
-          }
-          // Swimlanes persist their location using the template's location object.
-          // actualBounds can drift because it includes member geometry.
-          return memberPart.location ? memberPart.location.copy() : null;
-        };
         const persistPartGeometry = (memberPart: go.Part | null | undefined) => {
           if (!memberPart) return;
           if (!(memberPart instanceof go.Node) && !(memberPart instanceof go.Group)) return;
@@ -9641,7 +7823,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (!memberData) return;
           const memberObjview = resolveObjectview(memberData);
 
-          const locationPoint = getPersistedSwimlaneLocationPoint(memberPart, memberData);
+          const locationPoint = memberPart.location;
           if (locationPoint) {
             const locString = go.Point.stringify(locationPoint);
             try {
@@ -9655,7 +7837,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
 
           const candidateSizes: Array<{ width: number; height: number }> = [];
-          collectPersistedSizeCandidates(memberPart, memberData, candidateSizes);
+          const addCandidate = (candidate: any) => {
+            if (!candidate) return;
+            const width = Number(candidate.width);
+            const height = Number(candidate.height);
+            if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+            if (width <= 0 || height <= 0) return;
+            candidateSizes.push({ width, height });
+          };
+
+          const resizeObject: any = (memberPart as any).resizeObject || null;
+          if (resizeObject && resizeObject.desiredSize) {
+            addCandidate(resizeObject.desiredSize);
+          }
+          const desiredSize: any = (memberPart as any).desiredSize || null;
+          if (desiredSize) {
+            addCandidate(desiredSize);
+          }
+          const actualBounds = memberPart.actualBounds || null;
+          if (actualBounds) {
+            addCandidate(actualBounds);
+          }
           if (!candidateSizes.length && typeof memberData.size === "string") {
             const parts = memberData.size
               .trim()
@@ -9663,7 +7865,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               .map((token: string) => Number(token))
               .filter((num: number) => Number.isFinite(num));
             if (parts.length >= 2) {
-              addSizeCandidate(candidateSizes, { width: parts[0], height: parts[1] });
+              addCandidate({ width: parts[0], height: parts[1] });
             }
           }
 
@@ -9711,7 +7913,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       }
 
       function handleGroupDoLayout(diagram: go.Diagram | null | undefined, part: go.Part | null) {
@@ -9722,18 +7924,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!(part instanceof go.Group)) return;
         const dragTool = targetDiagram.currentTool;
         if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
-          return;
+          dragTool.doCancel();
         }
         const objview = resolveObjectview(nodeData);
         if (!objview) return;
         uid.doGroupLayout(objview, targetDiagram, myMetis);
-        handleGroupSaveLayout(targetDiagram, part);
+        // doGroupLayout persists the object and relationship geometry it changes.
+        // Do not immediately serialize the whole Group here: that snapshot can be
+        // stale and reapply an old lane template or old link points over the
+        // freshly calculated layout.
         targetDiagram.requestUpdate();
-      }
-      try {
-        (myDiagram as any).__handleGroupDoLayout = handleGroupDoLayout;
-        (myDiagram as any).__handleGroupSaveLayout = handleGroupSaveLayout;
-      } catch (_err) {
       }
 
 
@@ -9756,7 +7956,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
         const dragTool = targetDiagram.currentTool;
         if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
-          return;
+          dragTool.doCancel();
         }
 
         // record group location so we do NOT move the group itself
@@ -10035,7 +8235,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           return;
         }
 
-        
+
         // Lane special-case: top-aligned & spread left→right inside group's inner bounds
         if (isLaneGroup(part)) {
           const gb = part.actualBounds ? part.actualBounds.copy() : null;
@@ -10219,7 +8419,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
         const dragTool = targetDiagram.currentTool;
         if (dragTool instanceof go.DraggingTool && dragTool.isActive) {
-          return;
+          dragTool.doCancel();
         }
 
         const objview = resolveObjectview(nodeData);
@@ -10560,7 +8760,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const handleSelectConnectedObjects = (diagram: go.Diagram, part: go.Part) => {
         if (this.props.onOpenSelectConnectedObjects) {
           const includeAllRels = this.state.selectConnectedIncludeAllRels || false;
-          const relOptions = this.buildReltypeOptions(part, includeAllRels);
+          const relOptions = this.buildConnectedRelationshipOptions(part, includeAllRels);
           const reltypeOptions = this.buildModelReltypeOptions();
           this.props.onOpenSelectConnectedObjects({ diagram, part, relOptions, reltypeOptions });
           return;
@@ -10824,7 +9024,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           includeInheritedReltypes = true;
           myModelview.includeInheritedReltypes = true;
         }
-        console.log('[REL-LOOKUP] Looking up relationship types from', fromType?.name, 'to', toType?.name, 'includeInheritance:', includeInheritedReltypes);
         let includeIsType = false;
 
         const fromObj = relship.fromObject;
@@ -10839,9 +9038,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
 
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes) || [];
-        console.log('[REL-LOOKUP] Found', reltypes.length, 'relationship types from metamodel');
         const extraTypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType, true) || [];
-        console.log('[REL-LOOKUP] Found', extraTypes.length, 'extra types from metis');
         for (let i = 0; i < extraTypes.length; i++) {
           const rtype = extraTypes[i];
           if (!rtype) continue;
@@ -10869,6 +9066,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           what: "selectDropdown",
           title: "Select Relationship Type",
           case: "Change Relationship type",
+          relationshipViewRef: data.key,
+          relationshipRef: relship.id,
           myDiagram: diagram,
           args,
         };
@@ -10895,1009 +9094,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         restore();
       };
 
-      const persistShiftedLaneLinks = (
-        diagram: go.Diagram,
-        links: Set<go.Link>,
-      ) => {
-        if (!diagram || !links || links.size === 0) return;
-        links.forEach((link) => {
-          try { link.invalidateRoute(); } catch (_) { }
-          try { diagram.updateAllTargetBindings(); } catch (_) { }
-          try { diagram.requestUpdate(); } catch (_) { }
-          try {
-            if (typeof this.persistReshapedLinkPoints === 'function') {
-              this.persistReshapedLinkPoints({
-                diagram,
-                subject: link,
-              } as unknown as go.DiagramEvent);
-            }
-          } catch (_) { }
-        });
-      };
-
-      const shiftLaneMemberNodesByOffset = (
-        diagram: go.Diagram,
-        lane: go.Group,
-        laneOffset: go.Point,
-      ) => {
-        if (!diagram || !lane || laneOffset.equalsApprox(new go.Point(0, 0))) return;
-        const affectedLinks = new Set<go.Link>();
-        collectLaneOwnedNodes(diagram, lane).forEach((member: go.Node) => {
-          if (!(member instanceof go.Node) || member instanceof go.Group) return;
-          const memberLoc = member.location?.copy?.();
-          if (!(memberLoc instanceof go.Point)) return;
-          const shiftedLoc = memberLoc.copy().add(laneOffset);
-          try { member.location = shiftedLoc.copy(); } catch (_) { }
-          if (member.data) {
-            try {
-              diagram.model.setDataProperty(
-                member.data,
-                'loc',
-                go.Point.stringify(shiftedLoc),
-              );
-            } catch (_) { }
-            try {
-              if (member.data.objectview) {
-                member.data.objectview.loc = go.Point.stringify(shiftedLoc);
-              }
-            } catch (_) { }
-            try {
-              (diagram as any).dispatch?.({
-                type: 'UPDATE_OBJECTVIEW_PROPERTIES',
-                data: {
-                  id: member.data?.objectview?.id || member.data?.key || member.key,
-                  loc: go.Point.stringify(shiftedLoc),
-                  group: String(member.data?.group || lane.data?.key || lane.key || ''),
-                },
-              });
-            } catch (_) { }
-          }
-          member.linksConnected.each((link: go.Link) => {
-            try { affectedLinks.add(link); } catch (_) { }
-          });
-        });
-        persistShiftedLaneLinks(diagram, affectedLinks);
-      };
-
-      // Persist all member nodes and links after lane reordering
-      const persistLaneMemberGeometry = (
-        diagram: go.Diagram, 
-        lanes: go.Group[], 
-        laneNodeData: Map<string, { nodes: go.Node[]; relativePositions: Map<string, { relX: number; relY: number }> }>,
-        dispatchQueue?: any[],
-        clearedLinkKeys?: Set<string>
-      ) => {
-        if (!diagram || !lanes?.length || !laneNodeData) return;
-        console.log('[LANE-REORDER] Persisting geometry for', lanes.length, 'lanes');
-        
-        const shouldQueue = !!dispatchQueue;
-        const dispatch = shouldQueue 
-          ? (action: any) => dispatchQueue.push(action)
-          : (diagram as any).dispatch;
-        
-        try {
-          const affectedLinks = new Set<go.Link>();
-          
-          // Build a map to track each node's ORIGINAL lane assignment
-          // This is critical because node.data.group may have changed during the transaction
-          const nodeToOriginalLane = new Map<string, string>();
-          
-          // Build a set of all node keys in the lanes being moved
-          const movedNodeKeys = new Set<string>();
-          
-          // Use the pre-captured node lists from laneNodeData instead of re-collecting
-          // This ensures we use the node assignments from BEFORE the lane moves
-          lanes.forEach((lane) => {
-            const laneKey = String(lane.data?.key || '');
-            const nodeData = laneNodeData.get(laneKey);
-            if (nodeData && nodeData.nodes) {
-              nodeData.nodes.forEach((member: go.Node) => {
-                if (!(member instanceof go.Node) || member instanceof go.Group) return;
-                const nodeKey = String(member.data?.key || '');
-                nodeToOriginalLane.set(nodeKey, laneKey);
-                movedNodeKeys.add(nodeKey);
-                // Collect connected links - but we'll filter them later
-                member.linksConnected.each((link: go.Link) => {
-                  affectedLinks.add(link);
-                });
-              });
-            }
-          });
-          
-          console.log('[LANE-REORDER] Found', nodeToOriginalLane.size, 'nodes and', affectedLinks.size, 'links to persist');
-          
-          // CRITICAL: Before persisting, ensure ALL links have valid routing
-          // This is especially important for links that will be auto-routed on reload
-          affectedLinks.forEach((link) => {
-            try {
-              link.invalidateRoute();
-              link.updateRoute();
-            } catch (e) {
-              console.warn('[LANE-REORDER] Failed to update link route:', link.data?.key, e);
-            }
-          });
-          
-          // Persist all member nodes with full objectview data
-          nodeToOriginalLane.forEach((originalLaneKey, nodeKey) => {
-            const node = diagram.findNodeForKey(nodeKey);
-            if (!node || !node.data) return;
-            
-            // CRITICAL: Use ABSOLUTE coordinates from node.data.loc (updated by applyRelativePositionsToNodes)
-            // This codebase uses absolute coordinates, not group-relative
-            const locToSave = node.data.loc || go.Point.stringify(node.location);
-            console.log(`[LANE-REORDER] Persisting node ${nodeKey}: absoluteLoc="${locToSave}", originalLane=${originalLaneKey}`);
-            
-            // Get the full objectview from myMetis using the correct method
-            let objview = myMetis?.findObjectView?.(nodeKey);
-            if (!objview && node.data.objectview?.id) {
-              objview = myMetis?.findObjectView?.(node.data.objectview.id);
-            }
-            if (!objview && node.data.objectview) {
-              objview = node.data.objectview;
-            }
-            
-            if (objview) {
-              // Update objectview with the loc from node.data (already group-relative)
-              objview.loc = locToSave;
-              // CRITICAL: Use the ORIGINAL lane key from our capture, not current node.data.group
-              objview.group = originalLaneKey;
-              
-              // Build full payload using jsn serialization
-              try {
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                const payload = JSON.parse(JSON.stringify(jsnObjview));
-                dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-                console.log('[LANE-REORDER] Persisted node:', nodeKey, 'at group-relative', objview.loc, 'in group', objview.group);
-              } catch (e) {
-                console.error('[LANE-REORDER] Failed to serialize objectview for node:', nodeKey, e);
-              }
-            } else {
-              // Fallback: dispatch minimal update
-              console.warn('[LANE-REORDER] No objectview found for node:', nodeKey, '- using minimal update');
-              dispatch?.({
-                type: 'UPDATE_OBJECTVIEW_PROPERTIES',
-                data: {
-                  id: nodeKey,
-                  loc: locToSave,
-                  group: originalLaneKey,
-                },
-              });
-            }
-          });
-          
-          // Persist all affected links with updated points
-          // CRITICAL: Persist ALL links connected to moved nodes, including cross-lane links
-          // - Within-lane links (both endpoints in moved lanes): persist undefined for auto-routing
-          // - Cross-lane links (one endpoint in moved lanes): persist with newly calculated routing points
-          console.log('[LANE-REORDER] Starting link persistence for', affectedLinks.size, 'links');
-          affectedLinks.forEach((link) => {
-            if (!link.data) {
-              console.log('[LANE-REORDER] Skipping link with no data');
-              return;
-            }
-            
-            const linkData = link.data;
-            const linkKey = linkData.key;
-            
-            // Check if both endpoints are in lanes being moved
-            const fromNodeKey = String(linkData.from || '');
-            const toNodeKey = String(linkData.to || '');
-            const fromInMovedLanes = movedNodeKeys.has(fromNodeKey);
-            const toInMovedLanes = movedNodeKeys.has(toNodeKey);
-            
-            // Skip links that have no connection to moved lanes
-            if (!fromInMovedLanes && !toInMovedLanes) {
-              return;
-            }
-            
-            // CRITICAL: Check if link crosses between different lanes OR to/from unmoved nodes
-            // Get which lane each endpoint belongs to
-            const fromNodeLane = nodeToOriginalLane.get(fromNodeKey);
-            const toNodeLane = nodeToOriginalLane.get(toNodeKey);
-            
-            // Determine link type:
-            // - Within-lane: both nodes in SAME lane that was moved
-            // - Cross-lane: nodes in different lanes OR one node outside moved lanes
-            const isWithinLaneLink = fromNodeLane !== undefined && 
-                                     toNodeLane !== undefined && 
-                                     fromNodeLane === toNodeLane;
-            const isCrossLaneLink = !isWithinLaneLink; // Everything else is cross-lane
-            
-            console.log('[LANE-REORDER] Processing link', linkKey, '- within-lane:', isWithinLaneLink, 'cross-lane:', isCrossLaneLink, {
-              from: fromNodeKey,
-              to: toNodeKey,
-              fromLane: fromNodeLane,
-              toLane: toNodeLane,
-              fromNode: link.fromNode?.data?.name,
-              toNode: link.toNode?.data?.name
-            });
-            
-            // Get the full relshipview from myMetis using the correct method
-            let relview = myMetis?.findRelationshipView?.(linkData?.relviewRef);
-            if (!relview && linkData.relshipview) {
-              relview = linkData.relshipview;
-            }
-            
-            if (relview) {
-              // CRITICAL: Preserve from/to node references from link.data
-              // The relshipview from myMetis might be stale, so use the current link data
-              console.log('[LANE-REORDER] Link data for:', linkKey, {
-                'linkData.from': linkData.from,
-                'linkData.to': linkData.to,
-                'linkData.fromPort': linkData.fromPort,
-                'linkData.toPort': linkData.toPort,
-                'link.fromNode?.data?.key': link.fromNode?.data?.key,
-                'link.toNode?.data?.key': link.toNode?.data?.key,
-              });
-              
-              if (linkData.from !== undefined) relview.from = linkData.from;
-              if (linkData.to !== undefined) relview.to = linkData.to;
-              if (linkData.fromPort !== undefined) relview.fromPort = linkData.fromPort;
-              if (linkData.toPort !== undefined) relview.toPort = linkData.toPort;
-              
-              // CRITICAL: Determine how to persist routing points based on link type
-              const wasCleared = clearedLinkKeys && clearedLinkKeys.has(linkKey);
-              
-              if (wasCleared) {
-                // Within-lane link that was explicitly cleared - persist undefined for auto-routing on reload
-                relview.points = undefined;
-                console.log('[LANE-REORDER] Persisting within-lane link:', linkKey, 'from:', relview.from, 'to:', relview.to, 'with undefined points (will auto-route)');
-              } else if (isCrossLaneLink) {
-                // Cross-lane link - persist the newly calculated routing points from visual link
-                // After invalidateRoute() and updateRoute(), link.points contains the recalculated routing
-                const visualPoints = link.points;
-                if (visualPoints && visualPoints.count > 0) {
-                  const flatPoints: number[] = [];
-                  const pointsArray = visualPoints.toArray();
-                  pointsArray.forEach((pt: go.Point) => {
-                    flatPoints.push(pt.x, pt.y);
-                  });
-                  relview.points = flatPoints;
-                  console.log('[LANE-REORDER] Persisting cross-lane link:', linkKey, 'from:', relview.from, 'to:', relview.to);
-                  console.log('  Visual points count:', pointsArray.length, 'First point:', pointsArray[0]?.x, pointsArray[0]?.y);
-                  console.log('  Flattened points:', flatPoints.slice(0, 6), '...');
-                } else {
-                  relview.points = undefined;
-                  console.log('[LANE-REORDER] Persisting cross-lane link:', linkKey, 'with undefined points (no visual points)');
-                }
-              } else {
-                // Fallback: preserve existing data points
-                const dataPoints = linkData.points;
-                if (dataPoints !== undefined && Array.isArray(dataPoints)) {
-                  relview.points = dataPoints;
-                  console.log('[LANE-REORDER] Persisting link:', linkKey, 'with', dataPoints.length, 'existing data points');
-                } else {
-                  relview.points = undefined;
-                  console.log('[LANE-REORDER] Persisting link:', linkKey, 'with undefined points');
-                }
-              }
-              
-              // Build full payload using jsn serialization
-              try {
-                const jsnRelview = new jsn.jsnRelshipView(relview);
-                const payload = JSON.parse(JSON.stringify(jsnRelview));
-                
-                // CRITICAL: jsn.jsnRelshipView doesn't preserve GoJS link from/to properties
-                // Explicitly add them back to the payload so Redux persists the connections
-                payload.from = relview.from;
-                payload.to = relview.to;
-                payload.fromPort = relview.fromPort;
-                payload.toPort = relview.toPort;
-                
-                console.log('[LANE-REORDER] Dispatching link payload:', linkKey, {
-                  'payload.id': payload.id,
-                  'payload.from': payload.from,
-                  'payload.to': payload.to,
-                  'payload.fromPort': payload.fromPort,
-                  'payload.toPort': payload.toPort,
-                  'payload.points': payload.points,
-                });
-                dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
-              } catch (e) {
-                console.error('[LANE-REORDER] Failed to serialize relshipview for link:', linkKey, e);
-              }
-            } else {
-              // Fallback: dispatch minimal update with from/to preserved
-              console.warn('[LANE-REORDER] No relshipview found for link:', linkKey, '- using minimal update');
-              const wasCleared = clearedLinkKeys && clearedLinkKeys.has(linkKey);
-              
-              let pointsToSave;
-              if (wasCleared) {
-                pointsToSave = undefined; // Within-lane link, cleared for auto-routing
-              } else if (isCrossLaneLink) {
-                // Cross-lane link - read recalculated visual points
-                const visualPoints = link.points;
-                if (visualPoints && visualPoints.count > 0) {
-                  const flatPoints: number[] = [];
-                  visualPoints.toArray().forEach((pt: go.Point) => {
-                    flatPoints.push(pt.x, pt.y);
-                  });
-                  pointsToSave = flatPoints;
-                } else {
-                  pointsToSave = undefined;
-                }
-              } else {
-                pointsToSave = linkData.points; // Use existing data points
-              }
-              
-              dispatch?.({
-                type: 'UPDATE_RELSHIPVIEW_PROPERTIES',
-                data: {
-                  id: linkKey,
-                  from: linkData.from,
-                  to: linkData.to,
-                  fromPort: linkData.fromPort,
-                  toPort: linkData.toPort,
-                  points: pointsToSave,
-                },
-              });
-            }
-          });
-          
-          console.log('[LANE-REORDER] Persisted member nodes and links');
-          
-          // CRITICAL: Also persist the lanes themselves (loc, size, laneIndex)
-          console.log('[LANE-REORDER] Persisting lane geometry for', lanes.length, 'lanes');
-          lanes.forEach((lane) => {
-            if (!lane.data) return;
-            
-            const laneKey = lane.data.key;
-            // CRITICAL: Read from data model first, fall back to visual location
-            // This ensures consistency with how nodes read lane positions
-            const laneDataLoc = lane.data.loc;
-            const laneLoc = laneDataLoc ? go.Point.parse(laneDataLoc) : lane.location;
-            const laneLocString = laneDataLoc || go.Point.stringify(laneLoc);
-            const laneSize = lane.actualBounds.size;
-            const laneIndex = lane.data.laneIndex;
-            
-            console.log(`[LANE-REORDER] Lane ${laneKey} pre-persist check: data.loc="${laneDataLoc}", visual.location=(${lane.location.x}, ${lane.location.y}), laneIndex=${laneIndex}`);
-            
-            // Get the full objectview from myMetis
-            let objview = myMetis?.findObjectView?.(laneKey);
-            if (!objview && lane.data.objectview?.id) {
-              objview = myMetis?.findObjectView?.(lane.data.objectview.id);
-            }
-            if (!objview && lane.data.objectview) {
-              objview = lane.data.objectview;
-            }
-            
-            if (objview) {
-              // Update objectview with current live values  
-              objview.loc = laneLocString;
-              objview.size = `${laneSize.width} ${laneSize.height}`;
-              objview.laneIndex = laneIndex;
-              if (lane.data.group) objview.group = String(lane.data.group);
-              
-              // Build full payload using jsn serialization
-              try {
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                const payload = JSON.parse(JSON.stringify(jsnObjview));
-                dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-                console.log('[LANE-REORDER] Persisted lane:', laneKey, 'laneIndex:', laneIndex, 'at', objview.loc);
-              } catch (e) {
-                console.error('[LANE-REORDER] Failed to serialize objectview for lane:', laneKey, e);
-              }
-            } else {
-              // Fallback: dispatch minimal update
-              console.warn('[LANE-REORDER] No objectview found for lane:', laneKey, '- using minimal update');
-              dispatch?.({
-                type: 'UPDATE_OBJECTVIEW_PROPERTIES',
-                data: {
-                  id: laneKey,
-                  loc: laneLocString,
-                  size: `${laneSize.width} ${laneSize.height}`,
-                  laneIndex: laneIndex,
-                  group: String(lane.data.group || ''),
-                },
-              });
-            }
-          });
-          
-          console.log('[LANE-REORDER] Persistence complete');
-        } catch (error) {
-          console.error('[LANE-REORDER] Error persisting lane member geometry:', error);
-        }
-      };
-
-      const syncReorderedLaneMemberNodes = (
-        diagram: go.Diagram,
-        lanes: go.Group[],
-        previousLaneLocs: Map<string, go.Point>,
-      ) => {
-        if (!diagram || !lanes?.length || !previousLaneLocs?.size) return;
-        diagram.startTransaction('sync reordered lane member nodes');
-        try {
-          lanes.forEach((groupLane) => {
-            const laneKey = String(groupLane.data?.key || groupLane.key || '');
-            const previousLoc = previousLaneLocs.get(laneKey);
-            const currentLoc = groupLane.location?.copy?.();
-            if (!previousLoc || !(currentLoc instanceof go.Point)) return;
-            const laneOffset = currentLoc.copy().subtract(previousLoc);
-            shiftLaneMemberNodesByOffset(diagram, groupLane, laneOffset);
-          });
-          diagram.commitTransaction('sync reordered lane member nodes');
-        } catch (error) {
-          console.error('[LANE-REORDER] Failed to sync member nodes after relayout:', error);
-          diagram.rollbackTransaction();
-        }
-      };
-
-      // Helper: Calculate relative positions of nodes within a lane
-      const calculateNodeRelativePositions = (
-        lane: go.Group,
-        nodes: go.Node[]
-      ): Map<string, { relX: number; relY: number }> => {
-        const relativePositions = new Map<string, { relX: number; relY: number }>();
-        const lanePos = lane.location;
-        const laneKey = String(lane.data?.key || '');
-
-        console.log(`[LANE-REORDER] Calculating relative positions for lane ${laneKey} at ${lanePos.x}, ${lanePos.y}`);
-
-        nodes.forEach((node) => {
-          if (node instanceof go.Node && !(node instanceof go.Group)) {
-            const nodeKey = String(node.data?.key || '');
-            if (nodeKey) {
-              const relX = node.location.x - lanePos.x;
-              const relY = node.location.y - lanePos.y;
-              relativePositions.set(nodeKey, { relX, relY });
-              console.log(`[LANE-REORDER]   Node ${nodeKey}: absolute=(${node.location.x}, ${node.location.y}), lane=(${lanePos.x}, ${lanePos.y}), relative=(${relX}, ${relY}), data.loc=${node.data?.loc}`);
-            }
-          }
-        });
-
-        return relativePositions;
-      };
-
-      // Helper: Apply relative positions to nodes after lane has moved
-      const applyRelativePositionsToNodes = (
-        diagram: go.Diagram,
-        lane: go.Group,
-        nodes: go.Node[],
-        relativePositions: Map<string, { relX: number; relY: number }>
-      ) => {
-        // CRITICAL: Use the lane's CURRENT position after relayout
-        // Relative offsets were calculated from the old position, but we apply them
-        // to the NEW position so nodes move WITH their lane
-        const lanePos = lane.location;
-        const laneKey = String(lane.data?.key || '');
-
-        console.log(`[LANE-REORDER] Applying relative positions for lane ${laneKey} at current position (${lanePos.x}, ${lanePos.y}), ${nodes.length} nodes`);
-
-        nodes.forEach((node) => {
-          if (node instanceof go.Node && !(node instanceof go.Group)) {
-            const nodeKey = String(node.data?.key || '');
-            const relPos = relativePositions.get(nodeKey);
-            if (relPos) {
-              const oldLoc = node.location.copy();
-              const newAbsoluteLoc = new go.Point(lanePos.x + relPos.relX, lanePos.y + relPos.relY);
-              
-              // CRITICAL: Capture the node's original group BEFORE moving it
-              // GoJS may try to reassign group based on spatial containment when we set location
-              const originalGroup = node.data?.group;
-              
-              console.log(`[LANE-REORDER] Node ${nodeKey}: oldLoc=(${oldLoc.x}, ${oldLoc.y}) → newLoc=(${newAbsoluteLoc.x}, ${newAbsoluteLoc.y}), relative=(${relPos.relX}, ${relPos.relY}), originalGroup=${originalGroup}`);
-              
-              // CRITICAL: Update BOTH data model AND visual location
-              // Data model for persistence, visual location for immediate rendering
-              try {
-                const locString = go.Point.stringify(newAbsoluteLoc);
-                diagram.model.setDataProperty(node.data, 'loc', locString);
-                console.log(`[LANE-REORDER] Updated data.loc for ${nodeKey}: "${locString}"`);
-              } catch (err) {
-                console.warn('[LANE-REORDER] Failed to update node.data.loc for:', nodeKey, err);
-              }
-              
-              // CRITICAL: Also set visual location directly
-              // GoJS bindings don't automatically sync during transaction
-              node.location = newAbsoluteLoc;
-              
-              // CRITICAL: Explicitly restore the original group assignment
-              // This prevents GoJS from automatically reassigning based on spatial containment
-              if (originalGroup !== undefined && node.data?.group !== originalGroup) {
-                console.log(`[LANE-REORDER] Restoring group for ${nodeKey}: ${node.data?.group} → ${originalGroup}`);
-                diagram.model.setDataProperty(node.data, 'group', originalGroup);
-              }
-              
-              // Verify the change took effect
-              const verifyLoc = node.location;
-              const verifyGroup = node.data?.group;
-              console.log(`[LANE-REORDER] Verified ${nodeKey}: location=(${verifyLoc.x}, ${verifyLoc.y}), group=${verifyGroup}`);
-            }
-          }
-        });
-        
-        console.log(`[LANE-REORDER] Finished applying positions for lane ${laneKey}`);
-        
-        // Force diagram to update visual rendering
-        diagram.invalidateDocumentBounds();
-      };
-
-      // Helper: Clear link paths for all nodes so they auto-route after position changes
-      const clearLinkPathsForNodes = (diagram: go.Diagram, nodes: go.Node[], movedNodeKeys?: Set<string>): Set<string> => {
-        const clearedLinks = new Set<string>();
-        
-        nodes.forEach((node) => {
-          if (node instanceof go.Node && !(node instanceof go.Group)) {
-            // Clear paths for all connected links
-            node.findLinksConnected().each((link) => {
-              const linkKey = link.data?.key;
-              if (linkKey && !clearedLinks.has(linkKey)) {
-                // If movedNodeKeys is provided, only clear links where BOTH endpoints are in moved lanes
-                // This ensures we only clear within-lane links, not cross-lane links
-                if (movedNodeKeys) {
-                  const fromNodeKey = String(link.data?.from || '');
-                  const toNodeKey = String(link.data?.to || '');
-                  const fromInMovedLanes = movedNodeKeys.has(fromNodeKey);
-                  const toInMovedLanes = movedNodeKeys.has(toNodeKey);
-                  
-                  if (!fromInMovedLanes || !toInMovedLanes) {
-                    console.log(`[LANE-REORDER] Skipping clear for link ${linkKey} (${link.fromNode?.data?.name} -> ${link.toNode?.data?.name}) - crosses lane boundary (from: ${fromInMovedLanes}, to: ${toInMovedLanes})`);
-                    return; // Skip this link - it's cross-lane
-                  }
-                  
-                  console.log(`[LANE-REORDER] Clearing within-lane link ${linkKey} (${link.fromNode?.data?.name} -> ${link.toNode?.data?.name})`);
-                }
-                
-                clearedLinks.add(linkKey);
-                
-                // Clear the points array so link auto-routes on reload
-                diagram.model.setDataProperty(link.data, 'points', undefined);
-                
-                // Force link to recalculate its route immediately
-                link.invalidateRoute();
-              }
-            });
-          }
-        });
-        
-        console.log(`[LANE-REORDER] Cleared paths for ${clearedLinks.size} links:`, Array.from(clearedLinks));
-        return clearedLinks;
-      };
-
-      // Helper: Manually reposition lanes by laneIndex (for PassiveSwimlaneLayout)
-      const manuallyRepositionLanesByIndex = (diagram: go.Diagram, pool: go.Group, lanes: go.Group[], logPrefix: string) => {
-        // Sort lanes by laneIndex
-        const sortedLanes = [...lanes].sort((a, b) => {
-          const aIndex = a.data?.laneIndex ?? 0;
-          const bIndex = b.data?.laneIndex ?? 0;
-          return aIndex - bIndex;
-        });
-        
-        console.log(`[${logPrefix}] Manual lane repositioning:`, sortedLanes.map(l => ({
-          key: l.data?.key,
-          laneIndex: l.data?.laneIndex
-        })));
-        
-        // Position lanes vertically based on sorted order
-        const poolLoc = pool.location;
-        let currentY = poolLoc.y;
-        
-        sortedLanes.forEach((sortedLane) => {
-          const laneActualHeight = sortedLane.actualBounds.height || 400;
-          const newLoc = new go.Point(poolLoc.x, currentY);
-          
-          console.log(`[${logPrefix}] Reposition lane ${sortedLane.data?.key} (laneIndex=${sortedLane.data?.laneIndex}) to y=${currentY}`);
-          
-          // Set visual location
-          sortedLane.location = newLoc;
-          
-          currentY += laneActualHeight;
-        });
-      };
-
-      const handleEditRelationship = (diagram: go.Diagram, part: go.Link) => {
-        if (!diagram || !part) return;
-        const linkData: any = part.data;
-        if (!linkData) return;
-        const relship = myMetis.findRelationship(linkData?.relshipRef);
-        const relshipview = myMetis.findRelationshipView(linkData?.relviewRef);
-        const relshiptype = myMetis.findRelationshipType(relship?.typeRef);
-        const relshiptypeview = relshiptype?.typeview;
-        const context = {
-          object: null,
-          objectview: null,
-          objecttype: null,
-          objecttypeview: null,
-          relship: relship,
-          relshipview: relshipview,
-          relshiptype: relshiptype,
-          relshiptypeview: relshiptypeview,
-          model: myMetis.currentModel,
-          modelview: myMetis.currentModelview,
-          metamodel: myMetis.currentMetamodel,
-        };
-        const modalContext = {
-          what: "editRelationship",
-          title: "Edit Relationship",
-          myDiagram: diagram,
-          myContext: context,
-        };
-        myMetis.currentLink = linkData;
-        myMetis.myDiagram = diagram;
-        diagram.handleOpenModal(linkData, modalContext);
-      };
-
-      const handleEditRelationshipView = (diagram: go.Diagram, part: go.Link) => {
-        if (!diagram || !part) return;
-        const linkData: any = part.data;
-        if (!linkData) return;
-        const relship = myMetis.findRelationship(linkData?.relshipRef);
-        const relshipview = myMetis.findRelationshipView(linkData?.relviewRef);
-        const relshiptype = myMetis.findRelationshipType(relship?.reltypeRef || relship?.typeRef);
-        const relshiptypeview = relshiptype?.typeview;
-        const context = {
-          object: null,
-          objectview: null,
-          objecttype: null,
-          objecttypeview: null,
-          relship: relship,
-          relshipview: relshipview,
-          relshiptype: relshiptype,
-          relshiptypeview: relshiptypeview,
-          model: myMetis.currentModel,
-          modelview: myMetis.currentModelview,
-          metamodel: myMetis.currentMetamodel,
-        };
-        const modalContext = {
-          what: "editRelshipview",
-          title: "Edit Relationship View",
-          myDiagram: diagram,
-          myContext: context,
-        };
-        myMetis.currentLink = linkData;
-        myMetis.myDiagram = diagram;
-        diagram.handleOpenModal(linkData, modalContext);
-      };
-
-      const handleLinkDelete = (diagram: go.Diagram, part: go.Link) => {
-        if (!diagram || !part) return;
-        ensurePartInSelection(diagram, part);
-        if (!diagram.commandHandler.canDeleteSelection()) return;
-        if (confirm('Do you really want to delete the current selection?')) {
-          myMetis.deleteViewsOnly = false;
-          myMetis.currentLink = part.data;
-          if (!persistDeletedRelationshipPart(diagram, part)) {
-            diagram.commandHandler.deleteSelection();
-          }
-        }
-      };
-
-      const handleDeleteSelection = (diagram: go.Diagram) => {
-        if (!diagram) return;
-        if (!diagram.commandHandler.canDeleteSelection()) return;
-        if (confirm('Do you really want to delete the current selection?')) {
-          myMetis.deleteViewsOnly = false;
-          const selectedParts: go.Part[] = [];
-          diagram.selection.each((sel) => selectedParts.push(sel));
-          let deletedAny = false;
-          for (let i = 0; i < selectedParts.length; i++) {
-            deletedAny = persistDeletedObjectPart(diagram, selectedParts[i]) || deletedAny;
-            deletedAny = persistDeletedRelationshipPart(diagram, selectedParts[i]) || deletedAny;
-          }
-          if (!deletedAny) {
-            diagram.commandHandler.deleteSelection();
-          }
-        }
-      };
-
-      const deleteNodeMenuItems = (part: go.Part): HtmlMenuItem[] => [
-        {
-          label: "Delete",
-          action: (diagram) => handleDeletePart(diagram, part),
-          enabled: (diagram) => canDeleteSinglePart(diagram, part),
-        },
-        {
-          label: "Delete View",
-          action: (diagram) => {
-            if (!diagram) return;
-            const restore = exclusiveSelectPart(diagram, part);
-            if (!diagram.commandHandler.canDeleteSelection()) {
-              restore();
-              return;
-            }
-            if (!confirm('Do you really want to delete this object view?')) {
-              restore();
-              return;
-            }
-            myMetis.deleteViewsOnly = true;
-            myMetis.currentNode = part.data;
-            diagram.commandHandler.deleteSelection();
-            restore();
-          },
-          enabled: (diagram) => canDeleteSinglePart(diagram, part),
-        },
-        {
-          label: "Delete Selection",
-          action: (diagram) => handleDeleteSelection(diagram),
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-        },
-        {
-          label: "Delete Selected Views",
-          action: (diagram) => {
-            if (!diagram || !diagram.commandHandler.canDeleteSelection()) return;
-            if (!confirm('Do you really want to delete the current selection?')) return;
-            myMetis.deleteViewsOnly = true;
-            diagram.commandHandler.deleteSelection();
-          },
-          enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
-        },
-      ];
-
-      // const deleteLinkMenuItems = (part: go.Link): HtmlMenuItem[] => [
-      //   {
-      //     label: "Delete Selection",
-      //     action: (diagram) => handleDeleteSelection(diagram),
-      //     enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-      //   },
-      //   {
-      //     label: "Delete",
-      //     action: (diagram) => {
-      //       if (!diagram || !(part instanceof go.Link)) return;
-      //       const restore = exclusiveSelectPart(diagram, part);
-      //       if (!diagram.commandHandler.canDeleteSelection()) {
-      //         restore();
-      //         return;
-      //       }
-      //       if (!confirm('Do you really want to delete this relationship?')) {
-      //         restore();
-      //         return;
-      //       }
-      //       myMetis.deleteViewsOnly = false;
-      //       myMetis.currentLink = part.data;
-      //       diagram.commandHandler.deleteSelection();
-      //       restore();
-      //     },
-      //     enabled: (diagram) => canDeleteSinglePart(diagram, part),
-      //   },
-      //   {
-      //     label: "Delete View",
-      //     action: (diagram) => {
-      //       if (!diagram || !(part instanceof go.Link)) return;
-      //       const restore = exclusiveSelectPart(diagram, part);
-      //       if (!diagram.commandHandler.canDeleteSelection()) {
-      //         restore();
-      //         return;
-      //       }
-      //       if (!confirm('Do you really want to delete the current relationship view?')) {
-      //         restore();
-      //         return;
-      //       }
-      //       myMetis.deleteViewsOnly = true;
-      //       myMetis.currentLink = part.data;
-      //       diagram.commandHandler.deleteSelection();
-      //       restore();
-      //     },
-      //     enabled: (diagram) => canDeleteSinglePart(diagram, part),
-      //   },
-      // ];
-
-      const buildObjectMenuItems = (part: go.Part): HtmlMenuItem[] => {
-        const objectMenuItems: HtmlMenuItem[] = [
-          {
-            label: "Edit Object",
-            action: () => handleEditObject(part),
-          },
-          {
-            label: "Convert to Group",
-            action: (diagram) => handleConvertToGroup(diagram, part),
-            visible: () => canConvertToGroup(part?.data),
-          },
-          {
-            label: "Convert to Object",
-            action: (diagram) => handleConvertToNode(diagram, part),
-            visible: () => canConvertToNode(part?.data),
-          },
-          {
-            label: "Enable Ports",
-            action: (diagram) => handleEnablePorts(diagram, part),
-            visible: () => canEnablePorts(part?.data),
-          },
-          {
-            label: "Add Ports",
-            action: (diagram) => handleAddPort(diagram, part),
-            visible: () => canAddPortToNode(part),
-            enabled: () => canAddPortToNode(part),
-          },
-          {
-            label: "Select all of this type",
-            action: (diagram) => handleSelectAllObjectsOfSameType(diagram, part),
-          },
-          { separator: true },
-          {
-            label: "Delete Object",
-            action: (diagram) => handleDeletePart(diagram, part),
-            enabled: (diagram) => canDeleteSinglePart(diagram, part),
-          },
-          {
-            label: "Delete Selection",
-            action: (diagram) => handleDeleteSelection(diagram),
-            enabled: (diagram) => diagram.commandHandler.canDeleteSelection(),
-          }
-        ];
-        return objectMenuItems;
-      };
-
-      const buildNodeMenuItems = (part: go.Part): HtmlMenuItem[] => {
-        const items: HtmlMenuItem[] = [];
-        const data: any = part.data || {};
-        const isMetamodelObjectTypeNode =
-          myMetis.modelType === 'Metamodelling' &&
-          (!!data.objecttype || !!data.objtypeRef);
-
-        // Metamodel window: objecttype nodes only expose "Edit Object Type" and "Edit Object Typeview"
-        if (data.category === constants.gojs.C_OBJECTTYPE || isMetamodelObjectTypeNode) {
-          return [
-            {
-              label: "Edit Object Type",
-          lane.location = laneLoc;
-          nextLane.location = nextLaneLoc;
-          
-          // CRITICAL: Also update data model to keep it in sync with visual positions
-          diagram.model.setDataProperty(lane.data, 'loc', go.Point.stringify(laneLoc));
-          diagram.model.setDataProperty(nextLane.data, 'loc', go.Point.stringify(nextLaneLoc));
-          
-          lane.updateTargetBindings();
-          nextLane.updateTargetBindings();
-          console.log('[LANE-REORDER-DOWN] Swapped lane positions in both visual and data model');
-          
-          // Use pre-calculated delta for node movement
-          const actualDeltaY = deltaY;
-          const actualNextDeltaY = -deltaY;
-          
-          console.log('[LANE-REORDER-DOWN] Calculated deltas:', {
-            lane: { key: lane.data?.key, oldY: laneOriginalY, newY: lane.location.y, delta: actualDeltaY },
-            nextLane: { key: nextLane.data?.key, oldY: nextLaneOriginalY, newY: nextLane.location.y, delta: actualNextDeltaY }
-          });
-          
-          // Move lane's nodes by the ACTUAL delta
-          laneNodes.forEach((node) => {
-            const oldLoc = node.location.copy();
-            const newLoc = new go.Point(oldLoc.x, oldLoc.y + actualDeltaY);
-            node.location = newLoc;
-            diagram.model.setDataProperty(node.data, 'loc', go.Point.stringify(newLoc));
-          });
-          
-          // Move nextLane's nodes by the ACTUAL delta
-          nextLaneNodes.forEach((node) => {
-            const oldLoc = node.location.copy();
-            const newLoc = new go.Point(oldLoc.x, oldLoc.y + actualNextDeltaY);
-            node.location = newLoc;
-            diagram.model.setDataProperty(node.data, 'loc', go.Point.stringify(newLoc));
-          });
-          
-          // Invalidate and update routes for all connected links
-          const clearedLinkKeys = new Set<string>();
-          [...laneNodes, ...nextLaneNodes].forEach((node) => {
-            node.findLinksConnected().each((link) => {
-              const linkKey = link.data?.key;
-              if (linkKey && !clearedLinkKeys.has(linkKey)) {
-                clearedLinkKeys.add(linkKey);
-                // Clear routing points so links auto-route on reload
-                diagram.model.setDataProperty(link.data, 'points', undefined);
-                // Recalculate route for immediate visual feedback
-                link.invalidateRoute();
-                link.updateRoute();
-              }
-            });
-          });
-          console.log('[LANE-REORDER-DOWN] Cleared routing for', clearedLinkKeys.size, 'links');
-          
-          // Force diagram to render before committing
-          diagram.maybeUpdate();
-          console.log('[LANE-REORDER-DOWN] Forced diagram update');
-          
-          diagram.commitTransaction('move lane down');
-          console.log('[LANE-REORDER-DOWN] Transaction committed');
-          
-          console.log('[LANE-REORDER-DOWN] Final positions:', {
-            lane: { key: lane.data?.key, y: lane.location.y, laneIndex: lane.data?.laneIndex },
-            nextLane: { key: nextLane.data?.key, y: nextLane.location.y, laneIndex: nextLane.data?.laneIndex }
-          });
-          
-          // Persist after a short delay
-          console.log('[LANE-REORDER-DOWN] Setting up persistence setTimeout');
-          setTimeout(() => {
-            console.log('[LANE-REORDER-DOWN] Persistence setTimeout fired');
-            // Re-enable dispatches now that we're ready to persist
-            (diagram as any).__deferSwimlaneGeometryDispatch = false;
-            
-            const dispatchQueue: any[] = [];
-            console.log('[LANE-REORDER-DOWN] Starting persistence, lanes:', [lane, nextLane].map(l => ({ key: l.data?.key, y: l.location.y, laneIndex: l.data?.laneIndex })));
-            console.log('[LANE-REORDER-DOWN] Starting persistence, nodes:', [...laneNodes, ...nextLaneNodes].map(n => ({ key: n.data?.key, y: n.location.y })));
-            
-            // Persist lanes with SWAPPED laneIndex values
-            const laneObjview = myMetis?.findObjectView?.(lane.data?.key);
-            if (laneObjview) {
-              // Swap laneIndex to match the new positions
-              laneObjview.laneIndex = nextLaneOriginalIndex;  // Lane moved down gets next lane's index
-              laneObjview.loc = lane.data.loc;
-              console.log('[LANE-REORDER-DOWN] Persisting lane', lane.data?.key, 'with SWAPPED laneIndex:', nextLaneOriginalIndex, 'and loc:', lane.data.loc);
-              try {
-                const jsnObjview = new jsn.jsnObjectView(laneObjview);
-                dispatchQueue.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(jsnObjview)) });
-              } catch (e) {
-                console.warn('[LANE-REORDER-DOWN] Failed to persist lane:', lane.data?.key, e);
-              }
-            }
-            
-            const nextLaneObjview = myMetis?.findObjectView?.(nextLane.data?.key);
-            if (nextLaneObjview) {
-              // Swap laneIndex to match the new positions
-              nextLaneObjview.laneIndex = laneOriginalIndex;  // Next lane moved up gets lane's index
-              nextLaneObjview.loc = nextLane.data.loc;
-              console.log('[LANE-REORDER-DOWN] Persisting nextLane', nextLane.data?.key, 'with SWAPPED laneIndex:', laneOriginalIndex, 'and loc:', nextLane.data.loc);
-              try {
-                const jsnObjview = new jsn.jsnObjectView(nextLaneObjview);
-                dispatchQueue.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(jsnObjview)) });
-              } catch (e) {
-                console.warn('[LANE-REORDER-DOWN] Failed to persist nextLane:', nextLane.data?.key, e);
-              }
-            }
-            
-            // Persist nodes
-            [...laneNodes, ...nextLaneNodes].forEach((node) => {
-              const nodeObjview = myMetis?.findObjectView?.(node.data?.key);
-              if (nodeObjview) {
-                // CRITICAL: Use node.data.loc (set during transaction) instead of node.location
-                // node.location might have been reverted by layout systems by the time we persist
-                nodeObjview.loc = node.data.loc;
-                console.log('[LANE-REORDER-DOWN] Persisting node', node.data?.key, 'at', node.data.loc);
-                try {
-                  const jsnObjview = new jsn.jsnObjectView(nodeObjview);
-                  dispatchQueue.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(jsnObjview)) });
-                } catch (e) {
-                  console.warn('[LANE-REORDER-DOWN] Failed to persist node:', node.data?.key, e);
-                }
-              }
-            });
-            
-            // Persist link routing points (cleared to undefined for auto-routing on reload)
-            const persistedLinks = new Set<string>();
-            [...laneNodes, ...nextLaneNodes].forEach((node) => {
-              node.findLinksConnected().each((link) => {
-                const linkKey = link.data?.key;
-                if (linkKey && !persistedLinks.has(linkKey)) {
-                  persistedLinks.add(linkKey);
-                  const relship = myMetis?.findRelationship?.(link.data?.relshipRef);
-                  const relshipview = myMetis?.findRelationshipView?.(link.data?.relviewRef);
-                  if (relshipview) {
-                    // CRITICAL: Persist undefined routing points so links auto-route on reload
-                    relshipview.points = undefined;
-                    console.log('[LANE-REORDER-DOWN] Persisting link', linkKey, 'with undefined points (will auto-route on reload)');
-                    try {
-                      const jsnRelview = new jsn.jsnRelshipView(relshipview);
-                      const payload = JSON.parse(JSON.stringify(jsnRelview));
-                      // Restore from/to properties that jsn strips out
-                      if (relship) {
-                        payload.from = relship.from;
-                        payload.to = relship.to;
-                      }
-                      dispatchQueue.push({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data: payload });
-                    } catch (e) {
-                      console.warn('[LANE-REORDER-DOWN] Failed to persist link:', linkKey, e);
-                    }
-                  }
-                }
-              });
-            });
-            
-            dispatchQueue.forEach((action) => (diagram as any).dispatch?.(action));
-            console.log('[LANE-REORDER-DOWN] Persisted', dispatchQueue.length, 'updates');
-            console.log('[LANE-REORDER-DOWN] Dispatch function exists:', typeof (diagram as any).dispatch);
-            console.log('[LANE-REORDER-DOWN] Sample dispatched actions:', dispatchQueue.slice(0, 2));
-            
-            // Clean up suppression flags after persistence completes
-            setTimeout(() => {
-              delete (diagram as any).__suppressComponentDispatchUntil;
-              delete (diagram as any).__suppressIncomingSwimlaneSyncUntil;
-              console.log('[LANE-REORDER-DOWN] Cleared all suppression flags');
-              
-              // Restore pool layout AFTER suppression flags are cleared
-              pool.layout = originalPoolLayout;
-              console.log('[LANE-REORDER-DOWN] Restored pool layout');
-            }, 100);
-          }, 100);
-          
       const handleEditRelationship = (diagram: go.Diagram, part: go.Link) => {
         if (!diagram || !part) return;
         const linkData: any = part.data;
@@ -12212,6 +9408,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try { (groupRelationshipPathItems as any).menuHeading = 'Relationship Paths'; } catch (_) {}
           const groupLayoutItems: HtmlMenuItem[] = [
             {
+              label: "Lane Flow (Start → End)",
+              action: (diagram) => applyGroupLayoutScheme(diagram, part, "LaneFlow"),
+              visible: () => isLaneGroup(part),
+            },
+            {
+              separator: true,
+              visible: () => isLaneGroup(part),
+            },
+            {
               label: "Grid",
               action: (diagram) => applyGroupLayoutScheme(diagram, part, "Grid"),
             },
@@ -12344,7 +9549,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 enabled: (diagram) => diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
               },
               { separator: true },
-              {  
+              {
                 label: "Change Icon",
                 action: (diagram) => {
                   const node = part.data;
@@ -12405,7 +9610,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.fillcolor = val;
+                                    setAppearanceOverride(objview, 'fillcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -12432,7 +9637,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                             { label: 'Cyan', value: '#00ffff' },
                             { label: 'Transparent', value: 'rgba(0,0,0,0)' }
                           ];
- 
+
                           const sel = document.createElement('select');
                           sel.style.cursor = 'pointer';
                           sel.style.padding = '2px 6px';
@@ -12495,7 +9700,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.fillcolor = val;
+                                        setAppearanceOverride(objview, 'fillcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -12547,7 +9752,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                 try {
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.strokecolor = val;
+                                    setAppearanceOverride(objview, 'strokecolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -12620,7 +9825,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.strokecolor = val;
+                                        setAppearanceOverride(objview, 'strokecolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -12675,7 +9880,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                   // Then update the objview
                                   const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                   if (objview) {
-                                    objview.textcolor = val;
+                                    setAppearanceOverride(objview, 'textcolor', val);
                                     const jsnObjview = new jsn.jsnObjectView(objview, true);
                                     const data = JSON.parse(JSON.stringify(jsnObjview));
                                     targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -12748,7 +9953,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                     try {
                                       const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                       if (objview) {
-                                        objview.textcolor = val;
+                                        setAppearanceOverride(objview, 'textcolor', val);
                                         const jsnObjview = new jsn.jsnObjectView(objview, true);
                                         const data = JSON.parse(JSON.stringify(jsnObjview));
                                         try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) {}
@@ -12779,10 +9984,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           });
           items.push({ separator: true });
           items.push({
-            label: "Generate Metamodel",
-            action: (diagram) => handleGenerateMetamodel(diagram, part?.data),
+            label: "Generate Metamodel…",
+            action: showSubMenu([
+              {
+                label: "Publish to Workspace",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'workspace'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Generate/Update in Current Project",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'current'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "As New Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'new-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+              {
+                label: "Update Existing Project File…",
+                action: (diagram) => { void handleGenerateMetamodel(diagram, part?.data, 'existing-project'); },
+                enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
+              },
+            ]),
             enabled: (_diagram) => canGenerateMetamodelFromData(part?.data),
             visible: (_diagram) => canGenerateMetamodelFromData(part?.data),
+            closeOnClick: false,
           });
           items.push({
             label: "Reset to Typeview",
@@ -13524,7 +10751,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.fillcolor = val;
+                                            setAppearanceOverride(objview, 'fillcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -13614,7 +10841,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.fillcolor = val;
+                                                setAppearanceOverride(objview, 'fillcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -13666,7 +10893,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                         try {
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.strokecolor = val;
+                                            setAppearanceOverride(objview, 'strokecolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -13740,7 +10967,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.strokecolor = val;
+                                                setAppearanceOverride(objview, 'strokecolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -13795,7 +11022,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                           // Then update the objview
                                           const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                           if (objview) {
-                                            objview.textcolor = val;
+                                            setAppearanceOverride(objview, 'textcolor', val);
                                             const jsnObjview = new jsn.jsnObjectView(objview, true);
                                             const data = JSON.parse(JSON.stringify(jsnObjview));
                                             targetDiagram.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
@@ -13869,7 +11096,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                                             try {
                                               const objview = myMetis.findObjectView(nodeData.key) || nodeData.objectview;
                                               if (objview) {
-                                                objview.textcolor = val;
+                                                setAppearanceOverride(objview, 'textcolor', val);
                                                 const jsnObjview = new jsn.jsnObjectView(objview, true);
                                                 const data = JSON.parse(JSON.stringify(jsnObjview));
                                                 try { (diagram || myDiagram).dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data }); } catch (_) { }
@@ -14274,6 +11501,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         } catch (_) {}
         if (!items) items = buildPartMenuItems(targetPart);
+        // Every instance menu, including icon and group menus, exposes reset.
+        // Type menus edit the defaults themselves and have nothing to inherit.
+        const instanceCategory = targetPart.data?.category;
+        if (
+          myMetis.modelType !== 'Metamodelling' &&
+          (instanceCategory === constants.gojs.C_OBJECT || instanceCategory === constants.gojs.C_RELATIONSHIP) &&
+          !items.some(item => item.label === 'Reset to Typeview')
+        ) {
+          items.push({
+            label: 'Reset to Typeview',
+            action: (targetDiagram) => {
+              if (!targetDiagram) return;
+              uid.resetToTypeview(targetPart.data, myMetis, targetDiagram);
+            },
+          });
+        }
         // Ensure a sensible heading is present for object/relationship menus, but
         // preserve any existing heading (e.g., 'Icon Menu') that may have been set
         // when building a special-case menu earlier.
@@ -14637,7 +11880,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSaveLayout = (diagram: go.Diagram) => {
@@ -14731,7 +11974,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram.dispatch, data);
       };
 
       const handleSetLinkRouting = (diagram: go.Diagram) => {
@@ -14927,7 +12170,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
-        targetDiagram?.dispatch?.({ type: 'LOAD_TOSTORE_PHDATA', data });
+        dispatchUniversePhData(targetDiagram?.dispatch, data);
       };
 
       const handleNewMetamodel = () => {
@@ -15388,6 +12631,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       const coreBackgroundMenu: HtmlMenuItem[] = [
         {
+          label: "Undo",
+          action: diagram => diagram.commandHandler.undo(),
+          enabled: diagram => diagram.commandHandler.canUndo(),
+        },
+        {
+          label: "Redo",
+          action: diagram => diagram.commandHandler.redo(),
+          enabled: diagram => diagram.commandHandler.canRedo(),
+        },
+        { separator: true },
+        {
           label: "Paste",
           action: (diagram) => {
             myMetis.pasteViewsOnly = false;
@@ -15423,7 +12677,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           enabled: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
           visible: (diagram) => !!diagram && diagram.commandHandler.canDeleteSelection() && diagram.selection.count > 1,
         },
-        
+
         { separator: true },
         {
           label: "Model…",
@@ -15589,16 +12843,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        // When dragging a Pool or Lane, GoJS drags member nodes too. If we clamp member nodes while
 	        // their container group is also moving, bounds can be temporarily stale and members will
 	        // "drift" out of lanes after repeated group moves. Skip clamping when any ancestor Group
-	        // is in the active drag collection.
+	        // is in the current selection (i.e., is being dragged).
 	        if (diagram) {
-            const activeDragTool = diagram.currentTool;
-            const draggedParts =
-              activeDragTool instanceof go.DraggingTool
-                ? activeDragTool.draggedParts
-                : null;
 	          let g: go.Group | null = grp;
 	          while (g) {
-	            if (draggedParts?.has(g)) return pt;
 	            if (diagram.selection.contains(g)) return pt;
             g = g.containingGroup;
           }
@@ -15654,7 +12902,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       // Define group template map
       var groupTemplateMap = new go.Map<string, go.Part>();
-      uit.addGroupTemplates(groupTemplateMap, partContextMenu, portContextMenu, myMetis, typeviewContextMenu);
+      uit.addGroupTemplates(groupTemplateMap, partContextMenu, portContextMenu, myMetis);
 
       // Define node template map
       var nodeTemplateMap = new go.Map<string, go.Part>();
@@ -15695,13 +12943,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const baseDoActivate = draggingTool.doActivate;
 	      draggingTool.doActivate = function () {
 	        const diagram = this.diagram;
-        const isCopyLikeDrag = (() => {
-          try {
-            return !!this.copiedParts && this.copiedParts.count > 0;
-          } catch (_) {
-            return false;
-          }
-        })();
         const isVisuallyInsideGroup = (part: go.Part, grp: go.Group): boolean => {
           const back =
             grp.findObject("LANE_BODY_SHAPE") ||
@@ -15735,9 +12976,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
 	        const result = baseDoActivate.call(this);
-          if (isCopyLikeDrag) {
-            return result;
-          }
           try {
 	          const draggedParts = this.draggedParts;
             const dragSessionToken = utils.createGuid();
@@ -16165,7 +13403,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // Use the new tabbed modal for icon selection
           header = modalContext.title;
           modalContent = (
-            <ChangeIconModal 
+            <ChangeIconModal
               isOpen={this.state.showChangeIconModal}
               onClose={() => this.setState({ showChangeIconModal: false })}
               onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
@@ -16314,7 +13552,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </div>
         }
         break;
-      case 'editRelationshipType':
+      case 'editRelationshipType': {
+        header = 'Edit Relationship Type';
+        const type = modalContext.myContext?.relshiptype;
+        const metamodel = modalContext.myContext?.metamodel;
+        if (type && metamodel) modalContent = <RelationshipTypeEditor
+          key={type.id}
+          type={type}
+          objectTypes={metamodel.getObjectTypes() || []}
+          onApply={this.applyRelationshipTypeEdit}
+        />;
+        break;
+      }
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
@@ -16389,15 +13638,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         {(() => {
           const normalizedNodeDataArray = normalizeDiagramNodeCategoryData(this.props.nodeDataArray);
           const diagram = this.diagramRef.current?.getDiagram();
-          const shouldUseIncomingDiagramStateDirectly =
-            Array.isArray(normalizedNodeDataArray) &&
-            normalizedNodeDataArray.some((node: any) => shouldPreserveIncomingDiagramGeometry(node));
-          const liveMergedNodeDataArray = shouldUseIncomingDiagramStateDirectly
-            ? normalizedNodeDataArray
-            : mergeIncomingDiagramNodeDataWithLiveState(normalizedNodeDataArray, diagram);
-          const liveMergedLinkDataArray = shouldUseIncomingDiagramStateDirectly
-            ? this.props.linkDataArray
-            : mergeIncomingDiagramLinkDataWithLiveState(this.props.linkDataArray, diagram);
+          const liveMergedNodeDataArray = mergeIncomingDiagramNodeDataWithLiveState(normalizedNodeDataArray, diagram);
+          const liveMergedLinkDataArray = mergeIncomingDiagramLinkDataWithLiveState(this.props.linkDataArray, diagram);
           return (
         <ReactDiagram
           ref={this.diagramRef}
@@ -16417,7 +13659,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })()}
         {/* <button onClick={exportToSvg}>Export to SVG</button> */}
 
-        <Modal isOpen={this.state.showModal}  >
+        {modalContext?.what === 'editRelationshipType' ? (
+          <Modal isOpen={this.state.showModal} modalClassName={relationshipEditorStyles.modal} toggle={() => this.handleCloseModal('x')}>
+            <ModalHeader toggle={() => this.handleCloseModal('x')}>Edit Relationship Type</ModalHeader>
+            <ModalBody>{modalContent}</ModalBody>
+            <ModalFooter>
+              <Button color="link" onClick={() => this.handleCloseModal('x')}>Cancel</Button>
+              <Button color="primary" type="submit" form={RELATIONSHIP_TYPE_FORM_ID}>Apply</Button>
+            </ModalFooter>
+          </Modal>
+        ) : <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}
           <div className="modal-content">
             <div className="modal-head px-2 ">
@@ -16462,13 +13713,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </ModalFooter>
           </div>
           {/* </div> */}
-        </Modal>
-        <ChangeIconModal 
+        </Modal>}
+        <ChangeIconModal
           isOpen={this.state.showChangeIconModal}
           onClose={() => this.setState({ showChangeIconModal: false })}
           onSelect={(icon) => this.handleSelectDropdownChange({ value: icon })}
         />
-        <ChangeImageModal 
+        <ChangeImageModal
           isOpen={this.state.showChangeImageModal}
           onClose={() => this.setState({ showChangeImageModal: false })}
           onSelect={(image) => this.handleSelectDropdownChange({ value: image })}
@@ -16489,9 +13740,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 className="form-select form-select-sm py-1 px-2"
                 style={{ minHeight: 48, maxHeight: 220, lineHeight: 1.1, overflowY: 'auto' }}
               >
-                {(this.state.selectConnectedRelOptions || ['All']).map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
+                {(this.state.selectConnectedRelOptions || [{ value: 'All', label: 'All' }]).map((opt: any) => {
+                  const value = typeof opt === 'string' ? opt : opt.value;
+                  const label = typeof opt === 'string' ? opt : opt.label;
+                  return <option key={value} value={value}>{label}</option>;
+                })}
               </select>
               <div className="form-check mt-1">
                 <input
@@ -16542,6 +13795,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
+              <div className="form-check mt-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="select-create-missing-views"
+                  checked={!!this.state.selectConnectedCreateMissingViews}
+                  onChange={this.handleSelectConnectedCreateMissingViewsChange}
+                />
+                <label className="form-check-label small" htmlFor="select-create-missing-views">
+                  Add missing objects to view
+                </label>
+              </div>
             </div>
             <DialogFooter className="d-flex justify-content-end mt-3 px-1 pb-1 pt-2 gap-3">
               <UiButton
@@ -16650,10 +13915,10 @@ still f             onClick={this.handleAddConnectedCancel}
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <style jsx>{`        
-      `}
-        </style>
       </div>
     );
   }
+}
+
+return DiagramWrapper;
 }

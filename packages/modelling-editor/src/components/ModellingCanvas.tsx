@@ -171,7 +171,7 @@ function normalizeNodeCategoryData(nodeDataArray: any[] | undefined): any[] {
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
-  private readonly deferredCallbacks = createDeferredCallbacks();
+  private deferredCallbacks = createDeferredCallbacks();
   constructor(props: object) {
     super(props);
     if (debug) console.log('62 GoJSApp', this.props.nodeDataArray, this.props);
@@ -672,6 +672,16 @@ class GoJSApp extends React.Component<{}, AppState> {
    * This can be done via setState in React or another preferred state management method.
    * @param obj a JSON-formatted string
    */
+  public componentDidMount() {
+    // React Strict Mode remounts the same component instance after cleanup.
+    // Cancelled callbacks stay cancelled; a fresh controller owns the new mount.
+    if ((this as any).__viewDispatchDisposed) {
+      (this as any).__viewDispatchDisposed = false;
+      this.deferredCallbacks = createDeferredCallbacks();
+    }
+    this._ownDiagram = this.state?.myMetis?.myDiagram || this._ownDiagram;
+  }
+
   public componentWillUnmount() {
     disposeQueuedViewDispatches(this);
     this.deferredCallbacks.dispose();

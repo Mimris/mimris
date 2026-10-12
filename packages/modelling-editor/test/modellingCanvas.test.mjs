@@ -46,3 +46,19 @@ test('parent snapshots do not mutate the live diagram while resizing', async () 
   canvas.componentDidUpdate(previous);
   canvas.handleModelChange({ modifiedNodeData: [{ key: 'container', loc: 'old' }] });
 });
+
+
+test('Strict Mode remount resumes durable writes and starts a fresh deferred callback controller', async () => {
+  const Canvas = createModellingCanvas({ services: services(), components: components(), isAutomaticallyDroppedSelfRelationship: () => false });
+  const canvas = new Canvas(props('remount'));
+  const first = canvas.deferredCallbacks;
+  let oldCalled = false;
+  first.schedule(() => { oldCalled = true; }, 0);
+  canvas.componentWillUnmount();
+  canvas.componentDidMount();
+  assert.equal(canvas.__viewDispatchDisposed, false);
+  assert.notEqual(canvas.deferredCallbacks, first);
+  await new Promise(resolve => canvas.deferredCallbacks.schedule(resolve, 0));
+  assert.equal(oldCalled, false);
+  canvas.componentWillUnmount();
+});

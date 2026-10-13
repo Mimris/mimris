@@ -9,3 +9,7 @@ Persisted new views carry `appearanceMode: "inherit"` and `appearanceOverrides`.
 Legacy files without the marker keep their effective appearance as a snapshot. Legacy empty fields continue to mean fallback to the loaded typeview. Resaving adds `appearanceMode: "snapshot"` alongside the flat appearance fields so empty snapshot values retain their meaning on another reload. No automatic bulk migration is performed. Explicit appearance edits retain the snapshot fields as overrides; the existing Reset to Typeview action deliberately opts a view into inheritance and preserves geometry/topology.
 
 Acceptance: a new view responds to type appearance changes unless overridden; overrides (including equal and empty values) survive save/reload; existing appearance survives type edits; reset returns to inheritance; model geometry and relationship endpoints/ports/points survive all these operations. Verify both object and relationship diagrams visually.
+
+Object-view inspector edits must update the rendered GoJS node without requiring Reload. Update the model before cached node data so bindings and template replacement receive change notifications; keep runtime mirrors synchronized for subsequent persistence.
+
+Successive object-view appearance edits and Reset to Typeview must remain visible through React updates and dialog completion without Reload. Synchronize the child diagram's render state when incoming appearance changes have no structural changes, while preserving live geometry.

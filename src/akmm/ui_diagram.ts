@@ -801,13 +801,14 @@ export function askForTemplate(context: any) {
 }
 
 export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: any) {
+    myMetis = myDiagram.getCurrentMetis?.() || myMetis;
     if (debug) console.log('597 gjsNode, myMetis', gjsNode, myMetis);
     const myModelview = myMetis.currentModelview;
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myModelview.model;
     const myGoModel = myMetis.gojsModel; 
     let key = gjsNode.key;
-    let objectview = myModelview.findObjectView(key);
+    let objectview = myMetis.findObjectView(key) || gjsNode?.objectview || myModelview.findObjectView(key);
     if (!objectview) {
         objectview = gjsNode?.objectview || myMetis.findObjectView(gjsNode?.objviewRef);
     }
@@ -867,7 +868,7 @@ export function editObjectview(gjsNode: any, myMetis: akm.cxMetis, myDiagram: an
       myContext:  myContext,
     }
     if (debug) console.log('566 ui_diagram: gjsNode, modalContext', gjsNode, modalContext);
-    myDiagram.handleOpenModal(objectview || gjsNode, modalContext);
+    myDiagram.handleOpenModal(gjsNode, modalContext);
 }    
 
 export function editRelationshipView(link: any, myMetis: akm.cxMetis, myDiagram: any) {
@@ -1030,17 +1031,28 @@ export function editModelview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
 }    
 
 export function resetToTypeview(goInst: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const objectview = myMetis.findObjectView(goInst?.key);
-    const relview = objectview ? null : myMetis.findRelationshipView(goInst?.key);
+    myMetis = myDiagram.getCurrentMetis?.() || myMetis;
+    const objectview = myMetis.findObjectView(goInst?.key) || goInst?.objectview;
+    const relview = objectview ? null : (myMetis.findRelationshipView(goInst?.key) || goInst?.relshipview);
     const view = objectview || relview;
     if (view?.appearanceMode) {
         const part = objectview ? myDiagram.findNodeForKey(goInst.key) : myDiagram.findLinkForKey(goInst.key);
         if (!part) return;
         resetAppearance(view);
         myDiagram.model.commit((model: any) => {
+            model.setDataProperty(part.data, objectview ? 'objectview' : 'relshipview', view);
             for (const [field, value] of Object.entries(resolveAppearance(view)))
                 model.setDataProperty(part.data, field, value);
         }, 'reset-view-appearance');
+        const mirror = objectview
+            ? myMetis.gojsModel?.findNodeByViewId?.(view.id)
+            : myMetis.gojsModel?.findLinkByViewId?.(view.id);
+        if (mirror && mirror !== part.data) {
+            Object.assign(mirror, resolveAppearance(view));
+            mirror[objectview ? 'objectview' : 'relshipview'] = view;
+        }
+        part.updateTargetBindings();
+        myDiagram.requestUpdate();
         const saved = objectview ? new jsn.jsnObjectView(objectview) : new jsn.jsnRelshipView(relview);
         myDiagram.dispatch({ type: objectview ? 'UPDATE_OBJECTVIEW_PROPERTIES' : 'UPDATE_RELSHIPVIEW_PROPERTIES', data: JSON.parse(JSON.stringify(saved)) });
         return;
@@ -4004,7 +4016,8 @@ export function updateNodeAndView(gjsNode: any, goNode: gjs.goObjectNode | null,
                     }
                 }
             }
-            goNode?.removeClassInstances?.();
+            // This node remains live after editing. Import/export serializers
+            // remove runtime references; clearing them here breaks later edits.
         }
     }
     myDiagram.commitTransaction('updateNode');

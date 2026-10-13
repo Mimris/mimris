@@ -389,8 +389,10 @@ function mergeIncomingNodeDataWithLocalState(
       };
     };
 
-    // If we have an explicit locked position, use it!
-    if (lockedPosition) {
+    // Locks bridge a temporarily missing Part during reconciliation. A live
+    // node may already be in a later drag, so its current location wins over
+    // a lock retained from the previous move or Reload.
+    if (lockedPosition && !(liveNode instanceof go.Node)) {
       console.log(`[MERGE-USE-LOCK] key=${incoming.key} using locked position: ${lockedPosition} (from ${lockMatchedKey}), incoming was: ${incoming.loc}`);
 
       const liveGroup = liveNode instanceof go.Node ? liveNode.data?.group : local?.group;
@@ -528,14 +530,14 @@ function reanchorManualLinkPoints(
     const nextAfterFrom = new go.Point(nextPoints[2], nextPoints[3]);
     const anchoredFrom = new go.Point(currentFrom.x, currentFrom.y);
     try {
-      link.getLinkPointFromPoint(fromNode, fromPort, currentFrom, nextAfterFrom, true, anchoredFrom);
+      link.getLinkPointFromPoint(fromNode, fromPort, fromPort.getDocumentPoint(go.Spot.Center), nextAfterFrom, true, anchoredFrom);
       nextPoints[0] = anchoredFrom.x;
       nextPoints[1] = anchoredFrom.y;
       // Preserve the direction of the first user-authored segment. Moving the
       // adjacent bend in both axes turns an orthogonal segment into a diagonal.
-      if (Math.abs(nextAfterFrom.y - currentFrom.y) <= Math.abs(nextAfterFrom.x - currentFrom.x)) {
+      if (link.isOrthogonal && nextPoints.length > 4 && Math.abs(nextAfterFrom.y - currentFrom.y) <= Math.abs(nextAfterFrom.x - currentFrom.x)) {
         nextPoints[3] = anchoredFrom.y;
-      } else {
+      } else if (link.isOrthogonal && nextPoints.length > 4) {
         nextPoints[2] = anchoredFrom.x;
       }
     } catch (_) {
@@ -549,13 +551,13 @@ function reanchorManualLinkPoints(
     const currentTo = new go.Point(nextPoints[last], nextPoints[last + 1]);
     const anchoredTo = new go.Point(currentTo.x, currentTo.y);
     try {
-      link.getLinkPointFromPoint(toNode, toPort, currentTo, beforeTo, false, anchoredTo);
+      link.getLinkPointFromPoint(toNode, toPort, toPort.getDocumentPoint(go.Spot.Center), beforeTo, false, anchoredTo);
       nextPoints[last] = anchoredTo.x;
       nextPoints[last + 1] = anchoredTo.y;
       // Preserve the direction of the final user-authored segment too.
-      if (Math.abs(beforeTo.y - currentTo.y) <= Math.abs(beforeTo.x - currentTo.x)) {
+      if (link.isOrthogonal && nextPoints.length > 4 && Math.abs(beforeTo.y - currentTo.y) <= Math.abs(beforeTo.x - currentTo.x)) {
         nextPoints[prev + 1] = anchoredTo.y;
-      } else {
+      } else if (link.isOrthogonal && nextPoints.length > 4) {
         nextPoints[prev] = anchoredTo.x;
       }
     } catch (_) {
@@ -782,6 +784,8 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     (instance as any).__queuedRelshipViewDispatchTimer = null;
     pendingQueue.forEach((payload) => {
       try {
+        const translatedLoop = storedDiagram?.__translatedSelfLoopRoutes?.get(payload.id);
+        if (Array.isArray(translatedLoop)) payload.points = [...translatedLoop];
         dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
 
         // CRITICAL: Update myMetis links with new data
@@ -863,6 +867,8 @@ function flushQueuedDiagramDispatches(instance: any, dispatch: any) {
   (instance as any).__queuedRelshipViewDispatches = new Map();
   pendingRelQueue.forEach((payload) => {
     try {
+      const translatedLoop = pendingRelQueue.__diagram?.__translatedSelfLoopRoutes?.get(payload.id);
+      if (Array.isArray(translatedLoop)) payload.points = [...translatedLoop];
       dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data: payload });
     } catch (_) {
     }
@@ -2337,6 +2343,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         } catch (err) {
           console.error('Error applying visual updates:', err);
         }
+        // The child renders from state, so retain the new view references and
+        // appearance values there too. Otherwise its next render restores the
+        // previous edit even though Redux and the live diagram were updated.
+        nextState.nodeDataArray = normalizeNodeCategoryData(mergeIncomingNodeDataWithLocalState(
+          this.props.nodeDataArray, this.state.nodeDataArray, diagram
+        ));
+        shouldSyncFromProps = true;
       } else {
       if (debug) console.log('[COMPONENT-UPDATE] Structural change OR no diagram - running MERGE');
       const mergedNodes = mergeIncomingNodeDataWithLocalState(
@@ -5822,6 +5835,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         { // links
           const movedNodeDeltas = new Map<string, { dx: number; dy: number }>();
+          const translatedSelfLoopRoutes = new Map<string, number[]>();
           try {
             for (let it = myParts.iterator; it?.next();) {
               const part = it.key;
@@ -5957,8 +5971,23 @@ class GoJSApp extends React.Component<{}, AppState> {
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
             if (linkTouchesMovedNode && isSelfLoop && hadPersistedManualPath) {
-              const selfLoopPoints = pickFirstNonEmptyLinkPoints(link?.points, previewPoints, ldata?.points, rview?.points);
+              const originalRoute = pickFirstNonEmptyLinkPoints(manualPointsAtDragStart, manuallyReshapedPoints, laneManualPoints, persistedPointsBeforeMove);
+              const delta = movedNodeDeltas.get(liveFromKey);
+              const selfLoopPoints = delta && originalRoute
+                ? shiftManualLinkEndpointSegments(originalRoute, { moveFrom: delta, moveTo: delta })
+                : pickFirstNonEmptyLinkPoints(previewPoints, link?.points, ldata?.points, rview?.points);
               if (Array.isArray(selfLoopPoints) && selfLoopPoints.length >= 4) {
+                translatedSelfLoopRoutes.set(String(ldata.key), [...selfLoopPoints]);
+                // Both ends belong to the same moved node. Translate the
+                // complete saved loop rather than accepting a router preview
+                // or reanchoring individual corners.
+                try {
+                  link.points = new go.List<go.Point>().addAll(selfLoopPoints.reduce((result: go.Point[], value: number, index: number) => {
+                    if (index % 2 === 0) result.push(new go.Point(value, selfLoopPoints[index + 1]));
+                    return result;
+                  }, []));
+                  (myDiagram as any).__reshapedLinkRoutes?.set(String(ldata.key), [...selfLoopPoints]);
+                } catch (_) { }
                 try { myDiagram.model.setDataProperty(ldata, "points", selfLoopPoints); } catch (_) { ldata.points = selfLoopPoints; }
                 try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
                 try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
@@ -6046,7 +6075,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               try { link.points = new go.List<go.Point>(); } catch (_) { }
               rview.points = [];
             }
-            if (linkTouchesMovedNode && preserveManualPathOnMove) {
+            if (linkTouchesMovedNode && preserveManualPathOnMove && !isSelfLoop) {
               // A snapshot means the link has user-authored bends.  Do not use
               // GoJS's transient route here: it may already be the new automatic
               // diagonal.  Shift/re-anchor the route captured before the drag.
@@ -6259,7 +6288,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     );
                     const liveFromKey = liveLink.fromNode?.data?.key ? String(liveLink.fromNode.data.key) : "";
                     const liveToKey = liveLink.toNode?.data?.key ? String(liveLink.toNode.data.key) : "";
-                    const manualPoints = reanchorManualLinkPoints(liveLink, savedManualPoints, {
+                    const manualPoints = isSelfLoop ? pickFirstNonEmptyLinkPoints((myDiagram as any).__translatedSelfLoopRoutes?.get(linkKey), translatedSelfLoopRoutes.get(linkKey), movePreviewPointsByLinkKey.get(linkKey), savedManualPoints) : reanchorManualLinkPoints(liveLink, savedManualPoints, {
                       anchorFrom: Boolean(liveFromKey && movedNodeKeys.has(liveFromKey)),
                       anchorTo: Boolean(liveToKey && movedNodeKeys.has(liveToKey)),
                     }) || savedManualPoints;
@@ -6747,11 +6776,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Skip groups - they already set their locks during group processing
             if (part instanceof go.Group) continue;
             if (part instanceof go.Node && part.data?.key !== undefined && part.data?.key !== null) {
-              // Skip nodes that already have locks (set during changeNodeSizeAndPos processing)
-              const hasExistingLock = preserveIncomingNodeStateByKey.has(String(part.data?.key)) ||
-                preserveIncomingNodeStateByKey.has(String(part.data?.objviewRef)) ||
-                preserveIncomingNodeStateByKey.has(String(part.data?.objectview?.id));
-              if (hasExistingLock) continue;
+              // Refresh earlier locks for this drop; a second drag can finish
+              // before the previous lock expires.
               const aliases = [
                 part.data?.key,
                 part.data?.objviewRef,
@@ -9604,6 +9630,7 @@ break;
   const myGoModel = myMetis.gojsModel;
   const gjsLink = e.subject;
   const key = gjsLink.key;
+  (myDiagram as any).__translatedSelfLoopRoutes?.delete(String(key));
   const link = myDiagram.findLinkForKey(key);
   const goLink = myGoModel.findLink(key);
   const data = link?.data || goLink?.data;
@@ -9657,7 +9684,7 @@ break;
         try { data.routing = preservedRouting; } catch (_err) {}
       }
       try { link.routing = uit.getRouting(preservedRouting); } catch (_) { }
-      try { link.adjusting = go.Link.End; } catch (_) { }
+      try { link.adjusting = link.fromNode === link.toNode ? go.Link.None : go.Link.End; } catch (_) { }
     }
     try { myDiagram.model.setDataProperty(data, "__manualPath", hasManualPath); } catch (_) {
       try { data.__manualPath = hasManualPath; } catch (_err) {}

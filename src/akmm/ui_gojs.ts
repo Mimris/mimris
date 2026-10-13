@@ -1145,6 +1145,7 @@ export class goRelshipLink extends goLink {
                     // this.addData(data);
                     this.setName(relview.name);
                     this.points = shouldPersistLinkPoints(relview.routing, relview.points) ? relview.points : [];
+                    this.__manualPath = relview.__manualPath ?? (Array.isArray(relview.points) && relview.points.length > 4);
                     for (let prop in viewdata) {
                         if (prop === 'abstract') continue;
                         if (prop === 'class') continue;

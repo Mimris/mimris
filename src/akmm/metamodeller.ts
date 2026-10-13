@@ -1562,6 +1562,7 @@ export class cxMetis {
                 relview.corner = Number(item.corner);
                 relview.curve = Number(item.curve);
                 relview.points = item.points;
+                relview.__manualPath = item.__manualPath ?? (Array.isArray(item.points) && item.points.length > 4);
                 relview.visible = item.visible;
                 let reltypeview;
                 if (item.typeviewRef) {
@@ -10613,6 +10614,7 @@ export class cxRelationshipView extends cxMetaObject {
     corner: number;
     curve: string;
     points: any;
+    __manualPath?: boolean;
     visible: boolean;
     readonly: boolean;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {

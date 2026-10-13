@@ -1805,6 +1805,7 @@ export class jsnRelshipView {
     corner:          number;
     curve:           string;
     points:          any;
+    __manualPath?:   boolean;
     markedAsDeleted: boolean;
     modified:        boolean;
     visible:         boolean;
@@ -1819,6 +1820,7 @@ export class jsnRelshipView {
         this.fromPortid      = relview?.fromPortid;
         this.toPortid        = relview?.toPortid;
         this.points          = relview?.points;
+        this.__manualPath    = relview?.__manualPath ?? (Array.isArray(relview?.points) && relview.points.length > 4);
         this.routing         = relview?.routing;
         this.curve           = relview?.curve;
         this.corner          = relview?.corner;
@@ -2416,6 +2418,7 @@ export class jsnImportMetis {
                 relview.curve = item.curve;
                 relview.corner = item.corner;
                 relview.points = item.points;
+                relview.__manualPath = item.__manualPath ?? (Array.isArray(item.points) && item.points.length > 4);
                 relview.markedAsDeleted = item.markedAsDeleted;
                 relview.modified = item.modified;
                 relview.visible = item.visible;

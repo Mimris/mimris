@@ -4,6 +4,8 @@
 */
 
 import * as go from 'gojs';
+import { SelfLinkingTool } from '../tools/SelfLinkingTool';
+import { SelfLinkReshapingTool } from '../tools/SelfLinkReshapingTool';
 import { ReactDiagram } from 'gojs-react';
 import React, { useEffect } from 'react';
 import Select, { components } from "react-select"
@@ -30,7 +32,7 @@ import { applyRelationshipTypeDraft } from '../../utils/relationshipTypeEditor';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as jsn from '../../../akmm/ui_json';
-import { setAppearanceOverride } from '../../../akmm/viewAppearance';
+import { setAppearanceOverride, resolveAppearance } from '../../../akmm/viewAppearance';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
@@ -306,7 +308,8 @@ function mergeIncomingDiagramLinkDataWithLiveState(
     if (!(liveLink instanceof go.Link) || !liveLink.data) return incoming;
 
     const liveData: any = liveLink.data || {};
-    const livePoints = normalizeLiveLinkPoints(liveLink.points) || normalizeLiveLinkPoints(liveData?.points);
+    const translatedLoop = (diagram as any).__translatedSelfLoopRoutes?.get(String(liveData.key));
+    const livePoints = normalizeLiveLinkPoints(translatedLoop) || normalizeLiveLinkPoints(liveLink.points) || normalizeLiveLinkPoints(liveData?.points);
     const nextFrom = liveData?.from ?? incoming.from;
     const nextTo = liveData?.to ?? incoming.to;
     const nextFromPort = liveData?.fromPort ?? incoming.fromPort;
@@ -455,6 +458,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ? (diagram as any).__reshapedLinkRoutes
             : new Map<string, number[]>();
         const linkKey = String(linkData?.key || link?.key || "");
+        (diagram as any).__translatedSelfLoopRoutes?.delete(linkKey);
         if (linkKey && hasManualPath) routes.set(linkKey, [...points]);
         else if (linkKey) routes.delete(linkKey);
         (diagram as any).__reshapedLinkRoutes = routes;
@@ -497,7 +501,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           try { linkData.routing = preservedRouting; } catch (_err) {}
         }
         try { link.routing = uit.getRouting(preservedRouting); } catch (_) {}
-        try { link.adjusting = go.Link.End; } catch (_) {}
+        try { link.adjusting = link.fromNode === link.toNode ? go.Link.None : go.Link.End; } catch (_) {}
       }
       try { diagram.model.setDataProperty(linkData, "points", points); } catch (_) {
         try { linkData.points = points; } catch (_err) {}
@@ -580,7 +584,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const incomingLoc = String(value || '');
                   const lockedLoc = String(lock.loc || '');
                   if (incomingLoc && lockedLoc && incomingLoc !== lockedLoc) {
-                    return;
+                    const liveNode = diagram.findNodeForKey(data.key);
+                    const liveLoc = liveNode ? `${liveNode.location.x} ${liveNode.location.y}` : '';
+                    // A two-way location binding reports the node's current
+                    // position. Accept a new drag even while the previous
+                    // drop's replay lock is still active.
+                    if (incomingLoc !== liveLoc) return;
+                    ids.forEach((id) => {
+                      const entry = lockMap.get(id);
+                      if (entry) entry.loc = incomingLoc;
+                    });
                   }
                 } else {
                   ids.forEach((id) => {
@@ -747,6 +760,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public componentDidUpdate(prevProps: DiagramProps) {
+    this.myMetis = this.props.myMetis;
     if (
       prevProps.phFocus?.focusObject?.id !== this.props.phFocus?.focusObject?.id ||
       prevProps.phFocus?.focusObjectview?.id !== this.props.phFocus?.focusObjectview?.id ||
@@ -1951,7 +1965,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           return { selectedData: draft.selectedData };
     });
 
-    uim.handleInputChange(this.myMetis, props, value);
+    uim.handleInputChange(this.props.myMetis, props, value);
   }
 
   /**
@@ -2047,6 +2061,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // Continuous dragging is expected in the modeller; grid snapping makes
             // groups/containers feel delayed and stepwise after they have been dropped.
             "draggingTool.isGridSnapEnabled": false,
+            linkingTool: new SelfLinkingTool(),
             "linkingTool.portGravity": 50,  // distance from port edge that still snaps to it (bigger = easier linking)
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
@@ -2063,6 +2078,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               $(go.Shape, "Diamond", { segmentIndex: 0, cursor: "pointer", desiredSize: new go.Size(8, 8), fill: "tomato", stroke: "darkred" }),
             "relinkingTool.toHandleArchetype":
               $(go.Shape, "Diamond", { segmentIndex: -1, cursor: "pointer", desiredSize: new go.Size(8, 8), fill: "darkred", stroke: "tomato" }),
+            linkReshapingTool: new SelfLinkReshapingTool(),
             "linkReshapingTool.handleArchetype":
               $(go.Shape, "Diamond", { desiredSize: new go.Size(7, 7), fill: "lightblue", stroke: "deepskyblue" }),
             allowDrop: true,  // must be true to accept drops from the Palette
@@ -2199,8 +2215,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	            const relview = link.data?.relshipview;
 	            const linkKey = String(key || "");
 	            const cachedPoints = reshapedRoutes.get(linkKey);
+	            const isSelfLoop = !!link.fromNode && link.fromNode === link.toNode;
 	            if (!key || routes.has(linkKey) ||
-	              (!link.data?.__manualPath && !relview?.__manualPath && !cachedPoints)) return;
+	              (!isSelfLoop && !link.data?.__manualPath && !relview?.__manualPath && !cachedPoints)) return;
 	            const readPoints = (source: any): number[] => {
 	              if (Array.isArray(source)) return source.filter((value: any) => Number.isFinite(value));
 	              const result: number[] = [];
@@ -2219,6 +2236,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	              .map(readPoints)
 	              .find((candidate) => candidate.length >= 4) || [];
             if (points.length < 4) return;
+	            if (isSelfLoop) {
+	              diagram.model.setDataProperty(link.data, '__manualPath', true);
+	              diagram.model.setDataProperty(link.data, 'points', [...points]);
+	              if (relview) { relview.__manualPath = true; relview.points = [...points]; }
+	              link.adjusting = go.Link.None;
+	            }
 	            routes.set(linkKey, points);
 	            this.linkRoutesAtDragStart.set(linkKey, points);
 	            this.linkRouteEndpointsAtDragStart.set(linkKey, {
@@ -2258,12 +2281,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          const next = new go.Point(points[adjacent], points[adjacent + 1]);
 	          const anchored = current.copy();
 	          try {
-	            link.getLinkPointFromPoint(node, port as go.GraphObject, current, next, isFrom, anchored);
+	            link.getLinkPointFromPoint(node, port as go.GraphObject, port.getDocumentPoint(go.Spot.Center), next, isFrom, anchored);
 	            points[endpoint] = anchored.x;
 	            points[endpoint + 1] = anchored.y;
-	            if (Math.abs(next.y - current.y) <= Math.abs(next.x - current.x)) {
+	            if (link.isOrthogonal && points.length > 4 && Math.abs(next.y - current.y) <= Math.abs(next.x - current.x)) {
 	              points[adjacent + 1] = anchored.y;
-	            } else {
+	            } else if (link.isOrthogonal && points.length > 4) {
 	              points[adjacent] = anchored.x;
 	            }
 	          } catch (_) { }
@@ -2296,6 +2319,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	              list.add(new go.Point(anchored[i], anchored[i + 1]));
 	            }
 	            link.points = list;
+	            const preview = (diagram as any).__manualLinkMovePreview;
+	            if (preview instanceof Map) preview.set(key, [...anchored]);
+	            if (link.fromNode && link.fromNode === link.toNode) {
+	              (diagram as any).__translatedSelfLoopRoutes ||= new Map();
+	              (diagram as any).__translatedSelfLoopRoutes.set(key, [...anchored]);
+	              diagram.model.setDataProperty(link.data, 'points', [...anchored]);
+	              if (link.data?.relshipview) link.data.relshipview.points = [...anchored];
+	              (diagram as any).__reshapedLinkRoutes?.set(key, [...anchored]);
+	            }
 	          } catch (_) { }
 	        });
 	      }
@@ -2948,6 +2980,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // the GoJS model via diagram.model.commit() before forwarding to Redux for persistence.
     const originalDispatch = bindLegacyUniverseDispatch(this.props.dispatch || this.myMetis?.dispatch);
     const wrappedDispatch = (action: any) => {
+      if (action?.type === 'UPDATE_RELSHIPVIEW_PROPERTIES' && action?.data?.id) {
+        const route = (myDiagram as any).__translatedSelfLoopRoutes?.get(action.data.id);
+        if (Array.isArray(route)) action = { ...action, data: { ...action.data, points: [...route] } };
+      }
       // Intercept view property updates for immediate visual feedback
       if (action?.type === 'UPDATE_OBJECTVIEW_PROPERTIES' && action?.data?.id) {
         try {
@@ -2969,6 +3005,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           const nodeData = nodePart?.data || myDiagram.model.findNodeDataForKey(data.id);
           
           if (nodeData) {
+            let appearance = null;
+            if (data.appearanceMode === 'inherit' && data.appearanceOverrides) {
+              const view = nodeData.objectview || this.props.myMetis?.findObjectView(data.id);
+              if (view) {
+                view.typeview ||= nodeData.typeview || view.object?.type?.typeview;
+                view.appearanceMode = 'inherit';
+                view.appearanceOverrides = { ...data.appearanceOverrides };
+                appearance = resolveAppearance(view);
+                const mirror = this.props.myMetis?.gojsModel?.findNodeByViewId?.(data.id);
+                if (mirror && mirror !== nodeData) {
+                  Object.assign(mirror, appearance);
+                  mirror.objectview = view;
+                }
+              }
+            }
             // Skip undo/redo and prevent selection changes
             myDiagram.skipsUndoManager = true;
             const oldAllowSelect = myDiagram.allowSelect;
@@ -2979,7 +3030,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (data.strokecolor !== undefined) m.set(nodeData, 'strokecolor', data.strokecolor);
               if (data.strokewidth !== undefined) m.set(nodeData, 'strokewidth', data.strokewidth);
               if (data.icon !== undefined) m.set(nodeData, 'icon', data.icon);
+              if (appearance) {
+                for (const [field, value] of Object.entries(appearance)) m.set(nodeData, field, value);
+              }
             }, null);
+            nodePart?.updateTargetBindings?.();
 
             if (data.icon !== undefined) {
               if (nodeData.objectview) nodeData.objectview.icon = data.icon;
@@ -3052,6 +3107,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             myDiagram.model.commit((m: any) => {
               if (data.strokecolor !== undefined) m.set(linkData, 'strokecolor', data.strokecolor);
               if (data.strokewidth !== undefined) m.set(linkData, 'strokewidth', data.strokewidth);
+              const route = (myDiagram as any).__translatedSelfLoopRoutes?.get(data.id);
+              if (Array.isArray(route)) {
+                m.set(linkData, 'points', [...route]);
+                if (linkData.relshipview) linkData.relshipview.points = [...route];
+              }
             }, null);
             
             // Restore settings - only restore allowSelect if it was true
@@ -3129,6 +3189,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.dispatch = wrappedDispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
+    myDiagram.getCurrentMetis = () => this.props.myMetis;
     myDiagram.selectedOption = this.state.selectedOption;
     myDiagram.routing = go.Link.Normal;
     myDiagram.state = this.state;

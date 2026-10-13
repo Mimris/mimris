@@ -202,6 +202,42 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     return Number.isFinite(numericValue) ? numericValue : rawValue;
   };
   const nextObjectviewValue = coerceNumericObjectviewValue(propname, value);
+  if (context?.what === 'editObjectview' && propname !== 'name') {
+    const diagram = context.myDiagram || myMetis.myDiagram;
+    const viewId = context.myContext?.objectview?.id || context.objectview?.id || obj?.objviewRef || obj?.key || obj?.id;
+    const view = myMetis.findObjectView(viewId) || context.myContext?.objectview || context.objectview;
+    if (view) {
+      const nextValue = propname === 'grabIsAllowed'
+        ? (value === true || value === 'true') : nextObjectviewValue;
+      view[propname] = nextValue;
+      if (view.appearanceMode) setAppearanceOverride(view, propname, nextValue);
+      myMetis.__editTracking ||= {};
+      myMetis.__editTracking[view.id] ||= {};
+      myMetis.__editTracking[view.id][propname] = true;
+
+      const part = diagram?.findNodeForKey?.(view.id);
+      if (part) {
+        // Notify GoJS before touching cached data: writing the field directly
+        // first makes setDataProperty see an unchanged value, losing bindings
+        // and template changes. The rendered Part is authoritative here.
+        diagram.model.commit((model: any) => {
+          model.setDataProperty(part.data, propname, nextValue);
+          model.setDataProperty(part.data, 'objectview', view);
+        }, 'edit-objectview-live');
+      }
+      const mirror = myMetis.gojsModel?.findNodeByViewId?.(view.id) ||
+        myMetis.gojsModel?.findNode?.(view.id);
+      if (mirror && mirror !== part?.data) mirror[propname] = nextValue;
+      if (myMetis.currentNode?.key === view.id && myMetis.currentNode !== part?.data)
+        myMetis.currentNode[propname] = nextValue;
+      // A template change can replace the Part, so look it up again.
+      diagram?.findNodeForKey?.(view.id)?.updateTargetBindings?.();
+      diagram?.requestUpdate?.();
+      const data = safeClone(new jsn.jsnObjectView(view));
+      diagram?.dispatch?.({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      return;
+    }
+  }
   const swimlaneCategory = String(obj?.template || obj?.category || '');
   const isSwimlaneRename =
     propname === 'name' &&
@@ -1604,6 +1640,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const selObj = selectedData;
       const goNode = findGoNode(selObj.key);
       const objview =
+        myMetis.findObjectView(modalContext?.myContext?.objectview?.id || selObj.key || selObj.id) ||
         modalContext?.myContext?.objectview ||
         myModelview.findObjectView(selObj.key) ||
         goNode?.objectview ||
@@ -1709,7 +1746,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "editObjectview": {
       // selObj is a node representing an object or an objectview
-      const selObj = selectedData;
+      const selObj = selectedData.key ? selectedData : { ...selectedData, key: selectedData.id };
       const goNode = findGoNode(selObj.key);
       const objview =
         modalContext?.myContext?.objectview ||

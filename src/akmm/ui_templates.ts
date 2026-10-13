@@ -8,6 +8,7 @@ import * as jsn from './ui_json';
 import * as constants from './constants';
 import context from '../pages/context';
 import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
+import { PreservedSelfLink } from '../components/gojs/tools/PreservedSelfLink';
 
 const $ = go.GraphObject.make;
 
@@ -182,6 +183,7 @@ function getLinkAdjusting(data: any, fallback: number): number {
     const isSelfLoop =
         (data?.from && data?.to && String(data.from) === String(data.to)) ||
         (data?.fromNode?.key && data?.toNode?.key && String(data.fromNode.key) === String(data.toNode.key));
+    if (isSelfLoop && (data?.__manualPath || data?.relshipview?.__manualPath)) return go.Link.None;
     if (Array.isArray(points) && points.length >= 4) {
         return isSelfLoop ? go.Link.None : go.Link.End;
     }
@@ -4917,7 +4919,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
         return true;
     };
     const linkTemplate =
-        $(go.Link,
+        $(PreservedSelfLink,
             new go.Binding("deletable"),
             // new go.Binding("isLayoutPositioned", "isLayoutPositioned").makeTwoWay(), 
             { selectable: true },
@@ -5102,7 +5104,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     };
 
     const linkTemplate2 =      
-        $(go.Link,
+        $(PreservedSelfLink,
             new go.Binding("deletable"),
             { contextMenu: contextMenu },
             { selectable: true },
@@ -5212,7 +5214,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     addLinkTemplateName('linkTemplate2');
 
     const annotationLinkTemplate =
-        $(go.Link,
+        $(PreservedSelfLink,
         {
             contextMenu: contextMenu,
             reshapable: true, 
@@ -5254,7 +5256,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
 
 	    const sequenceLinkTemplate = 
-	        $(go.Link,
+	        $(PreservedSelfLink,
 	        {
 	          contextMenu: contextMenu,
 	          routing: go.Link.Orthogonal,

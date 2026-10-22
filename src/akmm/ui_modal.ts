@@ -2367,7 +2367,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             relview = myModelview.findRelationshipView(selRel.key);
           if (relview) {
             for (let prop in reltypeview?.data) {
-              if (prop === 'class') continue;
+              if (prop === 'class' || touchedExplicitProps?.[prop] !== true) continue;
               try { relview[prop] = selRel[prop]; } catch {}
             }
             myMetis.addRelationshipView(relview);
@@ -2398,7 +2398,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           'toArrow',
           'fromArrowColor',
           'toArrowColor',
-        ].filter((prop) => isPersistableRelshipviewProp(prop, selRel?.[prop]))));
+        ].filter((prop) => touchedExplicitProps?.[prop] === true &&
+          isPersistableRelshipviewProp(prop, selRel?.[prop]))));
         
         // CRITICAL: Check if ANY properties actually changed before updating
         let hasChanges = false;
@@ -2459,13 +2460,22 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }
           });
         }, 'editRelshipview-close');
+
+        // Drag persistence rebuilds React link data from the runtime GoJS mirror.
+        // Keep it in sync with the edited, effective values rather than letting
+        // a later node move restore its pre-dialog appearance.
+        for (const prop of relviewProps) {
+          goLink[prop] = data[prop];
+          if (goLink.data && goLink.data !== data) goLink.data[prop] = data[prop];
+        }
         
         removeEmptyOptionalRelshipviewFields(relview);
         removeEmptyOptionalRelshipviewFields(relview?.data);
         // NOTE: Properties already set in model.commit() above - no need to set again
         const nextRouting = relview?.routing || data?.routing || reltypeview?.data?.routing || "Normal";
         const nextCurve = relview?.curve || data?.curve || reltypeview?.data?.curve || "None";
-        if (nextRouting !== previousRouting || nextCurve !== previousCurve) {
+        if ((touchedExplicitProps.routing === true && nextRouting !== previousRouting) ||
+            (touchedExplicitProps.curve === true && nextCurve !== previousCurve)) {
           try { relview.points = []; } catch (_) {}
           try { if (relview?.data) relview.data.points = []; } catch (_) {}
           myDiagram.model.commit((m: any) => {

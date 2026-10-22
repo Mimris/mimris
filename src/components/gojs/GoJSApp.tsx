@@ -765,6 +765,20 @@ function queueObjectViewDispatch(instance: any, dispatch: any, data: any, diagra
 }
 
 function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagram?: any) {
+  // Geometry callbacks can hold an older Metis snapshot after an inspector edit.
+  // Preserve the appearance of the rendered relationship when saving its path.
+  const liveData = diagram?.model?.findLinkDataForKey?.(data?.id);
+  if (liveData) {
+    data = { ...data };
+    const view = liveData.relshipview;
+    if (view?.appearanceMode === 'inherit') {
+      data.appearanceMode = 'inherit';
+      data.appearanceOverrides = { ...view.appearanceOverrides };
+      delete data.textscale;
+    } else if (liveData.textscale !== undefined) {
+      data.textscale = liveData.textscale;
+    }
+  }
   if (!instance || typeof dispatch !== "function" || !data?.id) return;
   if (!(instance as any).__queuedRelshipViewDispatches) {
     (instance as any).__queuedRelshipViewDispatches = new Map<string, any>();
@@ -815,7 +829,10 @@ function queueRelshipViewDispatch(instance: any, dispatch: any, data: any, diagr
     if (instance && typeof instance.setState === 'function' && instance.state?.myMetis?.gojsModel) {
       const links = instance.state.myMetis.gojsModel.links;
       if (Array.isArray(links)) {
-        instance.setState({ linkDataArray: [...links], skipsDiagramUpdate: true });
+        instance.setState({ linkDataArray: links.map((link: any) => {
+          const live = storedDiagram?.model?.findLinkDataForKey?.(link.key || link.id || link.relviewRef);
+          return live ? { ...link, ...live } : link;
+        }), skipsDiagramUpdate: true });
       }
     }
 
@@ -3046,13 +3063,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (name === 'InitialLayoutCompleted') {
       this._applyMetamodelAutoLayoutIfNeeded(myDiagram);
     }
-    const myMetis = this.state.myMetis;
+    const myMetis = (myDiagram as any)?.getCurrentMetis?.() || this.state.myMetis;
     myMetis.relinked = false;
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel?.id);
     let myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview?.id);
     if (!myModelview) myModelview = myMetis?.currentModelview;
     const myMetamodel = myModel?.getMetamodel();
-    let myGoModel: gjs.goModel = this.state.myMetis.gojsModel;
+    let myGoModel: gjs.goModel = myMetis.gojsModel;
     if (!myGoModel && myModelview) {
       myGoModel = new gjs.goModel(myModelview.id, "myModel", myModelview);
       myMetis.setGojsModel(myGoModel);
@@ -5259,13 +5276,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           } else {
             if (!shiftPressed) {
-              if (previousGroup && previousGroup !== data?.key) {
-                persistedGroup = previousGroup;
-              } else if (data?.group && data.group !== data?.key) {
-                persistedGroup = data.group;
-              } else {
-                persistedGroup = "";
-              }
+              // A normal drag can leave the parent's frame without GoJS clearing
+              // containingGroup. Prefer live membership after a drop into another
+              // container, then detach if the child is outside that parent's body.
+              const parentKey = data?.group || previousGroup;
+              const parentPart = parentKey ? myDiagram.findNodeForKey(parentKey) : null;
+              persistedGroup = parentKey && parentKey !== data?.key &&
+                isPartVisuallyInsideGroup(sel, parentPart) ? parentKey : "";
             } else {
               const currentSize = data?.size || objview.size || `${sel.actualBounds.width} ${sel.actualBounds.height}`;
               const centerPoint = sel.actualBounds?.center || null;
@@ -5302,9 +5319,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
           if (!isLaneGroup) {
-            if (!shiftPressed) {
-              // Normal group drags should only reposition the group, not change membership.
-            } else if (persistedGroup) {
+            if (persistedGroup) {
               const targetGroup = myDiagram.findNodeForKey(persistedGroup) as go.Group | null;
               if (targetGroup instanceof go.Group && !wouldCreateGroupCycle(sel, targetGroup) && sel.containingGroup !== targetGroup) {
                 const added = attachPartToGroup(myDiagram, sel, targetGroup, data);
@@ -6408,7 +6423,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             setTimeout(persistMovedManualLinks, 0);
             setTimeout(persistMovedManualLinks, 50);
           }
-          let persistedTouchedSelfLoop = false;
           const movedSelfLoopKeys = new Set<string>();
           try {
             myDiagram.links.each((liveLink: go.Link) => {
@@ -6467,7 +6481,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data = JSON.parse(JSON.stringify(data));
                 queueRelshipViewDispatch(this, context.dispatch || myDiagram.dispatch || this.state.dispatch, data, myDiagram);
               } catch (_) { }
-              persistedTouchedSelfLoop = true;
             });
           } catch (_) { }
           if (movedSelfLoopKeys.size > 0) {
@@ -6527,14 +6540,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             setTimeout(persistMovedSelfLoops, 0);
             setTimeout(persistMovedSelfLoops, 50);
           }
-          if (persistedTouchedSelfLoop) {
-            try {
-              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-              let data: any = { metis: jsnMetis };
-              data = JSON.parse(JSON.stringify(data));
-              (context.dispatch || myDiagram.dispatch || this.state.dispatch)?.({ type: 'LOAD_TOSTORE_PHDATA', data });
-            } catch (_) { }
-          }
+          // Dedicated relationship-view saves above already persist self-loop
+          // geometry. A full universe snapshot here can replay appearance from
+          // before an inspector edit after the first move completes.
           try { delete (myDiagram as any).__manualLinkMovePreview; } catch (_) {}
           try { delete (myDiagram as any).__laneManualLinkPointsBeforeMove; } catch (_) {}
           try { delete (myDiagram as any).__manualLinkPointsBeforeMove; } catch (_) {}

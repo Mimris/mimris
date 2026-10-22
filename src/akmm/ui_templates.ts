@@ -797,20 +797,15 @@ export function groupTop2(
 ) {
     const DEBUG_HIT_AREAS = false;
     const edgePortWidth = 12;
-    const edgePort = (
-        alignment: go.Spot,
-        alignmentFocus: go.Spot,
-        stretch: go.Stretch,
-        size: { width?: number; height?: number },
-        spot: go.Spot,
-    ) => $(go.Shape, "Rectangle",
+    // One default port must span the frame. Four ports with the same empty ID
+    // resolve to the last (right-hand) edge when a link is materialized.
+    const borderPort = () => $(go.Shape, "Rectangle",
         {
-            alignment,
-            alignmentFocus,
-            stretch,
-            ...size,
-            fill: DEBUG_HIT_AREAS ? "rgba(255, 0, 180, 0.18)" : "transparent",
-            stroke: DEBUG_HIT_AREAS ? "rgba(255, 0, 180, 0.5)" : null,
+            name: "CONTAINER_BORDER_PORT",
+            stretch: go.GraphObject.Fill,
+            fill: null,
+            stroke: DEBUG_HIT_AREAS ? "rgba(255, 0, 180, 0.5)" : "transparent",
+            strokeWidth: edgePortWidth,
             cursor: "alias",
             portId: "",
             fromLinkable: true,
@@ -819,8 +814,8 @@ export function groupTop2(
             toLinkable: true,
             toLinkableSelfNode: false,
             toLinkableDuplicates: true,
-            fromSpot: spot,
-            toSpot: spot,
+            fromSpot: go.Spot.AllSides,
+            toSpot: go.Spot.AllSides,
         },
     );
     const groupFocusStroke = (data: any) => {
@@ -992,12 +987,7 @@ export function groupTop2(
             ),
         ),
         ...(restrictBodyHitArea
-            ? [
-                edgePort(go.Spot.Top, go.Spot.Top, go.GraphObject.Horizontal, { height: edgePortWidth }, go.Spot.Top),
-                edgePort(go.Spot.Bottom, go.Spot.Bottom, go.GraphObject.Horizontal, { height: edgePortWidth }, go.Spot.Bottom),
-                edgePort(go.Spot.Left, go.Spot.Left, go.GraphObject.Vertical, { width: edgePortWidth }, go.Spot.Left),
-                edgePort(go.Spot.Right, go.Spot.Right, go.GraphObject.Vertical, { width: edgePortWidth }, go.Spot.Right),
-            ]
+            ? [borderPort()]
             : []),
     );
 }

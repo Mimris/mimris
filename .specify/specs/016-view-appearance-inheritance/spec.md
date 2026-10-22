@@ -13,3 +13,12 @@ Acceptance: a new view responds to type appearance changes unless overridden; ov
 Object-view inspector edits must update the rendered GoJS node without requiring Reload. Update the model before cached node data so bindings and template replacement receive change notifications; keep runtime mirrors synchronized for subsequent persistence.
 
 Successive object-view appearance edits and Reset to Typeview must remain visible through React updates and dialog completion without Reload. Synchronize the child diagram's render state when incoming appearance changes have no structural changes, while preserving live geometry.
+# Relationship appearance edits preserve path settings
+
+Closing Edit Relationship View applies only explicitly touched fields. A text-size, color or stroke edit must preserve routing, curve, attachment ports and saved path points, including when untouched dialog values differ from the effective relationship-view values. Clear points for a routing/curve change only when that field was explicitly edited.
+
+Synchronize edited effective values to both the rendered link and its runtime GoJS mirror. Repeated node moves and queued relationship saves must retain the chosen text size rather than restoring the mirror's pre-edit value.
+
+Queued geometry persistence must retain the rendered relationship's current appearance overrides and use live link data when rebuilding React state. An older Metis snapshot must not replace an inspector edit during the second or subsequent move.
+
+Diagram events resolve the current Metis and its GoJS mirror through the owning diagram. Self-loop movement saves individual relationship-view geometry; it must not dispatch a redundant full-universe snapshot that can overwrite newer appearance edits.

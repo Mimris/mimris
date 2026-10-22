@@ -1081,7 +1081,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('66 activeTab', activeTab);
     let selObj = this.props.selectedData; // node
     let category = selObj?.category;
-    if (category === constants.gojs.C_OBJECTVIEW) {
+    // Rendered nodes use template keys (e.g. groupNoPorts) as categories.
+    // Resolve object-view editing from its model context, including custom templates.
+    if (category === constants.gojs.C_OBJECTVIEW ||
+        (myObjectView && (what === 'editObjectview' || what === 'editTypeview')) ||
+        category === constants.gojs.C_CONTAINER ||
+        category === 'Pool' || category === 'Lane' || category === 'Lane_w_handles') {
       category = constants.gojs.C_OBJECT;
     } else if (category === constants.gojs.C_RELSHIPVIEW) {
       category = constants.gojs.C_RELATIONSHIP;

@@ -778,3 +778,112 @@ test('every editable relationship template installs the self-loop route guard', 
     assert.match(source, new RegExp(`const ${name}\\s*=\\s*\\$\\(PreservedSelfLink,`), name);
   }
 });
+
+test('closing relationship appearance editing changes only touched fields and retains routing', () => {
+  const source = readFileSync(new URL('../../akmm/ui_modal.ts', import.meta.url), 'utf8');
+  const helpers = source.slice(source.indexOf('function isPersistableRelshipviewProp'), source.indexOf('export function handleInputChange'));
+  const closeCase = source.slice(source.indexOf('    case "editRelshipview": {'), source.indexOf('    case "editTypeview": {', source.indexOf('    case "editRelshipview": {')));
+  const points = [100, 170, 100, 250, 300, 250, 300, 135, 200, 135];
+  const typeview = { data: { routing: 'Normal', curve: 'Bezier', textscale: 1 } };
+  const view = { id: 'loop', relship: { type: { typeview } }, routing: 'Orthogonal', curve: 'None', textscale: 1, points: [...points] };
+  const data = { key: 'loop', routing: 'Orthogonal', curve: 'None', textscale: 1, points: [...points] };
+  const runtimeLink = { key: 'loop', textscale: 4, data: { textscale: 4 } };
+  const link = { data, updateTargetBindings() {}, invalidateRoute() {} };
+  const selection = { each() {} };
+  const diagram = { selection, allowSelect: true, clearSelection() {}, findLinkForKey: () => link, model: { commit: fn => fn({ set: (obj, prop, value) => { obj[prop] = value; } }) } };
+  const actions = [];
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(`${helpers}\nfunction close(selectedData) { switch ('editRelshipview') { ${closeCase} } }\nmodule.exports = close;`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, {
+    module, myDiagram: diagram, myModelview: { findRelationshipView: () => view },
+    findGoLink: () => runtimeLink, myMetis: { __editTracking: { loop: { textscale: true } } },
+    modalContext: {}, modifiedRelviews: [], jsn: { jsnRelshipView: class { constructor(v) { Object.assign(this, v); } } },
+    isAppearanceField: () => false, serializeAppearance() {}, safeClone: v => ({ ...v }),
+    dispatchUpdate: a => actions.push(a), pushPhDataRelshipviewUpdate() {}, setTimeout() {}, go,
+  });
+  module.exports({ key: 'loop', textscale: '3', routing: 'Normal', curve: 'Bezier' });
+  assert.equal(data.textscale, 3);
+  assert.equal(view.textscale, 3);
+  assert.equal(runtimeLink.textscale, 3);
+  assert.equal(runtimeLink.data.textscale, 3);
+  assert.equal(data.routing, 'Orthogonal');
+  assert.equal(data.curve, 'None');
+  assert.deepEqual(data.points, points);
+  assert.equal(actions[0].data.routing, 'Orthogonal');
+  assert.equal(actions[0].data.curve, 'None');
+  const appSource = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const start = appSource.indexOf('function queueRelshipViewDispatch(');
+  const end = appSource.indexOf('function flushQueuedDiagramDispatches(', start);
+  const queueModule = { exports: {} };
+  let flush;
+  vm.runInNewContext(ts.transpileModule(`${appSource.slice(start, end)}\nmodule.exports = queueRelshipViewDispatch;`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { module: queueModule, Map, console, setTimeout: callback => { flush = callback; return 1; } });
+  const renderedScales = [];
+  const instance = {
+    state: { myMetis: { gojsModel: { links: [runtimeLink] } } },
+    setState: next => renderedScales.push(next.linkDataArray[0].textscale),
+  };
+  for (let move = 0; move < 2; move++) {
+    queueModule.exports(instance, () => {}, { id: 'loop', points: [...points] });
+    flush();
+  }
+  assert.deepEqual(renderedScales, [3, 3]);
+});
+
+test('successive path saves cannot restore stale relationship text scale or overrides', () => {
+  const source = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const start = source.indexOf('function queueRelshipViewDispatch(');
+  const end = source.indexOf('function flushQueuedDiagramDispatches(', start);
+  const module = { exports: {} };
+  let flush;
+  vm.runInNewContext(ts.transpileModule(`${source.slice(start, end)}\nmodule.exports = queueRelshipViewDispatch;`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { module, Map, console, setTimeout: callback => { flush = callback; return 1; } });
+  const diagram = new go.Diagram();
+  diagram.model = new go.GraphLinksModel([], [{ key: 'loop', textscale: 1.5,
+    relshipview: { appearanceMode: 'inherit', appearanceOverrides: { textscale: 1.5 } } }]);
+  diagram.model.linkKeyProperty = 'key';
+  const staleLink = { key: 'loop', textscale: 2 };
+  const scales = [], actions = [];
+  const instance = { state: { myMetis: { gojsModel: { links: [staleLink] } } },
+    setState: next => scales.push(next.linkDataArray[0].textscale) };
+  for (let move = 0; move < 2; move++) {
+    module.exports(instance, a => actions.push(a), { id: 'loop', points: [move, move, 20, 20],
+      appearanceMode: 'inherit', appearanceOverrides: { textscale: 2 } }, diagram);
+    flush();
+  }
+  assert.deepEqual(scales, [1.5, 1.5]);
+  assert.deepEqual(actions.map(a => a.data.appearanceOverrides.textscale), [1.5, 1.5]);
+  assert.equal(staleLink.textscale, 2); // The test deliberately keeps the old snapshot stale.
+});
+
+test('diagram events use the current Metis and its GoJS mirror after inspector edits', () => {
+  const source = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const handler = source.indexOf('public handleDiagramEvent(');
+  const start = source.indexOf('    const myMetis =', handler);
+  const end = source.indexOf('    const nodes =', start);
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(`function run(myDiagram) { ${source.slice(start, end)} return {myMetis, myModelview, myGoModel}; } module.exports = run;`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { module });
+  const makeMetis = scale => ({
+    findModel: () => ({ getMetamodel: () => ({}) }),
+    findModelView: () => ({ textscale: scale }), gojsModel: { textscale: scale },
+  });
+  const stale = makeMetis(2), current = makeMetis(1.5);
+  const owner = { state: { myMetis: stale, phFocus: {} } };
+  for (let move = 0; move < 2; move++) {
+    const result = module.exports.call(owner, { getCurrentMetis: () => current });
+    assert.equal(result.myMetis, current);
+    assert.equal(result.myModelview.textscale, 1.5);
+    assert.equal(result.myGoModel, current.gojsModel);
+  }
+  assert.equal(module.exports.call(owner, {}).myMetis, stale);
+  const selfLoopStart = source.indexOf('const movedSelfLoopKeys =');
+  const selfLoopEnd = source.indexOf('delete (myDiagram as any).__manualLinkMovePreview', selfLoopStart);
+  const selfLoopDrop = source.slice(selfLoopStart, selfLoopEnd);
+  assert.match(selfLoopDrop, /queueRelshipViewDispatch/);
+  assert.doesNotMatch(selfLoopDrop, /LOAD_TOSTORE_PHDATA|jsnExportMetis/);
+});

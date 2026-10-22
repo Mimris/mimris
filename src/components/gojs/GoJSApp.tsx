@@ -1002,6 +1002,22 @@ function applyDerivedScaleToPart(
   return nextScale;
 }
 
+function applyMovedGroupMemberScales(diagram: go.Diagram, group: go.Group, myModelview: any, myGoModel: any, persist: (patch: any) => void, visited = new Set<go.Node>()) {
+  group.memberParts.each((member: go.Part) => {
+    if (!(member instanceof go.Node) || visited.has(member)) return;
+    visited.add(member);
+    const data = member.data || {};
+    const objectview = myModelview?.findObjectView?.(data.objviewRef || data.key) || data.objectview;
+    const goNode = myGoModel?.findNode?.(data.key);
+    const scale = applyDerivedScaleToPart(diagram, member, member.containingGroup, objectview, goNode);
+    if (data.objectview) data.objectview.scale = scale;
+    if (objectview?.id) persist({ id: objectview.id, scale });
+    if (member instanceof go.Group) {
+      applyMovedGroupMemberScales(diagram, member, myModelview, myGoModel, persist, visited);
+    }
+  });
+}
+
 function applyNestedGroupHalfSize(
   diagram: go.Diagram | null | undefined,
   part: go.Part | null | undefined,
@@ -1312,6 +1328,24 @@ function detachPartToTopLevel(
   try { part.updateAllTargetBindings(); } catch (_) { }
   try { diagram.updateAllTargetBindings(); } catch (_) { }
   try { diagram.requestUpdate(); } catch (_) { }
+}
+
+function detachObjectOutsideContainer(diagram: go.Diagram, part: go.Node, goNode: any, objectview?: any) {
+  if (!(part instanceof go.Node) || part instanceof go.Group) return;
+  const parent = part.containingGroup;
+  if (!(parent instanceof go.Group)) return;
+  const category = String(parent.data?.category || parent.data?.template || parent.category || "");
+  // Swimlane membership follows its existing constrained/Shift-drag rules.
+  if (category === "Pool" || category.startsWith("Lane")) return;
+  if (isPartVisuallyInsideGroup(part, parent)) return;
+
+  detachPartToTopLevel(diagram, part, part.data);
+  if (part.data?.objectview) part.data.objectview.group = "";
+  if (goNode) {
+    goNode.group = "";
+    if (goNode.objectview) goNode.objectview.group = "";
+  }
+  if (objectview) objectview.group = "";
 }
 
 function attachPartToGroup(
@@ -4528,6 +4562,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           console.log(`[BUILD-TONODE] key=${n.data.key}, n.location=${loc}, containingGroup=${n.containingGroup ? n.containingGroup.key : 'none'}, data.loc=${n.data.loc}`);
           const goNode = myGoModel.findNode(n.data.key);
           if (!goNode) continue;
+          // Resolve a drag-out now, before stale containingGroup can override
+          // the visual drop target. Waiting until the next drag leaves the object
+          // in memberParts, so collapsing its former parent hides it.
+          detachObjectOutsideContainer(myDiagram, n, goNode, myModelview.findObjectView(n.data.key));
           goNode.loc = loc;
           const size = n.actualBounds.width + " " + n.actualBounds.height;
           const currentGroupKey = String(goNode.objectview?.group || goNode.group || n.data.group || "");
@@ -5823,6 +5861,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             });
           }
         });
+        // Selected containers carry their children without selecting them. Refresh
+        // those children's derived scales after membership and parent scales settle.
+        const scaledMembers = new Set<go.Node>();
+        for (let it = e.subject?.iterator; it?.next();) {
+          if (!(it.value instanceof go.Group)) continue;
+          applyMovedGroupMemberScales(myDiagram, it.value, myModelview, myGoModel,
+            patch => uic.addItemToList(modifiedObjectViews, patch), scaledMembers);
+        }
         // Ensure ordinary object drags are persisted even when GoJS no longer exposes
         // the moved parts through draggingTool.draggedParts at SelectionMoved time.
         for (let it = e.subject?.iterator; it?.next();) {

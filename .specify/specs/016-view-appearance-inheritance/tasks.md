@@ -14,3 +14,4 @@
 - [x] Synchronize edited relationship fields to the runtime link mirror; verify two successive queued move updates and rendered text scales remain unchanged.
 - [x] Protect queued geometry saves and React state rebuilds from stale relationship appearance; test two successive saves against a deliberately stale runtime snapshot, verify rendered label scale, and run 92 tests and TypeScript checks.
 - [x] Resolve diagram events against the current Metis and remove the redundant self-loop full-universe save; cover stale event state and retained targeted path saves, and run 93 tests and TypeScript checks.
+- [x] Reproduce a collapsed container image covering the inner frame's top border; inset the image, add a geometry regression check, visually verify the continuous border, and run all 108 tests.

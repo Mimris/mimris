@@ -953,6 +953,7 @@ export function groupTop2(
                 $(go.RowColumnDefinition, { row: 1, sizing: go.RowColumnDefinition.None }),
                 $(go.Shape, // the shape inside the shape
                     {
+                        name: "CONTAINER_INNER_FRAME",
                         row: 1,
                         fill: DEBUG_HIT_AREAS ? "rgba(0, 200, 80, 0.16)" : "rgba(128,128,128,0.33)",
                         stroke: DEBUG_HIT_AREAS ? "rgba(0, 120, 40, 0.35)" : "rgba(120,120,120,0.55)",
@@ -975,9 +976,12 @@ export function groupTop2(
                 $(go.Picture,
                     new go.Binding("source", "image", findImage),
                     {
+                        name: "CONTAINER_COLLAPSED_IMAGE",
                         row: 1,
                         stretch: go.GraphObject.Fill,
-                        margin: new go.Margin(2, 10, 5, 10),
+                        // Keep opaque image pixels inside the inner frame's
+                        // 3px inset and stroke, including at the top edge.
+                        margin: new go.Margin(5, 10, 5, 10),
                         alignment: go.Spot.Center,
                         imageStretch: go.GraphObject.Uniform,
                     },

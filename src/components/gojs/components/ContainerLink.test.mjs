@@ -19,7 +19,7 @@ const textStyle = () => ({});
 const makeZoomInvariantExpanderButton = () => $(go.Shape, {width:8,height:8});
 const sanitizeColor = color => color || 'white';
 const asBoolean = value => Boolean(value);
-const findImage = () => '';
+const findImage = image => image || '';
 `;
 const context = { go };
 vm.runInNewContext(helpers + compiled, context);
@@ -76,6 +76,24 @@ test('moving a source to the opposite side changes the default attachment', () =
   link.invalidateRoute(); link.updateRoute();
   const port = link.toPort.getDocumentBounds();
   assert.ok(Math.abs(link.getPoint(link.pointsCount - 1).x - port.right) < 1);
+});
+
+test('collapsed container image stays inside the inner frame', () => {
+  const diagram = setup(context.groupTop2);
+  const container = diagram.findNodeForKey('container');
+  diagram.model.setDataProperty(container.data, 'size', '480 280');
+  container.isSubGraphExpanded = false;
+  container.ensureBounds();
+  const image = container.findObject('CONTAINER_COLLAPSED_IMAGE');
+  const frame = container.findObject('CONTAINER_INNER_FRAME');
+  assert.equal(image.visible, true);
+  const imageBounds = image.getDocumentBounds();
+  const frameBounds = frame.getDocumentBounds();
+  assert.ok(imageBounds.y >= frameBounds.y + frame.strokeWidth, 'image must not paint over the top border');
+  assert.ok(imageBounds.bottom <= frameBounds.bottom - frame.strokeWidth, 'image must not paint over the bottom border');
+  container.isSubGraphExpanded = true;
+  container.ensureBounds();
+  assert.equal(image.visible, false);
 });
 
 if (process.env.CONTAINER_LINK_PREVIEW) {

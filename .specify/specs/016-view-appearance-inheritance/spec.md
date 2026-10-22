@@ -22,3 +22,7 @@ Synchronize edited effective values to both the rendered link and its runtime Go
 Queued geometry persistence must retain the rendered relationship's current appearance overrides and use live link data when rebuilding React state. An older Metis snapshot must not replace an inspector edit during the second or subsequent move.
 
 Diagram events resolve the current Metis and its GoJS mirror through the owning diagram. Self-loop movement saves individual relationship-view geometry; it must not dispatch a redundant full-universe snapshot that can overwrite newer appearance edits.
+
+## Collapsed container images
+
+Collapsed container images must remain inside the inner frame, including its stroke. An opaque image must not cover the top border when closing a container. Opening the container hides the image and retains the existing frame size.

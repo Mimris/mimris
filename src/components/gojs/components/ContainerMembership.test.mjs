@@ -17,7 +17,11 @@ const end = source.indexOf('const gnode = myGoModel.findNodeByViewId(objview.id)
 assert.ok(start >= 0 && end > start);
 const harnessSource = [
   ...['getGroupBodyBounds', 'isPartVisuallyInsideGroup', 'wouldCreateGroupCycle',
-    'objectContainsDescendant', 'clearPartGroupState', 'detachPartToTopLevel', 'attachPartToGroup'].map(helper),
+    'objectContainsDescendant', 'clearPartGroupState', 'detachPartToTopLevel', 'attachPartToGroup',
+    'detachObjectOutsideContainer', 'setGroupMemberVisibilityRecursive',
+    'getGroupMemberScale', 'getAncestorMemberScaleProduct', 'getDerivedScaleForGroup',
+    'getRenderedPartScale', 'getRenderedTextScale', 'getRelationshipTextScale',
+    'syncRelationshipTextScaleForObjectView', 'applyDerivedScaleToPart', 'applyMovedGroupMemberScales'].map(helper),
   `function dropContainer(myDiagram, sel) {
     const data = sel.data, objview = data.objectview;
     const previousGroup = objview.group || '';
@@ -106,11 +110,132 @@ test('drop membership in another container takes precedence over the previous pa
   assert.equal(child.data.objectview.group, 'other');
 });
 
+test('first object drag-out detaches before the former parent is collapsed', () => {
+  const { diagram, parent } = setup();
+  const objectview = { id: 'object', group: 'parent' };
+  diagram.model.addNodeData({ key: 'object', group: 'parent', objectview });
+  const object = diagram.findNodeForKey('object');
+  object.location = new go.Point(50, 50);
+  object.ensureBounds();
+  const mirror = { group: 'parent', objectview: { ...objectview } };
+  object.move(new go.Point(450, 50));
+  object.ensureBounds();
+  context.detachObjectOutsideContainer(diagram, object, mirror);
+  assert.equal(object.containingGroup, null);
+  assert.equal(object.data.group, '');
+  assert.equal(objectview.group, '');
+  assert.equal(mirror.group, '');
+  assert.equal(mirror.objectview.group, '');
+  parent.isSubGraphExpanded = false;
+  context.setGroupMemberVisibilityRecursive(parent, false);
+  assert.equal(object.visible, true, 'closing the old parent after one move must not hide the object');
+  assert.equal(object.isVisible(), true);
+  const reopened = new go.Diagram();
+  reopened.model = go.Model.fromJson(diagram.model.toJson());
+  assert.equal(reopened.findNodeForKey('object').containingGroup, null);
+});
+
+for (const category of ['groupNoPorts', 'Lane', 'Pool']) {
+  test(`object movement preserves valid ${category} membership`, () => {
+    const { diagram, parent } = setup();
+    parent.data.category = category;
+    const objectview = { group: 'parent' };
+    diagram.model.addNodeData({ key: 'object', group: 'parent', objectview });
+    const object = diagram.findNodeForKey('object');
+    object.location = new go.Point(category === 'groupNoPorts' ? 50 : 450, 50);
+    object.ensureBounds();
+    context.detachObjectOutsideContainer(diagram, object, { group: 'parent', objectview });
+    assert.equal(object.containingGroup, parent);
+    parent.isSubGraphExpanded = false;
+    context.setGroupMemberVisibilityRecursive(parent, false);
+    assert.equal(object.visible, false);
+  });
+}
+
 if (process.env.CONTAINER_PREVIEW) {
   writeFileSync(process.env.CONTAINER_PREVIEW, `<html><body><h3>Container detached after moving outside parent</h3><div id="diagram" style="width:1000px;height:500px;border:1px solid #ccc"></div><p id="result"></p><script src="file://${process.cwd()}/node_modules/gojs/release/go.js"></script><script>${compiled}\n${setup.toString()}
-    const {diagram,parent,child,grandchild}=setup(); diagram.div='diagram';
+    const {diagram,parent,child,grandchild}=setup(); diagram.animationManager.isEnabled=false; diagram.div='diagram';
     child.move(new go.Point(420,50)); child.ensureBounds(); dropContainer(diagram,child);
     const before=child.location.copy(); parent.move(new go.Point(100,100));
     document.getElementById('result').textContent='Child is top-level: '+(child.containingGroup===null)+' | Child stays when parent moves: '+child.location.equals(before)+' | Grandchild retained: '+(grandchild.containingGroup===child);
+  </script></body></html>`);
+}
+
+if (process.env.OBJECT_EXIT_PREVIEW) {
+  writeFileSync(process.env.OBJECT_EXIT_PREVIEW, `<html><body><h3>Object moved out once, then container closed</h3><div id="diagram" style="width:950px;height:500px;border:1px solid #ccc"></div><p id="result"></p><script src="file://${process.cwd()}/node_modules/gojs/release/go.js"></script><script>${compiled}\n${setup.toString()}
+    const {diagram,parent}=setup(); diagram.animationManager.isEnabled=false;
+    diagram.model.removeNodeData(diagram.findNodeForKey('other').data);
+    const objectview={group:'parent'};
+    diagram.model.addNodeData({key:'Object',group:'parent',objectview});
+    const object=diagram.findNodeForKey('Object'); object.location=new go.Point(50,50); object.ensureBounds();
+    diagram.div='diagram'; object.move(new go.Point(450,50)); object.ensureBounds();
+    detachObjectOutsideContainer(diagram,object,{group:'parent',objectview});
+    parent.isSubGraphExpanded=false; setGroupMemberVisibilityRecursive(parent,false);
+    document.getElementById('result').textContent='Object remains visible: '+object.isVisible()+' | Top-level after first drag: '+(object.containingGroup===null);
+  </script></body></html>`);
+}
+
+test('moving a container applies its edited member scale to both existing nodes without compounding', () => {
+  const { diagram, parent } = setup();
+  const views = new Map();
+  const mirrors = new Map();
+  for (const key of ['first', 'second']) {
+    const view = { id: key, group: 'parent', scale: 1 };
+    views.set(key, view);
+    mirrors.set(key, { objectview: { ...view }, scale: 1 });
+    diagram.model.addNodeData({ key, group: 'parent', objectview: view, scale: 1 });
+    const node = diagram.findNodeForKey(key);
+    node.location = new go.Point(key === 'first' ? 40 : 100, 40);
+    node.ensureBounds();
+  }
+  const initialWidth = diagram.findNodeForKey('first').actualBounds.width;
+  diagram.model.setDataProperty(parent.data, 'memberscale', 0.8);
+  const patches = [];
+  for (const x of [50, 100]) {
+    parent.move(new go.Point(x, 100));
+    context.applyMovedGroupMemberScales(diagram, parent,
+      { findObjectView: key => views.get(key) }, { findNode: key => mirrors.get(key) }, patch => patches.push(patch));
+    for (const key of ['first', 'second']) {
+      const node = diagram.findNodeForKey(key);
+      node.ensureBounds();
+      assert.equal(node.scale, 0.8);
+      assert.equal(node.data.scale, 0.8);
+      assert.equal(node.data.scale1, 0.8);
+      assert.equal(views.get(key).scale, 0.8);
+      assert.equal(mirrors.get(key).scale, 0.8);
+      assert.ok(Math.abs(node.actualBounds.width - initialWidth * 0.8) < 0.01);
+    }
+  }
+  assert.ok(patches.some(patch => patch.id === 'first' && patch.scale === 0.8));
+  assert.ok(patches.some(patch => patch.id === 'second' && patch.scale === 0.8));
+  assert.equal(parent.scale, 1);
+  const reopened = go.Model.fromJson(diagram.model.toJson());
+  assert.equal(reopened.findNodeDataForKey('first').scale, 0.8);
+});
+
+test('moving a container refreshes scales through nested groups', () => {
+  const { diagram, parent, child, grandchild } = setup();
+  diagram.model.setDataProperty(parent.data, 'memberscale', 0.8);
+  diagram.model.setDataProperty(child.data, 'memberscale', 0.5);
+  context.applyMovedGroupMemberScales(diagram, parent, null, null, () => {});
+  assert.equal(child.scale, 0.8);
+  assert.equal(grandchild.scale, 0.4);
+});
+
+if (process.env.MEMBER_SCALE_PREVIEW) {
+  writeFileSync(process.env.MEMBER_SCALE_PREVIEW, `<html><body><h3>Container moved with memberscale 0.8</h3><div id="diagram" style="width:950px;height:500px;border:1px solid #ccc"></div><p id="result"></p><script src="file://${process.cwd()}/node_modules/gojs/release/go.js"></script><script>${compiled}\n${setup.toString()}
+    const {diagram,parent}=setup(); diagram.animationManager.isEnabled=false;
+    diagram.model.removeNodeData(diagram.findNodeForKey('other').data);
+    diagram.model.removeNodeData(diagram.findNodeForKey('grandchild').data);
+    diagram.model.removeNodeData(diagram.findNodeForKey('child').data);
+    diagram.nodeTemplate=new go.Node('Auto').add(new go.Shape('Rectangle',{width:100,height:60,fill:'lightyellow'}),new go.TextBlock().bind('text','key'));
+    for(const [key,x] of [['First',30],['Second',160]]) {
+      diagram.model.addNodeData({key,group:'parent',objectview:{id:key,scale:1}});
+      diagram.findNodeForKey(key).location=new go.Point(x,80);
+    }
+    diagram.div='diagram'; const movedParent=diagram.findNodeForKey('parent');
+    diagram.model.setDataProperty(movedParent.data,'memberscale',0.8);
+    movedParent.move(new go.Point(150,100)); applyMovedGroupMemberScales(diagram,movedParent,null,null,()=>{});
+    document.getElementById('result').textContent='First node scale: '+diagram.findNodeForKey('First').scale+' | Second node scale: '+diagram.findNodeForKey('Second').scale;
   </script></body></html>`);
 }

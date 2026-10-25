@@ -34,3 +34,7 @@ A modeller clicks **Metamodel** for the current model and sees named relationshi
 - `npm test`: all 60 tests pass, including the new regression cases.
 - A standalone GoJS browser fixture was visually inspected: two object-type nodes are connected by a labeled relationship arrow. This checks rendering in isolation, rather than the complete Mimris workflow.
 - Pending manual acceptance: open a representative saved model, click **Metamodel**, and confirm its relationship types, names, and arrows appear between the expected object types.
+
+Expanded object-type palettes show the complete metamodel relationship graph, including abstract endpoint types and their Generalization links. Modelview allowlists apply to the compact palette only. During remote model loading, the focused model name and workspace save/refresh controls remain hidden until the requested model is ready.
+
+The object Type inspector always includes the metamodel type description row. Explicit automatic diagram layouts clear prior stored link bend points before rerouting; selecting Manual preserves authored routes.

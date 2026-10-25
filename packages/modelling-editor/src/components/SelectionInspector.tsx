@@ -603,7 +603,7 @@ class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}
     }
     propNo++;
     let propIdent;
-    if (what === 'editRelationship') {
+    if (what === 'editRelationship' || what === 'editObject') {
       propIdent = new akm.cxIdent(propNo, "typename");
       proplist.push(propIdent);
       propIdent = new akm.cxIdent(propNo, "typedescription");

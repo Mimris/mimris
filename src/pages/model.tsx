@@ -979,7 +979,7 @@ const page = () => {
             }}
         >
             <div className="workarea p-1 w-100 position-relative" style={{ backgroundColor: "#bcc" }}>
-                {canSaveFocusedModelToWorkspace && (
+                {canSaveFocusedModelToWorkspace && shouldRenderModel && (
                     <div className="px-1 py-0 small text-muted d-flex gap-1 align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.82)' }}>
                         <button
                             type="button"

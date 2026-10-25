@@ -129,6 +129,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     
     if (debug) console.log('110 Palette useEffect 3', mmodel?.name, filteredOtNodeDataArray);
   }, [
+    isExpanded,
     focusModel?.id,
     model?.metamodelRef,
     phFocus?.focusModelview?.id,
@@ -187,7 +188,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
     if (debug) console.log('121 Palette', props.myMetis, curMyMetamodel)
     const curPalette = props.modelType === 'metamodel'
       ? uib.buildGoMetaPalette()
-      : uib.buildGoPalette(curMyMetamodel, props.myMetis);
+      : uib.buildGoPalette(curMyMetamodel, props.myMetis, isExpanded);
     const paletteNodes = curPalette?.nodes ?? [];
     const paletteLinks = curPalette?.links ?? [];
     setTypes(paletteNodes?.map((t: any) => t?.name));
@@ -232,6 +233,7 @@ const Palette = React.forwardRef((props: any, ref: any) => {
       filteredNodes = otsArrSorted;
     }
 
+    if (isExpanded) return { nodes: filteredNodes, links: paletteLinks };
     return filterPaletteForModelview({
       nodes: filteredNodes,
       links: paletteLinks,

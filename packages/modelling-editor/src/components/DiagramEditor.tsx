@@ -19,6 +19,7 @@ import { iconList, imageLibrary } from '../runtime/assetCatalog.js';
 import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '@mimris/modelling-core';
 
 
+import { applyDiagramLayout } from '../gojs/diagramLayout.js';
 import type { DiagramHostServices } from '../host/diagramServices.js';
 import type { DiagramHostComponents } from '../host/diagramComponents.js';
 import type { DiagramProjectServices } from '../host/diagramProjectServices.js';
@@ -6718,7 +6719,6 @@ class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
           return;
         }
 
-        setLayout(targetDiagram, normalized);
         handleDoLayout(targetDiagram);
       };
 
@@ -11797,42 +11797,12 @@ class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
         // 1) Set layout A -> Do Layout -> move node -> no snap-back.
         // 2) Set layout B -> Do Layout -> move node -> no snap-back.
         // 3) Reload -> move node -> no snap-back.
-        let layout = "";
-        const modifiedRelshipViews: jsn.jsnRelshipView[] = [];
-        if (!isMetamodelling) {
-          if (!myModelview) return;
-          targetDiagram.modelview = myModelview;
-          targetDiagram.selection.each(function (sel) {
-            const link = sel.data;
-            if (link.category === constants.gojs.C_RELATIONSHIP) {
-              const fromLink = link.from;
-              const toLink = link.to;
-              let relview: akm.cxRelationshipView;
-              relview = myModelview.findRelationshipView(link.key);
-              if (relview) {
-                const fromObjview = relview.fromObjview;
-                const toObjview = relview.toObjview;
-                link.points = [];
-                link.from = fromLink;
-                link.to = toLink;
-                targetDiagram.model.setDataProperty(link, "points", []);
-                relview.points = [];
-                relview.fromObjview = fromObjview;
-                relview.toObjview = toObjview;
-                const jsnRelView = new jsn.jsnRelshipView(relview);
-                modifiedRelshipViews.push(jsnRelView);
-              }
-            }
-          });
-          myModelview.clearRelviewPoints();
-          const myGoModel = myMetis.gojsModel;
-          layout = myGoModel.modelView?.layout;
-        } else {
-          const myMetamodel = myMetis.currentMetamodel;
-          if (!myMetamodel) return;
-          layout = myMetamodel.layout;
-        }
-        setLayout(targetDiagram, layout);
+        const layout = isMetamodelling
+          ? myMetis.currentMetamodel?.layout
+          : myModelview?.layout;
+        if (!isMetamodelling && !myModelview) return;
+        // Manual/missing/unsupported layout values must never erase authored routes.
+        if (!setLayout(targetDiagram, layout)) return;
         if (isMetamodelling) {
           const myMetamodel = myMetis.currentMetamodel;
           const objtypegeos = [];
@@ -11872,11 +11842,6 @@ class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
             }
           }
         }
-        modifiedRelshipViews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          targetDiagram.dispatch?.({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        });
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         let data = { metis: jsnMetis };
         data = JSON.parse(JSON.stringify(data));
@@ -13185,45 +13150,7 @@ class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
     }
 
     function setLayout(myDiagram, layout) {
-      switch (layout) {
-        case 'Circular':
-          myDiagram.layout = $(go.CircularLayout, {
-            isInitial: false,
-            isOngoing: false,
-          });
-          break;
-        case 'Grid':
-          myDiagram.layout = $(go.GridLayout, {
-            isInitial: false,
-            isOngoing: false,
-          });
-          break;
-        case 'Tree':
-          myDiagram.layout = $(go.TreeLayout, {
-            isInitial: false,
-            isOngoing: false,
-          });
-          break;
-        case 'ForceDirected':
-          myDiagram.layout = $(go.ForceDirectedLayout, {
-            isInitial: false,
-            isOngoing: false,
-          });
-          break;
-        case 'LayeredDigraph':
-          myDiagram.layout = $(go.LayeredDigraphLayout, {
-            isInitial: false,
-            isOngoing: false,
-          });
-          break;
-        case 'Manual':
-          myDiagram.layout.isInitial = false;
-          myDiagram.layout.isOngoing = false;
-          break;
-      }
-      // Always run selected layout once, then keep manual node movement stable.
-      // Without forcing here, layouts with isInitial/isOngoing=false may not execute.
-      myDiagram.layoutDiagram(true);
+      return applyDiagramLayout(myDiagram, layout);
     }
 
     function clearInstance(inst: any) {

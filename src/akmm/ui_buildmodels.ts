@@ -21,7 +21,7 @@ export function getDefaultRoutingForRelshipType(typeName: string | undefined | n
 }
 
 
-export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
+export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis, includeAbstract = false): gjs.goModel {
   if (debug) console.log('16 metamodel', metamodel);
   let inheritedTypenames = []; 
   let inheritedRelTypenames = [];
@@ -53,7 +53,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
             } else
               continue;
           }
-          if (!objtype.abstract ) {
+          if (!objtype.abstract || includeAbstract) {
             mmtypenames.push(objtype.name);
             objtypes.push(objtype);
           }
@@ -147,7 +147,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
     if (debug) console.log('78 otypes', otypes);
     const noTypes = otypes.length;
     for (let i = 0; i < noTypes; i++) {
-      if (otypes[i].abstract) continue;  // abstract types are not included
+      if (otypes[i].abstract && !includeAbstract) continue;  // abstract types are not included
       const objtype: akm.cxObjectType = otypes[i];
       if (!includesSystemtypes) {    // Systemtypes are not included
         // Check if objtype is one of typenames
@@ -198,7 +198,7 @@ export function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): 
       const reltype = paletteReltypes[i];
       if (!reltype) continue;
       if (reltype.markedAsDeleted) continue;
-      if (reltype.abstract) continue;
+      if (reltype.abstract && !includeAbstract) continue;
 
       let fromObjtype = reltype.fromObjtype;
       if (!fromObjtype && reltype.fromobjtypeRef) {

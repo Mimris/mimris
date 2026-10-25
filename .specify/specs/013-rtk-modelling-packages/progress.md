@@ -1,5 +1,9 @@
 # Implementation progress
 
+## Current working-tree review — 2026-10-25
+
+Reviewed the seven uncommitted changes on `200121dc`. All 375 tests, non-incremental typecheck, production build and diff whitespace checks passed. Production browser verified native Basic-project import, connected node movement, background-menu geometry Undo/Redo and export after Undo; exported coordinates match the original. Native exported-file reopening was blocked by file-picker automation failures. Full browser acceptance remains open. See [review-2026-10-25.md](./review-2026-10-25.md) for review concerns, evidence and exact limitations. Implementation files were left unchanged.
+
 Branch: `codex/rtk-implementation`. Baseline: `d2bfac08`. Updated: 2026-10-08.
 
 ## P0 evidence
@@ -651,3 +655,7 @@ Excluded unrelated visibility specification, inspector type-information, abstrac
 ### React Strict Mode host integration repair — 2026-10-12
 
 Native Workspace integration exposed the class-instance remount cleanup gap: queued view writes stayed disposed after Strict Mode cleanup. ModellingCanvas now reactivates its durable queue and creates a fresh deferred callback controller on remount, preserving cancellation of old callbacks. All 375 standalone tests and the remount regression passed. The Workspace consumer copied this repair and verified move → Workspace endpoint save → persisted geometry → reload with its React 19 peers. Native Workspace integration is delivered separately in mimris-ai-workspace; server sharing/roles remain later work.
+
+### Layout follow-ups and browser acceptance — 2026-10-25
+
+Restricted automatic route clearing to recognized layouts, removed unconditional Do Layout clearing and duplicate layout execution, and removed the appearance dist alias. Public-package regression coverage now verifies Manual/unknown route preservation and all five automatic layouts; 377 tests, nonincremental typecheck and production build pass. Chrome successfully reopened the prior post-Undo export and rendered Grid layout after Zoom All. Browser control then timed out and failed to reconnect; remaining visual gates are recorded in `review-2026-10-25.md`. Changes remain uncommitted.

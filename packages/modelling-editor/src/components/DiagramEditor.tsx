@@ -16,6 +16,7 @@ import { applyRelationshipTypeDraft } from '../runtime/relationshipTypeEditor.js
 import { setAppearanceOverride } from '@mimris/modelling-core';
 import { applyDropLayout, deriveDropLayoutConfig } from '../gojs/DropLayoutManager.js';
 import { iconList, imageLibrary } from '../runtime/assetCatalog.js';
+import { laneMemberGeometryPatch } from '../gojs/laneContent.js';
 import { bindLegacyUniverseDispatch, dispatchUniversePhData } from '@mimris/modelling-core';
 
 
@@ -2267,16 +2268,8 @@ class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
 	        if (typeof dispatch !== "function") return;
 	        snapshots.forEach((snapshot) => {
 	          snapshot.nodes.forEach(({ node }) => {
-	            const data = node.data;
-	            const objectview = data?.objectview;
-	            const id = objectview?.id || data?.objviewRef || data?.key;
-	            if (!id || !node.location?.isReal()) return;
-	            const payload = {
-	              ...(objectview || {}),
-	              id,
-	              loc: go.Point.stringify(node.location),
-	              ...(typeof data?.group === "string" ? { group: data.group } : {}),
-	            };
+	            const payload = laneMemberGeometryPatch(node);
+	            if (!payload) return;
 	            try { dispatch({ type: "UPDATE_OBJECTVIEW_PROPERTIES", data: payload }); } catch (_) { }
 	          });
 	        });

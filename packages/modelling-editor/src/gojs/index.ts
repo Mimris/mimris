@@ -18,3 +18,4 @@ export * from './groupExpansion.js';
 export * from './groupResize.js';
 export * from './geometryHistory.js';
 export * from './diagramLayout.js';
+export * from './laneContent.js';

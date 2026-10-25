@@ -609,7 +609,8 @@ class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}
       propIdent = new akm.cxIdent(propNo, "typedescription");
       proplist.push(propIdent);
     }
-    let uniquelist = [...new Set(proplist)];
+    let uniquelist = proplist.filter((property, index, list) =>
+      list.findIndex(candidate => candidate.name === property.name) === index);
     proplist = uniquelist;
     propIdent = new akm.cxIdent(propNo, "id");
     proplist.push(propIdent);

@@ -659,3 +659,7 @@ Native Workspace integration exposed the class-instance remount cleanup gap: que
 ### Layout follow-ups and browser acceptance — 2026-10-25
 
 Restricted automatic route clearing to recognized layouts, removed unconditional Do Layout clearing and duplicate layout execution, and removed the appearance dist alias. Public-package regression coverage now verifies Manual/unknown route preservation and all five automatic layouts; 377 tests, nonincremental typecheck and production build pass. Chrome successfully reopened the prior post-Undo export and rendered Grid layout after Zoom All. Browser control then timed out and failed to reconnect; remaining visual gates are recorded in `review-2026-10-25.md`. Changes remain uncommitted.
+
+### Browser-discovered inspector and swimlane repairs — 2026-10-25
+
+Deduplicated inspector metadata by property name and replaced runtime object-view spreading in restored lane-member dispatches with geometry-only patches. Regression coverage verifies unique rendered metadata and JSON round-trip of reducer state with circular runtime input. All 379 tests, nonincremental typecheck and production build pass. Production browser verifies unique type fields, lane movement without persistence crash and local reload. The full-editor fixture verifies A move/save/reload leaves B unchanged despite identical IDs. Remaining route-file, Shift-drag, comprehensive palette/ports/swimlanes and sustained-performance gates remain open; see `review-2026-10-25.md`. Repairs are uncommitted.

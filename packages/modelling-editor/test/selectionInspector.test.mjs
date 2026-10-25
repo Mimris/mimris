@@ -17,7 +17,7 @@ function fixture(allowed) {
   const type = { name: 'Information', typeview };
   const runtime = { findRelationshipType() {}, findRelationshipTypeView() {} };
   const props = { myMetis: runtime, selectedData: { category: 'Object', memberscale: 2, groupLayout: 'LegacyLayout' }, activeTab: '0', context: { what: 'editObjectview', myContext: { objecttype: type, objecttypeview: typeview, objectview: { memberscale: 1, groupLayout: 'LegacyLayout' }, object: {} } }, onInputChange() {} };
-  return { Inspector: createSelectionInspector(services), props, runtime };
+  return { Inspector: createSelectionInspector(services), props, runtime, services };
 }
 
 test('packaged selection inspector preserves host row policy and saved layout values', () => {
@@ -37,4 +37,22 @@ test('packaged selection inspector preserves host row policy and saved layout va
 test('packaged selection inspector leaves absent context empty', () => {
   const { Inspector, props } = fixture([]);
   assert.equal(renderToStaticMarkup(React.createElement(Inspector, { ...props, context: null })), '');
+});
+
+
+test('object type metadata renders once when already present on the instance', () => {
+  const { props, runtime, services } = fixture(['typename', 'typedescription', 'typeid']);
+  services.runtime.cxIdent = class { constructor(id, name) { this.id = id; this.name = name; } };
+  services.common.getNameList = () => ['Details', 'Type'];
+  const type = { id: 'type', name: 'Information', description: 'Information type', getProperties: () => [] };
+  const object = { id: 'object', name: 'Example', typename: 'Information', typedescription: 'Information type', type };
+  runtime.findObject = () => object;
+  runtime.findObjectType = () => type;
+  props.context = { what: 'editObject', myContext: { object, objecttype: type, supertypes: [] } };
+  props.selectedData = { category: 'Object', ...object };
+  props.activeTab = '1';
+  const Inspector = createSelectionInspector(services);
+  const markup = renderToStaticMarkup(React.createElement(Inspector, props));
+  assert.equal((markup.match(/id="typename"/g) || []).length, 1);
+  assert.equal((markup.match(/id="typedescription"/g) || []).length, 1);
 });

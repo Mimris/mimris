@@ -490,6 +490,13 @@ function getPreservedRouting(...sources: any[]): string {
   return "Normal";
 }
 
+function getMovedLinkRouting(link: go.Link, relview: any, modelview: any): string {
+  return getPreservedRouting(
+    link.data?.routing, link.routing, relview?.routing,
+    relview?.typeview?.routing, modelview?.routing
+  );
+}
+
 function sanitizeModifiedLinkDataForReact(link: any): any {
   if (!link || typeof link !== "object") return link;
   const normalizedFromPort = typeof link.fromPort === "string" ? link.fromPort : "";
@@ -530,15 +537,24 @@ function reanchorManualLinkPoints(
     const nextAfterFrom = new go.Point(nextPoints[2], nextPoints[3]);
     const anchoredFrom = new go.Point(currentFrom.x, currentFrom.y);
     try {
-      link.getLinkPointFromPoint(fromNode, fromPort, fromPort.getDocumentPoint(go.Spot.Center), nextAfterFrom, true, anchoredFrom);
+      const center = fromPort.getDocumentPoint(go.Spot.Center);
+      const toward = nextAfterFrom.copy();
+      if (link.isOrthogonal && points.length > 4) {
+        const dx = nextAfterFrom.x - currentFrom.x, dy = nextAfterFrom.y - currentFrom.y;
+        // Project along the saved segment axis. A stale bend can lie above the
+        // moved node and select its top edge even though the segment is horizontal.
+        if (Math.abs(dx) >= Math.abs(dy)) toward.setTo(center.x + (Math.sign(dx) || 1) * 100000, center.y);
+        else toward.setTo(center.x, center.y + (Math.sign(dy) || 1) * 100000);
+      }
+      link.getLinkPointFromPoint(fromNode, fromPort, center, toward, true, anchoredFrom);
       nextPoints[0] = anchoredFrom.x;
       nextPoints[1] = anchoredFrom.y;
-      // Preserve the direction of the first user-authored segment. Moving the
-      // adjacent bend in both axes turns an orthogonal segment into a diagonal.
+      // GoJS can insert multiple collinear endpoint stubs. Move the entire
+      // straight run through the first bend, not only the nearest stub.
       if (link.isOrthogonal && nextPoints.length > 4 && Math.abs(nextAfterFrom.y - currentFrom.y) <= Math.abs(nextAfterFrom.x - currentFrom.x)) {
-        nextPoints[3] = anchoredFrom.y;
+        for (let i = 2; i < points.length - 2 && Math.abs(points[i + 1] - currentFrom.y) < 0.01; i += 2) nextPoints[i + 1] = anchoredFrom.y;
       } else if (link.isOrthogonal && nextPoints.length > 4) {
-        nextPoints[2] = anchoredFrom.x;
+        for (let i = 2; i < points.length - 2 && Math.abs(points[i] - currentFrom.x) < 0.01; i += 2) nextPoints[i] = anchoredFrom.x;
       }
     } catch (_) {
     }
@@ -551,14 +567,21 @@ function reanchorManualLinkPoints(
     const currentTo = new go.Point(nextPoints[last], nextPoints[last + 1]);
     const anchoredTo = new go.Point(currentTo.x, currentTo.y);
     try {
-      link.getLinkPointFromPoint(toNode, toPort, toPort.getDocumentPoint(go.Spot.Center), beforeTo, false, anchoredTo);
+      const center = toPort.getDocumentPoint(go.Spot.Center);
+      const toward = beforeTo.copy();
+      if (link.isOrthogonal && points.length > 4) {
+        const dx = beforeTo.x - currentTo.x, dy = beforeTo.y - currentTo.y;
+        if (Math.abs(dx) >= Math.abs(dy)) toward.setTo(center.x + (Math.sign(dx) || -1) * 100000, center.y);
+        else toward.setTo(center.x, center.y + (Math.sign(dy) || -1) * 100000);
+      }
+      link.getLinkPointFromPoint(toNode, toPort, center, toward, false, anchoredTo);
       nextPoints[last] = anchoredTo.x;
       nextPoints[last + 1] = anchoredTo.y;
-      // Preserve the direction of the final user-authored segment too.
+      // Keep the complete final run aligned too, including endpoint stubs.
       if (link.isOrthogonal && nextPoints.length > 4 && Math.abs(beforeTo.y - currentTo.y) <= Math.abs(beforeTo.x - currentTo.x)) {
-        nextPoints[prev + 1] = anchoredTo.y;
+        for (let i = prev; i > 0 && Math.abs(points[i + 1] - currentTo.y) < 0.01; i -= 2) nextPoints[i + 1] = anchoredTo.y;
       } else if (link.isOrthogonal && nextPoints.length > 4) {
-        nextPoints[prev] = anchoredTo.x;
+        for (let i = prev; i > 0 && Math.abs(points[i] - currentTo.x) < 0.01; i -= 2) nextPoints[i] = anchoredTo.x;
       }
     } catch (_) {
     }
@@ -5914,6 +5937,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const movedLinksToClear: go.Link[] = [];
           const movedLinkKeysToRefresh = new Set<string>();
           const movedManualLinkKeys = new Set<string>();
+          const movedManualLinkPoints = new Map<string, number[]>();
           const movedSelfLoopKeysWithPersistedPath = new Set<string>();
           const movedSelection = e.subject;
           const movePreviewPointsByLinkKey: Map<string, number[]> =
@@ -5972,12 +5996,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             let normalizedFromPort = typeof rview.fromPortid === "string" ? rview.fromPortid : "";
             let normalizedToPort = typeof rview.toPortid === "string" ? rview.toPortid : "";
             const liveRouting = ldata?.routing || rview?.routing || myModelview?.routing || "";
-            const preservedRouting = getPreservedRouting(
-              ldata?.routing,
-              rview?.routing,
-              rview?.typeview?.routing,
-              myModelview?.routing
-            );
+            const preservedRouting = getMovedLinkRouting(link, rview, myModelview);
             const isRoutedLink = isTransientRoutedLink(liveRouting);
             const previewPoints =
               ldata?.key ? normalizeLinkPoints(movePreviewPointsByLinkKey.get(String(ldata.key))) : null;
@@ -6031,6 +6050,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             const liveFromKey = link.fromNode?.data?.key ? String(link.fromNode.data.key) : "";
             const liveToKey = link.toNode?.data?.key ? String(link.toNode.data.key) : "";
+            const dragEndpoints = (myDiagram as any).__linkRouteEndpointsBeforeMove?.get(String(ldata?.key));
+            for (const [key, node, original] of [
+              [liveFromKey, link.fromNode, dragEndpoints?.from],
+              [liveToKey, link.toNode, dragEndpoints?.to],
+            ]) {
+              if (key && node && original) movedNodeDeltas.set(key, {
+                dx: node.location.x - original.x, dy: node.location.y - original.y,
+              });
+            }
             if (linkTouchesMovedNode && isSelfLoop && hadPersistedManualPath) {
               const originalRoute = pickFirstNonEmptyLinkPoints(manualPointsAtDragStart, manuallyReshapedPoints, laneManualPoints, persistedPointsBeforeMove);
               const delta = movedNodeDeltas.get(liveFromKey);
@@ -6121,7 +6149,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (!preserveManualPathOnMove) {
                 const desiredRouting = getDefaultRoutingForRelshipType(
                   rview?.name || rview?.relship?.name || rview?.typeview?.name,
-                  rview?.routing || rview?.typeview?.routing || myModelview?.routing || "Normal"
+                  preservedRouting
                 );
                 rview.routing = desiredRouting;
                 try { myDiagram.model.setDataProperty(ldata, "routing", desiredRouting); } catch (_) { }
@@ -6154,7 +6182,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                         moveTo: liveToKey ? movedNodeDeltas.get(liveToKey) || null : null,
                       }
                     );
-              const adjustedPoints =
+              const fromDelta = movedNodeDeltas.get(liveFromKey);
+              const toDelta = movedNodeDeltas.get(liveToKey);
+              const translatedTogether = fromDelta && toDelta &&
+                Math.abs(fromDelta.dx - toDelta.dx) < 0.01 && Math.abs(fromDelta.dy - toDelta.dy) < 0.01;
+              const adjustedPoints = translatedTogether ? shiftedPoints :
                 (Array.isArray(directLivePoints) && directLivePoints.length >= 4)
                   ? directLivePoints
                   : (reanchorManualLinkPoints(link, shiftedPoints, {
@@ -6162,6 +6194,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     anchorTo: Boolean(liveToKey && movedNodeKeys.has(liveToKey)),
                   }) || shiftedPoints);
               if (Array.isArray(adjustedPoints) && adjustedPoints.length >= 4) {
+                if (ldata?.key) movedManualLinkPoints.set(String(ldata.key), [...adjustedPoints]);
                 if (ldata?.key) movedManualLinkKeys.add(String(ldata.key));
                 try { myDiagram.model.setDataProperty(ldata, "points", adjustedPoints); } catch (_) { ldata.points = adjustedPoints; }
                 try { myDiagram.model.setDataProperty(ldata, "routing", preservedRouting); } catch (_) { ldata.routing = preservedRouting; }
@@ -6265,7 +6298,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     liveLink.data?.relshipview;
                   const desiredRouting = getDefaultRoutingForRelshipType(
                     liveRelview?.name || liveRelview?.relship?.name || liveRelview?.typeview?.name,
-                    liveRelview?.routing || liveRelview?.typeview?.routing || myModelview?.routing || "Normal"
+                    getMovedLinkRouting(liveLink, liveRelview, myModelview)
                   );
                   try { myDiagram.model.setDataProperty(liveLink.data, "routing", desiredRouting); } catch (_) { }
                   try { myDiagram.model.setDataProperty(liveLink.data, "points", []); } catch (_) { }
@@ -6349,10 +6382,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                     );
                     const liveFromKey = liveLink.fromNode?.data?.key ? String(liveLink.fromNode.data.key) : "";
                     const liveToKey = liveLink.toNode?.data?.key ? String(liveLink.toNode.data.key) : "";
-                    const manualPoints = isSelfLoop ? pickFirstNonEmptyLinkPoints((myDiagram as any).__translatedSelfLoopRoutes?.get(linkKey), translatedSelfLoopRoutes.get(linkKey), movePreviewPointsByLinkKey.get(linkKey), savedManualPoints) : reanchorManualLinkPoints(liveLink, savedManualPoints, {
+                    const manualPoints = movedManualLinkPoints.get(linkKey) || (isSelfLoop ? pickFirstNonEmptyLinkPoints((myDiagram as any).__translatedSelfLoopRoutes?.get(linkKey), translatedSelfLoopRoutes.get(linkKey), movePreviewPointsByLinkKey.get(linkKey), savedManualPoints) : reanchorManualLinkPoints(liveLink, savedManualPoints, {
                       anchorFrom: Boolean(liveFromKey && movedNodeKeys.has(liveFromKey)),
                       anchorTo: Boolean(liveToKey && movedNodeKeys.has(liveToKey)),
-                    }) || savedManualPoints;
+                    }) || savedManualPoints);
                     if (Array.isArray(manualPoints) && manualPoints.length >= 4) {
                       try { myDiagram.model.setDataProperty(liveLink.data, "points", manualPoints); } catch (_) { liveLink.data.points = manualPoints; }
                       try { myDiagram.model.setDataProperty(liveLink.data, "__manualPath", true); } catch (_) { liveLink.data.__manualPath = true; }
@@ -6386,7 +6419,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   try { myDiagram.model.setDataProperty(liveLink.data, "toPort", ""); } catch (_) { liveLink.data.toPort = ""; }
                   const desiredRouting = getDefaultRoutingForRelshipType(
                     liveRelview?.name || liveRelview?.relship?.name || liveRelview?.typeview?.name,
-                    liveRelview?.routing || liveRelview?.typeview?.routing || myModelview?.routing || "Normal"
+                    getMovedLinkRouting(liveLink, liveRelview, myModelview)
                   );
                   try { myDiagram.model.setDataProperty(liveLink.data, "routing", desiredRouting); } catch (_) { }
                   try { myDiagram.model.setDataProperty(liveLink.data, "__manualPath", false); } catch (_) { liveLink.data.__manualPath = false; }
@@ -6593,6 +6626,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           try { delete (myDiagram as any).__laneManualLinkPointsBeforeMove; } catch (_) {}
           try { delete (myDiagram as any).__manualLinkPointsBeforeMove; } catch (_) {}
           try { delete (myDiagram as any).__effectiveDraggedNodeKeys; } catch (_) {}
+          try { delete (myDiagram as any).__linkRouteEndpointsBeforeMove; } catch (_) {}
           try { delete (myDiagram as any).__preserveLinkRoutesDuringDrag; } catch (_) {}
         }
         // Persist only relationship views whose visibility actually changed.
@@ -9107,6 +9141,7 @@ break;
   let toModelview = myModelview;
   let copiedNodes = new Array();
   let pastedNodes = new Array();
+  const pastedBySourceView = new Map<string, any>();
   // Remember copied nodes
   let it = selection.iterator;
   while (it.next()) {
@@ -9124,7 +9159,6 @@ break;
       if (copiedNodeKey?.length == gjsNode.key.length) {
         pasteAnotherModelview = true;
         pastedNodeKey = utils.createGuid();
-        gjsNode.key = pastedNodeKey;
         toModelview = myModelview;
         toGoModel = myGoModel;
         // toGoModel = new gjs.goModel(utils.createGuid(), toModelview.name, toModelview);
@@ -9167,11 +9201,12 @@ break;
       myPastedNode.goNodeId = myPastedNode.objviewId;
       myPastedNode.objectview = new akm.cxObjectView(myPastedNode.objviewId, myPastedNode.name,
         myPastedNode.object, myCopiedNode.descr, toModelview);
-      gjsNode.key = myPastedNode.objviewId;
       uic.copyObjviewAttributes(myPastedNode.objectview, myCopiedNode.objectview);
       myPastedNode.loc = gjsNode.loc;
       myPastedNode.size = gjsNode.size;
-      myPastedNode.gjsKey = gjsNode.key;
+      myPastedNode.gjsKey = myPastedNode.objviewId;
+      myPastedNode.livePart = it.value;
+      pastedBySourceView.set(String(myCopiedNode.objviewId), myPastedNode);
       const pastedLiveGroupKey =
         typeof gjsNode?.group === "string" && gjsNode.group.length > 0
           ? String(gjsNode.group)
@@ -9192,7 +9227,7 @@ break;
       myPastedNode.objectview.readOnly = readOnly;
       myPastedNode.objecttype = myCopiedNode.objecttype;
       try {
-        myDiagram.model.setDataProperty(gjsNode, "key", myPastedNode.objviewId);
+        myDiagram.model.setKeyForNodeData(gjsNode, myPastedNode.objviewId);
       } catch (_) {
         try { gjsNode.key = myPastedNode.objviewId; } catch (_err) { }
       }
@@ -9237,6 +9272,7 @@ break;
         myPastedNode.goNode = existingPastedGoNode;
       } else {
         myPastedNode.goNode = new gjs.goObjectNode(myPastedNode.goNodeId, toGoModel, myPastedNode.objectview);
+        myPastedNode.goNode.loadNodeContent(toGoModel);
         myPastedNode.goNode.group = myPastedNode.group;
         toGoModel.addNode(myPastedNode.goNode);
       }
@@ -9247,18 +9283,17 @@ break;
       if (debug) console.log('Checkpoint');
     }
   }
+  // All IDs exist now. Remap membership by source identity, never by name:
+  // same-name lookup can modify an original view instead of its pasted copy.
   for (let i = 0; i < copiedNodes.length; i++) {
-    const cNode1 = copiedNodes[i];
-    const cGroup = myMetis.getNodeGroup(cNode1);
-    if (cGroup?.length > 0) { // group key
-      const pNode = myMetis.getNodeByGroup(pastedNodes, cGroup);
-      if (pNode) {
-        pNode.group = "";
-        // Find pnode
-        let childNodeView = toModelview.findObjectViewByName(pNode.name);
-        childNodeView.group = pNode.objviewId;
-      }
-    }
+    const sourceGroup = copiedNodes[i].group || copiedNodes[i].objectview?.group || "";
+    const pasted = pastedNodes[i];
+    const parent = pastedBySourceView.get(String(sourceGroup));
+    const group = parent?.objviewId || sourceGroup;
+    pasted.group = group;
+    pasted.objectview.group = group;
+    pasted.goNode.group = group;
+    myDiagram.model.setGroupKeyForNodeData(pasted.livePart.data, group || undefined);
   }
 
   // Now handle the relationships
@@ -9307,24 +9342,36 @@ break;
         }
       }
 
-      let pastedRelship = new akm.cxRelationship(utils.createGuid(), copiedRelship.type, pastedFromObject, pastedToObject, copiedRelship.name, copiedRelship.description);
+      const fromCopy = pastedBySourceView.get(String(copiedRelview?.fromObjview?.id));
+      const toCopy = pastedBySourceView.get(String(copiedRelview?.toObjview?.id));
+      if (fromCopy) { pastedFromObject = fromCopy.object; pastedFromObjview = fromCopy.objectview; }
+      if (toCopy) { pastedToObject = toCopy.object; pastedToObjview = toCopy.objectview; }
+      const pastedRelship = new akm.cxRelationship(utils.createGuid(), copiedRelship.type, pastedFromObject, pastedToObject, copiedRelship.name, copiedRelship.description);
+      myModel.addRelationship(pastedRelship);
+      myMetis.addRelationship(pastedRelship);
+      pastedFromObject?.addOutputrel(pastedRelship);
+      pastedToObject?.addInputrel(pastedRelship);
 
       const relviewId = utils.createGuid();
-      gjsLink.key = relviewId;
+      myDiagram.model.setKeyForLinkData(gjsLink, relviewId);
       let pastedRelview = new akm.cxRelationshipView(relviewId, copiedRelview.name, pastedRelship, copiedRelview.description);
       pastedRelview.fromObjview = pastedFromObjview;
       pastedRelview.toObjview = pastedToObjview;
-      const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+      pastedFromObjview?.addOutputRelview(pastedRelview);
+      pastedToObjview?.addInputRelview(pastedRelview);
       uic.copyRelviewAttributes(pastedRelview, copiedRelview);
 
       // Handle points
-      const points = [];
-      for (let it = gjsLink.points.iterator; it?.next();) {
-        const point = it.value;
-        points.push(point.x)
-        points.push(point.y)
-      }
+      const points = normalizeLinkPoints(gjsLink.points) || normalizeLinkPoints(n.points) || [];
       pastedRelview.points = points;
+      const pastedLink = new gjs.goRelshipLink(relviewId, toGoModel, pastedRelview);
+      pastedLink.fromNode = fromCopy?.goNode || toGoModel.findNodeByViewId(pastedFromObjview?.id);
+      pastedLink.toNode = toCopy?.goNode || toGoModel.findNodeByViewId(pastedToObjview?.id);
+      pastedLink.loadLinkContent(toGoModel);
+      myDiagram.model.setFromKeyForLinkData(gjsLink, pastedFromObjview?.id);
+      myDiagram.model.setToKeyForLinkData(gjsLink, pastedToObjview?.id);
+      myDiagram.model.setDataProperty(gjsLink, 'relshipview', pastedRelview);
+      myDiagram.model.setDataProperty(gjsLink, 'relviewRef', relviewId);
 
       toGoModel.addLink(pastedLink);
       toModelview.addRelationshipView(pastedRelview);
@@ -9343,6 +9390,9 @@ break;
     const myGoNode = pastedNode?.goNode || toGoModel.findNode(pastedNode?.goNodeId) || toGoModel.findNodeByViewId?.(pastedNode?.objviewId);
     if (!myGoNode) continue;
     const myObjectview: akm.cxObjectView = myGoNode.objectview;
+    // Preserve copied top-level membership. Geometry overlap with the source
+    // container must not turn the pasted container into a child of itself/source.
+    if (!pastedNode.group) continue;
     const liveNodePart = myDiagram.findNodeForKey(myGoNode.key) as go.Node | null;
     const liveContainingGroupKey =
       liveNodePart?.containingGroup instanceof go.Group && liveNodePart.containingGroup.key !== undefined && liveNodePart.containingGroup.key !== null
@@ -9389,9 +9439,9 @@ break;
       if (isGroupLikeNode(myGoNode, myObjectview)) {
         const parentPart = myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null;
         resizeGroupToHalfParent(myDiagram, myGoNode, myGoNode, parentPart);
-        scale = applyDerivedScaleToPart(myDiagram, myGoNode, parentPart, myObjectview, myGoNode);
+        scale = applyDerivedScaleToPart(myDiagram, liveNodePart, parentPart, myObjectview, myGoNode);
       } else {
-        scale = applyDerivedScaleToPart(myDiagram, myGoNode, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
+        scale = applyDerivedScaleToPart(myDiagram, liveNodePart, myDiagram.findNodeForKey(goParentGroup.key) as go.Group | null, myObjectview, myGoNode);
       }
       myObjectview.scale = scale;
       const scaledLoc = uic.scaleNodeLocation1(goParentGroup, myGoNode);

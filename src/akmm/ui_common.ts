@@ -14,7 +14,7 @@ import { core } from './constants';
 import context from '../pages/context';
 import { i } from '@/components/utils/SvgLetters';
 import * as constants from './constants';
-import { resolveAppearance } from './viewAppearance';
+import { initializeAppearance, resolveAppearance } from './viewAppearance';
 import { getCurrentStore } from '../store';
 
 const grabIsAllowed = true;
@@ -630,6 +630,9 @@ export function copyProperties(toObj: akm.cxObject, fromObj: akm.cxObject) {
 
 export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: akm.cxObjectView) {
     try {
+    toObjview.template = fromObjview.template;
+    toObjview.template2 = fromObjview.template2;
+    toObjview.viewkind = fromObjview.viewkind;
     toObjview["isGroup"]      = fromObjview["isGroup"];
     toObjview["groupLayout"]  = fromObjview["groupLayout"];
     toObjview["size"]         = fromObjview["size"];
@@ -653,6 +656,7 @@ export function copyObjviewAttributes(toObjview: akm.cxObjectView, fromObjview: 
     toObjview["textcolor"]    = fromObjview["textcolor"];
     toObjview["textcolor2"]   = fromObjview["textcolor2"];
     toObjview["textscale"]    = fromObjview["textscale"];
+    if (fromObjview.appearanceMode) initializeAppearance(toObjview, fromObjview);
     } catch (error) {
     }
 }

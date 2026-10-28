@@ -1181,6 +1181,14 @@ export class goRelshipLink extends goLink {
         //     }
         // }
         if (relview?.appearanceMode) Object.assign(this, resolveAppearance(relview));
+        // Automatic ordinary links must choose facing sides again on Reload,
+        // just as they do after a node move. The edge-* ports are temporary
+        // drawing handles; named model ports and intentional manual paths remain.
+        if (!isSelfLoop && this.__manualPath === false) {
+            const drawingEdges = ['edge-left', 'edge-right', 'edge-top', 'edge-bottom'];
+            if (drawingEdges.includes(this.fromPort)) this.fromPort = '';
+            if (drawingEdges.includes(this.toPort)) this.toPort = '';
+        }
         const hasExplicitPoints = Array.isArray(this.points) && this.points.length >= 4;
         if (hasExplicitPoints) {
             this.routing = relview?.routing || "Normal";

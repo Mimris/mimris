@@ -2281,13 +2281,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	          const next = new go.Point(points[adjacent], points[adjacent + 1]);
 	          const anchored = current.copy();
 	          try {
-	            link.getLinkPointFromPoint(node, port as go.GraphObject, port.getDocumentPoint(go.Spot.Center), next, isFrom, anchored);
+	            const center = port.getDocumentPoint(go.Spot.Center);
+	            const toward = next.copy();
+	            if (link.isOrthogonal && source.length > 4) {
+	              const dx = next.x - current.x, dy = next.y - current.y;
+	              // Match the attachment edge to the saved segment's direction.
+	              if (Math.abs(dx) >= Math.abs(dy)) toward.setTo(center.x + (Math.sign(dx) || (isFrom ? 1 : -1)) * 100000, center.y);
+	              else toward.setTo(center.x, center.y + (Math.sign(dy) || (isFrom ? 1 : -1)) * 100000);
+	            }
+	            link.getLinkPointFromPoint(node, port as go.GraphObject, center, toward, isFrom, anchored);
 	            points[endpoint] = anchored.x;
 	            points[endpoint + 1] = anchored.y;
 	            if (link.isOrthogonal && points.length > 4 && Math.abs(next.y - current.y) <= Math.abs(next.x - current.x)) {
-	              points[adjacent + 1] = anchored.y;
+	              for (let i = adjacent; i > 0 && i < source.length - 2 && Math.abs(source[i + 1] - current.y) < 0.01; i += isFrom ? 2 : -2) points[i + 1] = anchored.y;
 	            } else if (link.isOrthogonal && points.length > 4) {
-	              points[adjacent] = anchored.x;
+	              for (let i = adjacent; i > 0 && i < source.length - 2 && Math.abs(source[i] - current.x) < 0.01; i += isFrom ? 2 : -2) points[i] = anchored.x;
 	            }
 	          } catch (_) { }
 	        };
@@ -2497,16 +2505,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 	        if (diagram && swimlaneDrag) {
 	          this.captureLaneContentAtDragStart(diagram);
 	        }
-	        if (diagram && swimlaneDrag) {
-	          // Pool/Lane drags translate many endpoints together. Keep their
-	          // preview route only for that container operation. For an ordinary
+	        let containerDrag = false;
+	        let draggedNodeCount = 0;
+	        for (let it = this.draggedParts?.iterator; it?.next();) {
+	          if (it.key instanceof go.Group) containerDrag = true;
+	          else if (it.key instanceof go.Node) draggedNodeCount++;
+	        }
+	        if (diagram && (swimlaneDrag || containerDrag || draggedNodeCount > 1)) {
+	          // Group and multi-node drags translate endpoints together. Keep their
+	          // preview routes for that operation. For an ordinary
 	          // node drag GoJS must own live endpoint attachment at all times.
 	          this.captureLinkRoutesAtDragStart();
+	          (diagram as any).__manualLinkPointsBeforeMove = new Map(this.linkRoutesAtDragStart);
+	          (diagram as any).__linkRouteEndpointsBeforeMove = new Map(this.linkRouteEndpointsAtDragStart);
 	          (diagram as any).__preserveLinkRoutesDuringDrag = true;
 	          if (this.linkRoutesAtDragStart.size > 0) {
 	            (diagram as any).__manualLinkMovePreview = new Map(this.linkRoutesAtDragStart);
 	          }
 	        } else if (diagram) {
+	          delete (diagram as any).__linkRouteEndpointsBeforeMove;
 	          this.linkRoutesAtDragStart.clear();
 	          this.linkRouteEndpointsAtDragStart.clear();
 	          delete (diagram as any).__manualLinkMovePreview;

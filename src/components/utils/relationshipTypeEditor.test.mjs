@@ -761,6 +761,8 @@ test('self-loop keeps its translated path when GoJS invalidates it after a drop'
   link.updateRoute();
   assert.deepEqual(link.points.toArray().flatMap(p => [p.x, p.y]), expected);
   link.toNode = diagram.findNodeForKey('other');
+  link.data.__manualPath = false;
+  link.data.relshipview.__manualPath = false;
   const computePoints = go.Link.prototype.computePoints;
   let ordinaryRouterCalled = false;
   try {
@@ -886,4 +888,312 @@ test('diagram events use the current Metis and its GoJS mirror after inspector e
   const selfLoopDrop = source.slice(selfLoopStart, selfLoopEnd);
   assert.match(selfLoopDrop, /queueRelshipViewDispatch/);
   assert.doesNotMatch(selfLoopDrop, /LOAD_TOSTORE_PHDATA|jsnExportMetis/);
+});
+
+test('moving orthogonal endpoints preserves live routing through delayed reroutes with stale relationship views', () => {
+  const source = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const helper = name => {
+    const start = source.indexOf(`function ${name}(`);
+    const end = source.indexOf('\nfunction ', start + 1);
+    assert.ok(start >= 0 && end > start);
+    return source.slice(start, end);
+  };
+  const callback = source.indexOf('const rerouteMovedLinks = () =>');
+  const start = source.indexOf('const desiredRouting =', callback);
+  const end = source.indexOf('try { liveLink.updateTargetBindings(); } catch (_) { }', start)
+    + 'try { liveLink.updateTargetBindings(); } catch (_) { }'.length;
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule([
+    helper('getPreservedRouting'), helper('getMovedLinkRouting'), helper('getDefaultRoutingForRelshipType'),
+    `function refresh(myDiagram, liveLink, liveRelview, myModelview) { ${source.slice(start, end)} }
+     module.exports = {refresh, getMovedLinkRouting};`,
+  ].join('\n'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { module, go });
+  for (const routing of ['Orthogonal', 'AvoidsNodes', 'Normal']) {
+    const diagram = new go.Diagram();
+    diagram.nodeTemplate = new go.Node('Auto', { locationSpot: go.Spot.Center })
+      .add(new go.Shape('Rectangle', { width: 100, height: 60, portId: '' }));
+    const values = { Orthogonal: go.Link.Orthogonal, AvoidsNodes: go.Link.AvoidsNodes, Normal: go.Link.Normal };
+    diagram.linkTemplate = new go.Link({ adjusting: go.Link.End }).bind('routing', 'routing', value => values[value])
+      .add(new go.Shape());
+    diagram.model = new go.GraphLinksModel([{key:'from'}, {key:'to'}], [{key:'link', from:'from', to:'to', routing}]);
+    const from = diagram.findNodeForKey('from'), to = diagram.findNodeForKey('to'), link = diagram.links.first();
+    from.location = new go.Point(100, 100); to.location = new go.Point(600, 400);
+    diagram.nodes.each(node => node.ensureBounds()); link.updateRoute();
+    const staleView = { name: 'refersTo', routing: 'Normal', typeview: { routing: 'Normal' } };
+    for (const [node, x, y] of [[to,580,260],[from,120,130],[to,350,80]]) {
+      node.location = new go.Point(x,y); node.ensureBounds();
+      // The production deferred callback runs repeatedly after mouse-up.
+      for (let pass = 0; pass < 2; pass++) {
+        module.exports.refresh(diagram, link, staleView, { routing: 'Normal' });
+        link.updateRoute();
+        assert.equal(link.data.routing, routing);
+        assert.equal(link.routing, values[routing]);
+        if (routing !== 'Normal') for (let i = 1; i < link.pointsCount; i++) {
+          const a = link.getPoint(i-1), b = link.getPoint(i);
+          assert.ok(Math.abs(a.x-b.x) < 0.01 || Math.abs(a.y-b.y) < 0.01, `${routing}: no diagonal after moving ${node.key}`);
+        }
+      }
+    }
+    assert.equal(JSON.parse(diagram.model.toJson()).linkDataArray[0].routing, routing);
+  }
+});
+
+test('orthogonal endpoint moves update the complete collinear run during drag and drop', () => {
+  const appSource = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const appStart = appSource.indexOf('function reanchorManualLinkPoints(');
+  const appEnd = appSource.indexOf('function shiftManualLinkEndpointSegments(', appStart);
+  const diagramSource = readFileSync(new URL('../gojs/components/Diagram.tsx', import.meta.url), 'utf8');
+  const dragStart = diagramSource.indexOf('private reanchorRouteToCurrentEndpoints(');
+  const dragEnd = diagramSource.indexOf('private keepLinkRoutesDuringDrag(', dragStart);
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(`${appSource.slice(appStart, appEnd)}
+    class DragHarness { ${diagramSource.slice(dragStart, dragEnd)} }
+    module.exports = { drop: reanchorManualLinkPoints, DragHarness };`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { module, go, normalizeLinkPoints: points => points });
+  const diagram = new go.Diagram();
+  diagram.nodeTemplate = new go.Node('Auto').add(new go.Shape('Rectangle', { width: 100, height: 60, portId: '' }));
+  diagram.linkTemplate = new go.Link({ routing: go.Link.Orthogonal }).add(new go.Shape());
+  diagram.model = new go.GraphLinksModel([{ key:'from' }, { key:'to' }], [{ from:'from',to:'to' }]);
+  const from = diagram.findNodeForKey('from'), to = diagram.findNodeForKey('to'), link = diagram.links.first();
+  from.location = new go.Point(100,100); to.location = new go.Point(500,400);
+  diagram.nodes.each(node => node.ensureBounds()); link.updateRoute();
+  const original = link.points.toArray().flatMap(point => [point.x,point.y]);
+  assert.ok(original.length >= 12, 'include GoJS endpoint stubs as well as user-visible bends');
+  const drag = new module.exports.DragHarness();
+  for (const [node,x,y] of [[from,110,310],[to,510,60],[from,130,120],[to,480,280]]) {
+    node.location = new go.Point(x,y); node.ensureBounds();
+    for (const [phase, route] of [
+      ['drag', drag.reanchorRouteToCurrentEndpoints(link, original)],
+      ['drop', module.exports.drop(link, original)],
+    ]) {
+      assert.equal(route.length, original.length);
+      const last = route.length - 2;
+      assert.ok(Math.abs(route[0] - from.actualBounds.right) < 1, `${phase}: leaves the source's right edge`);
+      assert.ok(Math.abs(route[1] - from.actualBounds.centerY) < 1, `${phase}: source endpoint stays centered`);
+      assert.ok(Math.abs(route[last] - to.actualBounds.left) < 1, `${phase}: arrow enters the target's left edge`);
+      assert.ok(Math.abs(route[last + 1] - to.actualBounds.centerY) < 1, `${phase}: target endpoint stays centered`);
+      for(let i=2;i<route.length;i+=2) assert.ok(
+        Math.abs(route[i]-route[i-2]) < 0.01 || Math.abs(route[i+1]-route[i-1]) < 0.01,
+        `${phase} after moving ${node.key}: segment ${i/2} must remain orthogonal (${route})`);
+    }
+  }
+});
+
+for (const selection of ['container', 'nodes', 'nodes and link']) {
+test(`${selection} drag translates the entire internal link and delayed saves retain the translated bends`, () => {
+  const source = readFileSync(new URL('../gojs/components/Diagram.tsx', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../gojs/GoJSApp.tsx', import.meta.url), 'utf8');
+  const start = source.indexOf('private captureLinkRoutesAtDragStart()');
+  const end = source.indexOf('private restoreLaneContentAfterLayout(', start);
+  const activateStart = source.indexOf('let containerDrag = false;');
+  const activateEnd = source.indexOf('this.constraintLaneCache.clear();', activateStart);
+  const shiftStart = app.indexOf('function shiftManualLinkEndpointSegments(');
+  const shiftEnd = app.indexOf('\nfunction ', shiftStart + 1);
+  const delayedStart = app.indexOf('const manualPoints = movedManualLinkPoints.get(linkKey)');
+  const delayedEnd = app.indexOf('if (Array.isArray(manualPoints)', delayedStart);
+  const module = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(`
+    ${app.slice(shiftStart, shiftEnd)}
+    class Harness { ${source.slice(start, end)}
+      activate() { const diagram=this.diagram, swimlaneDrag=false; ${source.slice(activateStart, activateEnd)} }
+    }
+    function delayed(movedManualLinkPoints, linkKey) { ${app.slice(delayedStart, delayedEnd)} return manualPoints; }
+    module.exports={Harness,shiftManualLinkEndpointSegments,delayed};`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { module, go, normalizeLinkPoints: points => points });
+  const diagram = new go.Diagram();
+  diagram.groupTemplate = new go.Group('Auto').add(new go.Shape('Rectangle', {width:700,height:400}));
+  diagram.nodeTemplate = new go.Node('Auto').add(new go.Shape('Rectangle',{width:100,height:60,portId:''}));
+  diagram.linkTemplate = new go.Link({routing:go.Link.Orthogonal}).add(new go.Shape());
+  diagram.model = new go.GraphLinksModel([
+    {key:'container',isGroup:true,category:''}, {key:'from',group:'container'}, {key:'to',group:'container'},
+  ],[{key:'link',from:'from',to:'to',routing:'Orthogonal'}]);
+  diagram.model.linkKeyProperty='key';
+  const container=diagram.findNodeForKey('container'), from=diagram.findNodeForKey('from'), to=diagram.findNodeForKey('to');
+  container.location=new go.Point(0,0);from.location=new go.Point(100,200);to.location=new go.Point(450,70);
+  diagram.nodes.each(n=>n.ensureBounds());const link=diagram.links.first();link.updateRoute();
+  const harness=new module.exports.Harness();harness.diagram=diagram;
+  harness.linkRoutesAtDragStart=new Map();harness.linkRouteEndpointsAtDragStart=new Map();
+  for(const [dx,dy] of [[40,15],[-25,30]]) {
+    const original=link.points.toArray().flatMap(p=>[p.x,p.y]);
+    harness.draggedParts=new go.Map();
+    if(selection === 'container') harness.draggedParts.add(container,{point:container.location.copy()});
+    else {
+      harness.draggedParts.add(from,{point:from.location.copy()});
+      harness.draggedParts.add(to,{point:to.location.copy()});
+      if(selection === 'nodes and link') harness.draggedParts.add(link,{point:link.location.copy()});
+    }
+    harness.activate();
+    assert.ok(diagram.__effectiveDraggedNodeKeys.has('from'));
+    assert.ok(diagram.__effectiveDraggedNodeKeys.has('to'));
+    const endpoints=diagram.__linkRouteEndpointsBeforeMove.get('link');
+    if(selection === 'container') container.move(container.position.copy().offset(dx,dy));
+    else {
+      from.move(from.position.copy().offset(dx,dy));
+      to.move(to.position.copy().offset(dx,dy));
+    }
+    from.ensureBounds();to.ensureBounds();harness.keepLinkRoutesDuringDrag();
+    const deltaFrom={dx:from.location.x-endpoints.from.x,dy:from.location.y-endpoints.from.y};
+    const deltaTo={dx:to.location.x-endpoints.to.x,dy:to.location.y-endpoints.to.y};
+    assert.equal(deltaFrom.dx,dx,'source delta');
+    assert.equal(deltaTo.dx,dx,'target delta');
+    assert.equal(deltaFrom.dy,dy,'source y delta');
+    assert.equal(deltaTo.dy,dy,'target y delta');
+    assert.ok(harness.linkRoutesAtDragStart.has('link'),'route captured');
+    const expected=original.map((v,i)=>v+(i%2===0?dx:dy));
+    assert.deepEqual(link.points.toArray().flatMap(p=>[p.x,p.y]),expected,'live preview translates every bend');
+    const final=module.exports.shiftManualLinkEndpointSegments(diagram.__manualLinkPointsBeforeMove.get('link'),{moveFrom:deltaFrom,moveTo:deltaTo});
+    assert.deepEqual(Array.from(final),expected);
+    const finalRoutes=new Map([['link',final]]);
+    for(let i=0;i<3;i++)assert.deepEqual(Array.from(module.exports.delayed(finalRoutes,'link')),expected,'delayed callback must use the final route, not the pre-drag snapshot');
+  }
+});
+
+}
+
+for (const contentsOnly of [false, true]) {
+test(`paste ${contentsOnly ? 'contents into the same container' : 'container with contents'} preserves membership and 0.8 member scales`, () => {
+  const metis = new akm.cxMetis('paste-project','Paste','');
+  const mm = new akm.cxMetaModel('paste-mm','MM','');
+  const model = new akm.cxModel('paste-model','Model',mm,'');
+  const modelview = new akm.cxModelView('paste-mv','View',model,'');
+  model.addModelView(modelview);metis.addModel(model);metis.addMetamodel(mm);
+  metis.currentModel=model;metis.currentModelview=modelview;metis.currentMetamodel=mm;
+  const runtime = new gjs.goModel('paste-runtime','runtime',modelview);metis.gojsModel=runtime;
+  const diagram = new go.Diagram();
+  diagram.groupTemplate = new go.Group('Auto').add(new go.Shape('Rectangle',{width:400,height:250,fill:'white'}));
+  diagram.nodeTemplate = new go.Node('Auto').bind('scale','scale1').add(new go.Shape('Rectangle',{width:100,height:50}).bind('fill','fillcolor'),new go.TextBlock().bind('text','name'));
+  const types = ['Container','Role','View'].map(name => {
+    const type=new akm.cxObjectType(`type-${name}`,name,'');
+    type.typeview=new akm.cxObjectTypeView(`style-${name}`,name,type,'');
+    type.typeview.data.fillcolor='orange';type.typeview.data.template='';
+    if(name==='Container')type.typeview.setViewKind('Container');
+    mm.addObjectType(type);metis.addObjectType(type);return type;
+  });
+  const views=types.map((type,i)=>{
+    const object=new akm.cxObject(`obj-${i}`,type.name,type,'');model.addObject(object);metis.addObject(object);
+    const view=new akm.cxObjectView(`view-${i}`,type.name,object,'',modelview);
+    if(i===0)view.memberscale=0.8;else view.scale=0.8;
+    view.loc=`${50+i*100} ${50+i*40}`;view.size=i===0?'400 250':'100 50';view.group=i===0?'':'view-0';
+    modelview.addObjectView(view);metis.addObjectView(view);
+    const node=new gjs.goObjectNode(view.id,runtime,view);node.loadNodeContent(runtime);runtime.addNode(node);return view;
+  });
+  const reltype=new akm.cxRelationshipType('paste-reltype','refersTo',types[1],types[2],'');
+  reltype.typeview=new akm.cxRelationshipTypeView('paste-relstyle','refersTo',reltype,'');
+  const rel=new akm.cxRelationship('paste-rel',reltype,views[1].object,views[2].object,'refersTo','');
+  const relview=new akm.cxRelationshipView('paste-relview','refersTo',rel,'');
+  relview.fromObjview=views[1];relview.toObjview=views[2];
+  model.addRelationship(rel);metis.addRelationship(rel);modelview.addRelationshipView(relview);metis.addRelationshipView(relview);
+  diagram.model=new go.GraphLinksModel(runtime.nodes,[{key:relview.id,from:views[1].id,to:views[2].id,fromLink:{key:relview.id},points:[150,100,200,100,200,140,250,140]}]);
+  diagram.model.linkKeyProperty='key';
+  diagram.dispatch=()=>{};
+  for(const view of views) {
+    const node=diagram.findNodeForKey(view.id),data=node.data;
+    data.fromModelview=modelview;data.fromGoModel=runtime;
+    data.fromNode={key:view.id,objid:view.object.id,objviewid:view.id,group:view.group,isGroup:view.isGroup,memberscale:1,loc:view.loc,size:view.size};
+  }
+  const source=readFileSync(new URL('../gojs/GoJSApp.tsx',import.meta.url),'utf8');
+  const start=source.indexOf("case 'ClipboardPasted': {");
+  const end=source.indexOf("case 'LayoutCompleted': {",start);
+  const module={exports:{}};
+  const scaleHelpers=['getGroupMemberScale','getAncestorMemberScaleProduct','getDerivedScaleForGroup','getRenderedPartScale','getRenderedTextScale','getRelationshipTextScale','syncRelationshipTextScaleForObjectView','applyDerivedScaleToPart'].map(name=>{
+    const a=source.indexOf(`function ${name}(`);return source.slice(a,source.indexOf('\nfunction ',a+1));
+  }).join('\n');
+  vm.runInNewContext(ts.transpileModule(`${scaleHelpers} function paste(e,myDiagram,myMetis,myModel,myModelview,myGoModel){
+    const modifiedRelships=[],modifiedRelshipViews=[];
+    const normalizeLinkPoints=points=>Array.isArray(points)?points:points?.toArray().flatMap(p=>[p.x,p.y]);
+    switch('ClipboardPasted'){${source.slice(start,end)}}
+  } module.exports=paste;`,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{
+    module,go,akm,gjs,jsn,uic:loadKernel('ui_common'),utils:loadKernel('utilities'),debug:false,
+    isGroupLikeNode:()=>false,
+    attachPartToGroup:(d,p,g)=>g.addMembers(new go.Set().add(p),true),
+  });
+  const copied=[];diagram.nodes.each(node=>{if(!contentsOnly || !(node instanceof go.Group))copied.push(node);});
+  diagram.selectCollection(copied);diagram.commandHandler.copySelection();
+  let pasted;
+  diagram.addDiagramListener('ClipboardPasted',event=>{
+    pasted=event.subject;module.exports(event,diagram,metis,model,modelview,runtime);
+  });
+  diagram.commandHandler.pasteSelection(new go.Point(550,100));
+  const nodes=[];pasted.each(part=>{if(part instanceof go.Node)nodes.push(part);});
+  assert.equal(nodes.length,contentsOnly?2:3);
+  const parent=contentsOnly?diagram.findNodeForKey('view-0'):nodes.find(n=>n instanceof go.Group);
+  assert.ok(parent);
+  for(const node of nodes){
+    assert.equal(diagram.findNodeForKey(node.data.key),node,'GoJS must index the final pasted ID');
+    assert.notEqual(node.data.key, node.data.name==='Container'?'view-0':node.data.name==='Role'?'view-1':'view-2');
+    assert.ok(node.data.object?.type?.id,'pasted nodes retain their object types');
+    if(node!==parent){
+      assert.equal(node.containingGroup,parent);assert.equal(node.data.objectview.group,parent.key);
+      assert.equal(node.scale,0.8,'pasted child is visibly scaled');
+      assert.equal(node.data.scale1,0.8);assert.equal(node.data.objectview.scale,0.8);
+      assert.equal(runtime.findNode(node.key).scale,0.8);
+      assert.equal(new jsn.jsnObjectView(node.data.objectview).scale,0.8);
+    }
+  }
+  const pastedLinks=[];pasted.each(part=>{if(part instanceof go.Link)pastedLinks.push(part);});
+  assert.equal(pastedLinks.length,1);
+  assert.equal(pastedLinks[0].fromNode.containingGroup,parent);
+  assert.equal(pastedLinks[0].toNode.containingGroup,parent);
+  assert.equal(diagram.findLinkForKey(pastedLinks[0].data.key),pastedLinks[0]);
+  assert.equal(pastedLinks[0].data.textscale,0.8,'pasted relationship label inherits member scale');
+  assert.equal(model.relships.length,2,'pasted relationship is included in persistence');
+  assert.equal(views[0].group,'');
+  assert.equal(views[1].group,'view-0');assert.equal(views[2].group,'view-0');
+});
+
+}
+
+test('Reload retains a saved ordinary link route while endpoint bounds settle', () => {
+  const source=readFileSync(new URL('../gojs/tools/PreservedSelfLink.ts',import.meta.url),'utf8');
+  const module={exports:{}};
+  vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,
+    {module,exports:module.exports,require:()=>go});
+  const saved=[201,130.5,211,130.5,300,130.5,300,430.5,490,430.5,500,430.5];
+  const snapshot=JSON.stringify({class:'GraphLinksModel',nodeDataArray:[
+    {key:'role',loc:'100 100'},{key:'task',loc:'500 400'},
+  ],linkDataArray:[{key:'manages',from:'role',to:'task',routing:'Orthogonal',__manualPath:true,points:saved}]});
+  const diagram=new go.Diagram();
+  diagram.nodeTemplate=new go.Node('Auto').bind('location','loc',go.Point.parse)
+    .add(new go.Shape('Rectangle',{width:100,height:60,portId:''}));
+  diagram.linkTemplate=new module.exports.PreservedSelfLink({routing:go.Link.Orthogonal,adjusting:go.Link.End}).add(new go.Shape());
+  diagram.model=go.Model.fromJson(snapshot);diagram.model.linkKeyProperty='key';
+  diagram.nodes.each(node=>node.ensureBounds());const link=diagram.links.first();
+  for(let pass=0;pass<3;pass++) {
+    diagram.nodes.each(node=>node.updateTargetBindings());
+    link.invalidateRoute();link.updateRoute();
+    assert.deepEqual(link.points.toArray().flatMap(p=>[p.x,p.y]),saved,'Reload must not choose new bends or a new attachment side');
+  }
+  const translated=saved.map((value,i)=>value+(i%2===0?20:10));
+  diagram.__manualLinkMovePreview=new Map([['manages',translated]]);
+  link.invalidateRoute();link.updateRoute();
+  assert.deepEqual(link.points.toArray().flatMap(p=>[p.x,p.y]),translated,'active drag preview takes precedence over the saved route');
+  delete diagram.__manualLinkMovePreview;
+  diagram.model.setDataProperty(link.data,'points',translated);
+  link.invalidateRoute();link.updateRoute();
+  assert.deepEqual(link.points.toArray().flatMap(p=>[p.x,p.y]),translated);
+});
+
+test('Reload materialization drops temporary drawing-edge ports on automatic ordinary links', () => {
+  const {object,objectview,relationshipview,modelview}=appearanceSetup();
+  const other=new akm.cxObject('reload-other','Task2',object.type,'');
+  const otherView=new akm.cxObjectView('reload-other-view','Task2',other,'',modelview);
+  relationshipview.fromObjview=objectview;relationshipview.toObjview=otherView;
+  relationshipview.routing='Orthogonal';relationshipview.__manualPath=false;relationshipview.points=[];
+  relationshipview.fromPortid='edge-right';relationshipview.toPortid='edge-top';
+  const runtime=new gjs.goModel('reload-runtime','Reload',modelview);
+  const from=new gjs.goObjectNode(objectview.id,runtime,objectview),to=new gjs.goObjectNode(otherView.id,runtime,otherView);
+  runtime.addNode(from);runtime.addNode(to);
+  const link=new gjs.goRelshipLink('reload-link',runtime,relationshipview);
+  link.fromNode=from;link.toNode=to;link.loadLinkContent(runtime);
+  assert.equal(link.fromPort,'');assert.equal(link.toPort,'','automatic reload must not force the original drawing edge');
+  relationshipview.fromPortid='output';relationshipview.toPortid='manager-input';
+  const named=new gjs.goRelshipLink('named-link',runtime,relationshipview);
+  named.fromNode=from;named.toNode=to;named.loadLinkContent(runtime);
+  assert.equal(named.fromPort,'output');assert.equal(named.toPort,'manager-input','explicit model ports stay intact');
+  relationshipview.__manualPath=true;relationshipview.fromPortid='edge-right';relationshipview.toPortid='edge-top';
+  const manual=new gjs.goRelshipLink('manual-link',runtime,relationshipview);
+  manual.fromNode=from;manual.toNode=to;manual.loadLinkContent(runtime);
+  assert.equal(manual.toPort,'edge-top','manual paths retain their chosen ports');
 });

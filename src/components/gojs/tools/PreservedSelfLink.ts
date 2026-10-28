@@ -5,13 +5,16 @@ import * as go from 'gojs';
 export class PreservedSelfLink extends go.Link {
   override computePoints(): boolean {
     const translated = (this.diagram as any)?.__translatedSelfLoopRoutes?.get(String(this.data?.key));
+    const preview = (this.diagram as any)?.__manualLinkMovePreview?.get(String(this.data?.key));
     const hasManualPath = this.data?.__manualPath || this.data?.relshipview?.__manualPath;
-    const route = [translated, ...(hasManualPath ? [this.data?.points, this.data?.relshipview?.points] : [])]
+    const route = [translated, ...(hasManualPath ? [preview, this.data?.points, this.data?.relshipview?.points] : [])]
       .map(source => source instanceof go.List
         ? source.toArray().flatMap((point: go.Point) => [point.x, point.y]) : source)
       .find(points => Array.isArray(points) && points.length >= 4 &&
         points.length % 2 === 0 && points.every(Number.isFinite));
-    if (this.fromNode && this.fromNode === this.toNode &&
+    // Bounds/bindings settle again during Reload. A saved ordinary route needs
+    // the same protection as a self-loop, or the router picks new attachment sides.
+    if (this.fromNode && this.toNode && (hasManualPath || this.fromNode === this.toNode) &&
         Array.isArray(route) && route.length >= 4 && route.length % 2 === 0 &&
         route.every(Number.isFinite)) {
       this.clearPoints();
